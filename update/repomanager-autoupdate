@@ -1,0 +1,83 @@
+#!/bin/bash
+# Script de mise à jour de repomanager
+# Ce script est appelé par la fonction update() de repomanager
+# Il télécharge la dernière archive tar.gz disponible, la décompresse et copie les fichiers et répertoires
+
+set -u
+source /etc/repomanager/vars/customs.vars
+source /etc/repomanager/vars/main.vars
+
+GITHUB_VERSION="$1"
+
+if [ -z "$GITHUB_VERSION" ];then
+    echo -e "[$ROUGE ERREUR $RESET] La variable contenant le numéro de version github est vide"
+    exit
+fi
+
+# On supprime le répertoire de travail si existe déjà, puis on le recrée vide
+rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
+mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/ &&
+cd /tmp/repomanager-update_${GITHUB_VERSION}/
+
+# Téléchargement de la nouvelle version :
+echo -ne " → Téléchargement de la nouvelle version :\t"
+wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors du téléchargement"
+    exit
+fi
+
+echo -ne " → Décompression de l'archive :\t"
+tar xzf repomanager_${GITHUB_VERSION}.tar.gz
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors de l'extraction"
+    exit
+fi
+
+# Copie des fichiers au bon endroits. On utilise rsync pour ne copier que la différence et ne pas risquer de supprimer des fichiers de l'utilisateur.
+cd repomanager &&
+echo -ne " → Mise à jour de ${WWW_DIR} :\t"
+rsync -a --quiet www/ ${WWW_DIR}/
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors de la mise à jour du répertoire '${WWW_DIR}'"
+    exit
+fi
+echo -ne " → Mise à jour de ${BASE_DIR} :\t"
+rsync -a --quiet ./ ${BASE_DIR}/ --exclude-from='.rsyncignore'
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors de la mise à jour du répertoire '${BASE_DIR}'"
+    exit
+fi
+echo -ne " → Mise à jour de ${ETC_DIR} :\t"
+rsync -a --quiet ./vars/main.vars ${ETC_DIR}/vars/main.vars
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors de la mise à jour du fichier de variables ${ETC_DIR}/vars/main.vars"
+    exit
+fi
+
+echo -ne " → Nettoyage :\t"
+echo -n "je suis à : "
+pwd
+echo "base dir : $BASE_DIR"
+cd "$BASE_DIR"
+echo -n "je suis à : "
+pwd
+rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf
+if [ $? -eq "0" ];then
+    echo -e "[$VERT OK $RESET]"
+else
+    echo -e "[$ROUGE ERREUR $RESET] lors de la suppression de /tmp/repomanager-update_${GITHUB_VERSION}/"
+    exit
+fi
+
+exec ${BASE_DIR}/repomanager

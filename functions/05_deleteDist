@@ -1,0 +1,56 @@
+# TEST :
+# WEB :
+# La fonction a besoin de 4 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de la distribution
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-dist)
+		REPO_DIST="$2"
+		shift
+	;;
+	*)
+	esac
+	shift
+done
+
+# On vérifie que le repo renseigné est bien présent dans le fichier repo_sys/spec.conf, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\"" ${LISTE_REPO};then
+	echo -e "\nErreur de syntaxe ou il n'existe aucune distribution ${CYAN}${REPO_DIST}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur..."
+	clean_exit
+fi
+
+echo -e "\nDébut de l'opération"
+sleep 1
+
+####
+
+echo -ne "Suppression de la distribution :\t"
+cd ${REPOS_DIR}/${REPO_NAME}/ &&
+rm "${REPO_DIST}" -rf &&
+echo -e "[$VERT OK $RESET]"
+
+####
+
+# On supprime le répertoire parent (repo) si celui-ci est vide après la suppression de la distribution :
+if [ -z "$(ls -A ${REPOS_DIR}/${REPO_NAME}/)" ];then
+	echo -ne "Suppression du répertoire du repo ${REPO_NAME} (vide) :\t"
+	rm -rf ${REPOS_DIR}/${REPO_NAME}/ &&
+	echo -e "[$VERT OK $RESET]"
+fi
+
+####
+
+# On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
+echo -ne "Mise à jour des informations dans repos.list :\t"
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${LISTE_REPO} &&
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${LISTE_REPO_ARCHIVE} &&
+echo -e "[$VERT OK $RESET]"
+
+# Comme on a a supprimé toute une distribution, on a forcément supprimé toutes ses sections. On retire donc toutes les occurences de la distribution dans le fichier de groupes
+sed -i /^Name=\"${REPO_NAME}\",Alias=\".*\",Dist=\"${REPO_DIST//\//\\/}\".*/d ${REPO_GROUPS_FILE}
+
+echo -e "${VERT}Opération terminée${RESET}"

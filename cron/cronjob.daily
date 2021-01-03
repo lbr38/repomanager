@@ -1,0 +1,48 @@
+# Actions regulières exécutées par cron ($WWW_USER)
+set -u
+
+# Charge les variables de repomanager
+source "/etc/repomanager/vars/customs.vars"
+source "/etc/repomanager/vars/main.vars"
+
+PERMS_ERROR=0
+CHECK_VERSION_ERROR=0
+LOG_DIR="${BASE_DIR}/cron/logs"
+LOG="${LOG_DIR}/cronjob.daily.log"
+
+# Vidage du fichier de log
+if [ -f "$LOG" ];then echo -n> "$LOG";fi
+
+# Vérification d'une nouvelle version disponible sur github
+# Récupère le numéro de version qui est publié sur github dans le fichier 'version'
+GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/alpha/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
+if [ -z "$GITHUB_VERSION" ];then
+    (( CHECK_VERSION_ERROR++ ))
+else
+    echo "# Version disponible sur github" > "${BASE_DIR}/cron/github.version"
+    echo "GITHUB_VERSION=\"$GITHUB_VERSION\"" >> "${BASE_DIR}/cron/github.version"
+fi
+
+# Réapplique les bons droits sur le répertoire parent des repos
+find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+if [ $? -ne "0" ];then 
+    (( PERMS_ERROR++ ))
+fi
+
+find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+if [ $? -ne "0" ];then 
+    (( PERMS_ERROR++ ))
+fi
+
+chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
+if [ $? -ne "0" ];then 
+    (( PERMS_ERROR++ ))
+fi
+
+if [ "$CHECK_VERSION_ERROR" -gt "0" ];then
+    echo "Problème lors de la vérification d'une nouvelle version" >> "$LOG"
+fi
+
+if [ "$PERMS_ERROR" -gt "0" ];then
+    echo "Problème lors de l'application des permissions" >> "$LOG"
+fi

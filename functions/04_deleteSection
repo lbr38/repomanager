@@ -1,0 +1,89 @@
+# TEST :
+# WEB :
+
+# La fonction a besoin de 4 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de la distribution
+# Le nom de la section
+# L'env de la section
+# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-dist)
+		REPO_DIST="$2"
+		shift
+	;;
+	--repo-section)
+		REPO_SECTION="$2"
+		shift
+	;;
+	--repo-env)
+		REPO_ENV="$2"
+		shift
+	;;
+	*)
+	esac
+	shift
+done
+
+# On vérifie que le repo renseigné est bien présent dans le fichier repos.list, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${LISTE_REPO};then
+	echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur..."
+	clean_exit
+fi
+
+# Récupération de la date de la section :
+REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')
+
+echo -e "\nDébut de l'opération"
+sleep 1
+
+####
+
+echo -ne "Suppression du lien symbolique :\t"
+cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST} &&
+unlink ${REPO_SECTION}_${REPO_ENV}
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la suppression du lien symbolique"
+	clean_exit
+fi
+
+####
+
+# On mets à jour les infos dans le fichier repos.list en supprimant la ligne du repo
+echo -ne "Mise à jour des informations dans repos.list :\t"
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO}
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la suppression des informations"
+	clean_exit
+fi
+
+####
+
+# Vérifications avant suppression définitive du miroir :
+if egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\",Date=\"${REPO_DATE}\"" ${LISTE_REPO};then
+	echo -e "La version du miroir est toujours utilisée pour d'autres environnements. Le miroir du ${REPO_DATE} n'est donc pas supprimé"
+else
+	# Suppression du miroir
+	echo -ne "Suppression du miroir :\t\t"
+    rm ${REPO_DATE}_${REPO_SECTION}/ -rf &&
+    echo -e "[$VERT OK $RESET]"
+fi
+
+# Si il n'y a plus du tout de trace de la section dans le fichier de conf, alors on peut supprimer son fichier de conf repo, et on peut la retirer des groupes où elle est présente
+if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\"" ${LISTE_REPO};then
+	# Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+	deleteConf --repo-name ${REPO_NAME} --repo-dist ${REPO_DIST} --repo-section ${REPO_SECTION}
+	# Suppression de la section si elle est présente dans le fichier de groupes
+	sed -i /^Name=\"${REPO_NAME}\",Alias=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\"/d ${REPO_GROUPS_FILE}
+fi
+
+echo -e "${VERT}Opération terminée${RESET}"

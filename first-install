@@ -1,0 +1,132 @@
+#!/bin/bash
+# Script de première installation des fichiers de repomanager
+# Permet de mettre en place les fichiers de configuration au bon endroit (copie dans /etc/...)
+# La configuration de repomanager.conf est effectuée par repomanager lui-même lors de sa première exécution
+
+# Si ce script est exécuté, c'est que l'archive a été extraite, on peut donc copier les fichiers au bon endroit
+
+set -u
+# Variables de couleurs :
+BLANC=$(tput setaf 7)
+GRIS=$(tput setaf 8)
+VERT=$(tput setaf 2)
+ROUGE=$(tput setaf 1)
+JAUNE=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+PWD=$(pwd)
+BASE_DIR=""
+WWW_DIR=""
+REPOS_DIR=""
+CONFIRM=""
+ASSUMEYES="0"
+# Si on passe le paramètre --yes au script alors on utilise tous les paramètres par défaut et on répond 'y' à toutes les questions ci-dessous
+while [ $# -ge 1 ];do 
+    case "$1" in 
+        --yes|-y)
+        ASSUMEYES="1"
+        ;;
+    esac
+	shift
+done
+
+
+## Répertoire d'installation de repomanager
+echo -e "\nRépertoire d'installation de repomanager (par défaut /home/repomanager/)"
+if [ "$ASSUMEYES" == "0" ];then
+    echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" BASE_DIR
+fi
+if [ -z "$BASE_DIR" ];then
+    BASE_DIR="/home/repomanager"
+fi
+if [ -d "$BASE_DIR" ];then
+    if [ "$ASSUMEYES" == "0" ];then
+        echo -n "Le répertoire $BASE_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "y" ];then
+            exit
+        fi
+    fi
+    # On supprime le contenu du répertoire 
+    rm "$BASE_DIR" -rf
+fi
+# Si le répertoire n'existe pas, on le crée
+if [ ! -d "$BASE_DIR" ];then
+    mkdir -p "$BASE_DIR"
+fi
+
+
+## Répertoire d'installation de www
+echo -e "\nRépertoire d'installation des fichiers web de repomanager (par défaut /var/www/repomanager/)"
+if [ "$ASSUMEYES" == "0" ];then
+    echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" WWW_DIR
+fi
+if [ -z "$WWW_DIR" ];then
+    WWW_DIR="/var/www/repomanager"
+fi
+if [ -d "$WWW_DIR" ];then
+    if [ "$ASSUMEYES" == "0" ];then
+        echo -n "Le répertoire $WWW_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "y" ];then
+            exit
+        fi
+    fi
+    # On supprime le contenu du répertoire 
+    rm "$WWW_DIR" -rf
+fi
+# Si le répertoire n'existe pas, on le crée
+if [ ! -d "$WWW_DIR" ];then
+    mkdir -p "$WWW_DIR"
+fi
+
+
+## Répertoire de stockage des repos
+echo -e "\nRépertoire de stockage des repos (par défaut /home/repo/)"
+if [ "$ASSUMEYES" == "0" ];then
+    echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" REPOS_DIR
+fi
+if [ -z "$REPOS_DIR" ];then
+    REPOS_DIR="/home/repo"
+fi
+if [ -d "$REPOS_DIR" ];then
+    if [ "$ASSUMEYES" == "0" ];then
+        echo -n "Le répertoire $REPOS_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "y" ];then
+            exit
+        fi
+    fi
+    # On supprime le contenu du répertoire 
+    rm "$REPOS_DIR" -rf
+fi
+# Si le répertoire n'existe pas, on le crée
+if [ ! -d "$REPOS_DIR" ];then
+    mkdir -p "$REPOS_DIR"
+fi
+
+
+# Création des répertoires de repomanager dans /etc/
+mkdir -p /etc/repomanager/vars/
+
+# Copie des fichiers de configuration
+cp "${PWD}/vars/main.vars" /etc/repomanager/vars/main.vars
+cp "${PWD}/vars/customs.vars" /etc/repomanager/vars/customs.vars
+echo -e "\nBASE_DIR=\"${BASE_DIR}\"
+REPOS_DIR=\"${REPOS_DIR}\"
+WWW_DIR=\"${WWW_DIR}\"" >> /etc/repomanager/vars/customs.vars
+
+# Copie des fichiers de repomanager (fonctions bash)
+cp -r ${PWD}/functions ${PWD}/cron ${BASE_DIR}/
+
+# Copie des fichiers web
+cp -r ${PWD}/www/* ${WWW_DIR}/
+
+# Copie du fichier de version actuelle
+cp version ${BASE_DIR}/
+
+# Copie puis création d'un lien symbolique vers le programme principal
+cp ${PWD}/repomanager ${BASE_DIR}/repomanager
+rm /usr/bin/repomanager -f
+ln -s ${BASE_DIR}/repomanager /usr/bin/repomanager
+chmod 700 ${BASE_DIR}/repomanager
+
+# Exécution de repomanager
+exec repomanager

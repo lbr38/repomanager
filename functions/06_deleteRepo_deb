@@ -1,0 +1,47 @@
+# Test
+# WEB :
+
+# La fonction a besoin de 4 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de la distribution
+# Le nom de la section
+# L'env de la section
+# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	*)
+	esac
+	shift
+done
+
+# On vérifie que le repo renseigné est bien présent dans le fichier repos.list, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\"" ${LISTE_REPO};then
+    echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO}${RESET} sur ce serveur..."
+    clean_exit
+fi
+
+
+echo -e "\nDébut de l'opération" 
+sleep 1
+
+####
+
+echo -ne "Suppression du repo :\t\t"
+cd ${REPOS_DIR}/ &&
+rm "${REPO_NAME}" -rf &&
+echo -e "[$VERT OK $RESET]"
+
+####
+
+echo -ne "Mise à jour des informations dans repos.list :\t"
+sed -i /^Name=\"${REPO_NAME}\"/d ${LISTE_REPO} &&   # On mets à jour les infos dans le fichier repos.list en supprimant la ligne du repo
+sed -i /^Name=\"${REPO_NAME}\"/d ${LISTE_REPO_ARCHIVE} &&   # On mets à jour les infos dans le fichier repo_old.conf en supprimant la ligne du repo
+echo -e "[$VERT OK $RESET]"
+
+# Comme on a a supprimé tout un repo, on a forcément supprimé toutes ses distributions et sections. On retire donc toutes les occurences du repo dans le fichier de groupes
+sed -i /^Name=\"${REPO_NAME}\".*/d ${REPO_GROUPS_FILE}
+
+echo -e "${VERT}Opération terminée${RESET}"

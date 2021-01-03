@@ -1,0 +1,138 @@
+# A TESTER
+# WEB :
+
+
+## Debian ##
+
+#if [ "$TTY" -eq "1" ];then
+#	echo -e "\nLa section sera créée en ${REPO_DEFAULT_ENV}. Attention son nom ne doit pas être en conflit avec une autre section.\n"
+#	echo -e "Format des liens sources : ${JAUNE}"
+#	echo -e "deb http://ftp.fr.debian.org/debian   stretch    main"
+#	echo -e "    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾"
+#	echo -e "           Origine et racine        Distribution  Section (main, contrib...) ${RESET}\n"
+#fi
+# La fonction a besoin de 4 paramètres pour fonctionner 
+# Le type de repo
+# Le nom du repo 
+# Le nom personnalisé si il y a
+# La description
+# Si aucun paramètre n'a été passé, alors on les demande :
+
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-host-name)
+		REPO_HOST_NAME="$2"
+		shift
+	;;
+	--repo-dist)
+		REPO_DIST="$2"
+		shift
+	;;
+	--repo-section)
+		REPO_SECTION="$2"
+		shift
+	;;
+	--gpg-check)
+		GPG_CHECK="$2"
+		shift
+	;;
+	--repo-description)
+		# on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+		shift
+		REPO_DESCRIPTION="$*"
+	;;
+	*)
+	esac
+	shift
+done
+if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+HOST_FULL_URL=$(grep "^Name=\"${REPO_HOST_NAME}\",Url=" $LISTE_REPO_ORIGINE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # Récupère l'url complète
+REPO_HOST=$(echo "$HOST_FULL_URL" | cut -d'/' -f1)
+REPO_RACINE=$(echo "$HOST_FULL_URL" | sed "s/${REPO_HOST}//g") # Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
+if [ -z "$REPO_RACINE" ] || [ -z "$REPO_HOST" ];then
+	echo -e "Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
+	clean_exit
+fi
+printf "%-40s %s" " URL complete"; echo -e " : ${VERT}http://${HOST_FULL_URL}${RESET}"
+printf "%-40s %s" " Nom d'hôte"; echo -e "  : ${VERT}${REPO_HOST}${RESET}"
+printf "%-40s %s" " Racine"; echo -e " : ${VERT}${REPO_RACINE}${RESET}"
+
+
+# On vérifie quand même que le repo n'existe pas déjà :
+if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\,Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then 
+	echo -e "[${ROUGE} ERREUR ${RESET}] La section existe déjà en ${REPO_DEFAULT_ENV} !"
+	clean_exit
+fi
+
+echo -e "\nDébut de l'opération"
+sleep 2
+
+####
+
+echo -ne "Création du répertoire :\t"
+mkdir -p "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
+	clean_exit
+fi
+
+####
+
+echo -e "Récupération des paquets .deb..."
+sleep 2
+cd "${REPOS_DIR}/${REPO_NAME}"/ &&
+# Dans le cas où on a précisé de ne pas vérifier les signatures GPG :
+if [ "$GPG_CHECK" == "no" ];then
+	/usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --root=${REPO_RACINE} --dist=${REPO_DIST} --host=${REPO_HOST} --section=${REPO_SECTION} --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup #--verbose --debug &&
+else # Dans tous les autres cas (même si rien n'a été précisé)
+	/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --root=${REPO_RACINE} --dist=${REPO_DIST} --host=${REPO_HOST} --section=${REPO_SECTION} --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup #--verbose --debug &&
+fi
+if [ $? -eq "0" ];then
+	echo -e "\nCréation du repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} terminé ${VERT}avec succès${RESET}"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] debmirror a rencontré un problème lors de la création du miroir"
+	echo -ne "Suppression de ce qui a été fait : "
+	rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} -rf &&
+	echo -e "[${VERT} OK ${RESET}]"
+	clean_exit
+fi
+
+####
+
+echo -ne "Création du lien symbolique :\t\t"
+cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
+ln -sf ${DATE_JMA}_${REPO_SECTION}/ ${REPO_SECTION}_${REPO_DEFAULT_ENV}
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
+	clean_exit
+fi
+
+####
+
+echo -ne "Ajout des informations dans repos.list :\t"
+echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $LISTE_REPO # On mets à jour les infos dans le fichier repos.list (par exemple)
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
+	clean_exit
+fi
+
+####
+
+echo -ne "Application des droits sur la section créée :\t"
+find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type f -exec chmod 0660 {} \;
+find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type d -exec chmod 0770 {} \;
+echo -e "[${VERT} OK ${RESET}]"
+
+# Génération du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+generateConf --repo-name ${REPO_NAME} --repo-dist ${REPO_DIST} --repo-section ${REPO_SECTION}
+
+echo -e "${VERT}Opération terminée${RESET}"

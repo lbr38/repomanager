@@ -1,0 +1,56 @@
+# TEST :
+# WEB : OK
+# TERMINAL : OK
+# La fonction a besoin de 4 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de la distribution
+# Le nom de la section
+# La date de la section
+# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+if [ $# -eq "0" ];then
+	listOldRepo
+	echo -e "Informations sur la section à supprimer :"
+	infoRepo "+repo-name" "+repo-dist" "+repo-section" "+repo-date"
+else # Sinon on les récupère dans des variables REPO_*
+	while [ $# -ge 1 ];do case "$1" in
+		--repo-name)
+			REPO_NAME="$2"
+			shift
+		;;
+		--repo-dist)
+			REPO_DIST="$2"
+			shift
+		;;
+		--repo-section)
+			REPO_SECTION="$2"
+			shift
+		;;
+		--repo-date)
+			REPO_DATE="$2"
+			shift
+		;;
+		*)
+		esac
+		shift
+	done
+fi
+if ! egrep -q "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${REPO_DATE}" ${LISTE_REPO_ARCHIVE};then
+	echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur..."
+    clean_exit
+fi
+if [ "$TTY" -eq "1" ];then
+	echo -ne "\nL'ancienne section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution ${CYAN}${REPO_DIST}${RESET}), à la date ${CYAN}${REPO_DATE}${RESET} va être ${ROUGE}supprimée${RESET}. Confirmer (oui/non) : ";	read -p "" CONFIRM
+	if [ "$CONFIRM" != "oui" ];then         # Si différent de oui, alors le script s'arrête
+		echo -e "Arrêt du script..."
+		clean_exit
+	fi
+fi
+echo -e "\nDébut de l'opération" && sleep 1 &&
+cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
+echo -ne "Suppression du vieux snapshot :\t" &&
+rm 99_old_version_${REPO_DATE}_${REPO_SECTION}/ -rf && # Suppression du snapshot
+echo -e "[$VERT OK $RESET]" &&
+echo -ne "Mise à jour des informations dans repo_old.conf :\t" &&
+sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:${REPO_DATE}/d ${LISTE_REPO_ARCHIVE} &&   # On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
+echo -e "[$VERT OK $RESET]"
+echo -e "${VERT}Opération terminée${RESET}"

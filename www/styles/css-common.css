@@ -1,0 +1,756 @@
+@font-face{ font-family: 'Source Sans Pro';                     src: url('../fonts/SourceSansPro-Light.otf')       format('truetype');	}
+@font-face{	font-family: 'Source Sans Pro Regular';             src: url('../fonts/SourceSansPro-Regular.otf')     format('truetype');	}
+@font-face{	font-family: 'Source Sans Pro SemiBold';            src: url('../fonts/SourceSansPro-Semibold.otf')    format('truetype');	}
+@font-face{	font-family: 'Source Sans Pro Light';               src: url('../fonts/SourceSansPro-Light.otf')       format('truetype');	}
+@font-face{	font-family: 'Source Sans Pro Extra Light';         src: url('../fonts/SourceSansPro-ExtraLight.otf')  format('truetype');	}
+@font-face{ font-family: 'Courrier New';                        src: url('../fonts/cour.ttf')                      format('truetype');	}
+@font-face{ font-family: 'Akira';                               src: url('../fonts/Akira Expanded Demo.otf')       format('truetype');	}
+@font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')       format('truetype');	}
+@font-face{ font-family: 'ethnocentric it';                     src: url('../fonts/ethnocentric rg it.ttf')       format('truetype');	}
+
+/* Codes couleurs  
+
+// inputs //
+
+
+
+// boutons //
+    boutons bleu : rgba(30, 60, 194, 0.712);
+    boutons bleu (hover) : 
+
+    boutons vert : 
+    boutons vert (hover) : 
+
+    boutons rouge : rgb(202, 0, 0);
+    boutons rouge (hover) : red;
+
+    boutons gris : #555555;
+    boutons gris (hover) : 
+
+
+// articles //
+    couleur de fond gris : background-color: #2b2b2b;
+    couleur de fond gris +foncé : background-color: #252525;
+
+*/
+
+
+
+body {
+    min-height: 100%;
+    font-family: Source Sans Pro Regular;
+    margin: 0;
+    padding: 0;
+    background-color: #333333;
+}
+
+a {
+	text-decoration: none;
+    color: whitesmoke;
+    font-size: 12px;
+}
+
+p, label {
+    font-size: 12px;
+    color: whitesmoke;
+}
+
+h1, h2, h3, h4, h5
+{
+	color: whitesmoke;
+}
+
+header
+{
+    width: 100%;
+    margin-bottom: 70px;
+    -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+}
+
+header h1
+{
+    font-family: 'ethnocentric';
+    margin-left: 20px;
+    display: inline-block;
+    color: whitesmoke;
+}
+
+header a {
+    font-size: 18px;
+}
+
+/* Affichage de version alpha/beta sous le titre du produit */
+#version {
+    width: 35px;
+    padding: 1px;
+    float: left;
+    position: absolute;
+    top: 43px;
+    left: 210px;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 9px;
+    font-weight: bold;
+    color: whitesmoke;
+    background-color:rgb(202, 0, 0);
+    border-radius: 1px;
+}
+
+#menu {
+    margin: auto;
+    display: block;
+    padding: 0; /* force padding à 0, sinon le navigateur ajoute un padding par défaut de 40px à gauche */
+}
+
+#menu li {
+	display: inline-block;
+	list-style: none;
+}
+
+#menu a {
+    margin-right: 60px;
+    position: sticky;
+}
+
+article.main {
+    width: 99%;
+    margin: auto; /* pour recentrer tout le bloc article */
+}
+
+.div-half-left {
+    width: 48%;
+    min-height: 250;
+    margin-bottom: 10;
+    padding: 10;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.div-half-right {
+    width: 48%;
+    min-height: 250;
+    margin-bottom: 10;
+    padding: 10;
+    display: inline-block;
+    vertical-align: top;
+    /*float: right;*/
+}
+
+article.center {
+    width: 99%;
+    margin: auto;
+    margin-bottom: 10;
+    padding: 10;
+    display: inline-block;
+    border-radius: 5px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    /*background-color:#3b3b3b;*/
+    background-color:#2b2b2b;
+}
+
+article.left {
+    width: 68%;
+    min-height: 250;
+    margin-bottom: 10;
+    padding: 10;
+    display: inline-block;
+    vertical-align:top;
+    border-radius: 5px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    /*background-color:#3b3b3b;*/
+    background-color:#2b2b2b;
+}
+
+article.right {
+    width: 29%;
+    min-height: 250;
+    margin-bottom: 10;
+    padding: 10;
+    /*display: inline-block;*/
+    vertical-align:top;
+    border-radius: 5px;
+    float: right;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+    /*background-color:#3b3b3b;*/
+    background-color:#2b2b2b;
+}
+
+article.right label {
+    font-size: 12px;
+    width: 100px;
+}
+
+article.right input {
+    width: 100%;
+}
+
+article.right input[type=radio] {
+    width: 20;
+}
+
+form.actionform {
+    padding: 5;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+     background-color:#333333;
+}
+
+table {
+    font-size: 12px;
+}
+
+.table-auto {
+    table-layout: auto !important;
+    display: inline-block;
+}
+
+.table-large {
+    width: 100%;
+}
+
+.table-medium {
+    width: 65%;
+}
+
+.table-medium-right {
+    width: 50%;
+    display: inline-block;
+    float: right;
+}
+
+table.actiontable { /* réservé aux tableaux d'actions (opérations) sur la page d'index */
+    width: 100%;
+}
+
+table thead, .reposListHead {
+    font-weight: bold;
+}
+
+table.list-repos {
+    width: 100%;
+    font-family: 'Courier New';
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+table.list-repos td {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.list-repos tr.color1 td { 
+    color: var(--color1);
+}
+
+.list-repos tr.color2 td { 
+    color: var(--color2);
+}
+
+.hide {
+    display: none;
+}
+
+.divGroupsList, .divManageReposSources {
+    width: 100%;
+    display: none;
+    min-height: 300px;
+    max-height: 400px;
+    position: fixed;
+    bottom: 0;
+    padding-left: 10;
+    padding-right: 10;
+    padding-bottom: 10;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+     background-color:#333333;
+    overflow: scroll; /* si le contenu dépasse la limite (max-height), une scrollbar sera mise en place */
+}
+
+table.configuration-table {
+    width: 100%;
+}
+
+td {
+    color: whitesmoke;
+}
+
+.tr-hide { /* Lignes de tableau cachées par défaut (ex: planifications.php) */
+    display: none;
+}
+
+.td-hide { 
+    display: none;
+}
+
+.td-auto {
+    width: auto !important;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.td-xsmall {
+    width: 50px;
+}
+
+.td-small {
+    width: 200px;
+}
+
+.td-medium {
+    width: 500px;
+}
+
+table td.table-title {
+    background-color: #505050;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 20px;
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+#log {
+    font-size: 12px;
+    padding: 10px;
+}
+
+article.log {
+    width: 100%;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+     background-color:#3b3b3b;
+     color: whitesmoke;
+}
+
+.icon {
+    height: 12px;
+    margin-left: 5px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.li-operation-running {
+    background-color: #f44336;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 2px 10px;
+    text-align: center;
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.li-operation-running:hover {
+    transition-duration: 0.4s;
+    background-color: rgb(167, 3, 3);
+}
+
+.li-operation-not-running {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 2px 10px;
+    text-align: center;
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.li-operation-not-running:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+.divReposConf, .divGroupsList, .divReposSources, .divReposListDisplay, .divManageReposSources {
+    display: none;
+}
+
+.divReposConf {
+    color: whitesmoke;
+    font-size: 10px;
+    padding: 5px;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+     background-color: #333333;
+}
+
+.divReposConf:hover
+{
+    transition-duration: 0.4s;
+    background-color: #2e2e2e;
+}
+
+.divReposSources, .divReposListDisplay {
+    color: whitesmoke;
+    padding: 5px;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+     background-color: #252525;
+}
+
+.divReposSources textarea {
+    min-height: 300px;
+}
+
+.divReposListDisplay {
+    font-size: 10px;
+    margin-bottom: 20px;
+}
+
+
+/* form, button, input, textarea */
+
+input[type=text], input[type=date], input[type=time], input[type=number], select {
+    width: 100%;
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: whitesmoke;
+    background-color:#474747;
+}
+
+input[type=text].input-small {
+    width: 100px;
+}
+
+input[type=text].input-medium {
+    width: 150px;
+}
+
+input[type=text].input-large {
+    width: 250px;
+}
+
+.button-operations-large {
+    background-color: #555555;
+    border: none;
+    border-radius: 2px;
+    width: 100%;
+    margin: 1;
+    color: whitesmoke;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    text-align: left;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-large {
+    background-color: #555555;
+    border: none;
+    border-radius: 2px;
+    width: 100%;
+    margin: 1;
+    color: whitesmoke;
+    padding: 4px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-xsmall {
+    background-color: #505050;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    width: 40px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-small {
+    background-color: #505050;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-large-red {
+    background-color: rgb(202, 0, 0);
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-large-red:hover {
+    transition-duration: 0.4s;
+    background-color: red;
+}
+
+.button-submit-large-green {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-large-green:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+.button-submit-medium-green {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-medium-green:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+.button-submit-small-green {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 100px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-small-green:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+.button-submit-xsmall-green {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 50px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-xsmall-green:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+.button-submit-large-blue {
+    background-color: rgba(30, 60, 194, 0.712);
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-medium-blue {
+    background-color: rgba(30, 60, 194, 0.712);
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 10px;
+    width: 150px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-submit-xsmall-blue {
+    background-color: rgba(30, 60, 194, 0.712);
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 3px;
+    margin-top: 1px;
+    width: 50px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.button-xsmall:hover, .button-small:hover, .button-large:hover, .button-action:hover, .button-operations-large:hover {
+    background-color: #505050;
+}
+
+/* Menu gestion des profils */
+input[type=text].invisible_input {
+    width: 80px;
+    border: none;
+    background-color: #3b3b3b;
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    font-size: 12px;
+    color: whitesmoke;
+    background-color:#3b3b3b;
+}
+
+form.profileForm td {
+    font-size: 12px;
+}
+
+.div-inline {
+    display: inline-block;
+}
+
+.div-inline-right {
+    display: inline-block;
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.div-flex {
+    display: flex;
+    justify-content: space-between;
+    vertical-align: top;
+}
+
+/* CSS pour journal.php */
+#scrollLock {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+
+.img-square {
+    width: 8px;
+    background-color: #555555;
+    border: none;
+    border-radius: 2px;
+    padding: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+footer {
+    height: 400px;
+    margin-top: 100px;
+    padding: 10px; /* marge intérieur */
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    background-color:#2b2b2b;
+}
+
+footer p {
+    color: gray;
+}
+
+#github img { /* lien vers github dans le footer */
+    width: 25px;
+}
+
+#planCronStatus h5, img {
+    display: inline-block;
+}
+
+#planCronStatus img {
+    width: 8px;
+    float: right;
+}
+
+#ReposListDisplayToggle:hover .hide, #reposSourcesToggle:hover .hide, #GroupsListToggle:hover .hide {
+    display: inline-block;
+    font-weight: bold;
+}
+
+#ReposListDisplayToggle:hover, #reposSourcesToggle:hover, #GroupsListToggle:hover {
+    padding-left: 8px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    background-color:#252525;
+    border-radius: 5px;
+}
+
+.alert { /* div affichant une alerte au milieu de la page lorsqu'une action n'aboutie pas */
+    width: 300px;
+    height: 50px;
+    border-radius: 5px;
+    position: fixed; /* on positionne le div au centre de la page */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    background-color:#252525;
+    color: whitesmoke;
+    text-align: center;
+    vertical-align: middle;
+}

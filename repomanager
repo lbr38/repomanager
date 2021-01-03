@@ -1,0 +1,461 @@
+#!/bin/bash
+set -u
+export LC_ALL="fr_FR.UTF-8" # Afin que crontab exécute ce script avec des locales en français
+export TERM="xterm-256color"
+export COLUMNS=190
+export GPG_TTY=$(tty)
+
+
+## ↓ VARIABLES ↓ ##
+# Import de toutes les variables nécéssaires au script
+if [ -f "/etc/repomanager/vars/customs.vars" ];then
+	source "/etc/repomanager/vars/customs.vars"
+else
+	echo "Erreur : impossible de trouver le fichier de variables customs.vars"
+	exit
+fi
+
+if [ -f "/etc/repomanager/vars/main.vars" ];then
+	source "/etc/repomanager/vars/main.vars"
+else
+	echo "Erreur : impossible de trouver le fichier de variables main.vars"
+	exit
+fi
+
+if [ -z "$OS_TYPE" ];then echo -e "[$JAUNE ERREUR ${RESET}] L'OS de cette machine n'a pas été reconnu (Debian, Redhat...)";clean_exit;fi
+
+
+## ↓ FONCTIONS ↓ ##
+
+print_help() { 
+SEP
+echo -e "\n
+Paramètres disponibles :
+    --repo          ➤  Afficher la liste des repos actuellement installés en prod et en test,
+    --oldrepo       ➤  Afficher la liste des repos archivés,
+    
+    --no-gpg-check  ➤  Désactiver la vérification de la signature des paquets lors du clonage d'un repo,
+    --check|-c      ➤  Vérification des fichiers de conf du script,
+
+    Opérations automatiques :   
+    --auto          ➤  Exécute automatiquement les tâches planifiées dans repomanager.conf
+    --suppr-auto    ➤  Supprime automatiquement les anciennes versions de repos archivées, en fonction de la retention renseignée dans repomanager.conf"
+SEP
+}
+
+nettoyage_fichier_conf() {    # Retire les commentaires et les lignes vides du fichier passé en paramètre et le renvoi dans le fichier $CONF_NETTOYEE
+CONF_NETTOYEE="/tmp/repomanager_conf_clean.txt"                 	# Ce fichier est destiné à récupérer le contenu du fichier de conf sans les commentaires ni espaces blancs
+echo -n> "$CONF_NETTOYEE"
+sed "/^[ \t]*#.*/d" $CONF | sed "/^[ \t]*$/d" > "$CONF_NETTOYEE"    # Suppression des commentaires et espaces blancs du fichier de liste passé en argument
+CONF="$CONF_NETTOYEE"                                               # La variable $CONF devient le fichier de liste nettoyé précedemment
+}
+
+install() { 
+	source "${FUNCTIONS}/00_install"
+}
+
+checkDependencies() { 
+	source "${FUNCTIONS}/00_checkDependencies"
+}
+
+# Vérifiction de la conf repomanager.conf
+checkConf() { 
+	source "${FUNCTIONS}/00_checkConf"
+}
+
+# Récupération de la conf repomanager.conf
+getConf() {
+	source "${FUNCTIONS}/00_getConf"
+}
+
+traitement_planif() {
+	source "${FUNCTIONS}/traitement_planif"
+}
+
+traitement_nettoyage() {
+echo -n > /tmp/repomanager_reposuppr.txt
+
+# Si le paramètre retention n'est pas présent dans le fichier de conf, on arrête le script
+if ! grep -q "^RETENTION=" "$CONF";then
+	clean_exit
+fi
+
+# Sinon on le récupère et on continue normalement
+RETENTION=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | grep "^RETENTION=" | awk -F= '{print $2}')
+
+echo -e "\nNettoyage automatique en cours"
+# On récupère la liste de tous les vieux repos dans le fichier repos-archive.list (on garde le champ nom uniquement)
+LISTE_DEPOTS=$(cat $LISTE_REPO_ARCHIVE | awk -F: '{print $1}' | sort -u) &&
+#echo "liste depots $LISTE_DEPOTS"
+# Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
+for REPO in $(echo "$LISTE_DEPOTS");do
+	grep "^${REPO_NAME}:" $LISTE_REPO_ARCHIVE | awk -F: '{print $3}' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > /tmp/repomanager_parsefile.tmp && # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
+	if [ -s "/tmp/repomanager_parsefile.tmp" ];then # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
+		for DATE in $(cat /tmp/repomanager_parsefile.tmp);do
+			echo " Suppression du vieux repo $REPO_NAME en date du $REPO_DATE" &&
+			rm ${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME} -rf &&
+			grep "^$REPO_NAME:$REPO_DATE" $LISTE_REPO_ARCHIVE >> /tmp/repomanager_reposuppr.txt &&
+			sed -i /^$REPO_NAME:$REPO_DATE/d $LISTE_REPO_ARCHIVE &&
+			MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
+		done
+	fi
+done
+}
+
+listRepo() {
+	source "${FUNCTIONS}/98_listRepo"
+}
+
+listOldRepo() {
+	source "${FUNCTIONS}/98_listOldRepo"
+}
+
+espace_disque() {
+echo -ne "\nEspace restant sur le serveur : "
+ESPACE_DISQUE=$(df | egrep "/$" | awk '{print $4}')   # Affichage de l'espace restant sur /home
+if [ $ESPACE_DISQUE -lt 50000000 ];then
+    echo -ne "${ROUGE}"
+    df -h | egrep "/$" | awk '{print $4}'
+    echo -ne "${RESET}"
+elif [ $ESPACE_DISQUE -lt 100000000 ];then
+    echo -ne "${JAUNE}"
+    df -h | egrep "/$" | awk '{print $4}'
+    echo -ne "${RESET}"
+else
+    df -h | egrep "/$" | awk '{print $4}'
+fi
+
+echo ""
+}
+
+newRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/01_newRepo-deb";fi
+}
+
+updateRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/02_updateRepo-rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/02_updateRepo-deb";fi
+}
+
+duplicateRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/03_duplicateRepo-rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/03_duplicateRepo-deb";fi
+}
+
+changeEnv() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/03_changeEnv-rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/03_changeEnv-deb";fi
+}
+
+# only for Debian
+deleteSection() { 
+	source "${FUNCTIONS}/04_deleteSection"
+}
+
+# only for Debian
+deleteDist() { 
+	source "${FUNCTIONS}/05_deleteDist" 
+}
+
+deleteRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/06_deleteRepo_rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/06_deleteRepo_deb";fi
+}
+
+deleteOldRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/07_deleteOldRepo_rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/07_deleteOldRepo_deb";fi
+}
+
+restoreOldRepo() {
+	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/08_restoreOldRepo_rpm";fi
+	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/08_restoreOldRepo_deb";fi
+}
+
+generateConf() {
+	source "${FUNCTIONS}/09_generateConf"
+}
+
+deleteConf() {
+	source "${FUNCTIONS}/09_deleteConf"
+}
+
+sortLists() {
+	source "${FUNCTIONS}/98_sortLists"
+}
+
+update() {
+	source "${FUNCTIONS}/99_update"
+}
+
+permissions() {
+	source "${FUNCTIONS}/100_permissions"
+}
+
+# à vérifier
+rapport_mail() {
+if [ ! -z "$MSG_ERREUR" ] || [ ! -z "$MSG_ERREUR_VERIF_CONF" ];then # Si l'une de ces 2 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un message d'erreur
+	echo -e "$MSG_GLOBAL" | mutt -s "[ERREUR] Synchronisation automatique des repos sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+else
+	echo -e "$MSG_GLOBAL" | mutt -s "Synchronisation automatique des repos sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+fi
+}
+
+rappel_mail() {
+echo -e "$MSG_RAPPEL" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${HOSTNAME}" $EMAIL_DEST
+}
+
+clean_exit() {
+# Retour au répertoire de base, pour ne pas empêcher un quelconque nettoyage de répertoire
+cd "$BASE_DIR"
+
+# En mode auto script lancé par cron), on concatene tous les messages d'erreurs rencontrés dans 1 message global afin de l'envoyer par mail :
+if [ "$TTY" -eq "0" ];then
+	# On commence par les messages d'erreur de conf
+	if [ ! -z "$MSG_ERREUR_VERIF_CONF" ];then
+		MSG_GLOBAL="${MSG_GLOBAL}\n${MSG_ERREUR_VERIF_CONF}\n${MSG_ERREUR}\n"
+	fi
+
+	# On ajoute aussi les messages de repos supprimés même si ce n'est pas une erreur
+	if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
+        MSG_GLOBAL="${MSG_GLOBAL}\n Anciens repos supprimés :\n$MSG_INFO_SUPPR_AUTO"
+	fi
+
+	if [ ! -z "$MSG_GLOBAL" ];then
+		rapport_mail
+	fi
+fi
+
+# On tri le contenu des fichiers de listes
+sortLists
+
+# On réapplique les droits afin qu'ils soient d'aplomb pour la prochaine exécution
+permissions
+
+# Suppression des fichiers temporaires utilisés pendant l'opération
+rm /tmp/repomanager* -fr
+rm /tmp/${WWW_USER}_crontab.tmp -f
+
+# Suppression du script d'installation
+rm "${BASE_DIR}"/install -f
+
+# Suppression du répertoire de mise à jour si une mise à jour a eu lieu
+rm "${BASE_DIR}"/update -fr
+
+# Suppression des fichiers ignore si il y en a
+rm "${BASE_DIR}"/.*ignore -fr
+
+exit
+}
+
+
+## TRAITEMENT ##
+
+# Si le paramètre --web a été passé alors on indique au script qu'il n'y a pas de terminal ouvert sur le serveur
+if [ $# -ge 1 ];then if [ "$1" == "--web" ];then TTY="0";fi;fi
+
+# Crée les répertoire de base si n'existent pas
+mkdir -p "${BASE_DIR}"
+mkdir -p "${REPOS_DIR}"
+
+# Création du répertoire de logs si n'existe pas
+mkdir -p "${LOGS_DIR}/"
+
+# Vidage des fichiers de logs
+echo -n> "$LOG"
+chmod 660 "$LOG"
+
+# On écrit tout ce qu'il se passe dans le fichier de log
+exec &> >(tee -a "$LOG")
+
+# On récupère les infos sur la précédente exécution du script dans le fichier de log précédent
+if [ -f "${LOGS_DIR}/lastlog.log" ];then
+	LAST_EXECUTION_DATE=$(readlink -f ${LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $2}')
+	LAST_EXECUTION_DATE=$(date -d"$LAST_EXECUTION_DATE" +%d-%m-%Y)
+	LAST_EXECUTION_TIME=$(readlink -f ${LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
+	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%M:%Ss)
+	LAST_EXECUTION_USER="$(cat ${LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
+	LAST_EXECUTION_MESSAGE="${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
+else
+	LAST_EXECUTION_MESSAGE="N/A"
+fi
+
+# Puis on recrée un lien symbolique 'lastlog.log' pointant vers le fichier de log en cours
+if [ -f "${LOGS_DIR}/lastlog.log" ];then unlink "${LOGS_DIR}/lastlog.log";fi
+ln -sf "$LOG" "${LOGS_DIR}/lastlog.log"
+
+# Affichage du logo ASCI repomanager
+cat "${FUNCTIONS}/logo"                                                            
+
+# Affichage de la version en cours et vérification de la disponibilité d'une nouvelle version sur github
+printf "%-30s %s" " │  ${JAUNE}Version" "${RESET}: $VERSION "
+
+if [ -f "${BASE_DIR}/cron/github.version" ];then
+	GITHUB_VERSION=$(grep '^GITHUB_VERSION=' ${BASE_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/"//g')
+fi
+if [ -z "$GITHUB_VERSION" ];then
+    echo ""
+# Compare la version de github avec la version actuelle :
+elif [ "$VERSION" != "$GITHUB_VERSION" ];then
+	UPDATE_AVAILABLE="1"
+    echo -e "(${JAUNE}nouvelle version disponible sur github${RESET})"
+else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une ligne
+    echo ""
+fi
+
+if [ "$OS_TYPE" == "Redhat" ];then
+	printf "%-30s %s\n" " │  ${JAUNE}OS" "${RESET}: Redhat/CentOS"
+	printf "%-30s %s\n" " │  ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
+fi
+
+if [ "$OS_TYPE" == "Debian" ];then
+	printf "%-30s %s\n" " │  ${JAUNE}OS" "${RESET}: Debian"
+	printf "%-30s %s\n" " │  ${JAUNE}Paquets gérés" "  ${RESET}: deb"
+fi
+WHOAMI=$(whoami)
+printf "%-30s %s\n" " │  ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
+printf "%-30s %s\n" " │  ${JAUNE}Dernière exécution" " ${RESET}: $LAST_EXECUTION_MESSAGE"
+echo -e " │\n │\n │"
+
+# On vérifie la conf générale de repomanager.conf ainsi que la cohérence des infos dans les fichiers repos.list et repo_spec.conf avant de commencer
+checkConf
+# Récupération de la conf si celle-ci a été validée par checkConf
+getConf
+
+permissions
+
+# Si la mise à jour automatique est activée et qu'une mise à jour est disponible (testée plus haut), alors on mets à jour repomanager
+if [ "$UPDATE_AUTO" == "yes" ] && [ "$UPDATE_AVAILABLE" -eq "1" ];then
+	update
+fi
+
+# Réinitialisation des variables qui aurait pu être utilisées pour la vérif de la conf
+REPO_NAME=""
+REPO_ALIAS=""
+REPO_REALNAME=""
+REPO_HOST=""
+REPO_RACINE=""
+REPO_DIST=""
+REPO_SECTION=""
+REPO_ENV=""
+REPO_DATE=""
+REPO_DESCRIPTION=""
+
+
+while [ $# -ge 1 ];do
+	case "$1" in
+		--help|-help|-h)
+            print_help
+            clean_exit
+       	;;
+		--repo|--list-repos|-r)
+        	listRepo
+	    	clean_exit
+    	;;
+		--oldrepo|--list-archived-repos|-ar|-or)
+			listOldRepo
+			clean_exit
+		;;
+		--check|-c) # Vérifie la conf (checkConf ci-dessus) et quittes le script
+	    	clean_exit
+    	;;
+		--web)
+			TTY="0"
+		;;
+		--check-update|-cu)
+			checkUpdate
+			clean_exit
+		;;
+		--update|--upgrade|-u)
+			update
+			clean_exit
+		;;
+## Paramètres d'opérations ##
+		--newRepo)
+			shift
+			newRepo $*
+			clean_exit
+		;;
+        --updateRepo)
+            shift           # on shift pour ne plus inclure --updateRepo parmi les paramètres
+    		updateRepo $*   # puis on appelle la fonction updateRepo avec tous les paramètres suivants
+			clean_exit
+        ;;
+        --changeEnv)
+            shift
+            changeEnv $*
+			clean_exit
+        ;;
+		--duplicateRepo)
+			shift
+			duplicateRepo $*
+			clean_exit
+		;;
+		--deleteRepo)
+			shift
+			deleteRepo $*
+			clean_exit
+		;;
+		--deleteDist)
+			shift
+			deleteDist $*
+			clean_exit
+		;;
+		--deleteSection)
+			shift
+			deleteSection $*
+			clean_exit
+		;;
+		--restoreOldRepo)
+			shift
+			restoreOldRepo $*
+			clean_exit
+		;;
+		--deleteOldRepo)
+			shift
+			deleteOldRepo $*
+			clean_exit
+		;;
+		--reset-install)
+			rm "$CONF" -f
+			install
+		;;
+		--install)
+			install
+		;;
+		--droits)
+			permissions
+			clean_exit
+		;;
+		--exec-plan)
+			traitement_planif $1
+			clean_exit
+		;;
+# anciens paramètres (à vérifier)
+		--auto)
+			EXEC_AUTO=1
+		;;
+        --suppr-auto)
+            SUPPR_AUTO=1
+        ;;
+       	*)
+       	echo "Unknown argument: $1"
+       	print_help
+        clean_exit
+       	;;
+    esac
+	shift
+done
+
+
+# pour le moment ne pas s'occuper de ces deux options automatiques :
+# if [ "$EXEC_AUTO" -eq "1" ];then
+#	traitement_planif
+#fi
+#
+#if [ "$SUPPR_AUTO" -eq "1" ];then
+	#traitement_nettoyage
+#fi
+
+clean_exit

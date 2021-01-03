@@ -1,0 +1,99 @@
+# TEST :
+# web :
+
+# La fonction a besoin de 4 paramètres pour fonctionner
+# Le nom du repo 
+# L'env du repo
+# Le nouveau nom du repo
+# Une description
+# Si aucun paramètre n'a été passé, alors on les demande :
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-env)
+		REPO_ENV="$2"
+		shift
+	;;
+	--repo-new-name)
+		REPO_NEW_NAME="$2"
+		shift
+	;;
+	--repo-description)
+		# on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+		shift
+		REPO_DESCRIPTION="$*"
+	;;
+	*)
+	esac
+	shift
+done
+if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+
+# On vérifie que le repo source (celui qui sera copié) existe bien :
+if ! grep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" "$LISTE_REPO";then
+	echo -e "Il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} en ${CYAN}${REPO_ENV}${RESET} sur ce serveur..."
+	clean_exit
+fi
+# On vérifie qu'un repo du même nom n'existe pas déjà à l'env par défaut $REPO_DEFAULT_ENV (car la copie crée forcément un nouveau repo à l'env par défaut)
+if grep -q "^Name=\"${REPO_NEW_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then # On vérifie qu'un repo du même nom n'existe pas déjà à l'env par défaut $REPO_DEFAULT_ENV (car la copie crée forcément un nouveau repo à l'env par défaut)
+	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${CYAN}${REPO_NEW_NAME}${RESET} (${CYAN}${REPO_DEFAULT_ENV}${RESET}) existe déjà..."
+	clean_exit
+fi
+
+
+# On récupère la date et le vrai nom du repo qu'on va dupliquer :
+REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" "$LISTE_REPO" | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
+REPO_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" "$LISTE_REPO" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+
+echo -e "\nDébut de l'opération"
+sleep 2
+
+####
+
+# Copie du répertoire avec le nouveau nom du repo
+echo -ne "\nCopie du repo : "
+cd ${REPOS_DIR}/ &&
+cp -r "${REPO_DATE}_${REPO_NAME}" "${REPO_DATE}_${REPO_NEW_NAME}"
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la copie du repo"
+	clean_exit
+fi
+
+####
+
+echo -ne "Création du lien symbolique :\t"
+ln -s "${REPO_DATE}_${REPO_NEW_NAME}/" "${REPO_NEW_NAME}_${REPO_DEFAULT_ENV}" # Le repo dupliqué est forcément créé à l'env par défaut $REPO_DEFAULT_ENV (pour respecter la chaine de tests)
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du lien symbolique"
+	clean_exit
+fi
+
+####
+
+echo -ne "Mise à jour des informations dans repos.list :\t"
+echo "Name=\"${REPO_NEW_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> "$LISTE_REPO"
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
+	clean_exit
+fi
+
+####
+
+echo -ne "Application des droits sur le nouveau repo créé :\t"
+find ${REPOS_DIR}/${REPO_DATE}_${REPO_NEW_NAME}/ -type f -exec chmod 0660 {} \;
+find ${REPOS_DIR}/${REPO_DATE}_${REPO_NEW_NAME}/ -type d -exec chmod 0770 {} \;
+chown -R ${WWW_USER}:repomanager ${REPOS_DIR}/${REPO_DATE}_${REPO_NEW_NAME}/
+echo -e "[${VERT} OK ${RESET}]"
+
+# Génération du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+generateConf --repo-name ${REPO_NEW_NAME}
+
+echo -e "${VERT}Opération terminée${RESET}"

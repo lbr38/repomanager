@@ -1,0 +1,61 @@
+
+if [ "$USER" == "root" ];then
+    # Droits sur le répertoire de repomanager
+    chown -R ${WWW_USER}:repomanager ${BASE_DIR}
+    find ${BASE_DIR}/ -type d -exec chmod 0770 {} \;
+    find ${BASE_DIR}/ -type f -exec chmod 0660 {} \;
+    chmod 770 ${BASE_DIR}/repomanager
+
+    # Droits sur les fichiers de conf de repomanager
+    find ${ETC_DIR}/ -type f -exec chmod 0660 {} \;
+    find ${ETC_DIR}/ -type d -exec chmod 0770 {} \;
+    chmod 775 ${ETC_DIR}
+    chown -R root:repomanager ${ETC_DIR}
+
+    # Droits sur le répertoire web
+    find ${WWW_DIR} -type f -exec chmod 0660 {} \;
+    find ${WWW_DIR} -type d -exec chmod 0770 {} \;
+    chmod 775 ${WWW_DIR}
+    chown -R ${WWW_USER}:repomanager ${WWW_DIR}
+
+    # Droits sur le répertoire stockant les repos
+    # Ici on ne réapplique pas les droits sur les fichiers avec find car le répertoire peut être très volumineux, on laisse la tâche cron régulière s'en charger en tâche de fond
+    chown -R ${WWW_USER}:repomanager ${REPOS_DIR}
+
+    # permissions sur le répertoire de .gnupg
+    if [ -d "${BASE_DIR}/.gnupg" ];then
+        chown -R ${WWW_USER}:repomanager ${BASE_DIR}/.gnupg
+        chmod 700 ${BASE_DIR}/.gnupg
+        # permissions sur la passphrase
+        if [ -f "${BASE_DIR}/.gnupg/passphrase" ];then 
+            chmod 660 ${BASE_DIR}/.gnupg/passphrase
+        fi
+    fi
+
+    if [ -f "${REPOS_DIR}/${WWW_HOSTNAME}.pub" ];then
+        chown ${WWW_USER}:repomanager ${REPOS_DIR}/${WWW_HOSTNAME}.pub
+		chmod 440 ${REPOS_DIR}/${WWW_HOSTNAME}.pub
+    fi
+    
+    # permissions sur le répertoire des profils
+    if [ -d "${REPOS_DIR}/profils/" ];then
+        chown -R ${WWW_USER}:repomanager ${REPOS_DIR}/profils/
+        find ${REPOS_DIR}/profils/ -type f -exec chmod 0660 {} \;
+        find ${REPOS_DIR}/profils/ -type d -exec chmod 0770 {} \;
+    fi
+
+    if [ "$OS_TYPE" == "Redhat" ];then
+        chown root:repomanager /etc/yum/vars/RELEASEVER
+        chmod 660 /etc/yum/vars/RELEASEVER
+        # permissions sur 00_repomanager et ses fichiers de conf
+        if [ -d "$REPOMANAGER_YUM_DIR" ];then
+            chown -R ${WWW_USER}:repomanager $REPOMANAGER_YUM_DIR
+            chmod 664 ${REPOMANAGER_YUM_DIR}/*
+            chmod 775 $REPOMANAGER_YUM_DIR
+        fi
+    fi
+else
+    if [ $TTY -eq "1" ];then # On affiche le message suivant uniquement si on est dans un terminal
+        echo -e "[${ROUGE} Erreur ${RESET}] Vous devez être root pour appliquer correctement les permissions"
+    fi
+fi

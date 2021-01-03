@@ -1,0 +1,113 @@
+## Vérification que le minimum de fichiers nécessaires au script sont présents :
+if [ ! -f "$LISTE_REPO" ];then
+	touch "$LISTE_REPO"
+fi
+
+if [ ! -f "$LISTE_REPO_ARCHIVE" ];then
+	touch "$LISTE_REPO_ARCHIVE"
+fi
+
+if [ "$OS_TYPE" == "Debian" ];then
+	if [ ! -f "$LISTE_REPO_ORIGINE" ];then
+		touch "$LISTE_REPO_ORIGINE"
+	fi
+fi
+
+## Cas Redhat ##
+if [ "$OS_TYPE" == "Redhat" ];then
+	CHECK_DEP=$(rpm -qa mutt)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de mutt\t" &&
+    	yum install mutt -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa curl)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de curl\t" &&
+    	yum install curl -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa rsync) # rsync est utilisé lors de mises à jour
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de rsync\t" &&
+    	yum install rsync -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa yum-utils)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de yum-utils (reposync)\t" &&
+    	yum install yum-utils -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa createrepo_c)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de createrepo_c\t" &&
+    	yum install createrepo_c -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa gnupg2)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de gnupg2\t" &&
+    	yum install gnupg2 -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa at)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de at\t" &&
+    	yum install at -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	if [ ! -f "/usr/bin/rpmresign" ];then
+		echo -ne "Installation du module perl CPAN RPM4 (rpmresign)\t" &&
+		yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
+		cpanm PkgConfig --force &&
+		cpanm RPM4 --force && 
+		ln -s /usr/local/bin/rpmresign /usr/bin/rpmresign &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+fi
+
+## Cas Debian ##
+if [ "$OS_TYPE" == "Debian" ];then
+	CHECK_DEP=$(dpkg --list | grep "^ii  mutt ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de mutt\t" &&
+		apt-get -qq install mutt -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  curl ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de curl\t" &&
+		apt-get -qq install curl -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  rsync ") # rsync est utilisé lors de mises à jour
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de rsync\t" &&
+		apt-get -qq install rsync -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  at ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de at\t" &&
+		apt-get -qq install at -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  debmirror ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de debmirror\t" &&
+		apt-get -qq install debmirror -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+fi

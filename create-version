@@ -1,0 +1,79 @@
+#!/bin/bash
+# Création d'une nouvelle archive de version
+
+set -u
+# Variables de couleurs :
+BLANC=$(tput setaf 7)
+GRIS=$(tput setaf 8)
+VERT=$(tput setaf 2)
+ROUGE=$(tput setaf 1)
+JAUNE=$(tput setaf 3)
+CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+
+DEV_DIR="/home/github/repomanager"
+DEV_BRANCH="alpha"
+#RELEASE_BRANCH="releases"
+VERSION=""
+ARCHIVE_FULL_NAME=""
+ARCHIVE_PATH="/tmp"
+IGNORE_FILE="/home/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
+CONFIRM=""
+
+
+echo -e "\n --- Nouvelle version ---"
+echo -e " Git status :"
+git status
+
+echo -e "\n Vous devez régler tous vos conflits et publier tout votre travail avant de pouvoir créer une version"
+echo -ne " Continue ? (y/n) : "; read -p "" CONFIRM
+if [ "$CONFIRM" != "y" ];then
+    exit
+fi
+
+echo -ne "\n Donner un numéro de version : "; read -p "" VERSION
+VERSION="v${VERSION}-${DEV_BRANCH}" # reformatage du nom de la version
+echo " Version : ${VERSION}"
+echo -ne " Confirmer (y/n) : "; read -p "" CONFIRM
+if [ "$CONFIRM" != "y" ];then
+    exit
+fi
+
+echo "# Version actuelle" > ${DEV_DIR}/version
+echo "VERSION=\"$VERSION\"" >> ${DEV_DIR}/version
+
+# Suppression du répertoire /tmp/repomanager si existe car on va avoir besoin qu'il soit vierge
+rm /tmp/repomanager -rf
+if [ $? -eq "0" ];then
+    echo "[ OK ]"
+else
+    echo "Erreur lors de la suppression de /tmp/repomanager/"
+    exit
+fi
+
+cp -r ${DEV_DIR} /tmp/repomanager && # on copie le contenu de $DEV_DIR dedans
+cd /tmp # On se place sur tmp afin de faire une archive repomanager/
+if [ $? -eq "0" ];then
+    echo "[ OK ]"
+else
+    echo "Erreur lors de la création de /tmp/repomanager/"
+    exit
+fi
+
+echo -e "\n Création de l'archive :"
+# Si une archive du même nom existe déjà dans le répertoire cible lors on la supprime 
+if [ -f "${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz" ];then
+    rm ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz -f
+fi
+
+tar pczf ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz --exclude-from=${DEV_DIR}/.tarignore repomanager
+if [ $? -eq "0" ];then
+    echo "[ OK ]"
+else
+    echo "Erreur lors de l'archivage"
+    exit
+fi
+
+echo -e "\n Archive ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz créée avec succès"
+
+exit

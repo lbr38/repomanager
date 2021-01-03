@@ -1,0 +1,170 @@
+# A TESTER
+# WEB :
+
+# La fonction a besoin de 3 paramètres pour fonctionner 
+# Le nom du repo 
+# Le nom personnalisé si il y a
+# La description
+# Si aucun paramètre n'a été passé, alors on les demande :
+
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-real-name)
+		REPO_REALNAME="$2"
+		shift
+	;;
+	--gpg-check)
+		GPG_CHECK="$2"
+		shift
+	;;
+	--gpg-resign)
+		GPG_SIGN_PACKAGES="$2" # on réécrit la variable GPG_SIGN_PACKAGES par ce qui a été transmis
+		shift
+	;;
+	--repo-description)
+		# on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+		shift
+		REPO_DESCRIPTION="$*"
+	;;
+	*)
+	esac
+	shift
+done
+if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+
+
+# On vérifie quand même que le repo n'existe pas déjà :
+if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then 
+	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà en ${REPO_DEFAULT_ENV} !"
+	clean_exit
+fi
+
+# Si on ne connait pas la version de l'OS, on ne peut pas continuer
+if [ -z "$OS_VERSION" ];then
+	echo -e "[${ROUGE} ERREUR ${RESET}] La version d'OS n'est pas connue (vide)"
+	clean_exit
+fi
+
+####
+
+echo -e "\nDébut de l'opération"
+sleep 2
+
+####
+
+echo -ne "Création du répertoire :\t"
+mkdir -p "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire"
+	clean_exit
+fi
+
+####
+
+echo -e "Récupération des paquets .rpm..."
+sleep 2
+cd "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"/ &&
+if [ "$GPG_CHECK" == "no" ];then
+	if [ "$OS_VERSION" == "7" ];then
+		reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf -l --repoid=${REPO_REALNAME} --norepopath --download_path="${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+	fi
+	if [ "$OS_VERSION" == "8" ];then
+		reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --nogpgcheck --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+	fi
+else # Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
+	if [ "$OS_VERSION" == "7" ];then
+		reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --gpgcheck -l --repoid=${REPO_REALNAME} --norepopath --download_path="${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+	fi
+	if [ "$OS_VERSION" == "8" ];then
+		reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+	fi
+fi
+if [ $? -eq "0" ];then
+	echo -e "\nCréation du repo ${REPO_NAME} terminé ${VERT}avec succès${RESET}"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] reposync a rencontré un problème lors de la création du miroir"
+	echo -ne "Suppression de ce qui a été fait : "
+	rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
+	echo -e "[${VERT} OK ${RESET}]"
+	clean_exit
+fi
+
+####
+
+if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
+	echo -e "\nSignature des paquets .rpm :"
+	cd ${REPOS_DIR}/"${DATE_JMA}_${REPO_NAME}"/ &&	# On se mets à la racine du repo
+	shopt -s globstar # Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
+	if [ -f "/usr/bin/rpmresign" ];then
+		#/usr/bin/rpmresign --path "$GPGHOME" --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase	
+		/usr/bin/rpmresign --path "${GPGHOME}" --name "${GPG_KEYID}" --passwordfile "${PASSPHRASE_FILE}" **/*.rpm
+		#/usr/bin/rpmresign --macros $RPMMACROS --path $GPGHOME --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase
+	else
+		rpmsign --addsign **/*.rpm	# Sinon on utilise rpmsign et on demande le mdp à l'utilisateur (pas possible d'utiliser un fichier passphrase)
+	fi
+	if [ $? -eq "0" ];then
+		shopt -u globstar && # Désactivation de globstar
+		echo -e "\nPaquets signés ${VERT}avec succès${RESET}"
+	else
+		echo -e "[${ROUGE} ERREUR ${RESET}] La signature des paquets a rencontré une erreur"
+		echo -ne "Suppression de ce qui a été fait : "
+		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
+		echo -e "[${VERT} OK ${RESET}]"
+		clean_exit
+	fi
+fi
+
+####
+
+# Création du repo (fabrique un fichier metadata .xml) :
+echo -e "\nCréation du dépôt :"
+createrepo -v ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/
+if [ $? -eq "0" ];then
+	echo -e "\nCréation du repo terminée ${VERT}avec succès${RESET}"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] lors de la création du repo"
+	echo -ne "Suppression de ce qui a été fait : "
+	rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
+	echo -e "[${VERT} OK ${RESET}]"
+	clean_exit
+fi
+
+####
+
+echo -ne "Création du lien symbolique :\t\t"
+cd ${REPOS_DIR}/ &&
+ln -s ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${REPO_DEFAULT_ENV}
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
+	clean_exit
+fi
+
+####
+
+echo -ne "Ajout des informations dans repos.list :\t"
+echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $LISTE_REPO # On mets à jour les infos dans le fichier repos.list (par exemple)
+if [ $? -eq "0" ];then
+	echo -e "[${VERT} OK ${RESET}]"
+else
+	echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
+	clean_exit
+fi
+
+####
+
+echo -ne "Application des droits sur le repo créé :\t"
+find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type f -exec chmod 0660 {} \; &&
+find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type d -exec chmod 0770 {} \; &&
+echo -e "[${VERT} OK ${RESET}]"
+
+# Génération du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+generateConf --repo-name ${REPO_NAME}
+
+echo -e "${VERT}Opération terminée${RESET}"

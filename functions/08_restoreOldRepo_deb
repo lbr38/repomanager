@@ -1,0 +1,119 @@
+# A TESTER
+# WEB : TEST 1 cas sur 3 OK (voir plus bas)
+# TERMINAL : TEST 1 cas sur 3 OK (voir plus bas)
+
+# La fonction a besoin de 5 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de la distribution
+# Le nom de la section
+# La date de la section
+# La description de la section
+# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+if [ $# -eq "0" ];then
+	listOldRepo
+	echo -e "Informations sur la section à restaurer :"
+	infoRepo "+repo-name" "+repo-dist" "+repo-section" "+repo-date" "+repo-description"
+else # Sinon on les récupère dans des variables REPO_*
+	while [ $# -ge 1 ];do case "$1" in
+		--repo-name)
+			REPO_NAME="$2"
+			shift
+		;;
+		--repo-dist)
+			REPO_DIST="$2"
+			shift
+		;;
+		--repo-section)
+			REPO_SECTION="$2"
+			shift
+		;;
+		--repo-date)
+			REPO_DATE="$2"
+			shift
+		;;
+        --repo-description)
+            # on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+			shift
+			REPO_DESCRIPTION="$*"
+			if [ "$REPO_DESCRIPTION" == "null" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+        ;;
+		*)
+		esac
+		shift
+	done
+fi
+
+# On vérifie que le repo renseigné est bien présent dans le fichier repo_old.conf, alors on peut commencer l'opération
+if ! egrep -q "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${REPO_DATE}" ${LISTE_REPO_ARCHIVE};then
+	echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur..."
+    clean_exit
+fi
+
+DATE_QUI_SERA_REMPLACE=$(egrep "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:" "${LISTE_REPO}" | awk -F: '{print $5}') # Date du repo en prod actuel qui sera remplacé
+if [ "$TTY" -eq "1" ];then
+	if [ -z "$DATE_QUI_SERA_REMPLACE" ];then
+		echo -e "Actuellement il n'y a aucune version en prod de la section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution ${CYAN}${REPO_DIST}${RESET}), l'opération va donc restaurer directement celle du ${CYAN}${REPO_DATE}${RESET}."
+	else
+		echo -ne "L'ancienne version de la section ${CYAN}${REPO_SECTION}${RESET} à la date du ${CYAN}${REPO_DATE}${RESET} remplacera celle du ${ROUGE}${DATE_QUI_SERA_REMPLACE}${RESET} qui est actuellement en production."
+	fi
+	echo -ne " Confirmer (oui/non) : ";read -p "" CONFIRM
+	if [ "$CONFIRM" != "oui" ];then  # Si différent de oui, alors le script s'arrête
+		echo -e "Arrêt du script..."
+		clean_exit
+	fi
+fi
+echo -e "\nDébut de l'opération" && sleep 1 &&
+cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
+echo -ne "Suppression du lien symbolique :\t" &&
+unlink ${REPO_SECTION}_prod && # Suppression du lien symbolique
+echo -e "[$VERT OK $RESET]"
+echo -ne "Remise en place de l'ancien snapshot :\t" &&
+mv 99_old_version_${REPO_DATE}_${REPO_SECTION} ${REPO_DATE}_${REPO_SECTION} &&
+echo -e "[$VERT OK $RESET]" &&
+echo -ne "Création du lien symbolique :\t" &&
+ln -s ${REPO_DATE}_${REPO_SECTION}/ ${REPO_SECTION}_prod &&
+echo -e "[$VERT OK $RESET]" &&
+# On vérifie que la version du repo n'est pas utilisée par d'autres environnements que la prod avant de l'archiver
+# Si il y a une version en prod et qu'elle est aussi utilisée par d'autres env, alors on ne l'archivera pas après son remplacement : 
+if [ ! -z $(egrep "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:.*:${DATE_QUI_SERA_REMPLACE}:" ${LISTE_REPO} | grep -v "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:") ];then
+	# TEST :
+	# WEB : 
+	# TERMINAL : OK
+	echo -e "\nLe snapshot ${CYAN}${DATE_QUI_SERA_REMPLACE}_${REPO_SECTION}${RESET} est toujours utilisé par d'autres environnements, donc on ne l'archive pas"
+	echo -ne "Mise à jour des informations dans repos.list :\t" &&
+	sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:prod:${DATE_QUI_SERA_REMPLACE}/d ${LISTE_REPO} && # On mets à jour les infos dans le fichier de conf
+	echo "${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]"
+	echo -ne "Mise à jour des informations dans repo_old.conf :\t" &&
+	sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:${REPO_DATE}/d ${LISTE_REPO_ARCHIVE} &&	# Suppression des infos du repo dans repo_old.conf puisqu'on vient de le restaurer en prod
+	echo -e "[$VERT OK $RESET]"
+# Si il n'y avait aucune version actuellement en prod, alors on mets à jour les infos dans repos.list en indiquant la nouvelle version en prod. Pas d'archivage de quoi que ce soit.
+elif [ -z $(egrep "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:${DATE_QUI_SERA_REMPLACE}:" ${LISTE_REPO}) ];then
+	# TEST :
+	# WEB : 
+	# TERMINAL :
+	echo -ne "Mise à jour des informations dans repos.list :\t" &&
+	echo "${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]"
+	echo -ne "Mise à jour des informations dans repo_old.conf :\t" &&
+    sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:${REPO_DATE}/d ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]"
+# Sinon si la version n'est plus utilisée ni en prod ni pour quelconque environnement, alors on l'archive
+else
+	# TEST :
+	# WEB : 
+	# TERMINAL :
+	OLD_DESC_PROD=$(egrep "^${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:${DATE_QUI_SERA_REMPLACE}" "${LISTE_REPO}" | awk -F: '{print $5}') &&
+	echo -ne "Archivage du snapshot ${CYAN}${DATE_QUI_SERA_REMPLACE}_${REPO_SECTION}${RESET} (non utilisé) :\t"
+	mv "${DATE_QUI_SERA_REMPLACE}_${REPO_SECTION}"/ "99_old_version_${DATE_QUI_SERA_REMPLACE}_${REPO_SECTION}" &&
+	echo -e "[$VERT OK $RESET]"
+	echo -ne "Mise à jour des informations dans repos.list :\t" &&
+	sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:prod:${DATE_QUI_SERA_REMPLACE}/d ${LISTE_REPO} &&
+	echo "${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]" &&
+	echo -ne "Mise à jour des informations dans repo_old.conf :\t" &&
+	sed -i /^${REPO_NAME}:${REPO_DIST//\//\\/}:${REPO_SECTION}:${REPO_DATE}/d ${LISTE_REPO_ARCHIVE} &&
+	echo "${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${DATE_QUI_SERA_REMPLACE}:Env avant archv. : prod ; Descr. avant archv : ${OLD_DESC_PROD}" >> ${LISTE_REPO_ARCHIVE} &&
+	echo -e "[$VERT OK $RESET]"
+fi
+echo -e "${VERT}Opération terminée${RESET}"

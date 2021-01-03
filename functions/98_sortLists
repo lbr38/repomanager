@@ -1,0 +1,9 @@
+
+# On tri les fichiers par ordre alpha et on écrit le résultat dans le même fichier
+sort -o $LISTE_REPO $LISTE_REPO
+if [ -f "$LISTE_REPO_ORIGINE" ];then 
+    sort -o $LISTE_REPO_ORIGINE $LISTE_REPO_ORIGINE
+fi
+if [ -f "$LISTE_REPO_ARCHIVE" ];then
+    sort -o $LISTE_REPO_ARCHIVE $LISTE_REPO_ARCHIVE
+fi
