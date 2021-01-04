@@ -19,7 +19,7 @@ function printAlert($message) {
   echo '$(".alert").fadeTo(1000, 0).slideUp(1000, function(){';
   echo '$(this).remove();';
   echo '});';
-  echo '}, 1500);';
+  echo '}, 2500);';
   echo '});';
   echo '</script>';
 }

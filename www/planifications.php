@@ -18,7 +18,7 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     $addPlanTime = str_replace(":", "h", $addPlanTime);
 
     // on récupère l'action à exécuter
-    $addPlanAction = validateDate($_POST['addPlanAction']);
+    $addPlanAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés avant de les envoyer dans PLAN_CONF_FILE. Trouver une autre solution 
     if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = validateData($_POST['addPlanReminder']); } // et les rappels si il y en a
 
     // on récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
@@ -49,7 +49,7 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
         }
       }
       // Dans les deux cas on crée une tâche at avec l'id de la planification :
-      exec("echo '${REPOMANAGER} --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
+      exec("echo '${REPOMANAGER} --web --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
       // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
       exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
     }
@@ -207,7 +207,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
             echo "<select name=\"addPlanAction\">";
-            echo "<option value=\"update\">Mise à jour du repo ($REPO_DEFAULT_ENV)</option>";
+            echo "<option value=\"update\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
             foreach ($REPO_ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
               $nextEnv = exec("grep -A1 '$env' $ENV_CONF_FILE | grep -v '$env'");

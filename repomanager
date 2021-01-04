@@ -195,10 +195,11 @@ permissions() {
 
 # à vérifier
 rapport_mail() {
-if [ ! -z "$MSG_ERREUR" ] || [ ! -z "$MSG_ERREUR_VERIF_CONF" ];then # Si l'une de ces 2 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un message d'erreur
-	echo -e "$MSG_GLOBAL" | mutt -s "[ERREUR] Synchronisation automatique des repos sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+# Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un message d'erreur
+if [ ! -z "$MSG_ERREUR" ] || [ ! -z "$MSG_ERREUR_VERIF_CONF" ] || [ ! -z "$PLAN_ERROR_MSG" ];then
+	echo -e "$MSG_GLOBAL" | mutt -s "[ERREUR] Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
 else
-	echo -e "$MSG_GLOBAL" | mutt -s "Synchronisation automatique des repos sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+	echo -e "$MSG_GLOBAL" | mutt -s "Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
 fi
 }
 
@@ -217,12 +218,18 @@ if [ "$TTY" -eq "0" ];then
 		MSG_GLOBAL="${MSG_GLOBAL}\n${MSG_ERREUR_VERIF_CONF}\n${MSG_ERREUR}\n"
 	fi
 
+	# Messages d'erreur des planifications
+	if [ ! -z "$PLAN_ERROR_MSG" ];then
+		MSG_GLOBAL="${MSG_GLOBAL}\nErreur planifications\n${PLAN_ERROR_MSG}"
+	fi
+
 	# On ajoute aussi les messages de repos supprimés même si ce n'est pas une erreur
 	if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
-        MSG_GLOBAL="${MSG_GLOBAL}\n Anciens repos supprimés :\n$MSG_INFO_SUPPR_AUTO"
+        MSG_GLOBAL="${MSG_GLOBAL}\n Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
 	fi
 
 	if [ ! -z "$MSG_GLOBAL" ];then
+		echo -e "$MSG_GLOBAL"
 		rapport_mail
 	fi
 fi
@@ -429,7 +436,8 @@ while [ $# -ge 1 ];do
 			clean_exit
 		;;
 		--exec-plan)
-			traitement_planif $1
+			PLAN_ID="$2"
+			traitement_planif "$PLAN_ID"
 			clean_exit
 		;;
 # anciens paramètres (à vérifier)

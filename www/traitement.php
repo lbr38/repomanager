@@ -363,15 +363,15 @@ function checkAction_updateRepo() {
             if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
                 if ($updateRepoGpgCheck == "no") {
                     if ($repoGpgResign == "no") {
-                        exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname --repo-alias $repoAlias >/dev/null 2>/dev/null &");
+                        exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
                     } else {
-                        exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign yes --repo-name $repoName --repo-real-name $repoRealname --repo-alias $repoAlias >/dev/null 2>/dev/null &");
+                        exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign yes --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
                     }
                 } else {
                     if ($repoGpgResign == "no") {
-                        exec("${REPOMANAGER} --web --updateRepo --gpg-check yes --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname --repo-alias $repoAlias >/dev/null 2>/dev/null &");
+                        exec("${REPOMANAGER} --web --updateRepo --gpg-check yes --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
                     } else {
-                        exec("${REPOMANAGER} --web --updateRepo --gpg-check yes --gpg-resign yes --repo-name $repoName --repo-real-name $repoRealname --repo-alias $repoAlias >/dev/null 2>/dev/null &");
+                        exec("${REPOMANAGER} --web --updateRepo --gpg-check yes --gpg-resign yes --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
                     }
                 }
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
