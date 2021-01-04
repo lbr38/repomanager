@@ -17,6 +17,26 @@ PLAN_GROUP=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "Group=" | 
 PLAN_GPG_CHECK=""
 # ICI : tester chaque variable (ne doivent pas etre vides pour la plupart)
 
+if [ -z "$PLAN_ACTION" ];then
+	MSG_ERREUR="$MSG_ERREUR\nErreur : Aucune action spécifiée"
+fi
+
+if [ -z "$PLAN_REPO_NAME" ];then
+	MSG_ERREUR="$MSG_ERREUR\nErreur : Aucun repo ou groupe spécifié"
+fi
+
+if [ "$OS_TYPE" == "Debian" ];then
+	if [ -z "$PLAN_REPO_DIST" ];then
+		MSG_ERREUR="$MSG_ERREUR\nErreur : Aucune distribution spécifiée"
+	fi
+
+	if [ -z "$PLAN_REPO_SECTION" ];then
+		MSG_ERREUR="$MSG_ERREUR\nErreur : Aucune section spécifiée"
+	fi
+fi
+
+
+
 
 # On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas 
 # tous les deux renseignés en même temps :

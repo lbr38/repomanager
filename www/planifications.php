@@ -10,44 +10,49 @@
   if ($debugMode == "enabled") { print_r($_POST); }
 
 // Cas où on ajoute une planification
-if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND (!empty($_POST['addPlanRepo']) OR !empty($_POST['addPlanGroup'])) AND !empty($_POST['addPlanAction'])) {
-    $addPlanId = $_POST['addPlanId'];
-    $addPlanDate = $_POST['addPlanDate'];
-    $addPlanTime = $_POST['addPlanTime'];
+if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($_POST['addPlanAction'])) {
+    $addPlanId = validateData($_POST['addPlanId']);
+    $addPlanDate = validateData($_POST['addPlanDate']);
+    $addPlanTime = validateData($_POST['addPlanTime']);
     // on reformate l'heure afin de remplacer ':' par un 'h' (c'est plus parlant)
     $addPlanTime = str_replace(":", "h", $addPlanTime);
 
+    // on récupère l'action à exécuter
+    $addPlanAction = validateDate($_POST['addPlanAction']);
+    if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = validateData($_POST['addPlanReminder']); } // et les rappels si il y en a
+
     // on récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
-    if(!empty($_POST['addPlanRepo'])) { $addPlanRepo = $_POST['addPlanRepo']; }
-    if(!empty($_POST['addPlanGroup'])) { $addPlanGroup = $_POST['addPlanGroup']; }
+    if(!empty($_POST['addPlanRepo'])) { $addPlanRepo = validateData($_POST['addPlanRepo']); }
+    if(!empty($_POST['addPlanGroup'])) { $addPlanGroup = validateData($_POST['addPlanGroup']); }
+    // si les deux on été renseignés, on affiche une erreur
+    if (!empty($addPlanRepo) AND !empty($addPlanGroup)) {
+      printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux");
+    } else {
+      // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
+      if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
+      if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
 
-    // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
-    if(!empty($_POST['addPlanDist'])) { $addPlanDist = $_POST['addPlanDist']; }
-    if(!empty($_POST['addPlanSection'])) { $addPlanSection = $_POST['addPlanSection']; }
-
-    $addPlanAction = $_POST['addPlanAction']; // on récupère l'action à exécuter
-    if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = $_POST['addPlanReminder']; } // et les rappels si il y en a
-
-    // Ajout de la planification dans le fichier de conf et ajout d'une tâche at
-    // Dans le cas où on ajoute une planif pour un groupe de repos (càd addPlanGroup a été envoyé) :
-    if(isset($addPlanGroup)) {
-      // on indique le nom du groupe et l'action à exécuter :
-      exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
-    }
-    // Dans le cas où on ajoute une planif pour un seul repo :
-    if(isset($addPlanRepo)) {
-      // on indique le nom du repo : (à ajouter : l'env du repo si l'action est 'prod')
-      if ($OS_TYPE == "rpm" ) {
-        exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+      // Ajout de la planification dans le fichier de conf et ajout d'une tâche at
+      // Dans le cas où on ajoute une planif pour un groupe de repos (càd addPlanGroup a été envoyé) :
+      if(isset($addPlanGroup)) {
+        // on indique le nom du groupe et l'action à exécuter :
+        exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
       }
-      if ($OS_TYPE == "deb" ) {
-        exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+      // Dans le cas où on ajoute une planif pour un seul repo :
+      if(isset($addPlanRepo)) {
+        // on indique le nom du repo : (à ajouter : l'env du repo si l'action est 'prod')
+        if ($OS_TYPE == "rpm" ) {
+          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        }
+        if ($OS_TYPE == "deb" ) {
+          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        }
       }
+      // Dans les deux cas on crée une tâche at avec l'id de la planification :
+      exec("echo '${REPOMANAGER} --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
+      // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
+      exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
     }
-    // Dans les deux cas on crée une tâche at avec l'id de la planification :
-    exec("echo '${REPOMANAGER} --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
-    // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-    exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
 }
 
 // Cas où on souhaite supprimer une planification
