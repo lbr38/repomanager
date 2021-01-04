@@ -56,8 +56,8 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
 }
 
 // Cas où on souhaite supprimer une planification
-if (isset($_GET['action']) AND ($_GET['action'] == "deletePlan") AND isset($_GET['planId'])) {
-    $planId = $_GET['planId'];
+if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_GET['planId'])) {
+    $planId = validateData($_GET['planId']);
 
     $planName = "Plan-${planId}";
     
@@ -189,7 +189,7 @@ if (isset($_GET['action']) AND ($_GET['action'] == "deletePlan") AND isset($_GET
         </form>
         <hr>
         <form action="planifications.php" method="post">
-        <input type="hidden" name="addPlanId" value="<?php if (empty($planId)) { echo "0"; } else { echo $planId; }?>" />
+        <input type="hidden" name="addPlanId" value="<?php if (empty($planId)) { echo "1"; /* initialise la numéro de planification à 1 si il n'y en a pas */ } else { echo $planId; }?>" />
         <table class="table-large">
             <tr>
               <td colspan="100%">Ajouter une planification :</td>
