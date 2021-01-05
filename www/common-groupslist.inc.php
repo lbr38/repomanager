@@ -41,25 +41,15 @@
             foreach($repoGroupList as $repoName) {
                 $rowData = explode(',', $repoName);
                 $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
-                $repoAlias = str_replace(['Alias=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Alias=""
                 if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
                   $repoDist = str_replace(['Dist=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Dist=""
                   $repoSection = str_replace(['Section=', '"'], "", $rowData[3]); // on récupère la données et on formate à la volée en retirant Section=""
                 }
                 echo "<tr>";
                 echo "<td></td>";
-                if ($OS_TYPE == "rpm") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoAlias=${repoAlias} \"><img src=\"images/trash.png\" /></a></td>"; }
-                if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoAlias=${repoAlias}&repoDist=${repoDist}&repoSection=${repoSection}\"><img src=\"images/trash.png\" /></a></td>"; }
-                if (!empty($repoAlias)) {
-                  if ($OS_TYPE == "rpm") {
-                    echo "<td class=\"td-auto\">${repoName} [${repoAlias}]</td>";
-                  }
-                  if ($OS_TYPE == "deb") {
-                    echo "<td class=\"td-auto\">${repoName} (Hôte : ${repoAlias})</td>";
-                  }
-                } else {
-                  echo "<td class=\"td-auto\">${repoName}</td>";
-                }
+                if ($OS_TYPE == "rpm") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName} \"><img src=\"images/trash.png\" /></a></td>"; }
+                if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img src=\"images/trash.png\" /></a></td>"; }
+                echo "<td class=\"td-auto\">${repoName}</td>";
                 if ($OS_TYPE == "deb") {
                   echo "<td class=\"td-auto\">${repoDist}</td>";
                   echo "<td class=\"td-auto\">${repoSection}</td>";
@@ -71,14 +61,10 @@
         echo "<td></td>";
         echo "<td></td>";
         // entrées permettant d'ajouter un repo au groupe. Pour rappel le nom du groupe est transmis en hidden (voir début du formulaire) :
-        echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoName\" id=\"input-repo\" autocomplete=\"off\" placeholder=\"Nom du repo\" \></td>";
+        echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoName\" autocomplete=\"off\" placeholder=\"Nom du repo\" \></td>";
         if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoDist\" autocomplete=\"off\" placeholder=\"Distribution\" \></td>"; }
         if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoSection\" autocomplete=\"off\" placeholder=\"Section\" \></td>"; }
         echo "<td><button type=\"submit\" class=\"button-submit-xsmall-blue\">Ajouter</button></td>";
-        echo "</tr>";
-        echo "<tr>";
-        echo "<td></td><td></td>";
-        echo "<td class=\"td-auto td-hide\" colspan=\"2\"><input type=\"text\" name=\"groupAddRepoAlias\" autocomplete=\"off\" placeholder=\"Nom réel si il s'agit d'un nom personnalisé\" \></td>";
         echo "</tr>";
         echo "<tr>";
         echo "<td colspan=\"100%\"><button type=\"submit\" class=\"button-submit-large-green\">Enregistrer</button></td>";
@@ -110,6 +96,13 @@ $(document).ready(function(){
   });
 });
 
+
+
+
+
+
+
+// à supprimer : 
 // Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
 // Bind keyup event on the input
 $('#input-repo').keyup(function() {

@@ -377,7 +377,18 @@
         </tr>
     </table>
 </form>
-<p>Etat des cron</p>
+
+<?php
+if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
+    echo "<p>Etat des cron <img src=\"icons/red_circle.png\" class=\"cronStatus\"></p>";
+    $content = file_get_contents("${BASE_DIR}/cron/logs/cronjob.daily.log");
+    echo "<div>";
+    echo "$content";
+    echo "</div>";
+} else {
+    echo "<p>Etat des cron <img src=\"icons/green_circle.png\" class=\"cronStatus\"></p>";
+}
+?>
 
 </div>
 </article>

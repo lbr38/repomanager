@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # On tri les fichiers par ordre alpha et on écrit le résultat dans le même fichier
 sort -o $LISTE_REPO $LISTE_REPO

@@ -316,7 +316,7 @@ echo '
       </tr>
       <tr>
         <td>Nouveau nom du repo</td>
-        <td><input type="text" name="repoNewName" required></td>
+        <td><input type="text" name="repoNewName" autocomplete="off" required></td>
       </tr>
       <tr>
         <td>Description</td>

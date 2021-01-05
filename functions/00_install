@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ ! -f "$CONF" ];then
 	echo -e "\nGénération du fichier de conf"
     touch $CONF

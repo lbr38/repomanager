@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # La fonction a besoin de 2 paramètres pour fonctionner :
 # Le nom du repo
 # La date du repo
@@ -41,6 +43,6 @@ echo -ne "Suppression du vieux snapshot :\t"
 rm 99_old_version_${REPO_DATE}_${REPO_NAME}/ -rf && # Suppression du snapshot
 echo -e "[${VERT} OK ${RESET}]"
 echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-sed -i /^${REPO_NAME}:${REPO_TYPE}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&   # On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
+sed -i /^${REPO_NAME}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&   # On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
 echo -e "[${VERT} OK ${RESET}]"
 echo -e "${VERT}Opération terminée${RESET}"

@@ -113,9 +113,9 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
           // on commence par vérifier si une tache cron est déjà présente ou non :
           $actualCrontab = shell_exec("crontab -l"); // on récupère le contenu actuel de la crontab de $WWW_USER
           if (strpos($actualCrontab, "--web --reminders") === false || strpos($actualCrontab, "#") !== false) { // si le contenu actuel ne contient pas de tâche cron de rappel ou bien si la tâche est commentée (#), alors on affiche un cercle rouge
-            echo "<a href=\"#\"><img src=\"icons/red_circle.png\" title=\"Il n'y a pas de tâche cron active pour l'envoi des rappels\"/></a>";
+            echo "<a href=\"#\"><img src=\"icons/red_circle.png\" class=\"cronStatus\" title=\"Il n'y a pas de tâche cron active pour l'envoi des rappels\"/></a>";
           } else {
-            echo "<a href=\"#\"><img src=\"icons/green_circle.png\" title=\"La tâche cron pour l'envoi des rappels est active\"/></a>"; // sinon on affiche un cercle vert
+            echo "<a href=\"#\"><img src=\"icons/green_circle.png\" class=\"cronStatus\" title=\"La tâche cron pour l'envoi des rappels est active\"/></a>"; // sinon on affiche un cercle vert
           } ?>
         </div>
 

@@ -1,6 +1,4 @@
-# A TESTER
-# WEB : TEST 1 cas sur 3 OK (voir plus bas)
-# TERMINAL : TEST 1 cas sur 3 OK (voir plus bas)
+#!/bin/bash
 
 # La fonction a besoin de 5 paramètres pour fonctionner :
 # Le nom du repo

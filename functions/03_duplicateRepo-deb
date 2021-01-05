@@ -1,5 +1,4 @@
-# TEST :
-# WEB : OK
+#!/bin/bash
 
 # La fonction a besoin de 6 paramètres pour fonctionner
 # Le nom du repo 

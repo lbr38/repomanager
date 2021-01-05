@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo -ne " │ Vérification des fichiers de conf : "
 ### 1 ###
@@ -351,31 +352,6 @@ nettoyage_fichier_conf
 #fi
 
 
-### 4 ### Vérif de la syntaxe des groupes dans le fichier de conf 
-#LISTE_GROUPES=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF")
-#if echo "$LISTE_GROUPES" | egrep -q "^@";then # Si un ou plusieurs groupes (commence par @) sont bien présents dans le fichier de conf, alors on va vérifier qu'ils contiennent des repos
-#	for GROUPE in $(echo "$LISTE_GROUPES" | grep "^@");do
-#		LISTE_DEPOTS=$(echo "$LISTE_GROUPES" | sed -n -e "/^$GROUPE/,/^@/p" | egrep -v "^#" | egrep "^.*:")
-#		for depot in $(echo "$LISTE_DEPOTS");do
-#			REPO_NAME=$(echo $depot | awk -F: '{print $1}')
-#			REPO_ALIAS=$(echo $depot | awk -F: '{print $3}')
-#
-#			if [ ! -z "$REPO_ALIAS" ];then
-#				if ! grep -q "^$REPO_ALIAS:" $LISTE_REPO;then
-#					echo -e "\n[${JAUNE} WARNING ${RESET}] Le repo '$REPO_ALIAS' du groupe '$GROUPE' dans le fichier de conf repomanager.conf, n'existe pas." &&
-#					(( VERIF_CONF_ERROR++ ))
-#				fi
-#			else
-#				if ! grep -q "^$REPO_NAME:" $LISTE_REPO;then
-#                    echo -e "\n[${JAUNE} WARNING ${RESET}] Le repo '$REPO_NAME' du groupe '$GROUPE' dans le fichier de conf repomanager.conf, n'existe pas." &&
-#                    (( VERIF_CONF_ERROR++ ))
-#                fi
-#			fi
-#		done
-#	done
-#fi
-
-
 ### 5 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
 if [ "$OS_TYPE" == "Redhat" ];then
 	if [ ! -f "$PASSPHRASE_FILE" ];then
@@ -491,9 +467,8 @@ if [ "$OS_TYPE" == "Redhat" ];then
 	# Parcourt du fichier repos-archive.list
 	if [ -s "$LISTE_REPO_ARCHIVE" ];then
 		sortLists # On tri le contenu des fichiers de liste
-		while IFS=, read REPO_NAME REPO_HOST REPO_ENV REPO_DATE REPO_DESCRIPTION;do
+		while IFS=, read REPO_NAME REPO_HOST REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
-			REPO_ENV=$(echo "$REPO_ENV" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
 			if [ ! -d "${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME}" ];then
 				MSG_ERREUR_VERIF_CONF="${MSG_ERREUR_VERIF_CONF}\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucune version archivée '$REPO_NAME:$REPO_DATE' dans le répertoire '${REPOS_DIR}/'. Il faut corriger manuellement !"
@@ -599,11 +574,10 @@ if [ "$OS_TYPE" == "Debian" ];then
 	# Parcourt du fichier repos-archive.list
 	if [ -s "$LISTE_REPO_ARCHIVE" ];then
 		sortLists # On tri le contenu des fichiers de liste
-		while IFS=, read REPO_NAME REPO_HOST REPO_DIST REPO_SECTION REPO_ENV REPO_DATE REPO_DESCRIPTION;do
+		while IFS=, read REPO_NAME REPO_HOST REPO_DIST REPO_SECTION  REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DIST=$(echo "$REPO_DIST" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_SECTION=$(echo "$REPO_SECTION" | cut -d'=' -f2 | sed 's/"//g')
-			REPO_ENV=$(echo "$REPO_ENV" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
 			if [ ! -d "${REPOS_DIR}/${REPO_NAME}" ];then   # On vérifie d'abord si le repo existe
 				echo -e "[${ROUGE} ERREUR ${RESET}]\n Il n'existe pas de repo dans '${REPOS_DIR}/' pour '${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${REPO_DATE}'. Il faut corriger manuellement !\n"
@@ -679,7 +653,7 @@ if [ "$OS_TYPE" == "Debian" ];then
 					if [[ "$LIEN" =~ ^99_old_version.* ]];then  # si celui-ci commence par 99_old_version, alors on traite (ex : 99_old_version_02-03-2018_contrib) 
 						REPO_DATE=$(echo $LIEN | cut -d'_' -f4)    # On extrait sa date (02-03-2018)
 						REPO_SECTION=$(echo $LIEN | cut -d'_' -f5)   # On extrait sa section (contrib)
-						if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\",Date=\"${REPO_DATE}\"" "$LISTE_REPO_ARCHIVE";then
+						if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"" "$LISTE_REPO_ARCHIVE";then
 							echo -e "[${ROUGE} ERREUR ${RESET}]\n Le fichier repos-archive.list ne contient aucune info pour '99_old_version_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
 							clean_exit
 						fi

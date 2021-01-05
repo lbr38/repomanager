@@ -1,6 +1,5 @@
-# TEST :
-# WEB : OK
-# TERMINAL : OK
+#!/bin/bash
+
 # La fonction a besoin de 4 paramètres pour fonctionner :
 # Le nom du repo
 # Le nom de la distribution

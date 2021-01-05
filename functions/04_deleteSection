@@ -1,5 +1,4 @@
-# TEST :
-# WEB :
+#!/bin/bash
 
 # La fonction a besoin de 4 paramètres pour fonctionner :
 # Le nom du repo
@@ -83,7 +82,7 @@ if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\
 	# Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
 	deleteConf --repo-name ${REPO_NAME} --repo-dist ${REPO_DIST} --repo-section ${REPO_SECTION}
 	# Suppression de la section si elle est présente dans le fichier de groupes
-	sed -i /^Name=\"${REPO_NAME}\",Alias=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\"/d ${REPO_GROUPS_FILE}
+	sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\"/d ${REPO_GROUPS_FILE}
 fi
 
 echo -e "${VERT}Opération terminée${RESET}"

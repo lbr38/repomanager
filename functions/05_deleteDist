@@ -1,5 +1,5 @@
-# TEST :
-# WEB :
+#!/bin/bash
+
 # La fonction a besoin de 4 paramètres pour fonctionner :
 # Le nom du repo
 # Le nom de la distribution
@@ -51,6 +51,6 @@ sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${LIS
 echo -e "[$VERT OK $RESET]"
 
 # Comme on a a supprimé toute une distribution, on a forcément supprimé toutes ses sections. On retire donc toutes les occurences de la distribution dans le fichier de groupes
-sed -i /^Name=\"${REPO_NAME}\",Alias=\".*\",Dist=\"${REPO_DIST//\//\\/}\".*/d ${REPO_GROUPS_FILE}
+sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\".*/d ${REPO_GROUPS_FILE}
 
 echo -e "${VERT}Opération terminée${RESET}"

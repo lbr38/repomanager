@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## Vérification que le minimum de fichiers nécessaires au script sont présents :
 if [ ! -f "$LISTE_REPO" ];then
 	touch "$LISTE_REPO"
@@ -12,6 +14,8 @@ if [ "$OS_TYPE" == "Debian" ];then
 		touch "$LISTE_REPO_ORIGINE"
 	fi
 fi
+
+echo "Vérification des dépendances..."
 
 ## Cas Redhat ##
 if [ "$OS_TYPE" == "Redhat" ];then

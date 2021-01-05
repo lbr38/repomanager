@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Supprime les fichiers de conf repo .list ou .repo lors de la suppression d'un repo/section
 # Ces fichiers sont utilisés pour les profils et sont téléchargés par les serveurs/postes clients
 

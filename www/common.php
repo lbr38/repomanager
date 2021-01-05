@@ -93,10 +93,9 @@ if (!empty($_POST['addGroupName'])) {
 
 // Cas où on souhaite ajouter un repo à un groupe (cette partie doit être placée avant le "Cas où on souhaite renommer un groupe") :
 // Cas Redhat :
-if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName']) AND isset($_POST['groupAddRepoAlias'])) {
+if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
   $actualGroupName = validateData($_POST['actualGroupName']);
   $groupAddRepoName = validateData($_POST['groupAddRepoName']);
-  $groupAddRepoAlias = validateData($_POST['groupAddRepoAlias']); // peut être vide
 
   // on vérifie d'abord que le repo à ajouter existe bien
   $checkIfRepoExists = exec("grep '^Name=\"${groupAddRepoName}\"' $REPO_FILE");
@@ -104,7 +103,7 @@ if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
     printAlert("Le repo $groupAddRepoName n'existe pas");
   } else {
     // on formatte la chaine à insérer à partir des infos récupérées en POST
-    $groupNewContent = "Name=\"${groupAddRepoName}\",Alias=\"${groupAddRepoAlias}\"";
+    $groupNewContent = "Name=\"${groupAddRepoName}\"";
     // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
     // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
     $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $REPO_GROUPS_FILE | tail -n1");
@@ -114,10 +113,9 @@ if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
 }
 
 // Cas Debian :
-if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName']) AND isset($_POST['groupAddRepoAlias']) AND !empty($_POST['groupAddRepoDist']) AND !empty($_POST['groupAddRepoSection'])) {
+if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName']) AND !empty($_POST['groupAddRepoDist']) AND !empty($_POST['groupAddRepoSection'])) {
   $actualGroupName = validateData($_POST['actualGroupName']);
   $groupAddRepoName = validateData($_POST['groupAddRepoName']);
-  $groupAddRepoAlias = validateData($_POST['groupAddRepoAlias']); // peut être vide
   $groupAddRepoDist = validateData($_POST['groupAddRepoDist']);
   $groupAddRepoSection = validateData($_POST['groupAddRepoSection']);
 
@@ -127,7 +125,7 @@ if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
     printAlert("La section $groupAddRepoSection n'existe pas");
   } else {
     // on formatte la chaine à insérer à partir des infos récupérées en POST
-    $groupNewContent = "Name=\"${groupAddRepoName}\",Alias=\"${groupAddRepoAlias}\",Dist=\"${groupAddRepoDist}\",Section=\"${groupAddRepoSection}\"";
+    $groupNewContent = "Name=\"${groupAddRepoName}\",Dist=\"${groupAddRepoDist}\",Section=\"${groupAddRepoSection}\"";
     // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
     // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
     $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $REPO_GROUPS_FILE | tail -n1");
@@ -139,28 +137,26 @@ if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
 
 // Cas où on souhaite supprimer un repo d'un groupe :
 // Cas Redhat :
-if ($OS_TYPE == "rpm" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND isset($_GET['repoAlias']))) {
+if ($OS_TYPE == "rpm" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo") AND !empty($_GET['groupName']) AND !empty($_GET['repoName'])) {
   $groupName = validateData($_GET['groupName']);
   $groupDelRepoName = validateData($_GET['repoName']);
-  $groupDelRepoAlias = validateData($_GET['repoAlias']); // peut être vide
 
   // on formatte la chaine à supprimer à partir des infos récupérées en POST
-  $groupDelContent = "Name=\"${groupDelRepoName}\",Alias=\"${groupDelRepoAlias}\"";
+  $groupDelContent = "Name=\"${groupDelRepoName}\"";
   // on supprime le repo en question, situé entre [@groupName] et la prochaine ligne vide
   //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $REPO_GROUPS_FILE");
   exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $REPO_GROUPS_FILE");
 }
 
 // Cas Debian :
-if ($OS_TYPE == "deb" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND isset($_GET['repoAlias']) AND !empty($_GET['repoDist']) AND !empty($_GET['repoSection']))) {
+if ($OS_TYPE == "deb" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND !empty($_GET['repoDist']) AND !empty($_GET['repoSection']))) {
   $groupName = validateData($_GET['groupName']);
   $groupDelRepoName = validateData($_GET['repoName']);
-  $groupDelRepoAlias = validateData($_GET['repoAlias']); // peut être vide
   $groupDelRepoDist = validateData($_GET['repoDist']);
   $groupDelRepoSection = validateData($_GET['repoSection']);
 
   // on formatte la chaine à supprimer à partir des infos récupérées en POST
-  $groupDelContent = "Name=\"${groupDelRepoName}\",Alias=\"${groupDelRepoAlias}\",Dist=\"${groupDelRepoDist}\",Section=\"${groupDelRepoSection}\"";
+  $groupDelContent = "Name=\"${groupDelRepoName}\",Dist=\"${groupDelRepoDist}\",Section=\"${groupDelRepoSection}\"";
   // on supprime le repo en question, situé entre [@groupName] et la prochaine ligne vide
   //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $REPO_GROUPS_FILE");
   exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $REPO_GROUPS_FILE");

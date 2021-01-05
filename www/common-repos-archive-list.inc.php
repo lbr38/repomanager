@@ -8,7 +8,6 @@
             echo "<td>Distribution</td>";
             echo "<td>Section</td>";
           }
-          echo "<td>Env</td>";
           echo "<td>Date</td>";
           echo "<td>Description</td>";
         ?>
@@ -27,17 +26,15 @@
             
             if ($OS_TYPE == "rpm") {
               $repoName = str_replace(['Name=', '"'], '', $row_data[0]);
-              $repoEnv = str_replace(['Env=', '"'], '', $row_data[2]);
-              $repoDate = str_replace(['Date=', '"'], '', $row_data[3]);
-              $repoDescription = str_replace(['Description=', '"'], '', $row_data[4]);
+              $repoDate = str_replace(['Date=', '"'], '', $row_data[2]);
+              $repoDescription = str_replace(['Description=', '"'], '', $row_data[3]);
             }
             if ($OS_TYPE == "deb") {
               $repoName = str_replace(['Name=', '"'], '', $row_data[0]);
               $repoDist = str_replace(['Dist=', '"'], '', $row_data[2]);
               $repoSection = str_replace(['Section=', '"'], '', $row_data[3]);
-              $repoEnv = str_replace(['Env=', '"'], '', $row_data[4]);
-              $repoDate = str_replace(['Date=', '"'], '', $row_data[5]);
-              $repoDescription = str_replace(['Description=', '"'], '', $row_data[6]);
+              $repoDate = str_replace(['Date=', '"'], '', $row_data[4]);
+              $repoDescription = str_replace(['Description=', '"'], '', $row_data[5]);
             }
         
             //display data
@@ -47,7 +44,6 @@
               echo "<td>$repoDist</td>";
               echo "<td>$repoSection</td>";
             }
-            echo "<td>$repoEnv</td>";
             echo "<td>$repoDate</td>";
             echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
             echo "</tr>";

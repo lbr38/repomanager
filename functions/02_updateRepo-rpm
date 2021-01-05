@@ -1,5 +1,4 @@
-# A TESTER : 
-# WEB : OK
+#!/bin/bash
 
 # La fonction a besoin de 3 paramètre pour fonctionner :
 # Le nom du repo 
@@ -28,23 +27,31 @@ while [ $# -ge 1 ];do case "$1" in
 	shift
 done
 
+ERROR="0"
+
 # Si on ne connait pas la version de l'OS, on ne peut pas continuer
 if [ -z "$OS_VERSION" ];then
 	echo -e "[${ROUGE} ERREUR ${RESET}] La version d'OS n'est pas connue (vide)"
 	clean_exit
 fi
 
-if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO;then	# Si le repo est présent dans le fichier repos.list, alors on peut commencer l'opération
-	# Si le repo 'base' (pour l'exemple) n'était pas présent dans repos.list, alors on indique qu'il faut le créer
-	if [ "$TTY" -eq "0" ];then
-		echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur. Traitement du repo suivant..."        
-		MSG_ERREUR="$MSG_ERREUR\n Erreur de syntaxe ou il n'existe aucun repo ${REPO_NAME} sur ce serveur."
-		continue
-	else
-		echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur..."
-		clean_exit
-	fi
-else
+# Si le repo est présent dans le fichier repos.list, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO;then
+	(( ERROR++ ))
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur."        
+	MSG_ERREUR="$MSG_ERREUR\n Erreur de syntaxe ou il n'existe aucun repo ${REPO_NAME} sur ce serveur."
+fi
+
+# Si le repo existe déjà à la date du jour alors on annule l'opération
+if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\"" $LISTE_REPO;then
+	(( ERROR++ ))
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}."        
+	MSG_ERREUR="$MSG_ERREUR\n Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}." 
+fi
+
+
+# On traite uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	OLD_DATE_REPO=$(egrep "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')	# On récupère du coup sa date de synchro
 
 	####
@@ -59,12 +66,15 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
-		clean_exit
+		MSG_ERREUR="$MSG_ERREUR\n Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
 	fi
+fi
 
-	####
 
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -e "Récupération des paquets .rpm..."
 	sleep 2
 
@@ -87,23 +97,24 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "\nCréation du repo ${REPO_NAME} terminé ${VERT}avec succès${RESET}"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] reposync a rencontré un problème lors de la création du miroir"
+		MSG_ERREUR="$MSG_ERREUR\n reposync a rencontré un problème lors de la création du miroir"
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
-		clean_exit
-		#continue
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
 		echo -e "\nSignature des paquets .rpm :"
 		cd ${REPOS_DIR}/"${DATE_JMA}_${REPO_NAME}"/ &&	# On se mets à la racine du repo
 		shopt -s globstar # Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
 		if [ -f "/usr/bin/rpmresign" ];then
 			#/usr/bin/rpmresign --path "$GPGHOME" --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase	
-			/usr/bin/rpmresign --name ${GPG_KEYID} --path ${GPGHOME} --passwordfile ${PASSPHRASE_FILE} **/*.rpm
+			/usr/bin/rpmresign  --path ${GPGHOME} --name ${GPG_KEYID} --passwordfile ${PASSPHRASE_FILE} **/*.rpm
 			#/usr/bin/rpmresign --macros $RPMMACROS --path $GPGHOME --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase
 		else
 			rpmsign --addsign **/*.rpm	# Sinon on utilise rpmsign et on demande le mdp à l'utilisateur (pas possible d'utiliser un fichier passphrase)
@@ -112,31 +123,35 @@ else
 			shopt -u globstar && # Désactivation de globstar
 			echo -e "\nPaquets signés ${VERT}avec succès${RESET}"
 		else
+			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] La signature des paquets a rencontré une erreur"
+			MSG_ERREUR="$MSG_ERREUR\n La signature des paquets a rencontré une erreur"
 			echo -ne "Suppression de ce qui a été fait : "
 			rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 			echo -e "[${VERT} OK ${RESET}]"
-			clean_exit
 		fi
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	# Création du repo (fabrique un fichier metadata .xml) :
 	echo -e "\nCréation du dépôt :"
 	createrepo -v ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/
 	if [ $? -eq "0" ];then
-		echo -e "\nCréation du repo terminée ${VERT}avec succès${RESET}"
+		echo -e "\nMise à jour du repo ${REPO_NAME} terminée ${VERT}avec succès${RESET}"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] lors de la création du repo"
+		MSG_ERREUR="$MSG_ERREUR\n Erreur lors de la création du repo"
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
-		clean_exit
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -ne "Création du lien symbolique :\t\t"
 	cd ${REPOS_DIR}/ &&
 	unlink ${REPO_NAME}_${REPO_DEFAULT_ENV} # Supression du lien symbolique pointant sur l'ancienne version du repo
@@ -144,12 +159,14 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
-		clean_exit
+		MSG_ERREUR="$MSG_ERREUR\n Erreur pendant la création du lien symbolique"
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	if ! egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${OLD_DATE_REPO}\"" $LISTE_REPO | grep -v -q "Env=\"${REPO_DEFAULT_ENV}\"";then
 		echo "La version précédente du ${OLD_DATE_REPO} n'est pas utilisée par d'autres environnements (donc elle n'est plus utilisée)"
 		OLD_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO" | awk -F',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g')
@@ -159,7 +176,7 @@ else
 		mv "${OLD_DATE_REPO}_${REPO_NAME}/" "99_old_version_${OLD_DATE_REPO}_${REPO_NAME}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
 		echo -e "[${VERT} OK ${RESET}]"
 		echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-		echo "Name=\"${REPO_NAME}\",Realname=\"${OLD_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
+		echo "Name=\"${REPO_NAME}\",Realname=\"${OLD_REALNAME}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
 		echo -e "[${VERT} OK ${RESET}]"
 	fi
 
@@ -170,12 +187,14 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
-		clean_exit
+		MSG_ERREUR="$MSG_ERREUR\n Erreur pendant l'ajout des informations"
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -ne "Application des droits sur le repo créé :\t"
 	find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type f -exec chmod 0660 {} \; &&
 	find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type d -exec chmod 0770 {} \; &&

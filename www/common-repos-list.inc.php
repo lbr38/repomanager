@@ -121,7 +121,6 @@ if ($filterByGroups == "yes") {
                     $repoLastEnv = '';
                     $rowData = explode(',', $repoName);
                     $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
-                    $repoAlias = str_replace(['Alias=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Alias=""
                     if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
                         $repoDist = str_replace(['Dist=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Dist=""
                         $repoSection = str_replace(['Section=', '"'], "", $rowData[3]); // on récupère la données et on formate à la volée en retirant Section=""
@@ -284,10 +283,10 @@ if ($filterByGroups == "yes") {
 
             // On cherche dans le fichier de groupes si le repo apparait :
             if ($OS_TYPE == "rpm") {
-                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Alias=\".*\"' $REPO_GROUPS_FILE");
+                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\"' $REPO_GROUPS_FILE");
             }
             if ($OS_TYPE == "deb") {
-                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Alias=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_GROUPS_FILE");
+                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_GROUPS_FILE");
             }
             // Si le repo apparait dans un groupe alors on n'exécute pas la suite et on traite l'itération suivante de la boucle :
             if (!empty($checkIfRepoIsInAGroup)) {

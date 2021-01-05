@@ -1,5 +1,9 @@
+#!/bin/bash
 
-if [ "$USER" == "root" ];then
+ACTUAL_USER=$(whoami)
+
+# On re-applique les permissions uniquement si on est root, sinon ça risque de renvoyer des erreurs "Permission denied"
+if [ "$ACTUAL_USER" == "root" ];then
     # Droits sur le répertoire de repomanager
     chown -R ${WWW_USER}:repomanager ${BASE_DIR}
     find ${BASE_DIR}/ -type d -exec chmod 0770 {} \;

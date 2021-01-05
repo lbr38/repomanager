@@ -4,8 +4,8 @@ Compatible avec les sytèmes Redhat/CentOS et Debian/Ubuntu.
 
 Testé sur : 
 - Debian 10
-- CentOS 8
-- Linux Mint 19.3 (Ubuntu bionic)
+- CentOS 7, 8
+- Ubuntu bionic
 
 <b>Dépendances</b>
 
@@ -51,10 +51,9 @@ server {
 }
 
 server {
-    listen SERVER-IP:443 default_server;
+    listen SERVER-IP:443 default_server ssl;
     server_name SERVERNAME.MYDOMAIN.COM;
     #rewrite ^/(.*)/$ /$1 permanent;
-    ssl on;
     ssl_certificate      PATH-TO-CERTIFICATE.crt;
     ssl_certificate_key  PATH-TO-PRIVATE-KEY.key;
     access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log;

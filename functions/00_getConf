@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Si la vérification (checkConf) est passée, récupère les dernières variables nécéssaires au script, depuis le fichier de conf repomanager.conf
 
 EMAIL_DEST=$(grep "^EMAIL_DEST=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')

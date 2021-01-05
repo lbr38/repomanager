@@ -68,39 +68,39 @@ getConf() {
 	source "${FUNCTIONS}/00_getConf"
 }
 
-traitement_planif() {
-	source "${FUNCTIONS}/traitement_planif"
+execPlan() {
+	source "${FUNCTIONS}/20_execPlan"
 }
 
-traitement_nettoyage() {
-echo -n > /tmp/repomanager_reposuppr.txt
-
-# Si le paramètre retention n'est pas présent dans le fichier de conf, on arrête le script
-if ! grep -q "^RETENTION=" "$CONF";then
-	clean_exit
-fi
-
-# Sinon on le récupère et on continue normalement
-RETENTION=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | grep "^RETENTION=" | awk -F= '{print $2}')
-
-echo -e "\nNettoyage automatique en cours"
-# On récupère la liste de tous les vieux repos dans le fichier repos-archive.list (on garde le champ nom uniquement)
-LISTE_DEPOTS=$(cat $LISTE_REPO_ARCHIVE | awk -F: '{print $1}' | sort -u) &&
-#echo "liste depots $LISTE_DEPOTS"
-# Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
-for REPO in $(echo "$LISTE_DEPOTS");do
-	grep "^${REPO_NAME}:" $LISTE_REPO_ARCHIVE | awk -F: '{print $3}' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > /tmp/repomanager_parsefile.tmp && # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
-	if [ -s "/tmp/repomanager_parsefile.tmp" ];then # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
-		for DATE in $(cat /tmp/repomanager_parsefile.tmp);do
-			echo " Suppression du vieux repo $REPO_NAME en date du $REPO_DATE" &&
-			rm ${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME} -rf &&
-			grep "^$REPO_NAME:$REPO_DATE" $LISTE_REPO_ARCHIVE >> /tmp/repomanager_reposuppr.txt &&
-			sed -i /^$REPO_NAME:$REPO_DATE/d $LISTE_REPO_ARCHIVE &&
-			MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
-		done
-	fi
-done
-}
+#traitement_nettoyage() {
+#echo -n > /tmp/repomanager_reposuppr.txt
+#
+## Si le paramètre retention n'est pas présent dans le fichier de conf, on arrête le script
+#if ! grep -q "^RETENTION=" "$CONF";then
+#	clean_exit
+#fi
+#
+## Sinon on le récupère et on continue normalement
+#RETENTION=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | grep "^RETENTION=" | awk -F= '{print $2}')
+#
+#echo -e "\nNettoyage automatique en cours"
+## On récupère la liste de tous les vieux repos dans le fichier repos-archive.list (on garde le champ nom uniquement)
+#LISTE_DEPOTS=$(cat $LISTE_REPO_ARCHIVE | awk -F: '{print $1}' | sort -u) &&
+##echo "liste depots $LISTE_DEPOTS"
+## Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
+#for REPO in $(echo "$LISTE_DEPOTS");do
+#	grep "^${REPO_NAME}:" $LISTE_REPO_ARCHIVE | awk -F: '{print $3}' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > /tmp/repomanager_parsefile.tmp && # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
+#	if [ -s "/tmp/repomanager_parsefile.tmp" ];then # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
+#		for DATE in $(cat /tmp/repomanager_parsefile.tmp);do
+#			echo " Suppression du vieux repo $REPO_NAME en date du $REPO_DATE" &&
+#			rm ${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME} -rf &&
+#			grep "^$REPO_NAME:$REPO_DATE" $LISTE_REPO_ARCHIVE >> /tmp/repomanager_reposuppr.txt &&
+#			sed -i /^$REPO_NAME:$REPO_DATE/d $LISTE_REPO_ARCHIVE &&
+#			MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
+#		done
+#	fi
+#done
+#}
 
 listRepo() {
 	source "${FUNCTIONS}/98_listRepo"
@@ -339,7 +339,6 @@ fi
 
 # Réinitialisation des variables qui aurait pu être utilisées pour la vérif de la conf
 REPO_NAME=""
-REPO_ALIAS=""
 REPO_REALNAME=""
 REPO_HOST=""
 REPO_RACINE=""
@@ -437,7 +436,7 @@ while [ $# -ge 1 ];do
 		;;
 		--exec-plan)
 			PLAN_ID="$2"
-			traitement_planif "$PLAN_ID"
+			execPlan "$PLAN_ID"
 			clean_exit
 		;;
 # anciens paramètres (à vérifier)
@@ -459,7 +458,7 @@ done
 
 # pour le moment ne pas s'occuper de ces deux options automatiques :
 # if [ "$EXEC_AUTO" -eq "1" ];then
-#	traitement_planif
+#	execPlan
 #fi
 #
 #if [ "$SUPPR_AUTO" -eq "1" ];then

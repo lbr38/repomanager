@@ -6,7 +6,6 @@ TODO
 repos.list
 repos-archive.list
 envs.conf
-alias.conf
 groups.conf
 hosts.conf
 planifications.conf

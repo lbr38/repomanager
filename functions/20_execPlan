@@ -1,6 +1,8 @@
+#!/bin/bash
+
 # Si cette fonction est exécutée, c'est que les vérifs des fichiers de conf ont été effectuées avec succès, donc inutile de re-vérifier à nouveau les planifications, on va traiter directement cette fois
 
-echo -e "Traitement de la planification Plan-${PLAN_ID}"
+echo -e "Traitement de la planification Plan-${PLAN_ID}\n"
 
 # Récupération des détails de la planification actuelle dans le fichier de conf, afin de savoir quels repos sont impliqués et quelle action effectuer
 PLAN_ACTION=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Action=" | cut -d'=' -f2 | sed 's/"//g')
@@ -98,8 +100,8 @@ fi
 if [ ! -z "$PLAN_REPO_NAME" ];then
 	# Si $PLAN_ACTION = update alors on met à jour le repo
 	if [ "$PLAN_ACTION" == "update" ];then
-		if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo $GROUP_REPO_NAME";fi
-		if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section $GROUP_REPO_SECTION";fi
+		if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo ${PLAN_REPO_NAME}";fi
+		if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST})";fi
 		if [ "$OS_TYPE" == "Redhat" ];then
 			updateRepo --gpg-check ${PLAN_GPG_CHECK} --gpg-resign ${PLAN_GPG_RESIGN} --repo-name ${PLAN_REPO_NAME} --repo-real-name ${PLAN_REPO_REALNAME}
 		fi
@@ -111,20 +113,20 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 
 	# Si $PLAN_ACTION contient -> alors il s'agit d'un changement d'env
 	if [[ "$PLAN_ACTION" =~ "->" ]];then
-		REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
-		REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
-		if [ -z "$REPO_ENV" ] || [ -z "$REPO_NEXTENV" ];then
+		PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+		PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+		if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 10 : envs non définis"
 			clean_exit
 		fi
 		
-		if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${REPO_ENV} -> ${REPO_NEXTENV}) du repo ${PLAN_REPO_NAME}";fi
-		if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${REPO_ENV} -> ${REPO_NEXTENV}) de la section ${PLAN_REPO_SECTION}";fi
+		if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${PLAN_REPO_NAME}";fi
+		if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST})";fi
 		if [ "$OS_TYPE" == "Redhat" ];then
-			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-env ${REPO_ENV} --repo-new-env ${REPO_NEXTENV}
+			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
 		fi
 		if [ "$OS_TYPE" == "Debian" ];then
-			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-dist ${PLAN_REPO_DIST} --repo-section ${PLAN_REPO_SECTION} --repo-env ${REPO_ENV} --repo-new-env ${REPO_NEXTENV}
+			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-dist ${PLAN_REPO_DIST} --repo-section ${PLAN_REPO_SECTION} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
 		fi
 	fi
 fi
@@ -148,8 +150,8 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 		# Si $PLAN_ACTION = update alors on met à jour les repos du groupe
 		if [ "$PLAN_ACTION" == "update" ];then
 			# Exécution 
-			if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo $GROUP_REPO_NAME";fi
-			if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section $GROUP_REPO_SECTION";fi
+			if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST})";fi
 			if [ "$OS_TYPE" == "Redhat" ];then
 				updateRepo --gpg-check ${PLAN_GPG_CHECK} --gpg-resign ${PLAN_GPG_RESIGN} --repo-name ${GROUP_REPO_NAME} --repo-real-name ${GROUP_REPO_REALNAME}
 			fi
@@ -167,8 +169,8 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 				continue
 			fi
 
-			if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${GROUP_REPO_NAME}";fi
-			if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Redhat" ];then echo -e "\n\nChangement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Debian" ];then echo -e "\n\nChangement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST})";fi
 			if [ "$OS_TYPE" == "Redhat" ];then
 				changeEnv --repo-name ${GROUP_REPO_NAME} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
 			fi

@@ -1,5 +1,4 @@
-# A TESTER : 
-# WEB : OK
+#!/bin/bash
 
 # La fonction a besoin de 4 paramètre pour fonctionner :
 # Le nom du repo 
@@ -34,36 +33,48 @@ while [ $# -ge 1 ];do case "$1" in
 	shift
 done
 
+ERROR="0"
+
 # ICI : il faut rajouter une vérif que l'hote et la racine ne sont pas vides (= non présent dans hosts.conf)
-echo "host-name: ${REPO_HOST_NAME}"
-if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO;then	# Si la section 'main' est présente dans le fichier repos.list, alors on peut commencer l'opération
-	# Si le repo 'base' (pour l'exemple) n'était pas présent dans repos.list, alors on l'indique
-	if [ "$TTY" -eq "0" ];then
-		echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur. Traitement du repo suivant..."
-		MSG_ERREUR="${MSG_ERREUR}\n Erreur de syntaxe ou il n'existe aucune section ${REPO_SECTION} du repo ${REPO_NAME} (distribution : ${REPO_DIST}) sur ce serveur"
-		continue
-	else
-		echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur..."
-		clean_exit
-	fi
-else
+
+# Si la section est présente dans le fichier repos.list, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO;then
+	(( ERROR++ ))
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur."
+	MSG_ERREUR="${MSG_ERREUR}\n Erreur de syntaxe ou il n'existe aucune section ${REPO_SECTION} du repo ${REPO_NAME} (distribution : ${REPO_DIST}) sur ce serveur"
+fi
+
+# Si la section existe déjà à la date du jour alors on annule l'opération
+if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\"" $LISTE_REPO;then
+	(( ERROR++ ))
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] La section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) existe déjà à la date du ${DATE_JMA}."
+	MSG_ERREUR="${MSG_ERREUR}\n La section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) existe déjà à la date du ${DATE_JMA}."
+fi
+
+# On traite uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	HOST_FULL_URL=$(grep "^Name=\"${REPO_HOST_NAME}\",Url=" $LISTE_REPO_ORIGINE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g' ) # Récupère l'url complète
 	REPO_HOST=$(echo "$HOST_FULL_URL" | cut -d'/' -f1)
 	REPO_RACINE=$(echo "$HOST_FULL_URL" | sed "s/${REPO_HOST}//g") # Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
 	if [ -z "$REPO_RACINE" ] || [ -z "$REPO_HOST" ];then
-		echo -e "Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
-		clean_exit
+		echo -e "[${ROUGE} ERREUR ${RESET}] Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
+		(( ERROR++ ))
+		MSG_ERREUR="${MSG_ERREUR}\n Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
 	fi
+fi
+
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	OLD_DATE_REPO=$(egrep "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')	# On récupère du coup sa date de synchro
-	echo "Debug :"
-	echo "olddatesynchro : $OLD_DATE_REPO"
-	echo "repo : $REPO_NAME"
-	echo "dist: $REPO_DIST"
-	echo "section : $REPO_SECTION"
-	echo "host_name : $REPO_HOST_NAME"
-	echo "url : $HOST_FULL_URL"
-	echo "hote : $REPO_HOST"
-	echo "racine : $REPO_RACINE"
+	#echo "Debug :"
+	#echo "olddatesynchro : $OLD_DATE_REPO"
+	#echo "repo : $REPO_NAME"
+	#echo "dist: $REPO_DIST"
+	#echo "section : $REPO_SECTION"
+	#echo "host_name : $REPO_HOST_NAME"
+	#echo "url : $HOST_FULL_URL"
+	#echo "hote : $REPO_HOST"
+	#echo "racine : $REPO_RACINE"
 
 	####
 
@@ -77,12 +88,14 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
-		clean_exit
+		MSG_ERREUR="${MSG_ERREUR}\n Problème lors de la création du répertoire ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -e "Récupération des paquets .deb..."
 	sleep 2
 	# Dans le cas où on a précisé de ne pas vérifier les signatures GPG
@@ -92,18 +105,19 @@ else
 		/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --root=$REPO_RACINE --dist=$REPO_DIST --host=$REPO_HOST --section=$REPO_SECTION --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup #--verbose --debug &&
 	fi
 	if [ $? -eq "0" ];then
-		echo -e "\nCréation du repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} terminé ${VERT}avec succès${RESET}"
+		echo -e "\nMise à jour de la section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) terminée ${VERT}avec succès${RESET}"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] debmirror a rencontré un problème lors de la création du miroir"
+		MSG_ERREUR="${MSG_ERREUR}\n debmirror a rencontré un problème lors de la création du miroir"
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
-		clean_exit
-		#continue
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -ne "Création du lien symbolique :\t\t"
 	cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&  # Retour au répertoire de base pour traiter la suite
 	unlink ${REPO_SECTION}_${REPO_DEFAULT_ENV} # Supression du lien symbolique pointant sur l'ancienne version du repo
@@ -111,12 +125,14 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
-		clean_exit
+		MSG_ERREUR="${MSG_ERREUR}\n Erreur pendant la création du lien symbolique"
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	# Si l'ancienne version n'est pas utilisée par un autre environnement alors on l'archive. Pour cela on affiche toutes les lignes contenant notre repo, et on retire celle contenant Env=${REPO_DEFAULT_ENV} afin d'afficher tous les autres éventuels envs qui utilisent ce repo (si il y en a)
 	if ! egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\",Date=\"${OLD_DATE_REPO}\"" $LISTE_REPO | grep -v -q "Env=\"${REPO_DEFAULT_ENV}\"";then
 		echo "La version précédente du ${OLD_DATE_REPO} n'est pas utilisée par d'autres environnements (donc elle n'est plus utilisée)"
@@ -127,7 +143,7 @@ else
 		mv "${OLD_DATE_REPO}_${REPO_SECTION}/" "99_old_version_${OLD_DATE_REPO}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
 		echo -e "[${VERT} OK ${RESET}]"
 		echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-		echo "Name=\"${REPO_NAME}\",Host=\"${OLD_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
+		echo "Name=\"${REPO_NAME}\",Host=\"${OLD_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
 		echo -e "[${VERT} OK ${RESET}]"
 	fi
 
@@ -138,17 +154,18 @@ else
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
+		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
-		clean_exit
+		MSG_ERREUR="${MSG_ERREUR}\n Erreur pendant l'ajout des informations"
 	fi
+fi
 
-	####
-
+# On continue uniquement si il n'y a pas eu d'erreur précédemment
+if [ "$ERROR" -eq "0" ];then
 	echo -ne "Application des droits sur la section créée :\t"
 	find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type f -exec chmod 0660 {} \;
 	find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type d -exec chmod 0770 {} \;
 	echo -e "[${VERT} OK ${RESET}]"
 
 	echo -e "${VERT}Opération terminée${RESET}"
-
 fi

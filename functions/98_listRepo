@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Affiche la liste des repo à disposition dans ${REPOS_DIR}/
 
 # On trie le contenu des fichiers de liste

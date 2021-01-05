@@ -713,12 +713,16 @@ footer p {
     width: 25px;
 }
 
+/* pastilles vertes ou rouge, petite taille */
+img.cronStatus {
+    width: 8px;
+}
+
 #planCronStatus h5, img {
     display: inline-block;
 }
-
+/* on veut que la pastille soit placée sur la droite */
 #planCronStatus img {
-    width: 8px;
     float: right;
 }
 
