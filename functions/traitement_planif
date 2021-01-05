@@ -28,18 +28,6 @@ if [ -z "$PLAN_REPO_NAME" ] && [ -z "$PLAN_GROUP" ];then
 	clean_exit
 fi
 
-if [ "$OS_TYPE" == "Debian" ];then
-	if [ -z "$PLAN_REPO_DIST" ];then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 3 : Aucune distribution spécifiée"
-		clean_exit
-	fi
-
-	if [ -z "$PLAN_REPO_SECTION" ];then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 4 : Aucune section spécifiée"
-		clean_exit
-	fi
-fi
-
 if [ -z "$PLAN_GPG_CHECK" ];then
 	PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 5 : Vérification des signatures GPG non spécifié"
 	clean_exit
@@ -55,7 +43,7 @@ fi
 
 # On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas 
 # tous les deux renseignés en même temps :
-if ([ ! -z "$PLAN_REPO_NAME" ] AND [ ! -z "$PLAN_GROUP" ]);then
+if ([ ! -z "$PLAN_REPO_NAME" ] && [ ! -z "$PLAN_GROUP" ]);then
 	if [ "$OS_TYPE" == "Redhat" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois un repo et un groupe de repos";fi
 	if [ "$OS_TYPE" == "Debian" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois une section et un groupe de sections";fi
 	clean_exit
@@ -72,6 +60,16 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 	fi
 
 	if [ "$OS_TYPE" == "Debian" ];then
+		# On vérifie qu'on a bien renseigné la distribution et la section
+		if [ -z "$PLAN_REPO_DIST" ];then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 3 : Aucune distribution spécifiée"
+			clean_exit
+		fi
+		if [ -z "$PLAN_REPO_SECTION" ];then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 4 : Aucune section spécifiée"
+			clean_exit
+		fi
+
 		PLAN_REPO_HOSTNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 		if [ -z "$PLAN_REPO_HOSTNAME" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 8 : Impossible de récupérer le nom de l'hôte source"
@@ -162,20 +160,20 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 
 		# Si $PLAN_ACTION contient -> alors il s'agit d'un changement d'env
 		if [[ "$PLAN_ACTION" =~ "->" ]];then
-			REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
-			REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
-			if [ -z "$REPO_ENV" ] || [ -z "$REPO_NEXTENV" ];then
+			PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+			PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+			if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
 				PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nErreur : envs non définis"
 				continue
 			fi
 
-			if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${REPO_ENV} -> ${REPO_NEXTENV}) du repo ${GROUP_REPO_NAME}";fi
-			if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${REPO_ENV} -> ${REPO_NEXTENV}) de la section ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${GROUP_REPO_NAME}";fi
 			if [ "$OS_TYPE" == "Redhat" ];then
-				changeEnv --repo-name ${PLAN_REPO_NAME} --repo-env ${REPO_ENV} --repo-new-env ${REPO_NEXTENV}
+				changeEnv --repo-name ${GROUP_REPO_NAME} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
 			fi
 			if [ "$OS_TYPE" == "Debian" ];then
-				changeEnv --repo-name ${PLAN_REPO_NAME} --repo-dist ${PLAN_REPO_DIST} --repo-section ${PLAN_REPO_SECTION} --repo-env ${REPO_ENV} --repo-new-env ${REPO_NEXTENV}
+				changeEnv --repo-name ${GROUP_REPO_NAME} --repo-dist ${GROUP_REPO_DIST} --repo-section ${GROUP_REPO_SECTION} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
 			fi
 		fi
 	done
