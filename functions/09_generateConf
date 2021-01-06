@@ -26,17 +26,6 @@ done
 
 VAR_MISSING=0
 
-if [ "$OS_TYPE" == "Debian" ];then
-    if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ] || [ -z "${WWW_HOSTNAME}" ];then
-        (( $VAR_MISSING++ ))
-    fi
-
-    if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
-        echo "# Repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} sur ${WWW_HOSTNAME}" > "${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
-        echo "deb https://${WWW_HOSTNAME}/${REPO_NAME}/${REPO_DIST}/${REPO_SECTION}___ENV__ ${REPO_DIST} ${REPO_SECTION}" >> "${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
-    fi
-fi
-
 if [ "$OS_TYPE" == "Redhat" ];then
     if [ -z "$REPO_NAME" ] || [ -z "${WWW_HOSTNAME}" ];then
         (( $VAR_MISSING++ ))
@@ -55,6 +44,17 @@ if [ "$OS_TYPE" == "Redhat" ];then
         else
             echo "gpgcheck=0" >> "${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${REPO_NAME}.repo"
         fi
+    fi
+fi
+
+if [ "$OS_TYPE" == "Debian" ];then
+    if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ] || [ -z "${WWW_HOSTNAME}" ];then
+        (( $VAR_MISSING++ ))
+    fi
+
+    if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
+        echo "# Repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} sur ${WWW_HOSTNAME}" > "${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
+        echo "deb https://${WWW_HOSTNAME}/${REPO_NAME}/${REPO_DIST}/${REPO_SECTION}___ENV__ ${REPO_DIST} ${REPO_SECTION}" >> "${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
     fi
 fi
 

@@ -9,6 +9,7 @@ source "/etc/repomanager/vars/main.vars"
 
 PERMS_ERROR=0
 CHECK_VERSION_ERROR=0
+GENERATE_REPO_CONF_FILES=0
 LOG_DIR="${BASE_DIR}/cron/logs"
 LOG="${LOG_DIR}/cronjob.daily.log"
 
@@ -41,8 +42,42 @@ if [ $? -ne "0" ];then
     (( PERMS_ERROR++ ))
 fi
 
+# Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
+if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "${REPOS_CONF_FILES_DIR}" ];then
+
+    # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
+
+    if [ "$OS_TYPE" == "Redhat" ];then
+        while IFS=, read REPO_NAME;do
+            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
+
+            # On fait appel à la fonction generateConf directement
+            generateConf --repo-name $REPO_NAME
+            if [ $? -ne "0" ];then 
+                (( GENERATE_REPO_CONF_FILES++ ))
+            fi
+        done < $LISTE_REPO
+    fi
+
+    if [ "$OS_TYPE" == "Debian" ];then
+        while IFS=, read REPO_NAME REPO_HOSTNAME REPO_DIST REPO_SECTION;do
+            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
+
+            # On fait appel à la fonction generateConf directement
+            generateConf --repo-name $REPO_NAME --repo-dist $REPO_DIST --repo-section $REPO_SECTION
+            if [ $? -ne "0" ];then 
+                (( GENERATE_REPO_CONF_FILES++ ))
+            fi
+        done < $LISTE_REPO
+    fi
+fi
+
 if [ "$CHECK_VERSION_ERROR" -gt "0" ];then
     echo "Problème lors de la vérification d'une nouvelle version" >> "$LOG"
+fi
+
+if [ "$GENERATE_REPO_CONF_FILES" -gt "0" ];then
+    echo "Problème lors de regénération des fichiers de conf repo des profils" >> "$LOG"
 fi
 
 if [ "$PERMS_ERROR" -gt "0" ];then
