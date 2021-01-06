@@ -173,9 +173,9 @@ if ($filterByGroups == "yes") {
 
                         // Affichage de l'icone "corbeille" pour supprimer le repo
                         if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                            echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
                         } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                            echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
                         }
                         echo "</td>";
 
@@ -323,9 +323,9 @@ if ($filterByGroups == "yes") {
 
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             }
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -456,9 +456,9 @@ if ($filterByGroups == "no") {
 
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             }
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :

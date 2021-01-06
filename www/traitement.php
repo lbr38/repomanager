@@ -23,12 +23,13 @@
   <article class="right">
     <h5>OPERATIONS</h5>
 
-    <form action="traitement.php" method="post" class="actionform">
+    <!--<form action="traitement.php" method="post" class="actionform">-->
+    <form action="traitement.php" method="get" class="actionform">
     <table class="actiontable">
     <?php
 
     // On vérifie qu'une action a été demandée
-    if (empty($_POST['actionId'])) {
+    if (empty($_POST['actionId']) AND empty($_GET['actionId'])) {
         echo "<tr>";
         echo "<td>";
         echo "Erreur : aucune action n'a été demandée";
@@ -36,7 +37,12 @@
         echo "</tr>";
         return 1;
     } else { // et on la récupère si c'est le cas
-        $actionId = validateData($_POST['actionId']);
+        if (!empty($_POST['actionId'])) {   // Récupération de actionId si elle a été transmise en POST
+            $actionId = validateData($_POST['actionId']);
+        }
+        if (!empty($_GET['actionId'])) {    // Récupération de actionId si elle a été transmise en GET
+            $actionId = validateData($_GET['actionId']);
+        }
     }
 
 
@@ -1029,33 +1035,32 @@ function checkAction_deleteRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
-
 
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Pour Rehdat seulement : si repoEnv est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "rpm" AND empty($_POST['repoEnv'])) {
+    if ($OS_TYPE == "rpm" AND empty($_GET['repoEnv'])) {
         echo "<tr>";
         echo "<td>Env du repo</td>";
         echo "<td><input type=\"text\" name=\"repoEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner l'env du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoEnv = validateData($_POST['repoEnv']);
+        $repoEnv = validateData($_GET['repoEnv']);
         echo "<td><input type=\"hidden\" name=\"repoEnv\" value=\"$repoEnv\"></td>";
     }
 
@@ -1079,7 +1084,7 @@ function checkAction_deleteRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va supprimer le repo ${repoName} en ${repoEnv}</td>";
                 echo "</tr>";
@@ -1091,8 +1096,8 @@ function checkAction_deleteRepo() {
                 echo "</tr>";
             }
 
-            // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            // Si on a reçu la confirmation en GET alors on traite :
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName --repo-env $repoEnv >/dev/null 2>/dev/null &");;
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
