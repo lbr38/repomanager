@@ -378,17 +378,32 @@
     </table>
 </form>
 
-<?php
-if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
-    echo "<p>Etat des cron <img src=\"icons/red_circle.png\" class=\"cronStatus\"></p>";
-    $content = file_get_contents("${BASE_DIR}/cron/logs/cronjob.daily.log");
-    echo "<div>";
-    echo "$content";
-    echo "</div>";
-} else {
-    echo "<p>Etat des cron <img src=\"icons/green_circle.png\" class=\"cronStatus\"></p>";
-}
-?>
+<table>
+    <tr>
+    <?php
+    /* Si un fichier de log cron existe c'est qu'il y a eu un problème lors de l'exécution de la tâche 
+    On affiche donc une pastille rouge et le contenu du fichier de logs. 
+    On affiche un bouton pour relancer la tâche manuellement */
+    if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
+        echo "<td>";
+        echo "Etat des cron <img src=\"icons/red_circle.png\" class=\"cronStatus\">";
+        echo "</td>";
+        echo "<td>";
+        echo "Relancer";
+        echo "</td>";
+        echo "</tr>";
+        $content = file_get_contents("${BASE_DIR}/cron/logs/cronjob.daily.log");
+        echo "<pre>";
+        echo "$content";
+        echo "</pre>";
+    } else {
+        echo "<td>";
+        echo "Etat des cron <img src=\"icons/green_circle.png\" class=\"cronStatus\">";
+        echo "</td>";
+    }
+    ?>
+
+</table>
 
 </div>
 </article>
