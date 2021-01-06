@@ -42,8 +42,8 @@
                 $rowData = explode(',', $repoName);
                 $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
                 if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
-                  $repoDist = str_replace(['Dist=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Dist=""
-                  $repoSection = str_replace(['Section=', '"'], "", $rowData[3]); // on récupère la données et on formate à la volée en retirant Section=""
+                  $repoDist = str_replace(['Dist=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Dist=""
+                  $repoSection = str_replace(['Section=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Section=""
                 }
                 echo "<tr>";
                 echo "<td></td>";

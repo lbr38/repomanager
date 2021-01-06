@@ -2,13 +2,13 @@
     <h5>REPOS ACTIFS</h5>
     <div>
         <!-- Bouton "Affichage" -->
-        <a href="#" id="ReposListDisplayToggle" title="Affichage"><span class="hide">Affichage</span><img src="icons/cog.png" class="icon"/></a>
+        <a href="#" id="ReposListDisplayToggle" title="Affichage"><span>Affichage</span><img src="icons/cog.png" class="icon"/></a>
         <!-- Bouton "Gérer les groupes" -->
-        <a href="#" id="GroupsListToggle" title="Gérer les groupes"><span class="hide">Gérer les groupes</span><img src="icons/folder.png" class="icon"/></a>
+        <a href="#" id="GroupsListToggle" title="Gérer les groupes"><span>Gérer les groupes</span><img src="icons/folder.png" class="icon"/></a>
         <!-- Bouton "Gérer les repos/hôtes sources" -->
         <?php
-            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les repos sources\"><span class=\"hide\">Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
-            if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les hôtes sources\"><span class=\"hide\">Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
         ?>
     </div>
 </div>

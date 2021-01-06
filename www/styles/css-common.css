@@ -727,9 +727,10 @@ img.cronStatus {
     float: right;
 }
 
-#ReposListDisplayToggle:hover .hide, #reposSourcesToggle:hover .hide, #GroupsListToggle:hover .hide {
-    display: inline-block;
-    font-weight: bold;
+#ReposListDisplayToggle, #reposSourcesToggle, #GroupsListToggle {
+    padding-left: 8px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 #ReposListDisplayToggle:hover, #reposSourcesToggle:hover, #GroupsListToggle:hover {

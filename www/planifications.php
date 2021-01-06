@@ -206,7 +206,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "<tr>";
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
-            echo "<select name=\"addPlanAction\">";
+            echo "<select name=\"addPlanAction\" id=\"planSelect\" >"; // toto
             echo "<option value=\"update\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
             foreach ($REPO_ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
@@ -234,10 +234,8 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanSection\" autocomplete=\"off\" /></td>";
               echo "</tr>";
             }
-            /*echo "<tr class=\"tr-hide\">";
-            echo "<td class=\"td-auto\">Env du repo</td>";
-            echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanRepoState\" autocomplete=\"off\" /></td>";
-            echo "</tr>";*/
+            echo "<tr><td>            <div class=\"showcontent\" style=\"display:none;\">Show content if value matching</div> </td></tr>";
+
             echo "<tr>";
             echo "<td class=\"td-auto\">Rappels</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"text\" name=\"addPlanReminder\" autocomplete=\"off\" /></td>";
@@ -274,5 +272,11 @@ $('#input_repo').keyup(function() {
     $('.tr-hide').show();
   }
 }).keyup(); // Trigger the keyup event, thus running the handler on page load
+
+$('#planSelect').change(function() {
+  if ($('option').val() == 'Mise à jour du repo') {
+    $('.showcontent').show();
+  }
+});
 </script>
 </html>

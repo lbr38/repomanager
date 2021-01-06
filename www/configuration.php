@@ -122,7 +122,7 @@
         $actualCrontab = shell_exec("crontab -l"); // on récupère le contenu actuel de la crontab de $WWW_USER
 
         // Il est possible qu'une tâche soit présente mais qu'elle soit commentée, dans ce cas on la supprime
-        if (strpos($actualCrontab, "#.*--web --reminders") !== false) { // on check si on trouve un caractère '#' dans la crontab actuelle
+        if (strpos($actualCrontab, "#") !== false) { // on check si on trouve un caractère '#' dans la crontab actuelle
             // on concatene le contenu actuel + suppression de la tâche commentée. On place le tout dans un fichier temporaire
             file_put_contents("/tmp/${WWW_USER}_crontab.tmp", $actualCrontab."0 0 * * * ${REPOMANAGER} --web --reminders".PHP_EOL);
             exec("sed -i '/#.*--web --reminders/d' /tmp/${WWW_USER}_crontab.tmp"); // suppression de la ligne commentée
