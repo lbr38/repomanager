@@ -122,8 +122,8 @@ if ($filterByGroups == "yes") {
                     $rowData = explode(',', $repoName);
                     $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
                     if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
-                        $repoDist = str_replace(['Dist=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Dist=""
-                        $repoSection = str_replace(['Section=', '"'], "", $rowData[3]); // on récupère la données et on formate à la volée en retirant Section=""
+                        $repoDist = str_replace(['Dist=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Dist=""
+                        $repoSection = str_replace(['Section=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Section=""
                     }
                     // Puis on recupère les informations manquantes dans le fichier repos.list
                     if ($OS_TYPE == "rpm") {
@@ -166,7 +166,18 @@ if ($filterByGroups == "yes") {
                             elseif ($listColor == "color2") { $listColor = 'color1'; }
                         }
                         echo "<tr class=\"$listColor\">";
-                        echo "<td class=\"td-auto\"><a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a></td>";
+                        echo "<td>";
+
+                        // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+
+                        // Affichage de l'icone "corbeille" pour supprimer le repo
+                        if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
+                            echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                        } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
+                            echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                        }
+                        echo "</td>";
 
                         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                         if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
@@ -306,7 +317,17 @@ if ($filterByGroups == "yes") {
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
             echo "<tr class=\"$listColor\">";
-            echo "<td><a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a></td>";
+            echo "<td>";
+            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+
+            // Affichage de l'icone "corbeille" pour supprimer le repo
+            if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
+                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
+                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            }
+            echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
                 echo "<td></td>";
@@ -429,7 +450,17 @@ if ($filterByGroups == "no") {
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
             echo "<tr class=\"$listColor\">";
-            echo "<td><a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a></td>";
+            echo "<td>";
+            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+
+            // Affichage de l'icone "corbeille" pour supprimer le repo
+            if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
+                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
+                echo "<a href=\"traitement.php?deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            }
+            echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
                 echo "<td></td>";

@@ -28,7 +28,7 @@ VAR_MISSING=0
 
 if [ "$OS_TYPE" == "Redhat" ];then
     if [ -z "$REPO_NAME" ] || [ -z "${WWW_HOSTNAME}" ];then
-        (( $VAR_MISSING++ ))
+        (( VAR_MISSING++ ))
     fi
 
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
@@ -49,7 +49,7 @@ fi
 
 if [ "$OS_TYPE" == "Debian" ];then
     if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ] || [ -z "${WWW_HOSTNAME}" ];then
-        (( $VAR_MISSING++ ))
+        (( VAR_MISSING++ ))
     fi
 
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur

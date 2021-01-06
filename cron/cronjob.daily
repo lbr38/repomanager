@@ -7,11 +7,18 @@ set -u
 source "/etc/repomanager/vars/customs.vars"
 source "/etc/repomanager/vars/main.vars"
 
+generateConf() {
+    source "${BASE_DIR}/functions/09_generateConf"
+}
+
 PERMS_ERROR=0
 CHECK_VERSION_ERROR=0
 GENERATE_REPO_CONF_FILES=0
 LOG_DIR="${BASE_DIR}/cron/logs"
 LOG="${LOG_DIR}/cronjob.daily.log"
+
+# Création du répertoire de logs si n'existe pas
+if [ ! -d "$LOG_DIR" ];then mkdir -p "$LOG_DIR";fi
 
 # Vidage du fichier de log
 if [ -f "$LOG" ];then echo -n> "$LOG";fi
