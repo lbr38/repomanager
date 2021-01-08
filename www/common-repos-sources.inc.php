@@ -44,7 +44,8 @@
     echo "<table class=\"table-large\">";
     echo "<tr>";
     echo "<td>Nom du repo</td>";
-    echo "<td><input type=\"text\" name=\"newRepoName\" required></td>";
+    echo "<td><input type=\"text\" name=\"newRepoName\" id=\"newRepoNameInput\" required></td>";
+    echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
     echo "</tr>";
     echo "<tr>";
     echo "<td>baseurl</td>";
@@ -187,10 +188,8 @@ $(document).ready(function(){
     $(this).toggleClass("open");
   });
 });
-</script>
 
-
-<script> // rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
+// rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
 $(function() {
   $("#newRepoSourceSelect").change(function() {
     if ($("#newRepoSourceSelect_yes").is(":selected")) {
@@ -200,4 +199,12 @@ $(function() {
     }
   }).trigger('change');
 });
+
+// rpm : affiche une td avec le nom final du repo entre crochets [] tel qu'il sera inséré dans son fichier
+$("#newRepoNameInput").on("input", function(){
+  $(".td-hide").show();
+  var tafel = $('#newRepoNameInput').val();
+  $("#newRepoNameHiddenTd").text("Nom : [" + tafel + "]");
+});
+
 </script>
