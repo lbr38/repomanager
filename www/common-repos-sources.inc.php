@@ -44,7 +44,7 @@
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
     echo "<table class=\"table-auto\">";
     echo "<tr>";
-    echo "<td>1. </td>";
+    echo "<td><b>1.</b></td>";
     echo "<td colspan=\"2\">Nom du repo :</td>";
     echo "</tr>";
     echo "<tr>";
@@ -53,7 +53,7 @@
     echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
     echo "</tr>";
     echo "<tr>";
-    echo "<td>2. </td>";
+    echo "<td><b>2.</b></td>";
     echo "<td>Baseurl :</td>";
     echo "<td>ou Mirrorlist :</td>";
     echo "</tr>";
@@ -64,7 +64,7 @@
     echo "</tr>";
     echo "<tr><td><br></td></tr>";
     echo "<tr>";
-    echo "<td>3. </td>";
+    echo "<td><b>3.</b></td>";
     echo "<td>Ce repo distant dispose d'une clé GPG</td>";
     echo "<td>";
     echo "<select id=\"newRepoSourceSelect\">";
@@ -88,7 +88,7 @@
     echo "<td><textarea name=\"newRepoGpgKeyText\"></textarea></td>";
     echo "</tr>";
     echo "<tr>";
-    echo "<td><button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button></td>";
+    echo "<td colspan=\"100%\"><button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button></td>";
     echo "</tr>";
     echo "</table>";
     echo "</form>";
