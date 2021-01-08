@@ -431,21 +431,28 @@ else
 fi
 
 if [ "$OS_TYPE" == "Redhat" ];then
-	if [ ! -d "${BASE_DIR}/.cache/yum/" ];then
+	# Création du répetoire sui contiendra le cache yum (à voir si c'est toujours utile)
+	if [ ! -d "${BASE_DIR}/.cache/yum/" ];then 
 		mkdir -p "${BASE_DIR}/.cache/yum/"
 	fi
 
+	# Création du fichier RELEASEVER dans lequel on injectera la version des paquets qu'on synchronise sur ce serveur
 	if [ ! -f "/etc/yum/vars/RELEASEVER" ];then
 		mkdir -p "/etc/yum/vars/"		# On crée le répertoire et le fichier, les droits dessus seront ensuite ajustés par la fonction permissions
 		touch /etc/yum/vars/RELEASEVER
 	fi
 	echo "$RELEASEVER" > /etc/yum/vars/RELEASEVER
+
+	# Création du répertoire contenant les clés gpg importées par repomanager
+	if [ ! -d "$RPM_GPG_DIR" ];then
+		mkdir -p "$RPM_GPG_DIR" # Création du répertoire, la fonction permissions se chargera de mettre en place les bons droits dessus
+	fi
 fi
 
 # Création d'un groupe repomanager
 if ! grep -q "repomanager" /etc/group;then
 	groupadd repomanager
-	usermod -G repomanager "$WWW_USER"
+	usermod -G repomanager "$WWW_USER" # l'utilisateur web est intégré au groupe repomanager
 fi
 
 # Conf at pour pouvoir créer des planifications

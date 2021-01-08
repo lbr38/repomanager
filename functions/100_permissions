@@ -53,9 +53,15 @@ if [ "$ACTUAL_USER" == "root" ];then
         chmod 660 /etc/yum/vars/RELEASEVER
         # permissions sur 00_repomanager et ses fichiers de conf
         if [ -d "$REPOMANAGER_YUM_DIR" ];then
-            chown -R ${WWW_USER}:repomanager $REPOMANAGER_YUM_DIR
-            chmod 664 ${REPOMANAGER_YUM_DIR}/*
-            chmod 775 $REPOMANAGER_YUM_DIR
+            chown -R ${WWW_USER}:repomanager "$REPOMANAGER_YUM_DIR"
+            find ${REPOMANAGER_YUM_DIR}/ -type f -exec chmod 0664 {} \;
+            chmod 775 "$REPOMANAGER_YUM_DIR"
+        fi
+        # permissions sur /etc/pki/rpm-gpg/repomanager
+        if [ -d "$RPM_GPG_DIR" ];then
+            chown -R root:repomanager "$RPM_GPG_DIR"
+            find ${RPM_GPG_DIR}/ -type f -exec chmod 0664 {} \;
+            chmod 775 "$RPM_GPG_DIR"
         fi
     fi
 else

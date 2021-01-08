@@ -257,7 +257,7 @@ table.list-repos td {
     color: var(--color2);
 }
 
-.hide {
+.hide, .tr-hide {
     display: none;
 }
 
@@ -285,14 +285,6 @@ table.configuration-table {
 
 td {
     color: whitesmoke;
-}
-
-.tr-hide { /* Lignes de tableau cachées par défaut (ex: planifications.php) */
-    display: none;
-}
-
-.td-hide { 
-    display: none;
 }
 
 .td-auto {
@@ -342,11 +334,32 @@ article.log {
      color: whitesmoke;
 }
 
-.icon {
-    height: 12px;
+.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
+    height: 11px;
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
+}
+
+.icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
+    opacity: 0.33;
+}
+
+.icon-lowopacity:hover {
+    opacity: 1;
+}
+
+.icon-lowopacity-red:hover {
+    /* trouver comment modifier la couleur du png en rouge */
+    opacity: 1;
+}
+
+.icon-lowopacity-blue:hover {
+    opacity: 1;
+}
+
+.icon-lowopacity-green:hover {
+    opacity: 1;
 }
 
 .li-operation-running {
@@ -684,16 +697,6 @@ form.profileForm td {
     position: fixed;
     top: 0;
     right: 0;
-}
-
-.img-square {
-    width: 8px;
-    background-color: #555555;
-    border: none;
-    border-radius: 2px;
-    padding: 3px;
-    display: inline-block;
-    vertical-align: middle;
 }
 
 footer {

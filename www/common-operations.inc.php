@@ -152,27 +152,6 @@ echo '
       </tr>
     </table>
   </form>
-</div>
-
-<a href="#" id="operationToggle5" class="button-operations-large"><img src="icons/bin.png" class="icon"/>Supprimer un repo</a>
-<br>
-<div id="divOperation5" class="hide">
-  <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
-    <input name="actionId" type="hidden" value="deleteRepo">
-    <table class="actiontable">
-      <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoName" required></td>
-      </tr>
-      <tr>
-        <td>Env</td>
-        <td><input type="text" name="repoEnv" required></td>
-      </tr>
-      <tr>
-        <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
-      </tr>
-    </table>
-  </form>
 </div>';
 }
 ?>

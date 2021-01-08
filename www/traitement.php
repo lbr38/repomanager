@@ -711,7 +711,7 @@ function checkAction_duplicateRepo() {
     // Si repoNewName est vide, on affiche un formulaire pour le demander 
     if (empty($_GET['repoNewName'])) {
         echo "<tr>";
-        echo "<td>Env actuel</td>";
+        echo "<td>Nouveau nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoNewName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner le nom du nouveau repo\"></td>";
         echo "<tr>";
     } else {

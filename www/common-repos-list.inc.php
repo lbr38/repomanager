@@ -169,14 +169,24 @@ if ($filterByGroups == "yes") {
                         echo "<td>";
 
                         // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
                         // Affichage de l'icone "corbeille" pour supprimer le repo
-                        if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
-                        } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                        if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
                         }
+                        if ($OS_TYPE == "deb") {
+                            echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                        }
+
+                        // Affichage de l'icone "dupliquer" pour dupliquer le repo
+                        if ($OS_TYPE == "rpm") {
+                            echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+                        }
+                        if ($OS_TYPE == "deb") {
+                            echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                        }
+
                         echo "</td>";
 
                         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -319,14 +329,24 @@ if ($filterByGroups == "yes") {
             echo "<tr class=\"$listColor\">";
             echo "<td>";
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
             // Affichage de l'icone "corbeille" pour supprimer le repo
-            if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
-            } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
             }
+            if ($OS_TYPE == "deb") {
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            }
+
+            // Affichage de l'icone "dupliquer" pour dupliquer le repo
+            if ($OS_TYPE == "rpm") {
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+            }
+            if ($OS_TYPE == "deb") {
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+            }
+
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
@@ -452,14 +472,24 @@ if ($filterByGroups == "no") {
             echo "<tr class=\"$listColor\">";
             echo "<td>";
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"img-square\" src=\"icons/code.png\" /></a>";
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
             // Affichage de l'icone "corbeille" pour supprimer le repo
-            if ($concatenateReposName == "yes" AND $repoName !== $repoLastName) { // Si la vue simplifiée est activée, on affiche l'icone qu'une fois par repo 
-                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
-            } elseif ($concatenateReposName == "no") { // Si la vue simplifiée n'est pas activée, on affiche l'icone à chaque ligne
-                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
             }
+            if ($OS_TYPE == "deb") {
+                echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+            }
+
+            // Affichage de l'icone "dupliquer" pour dupliquer le repo
+            if ($OS_TYPE == "rpm") {
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+            }
+            if ($OS_TYPE == "deb") {
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+            }
+
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {

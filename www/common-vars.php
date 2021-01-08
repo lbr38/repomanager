@@ -24,6 +24,8 @@ $GPGHOME = "${BASE_DIR}/.gnupg";
 // pour Redhat : emplacement de la conf yum
 $REPOMANAGER_YUM_DIR = "/etc/yum.repos.d/00_repomanager";
 $REPOMANAGER_YUM_CONF = "/etc/yum.repos.d/00_repomanager/repomanager.conf";
+// emplacement des clés gpg importées par repomanager
+$RPM_GPG_DIR = "/etc/pki/rpm-gpg/repomanager";
 
 // profils
 $PROFILS_MAIN_DIR = "${REPOS_DIR}/profils";
@@ -44,5 +46,4 @@ $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $CONF_FILE | cut -d'=' -f2
 // Config web :
 $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
 $WWW_USER = exec("grep '^WWW_USER=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-
 ?>

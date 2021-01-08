@@ -6,13 +6,15 @@
   <div class="div-half-left">
   <?php
   if ($OS_TYPE == "rpm") {
-    echo "<p>Pour créer un miroir, reposync a besoin de connaitre l'URL de l'hôte à aspirer. Renseigner l'URL ici en lui donnant un nom unique. Ce nom correspondra au \"Nom du repo\" dans les opérations.</p>";
+    echo "<p>Pour créer un miroir, repomanager doit connaitre l'URL de l'hôte à aspirer.<br>Renseigner ici l'URL en lui donnant un nom unique. Ce nom correspondra au \"Nom du repo\" dans les opérations.</p>";
     $reposFiles = scandir($REPOMANAGER_YUM_DIR);
     $i=0;
     foreach($reposFiles as $repoFileName) {
       if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/00_repomanager/)
+        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre
+        $repoFileName = str_replace(".repo", "", $count);
         echo "<p>";
-        echo "<a href=\"?action=deleteRepoFile&repoFileName=${repoFileName}\"><img src=\"images/trash.png\"/></a>";
+        echo "<a href=\"?action=deleteRepoFile&repoFileName=${repoFileName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
         echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileName}</a></b>";
         echo "</p>";
         echo "<div id=\"divReposSources${i}\" class=\"divReposSources\">";
@@ -36,29 +38,44 @@
     }
 
     # Formulaire d'ajout d'un nouveau repo source rpm
-    echo "<form action=\"\" method=\"post\">";
+    echo "<form action=\"\" method=\"post\" autocomplete=\"off\">";
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
-    echo "<p>Nom du repo :</p>";
-    echo "<input type=\"text\" name=\"newRepoName\" autocomplete=\"off\">";
-    echo "<p>   </p>";
-    echo "<p>Contenu :</p>";
-    echo "<textarea name=\"newRepoFileConf\" placeholder=\"Insérez tout le contenu du fichier de conf ici\"></textarea>";
-    echo "<p>Clé GPG (optionnel) :</p>";
-    echo "<input type=\"text\" name=\"newRepoFileGpgKey\" placeholder=\"Clé de signature GPG du repo source\" autocomplete=\"off\">";
+    echo "<table class=\"table-large\">";
+    echo "<tr>";
+    echo "<td>Nom du repo</td>";
+    echo "<td><input type=\"text\" name=\"newRepoName\" required></td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td>baseurl</td>";
+    echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
+    echo "<td>ou mirrorlist</td>";
+    echo "<td><input type=\"text\" name=\"newRepoMirrorList\"></td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td>Ce repo distant dispose d'une clé GPG</td>";
+    echo "<td>";
+    echo "<select id=\"newRepoSourceSelect\">";
+    echo "<option id=\"newRepoSourceSelect_yes\">Oui</option>";
+    echo "<option id=\"newRepoSourceSelect_no\">Non</option>";
+    echo "</select>";
+    echo "</td>";
+    echo "</tr>";
+
+    echo "<tr class=\"tr-hide\">";
+    echo "<td colspan=\"100%\">Renseignez l'URL vers la clé GPG, ou bien la clé GPG au format texte (elle sera importée dans le trousseau de repomanager)</td>";
+    echo "</tr>";
+    echo "<tr class=\"tr-hide\">";
+    echo "<td>GPG URL</td>";
+    echo "<td>GPG texte</td>";
+    echo "</tr>";
+    echo "<tr class=\"tr-hide\">";
+    echo "<td><input type=\"text\" name=\"newRepoGpgKeyURL\"></td>";
+    echo "<td><textarea name=\"newRepoGpgKeyText\"></textarea></td>";
+    echo "</tr>";
+
+    echo "</table>";
     echo "<button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button>";
     echo "</form>";
-
-    /* ancien 
-    echo "<form action=\"\" method=\"post\">";
-    echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
-    echo "<p>Nom du fichier :</p>";
-    echo "<input type=\"text\" name=\"newRepoFile\" placeholder=\"xxxx.repo\" autocomplete=\"off\">";
-    echo "<p>Contenu :</p>";
-    echo "<textarea name=\"newRepoFileConf\" placeholder=\"Insérez tout le contenu du fichier de conf ici\"></textarea>";
-    echo "<p>Clé GPG (optionnel) :</p>";
-    echo "<input type=\"text\" name=\"newRepoFileGpgKey\" placeholder=\"Clé de signature GPG du repo source\" autocomplete=\"off\">";
-    echo "<button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button>";
-    echo "</form>"; */
   }
 
   if ($OS_TYPE == "deb") {
@@ -82,7 +99,7 @@
         $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
         $repoHost = str_replace(['Url=', '"'], '', $rowData[1]);
         echo "<tr>";
-        echo "<td class=\"td-auto\"><a href=\"?action=deleteHost&repoName=${repoName}\"><img src=\"images/trash.png\" /></a></td>";
+        echo "<td class=\"td-auto\"><a href=\"?action=deleteHost&repoName=${repoName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a></td>";
         echo "<td class=\"td-auto\">${repoName}</td>";
         echo "<td class=\"td-auto\">${repoHost}</td>";
         echo "</tr>";
@@ -117,7 +134,26 @@
   <div class="div-half-right">
     <p>Liste des clés GPG du trousseau de repomanager</p>
     <table class="table-large">
-    <?php 
+    <?php
+      if ($OS_TYPE == "rpm") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
+        $gpgFiles = scandir($RPM_GPG_DIR);
+        foreach($gpgFiles as $gpgFile) {
+          if (($gpgFile != "..") AND ($gpgFile != ".")) {
+            echo "<tr>";
+            echo "<td>";
+            echo "<a href=\"?action=deleteGpgKey&gpgKeyFile=${gpgFile}\">";
+            echo "<img src=\"icons/bin.png\" class=\"icon-lowopacity\"/>";
+            echo "</a>";
+            echo "</td>";
+            echo "<td>";
+            echo "$gpgFile";
+            echo "</td>";
+            echo "</tr>";
+          }
+        }
+      }
+
+      if ($OS_TYPE == "deb") {
         $gpgKeysList = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g'");
         $gpgKeysList = explode(PHP_EOL.PHP_EOL, $gpgKeysList);
         foreach ($gpgKeysList as $gpgKey) {
@@ -128,7 +164,7 @@
             echo "<tr>";
             echo "<td>";
             echo "<a href=\"?action=deleteGpgKey&gpgKeyID=${gpgKeyID}\">";
-            echo "<img src=\"images/trash.png\"/>";
+            echo "<img src=\"icons/bin.png\" class=\"icon-lowopacity\"/>";
             echo "</a>";
             echo "</td>";
             echo "<td>";
@@ -136,7 +172,8 @@
             echo "</td>";
             echo "</tr>";
           }
-        }      
+        }
+      }
     ?>
     </table>
   </div>
@@ -148,5 +185,18 @@ $(document).ready(function(){
     $("div#divManageReposSources").slideToggle(150);
     $(this).toggleClass("open");
   });
+});
+</script>
+
+
+<script> // rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
+$(function() {
+  $("#newRepoSourceSelect").change(function() {
+    if ($("#newRepoSourceSelect_yes").is(":selected")) {
+      $(".tr-hide").show();
+    } else {
+      $(".tr-hide").hide();
+    }
+  }).trigger('change');
 });
 </script>

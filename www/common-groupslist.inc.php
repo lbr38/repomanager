@@ -95,25 +95,4 @@ $(document).ready(function(){
     $(this).toggleClass("open");
   });
 });
-
-
-
-
-
-
-
-// à supprimer : 
-// Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
-// Bind keyup event on the input
-$('#input-repo').keyup(function() {
-  
-  // If value is not empty
-  if ($(this).val().length == 0) {
-    // Hide the element
-    $('.td-hide').hide();
-  } else {
-    // Otherwise show it
-    $('.td-hide').show();
-  }
-}).keyup(); // Trigger the keyup event, thus running the handler on page load
 </script>

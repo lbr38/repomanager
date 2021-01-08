@@ -194,26 +194,88 @@ if (isset($_GET['action']) AND ($_GET['action'] == "deleteGroup") AND !empty($_G
 // Redhat : on a la possibilité d'ajouter de nouveaux fichiers .repo depuis l'accueil
 if ($OS_TYPE == "rpm") {
   // Cas où on souhaite ajouter un nouveau fichier de conf :
-  if (!empty($_POST['newRepoFile']) AND !empty($_POST['newRepoFileConf'])) {
-    $newRepoFile = validateData($_POST['newRepoFile']);
-    $newRepoFileConf = $_POST['newRepoFileConf'];
-    if (!empty($_POST['newRepoFileGpgKey'])) {
-      $newRepoFileGpgKey = validateData($_POST['newRepoFileGpgKey']);
+  if (!empty($_POST['newRepoName']) AND !(empty($_POST['newRepoBaseUrl']) AND empty($_POST['newRepoMirrorList']))) {
+    $error=0; // un peu de gestion d'erreur
+    $newRepoName = validateData($_POST['newRepoName']);
+
+    // On forge le nom du fichier à partir du nom de repo fourni
+    $newRepoFile = "${newRepoName}.repo";
+    // Si le fichier existe déjà on affiche un alerte
+    if (file_exists("${REPOMANAGER_YUM_DIR}/${newRepoFile}")) {
+      printAlert("Le fichier $newRepoFile existe déjà");
+      $error++;
     }
 
-    if (!file_exists("${REPOMANAGER_YUM_DIR}/${newRepoFile}")) {
-      exec("echo '${newRepoFileConf}' > ${REPOMANAGER_YUM_DIR}/${newRepoFile}");
-    } else {
-      printAlert("Le fichier $newRepoFile existe déjà");
+    // On récupère la clé gpg, soit au format url, soit au format texte à importer. Si les deux sont renseignés on affiche une erreur (c'est l'un ou l'autre)
+    if (!empty($_POST['newRepoGpgKeyURL']) AND !empty($_POST['newRepoGpgKeyText'])) {
+      printAlert("Erreur clé GPG : Vous ne pouvez pas renseigner à la fois une url et une clé au format texte.");
+      $error++;
+    } elseif (!empty($_POST['newRepoGpgKeyURL'])) { // On recupère l'url de la clé gpg
+      $newRepoGpgKeyURL = validateData($_POST['newRepoGpgKeyURL']);
+    } elseif (!empty($_POST['newRepoGpgKeyText'])) { // On récupère la clé gpg au format texte
+      $newRepoGpgKeyText = validateData($_POST['newRepoGpgKeyText']);
+      // on importe la clé gpg au format texte dans le répertoire par défaut où rpm stocke ses clés gpg importées (et dans un sous-répertoire repomanager)
+      $newGpgFile = "REPOMANAGER-RPM-GPG-KEY-${newRepoName}";
+      if (file_exists("${RPM_GPG_DIR}/${newGpgFile}")) {
+        printAlert("Un fichier GPG du même nom existe déjà dans le trousseau de repomanager"); // on n'incrémente pas error ici car l'import de la clé peut se refaire à part ensuite
+      } else {
+        file_put_contents("${RPM_GPG_DIR}/${newGpgFile}", $newRepoGpgKeyText, FILE_APPEND | LOCK_EX); // ajout de la clé gpg à l'intérieur du fichier gpg
+      }
     }
+
+    // on récupère baseurl, si existe
+    if (!empty($_POST['newRepoBaseUrl'])) { 
+      $newRepoBaseUrl = validateData($_POST['newRepoBaseUrl']); 
+    }
+
+    // on récupère mirrorlist, si existe
+    if (!empty($_POST['newRepoMirrorList'])) {  
+      $newRepoMirrorList = validateData($_POST['newRepoMirrorList']); 
+    }
+
+    // On continue uniquement si il n'y a pas eu d'erreur précedemment
+    if ($error === 0) {
+      // on génère la conf qu'on va injecter dans le fichier de repo
+      $newRepoFileConf = "[${newRepoName}]";
+      $newRepoFileConf = "${newRepoFileConf}\nenabled=1";
+      if (!empty($newRepoBaseUrl)) {
+        $newRepoFileConf = "${newRepoFileConf}\nbaseurl=${newRepoBaseUrl}";
+      }
+      if (!empty($newRepoMirrorList)) {
+        $newRepoFileConf = "${newRepoFileConf}\nmirrorlist=${newRepoMirrorList}";
+      }
+      // Si on a renseigné une clé gpg, on active gpgcheck
+      if (!empty($newRepoGpgKeyURL) OR !empty($newRepoGpgKeyText)) {
+        $newRepoFileConf = "${newRepoFileConf}\ngpgcheck=1";
+      }
+      // On indique l'url vers la clé gpg
+      if (!empty($newRepoGpgKeyURL)) {
+        $newRepoFileConf = "${newRepoFileConf}\ngpgkey=${newRepoGpgKeyURL}";
+      }
+      // On indique le chemin vers la clé gpg
+      if (!empty($newRepoGpgKeyText)) {
+        $newRepoFileConf = "${newRepoFileConf}\ngpgkey=file://${RPM_GPG_DIR}/${newGpgFile}";
+      }
+      exec("echo '${newRepoFileConf}' > ${REPOMANAGER_YUM_DIR}/${newRepoFile}");
+      printAlert("Le repo source [${newRepoName}] a été ajouté. Vous pouvez désormais créer un miroir à partir de ce repo.");
+    }    
   }
+
 
   // Cas où on souhaite supprimer un fichier de conf :
   if (isset($_GET['action']) AND ($_GET['action'] == "deleteRepoFile") AND !empty($_GET['repoFileName'])) {
-    $repoFileName = $_GET['repoFileName'];
+    $repoFileName = validateData($_GET['repoFileName']);
     unlink("${REPOMANAGER_YUM_DIR}/${repoFileName}"); // supprime le fichier
+    printAlert("Le fichier de repo source ${repoFileName} a été supprimé. Vous ne pouvez plus créer de miroir à partir de ce repo");
+  }
+
+  // Cas où on souhaite supprimer une clé GPG du trousseau de repomanager
+  if (isset($_GET['action']) AND (validateData($_GET['action']) == "deleteGpgKey") AND !empty($_GET['gpgKeyFile'])) {
+    $gpgKeyFile = validateData($_GET['gpgKeyFile']);
+    unlink("${RPM_GPG_DIR}/${gpgKeyFile}");
   }
 }
+
 
 // Debian : on a la possibilité d'ajouter de nouvelles url hotes depuis l'accueil
 if ($OS_TYPE == "deb") {
@@ -223,16 +285,14 @@ if ($OS_TYPE == "deb") {
     $newHostUrl = $_POST['newHostUrl'];
     if (!empty($_POST['newHostGpgKey'])) { // on importe la clé si elle a été transmise 
         $newHostGpgKey = $_POST['newHostGpgKey'];
-        $gpgTempFile = '/tmp/newhostgpgkey.tmp'; // création d'un fichier temporaire
-        //$test = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key");
-        //echo "test : $test";
+        $gpgTempFile = '/tmp/repomanager_newgpgkey.tmp'; // création d'un fichier temporaire
         file_put_contents($gpgTempFile, $newHostGpgKey, FILE_APPEND | LOCK_EX); // ajout de la clé gpg à l'intérieur d'un fichier temporaire, afin de l'importer
         $output=null; // un peu de gestion d'erreur
         $retval=null;
         exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --import $gpgTempFile", $output, $retval);
         if ($retval !== 0) {
-          echo "Erreur lors de l'import de la clé GPG : ";
-          print_r($output);
+          printAlert("Erreur lors de l'import de la clé GPG");
+          if ($debugMode == "yes") { print_r($output); }
         } 
         unlink($gpgTempFile); // suppression du fichier temporaire
     }
@@ -247,7 +307,7 @@ if ($OS_TYPE == "deb") {
 
   // Cas où on souhaite supprimer un clé gpg du trousseau de repomanager :
   if (isset($_GET['action']) AND ($_GET['action'] == "deleteGpgKey") AND !empty($_GET['gpgKeyID'])) {
-    $gpgKeyID = $_GET['gpgKeyID'];
+    $gpgKeyID = validateData($_GET['gpgKeyID']);
     exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
   }
 }
