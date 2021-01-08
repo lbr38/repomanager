@@ -469,6 +469,19 @@ if [ -f "/etc/at.allow" ];then
 	fi
 fi
 
+# Conf cron pour pouvoir autoriser WWW_USER à modifier sa crontab
+if [ -f "/etc/cron.deny" ];then
+	if grep -q "$WWW_USER" /etc/cron.deny;then
+		sed -i "/${WWW_USER}/d" /etc/cron.deny 
+	fi
+fi
+# L'utilisateur web doit être présent dans /etc/at.allow :
+if [ -f "/etc/cron.allow" ];then
+	if ! grep -q "$WWW_USER" /etc/cron.allow;then
+		echo "$WWW_USER" >> /etc/cron.allow
+	fi
+fi
+
 # Mise en place des tâches cron si ce n'est pas déjà le cas
 # On exporte la crontab actuelle de WWW_USER dans un fichier (si une crontab existe)
 if ! sudo -u "$WWW_USER" crontab -l | grep "no crontab for";then
@@ -489,7 +502,7 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
 		echo "0 0 * * * ${REPOMANAGER} --web --reminders" >> /tmp/${WWW_USER}_crontab.tmp
 	fi
 fi
-# Si la tâche cron permettant de vérifier une nouvelle mise à jour n'existe pas, alors on la rajoiute à la suite du fichier exporté
+# Si la tâche cron journalière n'existe pas, alors on la rajoute à la suite du fichier exporté
 if ! grep -q ".*cronjob.daily" /tmp/${WWW_USER}_crontab.tmp;then
 	echo "*/5 * * * * bash ${BASE_DIR}/cron/cronjob.daily" >> /tmp/${WWW_USER}_crontab.tmp
 fi

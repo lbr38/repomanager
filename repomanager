@@ -72,6 +72,10 @@ execPlan() {
 	source "${FUNCTIONS}/20_execPlan"
 }
 
+planReminders() {
+	source "${FUNCTIONS}/21_planReminders"
+}
+
 #traitement_nettoyage() {
 #echo -n > /tmp/repomanager_reposuppr.txt
 #
@@ -283,7 +287,7 @@ if [ -f "${LOGS_DIR}/lastlog.log" ];then
 	LAST_EXECUTION_TIME=$(readlink -f ${LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
 	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%M:%Ss)
 	LAST_EXECUTION_USER="$(cat ${LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
-	LAST_EXECUTION_MESSAGE="${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
+	LAST_EXECUTION_MESSAGE="Le ${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
 else
 	LAST_EXECUTION_MESSAGE="N/A"
 fi
@@ -296,7 +300,7 @@ ln -sf "$LOG" "${LOGS_DIR}/lastlog.log"
 cat "${FUNCTIONS}/logo"                                                            
 
 # Affichage de la version en cours et vérification de la disponibilité d'une nouvelle version sur github
-printf "%-30s %s" " │  ${JAUNE}Version" "${RESET}: $VERSION "
+printf "%-30s %s" "   ${JAUNE}Version" "${RESET}: $VERSION "
 
 if [ -f "${BASE_DIR}/cron/github.version" ];then
 	GITHUB_VERSION=$(grep '^GITHUB_VERSION=' ${BASE_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/"//g')
@@ -312,18 +316,18 @@ else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une lig
 fi
 
 if [ "$OS_TYPE" == "Redhat" ];then
-	printf "%-30s %s\n" " │  ${JAUNE}OS" "${RESET}: Redhat/CentOS"
-	printf "%-30s %s\n" " │  ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
+	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Redhat/CentOS"
+	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
 fi
 
 if [ "$OS_TYPE" == "Debian" ];then
-	printf "%-30s %s\n" " │  ${JAUNE}OS" "${RESET}: Debian"
-	printf "%-30s %s\n" " │  ${JAUNE}Paquets gérés" "  ${RESET}: deb"
+	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Debian"
+	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: deb"
 fi
 WHOAMI=$(whoami)
-printf "%-30s %s\n" " │  ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
-printf "%-30s %s\n" " │  ${JAUNE}Dernière exécution" " ${RESET}: $LAST_EXECUTION_MESSAGE"
-echo -e " │\n │\n │"
+printf "%-30s %s\n" "   ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
+printf "%-30s %s\n" "   ${JAUNE}Dernière exécution" "  ${RESET}: $LAST_EXECUTION_MESSAGE"
+echo -e "\n\n"
 
 # On vérifie la conf générale de repomanager.conf ainsi que la cohérence des infos dans les fichiers repos.list et repo_spec.conf avant de commencer
 checkConf
@@ -368,6 +372,10 @@ while [ $# -ge 1 ];do
     	;;
 		--web)
 			TTY="0"
+		;;
+		--reminders)
+			planReminders
+			clean_exit
 		;;
 		--check-update|-cu)
 			checkUpdate

@@ -1,0 +1,141 @@
+#!/bin/bash
+# Envoi des rappels de planifications X jours avant (défini lorsqu'on ajoute une planification)
+
+
+# Récupération de la liste de toutes les planifications dans le fichier de conf, exemple syntaxe de planification : 2019-07-03:09h00:test:10days,7days
+#LISTE_DE_PLANIFICATIONS=$(sed -n "/\[Plan-.*\]/,/\[/p" "$PLAN_CONF_FILE")
+LISTE_DE_PLANIFICATIONS=$(grep "\[Plan-.*\]" "$PLAN_CONF_FILE")
+
+for PLANIFICATION in $(echo "$LISTE_DE_PLANIFICATIONS"); do
+    # On supprime les crochets [] du nom car on va devoir les échapper
+    PLANIFICATION=$(echo "$PLANIFICATION" | sed 's/\[//g' | sed 's/\]//g')
+    # Récupération de toute la conf de la planification qu'on traite
+    PLAN_DATE=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Date=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_ACTION=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Action=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_NAME=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Repo=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_DIST=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Dist=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_SECTION=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Section=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GROUP=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Group=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GPG_CHECK=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GPG_RESIGN=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REMINDERS=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Reminders=" | cut -d'=' -f2 | sed 's/"//g')
+
+    # Traitement des rappels
+    # Envoi des mails de rappels si nécessaire. Les rappels sont définis en nombre de jours à l'avance (ex 7days = rappel 7 jours à l'avance) et sont séparés par des virgules. Du coup on défini le séparateur de champ IFS comme étant une virgule. Mais d'abord on sauvegarde le séparateur par défaut dans $old_IFS :
+    old_IFS=$IFS
+	IFS=,
+	for REMINDER in $PLAN_REMINDERS;do
+        # Si la date d'aujourd'hui correspond à une des dates de rappel définie (par ex nous sommes 7j avant le traitement et il y a justement une demande de rappel 7j avant), alors on récupère les repos concernés et on forge le message de rappel avec l'action associée (update ou changement d'env)
+		if [ $(date -d "$PLAN_DATE today - $REMINDER" +"%Y-%m-%d") == "$DATE_AMJ" ];then
+
+
+
+
+
+
+
+
+
+			if [ "$PLAN_ACTION" == "synchro" ];then
+				MSG_REMINDER="${MSG_REMINDER}\nSynchronisation des repos suivants prévue le $(date -d "$PLAN_DATE" +"%d-%m-%Y") : $(echo ${LISTE_DEPOTS_PARSE})\n"
+			elif [ "$PLAN_ACTION" == "prod" ];then
+				MSG_REMINDER="${MSG_REMINDER}\nPassage en prod des repos suivants prévu le $(date -d "$PLAN_DATE" +"%d-%m-%Y") : $(echo "${LISTE_DEPOTS_PARSE}")\n"
+			fi
+		fi
+
+
+		LISTE_DEPOTS=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF" | sed -n "/${GROUPE}/,/^@/p" | egrep "^.*:")
+
+		# Puis il faut parser chaque ligne pour vérifier si le nom de repo possède un nom personnalisé ou non. Si la 3e colonne contient un terme, alors c'est un nom personnalisé (ex BaseOS-toto)
+		LISTE_DEPOTS_PARSE="" # Du coup on initialise cette variable qui contiendra le résultat final avec la liste des repos planifiés
+		for DEPOT in $(echo $LISTE_DEPOTS);do
+            REPO_NAME=$(echo ${DEPOT} | awk -F: '{print $1}')       # Récup du nom du dépot à synchroniser (1ère colonne)
+            REPO_ALIAS=$(echo ${DEPOT} | awk -F: '{print $3}')      # et du nom personnalisé (si non-vide) (3e colonne)
+            if [ ! -z "$REPO_ALIAS" ];then                          # Si la 3eme colonne n'est pas vide, alors il y a un nom personnalisé pour ce repo (ex BaseOS-toto),
+                REPO_NAME="$REPO_ALIAS"				                # qu'on va utiliser pour envoyer le rappel de planification. On remplace REPO par REPO_ALIAS 
+            fi
+			LISTE_DEPOTS_PARSE="${LISTE_DEPOTS_PARSE}\n${REPO_NAME}"
+		done
+
+		
+	done
+	IFS=$old_IFS
+
+
+
+done
+   clean_exit
+
+    PLAN_DATE=$(echo "$PLANIFICATION" | awk -F: '{print $1}')    # Parsage de la planification pour récupérer les infos data heure etc
+    PLAN_HEURE=$(echo "$PLANIFICATION" | awk -F: '{print $2}')
+    GROUPE=$(echo "$PLANIFICATION" | awk -F: '{print $3}')
+    PLAN_ACTION=$(echo "$PLANIFICATION" | awk -F: '{print $4}')
+    PLAN_RAPPELS=$(echo "$PLANIFICATION" | awk -F: '{print $5}')
+#
+#	# Pour chaque planif, on regarde si celle-ci doit être traitée aujourd'hui ($PLAN_DATE), sinon on envoie des rappels par mails pour prévenir des futures planifs ($RAPPEL)
+#
+#	# Si la tâche est planifiée à la date d'aujourd'hui (date planif == date d'aujourd'hui), alors on peut lancer l'action associée (synchronisation ou passage en prod ou autre...)
+#	if [ "$PLAN_DATE" == "$DATE_AMJ" ];then
+#		if [ "$PLAN_ACTION" == "synchro" ];then
+#			# on active la synchronisation auto qui va se charger d'exécuter la planif
+#			SYNC_AUTO=1
+#			CHOIX=2
+#		elif [ "$PLAN_ACTION" == "prod" ];then
+#			# on active le passage en prod automatique qui va se charger d'exécuter la planif
+#			PROD_AUTO=1
+#			CHOIX=3
+#		fi
+#
+#		echo -e "${CYAN}Traitement de la planification : ${PLANIFICATION}${RESET}"
+#		LISTE_DEPOTS=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF" | sed -n "/${GROUPE}/,/^@/p" | egrep "^.*:")
+#		main
+#	fi
+
+
+    # Traitement des rappels, envoi d'un mail
+    # Format des tâches planifiées :
+    # 2019-07-03:09h00:synchro:10days,7days
+    # Envoi des mails de rappels si nécessaire. Les rappels sont définis en nombre de jours à l'avance (ex 7days = rappel 7 jours à l'avance) et sont séparés par des virgules. Du coup on défini le séparateur de champ IFS comme étant une virgule. Mais d'abord on sauvegarde le séparateur par défaut dans $old_IFS :
+	old_IFS=$IFS
+	IFS=,
+	for RAPPEL in $PLAN_RAPPELS; do
+		# On récupère les lignes entières, ex : 
+		# BaseOS:sys:base-toto
+		# extras:sys:
+		LISTE_DEPOTS=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF" | sed -n "/${GROUPE}/,/^@/p" | egrep "^.*:")
+
+		# Puis il faut parser chaque ligne pour vérifier si le nom de repo possède un nom personnalisé ou non. Si la 3e colonne contient un terme, alors c'est un nom personnalisé (ex BaseOS-toto)
+		LISTE_DEPOTS_PARSE="" # Du coup on initialise cette variable qui contiendra le résultat final avec la liste des repos planifiés
+		for DEPOT in $(echo $LISTE_DEPOTS);do
+            REPO_NAME=$(echo ${DEPOT} | awk -F: '{print $1}')       # Récup du nom du dépot à synchroniser (1ère colonne)
+            REPO_ALIAS=$(echo ${DEPOT} | awk -F: '{print $3}')      # et du nom personnalisé (si non-vide) (3e colonne)
+            if [ ! -z "$REPO_ALIAS" ];then                          # Si la 3eme colonne n'est pas vide, alors il y a un nom personnalisé pour ce repo (ex BaseOS-toto),
+                REPO_NAME="$REPO_ALIAS"				                # qu'on va utiliser pour envoyer le rappel de planification. On remplace REPO par REPO_ALIAS 
+            fi
+			LISTE_DEPOTS_PARSE="${LISTE_DEPOTS_PARSE}\n${REPO_NAME}"
+		done
+
+		# Si la date d'aujourd'hui correspond à une des dates de rappel définie (par ex nous sommes 7j avant le traitement et il y a justement une demande de rappel 7j avant), alors on forge le message de rappel avec l'action associée (synchro ou prod) et la liste des dépôts associés
+		if [ $(date -d "$PLAN_DATE today - $RAPPEL" +"%Y-%m-%d") == "$DATE_AMJ" ];then
+			if [ "$PLAN_ACTION" == "synchro" ];then
+				MSG_RAPPEL="${MSG_RAPPEL}\nSynchronisation des repos suivants prévue le $(date -d "$PLAN_DATE" +"%d-%m-%Y") : $(echo ${LISTE_DEPOTS_PARSE})\n"
+			elif [ "$PLAN_ACTION" == "prod" ];then
+				MSG_RAPPEL="${MSG_RAPPEL}\nPassage en prod des repos suivants prévu le $(date -d "$PLAN_DATE" +"%d-%m-%Y") : $(echo "${LISTE_DEPOTS_PARSE}")\n"
+			fi
+		fi
+	done
+	IFS=$old_IFS
+done
+
+if [ ! -z "$MSG_RAPPEL" ];then	# Si on a un message de rappel à transmettre, alors on exécute la fonction rappel_mail, sinon on ne fait rien
+	MSG_RAPPEL="${MSG_RAPPEL}\n\nPour annuler une tâche, éditer \"${CONF}\" et supprimer la tâche planifiée dans la section [PLANIFICATION]"
+	rappel_mail
+fi
+
+
+
+
+
+
+
+

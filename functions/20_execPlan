@@ -10,10 +10,10 @@ PLAN_REPO_NAME=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Repo=
 PLAN_REPO_DIST=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Dist=" | cut -d'=' -f2 | sed 's/"//g')
 PLAN_REPO_SECTION=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Section=" | cut -d'=' -f2 | sed 's/"//g')
 PLAN_GROUP=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Group=" | cut -d'=' -f2 | sed 's/"//g')
-#PLAN_GPG_CHECK=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
-PLAN_GPG_CHECK="yes" # par défaut à yes pour les tests
-#PLAN_GPG_RESIGN=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
-PLAN_GPG_RESIGN="yes" # par défaut à yes pour les tests
+PLAN_GPG_CHECK=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
+#PLAN_GPG_CHECK="yes" # par défaut à yes pour les tests
+PLAN_GPG_RESIGN=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
+#PLAN_GPG_RESIGN="yes" # par défaut à yes pour les tests
 
 # Initialisation de variables supplémentaires
 PLAN_GROUP_LIST=""
@@ -30,30 +30,40 @@ if [ -z "$PLAN_REPO_NAME" ] && [ -z "$PLAN_GROUP" ];then
 	clean_exit
 fi
 
-if [ -z "$PLAN_GPG_CHECK" ];then
-	PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 5 : Vérification des signatures GPG non spécifié"
-	clean_exit
-fi
-
-if [ "$OS_TYPE" == "Redhat" ];then
-	if [ -z "$PLAN_GPG_RESIGN" ];then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 6: Signature des paquets avec GPG non spécifié"
+# Si l'action est 'update' alors on doit avoir renseigné PLAN_GPG_CHECK (+ PLAN_GPG_RESIGN pour redhat)
+if [ "$PLAN_ACTION" == "update" ];then
+	if [ -z "$PLAN_GPG_CHECK" ];then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 5 : Vérification des signatures GPG non spécifié"
 		clean_exit
+	fi
+
+	if [ "$OS_TYPE" == "Redhat" ];then
+		if [ -z "$PLAN_GPG_RESIGN" ];then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 6: Signature des paquets avec GPG non spécifié"
+			clean_exit
+		fi
 	fi
 fi
 
 
-# On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas 
-# tous les deux renseignés en même temps :
+# On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas tous les deux renseignés en même temps :
 if ([ ! -z "$PLAN_REPO_NAME" ] && [ ! -z "$PLAN_GROUP" ]);then
 	if [ "$OS_TYPE" == "Redhat" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois un repo et un groupe de repos";fi
 	if [ "$OS_TYPE" == "Debian" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois une section et un groupe de sections";fi
 	clean_exit
 fi
 
-# Si on a renseigné un seul repo à traiter alors il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
+# Si on a renseigné un seul repo à traiter alors il faut vérifier qu'il existe dans la liste (il a pu être supprimé depuis que la planification a été créée)
+# Puis il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
 if [ ! -z "$PLAN_REPO_NAME" ];then
 	if [ "$OS_TYPE" == "Redhat" ];then
+		# Vérification que le repo existe
+		if ! grep -q "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO;then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : Le repo ${PLAN_REPO_NAME} n'existe pas"
+			clean_exit
+		fi
+
+		# Récupération du repo source
 		PLAN_REPO_REALNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 		if [ -z "$PLAN_REPO_REALNAME" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 8 : Impossible de récupérer le nom du repo source"
@@ -72,6 +82,13 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 			clean_exit
 		fi
 
+		# Vérification que la section existe
+		if ! grep -q "^Name=\"${PLAN_REPO_NAME}\",Host=\".*\",Dist=\"${PLAN_REPO_DIST}\",Section=\"${PLAN_REPO_SECTION}\"" $LISTE_REPO;then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : La section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST}) n'existe pas"
+			clean_exit
+		fi
+
+		# Récupération de l'hote source
 		PLAN_REPO_HOSTNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 		if [ -z "$PLAN_REPO_HOSTNAME" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 8 : Impossible de récupérer le nom de l'hôte source"
@@ -81,8 +98,15 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 fi
 
 
-# Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on récupère toute la liste du groupe
+# Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
+# Puis on récupère toute la liste du groupe
 if [ ! -z "$PLAN_GROUP" ];then
+	# Vérification que le groupe existe
+	if ! grep -q "\[${PLAN_GROUP}\]" $REPO_GROUPS_FILE;then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : Le groupe ${PLAN_GROUP} n'existe pas"
+		clean_exit
+	fi
+
 	# on récupère tous les repos du groupe
 	PLAN_GROUP_LIST=$(cat "$REPO_GROUPS_FILE" | sed -n "/${PLAN_GROUP}/,/^@/p" | egrep "^Name=\".*\"")
 
@@ -165,7 +189,7 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 			PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
 			PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
 			if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
-				PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nErreur : envs non définis"
+				PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 11 : environnements non définis"
 				continue
 			fi
 

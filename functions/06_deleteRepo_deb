@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# La fonction a besoin de 4 paramètres pour fonctionner :
+# La fonction a besoin de 1 paramètre pour fonctionner :
 # Le nom du repo
-# Le nom de la distribution
-# Le nom de la section
-# L'env de la section
 # Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
@@ -16,7 +13,7 @@ while [ $# -ge 1 ];do case "$1" in
 	shift
 done
 
-# On vérifie que le repo renseigné est bien présent dans le fichier repos.list, alors on peut commencer l'opération
+# On vérifie que le repo renseigné est bien présent dans le fichier repos.list, si oui alors on peut commencer l'opération
 if ! egrep -q "^Name=\"${REPO_NAME}\"" ${LISTE_REPO};then
     echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO}${RESET} sur ce serveur..."
     clean_exit

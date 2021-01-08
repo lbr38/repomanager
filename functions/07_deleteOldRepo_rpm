@@ -3,46 +3,40 @@
 # La fonction a besoin de 2 paramètres pour fonctionner :
 # Le nom du repo
 # La date du repo
-# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
-if [ $# -eq "0" ];then
-	listOldRepo
-	echo -e "Informations sur le repo à supprimer :"
-	infoRepo "+repo-name" "+repo-date"
-else # Sinon on les récupère dans des variables REPO_*
-	while [ $# -ge 1 ];do case "$1" in
-		--repo-name)
-			REPO_NAME="$2"
-			shift
-		;;
-		--repo-date)
-			REPO_DATE="$2"
-			shift
-		;;
-		*)
-		esac
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
 		shift
-	done
-fi
-if ! egrep -q "^${REPO_NAME}:${REPO_DATE}" $LISTE_REPO_ARCHIVE;then  # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, alors on peut commencer l'opération
-	echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME} → ${REPO_DATE}${RESET} sur ce serveur..."
+	;;
+	--repo-date)
+		REPO_DATE="$2"
+		shift
+	;;
+	*)
+	esac
+	shift
+done
+
+# On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, si oui alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" $LISTE_REPO_ARCHIVE;then  # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, alors on peut commencer l'opération
+	echo -e "\nErreur de syntaxe ou il n'existe aucun repo archivé ${CYAN}${REPO_NAME}${RESET} en date du ${CYAN}${REPO_DATE}${REST} sur ce serveur..."
     clean_exit
-fi
-if [ "$TTY" -eq "1" ];then
-	echo -ne "\nL'ancien repo ${CYAN}${REPO_NAME}${RESET} à la date ${CYAN}${REPO_DATE}${RESET} va être ${ROUGE}supprimé${RESET}. Confirmer (oui/non) : "
-	read -p "" CONFIRM
-	if [ "$CONFIRM" != "oui" ];then         # Si différent de oui, alors le script s'arrête
-		echo -e "Arrêt du script..."
-		clean_exit
-	fi
 fi
 
 echo -e "\nDébut de l'opération"
 sleep 1
+
+####
+
+echo -ne "Suppression du repo archivé ${REPO_NAME} :\t"
 cd ${REPOS_DIR}/ &&
-echo -ne "Suppression du vieux snapshot :\t"
-rm 99_old_version_${REPO_DATE}_${REPO_NAME}/ -rf && # Suppression du snapshot
+rm 99_old_version_${REPO_DATE}_${REPO_NAME}/ -rf &&
 echo -e "[${VERT} OK ${RESET}]"
+
+####
+
 echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-sed -i /^${REPO_NAME}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&   # On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
+sed -i /^Name=\"${REPO_NAME}\",RealName=\".*\",Date=\"${REPO_DATE}\"/d $LISTE_REPO_ARCHIVE &&   # On supprime le repo dans le fichier repos-archive.list
 echo -e "[${VERT} OK ${RESET}]"
+
 echo -e "${VERT}Opération terminée${RESET}"

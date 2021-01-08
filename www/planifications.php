@@ -2,15 +2,16 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-  // Import des variables nécessaires, ne pas changer l'ordre des require
+  // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
   require 'common-vars.php';
   require 'common-functions.php';
   require 'common.php';
   require 'display.php';
-  if ($debugMode == "enabled") { print_r($_POST); }
+  if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // Cas où on ajoute une planification
 if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($_POST['addPlanAction'])) {
+    $error = 0; // un peu de gestion d'erreur
     $addPlanId = validateData($_POST['addPlanId']);
     $addPlanDate = validateData($_POST['addPlanDate']);
     $addPlanTime = validateData($_POST['addPlanTime']);
@@ -21,34 +22,100 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     $addPlanAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés avant de les envoyer dans PLAN_CONF_FILE. Trouver une autre solution 
     if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = validateData($_POST['addPlanReminder']); } // et les rappels si il y en a
 
+    // si l'action sélectionnée dans le formulaire est 'update', alors on récupère les valeurs des boutons radio Gpg Check et Gpg resign
+    if ($addPlanAction === "update") {
+      if (empty($_POST['addPlanGpgCheck'])) { // Normalement ne peut pas être vide car un des deux boutons radio est forcément sélectionné, mais bon...
+        $error++;
+        printAlert("Vous devez indiquer une valeur pour GPG Check");
+      } else {
+        $addPlanGpgCheck = validateData($_POST['addPlanGpgCheck']);
+      }
+      // Si rpm, on récupère la valeur du bouton radio gpg resign
+      if ($OS_TYPE == "rpm") {
+        if (empty($_POST['addPlanGpgResign'])) { // Normalement ne peut pas être vide car un des deux boutons radio est forcément sélectionné, mais bon...
+          $error++;
+          printAlert("Vous devez indiquer une valeur pour GPG Resign");
+        } else {
+          $addPlanGpgResign = validateData($_POST['addPlanGpgResign']);
+        }
+      }
+    }
+
     // on récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
     if(!empty($_POST['addPlanRepo'])) { $addPlanRepo = validateData($_POST['addPlanRepo']); }
     if(!empty($_POST['addPlanGroup'])) { $addPlanGroup = validateData($_POST['addPlanGroup']); }
     // si les deux on été renseignés, on affiche une erreur
     if (!empty($addPlanRepo) AND !empty($addPlanGroup)) {
+      $error++;
       printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux");
-    } else {
-      // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
-      if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
-      if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
+    } 
+    
+    // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
+    if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
+    if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
 
+    // on vérifie que le repo ou la section indiqué existe dans la liste des repos
+    if (!empty($addPlanRepo)) {
+      if ($OS_TYPE == "rpm") {
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\"' $REPO_FILE");
+        if (empty($checkIfRepoExists)) {
+          $error++;
+          printAlert("Le repo $addPlanRepo n'existe pas");
+        }
+      }
+      if ($OS_TYPE == "deb") {
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\",Host=\".*\",Dist=\"${addPlanDist}\",Section=\"${addPlanSection}\"' $REPO_FILE");
+        if (empty($checkIfRepoExists)) {
+          $error++;
+          printAlert("La section $addPlanSection du repo $addPlanRepo (distribution ${addPlanDist}) n'existe pas");
+        }
+      }
+    }
+
+    // on vérifie que le groupe indiqué existe dans le fichier de groupes
+    if (!empty($addPlanGroup)) {
+      $checkIfGroupExists = exec("grep '\[${addPlanGroup}\]' $REPO_GROUPS_FILE");
+      if (empty($checkIfGroupExists)) {
+        $error++;
+        printAlert("Le groupe $addPlanGroup n'existe pas");
+      }
+    }
+
+    // On traite uniquement si il n'y a pas eu d'erreur précédemment
+    if ($error === 0) {
       // Ajout de la planification dans le fichier de conf et ajout d'une tâche at
       // Dans le cas où on ajoute une planif pour un groupe de repos (càd addPlanGroup a été envoyé) :
       if(isset($addPlanGroup)) {
         // on indique le nom du groupe et l'action à exécuter :
-        exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
+          if ($OS_TYPE == "rpm") {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
+        } else {
+          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        }
       }
       // Dans le cas où on ajoute une planif pour un seul repo :
       if(isset($addPlanRepo)) {
-        // on indique le nom du repo : (à ajouter : l'env du repo si l'action est 'prod')
-        if ($OS_TYPE == "rpm" ) {
-          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        // on indique le nom du repo :
+        if ($OS_TYPE == "rpm") {
+          if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
         }
-        if ($OS_TYPE == "deb" ) {
-          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        if ($OS_TYPE == "deb" ) { // Si c'est deb, on doit préciser la dist et la section
+          if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check)
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
         }
       }
-      // Dans les deux cas on crée une tâche at avec l'id de la planification :
+      // Dans tous les cas on crée une tâche at avec l'id de la planification :
       exec("echo '${REPOMANAGER} --web --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
       // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
       exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
@@ -154,18 +221,34 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               if ($OS_TYPE == "deb") { // Si Debian, alors on récupère la dist et la section aussi
                 $planDist = str_replace(['Dist=', '"'], '', $plan[4]); // on récupère la distribution en retirant 'Dist=""' de l'expression
                 $planSection = str_replace(['Section=', '"'], '', $plan[5]); // on récupère la section en retirant 'Section=""' de l'expression
-                $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck
+                  $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[6]);
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[7]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                } else {
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                }
               }
             } else if(substr($plan[3], 0, 5) == "Group") { // sinon si la 3ème ligne commence par Group
               $planRepoOrGroup = str_replace(['Group=', '"'], '', $plan[3]); // on récupère le repo ou le groupe en retirant 'Repo=""' de l'expression
               if ($OS_TYPE == "deb") { // Si Debian alors on n'affiche pas de distrib ni de section (on affiche un tiret "-" à la place)
                 $planDist = "-";
                 $planSection = "-";
-                $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck
+                  $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[4]);
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[5]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                } else {
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                }
               }
             }
             if ($OS_TYPE == "rpm") {
-              $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck et GpgResign
+                $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[4]);
+                $planGpgResign = str_replace(['GpgResign=', '"'], '', $plan[5]);
+                $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              } else {
+                $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              }
             }
 
             echo "<tr>";
@@ -178,7 +261,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               echo "<td class=\"td-auto\">${planSection}</td>";
             }
             echo "<td class=\"td-auto\">${planReminder}</td>";
-            echo "<td class=\"td-auto\"><a href=\"?action=deletePlan&planId=$planId\"><img src=\"images/trash.png\" /></a></td>";
+            echo "<td class=\"td-auto\"><a href=\"?action=deletePlan&planId=${planId}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>";
             echo "</tr>";
             // après la boucle, on va incrémenter de +1 le numéro d'ID. Ce sera l'ID attribué pour la prochaine planification ajoutée.
             $planId++;
@@ -206,8 +289,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "<tr>";
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
-            echo "<select name=\"addPlanAction\">";
-            echo "<option value=\"update\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
+            echo "<select name=\"addPlanAction\" id=\"planSelect\">";   //toto
             foreach ($REPO_ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
               $nextEnv = exec("grep -A1 '$env' $ENV_CONF_FILE | grep -v '$env'");
@@ -215,23 +297,51 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 echo "<option value='${env}->${nextEnv}'>Changement d'env : ${env} -> ${nextEnv}</option>";
               }
             }
+            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${REPO_DEFAULT_ENV}</option>";
             echo "</select>";
             echo "</td>";
             echo "</tr>";
             echo "<tr>";
             echo "<td class=\"td-auto\">Repo</td>";
-            echo "<td class=\"td-auto\"><input type=\"text\" id=\"input_repo\" name=\"addPlanRepo\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\"><input type=\"text\" id=\"inputRepo\" name=\"addPlanRepo\" autocomplete=\"off\" /></td>";
             echo "<td class=\"td-auto\">ou Groupe</td>";
             echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanGroup\" autocomplete=\"off\" placeholder=\"@\" /></td>";
             echo "</tr>";
             if ($OS_TYPE == "deb") { 
-              echo "<tr class=\"tr-hide\">";
+              echo "<tr class=\"tr-hide\" id=\"hiddenDebInput\">";
               echo "<td class=\"td-auto\">Dist</td>";
               echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanDist\" autocomplete=\"off\" /></td>";
               echo "</tr>";
               echo "<tr class=\"tr-hide\">";
               echo "<td class=\"td-auto\">Section</td>";
               echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanSection\" autocomplete=\"off\" /></td>";
+              echo "</tr>";
+            }
+            echo "<tr class=\"tr-hide\">";
+            echo "<td>GPG check</td>";
+            echo "<td colspan=\"2\">";
+            echo "<input type=\"radio\" id=\"addPlanGpgCheck_yes\" name=\"addPlanGpgCheck\" value=\"yes\" checked=\"yes\">";
+            echo "<label for=\"addPlanGpgCheck_yes\">Yes</label>";
+            echo "<input type=\"radio\" id=\"addPlanGpgCheck_no\" name=\"addPlanGpgCheck\" value=\"no\">";
+            echo "<label for=\"addPlanGpgCheck_no\">No</label>";
+            echo "</td>";
+            echo "</tr>";
+            if ($OS_TYPE == "rpm") { // si rpm, alors on propose de resigner les paquets ou non
+              echo "<tr class=\"tr-hide\">";
+              echo "<td>Re-signer avec GPG</td>";
+              echo "<td colspan=\"2\">";
+              if ( $GPG_SIGN_PACKAGES == "yes" ) {
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_yes\" name=\"addPlanGpgResign\" value=\"yes\" checked=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_yes\">Yes</label>";
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_no\" name=\"addPlanGpgResign\" value=\"no\">";
+                echo "<label for=\"addPlanGpgResign_no\">No</label>";
+              } else {
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_yes\" name=\"addPlanGpgResign\" value=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_yes\">Yes</label>";
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_no\" name=\"addPlanGpgResign\" value=\"no\" checked=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_no\">No</label>";
+              } 
+              echo "</td>";
               echo "</tr>";
             }
             echo "<tr>";
@@ -259,22 +369,27 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 <script>
 // Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
 // Bind keyup event on the input
-$('#input_repo').keyup(function() {
+$('#inputRepo').keyup(function() {
   
   // If value is not empty
   if ($(this).val().length == 0) {
     // Hide the element
-    $('.tr-hide').hide();
+    $('#hiddenDebInput').hide();
   } else {
     // Otherwise show it
-    $('.tr-hide').show();
+    $('#hiddenDebInput').show();
   }
 }).keyup(); // Trigger the keyup event, thus running the handler on page load
 
-$('#planSelect').change(function() {
-  if ($('option').val() == 'Mise à jour du repo') {
-    $('.showcontent').show();
-  }
+// Afficher des boutons radio si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
+$(function() {
+  $("#planSelect").change(function() {
+    if ($("#updateRepoSelect").is(":selected")) {
+      $(".tr-hide").show();
+    } else {
+      $(".tr-hide").hide();
+    }
+  }).trigger('change');
 });
 </script>
 </html>

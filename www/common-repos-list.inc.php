@@ -101,7 +101,9 @@ if ($filterByGroups == "yes") {
                 echo "<td class=\"td-auto\"></td>";
                 echo "<td>Nom</td>";
                 if ($OS_TYPE == "deb") {
+                    echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                     echo "<td>Distribution</td>";
+                    echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                     echo "<td>Section</td>";
                 }
                 echo "<td>Env</td>";
@@ -167,10 +169,6 @@ if ($filterByGroups == "yes") {
                         }
                         echo "<tr class=\"$listColor\">";
                         echo "<td>";
-
-                        // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
-
                         // Affichage de l'icone "corbeille" pour supprimer le repo
                         if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                             echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -184,8 +182,11 @@ if ($filterByGroups == "yes") {
                             echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
                         }
                         if ($OS_TYPE == "deb") {
-                            echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                            echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
                         }
+
+                        // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
                         echo "</td>";
 
@@ -199,14 +200,18 @@ if ($filterByGroups == "yes") {
                         if ($OS_TYPE == "deb") {
                             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
+                                echo "<td class=\"td-xsmall\"></td>";
                                 echo "<td></td>";
                             } else {
+                                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteDist&repoName=${repoName}&repoDist=${repoDist}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                                 echo "<td>$repoDist</td>";
                             }
                             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
+                                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                                 echo "<td></td>";
                             } else {
+                                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                                 echo "<td>$repoSection</td>";
                             }
                         }
@@ -265,7 +270,9 @@ if ($filterByGroups == "yes") {
     echo "<td class=\"td-auto\"></td>";
     echo "<td>Nom</td>";
     if ($OS_TYPE == "deb") {
+        echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
+        echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
         echo "<td>Section</td>";
     }
     echo "<td>Env</td>";
@@ -328,9 +335,6 @@ if ($filterByGroups == "yes") {
             }
             echo "<tr class=\"$listColor\">";
             echo "<td>";
-            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
-
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -344,8 +348,11 @@ if ($filterByGroups == "yes") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
             }
             if ($OS_TYPE == "deb") {
-                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
             }
+
+            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -358,14 +365,18 @@ if ($filterByGroups == "yes") {
             if ($OS_TYPE == "deb") {
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
+                    echo "<td class=\"td-xsmall\"></td>";
                     echo "<td></td>";
                 } else {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteDist&repoName=${repoName}&repoDist=${repoDist}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                     echo "<td>$repoDist</td>";
                 }
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                     echo "<td></td>";
                 } else {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                     echo "<td>$repoSection</td>";
                 }
             }
@@ -425,7 +436,9 @@ if ($filterByGroups == "no") {
     echo "<td></td>";
     echo "<td>Nom</td>";
     if ($OS_TYPE == "deb") {
+        echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
+        echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
         echo "<td>Section</td>";
     }
     echo "<td>Env</td>";
@@ -471,9 +484,6 @@ if ($filterByGroups == "no") {
             }
             echo "<tr class=\"$listColor\">";
             echo "<td>";
-            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
-
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -487,8 +497,11 @@ if ($filterByGroups == "no") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
             }
             if ($OS_TYPE == "deb") {
-                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
             }
+
+            // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
             echo "</td>";
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -501,18 +514,32 @@ if ($filterByGroups == "no") {
             if ($OS_TYPE == "deb") {
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
+                    echo "<td class=\"td-xsmall\"></td>";
                     echo "<td></td>";
                 } else {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteDist&repoName=${repoName}&repoDist=${repoDist}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                     echo "<td>$repoDist</td>";
                 }
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                     echo "<td></td>";
                 } else {
+                    echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                     echo "<td>$repoSection</td>";
                 }
             }
-            echo "<td>$repoEnv</td>";
+            // Affichage de l'env en couleur
+            // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
+            if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+                echo "<td>$repoEnv</td>";
+            } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+                echo "<td class=\"td-bluebackground\">$repoEnv</td>";
+            } elseif ($repoEnv === $REPO_LAST_ENV) {
+                echo "<td class=\"td-redbackground\">$repoEnv</td>";
+            } else {
+                echo "<td>$repoEnv</td>";
+            }
 
             echo "<td>$repoDate</td>";
             if ($printRepoSize == "yes") {

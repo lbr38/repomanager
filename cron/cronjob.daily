@@ -34,12 +34,14 @@ else
 fi
 
 # Réapplique les bons droits sur le répertoire parent des repos
-find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+cd "$REPOS_DIR"
+
+find . -type d -exec chmod 0770 {} \;
 if [ $? -ne "0" ];then 
     (( PERMS_ERROR++ ))
 fi
 
-find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+find . -type f -exec chmod 0660 {} \;
 if [ $? -ne "0" ];then 
     (( PERMS_ERROR++ ))
 fi
@@ -80,13 +82,21 @@ if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "${REPOS_CONF_FILES_DIR}" ];then
 fi
 
 if [ "$CHECK_VERSION_ERROR" -gt "0" ];then
+    echo "Status=\"KO\"" >> "$LOG"
     echo "Problème lors de la vérification d'une nouvelle version" >> "$LOG"
 fi
 
 if [ "$GENERATE_REPO_CONF_FILES" -gt "0" ];then
+    echo "Status=\"KO\"" >> "$LOG"
     echo "Problème lors de regénération des fichiers de conf repo des profils" >> "$LOG"
 fi
 
 if [ "$PERMS_ERROR" -gt "0" ];then
+    echo "Status=\"KO\"" >> "$LOG"
     echo "Problème lors de l'application des permissions" >> "$LOG"
+fi
+
+# Si aucune erreur n'a eu lieu, on affiche un status OK
+if [ "$CHECK_VERSION_ERROR" -eq "0" ] && [ "$GENERATE_REPO_CONF_FILES" -eq "0" ] && [ "$PERMS_ERROR" -eq "0" ];then
+    echo "Status=\"OK\"" >> "$LOG"
 fi

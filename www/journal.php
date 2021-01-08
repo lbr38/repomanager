@@ -1,10 +1,10 @@
 <?php
-// Import des variables nécessaires, ne pas changer l'ordre des require
+// Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
 require 'common-vars.php';
 require 'common-functions.php';
 require 'common.php';
 require 'display.php';
-if ($debugMode == "enabled") { print_r($_POST); }
+if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // On récupère la liste des fichiers de logs en les triant 
 $logFiles = scandir("${BASE_DIR}/logs/", SCANDIR_SORT_DESCENDING);

@@ -2,6 +2,6 @@
 
 :root { 
     /* Couleurs alternantes dans la liste des repos */
-    --color1:rgb(165,165,165);
+    --color1:gray;
     --color2:white;
 }

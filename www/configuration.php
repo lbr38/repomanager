@@ -2,12 +2,12 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-    // Import des variables nécessaires, ne pas changer l'ordre des require
+    // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
     require 'common-vars.php';
     require 'common-functions.php';
     require 'common.php';
     require 'display.php';
-    if ($debugMode == "enabled") { print_r($_POST); }
+    if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
     // Comme la page contient un formulaire qui renvoie vers elle meme, on vérifie si des données ont été passées en POST (formulaire validé).
     // Si c'est le cas on récupère ces données et on les écrit dans le fichier de conf
@@ -380,10 +380,32 @@
 
 <table>
     <tr>
-    <?php
+        <td>Etat des cron</td>
+    </tr>
+    <tr>
+        <td>Tâche cron journalière</td>
+        <td>
+        <?php
+        // si un fichier de log existe, on récupère l'état
+        if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
+            $cronStatus = exec("grep 'Status=' ${BASE_DIR}/cron/logs/cronjob.daily.log | cut -d'=' -f2 | sed 's/\"//g'");
+            echo "état ${cronStatus}";
+        } else {
+            echo "état inconnu";
+        }
+        ?>
+        </td>
+    </tr>
+    <tr>
+        <td>Rappels auto. des planifications à venir</td>
+        <td>
+
+        </td>
+    </tr>
+    <?php 
     /* Si un fichier de log cron existe c'est qu'il y a eu un problème lors de l'exécution de la tâche 
     On affiche donc une pastille rouge et le contenu du fichier de logs. 
-    On affiche un bouton pour relancer la tâche manuellement */
+    On affiche un bouton pour relancer la tâche manuellement 
     if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
         echo "<td>";
         echo "Etat des cron <img src=\"icons/red_circle.png\" class=\"cronStatus\">";
@@ -402,7 +424,7 @@
         echo "<td>";
         echo "Etat des cron <img src=\"icons/green_circle.png\" class=\"cronStatus\">";
         echo "</td>";
-    }
+    }*/
     ?>
 
 </table>

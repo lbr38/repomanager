@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -ne " │ Vérification des fichiers de conf : "
+echo -ne "   Vérification des fichiers de conf : "
 ### 1 ###
 
 # Si le fichier de planifications n'existe pas, on le crée
@@ -467,7 +467,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 	# Parcourt du fichier repos-archive.list
 	if [ -s "$LISTE_REPO_ARCHIVE" ];then
 		sortLists # On tri le contenu des fichiers de liste
-		while IFS=, read REPO_NAME REPO_HOST REPO_DATE REPO_DESCRIPTION;do
+		while IFS=, read REPO_NAME REPO_REALNAME REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
 			if [ ! -d "${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME}" ];then
@@ -574,7 +574,7 @@ if [ "$OS_TYPE" == "Debian" ];then
 	# Parcourt du fichier repos-archive.list
 	if [ -s "$LISTE_REPO_ARCHIVE" ];then
 		sortLists # On tri le contenu des fichiers de liste
-		while IFS=, read REPO_NAME REPO_HOST REPO_DIST REPO_SECTION  REPO_DATE REPO_DESCRIPTION;do
+		while IFS=, read REPO_NAME REPO_HOST REPO_DIST REPO_SECTION REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DIST=$(echo "$REPO_DIST" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_SECTION=$(echo "$REPO_SECTION" | cut -d'=' -f2 | sed 's/"//g')

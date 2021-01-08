@@ -41,6 +41,7 @@ $REPO_ENVS = shell_exec("cat $ENV_CONF_FILE | grep -v '[ENVIRONNEMENTS]'"); // r
 $REPO_ENVS = explode("\n", $REPO_ENVS);
 $REPO_ENVS = array_filter($REPO_ENVS); // on supprime les lignes vides du tableau si il y en a
 $REPO_DEFAULT_ENV = exec("cat $ENV_CONF_FILE | grep -v '[ENVIRONNEMENTS]' | head -n1");
+$REPO_LAST_ENV = exec("cat $ENV_CONF_FILE | grep -v '[ENVIRONNEMENTS]' | tail -n1");
 $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
 
 // Config web :

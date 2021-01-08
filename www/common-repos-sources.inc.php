@@ -11,16 +11,17 @@
     $i=0;
     foreach($reposFiles as $repoFileName) {
       if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/00_repomanager/)
-        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre
-        $repoFileName = str_replace(".repo", "", $count);
+        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
+        $repoFileNameFormated = str_replace(".repo", "", $repoFileName);
+        // on récupère le contenu du fichier
+        $content = file_get_contents("${REPOMANAGER_YUM_DIR}/${repoFileName}", true);
         echo "<p>";
         echo "<a href=\"?action=deleteRepoFile&repoFileName=${repoFileName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
-        echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileName}</a></b>";
+        echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileNameFormated}</a></b>";
         echo "</p>";
         echo "<div id=\"divReposSources${i}\" class=\"divReposSources\">";
-        $contenu = file_get_contents("${REPOMANAGER_YUM_DIR}/${repoFileName}", true);
         echo "<textarea>";
-        echo "${contenu}";
+        echo "${content}";
         echo "</textarea>";
         echo "</div>";
 
@@ -38,20 +39,32 @@
     }
 
     # Formulaire d'ajout d'un nouveau repo source rpm
+    echo "<br>";
     echo "<form action=\"\" method=\"post\" autocomplete=\"off\">";
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
-    echo "<table class=\"table-large\">";
+    echo "<table class=\"table-auto\">";
     echo "<tr>";
-    echo "<td>Nom du repo</td>";
-    echo "<td><input type=\"text\" name=\"newRepoName\" required></td>";
+    echo "<td><b>1.</b></td>";
+    echo "<td colspan=\"2\">Nom du repo :</td>";
     echo "</tr>";
     echo "<tr>";
-    echo "<td>baseurl</td>";
+    echo "<td></td>";
+    echo "<td colspan=\"2\"><input type=\"text\" name=\"newRepoName\" id=\"newRepoNameInput\" required></td>";
+    echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td><b>2.</b></td>";
+    echo "<td>Baseurl :</td>";
+    echo "<td>ou Mirrorlist :</td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td></td>";
     echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
-    echo "<td>ou mirrorlist</td>";
     echo "<td><input type=\"text\" name=\"newRepoMirrorList\"></td>";
     echo "</tr>";
+    echo "<tr><td><br></td></tr>";
     echo "<tr>";
+    echo "<td><b>3.</b></td>";
     echo "<td>Ce repo distant dispose d'une clé GPG</td>";
     echo "<td>";
     echo "<select id=\"newRepoSourceSelect\">";
@@ -65,16 +78,19 @@
     echo "<td colspan=\"100%\">Renseignez l'URL vers la clé GPG, ou bien la clé GPG au format texte (elle sera importée dans le trousseau de repomanager)</td>";
     echo "</tr>";
     echo "<tr class=\"tr-hide\">";
+    echo "<td></td>";
     echo "<td>GPG URL</td>";
     echo "<td>GPG texte</td>";
     echo "</tr>";
     echo "<tr class=\"tr-hide\">";
+    echo "<td></td>";
     echo "<td><input type=\"text\" name=\"newRepoGpgKeyURL\"></td>";
     echo "<td><textarea name=\"newRepoGpgKeyText\"></textarea></td>";
     echo "</tr>";
-
+    echo "<tr>";
+    echo "<td colspan=\"100%\"><button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button></td>";
+    echo "</tr>";
     echo "</table>";
-    echo "<button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button>";
     echo "</form>";
   }
 
@@ -133,7 +149,7 @@
   </div>
   <div class="div-half-right">
     <p>Liste des clés GPG du trousseau de repomanager</p>
-    <table class="table-large">
+    <table class="table-auto">
     <?php
       if ($OS_TYPE == "rpm") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
         $gpgFiles = scandir($RPM_GPG_DIR);
@@ -146,7 +162,7 @@
             echo "</a>";
             echo "</td>";
             echo "<td>";
-            echo "$gpgFile";
+            echo "${gpgFile}";
             echo "</td>";
             echo "</tr>";
           }
@@ -186,10 +202,8 @@ $(document).ready(function(){
     $(this).toggleClass("open");
   });
 });
-</script>
 
-
-<script> // rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
+// rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
 $(function() {
   $("#newRepoSourceSelect").change(function() {
     if ($("#newRepoSourceSelect_yes").is(":selected")) {
@@ -198,5 +212,12 @@ $(function() {
       $(".tr-hide").hide();
     }
   }).trigger('change');
+});
+
+// rpm : affiche une td avec le nom final du repo entre crochets [] tel qu'il sera inséré dans son fichier
+$("#newRepoNameInput").on("input", function(){
+  $(".td-hide").show(); // D'abord on affiche la td cachée
+  var content = $('#newRepoNameInput').val(); // on récupère le contenu du input #newRepoNameInput
+  $("#newRepoNameHiddenTd").text(content + ".repo"); // on affiche le contenu à l'intérieur de la td, concaténé de '.repo' afin d'afficher le nom du fichier complet
 });
 </script>

@@ -2,12 +2,12 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-    // Import des variables nécessaires, ne pas changer l'ordre des require
+    // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
     require 'common-vars.php';
     require 'common-functions.php';
     require 'common.php';
     require 'display.php';
-    if ($debugMode == "enabled") { print_r($_GET); }
+    if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 ?>
 
 <body>
@@ -552,7 +552,7 @@ function checkAction_changeEnv() {
             if (!empty($checkifRepoExist2)) { // si un repo existe
                 // du coup on vérifie que le repo à archiver n'est pas utilisé par un autre environnement :
                 // on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $4}'");
+                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
                 $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPO_FILE | grep -v '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"'");
                 if (empty($checkifRepoExist3)) { // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                     $repoArchive = "yes";
@@ -612,7 +612,7 @@ function checkAction_changeEnv() {
             if (!empty($checkifRepoExist2)) { // si un repo existe
                 // du coup on vérifie que le repo à archiver n'est pas utilisé par un autre environnement :
                 // on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $6}'");
+                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
                 $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPO_FILE | grep -v '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"'");
                 if (empty($checkifRepoExist3)) { // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                     $repoArchive = "yes";
@@ -1093,8 +1093,8 @@ function checkAction_deleteRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName --repo-env $repoEnv >/dev/null 2>/dev/null &");;
-                echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
+                exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName --repo-env $repoEnv >/dev/null 2>/dev/null &");
+                echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
     
         // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :
@@ -1171,75 +1171,6 @@ function checkAction_deleteRepo() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function checkAction_deleteOldRepo() {
     require 'common-vars.php';
     
@@ -1259,7 +1190,7 @@ function checkAction_deleteOldRepo() {
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = $_GET['repoName'];
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
@@ -1270,7 +1201,7 @@ function checkAction_deleteOldRepo() {
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = $_GET['repoDist'];
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
@@ -1281,7 +1212,7 @@ function checkAction_deleteOldRepo() {
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = $_GET['repoSection'];
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
@@ -1292,7 +1223,7 @@ function checkAction_deleteOldRepo() {
         echo "<td><input type=\"text\" name=\"repoDate\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la date du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoDate = $_GET['repoDate'];
+        $repoDate = validateData($_GET['repoDate']);
         echo "<td><input type=\"hidden\" name=\"repoDate\" value=\"$repoDate\"></td>";
     }
 
@@ -1330,8 +1261,8 @@ function checkAction_deleteOldRepo() {
 
             // Si on a reçu la confirmation en POST alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-date $repoDate >/dev/null 2>/dev/null &");;
-                echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
+                exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-date $repoDate >/dev/null 2>/dev/null &");
+                echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
     
         // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :
@@ -1346,9 +1277,8 @@ function checkAction_deleteOldRepo() {
     // Cas Debian :
     if ($OS_TYPE == "deb") {    
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate)) {
-
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :
-            $checkifRepoExist = exec("grep '^${repoName}:${repoDist}:${repoSection}:' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_ARCHIVE_FILE");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist})</td>";
@@ -1386,61 +1316,6 @@ function checkAction_deleteOldRepo() {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1504,8 +1379,8 @@ function checkAction_restoreOldRepo() {
         echo "<td><input type=\"hidden\" name=\"repoDate\" value=\"$repoDate\"></td>";
     }
 
-    // Si repoDescription est vide, on affiche un formulaire pour le demander 
-    if (empty($_GET['repoDescription'])) {
+    // Si repoDescription est vide, on affiche un formulaire pour le demander
+    /*if (empty($_GET['repoDescription'])) {
         echo "<tr>";
         echo "<td>Description</td>";
         echo "<td><input type=\"text\" name=\"repoDescription\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une description\"></td>";
@@ -1513,7 +1388,15 @@ function checkAction_restoreOldRepo() {
     } else {
         $repoDescription = $_GET['repoDescription'];
         echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
+    }*/
+
+    // La description peut rester vide
+    if (empty($_GET['repoDescription'])) {
+        $repoDescription = "nodescription";
+    } else {
+        $repoDescription = validateData($_GET['repoDescription']);
     }
+    echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
 
 
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
@@ -1523,7 +1406,7 @@ function checkAction_restoreOldRepo() {
         if (!empty($repoName) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo archivé mentionné existe :
-            $checkifRepoExist = exec("grep '^${repoName}:${repoDate}:' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Date=\"${repoDate}\"' $REPO_ARCHIVE_FILE");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo archivé ${repoName} en date du ${repoDate}</td>";
@@ -1534,10 +1417,30 @@ function checkAction_restoreOldRepo() {
                 return 1; // On sort de la fonction pour ne pas que les conditions suivantes (ci-dessous) s'exécutent
             }
 
+            // On vérifie si un repo du même nom existe en env '$REPO_DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
+            $repoArchive = 'no'; // on déclare une variable à 'no' par défaut
+            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            // Si le résultat précedent n'est pas vide, alors il y a un miroir qui sera potentiellement archivé. 
+            // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
+            if (!empty($repoToBeArchived)) {
+                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPO_FILE | grep -v '${REPO_DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
+                // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive.
+                if (empty($othersReposToBeArchived)) {
+                    $repoArchive = 'yes';
+                }
+            }
+
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
             if (empty($_GET['confirm'])) {
                 echo "<tr>";
-                echo "<td>L'opération va restaurer le repo ${repoName} en date du ${repoDate}</td>";
+                echo "<td>";
+                echo "L'opération va restaurer le repo ${repoName} archivé en date du ${repoDate}.";
+                echo "<br>La restauration placera le repo sur l'environnement par défaut ${REPO_DEFAULT_ENV}.";
+                if ($repoArchive == "yes") {
+                    echo "<br>Le repo actuellement en ${REPO_DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivé.";
+                }
+                echo "</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td>Confirmer :</td>";
@@ -1549,7 +1452,7 @@ function checkAction_restoreOldRepo() {
 
             // Si on a reçu la confirmation en POST alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");;
+                exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
     
@@ -1567,7 +1470,7 @@ function checkAction_restoreOldRepo() {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :
-            $checkifRepoExist = exec("grep '^${repoName}:${repoDist}:${repoSection}:' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_ARCHIVE_FILE");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist})</td>";
@@ -1578,10 +1481,30 @@ function checkAction_restoreOldRepo() {
                 return 1; // On sort de la fonction pour ne pas que les conditions suivantes (ci-dessous) s'exécutent
             }
 
+            // On vérifie si une section du même nom existe en env '$REPO_DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
+            $repoArchive = 'no'; // on déclare une variable à 'no' par défaut
+            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            // Si le résultat précedent n'est pas vide, alors il y a un miroir qui sera potentiellement archivé. 
+            // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
+            if (!empty($repoToBeArchived)) {
+                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPO_FILE | grep -v '${REPO_DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
+                // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive.
+                if (empty($othersReposToBeArchived)) {
+                    $repoArchive = 'yes';
+                }
+            }
+
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
             if (empty($_GET['confirm'])) {
                 echo "<tr>";
-                echo "<td>L'opération va restaurer la section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist}) en date du ${repoDate}</td>";
+                echo "<td>";
+                echo "L'opération va restaurer la section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist}) en date du ${repoDate}";
+                echo "<br>La restauration placera la section sur l'environnement par défaut ${REPO_DEFAULT_ENV}.";
+                if ($repoArchive == "yes") {
+                    echo "<br>La section actuellement en ${REPO_DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivée.";
+                }
+                echo "</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td>Confirmer :</td>";

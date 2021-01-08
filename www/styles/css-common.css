@@ -18,8 +18,8 @@
     boutons bleu : rgba(30, 60, 194, 0.712);
     boutons bleu (hover) : 
 
-    boutons vert : 
-    boutons vert (hover) : 
+    boutons vert : #4CAF50
+    boutons vert (hover) : #3e8e41
 
     boutons rouge : rgb(202, 0, 0);
     boutons rouge (hover) : red;
@@ -49,6 +49,10 @@ a {
 	text-decoration: none;
     color: whitesmoke;
     font-size: 12px;
+}
+
+a:hover {
+    font-weight: bold;
 }
 
 p, label {
@@ -249,12 +253,36 @@ table.list-repos td {
     padding-right: 10px;
 }
 
+table.list-repos td.td-xsmall {
+    max-width: 8px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .list-repos tr.color1 td { 
     color: var(--color1);
 }
 
 .list-repos tr.color2 td { 
     color: var(--color2);
+}
+
+table.list-repos td.td-redbackground {
+    background-color: rgb(202, 0, 0);
+    color: whitesmoke;
+    font-weight: bold;
+}
+
+table.list-repos td.td-greenbackground {
+    background-color: #4CAF50;
+    color: whitesmoke;
+    font-weight: bold;
+}
+
+table.list-repos td.td-bluebackground {
+    background-color: rgba(30, 60, 194, 0.712);
+    color: whitesmoke;
+    font-weight: bold;
 }
 
 .hide, .tr-hide {
@@ -291,10 +319,6 @@ td {
     width: auto !important;
     padding-left: 5px;
     padding-right: 5px;
-}
-
-.td-xsmall {
-    width: 50px;
 }
 
 .td-small {
@@ -334,7 +358,8 @@ article.log {
      color: whitesmoke;
 }
 
-.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
+/* conf commune à toutes les icones */
+.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green {
     height: 11px;
     margin-left: 5px;
     margin-right: 5px;
@@ -343,6 +368,10 @@ article.log {
 
 .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
     opacity: 0.33;
+}
+
+.icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green { /* pour une icone encore plus transparente */
+    opacity: 0.11;
 }
 
 .icon-lowopacity:hover {
@@ -361,6 +390,16 @@ article.log {
 .icon-lowopacity-green:hover {
     opacity: 1;
 }
+
+.icon-verylowopacity:hover { 
+    opacity: 1;
+}
+
+.icon-verylowopacity-red:hover {
+    /* trouver comment modifier la couleur du png en rouge */
+    opacity: 1;
+}
+
 
 .li-operation-running {
     background-color: #f44336;
@@ -745,6 +784,7 @@ img.cronStatus {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#252525;
     border-radius: 5px;
+    transition-duration: 0.1s;
 }
 
 .alert { /* div affichant une alerte au milieu de la page lorsqu'une action n'aboutie pas */

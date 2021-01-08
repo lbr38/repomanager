@@ -2,93 +2,101 @@
 
 # La fonction a besoin de 3 paramètres pour fonctionner :
 # Le nom du repo
-# Le nom de la distribution
-# Le nom de la section
-# La date de la section
-# La description de la section
-# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
-if [ $# -eq "0" ];then
-	listOldRepo
-	echo -e "Informations sur le repo à restaurer :"
-	infoRepo "+repo-name" "+repo-date" "+repo-description"
-else # Sinon on les récupère dans des variables REPO_*
-	while [ $# -ge 1 ];do case "$1" in
-		--repo-name)
-			REPO_NAME="$2"
-			shift
-		;;
-		--repo-date)
-			REPO_DATE="$2"
-			shift
-		;;
-        --repo-description)
-            # on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
-			shift
-			REPO_DESCRIPTION="$*"
-			if [ "$REPO_DESCRIPTION" == "null" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
-        ;;
-		*)
-		esac
+# La date du repo
+# La description du repo
+while [ $# -ge 1 ];do case "$1" in
+	--repo-name)
+		REPO_NAME="$2"
 		shift
-	done
-fi
-if egrep -q "^${REPO_NAME}:${REPO_DATE}" $LISTE_REPO_ARCHIVE;then  # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, alors on peut commencer l'opération
-	DATE_QUI_SERA_REMPLACE=$(egrep "^${REPO_NAME}:prod:" "$LISTE_REPO" | awk -F: '{print $3}') # Date du repo en prod actuel qui sera remplacé
-	if [ -z "$DATE_QUI_SERA_REMPLACE" ];then
-		echo -ne "Actuellement il n'y a aucune version en prod du repo ${CYAN}${REPO_NAME}${RESET}, l'opération va donc restaurer directement celle du ${CYAN}${REPO_DATE}${RESET}."
-	else
-		echo -ne "L'ancienne version du repo ${CYAN}${REPO_NAME}${RESET} à la date du ${CYAN}${REPO_DATE}${RESET} remplacera celle du ${ROUGE}${DATE_QUI_SERA_REMPLACE}${RESET} qui est actuellement en production."
-	fi
-    echo -ne " Confirmer (oui/non) : ";read -p "" CONFIRM
-    if [ "$CONFIRM" != "oui" ];then # Si différent de oui, alors le script s'arrête
-        echo -e "Arrêt du script..."
-        clean_exit
-    fi
-	echo -e "\nDébut de l'opération" && sleep 1 &&
-	cd ${REPOS_DIR}/ &&
-	echo -ne "Suppression du lien symbolique :\t" &&
-	unlink ${REPO_NAME}_prod && # Suppression du lien symbolique
-    echo -e "[${VERT} OK ${RESET}]"
-	echo -ne "Remise en place de l'ancien snapshot :\t" &&
-	mv 99_old_version_${REPO_DATE}_${REPO_NAME} ${REPO_DATE}_${REPO_NAME} &&
-    echo -e "[${VERT} OK ${RESET}]" &&
-	echo -ne "Création du lien symbolique :\t" &&
-	ln -s ${REPO_DATE}_${REPO_NAME}/ ${REPO_NAME}_prod &&
-	echo -e "[${VERT} OK ${RESET}]" &&
+	;;
+	--repo-date)
+		REPO_DATE="$2"
+		shift
+	;;
+       --repo-description)
+        # on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+		shift
+		REPO_DESCRIPTION="$*"
+	   ;;
+	*)
+	esac
+	shift
+done
+if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+# On récupère le Realname du repo archivé qui va être restauré
+REPO_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" "${LISTE_REPO_ARCHIVE}" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 
-	# Note : s'inspirer de ce qui a été fait pour Debian pour les opérations ci dessous : 
-	if [ -z "$DATE_QUI_SERA_REMPLACE" ];then # Si il n'y avait aucune version actuellement en prod, alors il n'y a pas d'archivage a faire
-		echo -ne "Mise à jour des informations dans repos.list :\t" &&
-		echo "${REPO_NAME}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> $LISTE_REPO &&
-		echo -e "[${VERT} OK ${RESET}]"
-		echo -ne "Mise à jour des informations dans repos-archive.list :\t" &&
-        sed -i /^${REPO_NAME}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&
-		echo -e "[${VERT} OK ${RESET}]"
-	elif grep -q "^${REPO_NAME}:test:${DATE_QUI_SERA_REMPLACE}:" $LISTE_REPO;then	# Si le snapshot actuel est encore utilisé en test, alors on ne l'archive pas
-		echo -e "\nLe snapshot ${CYAN}${DATE_QUI_SERA_REMPLACE}_${REPO_NAME}${RESET} est toujours utilisé en test, donc on ne l'archive pas"
-		echo -ne "Mise à jour des informations dans repos.list :\t" &&
-		sed -i /^${REPO_NAME}:prod:${DATE_QUI_SERA_REMPLACE}/d $LISTE_REPO && # On mets à jour les infos dans le fichier de conf
-		echo "${REPO_NAME}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> $LISTE_REPO &&
-        echo -e "[${VERT} OK ${RESET}]"
-		echo -ne "Mise à jour des informations dans repos-archive.list :\t" &&
-		sed -i /^${REPO_NAME}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&		# Suppression des infos du repo dans repos-archive.list puisqu'on vient de le restaurer en prod
-		echo -e "[${VERT} OK ${RESET}]"
-	else	# Sinon il n'est plus utilisé en prod ni en test, alors on l'archive 
-		OLD_DESC_PROD=$(egrep "^${REPO_NAME}:prod:${DATE_QUI_SERA_REMPLACE}" "$LISTE_REPO" | awk -F: '{print $4}') &&
-		echo -ne "Archivage du snapshot ${CYAN}${DATE_QUI_SERA_REMPLACE}_${REPO_NAME}${RESET} (non utilisé) :\t" &&
-		mv ${DATE_QUI_SERA_REMPLACE}_${REPO_NAME}/ 99_old_version_${DATE_QUI_SERA_REMPLACE}_${REPO_NAME}
-		echo -e "[${VERT} OK ${RESET}]" &&
-		echo -ne "Mise à jour des informations dans repos.list :\t" &&
-		sed -i s/^${REPO_NAME}:prod:${DATE_QUI_SERA_REMPLACE}/d $LISTE_REPO &&
-		echo "${REPO_NAME}:prod:${REPO_DATE}:${REPO_DESCRIPTION}" >> $LISTE_REPO &&
-		echo -e "[${VERT} OK ${RESET}]" &&
-		echo -ne "Mise à jour des informations dans repos-archive.list :\t" &&
-		sed -i /^${REPO_NAME}:${REPO_DATE}/d $LISTE_REPO_ARCHIVE &&
-		echo "${REPO_NAME}:${DATE_QUI_SERA_REMPLACE}:Env avant archv. : prod ; Descr. avant archv : ${OLD_DESC_PROD}" >> $LISTE_REPO_ARCHIVE &&
-		echo -e "[${VERT} OK ${RESET}]"
-	fi
-else
-    echo -e "\nErreur de syntaxe ou alors il n'existe aucun repo ${CYAN}${REPO_NAME} → ${REPO_DATE}${RESET} sur ce serveur..."
+# On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, si oui alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" ${LISTE_REPO_ARCHIVE};then
+	echo -e "\nErreur de syntaxe ou il n'existe aucun repo archivé ${CYAN}${REPO_NAME}${RESET} sur ce serveur..."
     clean_exit
 fi
+
+# On récupère des informations du repo du même nom actuellement en place et qui va être remplacé
+REPO_ACTUAL_DATE=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
+
+####
+
+echo -e "\nDébut de l'opération"
+sleep 1
+
+####
+
+cd ${REPOS_DIR}/ &&
+# Suppression du lien symbolique si un repo existe sur $REPO_DEFAULT_ENV (n'affichera pas d'erreur si il n'y en a pas)
+unlink ${REPO_NAME}_${REPO_DEFAULT_ENV}
+
+####
+
+echo -ne "Remise en place de l'ancien snapshot :\t"
+mv 99_old_version_${REPO_DATE}_${REPO_NAME} ${REPO_DATE}_${REPO_NAME} &&
+echo -e "[${VERT} OK ${RESET}]"
+
+echo -ne "Création du lien symbolique :\t"
+ln -s ${REPO_DATE}_${REPO_NAME}/ ${REPO_NAME}_${REPO_DEFAULT_ENV}
+echo -e "[${VERT} OK ${RESET}]"
+
+# Archivage de la version du repo (remplacée par le repo restauré) si elle n'est pas utilisée par d'autres envs
+# On vérifie que la version du repo n'est pas utilisée par d'autres environnements avant de l'archiver
+# Si la version qui vient d'être remplacée est utilisée par d'autres envs, alors on ne l'archive pas : 
+if [[ ! -z $(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${REPO_ACTUAL_DATE}\"" ${LISTE_REPO} | grep -v "^${REPO_DEFAULT_ENV}") ]];then
+	echo -e "\nLe miroir en date du ${REPO_ACTUAL_DATE} du repo ${CYAN}${REPO_NAME}${RESET} est toujours utilisé par d'autres environnements donc on ne l'archive pas"
+	echo -ne "Mise à jour des informations dans repos.list :\t"
+	sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_ACTUAL_DATE}\"/d ${LISTE_REPO} && # on retire la version qui vient d'être remplacée sur ${REPO_DEFAULT_ENV}
+	echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${LISTE_REPO} && # Puis on rajoute la nouvelle (ya que la date qui change au final)
+	echo -e "[$VERT OK $RESET]"
+	echo -ne "Mise à jour des informations dans repos-archive.list :\t"
+	sed -i /^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO_ARCHIVE} && # Suppression des infos du repo archivé dans repos-archive.list puisqu'on vient de la restaurer
+	echo -e "[$VERT OK $RESET]"
+# Si le repo qu'on vient de restaurer n'a remplacé aucun repo (comprendre il n'y avait aucun repo en cours sur REPO_DEFAULT_ENV), alors on mets à jour les infos dans repos.list. Pas d'archivage de quoi que ce soit.
+elif [[ -z $(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\"" ${LISTE_REPO}) ]];then
+	echo -ne "Mise à jour des informations dans repos.list :\t" &&
+	echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]"
+	echo -ne "Mise à jour des informations dans repos-archive.list :\t" &&
+    sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO_ARCHIVE} &&
+	echo -e "[$VERT OK $RESET]"
+# Sinon si la version remplacée n'est plus utilisée pour quelconque environnement, alors on l'archive
+else
+	# On récupère des informations supplémentaires sur le repo qui va être remplacé
+	REPO_ACTUAL_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+	REPO_ACTUAL_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_ACTUAL_DATE}\"" "${LISTE_REPO}" | awk -F ',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g')
+
+	echo -ne "Archivage du miroir du repo ${CYAN}${REPO_NAME}${RESET} en date du ${CYAN}${REPO_DATE}${RESET} car il n'est plus utilisé par quelconque environnement :"
+	mv "${REPO_ACTUAL_DATE}_${REPO_NAME}"/ "99_old_version_${REPO_ACTUAL_DATE}_${REPO_NAME}" &&
+	echo -e "[$VERT OK $RESET]"
+
+	echo -ne "Mise à jour des informations dans repos.list :\t"
+	sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_ACTUAL_DATE}\"/d ${LISTE_REPO} &&
+	echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${LISTE_REPO} &&
+	echo -e "[$VERT OK $RESET]"
+
+	echo -ne "Mise à jour des informations dans repos-archive.list :\t"
+	# Supprime le repo qu'on a restauré :
+	sed -i /^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO_ARCHIVE} &&
+	# Ajoute le repo qui s'est fait remplacer :
+	echo "Name=\"${REPO_NAME}\"Realname=\"${REPO_ACTUAL_REALNAME}\",Date=\"${REPO_ACTUAL_DATE}\",Description:=\"${REPO_ACTUAL_DESCRIPTION}\"" >> ${LISTE_REPO_ARCHIVE} &&
+	echo -e "[$VERT OK $RESET]"
+fi
+
 echo -e "${VERT}Opération terminée${RESET}"
