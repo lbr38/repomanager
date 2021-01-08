@@ -44,6 +44,7 @@
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
     echo "<table class=\"table-auto\">";
     echo "<tr>";
+    echo "<td>1. </td>";
     echo "<td>Nom du repo :</td>";
     echo "</tr>";
     echo "<tr>";
@@ -51,6 +52,7 @@
     echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
     echo "</tr>";
     echo "<tr>";
+    echo "<td>2. </td>";
     echo "<td>Baseurl :</td>";
     echo "<td>ou Mirrorlist :</td>";
     echo "</tr>";
@@ -60,6 +62,7 @@
     echo "</tr>";
     echo "<tr><td><br></td></tr>";
     echo "<tr>";
+    echo "<td>3. </td>";
     echo "<td>Ce repo distant dispose d'une clé GPG</td>";
     echo "<td>";
     echo "<select id=\"newRepoSourceSelect\">";
