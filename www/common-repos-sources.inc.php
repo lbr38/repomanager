@@ -41,16 +41,20 @@
     # Formulaire d'ajout d'un nouveau repo source rpm
     echo "<form action=\"\" method=\"post\" autocomplete=\"off\">";
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
-    echo "<table class=\"table-large\">";
+    echo "<table class=\"table-auto\">";
     echo "<tr>";
     echo "<td>Nom du repo</td>";
+    echo "</tr>";
+    echo "<tr>";
     echo "<td><input type=\"text\" name=\"newRepoName\" id=\"newRepoNameInput\" required></td>";
     echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
     echo "</tr>";
     echo "<tr>";
-    echo "<td>baseurl</td>";
-    echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
+    echo "<td>Baseurl</td>";
     echo "<td>ou mirrorlist</td>";
+    echo "</tr>";
+    echo "<tr>";
+    echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
     echo "<td><input type=\"text\" name=\"newRepoMirrorList\"></td>";
     echo "</tr>";
     echo "<tr>";
@@ -74,9 +78,10 @@
     echo "<td><input type=\"text\" name=\"newRepoGpgKeyURL\"></td>";
     echo "<td><textarea name=\"newRepoGpgKeyText\"></textarea></td>";
     echo "</tr>";
-
+    echo "<tr>";
+    echo "<td><button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button></td>";
+    echo "</tr>";
     echo "</table>";
-    echo "<button type=\"submit\" class=\"button-submit-medium-blue\">Ajouter</button>";
     echo "</form>";
   }
 
@@ -135,7 +140,7 @@
   </div>
   <div class="div-half-right">
     <p>Liste des clés GPG du trousseau de repomanager</p>
-    <table class="table-large">
+    <table class="table-auto">
     <?php
       if ($OS_TYPE == "rpm") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
         $gpgFiles = scandir($RPM_GPG_DIR);
@@ -148,7 +153,7 @@
             echo "</a>";
             echo "</td>";
             echo "<td>";
-            echo "$gpgFile";
+            echo "${gpgFile}";
             echo "</td>";
             echo "</tr>";
           }
@@ -202,9 +207,8 @@ $(function() {
 
 // rpm : affiche une td avec le nom final du repo entre crochets [] tel qu'il sera inséré dans son fichier
 $("#newRepoNameInput").on("input", function(){
-  $(".td-hide").show();
-  var tafel = $('#newRepoNameInput').val();
-  $("#newRepoNameHiddenTd").text("Nom : [" + tafel + "]");
+  $(".td-hide").show(); // D'abord on affiche la td cachée
+  var content = $('#newRepoNameInput').val(); // on récupère le contenu du input #newRepoNameInput
+  $("#newRepoNameHiddenTd").text(content + ".repo"); // on affiche le contenu à l'intérieur de la td, concaténé de '.repo' afin d'afficher le nom du fichier complet
 });
-
 </script>
