@@ -12,7 +12,7 @@
     foreach($reposFiles as $repoFileName) {
       if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/00_repomanager/)
         // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre
-        $repoFileName = str_replace(".repo", "", $count);
+        $repoFileName = str_replace(".repo", "", $repoFileName);
         echo "<p>";
         echo "<a href=\"?action=deleteRepoFile&repoFileName=${repoFileName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
         echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileName}</a></b>";
