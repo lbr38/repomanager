@@ -7,7 +7,7 @@
     require 'common-functions.php';
     require 'common.php';
     require 'display.php';
-    if ($debugMode == "enabled") { print_r($_POST); }
+    if ($debugMode == "enabled") { print_r($_GET); }
 ?>
 
 <body>
@@ -29,7 +29,7 @@
     <?php
 
     // On vérifie qu'une action a été demandée
-    if (empty($_POST['actionId']) AND empty($_GET['actionId'])) {
+    if (empty($_GET['actionId'])) {
         echo "<tr>";
         echo "<td>";
         echo "Erreur : aucune action n'a été demandée";
@@ -37,12 +37,7 @@
         echo "</tr>";
         return 1;
     } else { // et on la récupère si c'est le cas
-        if (!empty($_POST['actionId'])) {   // Récupération de actionId si elle a été transmise en POST
-            $actionId = validateData($_POST['actionId']);
-        }
-        if (!empty($_GET['actionId'])) {    // Récupération de actionId si elle a été transmise en GET
-            $actionId = validateData($_GET['actionId']);
-        }
+        $actionId = validateData($_GET['actionId']);
     }
 
 
@@ -53,8 +48,8 @@ function checkAction_newRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
     
@@ -62,73 +57,73 @@ function checkAction_newRepo() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Pour Debian si repoHostName est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "deb" AND empty($_POST['repoHostName'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoHostName'])) {
         echo "<tr>";
         echo "<td>Nom de l'hôte</td>";
         echo "<td><input type=\"text\" name=\"repoHostName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom d'hôte\"></td>";
         echo "<tr>";
     } else {
-        $repoHostName = validateData($_POST['repoHostName']);
+        $repoHostName = validateData($_GET['repoHostName']);
         echo "<td><input type=\"hidden\" name=\"repoHostName\" value=\"$repoHostName\"></td>"; 
     }
 
     // Pour Redhat si repoRealname est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "rpm" AND empty($_POST['repoRealname'])) {
+    if ($OS_TYPE == "rpm" AND empty($_GET['repoRealname'])) {
         echo "<tr>";
         echo "<td>Nom du repo source</td>";
         echo "<td><input type=\"text\" name=\"repoRealname\" autocomplete=\"off\" placeholder=\"Vous devez renseigner le nom du repo source\"></td>";
         echo "<tr>";
     } else {
-        $repoRealname = validateData($_POST['repoRealname']);
+        $repoRealname = validateData($_GET['repoRealname']);
         echo "<td><input type=\"hidden\" name=\"repoRealname\" value=\"$repoRealname\"></td>"; 
     }
 
     // Si un alias a été renseigné, on le récupère
-    if (empty($_POST['repoAlias'])) {
+    if (empty($_GET['repoAlias'])) {
         $repoAlias = "noalias";
     } else {
-        $repoAlias = validateData($_POST['repoAlias']);
+        $repoAlias = validateData($_GET['repoAlias']);
     }
     echo "<td><input type=\"hidden\" name=\"repoAlias\" value=\"$repoAlias\"></td>";
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = validateData($_POST['repoSection']);
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // La description peut rester vide
-    if (empty($_POST['repoDescription'])) {
+    if (empty($_GET['repoDescription'])) {
         $repoDescription = "nodescription";
     } else {
-        $repoDescription = validateData($_POST['repoDescription']);
+        $repoDescription = validateData($_GET['repoDescription']);
     }
     echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
 
     // newRepoGpgCheck ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
     // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $newRepoGpgCheck = validateData($_POST['newRepoGpgCheck']);
+    $newRepoGpgCheck = validateData($_GET['newRepoGpgCheck']);
     echo "<td><input type=\"hidden\" name=\"newRepoGpgCheck\" value=\"$newRepoGpgCheck\"></td>";
     
     // repoGpgResign ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
     // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $repoGpgResign = validateData($_POST['repoGpgResign']);
+    $repoGpgResign = validateData($_GET['repoGpgResign']);
     echo "<td><input type=\"hidden\" name=\"repoGpgResign\" value=\"$repoGpgResign\"></td>";
 
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
@@ -168,7 +163,7 @@ function checkAction_newRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va créer un nouveau repo ${repoName}</td>";
                 echo "</tr>";
@@ -182,7 +177,7 @@ function checkAction_newRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 if ($newRepoGpgCheck == "no") {
                     if ($repoGpgResign == "no") {
                         exec("${REPOMANAGER} --web --newRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname --repo-description $repoDescription >/dev/null 2>/dev/null &");
@@ -244,7 +239,7 @@ function checkAction_newRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va créer un nouveau repo ${repoName}, de distribution ${repoDist} et de section ${repoSection}</td>";
                 echo "</tr>";
@@ -257,7 +252,7 @@ function checkAction_newRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 if ($newRepoGpgCheck == "no") {
                     exec("${REPOMANAGER} --web --newRepo --gpg-check no --repo-name $repoName --repo-host-name $repoHostName --repo-dist $repoDist --repo-section $repoSection --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 } else {
@@ -282,54 +277,54 @@ function checkAction_updateRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
 
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = validateData($_POST['repoSection']);
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // updateRepoGpgCheck ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
     // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $updateRepoGpgCheck = validateData($_POST['updateRepoGpgCheck']);
+    $updateRepoGpgCheck = validateData($_GET['updateRepoGpgCheck']);
     echo "<td><input type=\"hidden\" name=\"updateRepoGpgCheck\" value=\"$updateRepoGpgCheck\"></td>";
     
     // repoGpgResign ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
     // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $repoGpgResign = validateData($_POST['repoGpgResign']);
+    $repoGpgResign = validateData($_GET['repoGpgResign']);
     echo "<td><input type=\"hidden\" name=\"repoGpgResign\" value=\"$repoGpgResign\"></td>";
 
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
@@ -352,7 +347,7 @@ function checkAction_updateRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va mettre à jour le repo ${repoName}</td>";
                 echo "</tr>";
@@ -366,7 +361,7 @@ function checkAction_updateRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 if ($updateRepoGpgCheck == "no") {
                     if ($repoGpgResign == "no") {
                         exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
@@ -423,7 +418,7 @@ function checkAction_updateRepo() {
             }        
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va mettre à jour la section ${repoSection} du repo ${repoName} (distribution ${repoDist})</td>";
                 echo "</tr>";
@@ -436,7 +431,7 @@ function checkAction_updateRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 if ($updateRepoGpgCheck == "no") {
                     exec("${REPOMANAGER} --web --updateRepo --gpg-check no --repo-name $repoName --repo-host-name $repoHostName --repo-dist $repoDist --repo-section $repoSection >/dev/null 2>/dev/null &");
                 } else {
@@ -461,73 +456,73 @@ function checkAction_changeEnv() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
 
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = validateData($_POST['repoSection']);
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // Si repoEnv est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoEnv'])) {
+    if (empty($_GET['repoEnv'])) {
         echo "<tr>";
         echo "<td>Env actuel</td>";
         echo "<td><input type=\"text\" name=\"repoEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner l'env actuel du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoEnv = validateData($_POST['repoEnv']);
+        $repoEnv = validateData($_GET['repoEnv']);
         echo "<td><input type=\"hidden\" name=\"repoEnv\" value=\"$repoEnv\"></td>";
     }
 
     // Si repoNewEnv est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoNewEnv'])) {
+    if (empty($_GET['repoNewEnv'])) {
         echo "<tr>";
         echo "<td>Nouvel env</td>";
         echo "<td><input type=\"text\" name=\"repoNewEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner le nouvel env du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoNewEnv = validateData($_POST['repoNewEnv']);
+        $repoNewEnv = validateData($_GET['repoNewEnv']);
         echo "<td><input type=\"hidden\" name=\"repoNewEnv\" value=\"$repoNewEnv\"></td>";
     }
 
     // La description peut rester vide
-    if (empty($_POST['repoDescription'])) {
+    if (empty($_GET['repoDescription'])) {
         $repoDescription = "nodescription";
     } else {
-        $repoDescription = validateData($_POST['repoDescription']);
+        $repoDescription = validateData($_GET['repoDescription']);
     }
     echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
 
@@ -565,7 +560,7 @@ function checkAction_changeEnv() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va modifier l'environnement du repo ${repoName} en passant de ${repoEnv} à ${repoNewEnv}</td>";
                 echo "</tr>";
@@ -580,7 +575,7 @@ function checkAction_changeEnv() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --changeEnv --repo-name $repoName --repo-env $repoEnv --repo-new-env $repoNewEnv --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -625,7 +620,7 @@ function checkAction_changeEnv() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va modifier l'environnement de la section ${repoSection}, du repo ${repoName} (distribution ${repoDist}) en passant de ${repoEnv} à ${repoNewEnv}</td>";
                 echo "</tr>";
@@ -640,7 +635,7 @@ function checkAction_changeEnv() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --changeEnv --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv --repo-new-env $repoNewEnv --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -661,8 +656,8 @@ function checkAction_duplicateRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
@@ -670,65 +665,65 @@ function checkAction_duplicateRepo() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = validateData($_POST['repoSection']);
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // Si repoEnv est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoEnv'])) {
+    if (empty($_GET['repoEnv'])) {
         echo "<tr>";
         echo "<td>Env actuel</td>";
         echo "<td><input type=\"text\" name=\"repoEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner l'env actuel du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoEnv = validateData($_POST['repoEnv']);
+        $repoEnv = validateData($_GET['repoEnv']);
         echo "<td><input type=\"hidden\" name=\"repoEnv\" value=\"$repoEnv\"></td>";
     }
 
     // Si repoNewName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoNewName'])) {
+    if (empty($_GET['repoNewName'])) {
         echo "<tr>";
         echo "<td>Env actuel</td>";
         echo "<td><input type=\"text\" name=\"repoNewName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner le nom du nouveau repo\"></td>";
         echo "<tr>";
     } else {
-        $repoNewName = validateData($_POST['repoNewName']);
+        $repoNewName = validateData($_GET['repoNewName']);
         echo "<td><input type=\"hidden\" name=\"repoNewName\" value=\"$repoNewName\"></td>";
     }
 
     // La description peut rester vide
-    if (empty($_POST['repoDescription'])) {
+    if (empty($_GET['repoDescription'])) {
         $repoDescription = "nodescription";
     } else {
-        $repoDescription = validateData($_POST['repoDescription']);
+        $repoDescription = validateData($_GET['repoDescription']);
     }
     echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
 
@@ -753,7 +748,7 @@ function checkAction_duplicateRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va créer un nouveau repo ${repoNewName} (copie de ${repoName})</td>";
                 echo "</tr>";
@@ -767,7 +762,7 @@ function checkAction_duplicateRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --duplicateRepo --repo-name $repoName --repo-env $repoEnv --repo-new-name $repoNewName --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -799,7 +794,7 @@ function checkAction_duplicateRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va créer un nouveau repo ${repoNewName} (distribution ${repoDist} et section ${repoSection}), copie de ${repoName}</td>";
                 echo "</tr>";
@@ -812,7 +807,7 @@ function checkAction_duplicateRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --duplicateRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv --repo-new-name $repoNewName --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -833,8 +828,8 @@ function checkAction_deleteSection() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
@@ -842,46 +837,46 @@ function checkAction_deleteSection() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if (empty($_POST['repoDist'])) {
+    if (empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if (empty($_POST['repoSection'])) {
+    if (empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = validateData($_POST['repoSection']);
+        $repoSection = validateData($_GET['repoSection']);
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // Si repoEnv est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoEnv'])) {
+    if (empty($_GET['repoEnv'])) {
         echo "<tr>";
         echo "<td>Env actuel</td>";
         echo "<td><input type=\"text\" name=\"repoEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner l'env actuel de la section\"></td>";
         echo "<tr>";
     } else {
-        $repoEnv = validateData($_POST['repoEnv']);
+        $repoEnv = validateData($_GET['repoEnv']);
         echo "<td><input type=\"hidden\" name=\"repoEnv\" value=\"$repoEnv\"></td>";
     }
 
@@ -903,7 +898,7 @@ function checkAction_deleteSection() {
         }
 
         // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-        if (empty($_POST['confirm'])) {
+        if (empty($_GET['confirm'])) {
             echo "<tr>";
             echo "<td>L'opération va supprimer la section ${repoSection} du repo ${repoName} (distribution ${repoDist}) en ${repoEnv}</td>";
             echo "</tr>";
@@ -916,7 +911,7 @@ function checkAction_deleteSection() {
         }
 
         // Si on a reçu la confirmation en POST alors on traite :
-        if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+        if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
             exec("${REPOMANAGER} --web --deleteSection --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv >/dev/null 2>/dev/null &");
             echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
         }
@@ -936,8 +931,8 @@ function checkAction_deleteDist() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
@@ -945,24 +940,24 @@ function checkAction_deleteDist() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = validateData($_POST['repoName']);
+        $repoName = validateData($_GET['repoName']);
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if (empty($_POST['repoDist'])) {
+    if (empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = validateData($_POST['repoDist']);
+        $repoDist = validateData($_GET['repoDist']);
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
@@ -990,7 +985,7 @@ function checkAction_deleteDist() {
         $sectionsToBeDeleted = array_filter($sectionsToBeDeleted);
 
         // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-        if (empty($_POST['confirm'])) {
+        if (empty($_GET['confirm'])) {
             echo "<tr>";
             echo "<td>L'opération va supprimer tout le contenu de la distribution ${repoDist} du repo ${repoName}, incluant les versions archivées si il y en a</td>";
             echo "</tr>";
@@ -1015,7 +1010,7 @@ function checkAction_deleteDist() {
         }
 
         // Si on a reçu la confirmation en POST alors on traite :
-        if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+        if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
             exec("${REPOMANAGER} --web --deleteDist --repo-name $repoName --repo-dist $repoDist >/dev/null 2>/dev/null &");
             echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
         }
@@ -1133,7 +1128,7 @@ function checkAction_deleteRepo() {
             $distAndSectionsToBeDeleted = array_filter($distAndSectionsToBeDeleted);
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va supprimer tout le contenu du repo ${repoName}, incluant des sections archivées si il y en a</td>";
                 echo "</tr>";
@@ -1158,7 +1153,7 @@ function checkAction_deleteRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 echo "reponame : $repoName";
                 exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
@@ -1249,8 +1244,8 @@ function checkAction_deleteOldRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
@@ -1258,46 +1253,46 @@ function checkAction_deleteOldRepo() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = $_POST['repoName'];
+        $repoName = $_GET['repoName'];
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Debian seulement si repoDist est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE = "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = $_POST['repoDist'];
+        $repoDist = $_GET['repoDist'];
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Debian seulement si repoSection est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE = "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = $_POST['repoSection'];
+        $repoSection = $_GET['repoSection'];
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // Si repoDate est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoDate'])) {
+    if (empty($_GET['repoDate'])) {
         echo "<tr>";
         echo "<td>Date</td>";
         echo "<td><input type=\"text\" name=\"repoDate\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la date du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoDate = $_POST['repoDate'];
+        $repoDate = $_GET['repoDate'];
         echo "<td><input type=\"hidden\" name=\"repoDate\" value=\"$repoDate\"></td>";
     }
 
@@ -1321,7 +1316,7 @@ function checkAction_deleteOldRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va supprimer le repo ${repoName} en date du ${repoDate}</td>";
                 echo "</tr>";
@@ -1334,7 +1329,7 @@ function checkAction_deleteOldRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-date $repoDate >/dev/null 2>/dev/null &");;
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1365,7 +1360,7 @@ function checkAction_deleteOldRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va supprimer la section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist}) en date du ${repoDate}</td>";
                 echo "</tr>";
@@ -1378,7 +1373,7 @@ function checkAction_deleteOldRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-date $repoDate >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1457,8 +1452,8 @@ function checkAction_restoreOldRepo() {
     require 'common-vars.php';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
-    if (!empty($_POST['actionId'])) {
-        $actionId = validateData($_POST['actionId']);
+    if (!empty($_GET['actionId'])) {
+        $actionId = validateData($_GET['actionId']);
         echo "<td><input type=\"hidden\" name=\"actionId\" value=\"$actionId\"></td>";
     }
 
@@ -1466,57 +1461,57 @@ function checkAction_restoreOldRepo() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Si repoName est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoName'])) {
+    if (empty($_GET['repoName'])) {
         echo "<tr>";
         echo "<td>Nom du repo</td>";
         echo "<td><input type=\"text\" name=\"repoName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom de repo\"></td>";
         echo "<tr>";
     } else {
-        $repoName = $_POST['repoName'];
+        $repoName = $_GET['repoName'];
         echo "<td><input type=\"hidden\" name=\"repoName\" value=\"$repoName\"></td>";
     }
 
     // Debian seulement si repoDist est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_POST['repoDist'])) {
+    if ($OS_TYPE = "deb" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la distribution\"></td>";
         echo "<tr>";
     } else {
-        $repoDist = $_POST['repoDist'];
+        $repoDist = $_GET['repoDist'];
         echo "<td><input type=\"hidden\" name=\"repoDist\" value=\"$repoDist\"></td>";
     }
 
     // Debian seulement si repoSection est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_POST['repoSection'])) {
+    if ($OS_TYPE = "deb" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la section\"></td>";
         echo "<tr>";
     } else {
-        $repoSection = $_POST['repoSection'];
+        $repoSection = $_GET['repoSection'];
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
     // Si repoDate est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoDate'])) {
+    if (empty($_GET['repoDate'])) {
         echo "<tr>";
         echo "<td>Date</td>";
         echo "<td><input type=\"text\" name=\"repoDate\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la date du repo\"></td>";
         echo "<tr>";
     } else {
-        $repoDate = $_POST['repoDate'];
+        $repoDate = $_GET['repoDate'];
         echo "<td><input type=\"hidden\" name=\"repoDate\" value=\"$repoDate\"></td>";
     }
 
     // Si repoDescription est vide, on affiche un formulaire pour le demander 
-    if (empty($_POST['repoDescription'])) {
+    if (empty($_GET['repoDescription'])) {
         echo "<tr>";
         echo "<td>Description</td>";
         echo "<td><input type=\"text\" name=\"repoDescription\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une description\"></td>";
         echo "<tr>";
     } else {
-        $repoDescription = $_POST['repoDescription'];
+        $repoDescription = $_GET['repoDescription'];
         echo "<td><input type=\"hidden\" name=\"repoDescription\" value=\"$repoDescription\"></td>";
     }
 
@@ -1540,7 +1535,7 @@ function checkAction_restoreOldRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va restaurer le repo ${repoName} en date du ${repoDate}</td>";
                 echo "</tr>";
@@ -1553,7 +1548,7 @@ function checkAction_restoreOldRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");;
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1584,7 +1579,7 @@ function checkAction_restoreOldRepo() {
             }
 
             // Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
-            if (empty($_POST['confirm'])) {
+            if (empty($_GET['confirm'])) {
                 echo "<tr>";
                 echo "<td>L'opération va restaurer la section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist}) en date du ${repoDate}</td>";
                 echo "</tr>";
@@ -1597,7 +1592,7 @@ function checkAction_restoreOldRepo() {
             }
 
             // Si on a reçu la confirmation en POST alors on traite :
-            if (!empty($_POST['confirm']) AND (validateData($_POST['confirm']) == "yes")) {
+            if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
