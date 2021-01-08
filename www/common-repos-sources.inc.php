@@ -45,10 +45,11 @@
     echo "<table class=\"table-auto\">";
     echo "<tr>";
     echo "<td>1. </td>";
-    echo "<td>Nom du repo :</td>";
+    echo "<td colspan=\"2\">Nom du repo :</td>";
     echo "</tr>";
     echo "<tr>";
-    echo "<td><input type=\"text\" name=\"newRepoName\" id=\"newRepoNameInput\" required></td>";
+    echo "<td></td>";
+    echo "<td colspan=\"2\"><input type=\"text\" name=\"newRepoName\" id=\"newRepoNameInput\" required></td>";
     echo "<td class=\"td-hide\" id=\"newRepoNameHiddenTd\"></td>";
     echo "</tr>";
     echo "<tr>";
