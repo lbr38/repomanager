@@ -39,6 +39,7 @@
     }
 
     # Formulaire d'ajout d'un nouveau repo source rpm
+    echo "<br>";
     echo "<form action=\"\" method=\"post\" autocomplete=\"off\">";
     echo "<p><b>Ajouter un nouveau fichier de conf :</b></p>";
     echo "<table class=\"table-auto\">";
@@ -57,8 +58,9 @@
     echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
     echo "<td><input type=\"text\" name=\"newRepoMirrorList\"></td>";
     echo "</tr>";
+    echo "<tr><td><br></td></tr>";
     echo "<tr>";
-    echo "<td><br>Ce repo distant dispose d'une clé GPG</td>";
+    echo "<td>Ce repo distant dispose d'une clé GPG</td>";
     echo "<td>";
     echo "<select id=\"newRepoSourceSelect\">";
     echo "<option id=\"newRepoSourceSelect_yes\">Oui</option>";
