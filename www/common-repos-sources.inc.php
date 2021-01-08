@@ -11,16 +11,17 @@
     $i=0;
     foreach($reposFiles as $repoFileName) {
       if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/00_repomanager/)
-        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre
-        $repoFileName = str_replace(".repo", "", $repoFileName);
+        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
+        $repoFileNameFormated = str_replace(".repo", "", $repoFileName);
+        // on récupère le contenu du fichier
+        $content = file_get_contents("${REPOMANAGER_YUM_DIR}/${repoFileName}", true);
         echo "<p>";
         echo "<a href=\"?action=deleteRepoFile&repoFileName=${repoFileName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
-        echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileName}</a></b>";
+        echo "<b><a href=\"#\" id=\"reposSourcesToggle${i}\">${repoFileNameFormated}</a></b>";
         echo "</p>";
         echo "<div id=\"divReposSources${i}\" class=\"divReposSources\">";
-        $contenu = file_get_contents("${REPOMANAGER_YUM_DIR}/${repoFileName}", true);
         echo "<textarea>";
-        echo "${contenu}";
+        echo "${content}";
         echo "</textarea>";
         echo "</div>";
 
