@@ -57,6 +57,7 @@
     echo "<td>ou Mirrorlist :</td>";
     echo "</tr>";
     echo "<tr>";
+    echo "<td></td>";
     echo "<td><input type=\"text\" name=\"newRepoBaseUrl\"></td>";
     echo "<td><input type=\"text\" name=\"newRepoMirrorList\"></td>";
     echo "</tr>";
@@ -76,10 +77,12 @@
     echo "<td colspan=\"100%\">Renseignez l'URL vers la clé GPG, ou bien la clé GPG au format texte (elle sera importée dans le trousseau de repomanager)</td>";
     echo "</tr>";
     echo "<tr class=\"tr-hide\">";
+    echo "<td></td>";
     echo "<td>GPG URL</td>";
     echo "<td>GPG texte</td>";
     echo "</tr>";
     echo "<tr class=\"tr-hide\">";
+    echo "<td></td>";
     echo "<td><input type=\"text\" name=\"newRepoGpgKeyURL\"></td>";
     echo "<td><textarea name=\"newRepoGpgKeyText\"></textarea></td>";
     echo "</tr>";
