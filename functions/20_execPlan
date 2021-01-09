@@ -53,9 +53,17 @@ if ([ ! -z "$PLAN_REPO_NAME" ] && [ ! -z "$PLAN_GROUP" ]);then
 	clean_exit
 fi
 
-# Si on a renseigné un seul repo à traiter alors il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
+# Si on a renseigné un seul repo à traiter alors il faut vérifier qu'il existe dans la liste (il a pu être supprimé depuis que la planification a été créée)
+# Puis il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
 if [ ! -z "$PLAN_REPO_NAME" ];then
 	if [ "$OS_TYPE" == "Redhat" ];then
+		# Vérification que le repo existe
+		if ! grep -q "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO;then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : Le repo ${PLAN_REPO_NAME} n'existe pas"
+			clean_exit
+		fi
+
+		# Récupération du repo source
 		PLAN_REPO_REALNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 		if [ -z "$PLAN_REPO_REALNAME" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 8 : Impossible de récupérer le nom du repo source"
@@ -74,6 +82,13 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 			clean_exit
 		fi
 
+		# Vérification que la section existe
+		if ! grep -q "^Name=\"${PLAN_REPO_NAME}\",Host=\".*\",Dist=\"${PLAN_REPO_DIST}\",Section=\"${PLAN_REPO_SECTION}\"" $LISTE_REPO;then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : La section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST}) n'existe pas"
+			clean_exit
+		fi
+
+		# Récupération de l'hote source
 		PLAN_REPO_HOSTNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $LISTE_REPO | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 		if [ -z "$PLAN_REPO_HOSTNAME" ];then
 			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 8 : Impossible de récupérer le nom de l'hôte source"
