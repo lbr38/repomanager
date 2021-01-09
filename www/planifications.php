@@ -260,12 +260,12 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "</tr>";
             echo "<tr>";
             echo "<td class=\"td-auto\">Repo</td>";
-            echo "<td class=\"td-auto\"><input type=\"text\" id=\"input_repo\" name=\"addPlanRepo\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\"><input type=\"text\" id=\"inputRepo\" name=\"addPlanRepo\" autocomplete=\"off\" /></td>";
             echo "<td class=\"td-auto\">ou Groupe</td>";
             echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanGroup\" autocomplete=\"off\" placeholder=\"@\" /></td>";
             echo "</tr>";
             if ($OS_TYPE == "deb") { 
-              echo "<tr class=\"tr-hide\">";
+              echo "<tr class=\"tr-hide\" id=\"hiddenDebInput\">";
               echo "<td class=\"td-auto\">Dist</td>";
               echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanDist\" autocomplete=\"off\" /></td>";
               echo "</tr>";
@@ -326,15 +326,15 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 <script>
 // Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
 // Bind keyup event on the input
-$('#input_repo').keyup(function() {
+$('#inputRepo').keyup(function() {
   
   // If value is not empty
   if ($(this).val().length == 0) {
     // Hide the element
-    $('.tr-hide').hide();
+    $('#hiddenDebInput').hide();
   } else {
     // Otherwise show it
-    $('.tr-hide').show();
+    $('#hiddenDebInput').show();
   }
 }).keyup(); // Trigger the keyup event, thus running the handler on page load
 
