@@ -194,18 +194,34 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               if ($OS_TYPE == "deb") { // Si Debian, alors on récupère la dist et la section aussi
                 $planDist = str_replace(['Dist=', '"'], '', $plan[4]); // on récupère la distribution en retirant 'Dist=""' de l'expression
                 $planSection = str_replace(['Section=', '"'], '', $plan[5]); // on récupère la section en retirant 'Section=""' de l'expression
-                $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck
+                  $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[6]);
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[7]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                } else {
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                }
               }
             } else if(substr($plan[3], 0, 5) == "Group") { // sinon si la 3ème ligne commence par Group
               $planRepoOrGroup = str_replace(['Group=', '"'], '', $plan[3]); // on récupère le repo ou le groupe en retirant 'Repo=""' de l'expression
               if ($OS_TYPE == "deb") { // Si Debian alors on n'affiche pas de distrib ni de section (on affiche un tiret "-" à la place)
                 $planDist = "-";
                 $planSection = "-";
-                $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck
+                  $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[4]);
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[5]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                } else {
+                  $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+                }
               }
             }
             if ($OS_TYPE == "rpm") {
-              $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              if ($planAction == "update") { // si planAction = 'update' alors il faut récupérer la valeur de GpgCheck et GpgResign
+                $planGpgCheck = str_replace(['GpgCheck=', '"'], '', $plan[4]);
+                $planGpgResign = str_replace(['GpgResign=', '"'], '', $plan[5]);
+                $planReminder = str_replace(['Reminder=', '"'], '', $plan[6]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              } else {
+                $planReminder = str_replace(['Reminder=', '"'], '', $plan[4]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+              }
             }
 
             echo "<tr>";
@@ -254,7 +270,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 echo "<option value='${env}->${nextEnv}'>Changement d'env : ${env} -> ${nextEnv}</option>";
               }
             }
-            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
+            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${REPO_DEFAULT_ENV}</option>";
             echo "</select>";
             echo "</td>";
             echo "</tr>";
