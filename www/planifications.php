@@ -178,7 +178,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               echo "<td class=\"td-auto\">${planSection}</td>";
             }
             echo "<td class=\"td-auto\">${planReminder}</td>";
-            echo "<td class=\"td-auto\"><a href=\"?action=deletePlan&planId=$planId\"><img src=\"images/trash.png\" /></a></td>";
+            echo "<td class=\"td-auto\"><a href=\"?action=deletePlan&planId=${planId}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>";
             echo "</tr>";
             // après la boucle, on va incrémenter de +1 le numéro d'ID. Ce sera l'ID attribué pour la prochaine planification ajoutée.
             $planId++;
@@ -206,8 +206,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "<tr>";
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
-            echo "<select name=\"addPlanAction\">";
-            echo "<option value=\"update\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
+            echo "<select name=\"addPlanAction\" id=\"planSelect\">";   //toto
             foreach ($REPO_ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
               $nextEnv = exec("grep -A1 '$env' $ENV_CONF_FILE | grep -v '$env'");
@@ -215,6 +214,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 echo "<option value='${env}->${nextEnv}'>Changement d'env : ${env} -> ${nextEnv}</option>";
               }
             }
+            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour du repo (${REPO_DEFAULT_ENV})</option>";
             echo "</select>";
             echo "</td>";
             echo "</tr>";
@@ -232,6 +232,33 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               echo "<tr class=\"tr-hide\">";
               echo "<td class=\"td-auto\">Section</td>";
               echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanSection\" autocomplete=\"off\" /></td>";
+              echo "</tr>";
+            }
+            echo "<tr class=\"tr-hide\">";
+            echo "<td>GPG check</td>";
+            echo "<td colspan=\"2\">";
+            echo "<input type=\"radio\" id=\"addPlanGpgCheck_yes\" name=\"addPlanGpgCheck\" value=\"yes\" checked=\"yes\">";
+            echo "<label for=\"addPlanGpgCheck_yes\">Yes</label>";
+            echo "<input type=\"radio\" id=\"addPlanGpgCheck_no\" name=\"addPlanGpgCheck\" value=\"no\">";
+            echo "<label for=\"addPlanGpgCheck_no\">No</label>";
+            echo "</td>";
+            echo "</tr>";
+            if ($OS_TYPE == "rpm") { // si rpm, alors on propose de resigner les paquets ou non
+              echo "<tr class=\"tr-hide\">";
+              echo "<td>Re-signer avec GPG</td>";
+              echo "<td colspan=\"2\">";
+              if ( $GPG_SIGN_PACKAGES == "yes" ) {
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_yes\" name=\"addPlanGpgResign\" value=\"yes\" checked=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_yes\">Yes</label>";
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_no\" name=\"addPlanGpgResign\" value=\"no\">";
+                echo "<label for=\"addPlanGpgResign_no\">No</label>";
+              } else {
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_yes\" name=\"addPlanGpgResign\" value=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_yes\">Yes</label>";
+                echo "<input type=\"radio\" id=\"addPlanGpgResign_no\" name=\"addPlanGpgResign\" value=\"no\" checked=\"yes\">";
+                echo "<label for=\"addPlanGpgResign_no\">No</label>";
+              } 
+              echo "</td>";
               echo "</tr>";
             }
             echo "<tr>";
@@ -271,10 +298,14 @@ $('#input_repo').keyup(function() {
   }
 }).keyup(); // Trigger the keyup event, thus running the handler on page load
 
-$('#planSelect').change(function() {
-  if ($('option').val() == 'Mise à jour du repo') {
-    $('.showcontent').show();
-  }
+$(function() {
+  $("#planSelect").change(function() {
+    if ($("#updateRepoSelect").is(":selected")) {
+      $(".tr-hide").show();
+    } else {
+      $(".tr-hide").hide();
+    }
+  }).trigger('change');
 });
 </script>
 </html>
