@@ -98,8 +98,15 @@ if [ ! -z "$PLAN_REPO_NAME" ];then
 fi
 
 
-# Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on récupère toute la liste du groupe
+# Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
+# Puis on récupère toute la liste du groupe
 if [ ! -z "$PLAN_GROUP" ];then
+	# Vérification que le groupe existe
+	if ! grep -q "\[${PLAN_GROUP}\]" $REPO_GROUPS_FILE;then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 14 : Le groupe ${PLAN_GROUP} n'existe pas"
+		clean_exit
+	fi
+
 	# on récupère tous les repos du groupe
 	PLAN_GROUP_LIST=$(cat "$REPO_GROUPS_FILE" | sed -n "/${PLAN_GROUP}/,/^@/p" | egrep "^Name=\".*\"")
 
