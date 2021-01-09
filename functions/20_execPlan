@@ -30,15 +30,18 @@ if [ -z "$PLAN_REPO_NAME" ] && [ -z "$PLAN_GROUP" ];then
 	clean_exit
 fi
 
-if [ -z "$PLAN_GPG_CHECK" ];then
-	PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 5 : Vérification des signatures GPG non spécifié"
-	clean_exit
-fi
-
-if [ "$OS_TYPE" == "Redhat" ];then
-	if [ -z "$PLAN_GPG_RESIGN" ];then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 6: Signature des paquets avec GPG non spécifié"
+# Si l'action est 'update' alors on doit avoir renseigné PLAN_GPG_CHECK (+ PLAN_GPG_RESIGN pour redhat)
+if [ "$PLAN_ACTION" == "update" ];then
+	if [ -z "$PLAN_GPG_CHECK" ];then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 5 : Vérification des signatures GPG non spécifié"
 		clean_exit
+	fi
+
+	if [ "$OS_TYPE" == "Redhat" ];then
+		if [ -z "$PLAN_GPG_RESIGN" ];then
+			PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 6: Signature des paquets avec GPG non spécifié"
+			clean_exit
+		fi
 	fi
 fi
 
@@ -91,20 +94,6 @@ if [ ! -z "$PLAN_GROUP" ];then
 		clean_exit
 	fi 
 fi
-
-# Si l'action est 'update' alors on doit avoir renseigné PLAN_GPG_CHECK (+ PLAN_GPG_RESIGN pour redhat)
-if [ "$PLAN_ACTION" == "update" ];then
-	if [ -z "$PLAN_GPG_CHECK" ];then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 12 : GPG Check non défini"
-		clean_exit
-	fi
-
-	if ([ "$OS_TYPE" == "Redhat" ] && [ -z "$PLAN_GPG_RESIGN" ]);then
-		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 13 : GPG Resign non défini"
-		clean_exit
-	fi
-fi
-
 
 
 ## TRAITEMENT ##
