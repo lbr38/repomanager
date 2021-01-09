@@ -54,6 +54,33 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
     if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
 
+    // on vérifie que le repo ou la section indiqué existe dans la liste des repos
+    if (!empty($addPlanRepo)) {
+      if ($OS_TYPE == "rpm") {
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\"' $REPO_FILE");
+        if (empty($checkIfRepoExists)) {
+          $error++;
+          printAlert("Le repo $addPlanRepo n'existe pas");
+        }
+      }
+      if ($OS_TYPE == "deb") {
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\",Host=\".*\",Dist=\"${addPlanDist}\",Section=\"${addPlanSection}\"' $REPO_FILE");
+        if (empty($checkIfRepoExists)) {
+          $error++;
+          printAlert("La section $addPlanSection du repo $addPlanRepo (distribution ${addPlanDist}) n'existe pas");
+        }
+      }
+    }
+
+    // on vérifie que le groupe indiqué existe dans le fichier de groupes
+    if (!empty($addPlanGroup)) {
+      $checkIfGroupExists = exec("grep '\[${addPlanGroup}\]' $REPO_GROUPS_FILE");
+      if (empty($checkIfGroupExists)) {
+        $error++;
+        printAlert("Le groupe $addPlanGroup n'existe pas");
+      }
+    }
+
     // On traite uniquement si il n'y a pas eu d'erreur précédemment
     if ($error === 0) {
       // Ajout de la planification dans le fichier de conf et ajout d'une tâche at
