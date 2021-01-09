@@ -11,6 +11,7 @@
 
 // Cas où on ajoute une planification
 if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($_POST['addPlanAction'])) {
+    $error = 0; // un peu de gestion d'erreur
     $addPlanId = validateData($_POST['addPlanId']);
     $addPlanDate = validateData($_POST['addPlanDate']);
     $addPlanTime = validateData($_POST['addPlanTime']);
@@ -21,34 +22,73 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     $addPlanAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés avant de les envoyer dans PLAN_CONF_FILE. Trouver une autre solution 
     if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = validateData($_POST['addPlanReminder']); } // et les rappels si il y en a
 
+    // si l'action sélectionnée dans le formulaire est 'update', alors on récupère les valeurs des boutons radio Gpg Check et Gpg resign
+    if ($addPlanAction === "update") {
+      if (empty($_POST['addPlanGpgCheck'])) { // Normalement ne peut pas être vide car un des deux boutons radio est forcément sélectionné, mais bon...
+        $error++;
+        printAlert("Vous devez indiquer une valeur pour GPG Check");
+      } else {
+        $addPlanGpgCheck = validateData($_POST['addPlanGpgCheck']);
+      }
+      // Si rpm, on récupère la valeur du bouton radio gpg resign
+      if ($OS_TYPE == "rpm") {
+        if (empty($_POST['addPlanGpgResign'])) { // Normalement ne peut pas être vide car un des deux boutons radio est forcément sélectionné, mais bon...
+          $error++;
+          printAlert("Vous devez indiquer une valeur pour GPG Resign");
+        } else {
+          $addPlanGpgResign = validateData($_POST['addPlanGpgResign']);
+        }
+      }
+    }
+
     // on récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
     if(!empty($_POST['addPlanRepo'])) { $addPlanRepo = validateData($_POST['addPlanRepo']); }
     if(!empty($_POST['addPlanGroup'])) { $addPlanGroup = validateData($_POST['addPlanGroup']); }
     // si les deux on été renseignés, on affiche une erreur
     if (!empty($addPlanRepo) AND !empty($addPlanGroup)) {
+      $error++;
       printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux");
-    } else {
-      // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
-      if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
-      if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
+    } 
+    
+    // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
+    if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
+    if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
 
+    // On traite uniquement si il n'y a pas eu d'erreur précédemment
+    if ($error === 0) {
       // Ajout de la planification dans le fichier de conf et ajout d'une tâche at
       // Dans le cas où on ajoute une planif pour un groupe de repos (càd addPlanGroup a été envoyé) :
       if(isset($addPlanGroup)) {
         // on indique le nom du groupe et l'action à exécuter :
-        exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
+          if ($OS_TYPE == "rpm") {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
+        } else {
+          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        }
       }
       // Dans le cas où on ajoute une planif pour un seul repo :
       if(isset($addPlanRepo)) {
-        // on indique le nom du repo : (à ajouter : l'env du repo si l'action est 'prod')
-        if ($OS_TYPE == "rpm" ) {
-          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        // on indique le nom du repo :
+        if ($OS_TYPE == "rpm") {
+          if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
         }
-        if ($OS_TYPE == "deb" ) {
-          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+        if ($OS_TYPE == "deb" ) { // Si c'est deb, on doit préciser la dist et la section
+          if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check)
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          } else {
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          }
         }
       }
-      // Dans les deux cas on crée une tâche at avec l'id de la planification :
+      // Dans tous les cas on crée une tâche at avec l'id de la planification :
       exec("echo '${REPOMANAGER} --web --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
       // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
       exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
@@ -298,6 +338,7 @@ $('#input_repo').keyup(function() {
   }
 }).keyup(); // Trigger the keyup event, thus running the handler on page load
 
+// Afficher des boutons radio si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
 $(function() {
   $("#planSelect").change(function() {
     if ($("#updateRepoSelect").is(":selected")) {
