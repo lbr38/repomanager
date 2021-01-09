@@ -10,10 +10,10 @@ PLAN_REPO_NAME=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Repo=
 PLAN_REPO_DIST=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Dist=" | cut -d'=' -f2 | sed 's/"//g')
 PLAN_REPO_SECTION=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Section=" | cut -d'=' -f2 | sed 's/"//g')
 PLAN_GROUP=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^Group=" | cut -d'=' -f2 | sed 's/"//g')
-#PLAN_GPG_CHECK=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
-PLAN_GPG_CHECK="yes" # par défaut à yes pour les tests
-#PLAN_GPG_RESIGN=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
-PLAN_GPG_RESIGN="yes" # par défaut à yes pour les tests
+PLAN_GPG_CHECK=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
+#PLAN_GPG_CHECK="yes" # par défaut à yes pour les tests
+PLAN_GPG_RESIGN=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF_FILE" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
+#PLAN_GPG_RESIGN="yes" # par défaut à yes pour les tests
 
 # Initialisation de variables supplémentaires
 PLAN_GROUP_LIST=""
@@ -43,8 +43,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 fi
 
 
-# On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas 
-# tous les deux renseignés en même temps :
+# On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas tous les deux renseignés en même temps :
 if ([ ! -z "$PLAN_REPO_NAME" ] && [ ! -z "$PLAN_GROUP" ]);then
 	if [ "$OS_TYPE" == "Redhat" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois un repo et un groupe de repos";fi
 	if [ "$OS_TYPE" == "Debian" ];then PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlanif erreur 7 : Il n'est pas possible de traiter à la fois une section et un groupe de sections";fi
@@ -92,6 +91,20 @@ if [ ! -z "$PLAN_GROUP" ];then
 		clean_exit
 	fi 
 fi
+
+# Si l'action est 'update' alors on doit avoir renseigné PLAN_GPG_CHECK (+ PLAN_GPG_RESIGN pour redhat)
+if [ "$PLAN_ACTION" == "update" ];then
+	if [ -z "$PLAN_GPG_CHECK" ];then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 12 : GPG Check non défini"
+		clean_exit
+	fi
+
+	if ([ "$OS_TYPE" == "Redhat" ] && [ -z "$PLAN_GPG_RESIGN" ]);then
+		PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 13 : GPG Resign non défini"
+		clean_exit
+	fi
+fi
+
 
 
 ## TRAITEMENT ##
@@ -165,7 +178,7 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 			PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
 			PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
 			if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
-				PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nErreur : envs non définis"
+				PLAN_ERROR_MSG="${PLAN_ERROR_MSG}\nPlan erreur 11 : environnements non définis"
 				continue
 			fi
 
