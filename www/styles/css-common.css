@@ -267,22 +267,45 @@ table.list-repos td.td-xsmall {
     color: var(--color2);
 }
 
-table.list-repos td.td-redbackground {
+/* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
+table.list-repos td.td-redbackground span { 
     background-color: rgb(202, 0, 0);
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
     color: whitesmoke;
-    font-weight: bold;
+    border-radius: 3px;
 }
 
-table.list-repos td.td-greenbackground {
+table.list-repos td.td-greenbackground span {
     background-color: #4CAF50;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
     color: whitesmoke;
-    font-weight: bold;
+    border-radius: 3px;
 }
 
-table.list-repos td.td-bluebackground {
+table.list-repos td.td-bluebackground span {
     background-color: rgba(30, 60, 194, 0.712);
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
     color: whitesmoke;
-    font-weight: bold;
+    border-radius: 3px;
+}
+
+table.list-repos td.td-whitebackground span {
+    background-color: whitesmoke;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    color: black;
+    border-radius: 3px;
 }
 
 .hide, .tr-hide {

@@ -215,7 +215,17 @@ if ($filterByGroups == "yes") {
                                 echo "<td>$repoSection</td>";
                             }
                         }
-                        echo "<td>$repoEnv</td>";
+                        // Affichage de l'env en couleur
+                        // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
+                        if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+                            echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+                        } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+                            echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
+                        } elseif ($repoEnv === $REPO_LAST_ENV) {
+                            echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
+                        } else {
+                            echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+                        }
                         echo "<td>$repoDate</td>";
                         if ($printRepoSize == "yes") {
                             echo "<td>$repoSize</td>";
@@ -380,7 +390,17 @@ if ($filterByGroups == "yes") {
                     echo "<td>$repoSection</td>";
                 }
             }
-            echo "<td>$repoEnv</td>";
+            // Affichage de l'env en couleur
+            // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
+            if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+            } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+                echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
+            } elseif ($repoEnv === $REPO_LAST_ENV) {
+                echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
+            } else {
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+            }
             echo "<td>$repoDate</td>";
             if ($printRepoSize == "yes") {
                 echo "<td>$repoSize</td>";
@@ -532,13 +552,13 @@ if ($filterByGroups == "no") {
             // Affichage de l'env en couleur
             // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
             if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
-                echo "<td>$repoEnv</td>";
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
-                echo "<td class=\"td-bluebackground\">$repoEnv</td>";
+                echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_LAST_ENV) {
-                echo "<td class=\"td-redbackground\">$repoEnv</td>";
+                echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } else {
-                echo "<td>$repoEnv</td>";
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             }
 
             echo "<td>$repoDate</td>";
