@@ -180,5 +180,4 @@ if ($OS_TYPE == "deb") { // scripts supplémentaires pour debian uniquement
   echo "});";
 }
 echo "</script>";
-
 ?>

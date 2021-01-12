@@ -11,7 +11,7 @@ if ($filterByGroups == "no") {
 
     echo "<thead>";
     echo "<tr>";
-    echo "<td></td>";
+    echo "<td class=\"td-fit\"></td>";
     echo "<td>Nom</td>";
     if ($OS_TYPE == "deb") {
         echo "<td>Distribution</td>";
@@ -57,7 +57,7 @@ if ($filterByGroups == "no") {
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
             echo "<tr class=\"$listColor\">";
-            echo "<td>";
+            echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteOldRepo&repoName=${repoName}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";

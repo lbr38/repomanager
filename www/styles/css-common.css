@@ -5,8 +5,9 @@
 @font-face{	font-family: 'Source Sans Pro Extra Light';         src: url('../fonts/SourceSansPro-ExtraLight.otf')  format('truetype');	}
 @font-face{ font-family: 'Courrier New';                        src: url('../fonts/cour.ttf')                      format('truetype');	}
 @font-face{ font-family: 'Akira';                               src: url('../fonts/Akira Expanded Demo.otf')       format('truetype');	}
-@font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')       format('truetype');	}
-@font-face{ font-family: 'ethnocentric it';                     src: url('../fonts/ethnocentric rg it.ttf')       format('truetype');	}
+@font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')           format('truetype');	}
+@font-face{ font-family: 'ethnocentric it';                     src: url('../fonts/ethnocentric rg it.ttf')        format('truetype');	}
+@font-face{ font-family: 'ubuntu';                              src: url('../fonts/Ubuntu-R.ttf')                  format('truetype');	}
 
 /* Codes couleurs  
 
@@ -15,17 +16,20 @@
 
 
 // boutons //
-    boutons bleu : rgba(30, 60, 194, 0.712);
-    boutons bleu (hover) : 
+    boutons bleu : #0275d8;
+    boutons bleu (hover) : #0468c0
 
-    boutons vert : #4CAF50
-    boutons vert (hover) : #3e8e41
+    boutons vert : #5cb85c 
+    boutons vert (hover) : #3e8e41 
 
-    boutons rouge : rgb(202, 0, 0);
-    boutons rouge (hover) : red;
+    boutons rouge : #d9534f;
+    boutons rouge (hover) : #b14440;
 
     boutons gris : #555555;
     boutons gris (hover) : 
+
+    boutons blanc : #f7f7f7
+    boutons blanc (hover) :
 
 
 // articles //
@@ -99,7 +103,7 @@ header a {
     font-size: 9px;
     font-weight: bold;
     color: whitesmoke;
-    background-color:rgb(202, 0, 0);
+    background-color:#d9534f;
     border-radius: 1px;
 }
 
@@ -243,8 +247,10 @@ table thead, .reposListHead {
 
 table.list-repos {
     width: 100%;
-    font-family: 'Courier New';
-    font-size: 12px;
+    /*font-family: 'Courier New';
+    font-family: 'Source Sans Pro Regular'; */
+    font-family: ubuntu;
+    font-size: 11px;
     white-space: nowrap;
 }
 
@@ -268,44 +274,51 @@ table.list-repos td.td-xsmall {
 }
 
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
-table.list-repos td.td-redbackground span { 
-    background-color: rgb(202, 0, 0);
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    color: whitesmoke;
+table.list-repos td.td-redbackground span, table.list-repos td.td-greenbackground span, table.list-repos td.td-bluebackground span, table.list-repos td.td-whitebackground span {
+    font-size: 11px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     border-radius: 3px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+}
+
+table.list-repos td.td-redbackground span {
+    background-color: #d9534f;
+    color: whitesmoke;
 }
 
 table.list-repos td.td-greenbackground span {
-    background-color: #4CAF50;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    background-color:#5cb85c;
     color: whitesmoke;
-    border-radius: 3px;
 }
 
 table.list-repos td.td-bluebackground span {
-    background-color: rgba(30, 60, 194, 0.712);
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    background-color: #0275d8;
     color: whitesmoke;
-    border-radius: 3px;
 }
 
 table.list-repos td.td-whitebackground span {
-    background-color: whitesmoke;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    background-color: #f7f7f7;
     color: black;
-    border-radius: 3px;
+}
+
+table.list-repos td.td-greenbackground span:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+
+table.list-repos td.td-redbackground span:hover {
+    transition-duration: 0.4s;
+    background-color: #b14440;
+}
+
+table.list-repos td.td-bluebackground span:hover {
+    transition-duration: 0.4s;
+    background-color: #0468c0;
 }
 
 .hide, .tr-hide {
@@ -342,6 +355,13 @@ td {
     width: auto !important;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.td-fit { /* cellule qui s'adapte à la taille du contenu, avec léger padding sur les côté pour ne pas finir collé au reste */
+    width: 1%;
+    white-space: nowrap;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .td-small {
@@ -394,7 +414,8 @@ article.log {
 }
 
 .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green { /* pour une icone encore plus transparente */
-    opacity: 0.11;
+    /*opacity: 0.11;*/
+    opacity: 0.06;
 }
 
 .icon-lowopacity:hover {
@@ -425,7 +446,7 @@ article.log {
 
 
 .li-operation-running {
-    background-color: #f44336;
+    background-color: #d9534f;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -438,11 +459,11 @@ article.log {
 
 .li-operation-running:hover {
     transition-duration: 0.4s;
-    background-color: rgb(167, 3, 3);
+    background-color: #b14440;
 }
 
 .li-operation-not-running {
-    background-color: #4CAF50;
+    background-color: #5cb85c;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -579,7 +600,7 @@ input[type=text].input-large {
 }
 
 .button-submit-large-red {
-    background-color: rgb(202, 0, 0);
+    background-color: #d9534f;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -594,11 +615,11 @@ input[type=text].input-large {
 
 .button-submit-large-red:hover {
     transition-duration: 0.4s;
-    background-color: red;
+    background-color: #b14440;
 }
 
 .button-submit-large-green {
-    background-color: #4CAF50;
+    background-color: #5cb85c;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -617,7 +638,7 @@ input[type=text].input-large {
 }
 
 .button-submit-medium-green {
-    background-color: #4CAF50;
+    background-color: #5cb85c;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -636,7 +657,7 @@ input[type=text].input-large {
 }
 
 .button-submit-small-green {
-    background-color: #4CAF50;
+    background-color: #5cb85c;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -655,7 +676,7 @@ input[type=text].input-large {
 }
 
 .button-submit-xsmall-green {
-    background-color: #4CAF50;
+    background-color: #5cb85c;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -674,7 +695,7 @@ input[type=text].input-large {
 }
 
 .button-submit-large-blue {
-    background-color: rgba(30, 60, 194, 0.712);
+    background-color: #0275d8;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -687,8 +708,14 @@ input[type=text].input-large {
     font-size: 12px;
 }
 
+.button-submit-large-blue:hover {
+    transition-duration: 0.4s;
+    background-color: #0468c0;
+}
+
+
 .button-submit-medium-blue {
-    background-color: rgba(30, 60, 194, 0.712);
+    background-color: #0275d8;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -701,8 +728,13 @@ input[type=text].input-large {
     font-size: 12px;
 }
 
+.button-submit-medium-blue:hover {
+    transition-duration: 0.4s;
+    background-color: #0468c0;
+}
+
 .button-submit-xsmall-blue {
-    background-color: rgba(30, 60, 194, 0.712);
+    background-color: #0275d8;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -713,6 +745,11 @@ input[type=text].input-large {
     text-decoration: none;
     display: inline-block;
     font-size: 12px;
+}
+
+.button-submit-xsmall-blue:hover {
+    transition-duration: 0.4s;
+    background-color: #0468c0;
 }
 
 .button-xsmall:hover, .button-small:hover, .button-large:hover, .button-action:hover, .button-operations-large:hover {

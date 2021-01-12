@@ -98,7 +98,7 @@ if ($filterByGroups == "yes") {
                 // Affichage de l'entête (Nom, Distrib, Section, Env, Date...)*
                 echo "<tbody>";
                 echo "<tr class=\"reposListHead\">";
-                echo "<td class=\"td-auto\"></td>";
+                echo "<td class=\"td-fit\"></td>";
                 echo "<td>Nom</td>";
                 if ($OS_TYPE == "deb") {
                     echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
@@ -107,6 +107,7 @@ if ($filterByGroups == "yes") {
                     echo "<td>Section</td>";
                 }
                 echo "<td>Env</td>";
+                echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
                 echo "<td>Date</td>";
                 if ($printRepoSize == "yes") { // On affiche la taille des repos seulement si souhaité
                     echo "<td>Taille</td>";
@@ -136,9 +137,7 @@ if ($filterByGroups == "yes") {
                     }
                     $repoFullInformations = explode('Name=', $repoFullInformations);
                     $repoFullInformations = array_filter($repoFullInformations); // on nettoie les valeurs vide de l'array
-                    //echo "<pre>";
-                    //print_r($repoFullInformations);
-                    //echo "</pre>";
+
                     foreach($repoFullInformations as $repoFull) {
                         $rowData = explode(',', $repoFull);
                         $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
@@ -168,7 +167,7 @@ if ($filterByGroups == "yes") {
                             elseif ($listColor == "color2") { $listColor = 'color1'; }
                         }
                         echo "<tr class=\"$listColor\">";
-                        echo "<td>";
+                        echo "<td class=\"td-fit\">";
                         // Affichage de l'icone "corbeille" pour supprimer le repo
                         if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                             echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -218,19 +217,27 @@ if ($filterByGroups == "yes") {
                         // Affichage de l'env en couleur
                         // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
                         if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
-                            echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+                            echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
                         } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
-                            echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
+                            echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
                         } elseif ($repoEnv === $REPO_LAST_ENV) {
                             echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
                         } else {
                             echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
                         }
+
+                        // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
+                        if ($OS_TYPE == "rpm") {
+                            echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+                        }
+                        if ($OS_TYPE == "deb") {
+                            echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+                        }
                         echo "<td>$repoDate</td>";
                         if ($printRepoSize == "yes") {
                             echo "<td>$repoSize</td>";
                         }
-                        echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
+                        echo "<td class=\"td-fit\" title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
                         echo "</tr>";
                         echo "<tr>";
                             echo "<td colspan=\"100%\">";
@@ -277,7 +284,7 @@ if ($filterByGroups == "yes") {
     // Enfin, on affiche un dernier groupe "Defaut" qui contiendra les repos qui ne sont pas dans des groupes. Ce groupe Défaut s'affiche même si il n'y a aucun repo dans groups.list
     echo "<tr><td><b>Défaut</b></td></tr>";
     echo "<tr class=\"reposListHead\">";
-    echo "<td class=\"td-auto\"></td>";
+    echo "<td class=\"td-fit\"></td>";
     echo "<td>Nom</td>";
     if ($OS_TYPE == "deb") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
@@ -286,6 +293,7 @@ if ($filterByGroups == "yes") {
         echo "<td>Section</td>";
     }
     echo "<td>Env</td>";
+    echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
     echo "<td>Date</td>";
     if ($printRepoSize == "yes") { // On affiche la taille des repos seulement si souhaité
         echo "<td>Taille</td>";
@@ -344,7 +352,7 @@ if ($filterByGroups == "yes") {
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
             echo "<tr class=\"$listColor\">";
-            echo "<td>";
+            echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -393,19 +401,27 @@ if ($filterByGroups == "yes") {
             // Affichage de l'env en couleur
             // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
             if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
-                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+                echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
-                echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_LAST_ENV) {
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } else {
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             }
+
+            // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
+            if ($OS_TYPE == "rpm") {
+                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            }
+            if ($OS_TYPE == "deb") {
+                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            }
             echo "<td>$repoDate</td>";
             if ($printRepoSize == "yes") {
                 echo "<td>$repoSize</td>";
             }
-            echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
+            echo "<td class=\"td-fit\" title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
             echo "</tr>";
             echo "<tr>";
             echo "<td colspan=\"100%\">";
@@ -453,7 +469,7 @@ if ($filterByGroups == "no") {
 
     echo "<thead>";
     echo "<tr>";
-    echo "<td></td>";
+    echo "<td class=\"td-fit\"></td>";
     echo "<td>Nom</td>";
     if ($OS_TYPE == "deb") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
@@ -462,6 +478,7 @@ if ($filterByGroups == "no") {
         echo "<td>Section</td>";
     }
     echo "<td>Env</td>";
+    echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
     echo "<td>Date</td>";
     if ($printRepoSize == "yes") { // On affiche la taille des repos seulement si souhaité
         echo "<td>Taille</td>";
@@ -503,7 +520,7 @@ if ($filterByGroups == "no") {
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
             echo "<tr class=\"$listColor\">";
-            echo "<td>";
+            echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
             if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
@@ -552,20 +569,29 @@ if ($filterByGroups == "no") {
             // Affichage de l'env en couleur
             // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
             if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
-                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
+                echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
-                echo "<td class=\"td-greenbackground\"><span>$repoEnv</span></td>";
+                echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             } elseif ($repoEnv === $REPO_LAST_ENV) {
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } else {
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
             }
 
+            // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
+            if ($OS_TYPE == "rpm") {
+                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            }
+            if ($OS_TYPE == "deb") {
+                echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            }
             echo "<td>$repoDate</td>";
+
+            // Afficher ou non la taille des repos
             if ($printRepoSize == "yes") {
                 echo "<td>$repoSize</td>";
             }
-            echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
+            echo "<td class=\"td-fit\" title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
             echo "</tr>";
             echo "<tr>";
             echo "<td colspan=\"100%\">";

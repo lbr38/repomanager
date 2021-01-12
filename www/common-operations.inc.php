@@ -94,35 +94,6 @@ echo '
     </table>
   </form>
   </form>
-</div>
-
-<a href="#" id="operationToggle3" class="button-operations-large"><img src="icons/link.png" class="icon"/>Changer l\'env d\'un repo</a>
-<br>
-<div id="divOperation3" class="hide">
-  <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
-    <input name="actionId" type="hidden" value="changeEnv">
-    <table class="actiontable">
-      <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoName" required></td>
-      </tr>
-      <tr>
-        <td>Env actuel</td>
-        <td><input type="text" name="repoEnv" required></td>
-      </tr>
-      <tr>
-        <td>Nouvel env</td>
-        <td><input type="text" name="repoNewEnv" required></td>
-      </tr>
-      <tr>
-        <td>Description</td>
-        <td><input type="text" name="repoDescription"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
-      </tr>
-    </table>
-  </form>
 </div>';
 }
 ?>
@@ -198,93 +169,6 @@ echo '
           <input type="radio" id="updateRepoGpgCheck_no" name="updateRepoGpgCheck" value="no">
           <label for="updateRepoGpgCheck_no">No</label>
         </td>
-      <tr>
-        <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
-      </tr>
-    </table>
-  </form>
-</div>
-
-<a href="#" id="operationToggle3" class="button-operations-large"><img src="icons/link.png" class="icon"/>Changer l\'env d\'une section</a>
-<br>
-<div id="divOperation3" class="hide">
-  <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
-    <input name="actionId" type="hidden" value="changeEnv">
-    <table class="actiontable">
-      <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoName" required></td>
-      </tr>
-      <tr>
-        <td>Distribution</td>
-        <td><input type="text" name="repoDist" required></td>
-      </tr>
-      <tr>
-        <td>Section</td>
-        <td><input type="text" name="repoSection" required></td>
-      </tr>
-      <tr>
-        <td>Env actuel</td>
-        <td><input type="text" name="repoEnv" required></td>
-      </tr>
-      <tr>
-        <td>Nouvel env</td>
-        <td><input type="text" name="repoNewEnv" required></td>
-      </tr>
-      <tr>
-        <td>Description</td>
-        <td><input type="text" name="repoDescription"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
-      </tr>
-    </table>
-  </form>
-</div>
-
-<a href="#" id="operationToggle5" class="button-operations-large"><img src="icons/bin.png" class="icon"/>Supprimer une section</a>
-<br>
-<div id="divOperation5" class="hide">
-  <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
-    <input name="actionId" type="hidden" value="deleteSection">
-    <table class="actiontable">
-      <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoName" required></td>
-      </tr>
-      <tr>
-        <td>Nom de la distribution</td>
-        <td><input type="text" name="repoDist" required></td>
-      </tr>
-      <tr>
-        <td>Nom de la section</td>
-        <td><input type="text" name="repoSection" required></td>
-      </tr>
-      <tr>
-        <td>Env du repo</td>
-        <td><input type="text" name="repoEnv" required></td>
-      </tr>
-      <tr>
-        <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
-      </tr>
-    </table>
-  </form>
-</div>
-
-<a href="#" id="operationToggle6" class="button-operations-large"><img src="icons/bin.png" class="icon"/>Supprimer une distribution</a>
-<br>
-<div id="divOperation6" class="hide">
-  <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
-    <input name="actionId" type="hidden" value="deleteDist">
-    <table class="actiontable">
-      <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoName" required></td>
-      </tr>
-      <tr>
-        <td>Nom de la distribution</td>
-        <td><input type="text" name="repoDist" required></td>
-      </tr>
       <tr>
         <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
       </tr>
