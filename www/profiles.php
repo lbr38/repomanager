@@ -117,8 +117,8 @@
                   echo '
                   <tr>
                     <td>
-                      <input type="text" value="'.$profileName.'" name="profileName" class="invisible_input" />
-                      <a href="?action=deleteprofile&profileName='.$profileName.'" title="Supprimer le profil '.$profileName.'"><img src="images/trash.png" /></a>
+                      <input type="text" value="'.$profileName.'" name="profileName" class="invisibleInput" />
+                      <a href="?action=deleteprofile&profileName='.$profileName.'" title="Supprimer le profil '.$profileName.'"><img class="icon-lowopacity" src="icons/bin.png" /></a>
                     </td>
                   </tr>';
 
@@ -143,12 +143,12 @@
                     echo "<tr>";
                     echo "<td>$repoName</td>";
                     if ($OS_TYPE == "rpm") {
-                      echo "<td><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}\" title=\"Supprimer le repo ${repoName}\"><img src=\"images/trash.png\" /></a></td>";
+                      echo "<td><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}\" title=\"Supprimer le repo ${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
                     }
                     if ($OS_TYPE == "deb") {
                       echo "<td>$repoDist</td>";
                       echo "<td>$repoSection</td>";
-                      echo "<td><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Supprimer le repo ${repoName}\"><img src=\"images/trash.png\" /></a></td>";
+                      echo "<td><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Supprimer le repo ${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
                     }
 
                     echo "</tr>";;
@@ -193,27 +193,27 @@
                   <div class="profilConfig-div">
                     <tbody>
                       <tr>
-                        <td title="Paquets à exclure uniquement si sa nouvelle version est majeure">EXCLUDE_MAJEURE</td>
+                        <td class="td-fit" title="Paquets à exclure uniquement si sa nouvelle version est majeure">Paquets à exclure en cas de version majeure</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_excludeMajor" value="'.$profileConf_excludeMajor.'" /></td>
                       </tr>
                       <tr>
-                        <td title="Paquets à exclure quelque soit la version proposée">EXCLUDE</td>
+                        <td class="td-fit" title="Paquets à exclure quelque soit la version proposée">Paquets à exclure (toute version)</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_exclude" value="'.$profileConf_exclude.'" /></td>
                       </tr>
                       <tr>
-                        <td title="Services nécessitant un redémarrage après mise à jour">NEED_RESTART</td>
+                        <td class="td-fit" title="Services nécessitant un redémarrage après mise à jour">Services à redémarrer</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_needRestart" value="'.$profileConf_needRestart.'" /></td>
                       </tr>
                       <tr>
-                        <td title="Conserver ou non la tâche cron après exécution de la mise à jour">KEEP_CRON</td>
+                        <td class="td-fit" title="Conserver ou non la tâche cron après exécution de la mise à jour">Conserver la tâche cron</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_keepCron" value="'.$profileConf_keepCron.'" /></td>
                       </tr>
                       <tr>
-                      <td title="Autoriser linux-autoupdate à récupérer et écraser sa conf à chaque exécution">ALLOW_OVERWRITE</td>
+                      <td class="td-fit" title="Autoriser linux-autoupdate à récupérer et écraser sa conf à chaque exécution">Autoriser la mise à jour auto. de la configuration</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_allowOverwrite" value="'.$profileConf_allowOverwrite.'" /></td>
                       </tr>
                       <tr>
-                        <td title="Autoriser linux-autoupdate à récupérer automatiquement les fichiers .list ou .repo de son profil">ALLOW_REPOSFILES_OVERWRITE</td>
+                        <td class="td-fit" title="Autoriser linux-autoupdate à récupérer automatiquement les fichiers .list ou .repo de son profil">Autoriser la mise à jour auto. des fichiers de repo</td>
                         <td><input type="text" autocomplete="off" class="profileConf_input" name="profileConf_allowReposFilesOverwrite" value="'.$profileConf_allowReposFilesOverwrite.'" /></td>
                       </tr>
                     </tbody>

@@ -90,6 +90,11 @@ header a {
     font-size: 18px;
 }
 
+hr {
+    border-color: gray;
+    opacity: 0.11;
+}
+
 /* Affichage de version alpha/beta sous le titre du produit */
 #version {
     width: 35px;
@@ -159,6 +164,7 @@ article.center {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     /*background-color:#3b3b3b;*/
     background-color:#2b2b2b;
+    overflow: hidden;
 }
 
 article.left {
@@ -174,9 +180,11 @@ article.left {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     /*background-color:#3b3b3b;*/
     background-color:#2b2b2b;
+    overflow: hidden;
 }
 
-article.right {
+/* paramètres pour les articles sur la droite, et pour les articles masqués */
+article.right, #newRepoSlideDiv, #serverInfoSlideDiv {
     width: 29%;
     min-height: 250;
     margin-bottom: 10;
@@ -192,6 +200,18 @@ article.right {
     background-color:#2b2b2b;
 }
 
+/* on écrase certaines des valeurs ci-dessus afin que l'article soit masqué au chargement de la page */
+#newRepoSlideDiv {
+    width: 0; /* longueur de 0 par défaut, pour que cet article soit complètement masqué. */
+    padding: 0; /* padding forcé à 0 par défaut, pour que cet article soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois l'article affiché */
+    overflow: hidden; /* cacher ce qui dépasse, pour que cet article soit complètement masqué par défaut */
+}
+
+#serverInfoSlideDiv {
+    min-height: 500px;
+    overflow: hidden; /* cacher ce qui dépasse, pour que cet article soit complètement masqué lorsqu'on choisi de le masquer */
+}
+
 article.right label {
     font-size: 12px;
     width: 100px;
@@ -203,6 +223,10 @@ article.right input {
 
 article.right input[type=radio] {
     width: 20;
+}
+
+#divContainerArticleRight { /* container permettant de laisser une marge de 10 dans chaque article de droite */ 
+    margin: 10;
 }
 
 form.actionform {
@@ -757,11 +781,16 @@ input[type=text].input-large {
 }
 
 /* Menu gestion des profils */
-input[type=text].invisible_input {
+/* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
+input[type=text].invisibleInput, input[type=text].invisibleInput2 {
     width: 80px;
     border: none;
-    background-color: #3b3b3b;
+    background-color: #2b2b2b;
     font-weight: bold;
+}
+
+input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur différent */
+    background-color: #333333;
 }
 
 textarea {
@@ -862,4 +891,28 @@ img.cronStatus {
     color: whitesmoke;
     text-align: center;
     vertical-align: middle;
+}
+
+.chart {
+    width: 80px;
+    margin: 10;
+}
+
+.diskSpaceDiv {
+    width: auto;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    background-color:#252525;
+    border-radius: 6px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    display: inline-block;
+    margin: 1px;
+    text-align: center;
+}
+
+.button-slide-left {
+    float: right;
 }

@@ -10,6 +10,12 @@
             if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
             if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
         ?>
+        <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
+        <?php 
+            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" class=\"button-slide-right\"><span>Créer un nouveau repo</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
+            if ($OS_TYPE == "deb") { echo "<a href=\"#\" class=\"button-slide-right\"><span>Créer une nouvelle section</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
+        ?>
+
     </div>
 </div>
 
@@ -17,6 +23,7 @@
 <div id="divReposListDisplay" class="divReposListDisplay">
     <form action="" method="post">
     <?php
+        // afficher ou non la taille des repos/sections
         echo "<input type=\"hidden\" name=\"printRepoSize\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($printRepoSize == "yes") {
             echo "<input type=\"checkbox\" id=\"printRepoSize\" name=\"printRepoSize\" value=\"on\" checked />";
@@ -27,6 +34,7 @@
         
         echo "<br>";
 
+        // filtrer ou non par groupe
         echo "<input type=\"hidden\" name=\"filterByGroups\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($filterByGroups == "yes") {
             echo "<input type=\"checkbox\" id=\"filterByGroups\" name=\"filterByGroups\" value=\"on\" checked />";
@@ -37,6 +45,7 @@
 
         echo "<br>";
 
+        // concatener ou non les noms de repo/section
         echo "<input type=\"hidden\" name=\"concatenateReposName\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($concatenateReposName == "yes") {
             echo "<input type=\"checkbox\" id=\"concatenateReposName\" name=\"concatenateReposName\" value=\"on\" checked />";
@@ -47,6 +56,18 @@
 
         echo "<br>";
 
+        // Afficher ou non une ligne séparatrice entre chaque nom de repo/section
+        echo "<input type=\"hidden\" name=\"dividingLine\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
+        if ($dividingLine == "yes") {
+            echo "<input type=\"checkbox\" id=\"dividingLine\" name=\"dividingLine\" value=\"on\" checked />";
+        } else {
+            echo "<input type=\"checkbox\" id=\"dividingLine\" name=\"dividingLine\" value=\"on\" />";
+        }
+        echo "<label for=\"dividingLine\">Ligne séparatrice</label>";
+
+        echo "<br>";
+
+        // alterner ou non les couleurs dans la liste
         echo "<input type=\"hidden\" name=\"alternateColors\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($alternateColors == "yes") {
             echo "<input type=\"checkbox\" id=\"alternateColors\" name=\"alternateColors\" value=\"on\" checked />";
@@ -54,12 +75,15 @@
             echo "<input type=\"checkbox\" id=\"alternateColors\" name=\"alternateColors\" value=\"on\" />";
         }
         echo "<label for=\"alternateColors\">Couleurs alternées</label>";
-        echo "<br>";
+        // choix des couleurs :
+        if ($alternateColors == "yes") {
+            echo "<label for=\"alternativeColor1\"> Couleur 1 : </label>";
+            echo "<input type=\"text\" id=\"alternativeColor1\" class=\"input-small\" name=\"alternativeColor1\" placeholder=\"couleur 1\" value=\"${alternativeColor1}\">";
+            echo "<label for=\"alternativeColor2\"> Couleur 2 : </label>";
+            echo "<input type=\"text\" id=\"alternativeColor2\" class=\"input-small\" name=\"alternativeColor2\" placeholder=\"couleur 2\" value=\"${alternativeColor2}\">";
+        }
         ?>
-        <label for="alternativeColor1">Couleur 1 :</label>
-        <input type="text" id="alternativeColor1" class="input-small" name="alternativeColor1" placeholder="couleur 1" value="<?php echo "$alternativeColor1"; ?>">
-        <label for="alternativeColor2">Couleur 2 :</label>
-        <input type="text" id="alternativeColor2" class="input-small" name="alternativeColor2" placeholder="couleur 2" value="<?php echo "$alternativeColor2"; ?>">
+        
         <br>
         <br>
         <button type="submit" class="button-submit-medium-blue">Enregistrer</button>
@@ -166,6 +190,16 @@ if ($filterByGroups == "yes") {
                             if ($listColor == "color1") { $listColor = 'color2'; }
                             elseif ($listColor == "color2") { $listColor = 'color1'; }
                         }
+
+                        // Affichage ou non d'une ligne séparatrice entre chaque repo/section
+                        if ($dividingLine === "yes") {
+                            if ($repoName !== $repoLastName) {
+                                echo "<tr>";
+                                echo "<td colspan=\"100%\"><hr></td>";
+                                echo "</tr>";
+                            }
+                        }
+
                         echo "<tr class=\"$listColor\">";
                         echo "<td class=\"td-fit\">";
                         // Affichage de l'icone "corbeille" pour supprimer le repo
@@ -187,6 +221,15 @@ if ($filterByGroups == "yes") {
                         // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
                         echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
+                        // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
+                        if ($repoEnv === $REPO_DEFAULT_ENV) {
+                            if ($OS_TYPE == "rpm") {
+                                echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                            }
+                            if ($OS_TYPE == "deb") {
+                                echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
+                            }
+                        }
                         echo "</td>";
 
                         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -351,6 +394,16 @@ if ($filterByGroups == "yes") {
                 if ($listColor == "color1") { $listColor = 'color2'; }
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
+
+            // Affichage ou non d'une ligne séparatrice entre chaque repo/section
+            if ($dividingLine === "yes") {
+                if ($repoName !== $repoLastName) {
+                    echo "<tr>";
+                    echo "<td colspan=\"100%\"><hr></td>";
+                    echo "</tr>";
+                }
+            }
+
             echo "<tr class=\"$listColor\">";
             echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
@@ -372,7 +425,17 @@ if ($filterByGroups == "yes") {
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
             echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
+            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
+            if ($repoEnv === $REPO_DEFAULT_ENV) {
+                if ($OS_TYPE == "rpm") {
+                    echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                }
+                if ($OS_TYPE == "deb") {
+                    echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
+                }
+            }
             echo "</td>";
+
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
                 echo "<td></td>";
@@ -490,7 +553,6 @@ if ($filterByGroups == "no") {
     $rows = explode("\n", $repoFile);
     foreach($rows as $row) {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-            //get row data
             $rowData = explode(',', $row);
             if ($OS_TYPE == "rpm") {
                 $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
@@ -519,6 +581,15 @@ if ($filterByGroups == "no") {
                 if ($listColor == "color1") { $listColor = 'color2'; }
                 elseif ($listColor == "color2") { $listColor = 'color1'; }
             }
+            // Affichage ou non d'une ligne séparatrice entre chaque repo/section
+            if ($dividingLine === "yes") {
+                if ($repoName !== $repoLastName) {
+                    echo "<tr>";
+                    echo "<td colspan=\"100%\"><hr></td>";
+                    echo "</tr>";
+                }
+            }
+
             echo "<tr class=\"$listColor\">";
             echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
@@ -540,7 +611,17 @@ if ($filterByGroups == "no") {
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
             echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
+            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
+            if ($repoEnv === $REPO_DEFAULT_ENV) {
+                if ($OS_TYPE == "rpm") {
+                    echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                }
+                if ($OS_TYPE == "deb") {
+                    echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
+                }
+            }
             echo "</td>";
+
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
                 echo "<td></td>";

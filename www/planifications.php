@@ -173,7 +173,6 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
     </article>
 
     <article class="right">
-        
         <div id="planCronStatus">
         <h5>PLANIFICATIONS</h5>
         <?php

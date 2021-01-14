@@ -63,6 +63,26 @@ if [ "$ACTUAL_USER" == "root" ];then
             find ${RPM_GPG_DIR}/ -type f -exec chmod 0664 {} \;
             chmod 775 "$RPM_GPG_DIR"
         fi
+
+        # permissions sur les fichiers du module rpmresign (perl/RPM4)
+        # Donner le droit à WWW_USER de rentrer dans les répertoires suivants, liés au module perl RPM4 :
+        if [ -d "/usr/local/lib64/perl5/RPM4/" ];then
+            chmod o+x /usr/local/lib64/perl5/RPM4
+            find /usr/local/lib64/perl5/RPM4/ -type d -exec chmod o+x {} \;
+            find /usr/local/lib64/perl5/RPM4/ -type f -exec chmod o+r {} \;
+        fi
+        if [ -d "chmod o+x /usr/local/lib64/perl5/auto" ];then 
+            chmod o+x /usr/local/lib64/perl5/auto
+        fi
+        if [ -d "/usr/local/lib64/perl5/auto/RPM4" ];then
+            chmod o+x /usr/local/lib64/perl5/auto/RPM4
+        fi
+        if [ -d "chmod o+x /usr/local/lib64/perl5" ];then
+            chmod o+x /usr/local/lib64/perl5
+        fi
+        if [ -f "/usr/local/lib64/perl5/RPM4.pm" ];then
+            chmod o+r /usr/local/lib64/perl5/RPM4.pm
+        fi
     fi
 else
     if [ $TTY -eq "1" ];then # On affiche le message suivant uniquement si on est dans un terminal

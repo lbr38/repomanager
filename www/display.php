@@ -8,5 +8,8 @@ $concatenateReposName = "no"; // simplifier la vue en n'affichant pas les noms d
 $alternateColors = "yes"; // alterner les couleurs dans la liste
 $alternativeColor1 = exec("grep 'color1:' ${WWW_DIR}/styles/vars/colors.css | awk -F '--color1:' '{print $2}' | sed 's/ //g' | sed 's/;//g'");
 $alternativeColor2 = exec("grep 'color2:' ${WWW_DIR}/styles/vars/colors.css | awk -F '--color2:' '{print $2}' | sed 's/ //g' | sed 's/;//g'");
+$dividingLine = "no"; // ligne séparatrice entre chaque repo
+
+// mode debug (affichage en haut de chaque page des paramètres post ou get envoyés)
 $debugMode = "disabled";
 ?>

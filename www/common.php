@@ -40,6 +40,17 @@ if (isset($_POST['concatenateReposName'])) {
   }
 }
 
+// Liste des repos : choisir d'afficher ou non une ligne séparatrice entre chaque nom de repo/section
+if (isset($_POST['dividingLine'])) {
+  $dividingLine = validateData($_POST['dividingLine']);
+
+  if ($dividingLine == "on") {
+    exec("sed -i 's/\$dividingLine = \"no\"/\$dividingLine = \"yes\"/g' display.php");
+  } else {
+    exec("sed -i 's/\$dividingLine = \"yes\"/\$dividingLine = \"no\"/g' display.php");
+  }
+}
+
 // Liste des repos : alterner ou non les couleurs dans la liste
 if (isset($_POST['alternateColors'])) {
   $alternateColors = validateData($_POST['alternateColors']);

@@ -20,9 +20,9 @@
         // On veut pouvoir renommer le groupe, ou ajouter des repos à ce groupe, donc il faut transmettre le nom de groupe actuel (actualGroupName) :
         echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
         // clien cliquable "corbeille" pour supprimer le groupe :
-        echo "<td class=\"td-auto\"><a href=\"?action=deleteGroup&groupName=${groupName}\"><img src=\"images/trash.png\" /></a></td>";
+        echo "<td class=\"td-fit\"><a href=\"?action=deleteGroup&groupName=${groupName}\" title=\"Supprimer le groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a></td>";
         // on affiche le nom actuel du groupe dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newGroupeName) :
-        echo "<td colspan=\"100%\"><input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"invisible_input\" /></td>";
+        echo "<td colspan=\"100%\"><input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"invisibleInput2\" /></td>";
         echo "</tr>";
 
         // On va récupérer la liste des repos du groupe et les afficher si il y en a (résultat non vide)
@@ -47,8 +47,8 @@
                 }
                 echo "<tr>";
                 echo "<td></td>";
-                if ($OS_TYPE == "rpm") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName} \"><img src=\"images/trash.png\" /></a></td>"; }
-                if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img src=\"images/trash.png\" /></a></td>"; }
+                if ($OS_TYPE == "rpm") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName} du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
+                if ($OS_TYPE == "deb") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection} (repo ${repoName}) du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
                 echo "<td class=\"td-auto\">${repoName}</td>";
                 if ($OS_TYPE == "deb") {
                   echo "<td class=\"td-auto\">${repoDist}</td>";
@@ -67,7 +67,6 @@
         echo "<td><button type=\"submit\" class=\"button-submit-xsmall-blue\">Ajouter</button></td>";
         echo "</tr>";
         echo "<tr>";
-        echo "<td colspan=\"100%\"><button type=\"submit\" class=\"button-submit-large-green\">Enregistrer</button></td>";
         echo "</tr>";
         echo "</form>";
         // ligne séparatrice entre chaque groupe :

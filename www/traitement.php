@@ -317,15 +317,45 @@ function checkAction_updateRepo() {
         echo "<td><input type=\"hidden\" name=\"repoSection\" value=\"$repoSection\"></td>";
     }
 
-    // updateRepoGpgCheck ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
-    // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $updateRepoGpgCheck = validateData($_GET['updateRepoGpgCheck']);
-    echo "<td><input type=\"hidden\" name=\"updateRepoGpgCheck\" value=\"$updateRepoGpgCheck\"></td>";
-    
-    // repoGpgResign ne peut pas être vide car un des deux boutons radio est forcément coché, donc on le récupère.
-    // Dans tous les cas le traitement ne pourra pas se faire si on envoie une valeur vide
-    $repoGpgResign = validateData($_GET['repoGpgResign']);
-    echo "<td><input type=\"hidden\" name=\"repoGpgResign\" value=\"$repoGpgResign\"></td>";
+    // Si $repoGpgResign est vide, on le demande (rpm seulement)
+    if ($OS_TYPE == "rpm" AND empty($_GET['repoGpgResign'])) {
+        echo "<tr>";
+        echo "<td>Re-signer avec GPG</td>";
+        echo "<td>";
+        if ( $GPG_SIGN_PACKAGES == "yes" ) {
+            echo "<input type=\"radio\" id=\"repoGpgResign_yes\" name=\"repoGpgResign\" value=\"yes\" checked=\"yes\">";
+            echo "<label for=\"repoGpgResign_yes\">Yes</label>";
+            echo "<input type=\"radio\" id=\"repoGpgResign_no\" name=\"repoGpgResign\" value=\"no\">";
+            echo "<label for=\"repoGpgResign_no\">No</label>";
+        } else {
+            echo "<input type=\"radio\" id=\"repoGpgResign_yes\" name=\"repoGpgResign\" value=\"yes\">";
+            echo "<label for=\"repoGpgResign_yes\">Yes</label>";
+            echo "<input type=\"radio\" id=\"repoGpgResign_no\" name=\"repoGpgResign\" value=\"no\" checked=\"yes\">";
+            echo "<label for=\"repoGpgResign_no\">No</label>";
+        }
+        echo "</td>";
+        echo "</tr>";
+    } else {
+        $repoGpgResign = validateData($_GET['repoGpgResign']);
+        echo "<td><input type=\"hidden\" name=\"repoGpgResign\" value=\"$repoGpgResign\"></td>";
+    }
+
+    // Si gpgCheck est vide, on le demande
+    if (empty($_GET['updateRepoGpgCheck'])) {
+        echo "<tr>";
+        echo "<td>GPG check</td>";
+        echo "<td colspan=\"2\">";
+        echo "<input type=\"radio\" id=\"updateRepoGpgCheck_yes\" name=\"updateRepoGpgCheck\" value=\"yes\" checked=\"yes\">";
+        echo "<label for=\"updateRepoGpgCheck_yes\">Yes</label>";
+        echo "<input type=\"radio\" id=\"updateRepoGpgCheck_no\" name=\"updateRepoGpgCheck\" value=\"no\">";
+        echo "<label for=\"updateRepoGpgCheck_no\">No</label>";
+        echo "</td>";
+        echo "</tr>";
+    } else {
+        $updateRepoGpgCheck = validateData($_GET['updateRepoGpgCheck']);
+        echo "<td><input type=\"hidden\" name=\"updateRepoGpgCheck\" value=\"$updateRepoGpgCheck\"></td>";
+    }
+
 
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
@@ -335,7 +365,7 @@ function checkAction_updateRepo() {
             // recup du vrai nom du repo :
             $repoRealname = exec("grep '^Name=\"${repoName}\",Realname=\".*\",' $REPO_FILE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
             // On vérifie que le repo existe dans /etc/yum.repos.d/ :
-            $checkifRepoRealnameExist = exec("grep '^\\[${repoRealname}\\]' ${REPOMANAGER_YUM_DIR}/*.repo");
+            $checkifRepoRealnameExist = exec("grep '^\[${repoRealname}\]' ${REPOMANAGER_YUM_DIR}/*.repo");
             if (empty($checkifRepoRealnameExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun fichier de repo dans ${REPOMANAGER_YUM_DIR}/ pour le nom de repo [${repoRealname}]</td>";

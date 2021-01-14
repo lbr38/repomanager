@@ -83,7 +83,7 @@ if [ "$ERROR" -eq "0" ];then
 	# - ce repo n'avait pas de version en prod, on crée simplement un lien symbo
 	# - ce repo avait déjà une version en prod, on modifie le lien symbo et on passe la version précédente en archive
 	# Cas 1 :
-	if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}";then	# Cas 1 : pas de version déjà en prod
+	if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}";then	# Cas 1 : pas de version déjà en ${REPO_NEW_ENV}
 		echo -ne "Création du lien symbolique :\t"
 		ln -s ${REPO_DATE}_${REPO_SECTION}/ ${REPO_SECTION}_${REPO_NEW_ENV}
 		if [ $? -eq "0" ];then
