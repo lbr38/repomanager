@@ -6,7 +6,6 @@
   <span id="version">ALPHA</span>
     <li><a href="index.php">Opérations</a></li>
     <?php
-    $uri = $_SERVER['REQUEST_URI'];
     if ($AUTOMATISATION_ENABLED == "yes") {
         echo "<li><a href=\"planifications.php\">Planifications</a></li>";
     }

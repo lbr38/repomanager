@@ -32,7 +32,7 @@
     boutons blanc (hover) :
 
 
-// articles //
+// sections //
     couleur de fond gris : background-color: #2b2b2b;
     couleur de fond gris +foncé : background-color: #252525;
 
@@ -51,16 +51,14 @@ body {
 
 a {
 	text-decoration: none;
-    color: whitesmoke;
-    font-size: 12px;
 }
 
 a:hover {
     font-weight: bold;
 }
 
-p, label {
-    font-size: 12px;
+p, label, a {
+    font-size: 13px;
     color: whitesmoke;
 }
 
@@ -128,9 +126,9 @@ hr {
     position: sticky;
 }
 
-article.main {
+section.main {
     width: 99%;
-    margin: auto; /* pour recentrer tout le bloc article */
+    margin: auto; /* pour recentrer tout le bloc section */
 }
 
 .div-half-left {
@@ -149,10 +147,9 @@ article.main {
     padding: 10;
     display: inline-block;
     vertical-align: top;
-    /*float: right;*/
 }
 
-article.center {
+section.center {
     width: 99%;
     margin: auto;
     margin-bottom: 10;
@@ -161,14 +158,28 @@ article.center {
     border-radius: 5px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-    /*background-color:#3b3b3b;*/
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
     background-color:#2b2b2b;
     overflow: hidden;
 }
 
-article.left {
+/* Sections conteneurs permettant de séparer les pages en deux */
+section.mainSectionLeft {
     width: 68%;
+    padding-left: 10;
+    display: inline-block;
+    vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
+}
+
+section.mainSectionRight {
+    width: 30%;
+    padding-right: 10;
+    display: inline-block;
+    vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
+}
+
+section.left {
+    width: 98%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionLeft' */
     min-height: 250;
     margin-bottom: 10;
     padding: 10;
@@ -177,56 +188,47 @@ article.left {
     border-radius: 5px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-    /*background-color:#3b3b3b;*/
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
     background-color:#2b2b2b;
     overflow: hidden;
 }
 
-/* paramètres pour les articles sur la droite, et pour les articles masqués */
-article.right, #newRepoSlideDiv, #serverInfoSlideDiv {
-    width: 29%;
-    min-height: 250;
+/* paramètres pour les sections sur la droite, et pour les sections masqués */
+section.right, #newRepoSlideDiv, #serverInfoSlideDiv {
+    width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
     margin-bottom: 10;
     padding: 10;
-    /*display: inline-block;*/
     vertical-align:top;
     border-radius: 5px;
     float: right;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-    /*background-color:#3b3b3b;*/
     background-color:#2b2b2b;
 }
 
-/* on écrase certaines des valeurs ci-dessus afin que l'article soit masqué au chargement de la page */
+/* on écrase certaines des valeurs ci-dessus afin que la section soit masquée au chargement de la page */
 #newRepoSlideDiv {
-    width: 0; /* longueur de 0 par défaut, pour que cet article soit complètement masqué. */
-    padding: 0; /* padding forcé à 0 par défaut, pour que cet article soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois l'article affiché */
-    overflow: hidden; /* cacher ce qui dépasse, pour que cet article soit complètement masqué par défaut */
+    width: 0; /* longueur de 0 par défaut, pour que cette section soit complètement masqué. */
+    padding: 0px; /* padding forcé à 0 par défaut, pour que cette section soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois la section affichée */
+    overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
 }
 
 #serverInfoSlideDiv {
-    min-height: 500px;
-    overflow: hidden; /* cacher ce qui dépasse, pour que cet article soit complètement masqué lorsqu'on choisi de le masquer */
+    overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué lorsqu'on choisi de le masquer */
 }
 
-article.right label {
-    font-size: 12px;
+section.right label {
+    font-size: 13px;
     width: 100px;
 }
 
-article.right input {
+section.right input {
     width: 100%;
 }
 
-article.right input[type=radio] {
+section.right input[type=radio] {
     width: 20;
-}
-
-#divContainerArticleRight { /* container permettant de laisser une marge de 10 dans chaque article de droite */ 
-    margin: 10;
 }
 
 form.actionform {
@@ -239,7 +241,7 @@ form.actionform {
 }
 
 table {
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .table-auto {
@@ -274,7 +276,7 @@ table.list-repos {
     /*font-family: 'Courier New';
     font-family: 'Source Sans Pro Regular'; */
     font-family: ubuntu;
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -356,9 +358,7 @@ table.list-repos td.td-bluebackground span:hover {
     max-height: 400px;
     position: fixed;
     bottom: 0;
-    padding-left: 10;
-    padding-right: 10;
-    padding-bottom: 10;
+    padding: 10;
     border-radius: 2px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
@@ -407,15 +407,15 @@ table td.table-title {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 #log {
-    font-size: 12px;
+    font-size: 13px;
     padding: 10px;
 }
 
-article.log {
+section.log {
     width: 100%;
     border-radius: 2px;
     box-shadow:
@@ -476,7 +476,7 @@ article.log {
     color: whitesmoke;
     padding: 2px 10px;
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
     text-decoration: none;
     display: inline-block;
 }
@@ -493,7 +493,7 @@ article.log {
     color: whitesmoke;
     padding: 2px 10px;
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
     text-decoration: none;
     display: inline-block;
 }
@@ -552,7 +552,7 @@ input[type=text], input[type=date], input[type=time], input[type=number], select
     border: none;
     border-radius: 4px;
     box-sizing: border-box;
-    font-size: 12px;
+    font-size: 13px;
     color: whitesmoke;
     background-color:#474747;
 }
@@ -581,7 +581,7 @@ input[type=text].input-large {
     text-align: left;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-large {
@@ -595,7 +595,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-xsmall {
@@ -607,7 +607,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-small {
@@ -620,7 +620,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-large-red {
@@ -634,7 +634,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-large-red:hover {
@@ -653,7 +653,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-large-green:hover {
@@ -672,7 +672,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-medium-green:hover {
@@ -691,7 +691,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-small-green:hover {
@@ -710,7 +710,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-xsmall-green:hover {
@@ -729,7 +729,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-large-blue:hover {
@@ -749,7 +749,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-medium-blue:hover {
@@ -768,7 +768,7 @@ input[type=text].input-large {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .button-submit-xsmall-blue:hover {
@@ -795,13 +795,13 @@ input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur diff
 
 textarea {
     width: 100%;
-    font-size: 12px;
+    font-size: 13px;
     color: whitesmoke;
     background-color:#3b3b3b;
 }
 
 form.profileForm td {
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .div-inline {
@@ -858,13 +858,28 @@ img.cronStatus {
     float: right;
 }
 
-#ReposListDisplayToggle, #reposSourcesToggle, #GroupsListToggle {
+/* Boutons au sommet de la liste des repos permettant d'afficher les div cachées (groupes, repos sources) */
+#ReposListDisplayToggleButton, #ReposSourcesSlideUpButton, #GroupsListSlideUpButton {
     padding-left: 8px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
-#ReposListDisplayToggle:hover, #reposSourcesToggle:hover, #GroupsListToggle:hover {
+#newRepoSlideButton {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+#newRepoSlideButton {
+    background-color:#0275d8;
+    border-radius: 5px;
+}
+
+#newRepoSlideButton:hover {
+    background-color: #0468c0;
+}
+
+#ReposListDisplayToggleButton:hover, #ReposSourcesSlideUpButton:hover, #GroupsListSlideUpButton:hover {
     padding-left: 8px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -893,12 +908,12 @@ img.cronStatus {
     vertical-align: middle;
 }
 
-.chart {
-    width: 80px;
+.chart { /* largeur des graphiques chartjs */
+    width: 60px;
     margin: 10;
 }
 
-.diskSpaceDiv {
+.serverInfoDiskSpace, .serverInfoRepo {
     width: auto;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
@@ -906,13 +921,24 @@ img.cronStatus {
     background-color:#252525;
     border-radius: 6px;
     padding-left: 5px;
-    padding-right: 5px;
     padding-bottom: 5px;
     display: inline-block;
     margin: 1px;
     text-align: center;
 }
 
-.button-slide-left {
+.serverInfoRepo {
+    width: 100%;
+    text-align: left;
+}
+
+#newRepoCloseButton, #GroupsListSlideDownButton, #ReposSourcesSlideDownButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;
+}
+
+#newRepoSlideButton:hover .hide {
+    display: inline-block;
+    padding-left: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }

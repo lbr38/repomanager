@@ -166,13 +166,17 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 <body>
 <?php include('common-header.inc.php'); ?>
 
-  <article class='main'>
+  
     <!-- REPOS ACTIFS -->
-    <article class="left">
-        <?php include('common-repos-list.inc.php'); ?>
-    </article>
+    <section class="mainSectionLeft">
+      <section class="left">
+          <!-- REPOS ACTIFS -->
+          <?php include('common-repos-list.inc.php'); ?>
+      </section>
+    </section>
 
-    <article class="right">
+    <section class="mainSectionRight">
+      <section class="right">
         <div id="planCronStatus">
         <h5>PLANIFICATIONS</h5>
         <?php
@@ -352,17 +356,18 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             </tr>
         </table>
         </form>
-    </article>
-  </article>
+      </section>
+    </section>
+ 
   
-  <!-- divs cachées de base -->
-  <!-- div des groupes de repos -->
-  <?php include('common-groupslist.inc.php'); ?>
+<!-- divs cachées de base -->
+<!-- GERER LES GROUPES -->
+<?php include('common-groupslist.inc.php'); ?>
 
-  <!-- div des hotes et fichers de repos -->
-  <?php include('common-repos-sources.inc.php'); ?>
+<!-- REPOS/HOTES SOURCES -->
+<?php include('common-repos-sources.inc.php'); ?>
 
-  <?php include('common-footer.inc.php'); ?>
+<?php include('common-footer.inc.php'); ?>
 </body>
 
 <script>

@@ -47,4 +47,7 @@ $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $CONF_FILE | cut -d'=' -f2
 // Config web :
 $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
 $WWW_USER = exec("grep '^WWW_USER=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+
+// Autres :
+$uri = $_SERVER['REQUEST_URI'];
 ?>

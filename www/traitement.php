@@ -13,14 +13,20 @@
 <body>
 <?php include('common-header.inc.php'); ?>
 
-<article class="main">
+<section class="mainSectionLeft">
+    <section class="left">
+        <!-- REPOS ACTIFS -->
+        <?php include('common-repos-list.inc.php'); ?>
+    </section>
+    <section class="left">
+        <!-- REPOS ARCHIVÉS-->
+        <?php include('common-repos-archive-list.inc.php'); ?>
+    </section>
+</section>
 
-  <!-- REPOS ACTIFS -->
-  <article class="left">
-    <?php include('common-repos-list.inc.php'); ?>
-  </article>
 
-  <article class="right">
+<section class="mainSectionRight">
+  <section class="right">
     <h5>OPERATIONS</h5>
 
     <!--<form action="traitement.php" method="post" class="actionform">-->
@@ -1572,13 +1578,13 @@ function checkAction_restoreOldRepo() {
     ?>
     </table>
     </form>
-  </article>
-</article>
+  </section>
+</section>
 <!-- divs cachées de base -->
-<!-- div des groupes de repos -->
+<!-- GERER LES GROUPES -->
 <?php include('common-groupslist.inc.php'); ?>
 
-<!-- div des hotes et fichers de repos -->
+<!-- REPOS/HOTES SOURCES -->
 <?php include('common-repos-sources.inc.php'); ?>
 
 <?php include('common-footer.inc.php'); ?>

@@ -2,18 +2,20 @@
     <h5>REPOS ACTIFS</h5>
     <div>
         <!-- Bouton "Affichage" -->
-        <a href="#" id="ReposListDisplayToggle" title="Affichage"><span>Affichage</span><img src="icons/cog.png" class="icon"/></a>
+        <a href="#" id="ReposListDisplayToggleButton" title="Affichage"><span>Affichage</span><img src="icons/cog.png" class="icon"/></a>
         <!-- Bouton "Gérer les groupes" -->
-        <a href="#" id="GroupsListToggle" title="Gérer les groupes"><span>Gérer les groupes</span><img src="icons/folder.png" class="icon"/></a>
+        <a href="#" id="GroupsListSlideUpButton" title="Gérer les groupes"><span>Gérer les groupes</span><img src="icons/folder.png" class="icon"/></a>
         <!-- Bouton "Gérer les repos/hôtes sources" -->
         <?php
-            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
-            if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"reposSourcesToggle\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
         ?>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
-        <?php 
-            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" class=\"button-slide-right\"><span>Créer un nouveau repo</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
-            if ($OS_TYPE == "deb") { echo "<a href=\"#\" class=\"button-slide-right\"><span>Créer une nouvelle section</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
+        <?php // on affiche ce bouton uniquement sur index.php :
+            if (($uri == "/index.php") OR ($uri == "/")) {
+                if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"newRepoSlideButton\"><span class=\"hide\">Créer un nouveau repo</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
+                if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"newRepoSlideButton\"><span class=\"hide\">Créer une nouvelle section</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
+            }
         ?>
 
     </div>
@@ -92,7 +94,7 @@
 
 <script> // Afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
   $(document).ready(function(){
-  $("a#ReposListDisplayToggle").click(function(){
+  $("a#ReposListDisplayToggleButton").click(function(){
     $("div.divReposListDisplay").slideToggle(100);
     $(this).toggleClass("open");
   });

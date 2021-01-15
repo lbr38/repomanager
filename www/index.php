@@ -13,32 +13,53 @@
 <body>
 <?php include('common-header.inc.php'); ?>
 
-
-<!-- REPOS ACTIFS -->
-<article class="main">
-    <article class="left">
+<!-- section 'conteneur' principal englobant toutes les sections de gauche -->
+<section class="mainSectionLeft">
+    <section class="left">
+        <!-- REPOS ACTIFS -->
         <?php include('common-repos-list.inc.php'); ?>
-    </article>
+    </section>
+    <section class="left">
+        <!-- REPOS ARCHIVÉS-->
+        <?php include('common-repos-archive-list.inc.php'); ?>
+    </section>
+</section>
 
-    <article id="serverInfoSlideDiv" class="serverInfoSlideDiv">
-    <div id="divContainerArticleRight">
-        <h5>DETAILS SERVEUR</h5>
-            <p>Espace disque utilisé</p>
-            <div class="diskSpaceDiv">
+<!-- section 'conteneur' principal englobant toutes les sections de droite -->
+<section class="mainSectionRight">
+    <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
+    <section class="right" id="newRepoSlideDiv">
+        <a href="#" id="newRepoCloseButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
+        <?php include('common-operations.inc.php'); ?> 
+    </section>
+
+    <section class="right" id="serverInfoSlideDiv">
+        <h5>DETAILS</h5>
+        <div class="serverInfoRepo">
+            <table>
+                <tr>
+                    <td>Total repos</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td>Total repos archivés</td>
+                    <td>11</td>
+                </tr>
+            </table>
+        </div>
+        <p>Espace disque</p>
+        <div class="serverInfoDiskSpace">
             <!-- graphique affichant l'espace utilisé sur le serveur (racine) -->
             <p>/</p>
             <?php
                 $diskTotalSpace = disk_total_space("/");
                 $diskFreeSpace = disk_free_space("/");
                 $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
-
                 $diskTotalSpace = $diskTotalSpace / 1073741824;
                 $diskUsedSpace = $diskUsedSpace / 1073741824;
-
                 // Formattage des données pour avoir un résultat sans virgule et un résultat en poucentage
                 $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
                 $diskFreeSpacePercent = $diskFreeSpace . '%';
-
                 $diskUsedSpace = round(100 - ($diskFreeSpace));
                 $diskUsedSpacePercent = round(100 - ($diskFreeSpace)) . '%';
             ?>
@@ -92,27 +113,24 @@
             Chart.pluginService.register({
                 beforeDraw: function(chart) {
                     var width = chart.chart.width,
-                        height = chart.chart.height,
-                        ctx = chart.chart.ctx;
-
-                        ctx.restore();
-                        var fontSize = (height / 114).toFixed(2);
-                        ctx.font = fontSize + "em sans-serif";
-                        ctx.fillStyle = "white";
-                        ctx.textBaseline = "middle";
-
-                        var text = "<?php echo "${diskUsedSpacePercent}"; ?>",
-                        textX = Math.round((width - ctx.measureText(text).width) / 2),
-                        textY = height / 2;
-
-                        ctx.fillText(text, textX, textY);
-                        ctx.save();
+                    height = chart.chart.height,
+                    ctx = chart.chart.ctx;
+                    ctx.restore();
+                    var fontSize = (height / 114).toFixed(2);
+                    ctx.font = fontSize + "em sans-serif";
+                    ctx.fillStyle = "white";
+                    ctx.textBaseline = "middle";
+                    var text = "<?php echo "${diskUsedSpacePercent}"; ?>",
+                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                    textY = height / 2;
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
                 }
             });
             </script>
-            </div>
+        </div>
 
-            <div class="diskSpaceDiv">
+        <div class="serverInfoDiskSpace">
             <!-- graphique affichant l'espace utilisé par le répertoire des repos -->
             <p><?php echo "${REPOS_DIR}";?></p>
             <?php
@@ -180,84 +198,66 @@
             Chart.pluginService.register({
                 beforeDraw: function(chart) {
                     var width = chart.chart.width,
-                        height = chart.chart.height,
-                        ctx = chart.chart.ctx;
+                    height = chart.chart.height,
+                    ctx = chart.chart.ctx;
 
-                        ctx.restore();
-                        var fontSize = (height / 114).toFixed(2);
-                        ctx.font = fontSize + "em sans-serif";
-                        ctx.fillStyle = "white";
-                        ctx.textBaseline = "middle";
+                    ctx.restore();
+                    var fontSize = (height / 114).toFixed(2);
+                    ctx.font = fontSize + "em sans-serif";
+                    ctx.fillStyle = "white";
+                    ctx.textBaseline = "middle";
 
-                        var text = "<?php echo "${diskUsedSpacePercent}"; ?>",
-                        textX = Math.round((width - ctx.measureText(text).width) / 2),
-                        textY = height / 2;
-
-                        ctx.fillText(text, textX, textY);
-                        ctx.save();
+                    var text = "<?php echo "${diskUsedSpacePercent}"; ?>",
+                    textX = Math.round((width - ctx.measureText(text).width) / 2),
+                    textY = height / 2;
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
                 }
             });
             </script>
-            </div>
         </div>
-    </article>
-    
-    <!-- LISTE DES OPERATIONS -->
-    <article id="newRepoSlideDiv" class="newRepoSlideDiv">
-    <a href="#" class="button-slide-left" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
-    <div id="divContainerArticleRight">
-        <?php include('common-operations.inc.php'); ?>
-    </div>
-    </article>
-</article>
+    </section>
+</section>
 
-
-<!-- REPOS ARCHIVÉS-->
-<article class="main">
-    <article class="left">
-        <?php include('common-repos-archive-list.inc.php'); ?>
-    </article>    
-</article>
 
 <!-- divs cachées de base -->
-<!-- div des groupes de repos -->
+<!-- GERER LES GROUPES -->
 <?php include('common-groupslist.inc.php'); ?>
 
-<!-- div des hotes et fichers de repos -->
+<!-- REPOS/HOTES SOURCES -->
 <?php include('common-repos-sources.inc.php'); ?>
 
 <?php include('common-footer.inc.php'); ?>
 
 
 <script> 
-$(document).ready(function(){
-        var boxWidth = $("#newRepoSlideDiv").width();
-        $(".button-slide-right").click(function(){
+    $(document).ready(function(){
+        $("#newRepoSlideButton").click(function(){
             // masquage du div contenant les infos serveur
             $("#serverInfoSlideDiv").animate({
-                width: 0
+                width: 0,
+                padding: '0px' //$("#serverInfoSlideDiv").css('padding', '0px'); /* lorsqu'on masque la section contenant les infos serveur, on retire le padding afin qu'il soit complètement masqué, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
             });
-            $("#serverInfoSlideDiv").css('padding', '0px'); /* lorsqu'on masque l'article contenant les infos serveur, on retire le padding afin qu'il soit complètement masqué, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
-
+            
             // affichage du div permettant de créer un nouveau repo/section à la place
-            $("#newRepoSlideDiv").animate({
-                width: '29%'
+            $("#newRepoSlideDiv").delay(250).animate({
+                width: '97%',
+                padding: '10px' //$("#newRepoSlideDiv").css('padding', '10px'); /* lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
             });
-            $("#newRepoSlideDiv").css('padding', '10px'); /* lorsqu'on affiche l'article caché, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
         });
         
-        $(".button-slide-left").click(function(){
+        $("#newRepoCloseButton").click(function(){
             // masquage du div permettant de créer un nouveau repo/section
             $("#newRepoSlideDiv").animate({
-                width: 0
+                width: 0,
+                padding: '0px' //$("#newRepoSlideDiv").css('padding', '0'); /* lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
             });
-            $("#newRepoSlideDiv").css('padding', '0'); /* lorsqu'on masque l'article, on retire le padding, afin que l'article soit complètement masqué, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
 
             // affichage du div contenant les infos serveur à la place
-            $("#serverInfoSlideDiv").animate({
-                width: '29%'
+            $("#serverInfoSlideDiv").delay(250).animate({
+                width: '97%',
+                padding: '10px' /* lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
             });
-            $("#serverInfoSlideDiv").css('padding', '10px'); /* lorsqu'on affiche l'article caché, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
         });
     });
 </script>

@@ -85,7 +85,7 @@ if(isset($_GET['getLog'])) {
 		<div id="top"></div> <!-- pour atteindre le haut de la page -->
 		<?php include('common-header.inc.php'); ?>
 
-		<article class="main">
+		<section class="main">
 			<form action="journal.php" method="post">
 			<table>
 			<tr>
@@ -106,11 +106,11 @@ if(isset($_GET['getLog'])) {
 			</table>
 			</form>
 
-			<article class="log">
+			<section class="log">
 				<pre><div id="log"></div></pre>
-			</article>
+			</section>
 			
-		</article>
+		</section>
 		<div id="bottom"></div> <!-- pour atteindre le bas de page -->
 
 		<div id="scrollLock"> 

@@ -1,6 +1,6 @@
-<div id="divGroupsList" class="divGroupsList">
+<div class="divGroupsList">
+<a href="#" id="GroupsListSlideDownButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
 <h5>GROUPES</h5>
-
 <div class="div-half-left">  
   <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
 
@@ -89,9 +89,14 @@
 <script> 
 // Afficher ou masquer la div permettant de gérer les groupes (div s'affichant en bas de la page)
 $(document).ready(function(){
-  $("a#GroupsListToggle").click(function(){
-    $("div#divGroupsList").slideToggle(150);
-    $(this).toggleClass("open");
-  });
+    // Le bouton up permet d'afficher la div et également de la fermer si on reclique dessus
+    $('#GroupsListSlideUpButton').click(function() {
+        $('div.divGroupsList').slideToggle(150);
+    });
+
+    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
+    $('#GroupsListSlideDownButton').click(function() {
+      $('div.divGroupsList').slideToggle(150);
+    });
 });
 </script>

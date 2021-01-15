@@ -1,4 +1,7 @@
-<div id="divManageReposSources" class="divManageReposSources">
+<!--<div id="divManageReposSources" class="divManageReposSources">-->
+<div class="divManageReposSources">
+<a href="#" id="ReposSourcesSlideDownButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
+
   <?php 
     if ($OS_TYPE == "rpm") { echo "<h5>REPOS SOURCES</h5>"; }
     if ($OS_TYPE == "deb") { echo "<h5>HOTES D'ORIGINES</h5>"; }
@@ -195,13 +198,20 @@
   </div>
 </div>
 
-<script> // Afficher ou masquer la div permettant de gérer les repos/hôtes sources (div s'affichant en bas de la page)
+<script> 
+// Afficher ou masquer la div permettant de gérer les repos/hôtes sources (div s'affichant en bas de la page)
 $(document).ready(function(){
-  $("a#reposSourcesToggle").click(function(){
-    $("div#divManageReposSources").slideToggle(150);
-    $(this).toggleClass("open");
-  });
+    // Le bouton up permet d'afficher la div et également de la fermer si on reclique dessus
+    $('#ReposSourcesSlideUpButton').click(function() {
+        $('div.divManageReposSources').slideToggle(150);
+    });
+
+    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
+    $('#ReposSourcesSlideDownButton').click(function() {
+      $('div.divManageReposSources').slideToggle(150);
+    });
 });
+
 
 // rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
 $(function() {

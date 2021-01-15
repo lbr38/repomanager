@@ -40,8 +40,8 @@ echo '
             echo "<label for=\"repoGpgResign_yes\">Yes</label>";
             echo "<input type=\"radio\" id=\"repoGpgResign_no\" name=\"repoGpgResign\" value=\"no\" checked=\"yes\">";
             echo "<label for=\"repoGpgResign_no\">No</label>";
-          } echo '
-        </td>
+          } 
+echo '</td>
       </tr>
       <tr>
         <td colspan="2"><button type="submit" class="button-submit-large-red">Exécuter</button></td>
