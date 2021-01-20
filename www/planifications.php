@@ -3,10 +3,10 @@
 
 <?php
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'common-vars.php';
+  require 'vars/common.vars';
   require 'common-functions.php';
   require 'common.php';
-  require 'display.php';
+  require 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // Cas où on ajoute une planification
@@ -19,7 +19,7 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     $addPlanTime = str_replace(":", "h", $addPlanTime);
 
     // on récupère l'action à exécuter
-    $addPlanAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés avant de les envoyer dans PLAN_CONF_FILE. Trouver une autre solution 
+    $addPlanAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés avant de les envoyer dans PLAN_CONF. Trouver une autre solution 
     if(!empty($_POST['addPlanReminder'])) { $addPlanReminder = validateData($_POST['addPlanReminder']); } // et les rappels si il y en a
 
     // si l'action sélectionnée dans le formulaire est 'update', alors on récupère les valeurs des boutons radio Gpg Check et Gpg resign
@@ -57,14 +57,14 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     // on vérifie que le repo ou la section indiqué existe dans la liste des repos
     if (!empty($addPlanRepo)) {
       if ($OS_TYPE == "rpm") {
-        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\"' $REPO_FILE");
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\"' $REPOS_LIST");
         if (empty($checkIfRepoExists)) {
           $error++;
           printAlert("Le repo $addPlanRepo n'existe pas");
         }
       }
       if ($OS_TYPE == "deb") {
-        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\",Host=\".*\",Dist=\"${addPlanDist}\",Section=\"${addPlanSection}\"' $REPO_FILE");
+        $checkIfRepoExists = exec("grep '^Name=\"${addPlanRepo}\",Host=\".*\",Dist=\"${addPlanDist}\",Section=\"${addPlanSection}\"' $REPOS_LIST");
         if (empty($checkIfRepoExists)) {
           $error++;
           printAlert("La section $addPlanSection du repo $addPlanRepo (distribution ${addPlanDist}) n'existe pas");
@@ -74,7 +74,7 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
 
     // on vérifie que le groupe indiqué existe dans le fichier de groupes
     if (!empty($addPlanGroup)) {
-      $checkIfGroupExists = exec("grep '\[${addPlanGroup}\]' $REPO_GROUPS_FILE");
+      $checkIfGroupExists = exec("grep '\[${addPlanGroup}\]' $GROUPS_CONF");
       if (empty($checkIfGroupExists)) {
         $error++;
         printAlert("Le groupe $addPlanGroup n'existe pas");
@@ -89,12 +89,12 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
         // on indique le nom du groupe et l'action à exécuter :
         if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
           if ($OS_TYPE == "rpm") {
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           } else {
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           }
         } else {
-          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+          exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nGroup=\"${addPlanGroup}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
         }
       }
       // Dans le cas où on ajoute une planif pour un seul repo :
@@ -102,23 +102,23 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
         // on indique le nom du repo :
         if ($OS_TYPE == "rpm") {
           if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check et gpg resign si rpm)
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nGpgResign=\"${addPlanGpgResign}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           } else {
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           }
         }
         if ($OS_TYPE == "deb" ) { // Si c'est deb, on doit préciser la dist et la section
           if ($addPlanAction == "update") { // si l'action est update, on ajoute aussi les infomations concernant gpg (gpg check)
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nGpgCheck=\"${addPlanGpgCheck}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           } else {
-            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF_FILE");
+            exec("echo '\n[Plan-${addPlanId}]\nDate=\"${addPlanDate}\"\nTime=\"${addPlanTime}\"\nAction=\"${addPlanAction}\"\nRepo=\"${addPlanRepo}\"\nDist=\"${addPlanDist}\"\nSection=\"${addPlanSection}\"\nReminder=\"${addPlanReminder}\"' >> $PLAN_CONF");
           }
         }
       }
       // Dans tous les cas on crée une tâche at avec l'id de la planification :
       exec("echo '${REPOMANAGER} --web --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
       // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-      exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
+      exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
     }
 }
 
@@ -128,11 +128,11 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 
     $planName = "Plan-${planId}";
     
-    $planDate = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF_FILE | sed '/^$/d' | grep -v '^\[' | grep '^Date='"); // récupération des infos de la planif
+    $planDate = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF | sed '/^$/d' | grep -v '^\[' | grep '^Date='"); // récupération des infos de la planif
     $planDate = str_replace(['Date=', '"'], '', $planDate); // on récupère la date en retirant 'Date=""' de l'expression
     $planDate = preg_replace('/\s+/', '', $planDate); // on retire également les éventuelles tabs, espace ou fin de ligne
 
-    $planTime = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF_FILE | sed '/^$/d' | grep -v '^\[' | grep '^Time='"); // récupération des infos de la planif
+    $planTime = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF | sed '/^$/d' | grep -v '^\[' | grep '^Time='"); // récupération des infos de la planif
     $planTime = str_replace(['Time=', '"'], '', $planTime); // on récupère l'heure en retirant 'Time=""' de l'expression
     $planTime = preg_replace('/\s+/', '', $planTime); // on retire également les éventuelles tabs, espace ou fin de ligne
     $planTime = str_replace("h", ":", $planTime); // on remplace 'h' par ':' dans l'heure :
@@ -157,9 +157,9 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 
     // enfin, on supprime la ligne correspondante dans le fichier de conf :
     // supprime le nom du groupe entre [ ] ainsi que tout ce qui suit (ses repos) jusqu'à rencontrer une ligne vide (espace entre deux noms de groupes) :
-    exec("sed -i '/^\[${planName}\]/,/^$/{d;}' $PLAN_CONF_FILE");
+    exec("sed -i '/^\[${planName}\]/,/^$/{d;}' $PLAN_CONF");
     // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-    exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
+    exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
 }
 ?>
 
@@ -193,7 +193,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
         <table class="table-large">
         <?php
         $pattern = "/Plan-/i"; // dans le fichier de conf, les planifications commencent par plan:
-        $PLANIFICATIONS = preg_grep($pattern, file($PLAN_CONF_FILE)); // on récupère toutes les planifications actives si il y en a
+        $PLANIFICATIONS = preg_grep($pattern, file($PLAN_CONF)); // on récupère toutes les planifications actives si il y en a
         if(!empty($PLANIFICATIONS)) { // On affiche les planifs actives si il y en a (càd si $PLANIFICATIONS est non vide)
           echo "<tr><td colspan=\"100%\">Planifications actives :</td></tr>";
           echo "<tr>";
@@ -212,7 +212,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             $planName = str_replace(['[', ']'], '', $plan); // on retire les [crochets] autour du nom de la planif
             $planName = preg_replace('/\s+/', '', $planName); // on retire également les éventuelles tabs, espace ou fin de ligne
             
-            $plan = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF_FILE | sed '/^$/d' | grep -v '^\['"); // récupération des infos de la planif
+            $plan = shell_exec("sed -n -e '/\[${planName}\]/,/\[/p' $PLAN_CONF | sed '/^$/d' | grep -v '^\['"); // récupération des infos de la planif
             $plan = preg_split('/\s+/', trim($plan)); // on éclate le résultat dans un tableau car tout a été récupéré sur une ligne
 
             $planId = str_replace("Plan-", "", $planName); // pour récupérer l'id, il suffit de retirer "Plan-" de $planName
@@ -293,14 +293,14 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
             echo "<select name=\"addPlanAction\" id=\"planSelect\">";   //toto
-            foreach ($REPO_ENVS as $env) {
+            foreach ($ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
-              $nextEnv = exec("grep -A1 '$env' $ENV_CONF_FILE | grep -v '$env'");
+              $nextEnv = exec("grep -A1 '$env' $ENV_CONF | grep -v '$env'");
               if (!empty($nextEnv)) {
                 echo "<option value='${env}->${nextEnv}'>Changement d'env : ${env} -> ${nextEnv}</option>";
               }
             }
-            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${REPO_DEFAULT_ENV}</option>";
+            echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${DEFAULT_ENV}</option>";
             echo "</select>";
             echo "</td>";
             echo "</tr>";

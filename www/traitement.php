@@ -3,10 +3,10 @@
 
 <?php
     // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-    require 'common-vars.php';
+    require 'vars/common.vars';
     require 'common-functions.php';
     require 'common.php';
-    require 'display.php';
+    require 'vars/display.vars';
     if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 ?>
 
@@ -51,7 +51,7 @@
 
 // Action newRepo :
 function checkAction_newRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -145,10 +145,10 @@ function checkAction_newRepo() {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà (ou repoAlias)
             // On vérifie qu'un repo de même nom n'exite pas déjà :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\"${repoHostName}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\"${repoHostName}\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist)) {
                 echo "<tr>";
-                echo "<td>Erreur : Un repo du même nom existe déjà en ${REPO_DEFAULT_ENV}</td>";
+                echo "<td>Erreur : Un repo du même nom existe déjà en ${DEFAULT_ENV}</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -221,10 +221,10 @@ function checkAction_newRepo() {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà (ou repoAlias)
             // On vérifie qu'un repo de même nom, de même distribution et de même section n'exite pas déjà :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\"${repoHostName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\"${repoHostName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist)) {
                 echo "<tr>";
-                echo "<td>Erreur : Une section et un repo du même nom existe déjà en ${REPO_DEFAULT_ENV}</td>";
+                echo "<td>Erreur : Une section et un repo du même nom existe déjà en ${DEFAULT_ENV}</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -233,7 +233,7 @@ function checkAction_newRepo() {
             }
 
             // On vérifie qu'une url hôte source existe pour le nom de repo renseigné :
-            $checkifRepoHostExist = exec("grep '^Name=\"${repoHostName}\",' $REPO_ORIGIN_FILE");
+            $checkifRepoHostExist = exec("grep '^Name=\"${repoHostName}\",' $HOSTS_CONF");
             if (empty($checkifRepoHostExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune URL hôte pour le nom de repo ${repoName}</td>";
@@ -280,7 +280,7 @@ function checkAction_newRepo() {
 
 
 function checkAction_updateRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -369,7 +369,7 @@ function checkAction_updateRepo() {
     if ($OS_TYPE == "rpm") {
         if (!empty($repoName) AND !empty($updateRepoGpgCheck) AND !empty($repoGpgResign)) {
             // recup du vrai nom du repo :
-            $repoRealname = exec("grep '^Name=\"${repoName}\",Realname=\".*\",' $REPO_FILE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
+            $repoRealname = exec("grep '^Name=\"${repoName}\",Realname=\".*\",' $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
             // On vérifie que le repo existe dans /etc/yum.repos.d/ :
             $checkifRepoRealnameExist = exec("grep '^\[${repoRealname}\]' ${REPOMANAGER_YUM_DIR}/*.repo");
             if (empty($checkifRepoRealnameExist)) {
@@ -427,9 +427,9 @@ function checkAction_updateRepo() {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($updateRepoGpgCheck)) {
 
             // on récupère le nom de l'hôte :
-            $repoHostName = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_FILE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
+            $repoHostName = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
             // on vérifie dans le fichiers des hotes que l'hote récupéré existe bien :
-            $checkIfHostExists = exec("grep 'Name=\"$repoHostName\",' $REPO_ORIGIN_FILE");
+            $checkIfHostExists = exec("grep 'Name=\"$repoHostName\",' $HOSTS_CONF");
             if (empty($checkIfHostExists)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun hôte $checkIfHostExists pour le repo $repoHostName</td>";
@@ -442,10 +442,10 @@ function checkAction_updateRepo() {
 
             // Ok on a toutes les infos mais pour mettre à jour un repo, il faut vérifier qu'il existe
             // On vérifie qu'un repo de même nom, de même distribution et de même section existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\"${repoHostName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\"${repoHostName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
-                echo "<td>Erreur : Il n'existe aucune section ${repoSection} du repo ${repoName} (distribution ${repoDist}) en ${REPO_DEFAULT_ENV} à mettre à jour. Il faut choisir l'option 'Créer une nouvelle section'</td>";
+                echo "<td>Erreur : Il n'existe aucune section ${repoSection} du repo ${repoName} (distribution ${repoDist}) en ${DEFAULT_ENV} à mettre à jour. Il faut choisir l'option 'Créer une nouvelle section'</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -489,7 +489,7 @@ function checkAction_updateRepo() {
 
 
 function checkAction_changeEnv() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -571,7 +571,7 @@ function checkAction_changeEnv() {
  
             // Ok on a toutes les infos mais pour changer l'env d'un repo, il faut vérifier qu'il existe
             // On vérifie qu'un repo de même nom existe à l'env indiqué :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' $REPOS_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo ${repoName} en ${repoEnv}.</td>";
@@ -584,12 +584,12 @@ function checkAction_changeEnv() {
 
             // Ensuite on vérifie si un repo existe déjà dans le nouvel env indiqué. Si c'est le cas, alors il sera archivé (sauf si il est toujours utilisé par un autre environnement)
             $repoArchive = "no"; // on déclare une variable à 'no' par défaut
-            $checkifRepoExist2 = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPO_FILE");
+            $checkifRepoExist2 = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist2)) { // si un repo existe
                 // du coup on vérifie que le repo à archiver n'est pas utilisé par un autre environnement :
                 // on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
-                $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPO_FILE | grep -v '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"'");
+                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"' $REPOS_LIST | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPOS_LIST | grep -v '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoNewEnv}\"'");
                 if (empty($checkifRepoExist3)) { // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                     $repoArchive = "yes";
                 } 
@@ -631,7 +631,7 @@ function checkAction_changeEnv() {
 
             // Ok on a toutes les infos mais pour changer l'env d'un repo (section en réalité), il faut vérifier qu'il existe
             // On vérifie qu'un repo de même nom existe à l'env indiqué :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoEnv}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoEnv}\"' $REPOS_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune section ${repoSection} du repo ${repoName} (distribution ${repoDist}) en ${repoEnv}</td>";
@@ -644,12 +644,12 @@ function checkAction_changeEnv() {
 
             // Ensuite on vérifie si un repo existe déjà dans le nouvel env indiqué. Si c'est le cas, alors il sera archivé (sauf si il est toujours utilisé par un autre environnement)
             $repoArchive = "no"; // on déclare une variable à 'no' par défaut
-            $checkifRepoExist2 = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPO_FILE");
+            $checkifRepoExist2 = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist2)) { // si un repo existe
                 // du coup on vérifie que le repo à archiver n'est pas utilisé par un autre environnement :
                 // on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPO_FILE | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
-                $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPO_FILE | grep -v '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"'");
+                $repoArchiveDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"' $REPOS_LIST | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $checkifRepoExist3 = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\".*\",Date=\"${repoArchiveDate}\"' $REPOS_LIST | grep -v '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoNewEnv}\"'");
                 if (empty($checkifRepoExist3)) { // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                     $repoArchive = "yes";
                 }
@@ -689,7 +689,7 @@ function checkAction_changeEnv() {
 
 
 function checkAction_duplicateRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -772,10 +772,10 @@ function checkAction_duplicateRepo() {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà
             // On vérifie qu'un repo de même nom n'exite pas déjà :
-            $checkifRepoExist = exec("grep '^Name=\"${repoNewName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoNewName}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist)) {
                 echo "<tr>";
-                echo "<td>Erreur : Un repo du même nom existe déjà en ${REPO_DEFAULT_ENV}</td>";
+                echo "<td>Erreur : Un repo du même nom existe déjà en ${DEFAULT_ENV}</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -818,10 +818,10 @@ function checkAction_duplicateRepo() {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà
             // On vérifie qu'un repo de même nom n'exite pas déjà :
-            $checkifRepoExist = exec("grep '^Name=\"${repoNewName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoNewName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             if (!empty($checkifRepoExist)) {
                 echo "<tr>";
-                echo "<td>Erreur : Un repo du même nom existe déjà en ${REPO_DEFAULT_ENV}</td>";
+                echo "<td>Erreur : Un repo du même nom existe déjà en ${DEFAULT_ENV}</td>";
                 echo "</tr>";
                 echo "<tr>";
                 echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -861,7 +861,7 @@ function checkAction_duplicateRepo() {
 
 
 function checkAction_deleteSection() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -922,7 +922,7 @@ function checkAction_deleteSection() {
     if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoEnv)) {
 
         // Ok on a toutes les infos mais il faut vérifier que la section mentionnée existe :
-        $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoEnv}\"' $REPO_FILE");
+        $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${repoEnv}\"' $REPOS_LIST");
         if (empty($checkifRepoExist)) {
             echo "<tr>";
             echo "<td>Erreur : Il n'existe aucune section ${repoSection} du repo ${repoName} (distribution ${repoDist}) en ${repoEnv}</td>";
@@ -964,7 +964,7 @@ function checkAction_deleteSection() {
 
 
 function checkAction_deleteDist() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1003,7 +1003,7 @@ function checkAction_deleteDist() {
     if (!empty($repoName) AND !empty($repoDist)) {
 
         // Ok on a toutes les infos mais il faut vérifier que la distribution mentionnée existe :
-        $checkifDistExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' $REPO_FILE");
+        $checkifDistExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' $REPOS_LIST");
         if (empty($checkifDistExist)) {
             echo "<tr>";
             echo "<td>Erreur : Il n'existe aucune distribution ${repoSection} du repo ${repoName}</td>";
@@ -1016,7 +1016,7 @@ function checkAction_deleteDist() {
 
         // Ok la distribution existe mais peut être que celle-ci contient plusieurs sections qui seront supprimées, on récupère les sections concernées   Section=toto, Env=pprd
         // et on les affichera dans la demande de confirmation
-        $sectionsToBeDeleted = shell_exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' $REPO_FILE | awk -F ',' '{print $4, $5}' | sed 's|Section=\"||g' | sed 's|\" Env=\"| (|g' | sed 's|\"|)|g'");
+        $sectionsToBeDeleted = shell_exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' $REPOS_LIST | awk -F ',' '{print $4, $5}' | sed 's|Section=\"||g' | sed 's|\" Env=\"| (|g' | sed 's|\"|)|g'");
         $sectionsToBeDeleted = explode("\n", $sectionsToBeDeleted);
         $sectionsToBeDeleted = array_filter($sectionsToBeDeleted);
 
@@ -1063,7 +1063,7 @@ function checkAction_deleteDist() {
 
 
 function checkAction_deleteRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1103,7 +1103,7 @@ function checkAction_deleteRepo() {
         if (!empty($repoName) AND !empty($repoEnv)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo mentionné existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' $REPOS_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo ${repoName} en ${repoEnv}</td>";
@@ -1146,7 +1146,7 @@ function checkAction_deleteRepo() {
     if ($OS_TYPE == "deb") {    
         if (!empty($repoName)) {
             // Ok on a toutes les infos mais il faut vérifier que le repo mentionné existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\"' $REPO_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\"' $REPOS_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo ${repoName}</td>";
@@ -1159,7 +1159,7 @@ function checkAction_deleteRepo() {
 
             // Ok le repo existe mais peut être que celui-ci contient plusieurs distrib et sections qui seront supprimées, on récupère les distrib et les sections concernées
             // et on les affichera dans la demande de confirmation
-            $distAndSectionsToBeDeleted = shell_exec("grep '^Name=\"${repoName}\"' $REPO_FILE | awk -F ',' '{print $3, $4, $5}' | sed 's|Dist=\"||g' | sed 's|\" Section=\"| -> |g'  | sed 's|\" Env=\"| (|g' | sed 's|\"|)|g'");
+            $distAndSectionsToBeDeleted = shell_exec("grep '^Name=\"${repoName}\"' $REPOS_LIST | awk -F ',' '{print $3, $4, $5}' | sed 's|Dist=\"||g' | sed 's|\" Section=\"| -> |g'  | sed 's|\" Env=\"| (|g' | sed 's|\"|)|g'");
             $distAndSectionsToBeDeleted = explode("\n", $distAndSectionsToBeDeleted);
             $distAndSectionsToBeDeleted = array_filter($distAndSectionsToBeDeleted);
 
@@ -1208,7 +1208,7 @@ function checkAction_deleteRepo() {
 
 
 function checkAction_deleteOldRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1271,7 +1271,7 @@ function checkAction_deleteOldRepo() {
         if (!empty($repoName) AND !empty($repoDate)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo archivé mentionné existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Date=\"${repoDate}\"' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Date=\"${repoDate}\"' $REPOS_ARCHIVE_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo archivé ${repoName} en date du ${repoDate}</td>";
@@ -1314,7 +1314,7 @@ function checkAction_deleteOldRepo() {
     if ($OS_TYPE == "deb") {    
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate)) {
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_ARCHIVE_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist})</td>";
@@ -1356,11 +1356,11 @@ function checkAction_deleteOldRepo() {
 
 
 
-// Les repos archivés n'ont plus d'env, alors quand on restaure un repo il faut forcément restaurer en $REPO_DEFAULT_ENV
-// vérifier qu'un repo du même nom et en $REPO_DEFAULT_ENV n'existe pas déjà avant de restaurer
+// Les repos archivés n'ont plus d'env, alors quand on restaure un repo il faut forcément restaurer en $DEFAULT_ENV
+// vérifier qu'un repo du même nom et en $DEFAULT_ENV n'existe pas déjà avant de restaurer
 
 function checkAction_restoreOldRepo() {
-    require 'common-vars.php';
+    require 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1442,7 +1442,7 @@ function checkAction_restoreOldRepo() {
         if (!empty($repoName) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo archivé mentionné existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Date=\"${repoDate}\"' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Date=\"${repoDate}\"' $REPOS_ARCHIVE_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucun repo archivé ${repoName} en date du ${repoDate}</td>";
@@ -1453,14 +1453,14 @@ function checkAction_restoreOldRepo() {
                 return 1; // On sort de la fonction pour ne pas que les conditions suivantes (ci-dessous) s'exécutent
             }
 
-            // On vérifie si un repo du même nom existe en env '$REPO_DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
+            // On vérifie si un repo du même nom existe en env '$DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
             $repoArchive = 'no'; // on déclare une variable à 'no' par défaut
-            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             // Si le résultat précedent n'est pas vide, alors il y a un miroir qui sera potentiellement archivé. 
             // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
             if (!empty($repoToBeArchived)) {
-                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
-                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPO_FILE | grep -v '${REPO_DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
+                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPOS_LIST | grep -v '${DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive.
                 if (empty($othersReposToBeArchived)) {
                     $repoArchive = 'yes';
@@ -1472,9 +1472,9 @@ function checkAction_restoreOldRepo() {
                 echo "<tr>";
                 echo "<td>";
                 echo "L'opération va restaurer le repo ${repoName} archivé en date du ${repoDate}.";
-                echo "<br>La restauration placera le repo sur l'environnement par défaut ${REPO_DEFAULT_ENV}.";
+                echo "<br>La restauration placera le repo sur l'environnement par défaut ${DEFAULT_ENV}.";
                 if ($repoArchive == "yes") {
-                    echo "<br>Le repo actuellement en ${REPO_DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivé.";
+                    echo "<br>Le repo actuellement en ${DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivé.";
                 }
                 echo "</td>";
                 echo "</tr>";
@@ -1506,7 +1506,7 @@ function checkAction_restoreOldRepo() {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :
-            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_ARCHIVE_FILE");
+            $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_ARCHIVE_LIST");
             if (empty($checkifRepoExist)) {
                 echo "<tr>";
                 echo "<td>Erreur : Il n'existe aucune section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist})</td>";
@@ -1517,14 +1517,14 @@ function checkAction_restoreOldRepo() {
                 return 1; // On sort de la fonction pour ne pas que les conditions suivantes (ci-dessous) s'exécutent
             }
 
-            // On vérifie si une section du même nom existe en env '$REPO_DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
+            // On vérifie si une section du même nom existe en env '$DEFAULT_ENV', si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il sera archivé
             $repoArchive = 'no'; // on déclare une variable à 'no' par défaut
-            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE");
+            $repoToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST");
             // Si le résultat précedent n'est pas vide, alors il y a un miroir qui sera potentiellement archivé. 
             // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
             if (!empty($repoToBeArchived)) {
-                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\"' $REPO_FILE | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
-                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPO_FILE | grep -v '${REPO_DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
+                $repoToBeArchivedDate = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${DEFAULT_ENV}\"' $REPOS_LIST | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/\"//g'");
+                $othersReposToBeArchived = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\",Env=\"${DEFAULT_ENV}\",Date=\"${repoToBeArchivedDate}\"' $REPOS_LIST | grep -v '${DEFAULT_ENV}'"); // on exclu l'env par défaut de la recherche, car on cherche les autres envs impactés
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive.
                 if (empty($othersReposToBeArchived)) {
                     $repoArchive = 'yes';
@@ -1536,9 +1536,9 @@ function checkAction_restoreOldRepo() {
                 echo "<tr>";
                 echo "<td>";
                 echo "L'opération va restaurer la section archivée ${repoSection} du repo ${repoName} (distribution ${repoDist}) en date du ${repoDate}";
-                echo "<br>La restauration placera la section sur l'environnement par défaut ${REPO_DEFAULT_ENV}.";
+                echo "<br>La restauration placera la section sur l'environnement par défaut ${DEFAULT_ENV}.";
                 if ($repoArchive == "yes") {
-                    echo "<br>La section actuellement en ${REPO_DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivée.";
+                    echo "<br>La section actuellement en ${DEFAULT_ENV} en date du ${repoToBeArchivedDate} sera archivée.";
                 }
                 echo "</td>";
                 echo "</tr>";

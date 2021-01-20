@@ -1,17 +1,17 @@
 #!/bin/bash
 
 ## Vérification que le minimum de fichiers nécessaires au script sont présents :
-if [ ! -f "$LISTE_REPO" ];then
-	touch "$LISTE_REPO"
+if [ ! -f "$REPOS_LIST" ];then
+	touch "$REPOS_LIST"
 fi
 
-if [ ! -f "$LISTE_REPO_ARCHIVE" ];then
-	touch "$LISTE_REPO_ARCHIVE"
+if [ ! -f "$REPOS_ARCHIVE_LIST" ];then
+	touch "$REPOS_ARCHIVE_LIST"
 fi
 
 if [ "$OS_TYPE" == "Debian" ];then
-	if [ ! -f "$LISTE_REPO_ORIGINE" ];then
-		touch "$LISTE_REPO_ORIGINE"
+	if [ ! -f "$HOSTS_CONF" ];then
+		touch "$HOSTS_CONF"
 	fi
 fi
 

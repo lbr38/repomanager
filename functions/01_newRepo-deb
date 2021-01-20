@@ -3,7 +3,7 @@
 ## Debian ##
 
 #if [ "$TTY" -eq "1" ];then
-#	echo -e "\nLa section sera créée en ${REPO_DEFAULT_ENV}. Attention son nom ne doit pas être en conflit avec une autre section.\n"
+#	echo -e "\nLa section sera créée en ${DEFAULT_ENV}. Attention son nom ne doit pas être en conflit avec une autre section.\n"
 #	echo -e "Format des liens sources : ${JAUNE}"
 #	echo -e "deb http://ftp.fr.debian.org/debian   stretch    main"
 #	echo -e "    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾"
@@ -47,7 +47,7 @@ while [ $# -ge 1 ];do case "$1" in
 	shift
 done
 if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
-HOST_FULL_URL=$(grep "^Name=\"${REPO_HOST_NAME}\",Url=" $LISTE_REPO_ORIGINE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # Récupère l'url complète
+HOST_FULL_URL=$(grep "^Name=\"${REPO_HOST_NAME}\",Url=" $HOSTS_CONF | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # Récupère l'url complète
 REPO_HOST=$(echo "$HOST_FULL_URL" | cut -d'/' -f1)
 REPO_RACINE=$(echo "$HOST_FULL_URL" | sed "s/${REPO_HOST}//g") # Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
 if [ -z "$REPO_RACINE" ] || [ -z "$REPO_HOST" ];then
@@ -60,8 +60,8 @@ printf "%-40s %s" " Racine"; echo -e " : ${VERT}${REPO_RACINE}${RESET}"
 
 
 # On vérifie quand même que le repo n'existe pas déjà :
-if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\,Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then 
-	echo -e "[${ROUGE} ERREUR ${RESET}] La section existe déjà en ${REPO_DEFAULT_ENV} !"
+if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\,Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST";then 
+	echo -e "[${ROUGE} ERREUR ${RESET}] La section existe déjà en ${DEFAULT_ENV} !"
 	clean_exit
 fi
 
@@ -104,7 +104,7 @@ fi
 
 echo -ne "Création du lien symbolique :\t\t"
 cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
-ln -sf ${DATE_JMA}_${REPO_SECTION}/ ${REPO_SECTION}_${REPO_DEFAULT_ENV}
+ln -sf ${DATE_JMA}_${REPO_SECTION}/ ${REPO_SECTION}_${DEFAULT_ENV}
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else
@@ -115,7 +115,7 @@ fi
 ####
 
 echo -ne "Ajout des informations dans repos.list :\t"
-echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $LISTE_REPO # On mets à jour les infos dans le fichier repos.list (par exemple)
+echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $REPOS_LIST # On mets à jour les infos dans le fichier repos.list (par exemple)
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else

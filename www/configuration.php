@@ -3,10 +3,10 @@
 
 <?php
     // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-    require 'common-vars.php';
+    require 'vars/common.vars';
     require 'common-functions.php';
     require 'common.php';
-    require 'display.php';
+    require 'vars/display.vars';
     if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
     // Comme la page contient un formulaire qui renvoie vers elle meme, on vérifie si des données ont été passées en POST (formulaire validé).
@@ -14,28 +14,28 @@
     // Si ce n'est pas le cas c'est parce que la page a seulement été chargée et le formulaire n'a pas encore été validé. On n'écrit rien dans le fichier
     if(!empty($_POST['updateAuto'])) {
         $updateAuto = validateData($_POST['updateAuto']);
-        exec("sed -i 's/^UPDATE_AUTO=.*/UPDATE_AUTO=\"${updateAuto}\"/g' $CONF_FILE");
+        exec("sed -i 's/^UPDATE_AUTO=.*/UPDATE_AUTO=\"${updateAuto}\"/g' $REPOMANAGER_CONF");
     }
 
     if(!empty($_POST['updateBackup'])) {
         $updateBackup = validateData($_POST['updateBackup']);
-        exec("sed -i 's/^UPDATE_BACKUP=.*/UPDATE_BACKUP=\"${updateBackup}\"/g' $CONF_FILE");
+        exec("sed -i 's/^UPDATE_BACKUP=.*/UPDATE_BACKUP=\"${updateBackup}\"/g' $REPOMANAGER_CONF");
     }
 
     if(!empty($_POST['updateBackupDir'])) {
         $updateBackupDir = validateData($_POST['updateBackupDir']);
-        exec("sed -i 's|^UPDATE_BACKUP_DIR=.*|UPDATE_BACKUP_DIR=\"${updateBackupDir}\"|g' $CONF_FILE");
+        exec("sed -i 's|^UPDATE_BACKUP_DIR=.*|UPDATE_BACKUP_DIR=\"${updateBackupDir}\"|g' $REPOMANAGER_CONF");
     }
 
     if(!empty($_POST['wwwUser'])) {
         $wwwUser = validateData($_POST['wwwUser']);
-        exec("sed -i 's/^WWW_USER=.*/WWW_USER=\"${wwwUser}\"/g' $CONF_FILE");
+        exec("sed -i 's/^WWW_USER=.*/WWW_USER=\"${wwwUser}\"/g' $REPOMANAGER_CONF");
     }
 
     $oldWWWHostName = $WWW_HOSTNAME; // On conserve le hostname actuel car on va s'en servir pour le remplacer dans les fichiers de conf ci dessous
     if(!empty($_POST['wwwHostname']) AND ($oldWWWHostName !== $_POST['wwwHostname'])) {
         $newWWWHostname = validateData($_POST['wwwHostname']);
-        exec("sed -i 's/^WWW_HOSTNAME=.*/WWW_HOSTNAME=\"${newWWWHostname}\"/g' $CONF_FILE"); // on remplace dans le fichier de conf de repomanager
+        exec("sed -i 's/^WWW_HOSTNAME=.*/WWW_HOSTNAME=\"${newWWWHostname}\"/g' $REPOMANAGER_CONF"); // on remplace dans le fichier de conf de repomanager
 
         // Puis on remplace dans tous les fichier de conf de repo
         if ($OS_TYPE == "rpm") {
@@ -49,17 +49,17 @@
     // adresse mail destinatrice des alertes
     if (!empty($_POST['emailDest'])) {
         $emailDest = validateData($_POST['emailDest']);
-        exec("sed -i 's/^EMAIL_DEST=.*/EMAIL_DEST=\"${emailDest}\"/g' $CONF_FILE");
+        exec("sed -i 's/^EMAIL_DEST=.*/EMAIL_DEST=\"${emailDest}\"/g' $REPOMANAGER_CONF");
     }
 
     // si on souhaite activer ou non la gestion des profils
     if (!empty($_POST['manageProfiles'])) {
         $manageProfiles = validateData($_POST['manageProfiles']);
-        exec("sed -i 's/^MANAGE_PROFILES=.*/MANAGE_PROFILES=\"${manageProfiles}\"/g' $CONF_FILE");
+        exec("sed -i 's/^MANAGE_PROFILES=.*/MANAGE_PROFILES=\"${manageProfiles}\"/g' $REPOMANAGER_CONF");
     }
 
     // modification du préfix des fichiers de conf repos
-    $oldRepoFilesPrefix = $REPO_FILES_PREFIX; // On conserve le préfix actuel car on va s'en servir pour renommer les fichiers de conf ci dessous
+    $oldRepoFilesPrefix = $REPO_CONF_FILES_PREFIX; // On conserve le préfix actuel car on va s'en servir pour renommer les fichiers de conf ci dessous
     if(!empty($_POST['symlinksPrefix']) AND ($oldRepoFilesPrefix !== $_POST['symlinksPrefix'])) { // on ne traite que si on a renseigné un nouveau préfix
         $newRepoFilesPrefix = validateData($_POST['symlinksPrefix']);
         $confFiles = scandir($REPOS_CONF_FILES_DIR);
@@ -71,13 +71,13 @@
                 // renomme le fichier en remplacant l'ancien prefix par le nouveau :
                 $pattern = "/^${oldRepoFilesPrefix}/";
                 $newConfFile = preg_replace($pattern, $newRepoFilesPrefix, $confFile);
-                rename("${REPOS_CONF_FILES_DIR}/$confFile", "${REPOS_CONF_FILES_DIR}/$newConfFile");
+                rename("${REPOS_CONF_FILES_DIR}/$confFile", "${REPOS_CONF_FILES_DIR}/${newConfFile}");
             }
         }
         // renomme les liens symboliques des profils :
         $profilesNames = scandir($PROFILS_MAIN_DIR);
         foreach($profilesNames as $profileName) {
-            if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "00_repo-conf-files") AND ($profileName != "main")) {
+            if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "main")) {
                 $profileName_dir = "$PROFILS_MAIN_DIR/$profileName";
                 $repoConfFiles = scandir($profileName_dir);
                 foreach($repoConfFiles as $symlink) { // Pour chaque répertoire de profil sur le serveur, on récupère les noms de fichier de conf (.repo ou .list selon l'OS)
@@ -92,29 +92,29 @@
         }
 
         // enfin, remplace le préfix dans le fichier de conf repomanager.conf
-        exec("sed -i 's/^REPO_FILES_PREFIX=.*/REPO_FILES_PREFIX=\"${newRepoFilesPrefix}\"/g' $CONF_FILE");
+        exec("sed -i 's/^REPO_CONF_FILES_PREFIX=.*/REPO_CONF_FILES_PREFIX=\"${newRepoFilesPrefix}\"/g' $REPOMANAGER_CONF");
     }   
 
     // Signer les paquets du repo GPG
     if (!empty($_POST['gpgSignPackages'])) {
         $gpgSignPackages = validateData($_POST['gpgSignPackages']);
-        exec("sed -i 's/^GPG_SIGN_PACKAGES=.*/GPG_SIGN_PACKAGES=\"${gpgSignPackages}\"/g' $CONF_FILE");
+        exec("sed -i 's/^GPG_SIGN_PACKAGES=.*/GPG_SIGN_PACKAGES=\"${gpgSignPackages}\"/g' $REPOMANAGER_CONF");
     }
     
     // Email lié à la clé GPG qui signe les paquets
     if (!empty($_POST['gpgKeyID'])) {
         $gpgKeyID = validateData($_POST['gpgKeyID']);
-        exec("sed -i 's/^GPG_KEYID=.*/GPG_KEYID=\"${gpgKeyID}\"/g' $CONF_FILE");
+        exec("sed -i 's/^GPG_KEYID=.*/GPG_KEYID=\"${gpgKeyID}\"/g' $REPOMANAGER_CONF");
     }
 
     // Automatisation
     if(!empty($_POST['automatisationEnable'])) {
         $automatisationEnable = validateData($_POST['automatisationEnable']);
-        exec("sed -i 's/^AUTOMATISATION_ENABLED=.*/AUTOMATISATION_ENABLED=\"${automatisationEnable}\"/g' $CONF_FILE");
+        exec("sed -i 's/^AUTOMATISATION_ENABLED=.*/AUTOMATISATION_ENABLED=\"${automatisationEnable}\"/g' $REPOMANAGER_CONF");
         
         // si on a activé l'automatisation mais que le fichier de planifications n'existe pas alors on le crée
-        if(($automatisationEnable == "yes") AND (!file_exists($PLAN_CONF_FILE))) {
-            exec("echo '[PLANIFICATIONS]' > $PLAN_CONF_FILE");
+        if(($automatisationEnable == "yes") AND (!file_exists($PLAN_CONF))) {
+            exec("echo '[PLANIFICATIONS]' > $PLAN_CONF");
         }
 
         // si on a activé l'automatisation mais qu'il n'y a pas la tâche cron hebdomadaire, on la crée
@@ -142,61 +142,61 @@
     // Autoriser la mise à jour des repos par l'automatisation
     if(!empty($_POST['allowAutoUpdateRepos'])) {
         $allowAutoUpdateRepos = validateData($_POST['allowAutoUpdateRepos']);
-        exec("sed -i 's/^ALLOW_AUTOUPDATE_REPOS=.*/ALLOW_AUTOUPDATE_REPOS=\"${allowAutoUpdateRepos}\"/g' $CONF_FILE");
+        exec("sed -i 's/^ALLOW_AUTOUPDATE_REPOS=.*/ALLOW_AUTOUPDATE_REPOS=\"${allowAutoUpdateRepos}\"/g' $REPOMANAGER_CONF");
     }
 
     // Autoriser le changement d'environnement par l'automatisation
     if(!empty($_POST['allowAutoUpdateReposEnv'])) {
         $allowAutoUpdateReposEnv = validateData($_POST['allowAutoUpdateReposEnv']);
-        exec("sed -i 's/^ALLOW_AUTOUPDATE_REPOS_STATE=.*/ALLOW_AUTOUPDATE_REPOS_STATE=\"${allowAutoUpdateReposEnv}\"/g' $CONF_FILE");
+        exec("sed -i 's/^ALLOW_AUTOUPDATE_REPOS_STATE=.*/ALLOW_AUTOUPDATE_REPOS_STATE=\"${allowAutoUpdateReposEnv}\"/g' $REPOMANAGER_CONF");
     }
 
     // Autoriser la suppression des repos archivés par l'automatisation
     if(!empty($_POST['allowAutoDeleteArchivedRepos'])) {
         $allowAutoDeleteArchivedRepos = validateData($_POST['allowAutoDeleteArchivedRepos']);
-        exec("sed -i 's/^ALLOW_AUTODELETE_ARCHIVED_REPOS=.*/ALLOW_AUTODELETE_ARCHIVED_REPOS=\"${allowAutoDeleteArchivedRepos}\"/g' $CONF_FILE");
+        exec("sed -i 's/^ALLOW_AUTODELETE_ARCHIVED_REPOS=.*/ALLOW_AUTODELETE_ARCHIVED_REPOS=\"${allowAutoDeleteArchivedRepos}\"/g' $REPOMANAGER_CONF");
     }
 
     // Retention, nb de repos à conserver avant suppression par l'automatisation
     if(!empty($_POST['retention'])) {
         $retention = validateData($_POST['retention']);
-        exec("sed -i 's/^RETENTION=.*/RETENTION=\"${retention}\"/g' $CONF_FILE");
+        exec("sed -i 's/^RETENTION=.*/RETENTION=\"${retention}\"/g' $REPOMANAGER_CONF");
     }
 
-// D'autres paramètres enregistrés dans display.php
+// D'autres paramètres enregistrés dans display.vars
     if (!empty($_POST['debugMode'])) {
         $debugMode = validateData($_POST['debugMode']);
-        exec("sed -i 's/^\$debugMode.*/\$debugMode = \"${debugMode}\";/g' display.php");
+        exec("sed -i 's/^\$debugMode.*/\$debugMode = \"${debugMode}\";/g' ${WWW_DIR}/vars/display.vars");
     }
 
 
 // Puis on récupère les infos du fichier de conf pour les afficher
-    $OS_TYPE = exec("grep '^TYPE=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $EMAIL_DEST = exec("grep '^EMAIL_DEST=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $MANAGE_PROFILES = exec("grep '^MANAGE_PROFILES=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $REPO_FILES_PREFIX = exec("grep '^REPO_FILES_PREFIX=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+    $OS_TYPE = exec("grep '^TYPE=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $EMAIL_DEST = exec("grep '^EMAIL_DEST=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $MANAGE_PROFILES = exec("grep '^MANAGE_PROFILES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $REPO_CONF_FILES_PREFIX = exec("grep '^REPO_CONF_FILES_PREFIX=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     // Paramètres de maj
-    $UPDATE_AUTO = exec("grep '^UPDATE_AUTO=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $UPDATE_BACKUP = exec("grep '^UPDATE_BACKUP=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $UPDATE_BACKUP_DIR = exec("grep '^UPDATE_BACKUP_DIR=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+    $UPDATE_AUTO = exec("grep '^UPDATE_AUTO=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $UPDATE_BACKUP = exec("grep '^UPDATE_BACKUP=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $UPDATE_BACKUP_DIR = exec("grep '^UPDATE_BACKUP_DIR=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     // Paramètres WWW
-    $WWW_USER = exec("grep '^WWW_USER=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-    $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+    $WWW_USER = exec("grep '^WWW_USER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     // Environnements
-    $ENVIRONNEMENTS = exec("sed -n '/\[ENVIRONNEMENTS\]/,/\[/p' $CONF_FILE | sed '1d;\$d' | sed '/^$/d'");
+    $ENVIRONNEMENTS = exec("sed -n '/\[ENVIRONNEMENTS\]/,/\[/p' $REPOMANAGER_CONF | sed '1d;\$d' | sed '/^$/d'");
     // Paramètres automatisation    
-    $AUTOMATISATION_ENABLED = exec("grep '^AUTOMATISATION_ENABLED=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+    $AUTOMATISATION_ENABLED = exec("grep '^AUTOMATISATION_ENABLED=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     if ($AUTOMATISATION_ENABLED == "yes" ) {
-        $ALLOW_AUTOUPDATE_REPOS = exec("grep '^ALLOW_AUTOUPDATE_REPOS=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-        $ALLOW_AUTOUPDATE_REPOS_STATE = exec("grep '^ALLOW_AUTOUPDATE_REPOS_STATE=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-        $ALLOW_AUTODELETE_ARCHIVED_REPOS = exec("grep '^ALLOW_AUTODELETE_ARCHIVED_REPOS=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-        $RETENTION = exec("grep '^RETENTION=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+        $ALLOW_AUTOUPDATE_REPOS = exec("grep '^ALLOW_AUTOUPDATE_REPOS=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+        $ALLOW_AUTOUPDATE_REPOS_STATE = exec("grep '^ALLOW_AUTOUPDATE_REPOS_STATE=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+        $ALLOW_AUTODELETE_ARCHIVED_REPOS = exec("grep '^ALLOW_AUTODELETE_ARCHIVED_REPOS=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+        $RETENTION = exec("grep '^RETENTION=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     }
     
     # D'autres paramètres spécifiques à rpm :
-    if ($OS_TYPE == "rpm") {    $RELEASEVER = exec("grep '^RELEASEVER=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-                                $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
-                                $GPG_KEYID = exec("grep '^GPG_KEYID=' $CONF_FILE | cut -d'=' -f2 | sed 's/\"//g'");
+    if ($OS_TYPE == "rpm") {    $RELEASEVER = exec("grep '^RELEASEVER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+                                $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+                                $GPG_KEYID = exec("grep '^GPG_KEYID=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     }
 ?>
 
@@ -296,13 +296,13 @@
             } elseif ($OS_TYPE == "rpm") { echo '
             <td>Prefix des fichiers de repo \'.repo\'</td>';
             }?>
-            <td><input type="text" name="symlinksPrefix" autocomplete="off" value="<?php echo $REPO_FILES_PREFIX; ?>"></td>
+            <td><input type="text" name="symlinksPrefix" autocomplete="off" value="<?php echo $REPO_CONF_FILES_PREFIX; ?>"></td>
         </tr>
         <tr>
             <td class="table-title">ENVIRONNEMENTS</td>
         </tr>
             <?php
-            foreach ($REPO_ENVS as $env) {
+            foreach ($ENVS as $env) {
                 echo "<tr>";
                 echo "<td>${env}</td>";
                 echo "</tr>";
@@ -387,8 +387,8 @@
         <td>
         <?php
         // si un fichier de log existe, on récupère l'état
-        if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
-            $cronStatus = exec("grep 'Status=' ${BASE_DIR}/cron/logs/cronjob.daily.log | cut -d'=' -f2 | sed 's/\"//g'");
+        if (file_exists("${BASE_DIR}/cron/logs/cronjob-daily.log")) {
+            $cronStatus = exec("grep 'Status=' ${BASE_DIR}/cron/logs/cronjob-daily.log | cut -d'=' -f2 | sed 's/\"//g'");
             echo "état ${cronStatus}";
         } else {
             echo "état inconnu";
@@ -406,7 +406,7 @@
     /* Si un fichier de log cron existe c'est qu'il y a eu un problème lors de l'exécution de la tâche 
     On affiche donc une pastille rouge et le contenu du fichier de logs. 
     On affiche un bouton pour relancer la tâche manuellement 
-    if (file_exists("${BASE_DIR}/cron/logs/cronjob.daily.log")) {
+    if (file_exists("${BASE_DIR}/cron/logs/cronjob-daily.log")) {
         echo "<td>";
         echo "Etat des cron <img src=\"icons/red_circle.png\" class=\"cronStatus\">";
         echo "</td>";
@@ -414,7 +414,7 @@
         echo "Relancer";
         echo "</td>";
         echo "</tr>";
-        $content = file_get_contents("${BASE_DIR}/cron/logs/cronjob.daily.log");
+        $content = file_get_contents("${BASE_DIR}/cron/logs/cronjob-daily.log");
         echo "<td>";
         echo "<pre>";
         echo "$content";

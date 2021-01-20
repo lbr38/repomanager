@@ -69,42 +69,14 @@ getConf() {
 }
 
 execPlan() {
-	source "${FUNCTIONS}/20_execPlan"
+	source "${FUNCTIONS}/20_planifications"
+	execute $PLAN_ID
 }
 
 planReminders() {
-	source "${FUNCTIONS}/21_planReminders"
+	source "${FUNCTIONS}/20_planifications"
+	sendReminders
 }
-
-#traitement_nettoyage() {
-#echo -n > /tmp/repomanager_reposuppr.txt
-#
-## Si le paramètre retention n'est pas présent dans le fichier de conf, on arrête le script
-#if ! grep -q "^RETENTION=" "$CONF";then
-#	clean_exit
-#fi
-#
-## Sinon on le récupère et on continue normalement
-#RETENTION=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | grep "^RETENTION=" | awk -F= '{print $2}')
-#
-#echo -e "\nNettoyage automatique en cours"
-## On récupère la liste de tous les vieux repos dans le fichier repos-archive.list (on garde le champ nom uniquement)
-#LISTE_DEPOTS=$(cat $LISTE_REPO_ARCHIVE | awk -F: '{print $1}' | sort -u) &&
-##echo "liste depots $LISTE_DEPOTS"
-## Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
-#for REPO in $(echo "$LISTE_DEPOTS");do
-#	grep "^${REPO_NAME}:" $LISTE_REPO_ARCHIVE | awk -F: '{print $3}' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > /tmp/repomanager_parsefile.tmp && # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
-#	if [ -s "/tmp/repomanager_parsefile.tmp" ];then # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
-#		for DATE in $(cat /tmp/repomanager_parsefile.tmp);do
-#			echo " Suppression du vieux repo $REPO_NAME en date du $REPO_DATE" &&
-#			rm ${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME} -rf &&
-#			grep "^$REPO_NAME:$REPO_DATE" $LISTE_REPO_ARCHIVE >> /tmp/repomanager_reposuppr.txt &&
-#			sed -i /^$REPO_NAME:$REPO_DATE/d $LISTE_REPO_ARCHIVE &&
-#			MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
-#		done
-#	fi
-#done
-#}
 
 listRepo() {
 	source "${FUNCTIONS}/98_listRepo"
@@ -197,18 +169,22 @@ permissions() {
 	source "${FUNCTIONS}/100_permissions"
 }
 
+cronjob_daily() {
+	source "${FUNCTIONS}/30_cronjob_daily"
+}
+
 # à vérifier
 rapport_mail() {
 # Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un message d'erreur
-if [ ! -z "$MSG_ERREUR" ] || [ ! -z "$MSG_ERREUR_VERIF_CONF" ] || [ ! -z "$PLAN_ERROR_MSG" ];then
-	echo -e "$MSG_GLOBAL" | mutt -s "[ERREUR] Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+if [ ! -z "$MSG_MAIN_ERROR" ] || [ ! -z "$MSG_CHECK_CONF_ERROR" ] || [ ! -z "$MSG_PLAN_ERROR" ];then
+	echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
 else
-	echo -e "$MSG_GLOBAL" | mutt -s "Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+	echo -e "$MSG_MAIN" | mutt -s "Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
 fi
 }
 
 rappel_mail() {
-echo -e "$MSG_RAPPEL" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${HOSTNAME}" $EMAIL_DEST
+echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${HOSTNAME}" $EMAIL_DEST
 }
 
 clean_exit() {
@@ -218,22 +194,22 @@ cd "$BASE_DIR"
 # En mode auto script lancé par cron), on concatene tous les messages d'erreurs rencontrés dans 1 message global afin de l'envoyer par mail :
 if [ "$TTY" -eq "0" ];then
 	# On commence par les messages d'erreur de conf
-	if [ ! -z "$MSG_ERREUR_VERIF_CONF" ];then
-		MSG_GLOBAL="${MSG_GLOBAL}\n${MSG_ERREUR_VERIF_CONF}\n${MSG_ERREUR}\n"
+	if [ ! -z "$MSG_CHECK_CONF_ERROR" ];then
+		MSG_MAIN="${MSG_MAIN}\n${MSG_CHECK_CONF_ERROR}\n${MSG_MAIN_ERROR}\n"
 	fi
 
 	# Messages d'erreur des planifications
-	if [ ! -z "$PLAN_ERROR_MSG" ];then
-		MSG_GLOBAL="${MSG_GLOBAL}\nErreur planifications\n${PLAN_ERROR_MSG}"
+	if [ ! -z "$MSG_PLAN_ERROR" ];then
+		MSG_MAIN="${MSG_MAIN}\nErreur planifications\n${MSG_PLAN_ERROR}"
 	fi
 
 	# On ajoute aussi les messages de repos supprimés même si ce n'est pas une erreur
 	if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
-        MSG_GLOBAL="${MSG_GLOBAL}\n Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
+        MSG_MAIN="${MSG_MAIN}\n Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
 	fi
 
-	if [ ! -z "$MSG_GLOBAL" ];then
-		echo -e "$MSG_GLOBAL"
+	if [ ! -z "$MSG_MAIN" ];then
+		echo -e "$MSG_MAIN"
 		rapport_mail
 	fi
 fi
@@ -271,7 +247,7 @@ mkdir -p "${BASE_DIR}"
 mkdir -p "${REPOS_DIR}"
 
 # Création du répertoire de logs si n'existe pas
-mkdir -p "${LOGS_DIR}/"
+mkdir -p "${MAIN_LOGS_DIR}/"
 
 # Vidage des fichiers de logs
 echo -n> "$LOG"
@@ -281,20 +257,20 @@ chmod 660 "$LOG"
 exec &> >(tee -a "$LOG")
 
 # On récupère les infos sur la précédente exécution du script dans le fichier de log précédent
-if [ -f "${LOGS_DIR}/lastlog.log" ];then
-	LAST_EXECUTION_DATE=$(readlink -f ${LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $2}')
+if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then
+	LAST_EXECUTION_DATE=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $2}')
 	LAST_EXECUTION_DATE=$(date -d"$LAST_EXECUTION_DATE" +%d-%m-%Y)
-	LAST_EXECUTION_TIME=$(readlink -f ${LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
+	LAST_EXECUTION_TIME=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
 	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%M:%Ss)
-	LAST_EXECUTION_USER="$(cat ${LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
+	LAST_EXECUTION_USER="$(cat ${MAIN_LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
 	LAST_EXECUTION_MESSAGE="Le ${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
 else
 	LAST_EXECUTION_MESSAGE="N/A"
 fi
 
 # Puis on recrée un lien symbolique 'lastlog.log' pointant vers le fichier de log en cours
-if [ -f "${LOGS_DIR}/lastlog.log" ];then unlink "${LOGS_DIR}/lastlog.log";fi
-ln -sf "$LOG" "${LOGS_DIR}/lastlog.log"
+if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then unlink "${MAIN_LOGS_DIR}/lastlog.log";fi
+ln -sf "$LOG" "${MAIN_LOGS_DIR}/lastlog.log"
 
 # Affichage du logo ASCI repomanager
 cat "${FUNCTIONS}/logo"                                                            
@@ -447,10 +423,11 @@ while [ $# -ge 1 ];do
 			execPlan "$PLAN_ID"
 			clean_exit
 		;;
-# anciens paramètres (à vérifier)
-		--auto)
-			EXEC_AUTO=1
+		--cronjob-daily)
+			cronjob_daily
+			clean_exit
 		;;
+# anciens paramètres (à vérifier)
         --suppr-auto)
             SUPPR_AUTO=1
         ;;
@@ -465,9 +442,6 @@ done
 
 
 # pour le moment ne pas s'occuper de ces deux options automatiques :
-# if [ "$EXEC_AUTO" -eq "1" ];then
-#	execPlan
-#fi
 #
 #if [ "$SUPPR_AUTO" -eq "1" ];then
 	#traitement_nettoyage

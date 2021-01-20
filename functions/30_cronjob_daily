@@ -3,25 +3,15 @@
 # Actions regulières exécutées par cron ($WWW_USER)
 set -u
 
-# Charge les variables de repomanager
-source "/etc/repomanager/vars/customs.vars"
-source "/etc/repomanager/vars/main.vars"
-
-generateConf() {
-    source "${BASE_DIR}/functions/09_generateConf"
-}
-
 PERMS_ERROR=0
 CHECK_VERSION_ERROR=0
 GENERATE_REPO_CONF_FILES=0
-LOG_DIR="${BASE_DIR}/cron/logs"
-LOG="${LOG_DIR}/cronjob.daily.log"
 
 # Création du répertoire de logs si n'existe pas
-if [ ! -d "$LOG_DIR" ];then mkdir -p "$LOG_DIR";fi
+if [ ! -d "$CRON_LOG_DIR" ];then mkdir -p "$CRON_LOG_DIR";fi
 
 # Vidage du fichier de log
-if [ -f "$LOG" ];then echo -n> "$LOG";fi
+if [ -f "$CRON_LOG" ];then echo -n> "$CRON_LOG";fi
 
 # Vérification d'une nouvelle version disponible sur github
 # Récupère le numéro de version qui est publié sur github dans le fichier 'version'
@@ -33,7 +23,38 @@ else
     echo "GITHUB_VERSION=\"$GITHUB_VERSION\"" >> "${BASE_DIR}/cron/github.version"
 fi
 
+# Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
+if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_CONF_FILES_DIR" ];then
+    # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
+    if [ "$OS_TYPE" == "Redhat" ];then
+        while IFS=, read REPO_NAME REPO_REALNAME REPO_ENV REPO_DATE REPO_DESCRIPTION;do
+            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
+
+            # On fait appel à la fonction generateConf directement
+            generateConf --repo-name $REPO_NAME
+            if [ $? -ne "0" ];then 
+                (( GENERATE_REPO_CONF_FILES++ ))
+            fi
+        done < $REPOS_LIST
+    fi
+
+    if [ "$OS_TYPE" == "Debian" ];then
+        while IFS=, read REPO_NAME REPO_HOSTNAME REPO_DIST REPO_SECTION REPO_ENV REPO_DATE REPO_DESCRIPTION;do
+            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
+            REPO_DIST=$(echo "$REPO_DIST" | cut -d'=' -f2 | sed 's/"//g')
+            REPO_SECTION=$(echo "$REPO_SECTION" | cut -d'=' -f2 | sed 's/"//g')
+
+            # On fait appel à la fonction generateConf directement
+            generateConf --repo-name $REPO_NAME --repo-dist $REPO_DIST --repo-section $REPO_SECTION
+            if [ $? -ne "0" ];then 
+                (( GENERATE_REPO_CONF_FILES++ ))
+            fi
+        done < $REPOS_LIST
+    fi
+fi
+
 # Réapplique les bons droits sur le répertoire parent des repos
+# Laisser cette tâche en dernier car c'est la plus longue
 cd "$REPOS_DIR"
 
 find . -type d -exec chmod 0770 {} \;
@@ -51,52 +72,23 @@ if [ $? -ne "0" ];then
     (( PERMS_ERROR++ ))
 fi
 
-# Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
-if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "${REPOS_CONF_FILES_DIR}" ];then
-
-    # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
-
-    if [ "$OS_TYPE" == "Redhat" ];then
-        while IFS=, read REPO_NAME;do
-            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
-
-            # On fait appel à la fonction generateConf directement
-            generateConf --repo-name $REPO_NAME
-            if [ $? -ne "0" ];then 
-                (( GENERATE_REPO_CONF_FILES++ ))
-            fi
-        done < $LISTE_REPO
-    fi
-
-    if [ "$OS_TYPE" == "Debian" ];then
-        while IFS=, read REPO_NAME REPO_HOSTNAME REPO_DIST REPO_SECTION;do
-            REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
-
-            # On fait appel à la fonction generateConf directement
-            generateConf --repo-name $REPO_NAME --repo-dist $REPO_DIST --repo-section $REPO_SECTION
-            if [ $? -ne "0" ];then 
-                (( GENERATE_REPO_CONF_FILES++ ))
-            fi
-        done < $LISTE_REPO
-    fi
-fi
-
+# Vérification des erreurs et ajout dans le fichier de log si c'est le cas
 if [ "$CHECK_VERSION_ERROR" -gt "0" ];then
-    echo "Status=\"KO\"" >> "$LOG"
-    echo "Problème lors de la vérification d'une nouvelle version" >> "$LOG"
+    echo "Status=\"KO\"" >> "$CRON_LOG"
+    echo "Problème lors de la vérification d'une nouvelle version" >> "$CRON_LOG"
 fi
 
 if [ "$GENERATE_REPO_CONF_FILES" -gt "0" ];then
-    echo "Status=\"KO\"" >> "$LOG"
-    echo "Problème lors de regénération des fichiers de conf repo des profils" >> "$LOG"
+    echo "Status=\"KO\"" >> "$CRON_LOG"
+    echo "Problème lors de regénération des fichiers de conf repo des profils" >> "$CRON_LOG"
 fi
 
 if [ "$PERMS_ERROR" -gt "0" ];then
-    echo "Status=\"KO\"" >> "$LOG"
-    echo "Problème lors de l'application des permissions" >> "$LOG"
+    echo "Status=\"KO\"" >> "$CRON_LOG"
+    echo "Problème lors de l'application des permissions" >> "$CRON_LOG"
 fi
 
 # Si aucune erreur n'a eu lieu, on affiche un status OK
 if [ "$CHECK_VERSION_ERROR" -eq "0" ] && [ "$GENERATE_REPO_CONF_FILES" -eq "0" ] && [ "$PERMS_ERROR" -eq "0" ];then
-    echo "Status=\"OK\"" >> "$LOG"
+    echo "Status=\"OK\"" >> "$CRON_LOG"
 fi

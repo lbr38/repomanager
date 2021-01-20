@@ -39,12 +39,12 @@ fi
 # Préfix des fichiers de conf de repo
 # Si MANAGE_PROFILES est activé, alors on récupère le préfix des fichiers de conf .repo / .list :
 if [ "$MANAGE_PROFILES" == "y" ] || [ $(grep "^MANAGE_PROFILES=" $CONF | cut -d'=' -f2 | sed 's/"//g') == "yes" ];then
-	if ! grep -q "^REPO_FILES_PREFIX=" $CONF || [ -z $(grep "^REPO_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-		REPO_FILES_PREFIX=""
-		if [ "$OS_TYPE" == "Redhat" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .repo qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_FILES_PREFIX;fi
-		if [ "$OS_TYPE" == "Debian" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .list qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_FILES_PREFIX;fi
+	if ! grep -q "^REPO_CONF_FILES_PREFIX=" $CONF || [ -z $(grep "^REPO_CONF_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
+		REPO_CONF_FILES_PREFIX=""
+		if [ "$OS_TYPE" == "Redhat" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .repo qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
+		if [ "$OS_TYPE" == "Debian" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .list qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
 	else
-		REPO_FILES_PREFIX="$(grep "^REPO_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
+		REPO_CONF_FILES_PREFIX="$(grep "^REPO_CONF_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
 fi
 
@@ -147,7 +147,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 #		fi
 #			echo "%_gpg_name <${key_email}>" > $RPMMACROS
 #	fi
-	## Fichier de conf yum "yum.repos.d/00_repomanager/repomanager.conf"
+	## Fichier de conf yum "yum.repos.d/repomanager/repomanager.conf"
 	if [ ! -f "${REPOMANAGER_YUM_DIR}/repomanager.conf" ];then
 		mkdir -p "${REPOMANAGER_YUM_DIR}"
 		echo "[main]
@@ -160,7 +160,7 @@ obsoletes=1
 gpgcheck=1
 plugins=1
 installonly_limit=5
-distroverpkg=centos-release" > /etc/yum.repos.d/00_repomanager/repomanager.conf
+distroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
 	fi
 fi
 
@@ -239,7 +239,7 @@ fi
 echo -e "\n${JAUNE}[ Environnements ]${RESET}\n"
 
 # Si la section [ENVIRONNEMENTS] n'est pas présente ou est vide
-if ! grep -q "^\[ENVIRONNEMENTS]" $ENV_CONF_FILE || [ -z "$(cat $ENV_CONF_FILE | grep -v '\[ENVIRONNEMENTS\]')" ];then
+if ! grep -q "^\[ENVIRONNEMENTS]" $ENV_CONF || [ -z "$(cat $ENV_CONF | grep -v '\[ENVIRONNEMENTS\]')" ];then
 	i="0";newenv="null";totalenv=""
 
 	echo -e "Indiquez autant d'environnements de tests que nécessaire. Un environnement prod sera automatiquement ajouté en dernier :"
@@ -252,15 +252,15 @@ if ! grep -q "^\[ENVIRONNEMENTS]" $ENV_CONF_FILE || [ -z "$(cat $ENV_CONF_FILE |
 	# On affiche tout pour demander confirmation :
 	echo -e "\nEnvironnements :"
 	echo -e "$totalenv"
-	REPO_DEFAULT_ENV=$(echo -e "$totalenv" | head -n1)
-	echo -e "L'environnement par défaut (bas de la chaine) sera ${JAUNE}${REPO_DEFAULT_ENV}${RESET}"
+	DEFAULT_ENV=$(echo -e "$totalenv" | head -n1)
+	echo -e "L'environnement par défaut (bas de la chaine) sera ${JAUNE}${DEFAULT_ENV}${RESET}"
 	echo -ne "➤ Confirmer (y/n) : "; read -p "" CONFIRM
 	if [ "$CONFIRM" != "y" ];then
 		clean_exit
 	fi
 else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
-	totalenv="$(cat $ENV_CONF_FILE | grep -v '\[ENVIRONNEMENTS\]')"
-	REPO_DEFAULT_ENV=$(echo -e "$totalenv" | head -n1)
+	totalenv="$(cat $ENV_CONF | grep -v '\[ENVIRONNEMENTS\]')"
+	DEFAULT_ENV=$(echo -e "$totalenv" | head -n1)
 fi
 
 
@@ -355,10 +355,10 @@ echo "EMAIL_DEST=\"${EMAIL_DEST}\"" >> "$CONF"
 # Gestion des profils pour linux-autoupdate.sh
 if [ "$MANAGE_PROFILES" == "yes" ] || [ "$MANAGE_PROFILES" == "y" ];then
 	echo "MANAGE_PROFILES=\"yes\"" >> "$CONF"
-	echo "REPO_FILES_PREFIX=\"${REPO_FILES_PREFIX}\"" >> "$CONF"
+	echo "REPO_CONF_FILES_PREFIX=\"${REPO_CONF_FILES_PREFIX}\"" >> "$CONF"
 else
 	echo "MANAGE_PROFILES=\"no\"" >> "$CONF"
-	echo "REPO_FILES_PREFIX=\"\"" >> "$CONF"
+	echo "REPO_CONF_FILES_PREFIX=\"\"" >> "$CONF"
 fi
 
 # Config GPG (Centos seulement)
@@ -396,7 +396,7 @@ fi
 
 
 # Configuration des environnements
-echo -e "[ENVIRONNEMENTS]\n${totalenv}" > "$ENV_CONF_FILE"
+echo -e "[ENVIRONNEMENTS]\n${totalenv}" > "$ENV_CONF"
 
 # Configuration de la partie automatisation
 echo -e "\n[AUTOMATISATION]" >> "$CONF"
@@ -503,13 +503,13 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
 	fi
 fi
 # Si la tâche cron journalière n'existe pas, alors on la rajoute à la suite du fichier exporté
-if ! grep -q ".*cronjob.daily" /tmp/${WWW_USER}_crontab.tmp;then
-	echo "*/5 * * * * bash ${BASE_DIR}/cron/cronjob.daily" >> /tmp/${WWW_USER}_crontab.tmp
+if ! grep -q ".*cronjob-daily" /tmp/${WWW_USER}_crontab.tmp;then
+	echo "*/5 * * * * bash ${BASE_DIR}/repomanager --cronjob-daily" >> /tmp/${WWW_USER}_crontab.tmp
 fi
 # Si la tâche existe mais qu'elle est commentée alors on la décommente
-if grep -q "#.*cronjob.daily" /tmp/${WWW_USER}_crontab.tmp;then
-	sed -i '/#.*cronjob.daily/d' /tmp/${WWW_USER}_crontab.tmp
-	echo "*/5 * * * * bash ${BASE_DIR}/cron/cronjob.daily" >> /tmp/${WWW_USER}_crontab.tmp
+if grep -q "#.*--cronjob-daily" /tmp/${WWW_USER}_crontab.tmp;then
+	sed -i '/#.*--cronjob-daily/d' /tmp/${WWW_USER}_crontab.tmp
+	echo "*/5 * * * * bash ${BASE_DIR}/repomanager --cronjob-daily" >> /tmp/${WWW_USER}_crontab.tmp
 fi
 
 # Enfin on réimporte le fichier dans la crontab de $WWW_USER

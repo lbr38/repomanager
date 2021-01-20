@@ -18,7 +18,7 @@ while [ $# -ge 1 ];do case "$1" in
 done
 
 # On vérifie que le repo renseigné est bien présent dans le fichier repo_sys/spec.conf, alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\"" ${LISTE_REPO};then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\"" ${REPOS_LIST};then
 	echo -e "\nErreur de syntaxe ou il n'existe aucune distribution ${CYAN}${REPO_DIST}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur..."
 	clean_exit
 fi
@@ -46,11 +46,11 @@ fi
 
 # On mets à jour les infos dans le fichier repos.list (par exemple) en supprimant la ligne du repo
 echo -ne "Mise à jour des informations dans repos.list :\t"
-sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${LISTE_REPO} &&
-sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${LISTE_REPO_ARCHIVE} &&
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${REPOS_LIST} &&
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\"/d ${REPOS_ARCHIVE_LIST} &&
 echo -e "[$VERT OK $RESET]"
 
 # Comme on a a supprimé toute une distribution, on a forcément supprimé toutes ses sections. On retire donc toutes les occurences de la distribution dans le fichier de groupes
-sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\".*/d ${REPO_GROUPS_FILE}
+sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\".*/d ${GROUPS_CONF}
 
 echo -e "${VERT}Opération terminée${RESET}"

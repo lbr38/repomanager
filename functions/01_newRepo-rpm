@@ -36,8 +36,8 @@ if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si l
 
 
 # On vérifie quand même que le repo n'existe pas déjà :
-if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then 
-	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà en ${REPO_DEFAULT_ENV} !"
+if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST";then 
+	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà en ${DEFAULT_ENV} !"
 	clean_exit
 fi
 
@@ -137,7 +137,7 @@ fi
 
 echo -ne "Création du lien symbolique :\t\t"
 cd ${REPOS_DIR}/ &&
-ln -s ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${REPO_DEFAULT_ENV}
+ln -s ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${DEFAULT_ENV}
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else
@@ -148,7 +148,7 @@ fi
 ####
 
 echo -ne "Ajout des informations dans repos.list :\t"
-echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $LISTE_REPO # On mets à jour les infos dans le fichier repos.list (par exemple)
+echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $REPOS_LIST # On mets à jour les infos dans le fichier repos.list (par exemple)
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else

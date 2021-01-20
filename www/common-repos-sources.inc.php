@@ -13,7 +13,7 @@
     $reposFiles = scandir($REPOMANAGER_YUM_DIR);
     $i=0;
     foreach($reposFiles as $repoFileName) {
-      if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/00_repomanager/)
+      if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/repomanager/)
         // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
         $repoFileNameFormated = str_replace(".repo", "", $repoFileName);
         // on récupère le contenu du fichier
@@ -108,7 +108,7 @@
     echo "</tr>";
     echo "</thead>";
     echo "<tbody>";
-    $file_content = file_get_contents($REPO_ORIGIN_FILE);
+    $file_content = file_get_contents($HOSTS_CONF);
     $rows = explode("\n", $file_content);
 
     foreach($rows as $data) {

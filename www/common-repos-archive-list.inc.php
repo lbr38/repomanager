@@ -24,7 +24,7 @@ if ($filterByGroups == "no") {
     echo "<td>Description</td>";
     echo "</tr>";
     echo "</thead>";
-    $repoFile = file_get_contents($REPO_ARCHIVE_FILE);
+    $repoFile = file_get_contents($REPOS_ARCHIVE_LIST);
     $rows = explode("\n", $repoFile);
     foreach($rows as $row) {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)

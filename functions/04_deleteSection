@@ -30,13 +30,13 @@ while [ $# -ge 1 ];do case "$1" in
 done
 
 # On vérifie que le repo renseigné est bien présent dans le fichier repos.list, alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${LISTE_REPO};then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${REPOS_LIST};then
 	echo -e "\nErreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur..."
 	clean_exit
 fi
 
 # Récupération de la date de la section :
-REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')
+REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')
 
 echo -e "\nDébut de l'opération"
 sleep 1
@@ -57,7 +57,7 @@ fi
 
 # On mets à jour les infos dans le fichier repos.list en supprimant la ligne du repo
 echo -ne "Mise à jour des informations dans repos.list :\t"
-sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO}
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\",Date=\"${REPO_DATE}\"/d ${REPOS_LIST}
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else
@@ -68,7 +68,7 @@ fi
 ####
 
 # Vérifications avant suppression définitive du miroir :
-if egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\",Date=\"${REPO_DATE}\"" ${LISTE_REPO};then
+if egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\",Date=\"${REPO_DATE}\"" ${REPOS_LIST};then
 	echo -e "La version du miroir est toujours utilisée pour d'autres environnements. Le miroir du ${REPO_DATE} n'est donc pas supprimé"
 else
 	# Suppression du miroir
@@ -78,11 +78,11 @@ else
 fi
 
 # Si il n'y a plus du tout de trace de la section dans le fichier de conf, alors on peut supprimer son fichier de conf repo, et on peut la retirer des groupes où elle est présente
-if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\"" ${LISTE_REPO};then
+if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\".*\"" ${REPOS_LIST};then
 	# Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
 	deleteConf --repo-name ${REPO_NAME} --repo-dist ${REPO_DIST} --repo-section ${REPO_SECTION}
 	# Suppression de la section si elle est présente dans le fichier de groupes
-	sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\"/d ${REPO_GROUPS_FILE}
+	sed -i /^Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\"/d ${GROUPS_CONF}
 fi
 
 echo -e "${VERT}Opération terminée${RESET}"

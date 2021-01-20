@@ -42,21 +42,21 @@ done
 if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
 
 # On vérifie que le repo source (celui qui sera copié) existe bien :
-if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$LISTE_REPO";then
+if ! grep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$REPOS_LIST";then
 	echo -e "Il n'existe aucune section ${REPO_SECTION} (distribution ${REPO_DIST}) du repo ${REPO_NAME}"
 	clean_exit
 fi
-# On vérifie qu'un repo du même nom n'existe pas déjà à l'env par défaut $REPO_DEFAULT_ENV (car la copie crée forcément une nouvelle section à l'env par défaut)
-if grep -q "^Name=\"${REPO_NEW_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO";then
-	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${CYAN}${REPO_NEW_NAME}${RESET} avec la section ${CYAN}${REPO_SECTION}${RESET} (env ${CYAN}${REPO_DEFAULT_ENV}${RESET}) existe déjà..."
+# On vérifie qu'un repo du même nom n'existe pas déjà à l'env par défaut $DEFAULT_ENV (car la copie crée forcément une nouvelle section à l'env par défaut)
+if grep -q "^Name=\"${REPO_NEW_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST";then
+	echo -e "[${ROUGE} ERREUR ${RESET}] Le repo ${CYAN}${REPO_NEW_NAME}${RESET} avec la section ${CYAN}${REPO_SECTION}${RESET} (env ${CYAN}${DEFAULT_ENV}${RESET}) existe déjà..."
 	clean_exit
 fi
 
 ####
 
 # On récupère la date et le host du repo qu'on va dupliquer :
-REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$LISTE_REPO" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')
-REPO_HOST=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$LISTE_REPO" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$REPOS_LIST" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')
+REPO_HOST=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "$REPOS_LIST" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
 
 echo -e "\nDébut de l'opération"
 sleep 2
@@ -90,7 +90,7 @@ fi
 
 echo -ne "Création du lien symbolique :\t"
 cd ${REPOS_DIR}/${REPO_NEW_NAME}/${REPO_DIST}/ &&
-ln -s "${REPO_DATE}_${REPO_SECTION}/" "${REPO_SECTION}_${REPO_DEFAULT_ENV}" # La section dupliquée est forcément créée à l'env par défaut $REPO_DEFAULT_ENV (pour respecter la chaine de tests)
+ln -s "${REPO_DATE}_${REPO_SECTION}/" "${REPO_SECTION}_${DEFAULT_ENV}" # La section dupliquée est forcément créée à l'env par défaut $DEFAULT_ENV (pour respecter la chaine de tests)
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else
@@ -101,7 +101,7 @@ fi
 ####
 
 echo -ne "Mise à jour des informations dans repos.list :\t"
-echo "Name=\"${REPO_NEW_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> "$LISTE_REPO" &&
+echo "Name=\"${REPO_NEW_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> "$REPOS_LIST" &&
 if [ $? -eq "0" ];then
 	echo -e "[${VERT} OK ${RESET}]"
 else

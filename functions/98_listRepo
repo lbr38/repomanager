@@ -23,7 +23,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 		if [ $i -eq 0 ];then echo -ne "$GRIS"; printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_ENV" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION"; echo -ne "$RESET";fi # en alternant entre les couleurs gris / blanc afin de regrouper les repos de meme nom (ex epel prod et epel test) sous la même couleur et rendre le tableau plus facile à lire
 		if [ $i -gt 0 ];then printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_ENV" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION"; fi
 		var_list_repo=${REPO_NAME}
-	done < $LISTE_REPO
+	done < $REPOS_LIST
 fi
 
 ### Debian / DEB ###
@@ -48,7 +48,7 @@ if [ "$OS_TYPE" == "Debian" ];then
 		if [ $i -eq 0 ];then echo -ne "$GRIS"; printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_DIST" "$REPO_SECTION" "$REPO_ENV" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION";echo -ne "$RESET";fi
 		if [ $i -gt 0 ];then printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_DIST" "$REPO_SECTION" "$REPO_ENV" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION";fi
 		var_list_repo="$REPO_NAME"
-	done < $LISTE_REPO
+	done < $REPOS_LIST
 fi
 
 echo ""; SEP

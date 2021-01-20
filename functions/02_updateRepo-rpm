@@ -36,23 +36,23 @@ if [ -z "$OS_VERSION" ];then
 fi
 
 # Si le repo est présent dans le fichier repos.list, alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO;then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\"" $REPOS_LIST;then
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur."        
-	MSG_ERREUR="$MSG_ERREUR\n Erreur de syntaxe ou il n'existe aucun repo ${REPO_NAME} sur ce serveur."
+	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur de syntaxe ou il n'existe aucun repo ${REPO_NAME} sur ce serveur."
 fi
 
 # Si le repo existe déjà à la date du jour alors on annule l'opération
-if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\"" $LISTE_REPO;then
+if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\"" $REPOS_LIST;then
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}."        
-	MSG_ERREUR="$MSG_ERREUR\n Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}." 
+	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}." 
 fi
 
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment
 if [ "$ERROR" -eq "0" ];then
-	OLD_DATE_REPO=$(egrep "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\"" $LISTE_REPO | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')	# On récupère du coup sa date de synchro
+	OLD_DATE_REPO=$(egrep "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\"" $REPOS_LIST | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')	# On récupère du coup sa date de synchro
 
 	####
 
@@ -68,7 +68,7 @@ if [ "$ERROR" -eq "0" ];then
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
-		MSG_ERREUR="$MSG_ERREUR\n Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
 	fi
 fi
 
@@ -99,7 +99,7 @@ if [ "$ERROR" -eq "0" ];then
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] reposync a rencontré un problème lors de la création du miroir"
-		MSG_ERREUR="$MSG_ERREUR\n reposync a rencontré un problème lors de la création du miroir"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n reposync a rencontré un problème lors de la création du miroir"
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
@@ -125,7 +125,7 @@ if [ "$ERROR" -eq "0" ];then
 		else
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] La signature des paquets a rencontré une erreur"
-			MSG_ERREUR="$MSG_ERREUR\n La signature des paquets a rencontré une erreur"
+			MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n La signature des paquets a rencontré une erreur"
 			echo -ne "Suppression de ce qui a été fait : "
 			rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 			echo -e "[${VERT} OK ${RESET}]"
@@ -143,7 +143,7 @@ if [ "$ERROR" -eq "0" ];then
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] lors de la création du repo"
-		MSG_ERREUR="$MSG_ERREUR\n Erreur lors de la création du repo"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur lors de la création du repo"
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
@@ -154,42 +154,42 @@ fi
 if [ "$ERROR" -eq "0" ];then
 	echo -ne "Création du lien symbolique :\t\t"
 	cd ${REPOS_DIR}/ &&
-	unlink ${REPO_NAME}_${REPO_DEFAULT_ENV} # Supression du lien symbolique pointant sur l'ancienne version du repo
-	ln -sf ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${REPO_DEFAULT_ENV}
+	unlink ${REPO_NAME}_${DEFAULT_ENV} # Supression du lien symbolique pointant sur l'ancienne version du repo
+	ln -sf ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${DEFAULT_ENV}
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
-		MSG_ERREUR="$MSG_ERREUR\n Erreur pendant la création du lien symbolique"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur pendant la création du lien symbolique"
 	fi
 fi
 
 # On continue uniquement si il n'y a pas eu d'erreur précédemment
 if [ "$ERROR" -eq "0" ];then
-	if ! egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${OLD_DATE_REPO}\"" $LISTE_REPO | grep -v -q "Env=\"${REPO_DEFAULT_ENV}\"";then
+	if ! egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${OLD_DATE_REPO}\"" $REPOS_LIST | grep -v -q "Env=\"${DEFAULT_ENV}\"";then
 		echo "La version précédente du ${OLD_DATE_REPO} n'est pas utilisée par d'autres environnements (donc elle n'est plus utilisée)"
-		OLD_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO" | awk -F',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g')
-		OLD_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\"" "$LISTE_REPO" | awk -F',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # on récupère aussi l'ancien hote au cas où il soit différent 
+		OLD_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST" | awk -F',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g')
+		OLD_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST" | awk -F',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # on récupère aussi l'ancien hote au cas où il soit différent 
 		echo -ne "Archivage de l'ancienne version :\t"
 		cd ${REPOS_DIR}/ &&
 		mv "${OLD_DATE_REPO}_${REPO_NAME}/" "99_old_version_${OLD_DATE_REPO}_${REPO_NAME}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
 		echo -e "[${VERT} OK ${RESET}]"
 		echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-		echo "Name=\"${REPO_NAME}\",Realname=\"${OLD_REALNAME}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
+		echo "Name=\"${REPO_NAME}\",Realname=\"${OLD_REALNAME}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $REPOS_ARCHIVE_LIST
 		echo -e "[${VERT} OK ${RESET}]"
 	fi
 
 	####
 
 	echo -ne "Mise à jour des informations dans repos.list :\t" &&
-	sed -i "s|^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${OLD_DATE_REPO}\"|Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${REPO_DEFAULT_ENV}\",Date=\"${DATE_JMA}\"|g" $LISTE_REPO &&  # On mets à jour les infos dans le fichier repos.list (par exemple)
+	sed -i "s|^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\",Date=\"${OLD_DATE_REPO}\"|Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\"|g" $REPOS_LIST &&  # On mets à jour les infos dans le fichier repos.list (par exemple)
 	if [ $? -eq "0" ];then
 		echo -e "[${VERT} OK ${RESET}]"
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
-		MSG_ERREUR="$MSG_ERREUR\n Erreur pendant l'ajout des informations"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur pendant l'ajout des informations"
 	fi
 fi
 

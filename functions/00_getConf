@@ -4,7 +4,7 @@
 
 EMAIL_DEST=$(grep "^EMAIL_DEST=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 MANAGE_PROFILES=$(grep "^MANAGE_PROFILES=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
-REPO_FILES_PREFIX=$(grep "^REPO_FILES_PREFIX=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+REPO_CONF_FILES_PREFIX=$(grep "^REPO_CONF_FILES_PREFIX=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 
 if [ "$OS_TYPE" == "Redhat" ];then
     grep "^RELEASEVER=" "$CONF" | cut -d'=' -f2 > /etc/yum/vars/RELEASEVER
@@ -21,7 +21,7 @@ if [ "$WWW_ENABLED" == "yes" ];then
     WWW_HOSTNAME=$(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
-REPO_DEFAULT_ENV=$(cat $ENV_CONF_FILE | grep -v '[ENVIRONNEMENTS]' | head -n1)
+DEFAULT_ENV=$(cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1)
 AUTOMATISATION_ENABLED=$(grep "^AUTOMATISATION_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 
 if [ "$AUTOMATISATION_ENABLED" == "yes" ];then

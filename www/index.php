@@ -3,10 +3,10 @@
 
 <?php
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'common-vars.php';
+  require 'vars/common.vars';
   require 'common-functions.php';
   require 'common.php';
-  require 'display.php';
+  require 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 ?>
 
@@ -34,19 +34,21 @@
     </section>
 
     <section class="right" id="serverInfoSlideDiv">
-        <h5>DETAILS</h5>
-        <div class="serverInfoRepo">
-            <table>
-                <tr>
-                    <td>Total repos</td>
-                    <td>50</td>
-                </tr>
-                <tr>
-                    <td>Total repos archivés</td>
-                    <td>11</td>
-                </tr>
-            </table>
-        </div>
+    <?php
+        // Calcul du total des repos, en supprimant les doublons
+        $totalRepos = exec("grep  '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
+        $totalReposArchived = exec("grep  '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
+    ?>
+        <table>
+            <tr>
+                <td>Total repos</td>
+                <td><?php echo "<b>${totalRepos}</b>"; ?></td>
+            </tr>
+            <tr>
+                <td>Total repos archivés</td>
+                <td><?php echo "<b>${totalReposArchived}</b>"; ?></td>
+            </tr>
+        </table>
         <p>Espace disque</p>
         <div class="serverInfoDiskSpace">
             <!-- graphique affichant l'espace utilisé sur le serveur (racine) -->

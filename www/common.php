@@ -12,9 +12,9 @@ if (isset($_POST['printRepoSize'])) {
   $printRepoSize = validateData($_POST['printRepoSize']);
 
   if ($printRepoSize == "on") {
-    exec("sed -i 's/\$printRepoSize = \"no\"/\$printRepoSize = \"yes\"/g' display.php");
+    exec("sed -i 's/\$printRepoSize = \"no\"/\$printRepoSize = \"yes\"/g' ${WWW_DIR}/vars/display.vars");
   } else {
-    exec("sed -i 's/\$printRepoSize = \"yes\"/\$printRepoSize = \"no\"/g' display.php");
+    exec("sed -i 's/\$printRepoSize = \"yes\"/\$printRepoSize = \"no\"/g' ${WWW_DIR}/vars/display.vars");
   }
 }
 
@@ -23,9 +23,9 @@ if (isset($_POST['filterByGroups'])) {
   $filterByGroups = validateData($_POST['filterByGroups']);
 
   if ($filterByGroups == "on") {
-    exec("sed -i 's/\$filterByGroups = \"no\"/\$filterByGroups = \"yes\"/g' display.php");
+    exec("sed -i 's/\$filterByGroups = \"no\"/\$filterByGroups = \"yes\"/g' ${WWW_DIR}/vars/display.vars");
   } else {
-    exec("sed -i 's/\$filterByGroups = \"yes\"/\$filterByGroups = \"no\"/g' display.php");
+    exec("sed -i 's/\$filterByGroups = \"yes\"/\$filterByGroups = \"no\"/g' ${WWW_DIR}/vars/display.vars");
   }
 }
 
@@ -34,9 +34,9 @@ if (isset($_POST['concatenateReposName'])) {
   $concatenateReposName = validateData($_POST['concatenateReposName']);
 
   if ($concatenateReposName == "on") {
-    exec("sed -i 's/\$concatenateReposName = \"no\"/\$concatenateReposName = \"yes\"/g' display.php");
+    exec("sed -i 's/\$concatenateReposName = \"no\"/\$concatenateReposName = \"yes\"/g' ${WWW_DIR}/vars/display.vars");
   } else {
-    exec("sed -i 's/\$concatenateReposName = \"yes\"/\$concatenateReposName = \"no\"/g' display.php");
+    exec("sed -i 's/\$concatenateReposName = \"yes\"/\$concatenateReposName = \"no\"/g' ${WWW_DIR}/vars/display.vars");
   }
 }
 
@@ -45,9 +45,9 @@ if (isset($_POST['dividingLine'])) {
   $dividingLine = validateData($_POST['dividingLine']);
 
   if ($dividingLine == "on") {
-    exec("sed -i 's/\$dividingLine = \"no\"/\$dividingLine = \"yes\"/g' display.php");
+    exec("sed -i 's/\$dividingLine = \"no\"/\$dividingLine = \"yes\"/g' ${WWW_DIR}/vars/display.vars");
   } else {
-    exec("sed -i 's/\$dividingLine = \"yes\"/\$dividingLine = \"no\"/g' display.php");
+    exec("sed -i 's/\$dividingLine = \"yes\"/\$dividingLine = \"no\"/g' ${WWW_DIR}/vars/display.vars");
   }
 }
 
@@ -56,9 +56,9 @@ if (isset($_POST['alternateColors'])) {
   $alternateColors = validateData($_POST['alternateColors']);
 
   if ($alternateColors == "on") {
-    exec("sed -i 's/\$alternateColors = \"no\"/\$alternateColors = \"yes\"/g' display.php");
+    exec("sed -i 's/\$alternateColors = \"no\"/\$alternateColors = \"yes\"/g' ${WWW_DIR}/vars/display.vars");
   } else {
-    exec("sed -i 's/\$alternateColors = \"yes\"/\$alternateColors = \"no\"/g' display.php");
+    exec("sed -i 's/\$alternateColors = \"yes\"/\$alternateColors = \"no\"/g' ${WWW_DIR}/vars/display.vars");
   }
 }
 
@@ -84,7 +84,7 @@ if (!empty($_POST['addGroupName'])) {
   $addGroupName = validateData($_POST['addGroupName']);
 
   // On vérifie que le groupe n'existe pas déjà :
-  $checkIfGroupExists = exec("grep '\[@${addGroupName}\]' $REPO_GROUPS_FILE");
+  $checkIfGroupExists = exec("grep '\[@${addGroupName}\]' $GROUPS_CONF");
   if (!empty($checkIfGroupExists)) {
     printAlert("Le groupe $addGroupName existe déjà");
   } else {
@@ -95,9 +95,9 @@ if (!empty($_POST['addGroupName'])) {
     // Ecrit le contenu dans le fichier, en utilisant le drapeau
     // FILE_APPEND pour rajouter à la suite du fichier et
     // LOCK_EX pour empêcher quiconque d'autre d'écrire dans le fichier en même temps
-    file_put_contents($REPO_GROUPS_FILE, $addGroupName, FILE_APPEND | LOCK_EX);
+    file_put_contents($GROUPS_CONF, $addGroupName, FILE_APPEND | LOCK_EX);
     // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-    exec('sed -i "/^$/N;/^\n$/D" '.$REPO_GROUPS_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
+    exec('sed -i "/^$/N;/^\n$/D" '.$GROUPS_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
   }
 }
 
@@ -109,7 +109,7 @@ if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
   $groupAddRepoName = validateData($_POST['groupAddRepoName']);
 
   // on vérifie d'abord que le repo à ajouter existe bien
-  $checkIfRepoExists = exec("grep '^Name=\"${groupAddRepoName}\"' $REPO_FILE");
+  $checkIfRepoExists = exec("grep '^Name=\"${groupAddRepoName}\"' $REPOS_LIST");
   if (empty($checkIfRepoExists)) {
     printAlert("Le repo $groupAddRepoName n'existe pas");
   } else {
@@ -117,9 +117,9 @@ if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
     $groupNewContent = "Name=\"${groupAddRepoName}\"";
     // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
     // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
-    $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $REPO_GROUPS_FILE | tail -n1");
+    $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $GROUPS_CONF | tail -n1");
     // enfin, on insert la nouvelle ligne au numéro de ligne récupéré :
-    exec("sed -i '${lineToInsert}i\\${groupNewContent}' $REPO_GROUPS_FILE");
+    exec("sed -i '${lineToInsert}i\\${groupNewContent}' $GROUPS_CONF");
   }
 }
 
@@ -131,7 +131,7 @@ if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
   $groupAddRepoSection = validateData($_POST['groupAddRepoSection']);
 
   // on vérifie d'abord que la section à ajouter existe bien
-  $checkIfSectionExists = exec("grep '^Name=\"${groupAddRepoName}\",Host=\".*\",Dist=\"${groupAddRepoDist}\",Section=\"${groupAddRepoSection}\"' $REPO_FILE");
+  $checkIfSectionExists = exec("grep '^Name=\"${groupAddRepoName}\",Host=\".*\",Dist=\"${groupAddRepoDist}\",Section=\"${groupAddRepoSection}\"' $REPOS_LIST");
   if (empty($checkIfSectionExists)) {
     printAlert("La section $groupAddRepoSection n'existe pas");
   } else {
@@ -139,9 +139,9 @@ if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
     $groupNewContent = "Name=\"${groupAddRepoName}\",Dist=\"${groupAddRepoDist}\",Section=\"${groupAddRepoSection}\"";
     // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
     // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
-    $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $REPO_GROUPS_FILE | tail -n1");
+    $lineToInsert = exec("sed -n '/\[${actualGroupName}\]/,/^$/=' $GROUPS_CONF | tail -n1");
     // enfin, on insert la nouvelle ligne au numéro de ligne récupéré :
-    exec("sed -i '${lineToInsert}i\\${groupNewContent}' $REPO_GROUPS_FILE");
+    exec("sed -i '${lineToInsert}i\\${groupNewContent}' $GROUPS_CONF");
   }
 }
 
@@ -155,8 +155,8 @@ if ($OS_TYPE == "rpm" AND isset($_GET['action']) AND ($_GET['action'] == "delete
   // on formatte la chaine à supprimer à partir des infos récupérées en POST
   $groupDelContent = "Name=\"${groupDelRepoName}\"";
   // on supprime le repo en question, situé entre [@groupName] et la prochaine ligne vide
-  //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $REPO_GROUPS_FILE");
-  exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $REPO_GROUPS_FILE");
+  //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $GROUPS_CONF");
+  exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $GROUPS_CONF");
 }
 
 // Cas Debian :
@@ -169,8 +169,8 @@ if ($OS_TYPE == "deb" AND isset($_GET['action']) AND ($_GET['action'] == "delete
   // on formatte la chaine à supprimer à partir des infos récupérées en POST
   $groupDelContent = "Name=\"${groupDelRepoName}\",Dist=\"${groupDelRepoDist}\",Section=\"${groupDelRepoSection}\"";
   // on supprime le repo en question, situé entre [@groupName] et la prochaine ligne vide
-  //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $REPO_GROUPS_FILE");
-  exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $REPO_GROUPS_FILE");
+  //exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${repoName}:${repoDist}:${repoSection}$\)/d}' $GROUPS_CONF");
+  exec("sed -i '/^\[${groupName}\]/,/^$/{/^\(^${groupDelContent}$\)/d}' $GROUPS_CONF");
 }
 
 // Cas où on souhaite renommer un groupe :
@@ -180,12 +180,12 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 
   if ("$newGroupName" !== "$actualGroupName") { // on traite à condition que $actualGroupName != $newGroupName 
     // On vérifie que le groupe n'existe pas déjà :
-    $checkIfGroupExists = exec("grep '\[${newGroupName}\]' $REPO_GROUPS_FILE");
+    $checkIfGroupExists = exec("grep '\[${newGroupName}\]' $GROUPS_CONF");
     if (!empty($checkIfGroupExists)) {
       printAlert("Le groupe $newGroupName existe déjà");
     } else {
       // il n'existe pas de fonction php permettant de remplacer clairement un pattern dans un fichier, donc on le fait avec un gros sed des familles :
-      exec("sed -i 's/\[${actualGroupName}\]/\[${newGroupName}\]/g' $REPO_GROUPS_FILE");
+      exec("sed -i 's/\[${actualGroupName}\]/\[${newGroupName}\]/g' $GROUPS_CONF");
     }
   }
 }
@@ -194,9 +194,9 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 if (isset($_GET['action']) AND ($_GET['action'] == "deleteGroup") AND !empty($_GET['groupName'])) {
   $groupName = validateData($_GET['groupName']);
   // supprime le nom du groupe entre [ ] ainsi que tout ce qui suit (ses repos) jusqu'à rencontrer une ligne vide (espace entre deux noms de groupes) :
-  exec("sed -i '/^\[${groupName}\]/,/^$/{d;}' $REPO_GROUPS_FILE");
+  exec("sed -i '/^\[${groupName}\]/,/^$/{d;}' $GROUPS_CONF");
   // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-  exec('sed -i "/^$/N;/^\n$/D" '.$REPO_GROUPS_FILE.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
+  exec('sed -i "/^$/N;/^\n$/D" '.$GROUPS_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
 }
 
 
@@ -307,13 +307,13 @@ if ($OS_TYPE == "deb") {
         } 
         unlink($gpgTempFile); // suppression du fichier temporaire
     }
-    exec("echo 'Name=\"${newHostName}\",Url=\"${newHostUrl}\"' >> $REPO_ORIGIN_FILE"); // import du nom et de l'url dans le fichier des hôtes
+    exec("echo 'Name=\"${newHostName}\",Url=\"${newHostUrl}\"' >> $HOSTS_CONF"); // import du nom et de l'url dans le fichier des hôtes
   }
 
   // Cas où on souhaite supprimer une url hôte :
   if (isset($_GET['action']) AND ($_GET['action'] == "deleteHost") AND !empty($_GET['repoName'])) {
     $repoName = $_GET['repoName'];
-    exec('sed -i \'/^Name=\"'.$repoName.'\"/d\' '.$REPO_ORIGIN_FILE);
+    exec('sed -i \'/^Name=\"'.$repoName.'\"/d\' '.$HOSTS_CONF);
   }
 
   // Cas où on souhaite supprimer un clé gpg du trousseau de repomanager :
@@ -324,11 +324,11 @@ if ($OS_TYPE == "deb") {
 }
 
 // Vérifications, présence des fichiers de base
-if (!file_exists($PLAN_CONF_FILE)) { // Si le fichier de planifications n'existe pas, on le créé
-  file_put_contents($PLAN_CONF_FILE, "[PLANIFICATIONS]\n\n");
+if (!file_exists($PLAN_CONF)) { // Si le fichier de planifications n'existe pas, on le créé
+  file_put_contents($PLAN_CONF, "[PLANIFICATIONS]\n\n");
 }
-if (!file_exists($REPO_GROUPS_FILE)) { // Si le fichier de groupes n'existe pas, on le créé
-  file_put_contents($REPO_GROUPS_FILE, "[GROUPES]\n\n");
+if (!file_exists($GROUPS_CONF)) { // Si le fichier de groupes n'existe pas, on le créé
+  file_put_contents($GROUPS_CONF, "[GROUPES]\n\n");
 }
 
 

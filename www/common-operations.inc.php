@@ -7,8 +7,8 @@ echo '
     <input name="actionId" type="hidden" value="newRepo">
     <table class="actiontable">
       <tr>
-        <td>Nom du repo</td>
-        <td><input type="text" name="repoRealname" placeholder="Nom entre [crochets] dans le fichier de conf" required></td>
+        <td>Nom du repo source</td>
+        <td><input type="text" name="repoRealname" placeholder="" required></td>
       </tr>
       <tr>
         <td>Nom personnalisé</td>
@@ -58,7 +58,7 @@ echo "<form action=\"/traitement.php\" method=\"get\" class=\"actionform\" autoc
 echo "<input name=\"actionId\" type=\"hidden\" value=\"newRepo\">";
 echo "<table class=\"actiontable\">";
 echo "<tr>";
-echo "<td>Nom de l'hôte</td>";
+echo "<td>Nom de l'hôte source</td>";
 echo "<td><input type=\"text\" name=\"repoHostName\" required></td>";
 echo "</tr>";
 echo "<tr>";

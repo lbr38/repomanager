@@ -108,8 +108,8 @@ $i = 0; // initialise un compteur qui sera incrémenté pour chaque conftoggX (a
 
 // Filtre par noms de groupes
 if ($filterByGroups == "yes") {
-    $repoGroupsFile = file_get_contents($REPO_GROUPS_FILE); // récupération de tout le contenu du fichier de groupes
-    $repoGroups = shell_exec("grep '^\[@.*\]' $REPO_GROUPS_FILE"); // récupération de tous les noms de groupes si il y en a 
+    $repoGroupsFile = file_get_contents($GROUPS_CONF); // récupération de tout le contenu du fichier de groupes
+    $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
     // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
     if (!empty($repoGroups)) {
         $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
@@ -118,7 +118,7 @@ if ($filterByGroups == "yes") {
             $groupName = str_replace(["[", "]"], "", $groupName);
             echo "<tr><td colspan=\"100%\"><b>${groupName}</b></td></tr>";
             // On va récupérer la liste des repos du groupe
-            $repoGroupList = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $REPO_GROUPS_FILE | sed '/^$/d' | grep -v '^\['"); // récupération des repos de ce groupe, en supprimant les lignes vides
+            $repoGroupList = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $GROUPS_CONF | sed '/^$/d' | grep -v '^\['"); // récupération des repos de ce groupe, en supprimant les lignes vides
             if (!empty($repoGroupList)) {
                 $repoGroupList = preg_split('/\s+/', trim($repoGroupList)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
                 // Affichage de l'entête (Nom, Distrib, Section, Env, Date...)*
@@ -156,10 +156,10 @@ if ($filterByGroups == "yes") {
                     }
                     // Puis on recupère les informations manquantes dans le fichier repos.list
                     if ($OS_TYPE == "rpm") {
-                        $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Realname=\".*\"' $REPO_FILE");
+                        $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Realname=\".*\"' $REPOS_LIST");
                     }
                     if ($OS_TYPE == "deb") {
-                        $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_FILE");
+                        $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_LIST");
                     }
                     $repoFullInformations = explode('Name=', $repoFullInformations);
                     $repoFullInformations = array_filter($repoFullInformations); // on nettoie les valeurs vide de l'array
@@ -223,8 +223,8 @@ if ($filterByGroups == "yes") {
                         // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
                         echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
-                        // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
-                        if ($repoEnv === $REPO_DEFAULT_ENV) {
+                        // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
+                        if ($repoEnv === $DEFAULT_ENV) {
                             if ($OS_TYPE == "rpm") {
                                 echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                             }
@@ -261,11 +261,11 @@ if ($filterByGroups == "yes") {
                         }
                         // Affichage de l'env en couleur
                         // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
-                        if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+                        if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
                             echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
-                        } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+                        } elseif ($repoEnv === $DEFAULT_ENV) { 
                             echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
-                        } elseif ($repoEnv === $REPO_LAST_ENV) {
+                        } elseif ($repoEnv === $LAST_ENV) {
                             echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
                         } else {
                             echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
@@ -289,10 +289,10 @@ if ($filterByGroups == "yes") {
                             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
                             echo "<pre>";
                             if ($OS_TYPE == "rpm") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_FILES_PREFIX}${repoName}.repo";
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
                             }
                             if ($OS_TYPE == "deb") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
                             }
                             echo "</pre>";
                             echo "</div>";
@@ -351,7 +351,7 @@ if ($filterByGroups == "yes") {
     $repoLastEnv = '';
     // On récupère tout le contenu du fichier de liste de repos, 
     // puis pour chaque repo, si celui-ci n'apparait dans aucun groupe alors on l'affiche ici dans le groupe "Défaut"
-    $repoFile = file_get_contents($REPO_FILE);
+    $repoFile = file_get_contents($REPOS_LIST);
     $rows = explode("\n", $repoFile);
     foreach($rows as $row) {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
@@ -374,10 +374,10 @@ if ($filterByGroups == "yes") {
 
             // On cherche dans le fichier de groupes si le repo apparait :
             if ($OS_TYPE == "rpm") {
-                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\"' $REPO_GROUPS_FILE");
+                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\"' $GROUPS_CONF");
             }
             if ($OS_TYPE == "deb") {
-                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPO_GROUPS_FILE");
+                $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $GROUPS_CONF");
             }
             // Si le repo apparait dans un groupe alors on n'exécute pas la suite et on traite l'itération suivante de la boucle :
             if (!empty($checkIfRepoIsInAGroup)) {
@@ -427,8 +427,8 @@ if ($filterByGroups == "yes") {
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
             echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
-            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
-            if ($repoEnv === $REPO_DEFAULT_ENV) {
+            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
+            if ($repoEnv === $DEFAULT_ENV) {
                 if ($OS_TYPE == "rpm") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                 }
@@ -465,11 +465,11 @@ if ($filterByGroups == "yes") {
             }
             // Affichage de l'env en couleur
             // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
-            if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+            if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
-            } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+            } elseif ($repoEnv === $DEFAULT_ENV) { 
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
-            } elseif ($repoEnv === $REPO_LAST_ENV) {
+            } elseif ($repoEnv === $LAST_ENV) {
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } else {
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
@@ -493,10 +493,10 @@ if ($filterByGroups == "yes") {
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
             if ($OS_TYPE == "rpm") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_FILES_PREFIX}${repoName}.repo";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
             if ($OS_TYPE == "deb") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";
@@ -551,7 +551,7 @@ if ($filterByGroups == "no") {
     echo "<td>Description</td>";
     echo "</tr>";
     echo "</thead>";
-    $repoFile = file_get_contents($REPO_FILE);
+    $repoFile = file_get_contents($REPOS_LIST);
     $rows = explode("\n", $repoFile);
     foreach($rows as $row) {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
@@ -613,8 +613,8 @@ if ($filterByGroups == "no") {
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
             echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
 
-            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $REPO_DEFAULT_ENV
-            if ($repoEnv === $REPO_DEFAULT_ENV) {
+            // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
+            if ($repoEnv === $DEFAULT_ENV) {
                 if ($OS_TYPE == "rpm") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                 }
@@ -651,11 +651,11 @@ if ($filterByGroups == "no") {
             }
             // Affichage de l'env en couleur
             // On regarde d'abord combien d'environnements sont configurés. Si il n'y a qu'un environement, l'env restera blanc.
-            if ($REPO_DEFAULT_ENV === $REPO_LAST_ENV) { // Cas où il n'y a qu'un seul env
+            if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
-            } elseif ($repoEnv === $REPO_DEFAULT_ENV) { 
+            } elseif ($repoEnv === $DEFAULT_ENV) { 
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
-            } elseif ($repoEnv === $REPO_LAST_ENV) {
+            } elseif ($repoEnv === $LAST_ENV) {
                 echo "<td class=\"td-redbackground\"><span>$repoEnv</span></td>";
             } else {
                 echo "<td class=\"td-whitebackground\"><span>$repoEnv</span></td>";
@@ -681,10 +681,10 @@ if ($filterByGroups == "no") {
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
             if ($OS_TYPE == "rpm") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_FILES_PREFIX}${repoName}.repo";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
             if ($OS_TYPE == "deb") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";

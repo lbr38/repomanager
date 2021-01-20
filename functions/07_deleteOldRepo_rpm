@@ -18,7 +18,7 @@ while [ $# -ge 1 ];do case "$1" in
 done
 
 # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, si oui alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" $LISTE_REPO_ARCHIVE;then  # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, alors on peut commencer l'opération
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" $REPOS_ARCHIVE_LIST;then  # On vérifie que le repo renseigné est bien présent dans le fichier repos-archive.list, alors on peut commencer l'opération
 	echo -e "\nErreur de syntaxe ou il n'existe aucun repo archivé ${CYAN}${REPO_NAME}${RESET} en date du ${CYAN}${REPO_DATE}${REST} sur ce serveur..."
     clean_exit
 fi
@@ -36,7 +36,7 @@ echo -e "[${VERT} OK ${RESET}]"
 ####
 
 echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-sed -i /^Name=\"${REPO_NAME}\",RealName=\".*\",Date=\"${REPO_DATE}\"/d $LISTE_REPO_ARCHIVE &&   # On supprime le repo dans le fichier repos-archive.list
+sed -i /^Name=\"${REPO_NAME}\",RealName=\".*\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST &&   # On supprime le repo dans le fichier repos-archive.list
 echo -e "[${VERT} OK ${RESET}]"
 
 echo -e "${VERT}Opération terminée${RESET}"

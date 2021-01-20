@@ -1,20 +1,18 @@
 <?php
 // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-require 'common-vars.php';
+require 'vars/common.vars';
 require 'common-functions.php';
 require 'common.php';
-require 'display.php';
+require 'vars/display.vars';
 if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // On récupère la liste des fichiers de logs en les triant 
-$logFiles = scandir("${BASE_DIR}/logs/", SCANDIR_SORT_DESCENDING);
+$logFiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
 
 // Si un fichier de log a été sélectionné dans le formulaire, alors ce sera lui qui sera affiché
 if (!empty($_POST['logselect'])) {
-	//echo tutuuuuuuuu;
 	$logFile = $_POST['logselect'];
 } else { // aucun fichier de log n'a été sélectionné, alors on affichera le dernier en date
-	//echo tototoooooooooooooo;
 	$logFile = $logFiles[0]; // Celui en position 0 est le dernier fichier de log.
 }
 
@@ -39,7 +37,7 @@ $textColor = ""; //use CSS color
 // Don't have to change anything bellow
 if(!$textColor) $textColor = "black";
 if(isset($_GET['getLog'])) {
-	$output = file_get_contents("${LOGS_DIR}/${logFile}"); // recup du contenu du fichier de log
+	$output = file_get_contents("${MAIN_LOGS_DIR}/${logFile}"); // recup du contenu du fichier de log
 	$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output); // suppression des codes ANSI (couleurs)
 	echo $output;
 } else {

@@ -44,29 +44,29 @@ ERROR="0"
 if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
 
 # Si le repo n'était pas présent dans repos.list
-if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${LISTE_REPO};then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${REPOS_LIST};then
 	(( ERROR++ ))
 	echo -e "[${ROUGE} ERREUR ${RESET}] Erreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
-	MSG_ERREUR="${MSG_ERREUR}\n Erreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
+	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
 fi
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment
 if [ "$ERROR" -eq "0" ];then
 	# Récupère la date vers laquelle on va faire pointer le nouvel env
-	REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la date de synchro du repo 'base' de test qui sera passé en prod
+	REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la date de synchro du repo 'base' de test qui sera passé en prod
 	# Récupère le nom de l'hote
-	REPO_HOST=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la date de synchro du repo 'base' de test qui sera passé en prod
+	REPO_HOST=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la date de synchro du repo 'base' de test qui sera passé en prod
 	# Si on n'a pas transmis de description, on va conserver celle actuelle si existe.
 	# Si il n'y a pas de description ou qu'aucun repo n'existe actuellement dans l'env $REPO_NEW_ENV, alors le grep ne renverra rien et la description restera vide
 	if [ -z "$REPO_DESCRIPTION" ];then
-		REPO_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la description actuelle afin de la reporter sur la nouvelle version
+		REPO_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g') # On extrait la description actuelle afin de la reporter sur la nouvelle version
 	fi
 
 	# Dernière vérif : on vérifie que le repo n'a pas déjà été passé en prod (par exemple par quelqu'un d'autre), dans ce cas on annule l'opération
-	if egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\"" "${LISTE_REPO}";then
+	if egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\"" "${REPOS_LIST}";then
 		(( ERROR++ ))
 		echo -e "[$ROUGE ERREUR $RESET] Ce repo est déjà en ${REPO_NEW_ENV} au ${REPO_DATE}\n"
-		MSG_ERREUR="${MSG_ERREUR}\n Ce repo est déjà en ${REPO_NEW_ENV} au ${REPO_DATE}\n"
+		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Ce repo est déjà en ${REPO_NEW_ENV} au ${REPO_DATE}\n"
 	fi
 fi
 
@@ -83,7 +83,7 @@ if [ "$ERROR" -eq "0" ];then
 	# - ce repo n'avait pas de version en prod, on crée simplement un lien symbo
 	# - ce repo avait déjà une version en prod, on modifie le lien symbo et on passe la version précédente en archive
 	# Cas 1 :
-	if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}";then	# Cas 1 : pas de version déjà en ${REPO_NEW_ENV}
+	if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}";then	# Cas 1 : pas de version déjà en ${REPO_NEW_ENV}
 		echo -ne "Création du lien symbolique :\t"
 		ln -s ${REPO_DATE}_${REPO_SECTION}/ ${REPO_SECTION}_${REPO_NEW_ENV}
 		if [ $? -eq "0" ];then
@@ -91,13 +91,13 @@ if [ "$ERROR" -eq "0" ];then
 		else
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du lien symbolique"
-			MSG_ERREUR="${MSG_ERREUR}\n Problème lors de la création du lien symbolique"
+			MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors de la création du lien symbolique"
 		fi
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
 			echo -ne "Mise à jour des informations dans repos.list :\t"
-			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${LISTE_REPO} &&
+			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${REPOS_LIST} &&
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 
@@ -111,13 +111,13 @@ if [ "$ERROR" -eq "0" ];then
 		else
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du lien symbolique"
-			MSG_ERREUR="${MSG_ERREUR}\n Problème lors de la création du lien symbolique"
+			MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors de la création du lien symbolique"
 		fi
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
-			OLD_REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne date de prod afin de la passer en tant que date n-1
-			OLD_REPO_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${LISTE_REPO}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne description de prod pour la conserver
+			OLD_REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne date de prod afin de la passer en tant que date n-1
+			OLD_REPO_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne description de prod pour la conserver
 			echo -ne "Passage de l'ancienne version de ${REPO_NEW_ENV} en archive :\t"
 			mv "${OLD_REPO_DATE}_${REPO_SECTION}/" "99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que 99_old_version_JJ-MM-AAAA_base/
 			if [ $? -eq "0" ];then
@@ -125,34 +125,34 @@ if [ "$ERROR" -eq "0" ];then
 			else
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
-				MSG_ERREUR="${MSG_ERREUR}\n Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
+				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
 			fi
 		fi	
 			
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
 			echo -ne "Mise à jour des informations dans repos.list :\t"
-			sed -i /^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${OLD_REPO_DATE}\"/d ${LISTE_REPO} &&	 # On supprime la ligne de l'ancien repo en prod dans le fichier repos.list (par exemple)
-			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${LISTE_REPO} # Puis on la remplace en ajoutant le nouveau repo base:prod:date:description dans le fichier repos.list
+			sed -i /^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${OLD_REPO_DATE}\"/d ${REPOS_LIST} &&	 # On supprime la ligne de l'ancien repo en prod dans le fichier repos.list (par exemple)
+			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${REPOS_LIST} # Puis on la remplace en ajoutant le nouveau repo base:prod:date:description dans le fichier repos.list
 			if [ $? -eq "0" ];then
 				echo -e "[${VERT} OK ${RESET}]"
 			else
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
-				MSG_ERREUR="${MSG_ERREUR}\n Erreur pendant l'ajout des informations"
+				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur pendant l'ajout des informations"
 			fi
 		fi
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
 			echo -ne "Mise à jour des informations dans repos-archive.list :\t" &&
-			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${OLD_REPO_DATE}\",Description=\"${OLD_REPO_DESCRIPTION}\"" >> $LISTE_REPO_ARCHIVE
+			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${OLD_REPO_DATE}\",Description=\"${OLD_REPO_DESCRIPTION}\"" >> $REPOS_ARCHIVE_LIST
 			if [ $? -eq "0" ];then
 				echo -e "[${VERT} OK ${RESET}]"
 			else
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
-				MSG_ERREUR="${MSG_ERREUR}\n  Erreur pendant l'ajout des informations"
+				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n  Erreur pendant l'ajout des informations"
 			fi
 		fi
 

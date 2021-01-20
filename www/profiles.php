@@ -3,10 +3,10 @@
 
 <?php
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'common-vars.php';
+  require 'vars/common.vars';
   require 'common-functions.php';
   require 'common.php';
-  require 'display.php';
+  require 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
   // Créer le répertoire principal des profils si n'existe pas
@@ -41,9 +41,9 @@
     if ($OS_TYPE == "deb") {
       $addProfileRepoDist = validateData($_POST['addProfileRepoDist']);
       $addProfileRepoSection = validateData($_POST['addProfileRepoSection']);
-      exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
+      exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
     } elseif ($OS_TYPE == "rpm") {
-      exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_FILES_PREFIX}${addProfileRepo}.repo");
+      exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}.repo");
     }
   }
 
@@ -54,9 +54,9 @@
     if ($OS_TYPE == "deb") {
       $repoDist = validateData($_GET['repoDist']);
       $repoSection =  validateData($_GET['repoSection']);
-      exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list");
+      exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list");
     } elseif ($OS_TYPE == "rpm") {
-      exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_FILES_PREFIX}${repoName}.repo");
+      exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}.repo");
     }
   }
 
@@ -107,7 +107,7 @@
         $i = 0;
         $profilesNames = scandir($PROFILS_MAIN_DIR);
         foreach($profilesNames as $profileName) {
-          if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "00_repo-conf-files") AND ($profileName != "main")) { // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
+          if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "main")) { // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
             echo '<form action="profiles.php" method="post" class="profileForm" autocomplete="off">';
             echo '<table class="table-large">';
             echo '<tbody>';
@@ -130,12 +130,12 @@
               if (($repoFile != "..") AND ($repoFile != ".") AND ($repoFile != "config")){ // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
                 if ($OS_TYPE == "rpm") {
                   $repoFile = str_replace(".repo", "","$repoFile"); // remplace ".repo" par rien dans le nom du fichier, afin d'afficher seulement le nom du repo (ce qui nous interesse) et pas le nom complet du fichier
-                  $repoFile = str_replace("${REPO_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
+                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
                   $repoName = $repoFile;
                 }
                 if ($OS_TYPE == "deb") {
                   $repoFile = str_replace(".list", "","$repoFile"); // retire le suffixe ".list" afin de n'obtenir que le nom du repo, sa distribution et sa section
-                  $repoFile = str_replace("${REPO_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
+                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
                   $repoFile = preg_split("/_/", "$repoFile");
                   $repoName = $repoFile[0];
                   $repoDist = $repoFile[1];

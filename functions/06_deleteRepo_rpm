@@ -19,12 +19,12 @@ while [ $# -ge 1 ];do case "$1" in
 done
 
 # On vérifie que le repo renseigné est bien présent dans le fichier repos.list, alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" $LISTE_REPO;then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" $REPOS_LIST;then
 	echo -e "\nErreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur..."
 	clean_exit
 fi
 # Récupération de la date du repo
-REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" "$LISTE_REPO" | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
+REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" "$REPOS_LIST" | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
 
 echo -e "\nDébut de l'opération" 
 sleep 1
@@ -40,13 +40,13 @@ echo -e "[${VERT} OK ${RESET}]"
 
 # On mets à jour les infos dans le fichier repos.list en supprimant la ligne du repo
 echo -ne "Mise à jour des informations dans repos.list :\t"
-sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\",Date=\"${REPO_DATE}\"/d ${LISTE_REPO} &&
+sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\",Date=\"${REPO_DATE}\"/d ${REPOS_LIST} &&
 echo -e "[${VERT} OK ${RESET}]" &&
 
 ####
 
 # Vérifications avant suppression définitive du miroir :
-if egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${REPO_DATE}\"" ${LISTE_REPO};then
+if egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\",Date=\"${REPO_DATE}\"" ${REPOS_LIST};then
 	echo -e "La version du miroir est toujours utilisée pour d'autres environnements. Le miroir n'est donc pas supprimé."
 else
 	echo -ne "Suppression du miroir :\t\t" &&
@@ -55,11 +55,11 @@ else
 fi
 
 # Si il n'y a plus du tout de trace du repo dans le fichier de conf, alors on peut supprimer son fichier de conf repo, et on peut le retirer des groupes où il est présent
-if ! grep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\"" ${LISTE_REPO};then
+if ! grep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\".*\"" ${REPOS_LIST};then
 	# Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
 	deleteConf --repo-name ${REPO_NAME}
 	# Suppression du repo si il est présent dans le fichier de groupes
-	sed -i /^Name=\"${REPO_NAME}\".*/d ${REPO_GROUPS_FILE}
+	sed -i /^Name=\"${REPO_NAME}\".*/d ${GROUPS_CONF}
 fi
 
 echo -e "${VERT}Opération terminée${RESET}"

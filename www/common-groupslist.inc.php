@@ -6,8 +6,8 @@
 
   <table class="table-auto">
   <?php
-    $repoGroupsFile = file_get_contents($REPO_GROUPS_FILE); // récupération de tout le contenu du fichier de groupes
-    $repoGroups = shell_exec("grep '^\[@.*\]' $REPO_GROUPS_FILE"); // récupération de tous les noms de groupes si il y en a 
+    $repoGroupsFile = file_get_contents($GROUPS_CONF); // récupération de tout le contenu du fichier de groupes
+    $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
     // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
     if (!empty($repoGroups)) {
       echo "<p><b>Groupes actuels :</b></p>";
@@ -26,7 +26,7 @@
         echo "</tr>";
 
         // On va récupérer la liste des repos du groupe et les afficher si il y en a (résultat non vide)
-        $repoGroupList = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $REPO_GROUPS_FILE | sed '/^$/d' | grep -v '^\['"); // récupération des repos de ce groupe, en supprimant les lignes vides
+        $repoGroupList = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $GROUPS_CONF | sed '/^$/d' | grep -v '^\['"); // récupération des repos de ce groupe, en supprimant les lignes vides
 
         if (!empty($repoGroupList)) {
             $repoGroupList = preg_split('/\s+/', trim($repoGroupList)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne

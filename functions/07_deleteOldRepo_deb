@@ -28,7 +28,7 @@ while [ $# -ge 1 ];do case "$1" in
 done
 
 # On vérifie que la section renseignée est bien présente dans le fichier repos-archive.list, si oui alors on peut commencer l'opération
-if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"" ${LISTE_REPO_ARCHIVE};then
+if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"" ${REPOS_ARCHIVE_LIST};then
 	echo -e "\nErreur de syntaxe ou il n'existe aucune section archivée ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en date du ${CYAN}${REPO_DATE}${RESET} sur ce serveur..."
     clean_exit
 fi
@@ -46,7 +46,7 @@ echo -e "[$VERT OK $RESET]"
 ####
 
 echo -ne "Mise à jour des informations dans repos-archive.list :\t"
-sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"/d $LISTE_REPO_ARCHIVE && # On supprime la section dans le fichier repos-archive.list
+sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST && # On supprime la section dans le fichier repos-archive.list
 echo -e "[$VERT OK $RESET]"
 
 echo -e "${VERT}Opération terminée${RESET}"

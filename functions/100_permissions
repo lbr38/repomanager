@@ -51,7 +51,7 @@ if [ "$ACTUAL_USER" == "root" ];then
     if [ "$OS_TYPE" == "Redhat" ];then
         chown root:repomanager /etc/yum/vars/RELEASEVER
         chmod 660 /etc/yum/vars/RELEASEVER
-        # permissions sur 00_repomanager et ses fichiers de conf
+        # permissions sur repomanager et ses fichiers de conf
         if [ -d "$REPOMANAGER_YUM_DIR" ];then
             chown -R ${WWW_USER}:repomanager "$REPOMANAGER_YUM_DIR"
             find ${REPOMANAGER_YUM_DIR}/ -type f -exec chmod 0664 {} \;
@@ -85,7 +85,7 @@ if [ "$ACTUAL_USER" == "root" ];then
         fi
     fi
 else
-    if [ $TTY -eq "1" ];then # On affiche le message suivant uniquement si on est dans un terminal
+    if [ "$TTY" -eq "1" ];then # On affiche le message suivant uniquement si un terminal est ouvert
         echo -e "[${ROUGE} Erreur ${RESET}] Vous devez être root pour appliquer correctement les permissions"
     fi
 fi

@@ -1,0 +1,380 @@
+#!/bin/bash
+# On traite les planifications et leur rappels dans ce même fichier car on utilise des fonctions de pré-vérification communes (on évite le code en doublon donc)
+
+# Codes d'erreurs
+# CP = Check Planification
+# CP01
+# CP02
+# CP03
+
+# PE = Planification Execution
+# PE01
+# PE02
+
+# PR = Planification Reminder
+# PR01
+# PR02
+
+# Fonctions de pré-vérifications
+# Vérification de l'action
+checkAction() {
+	if [ -z "$PLAN_ACTION" ];then
+		MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP01) : Aucune action n'est spécifiée dans cette planification"
+		return 1
+	fi
+
+	# Si l'action est 'update' alors on doit avoir renseigné PLAN_GPG_CHECK (+ PLAN_GPG_RESIGN pour redhat)
+	if [ "$PLAN_ACTION" == "update" ];then
+		if [ -z "$PLAN_GPG_CHECK" ];then
+			MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP02) : Vérification des signatures GPG non spécifié dans cette planification"
+			return 1
+		fi
+
+		if [ "$OS_TYPE" == "Redhat" ];then
+			if [ -z "$PLAN_GPG_RESIGN" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP03) : Signature des paquets avec GPG non spécifié dans cette planification"
+				return 1
+			fi
+		fi
+	fi
+}
+
+# Vérification si on traite un repo seul ou un groupe
+checkIfRepoOrGroup() {
+	if [ -z "$PLAN_REPO_NAME" ] && [ -z "$PLAN_GROUP" ];then
+		MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP04) : Aucun repo ou groupe spécifié"
+		return 1
+	fi
+
+	# On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que PLAN_REPO et PLAN_GROUP ne sont pas tous les deux renseignés en même temps :
+	if ([ ! -z "$PLAN_REPO_NAME" ] && [ ! -z "$PLAN_GROUP" ]);then
+		if [ "$OS_TYPE" == "Redhat" ];then MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP05) : Il n'est pas possible de traiter à la fois un repo et un groupe de repos";fi
+		if [ "$OS_TYPE" == "Debian" ];then MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP05) : Il n'est pas possible de traiter à la fois une section et un groupe de sections";fi
+		return 1
+	fi
+
+	# Si on a renseigné un seul repo à traiter alors il faut vérifier qu'il existe dans la liste (il a pu être supprimé depuis que la planification a été créée)
+	# Puis il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
+	if [ ! -z "$PLAN_REPO_NAME" ];then
+		if [ "$OS_TYPE" == "Redhat" ];then
+			# Vérification que le repo existe
+			if ! grep -q "^Name=\"${PLAN_REPO_NAME}\"" $REPOS_LIST;then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP06) : Le repo ${PLAN_REPO_NAME} n'existe pas"
+				return 1
+			fi
+
+			# Récupération du repo source
+			PLAN_REPO_REALNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+			if [ -z "$PLAN_REPO_REALNAME" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP07) : Impossible de récupérer le nom du repo source"
+				return 1
+			fi
+		fi
+
+		if [ "$OS_TYPE" == "Debian" ];then
+			# On vérifie qu'on a bien renseigné la distribution et la section
+			if [ -z "$PLAN_REPO_DIST" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP08) : Aucune distribution spécifiée"
+				return 1
+			fi
+			if [ -z "$PLAN_REPO_SECTION" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP09) : Aucune section spécifiée"
+				return 1
+			fi
+
+			# Vérification que la section existe
+			if ! grep -q "^Name=\"${PLAN_REPO_NAME}\",Host=\".*\",Dist=\"${PLAN_REPO_DIST}\",Section=\"${PLAN_REPO_SECTION}\"" $REPOS_LIST;then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP10) : La section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST}) n'existe pas"
+				return 1
+			fi
+
+			# Récupération de l'hote source
+			PLAN_REPO_HOSTNAME=$(grep "^Name=\"${PLAN_REPO_NAME}\"" $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+			if [ -z "$PLAN_REPO_HOSTNAME" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP11) : Impossible de récupérer le nom de l'hôte source"
+				return 1
+			fi
+		fi
+	fi
+
+
+	# Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
+	# Puis on récupère toute la liste du groupe
+	if [ ! -z "$PLAN_GROUP" ];then
+		# Vérification que le groupe existe
+		if ! grep -q "\[${PLAN_GROUP}\]" $GROUPS_CONF;then
+			MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP12) : Le groupe ${PLAN_GROUP} n'existe pas"
+			return 1
+		fi
+
+		# on récupère tous les repos du groupe
+		PLAN_GROUP_LIST=$(cat "$GROUPS_CONF" | sed -n "/${PLAN_GROUP}/,/^@/p" | egrep "^Name=\".*\"")
+
+		if [ -z "$PLAN_GROUP_LIST" ];then
+			if [ "$OS_TYPE" == "Redhat" ];then MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP13) : Il n'y a aucun repo renseigné dans le groupe ${PLAN_GROUP}.";fi
+			if [ "$OS_TYPE" == "Debian" ];then MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP13) : Il n'y a aucune section renseignée dans le groupe ${PLAN_GROUP}.";fi
+			return 1
+		fi
+
+		# Pour chaque repo/section renseigné(e), on vérifie qu'il/elle existe
+		for LINE in $(echo "$PLAN_GROUP_LIST");do
+			# Pour chaque ligne on récupère les infos du repo/section
+				GROUP_REPO_NAME=$(echo $LINE | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+			if [ "$OS_TYPE" == "Redhat" ];then
+				if ! grep -q "^Name=\"${GROUP_REPO_NAME}\"" $REPOS_LIST;then
+					MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP14) : Le repo ${GROUP_REPO_NAME} dans le groupe ${PLAN_GROUP} n'existe pas/plus."
+					return 1
+				fi
+			fi
+
+			if [ "$OS_TYPE" == "Debian" ];then
+				GROUP_REPO_DIST=$(echo $LINE | awk -F ',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g')
+				GROUP_REPO_SECTION=$(echo $LINE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
+				if ! grep -q "^Name=\"${GROUP_REPO_NAME}\",Host=\".*\",Dist=\"${GROUP_REPO_DIST}\",Section=\"${GROUP_REPO_SECTION}\"" $REPOS_LIST;then
+					MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (CP14) : La section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST}) dans le groupe ${PLAN_GROUP} n'existe pas/plus."
+					return 1
+				fi				
+			fi
+		done
+	fi
+}
+
+
+
+## TRAITEMENTS ##
+
+# Traitement de la planification (numéro de planification spécifié en argument $1)
+execute() {
+echo -e "Traitement de la planification Plan-${PLAN_ID}\n"
+
+# Récupération des détails de la planification actuelle dans le fichier de conf, afin de savoir quels repos sont impliqués et quelle action effectuer
+PLAN_ACTION=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^Action=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_REPO_NAME=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^Repo=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_REPO_DIST=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^Dist=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_REPO_SECTION=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^Section=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_GROUP=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^Group=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_GPG_CHECK=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
+PLAN_GPG_RESIGN=$(sed -n "/\[Plan-${1}\]/,/\[/p" "$PLAN_CONF" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
+
+# Initialisation de variables supplémentaires
+PLAN_GROUP_LIST=""
+PLAN_REPO_REALNAME=""
+PLAN_REPO_HOSTNAME=""
+
+# Pré-vérifications
+checkAction; 			if [ $? -ne "0" ];then clean_exit;fi
+checkIfRepoOrGroup; 	if [ $? -ne "0" ];then clean_exit;fi
+
+# Cas où on traite 1 repo seulement :
+if [ ! -z "$PLAN_REPO_NAME" ];then
+	# Si $PLAN_ACTION = update alors on met à jour le repo
+	if [ "$PLAN_ACTION" == "update" ];then
+		if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo ${PLAN_REPO_NAME}";fi
+		if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST})";fi
+		if [ "$OS_TYPE" == "Redhat" ];then
+			updateRepo --gpg-check ${PLAN_GPG_CHECK} --gpg-resign ${PLAN_GPG_RESIGN} --repo-name ${PLAN_REPO_NAME} --repo-real-name ${PLAN_REPO_REALNAME}
+		fi
+		if [ "$OS_TYPE" == "Debian" ];then
+			updateRepo --gpg-check ${PLAN_GPG_CHECK} --repo-name ${PLAN_REPO_NAME} --repo-host-name ${PLAN_REPO_HOSTNAME} --repo-dist ${PLAN_REPO_DIST} --repo-section ${PLAN_REPO_SECTION}
+		fi
+	fi
+
+	# Si $PLAN_ACTION contient -> alors il s'agit d'un changement d'env
+	if [[ "$PLAN_ACTION" =~ "->" ]];then
+		PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+		PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+		if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
+			MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nPlan erreur 10 : envs non définis"
+			clean_exit
+		fi
+		
+		if [ "$OS_TYPE" == "Redhat" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${PLAN_REPO_NAME}";fi
+		if [ "$OS_TYPE" == "Debian" ];then echo "Changement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST})";fi
+		if [ "$OS_TYPE" == "Redhat" ];then
+			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
+		fi
+		if [ "$OS_TYPE" == "Debian" ];then
+			changeEnv --repo-name ${PLAN_REPO_NAME} --repo-dist ${PLAN_REPO_DIST} --repo-section ${PLAN_REPO_SECTION} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
+		fi
+	fi
+fi
+
+# Cas où on traite un groupe de repo :
+if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
+	for LINE in $(echo "$PLAN_GROUP_LIST");do
+		# Pour chaque ligne on récupère les infos du repo/section
+		if [ "$OS_TYPE" == "Redhat" ];then 
+			GROUP_REPO_NAME=$(echo $LINE | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+			GROUP_REPO_REALNAME=$(grep "^Name=\"${GROUP_REPO_NAME}\"" $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+		fi
+
+		if [ "$OS_TYPE" == "Debian" ];then
+			GROUP_REPO_NAME=$(echo $LINE | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+			GROUP_REPO_HOSTNAME=$(grep "^Name=\"${GROUP_REPO_NAME}\"" $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+			GROUP_REPO_DIST=$(echo $LINE | awk -F ',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g')
+			GROUP_REPO_SECTION=$(echo $LINE | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
+		fi
+
+		# Si $PLAN_ACTION = update alors on met à jour les repos du groupe
+		if [ "$PLAN_ACTION" == "update" ];then
+			# Exécution 
+			if [ "$OS_TYPE" == "Redhat" ];then echo "Mise à jour du repo ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Debian" ];then echo "Mise à jour de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST})";fi
+			if [ "$OS_TYPE" == "Redhat" ];then
+				updateRepo --gpg-check ${PLAN_GPG_CHECK} --gpg-resign ${PLAN_GPG_RESIGN} --repo-name ${GROUP_REPO_NAME} --repo-real-name ${GROUP_REPO_REALNAME}
+			fi
+			if [ "$OS_TYPE" == "Debian" ];then
+				updateRepo --gpg-check ${PLAN_GPG_CHECK} --repo-name ${GROUP_REPO_NAME} --repo-host-name ${GROUP_REPO_HOSTNAME} --repo-dist ${GROUP_REPO_DIST} --repo-section ${GROUP_REPO_SECTION}
+			fi
+		fi
+
+		# Si $PLAN_ACTION contient -> alors il s'agit d'un changement d'env
+		if [[ "$PLAN_ACTION" =~ "->" ]];then
+			PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+			PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+			if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
+				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nPlan erreur 11 : environnements non définis"
+				continue
+			fi
+
+			if [ "$OS_TYPE" == "Redhat" ];then echo -e "\n\nChangement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${GROUP_REPO_NAME}";fi
+			if [ "$OS_TYPE" == "Debian" ];then echo -e "\n\nChangement d'env (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST})";fi
+			
+			if [ "$OS_TYPE" == "Redhat" ];then
+				changeEnv --repo-name ${GROUP_REPO_NAME} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
+			fi
+			if [ "$OS_TYPE" == "Debian" ];then
+				changeEnv --repo-name ${GROUP_REPO_NAME} --repo-dist ${GROUP_REPO_DIST} --repo-section ${GROUP_REPO_SECTION} --repo-env ${PLAN_REPO_ENV} --repo-new-env ${PLAN_REPO_NEXTENV}
+			fi
+		fi
+	done
+fi
+}
+
+
+# Envoi des rappels de planifications X jours avant (défini lorsqu'on ajoute une planification)
+sendReminders() {
+MSG_REMINDER=""
+# Récupération de la liste de toutes les planifications dans le fichier de conf ([Plan-1], [Plan-2], ...)
+LISTE_DE_PLANIFICATIONS=$(grep "\[Plan-.*\]" "$PLAN_CONF")
+
+for PLANIFICATION in $(echo "$LISTE_DE_PLANIFICATIONS"); do
+    # On supprime les crochets [ ] du nom car on va devoir les échapper
+    PLANIFICATION=$(echo "$PLANIFICATION" | sed 's/\[//g' | sed 's/\]//g')
+    # Récupération de toute la conf de la planification qu'on traite
+    PLAN_DATE=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Date=" | cut -d'=' -f2 | sed 's/"//g')
+	PLAN_TIME=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Time=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_ACTION=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Action=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_NAME=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Repo=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_DIST=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Dist=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REPO_SECTION=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Section=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GROUP=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Group=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GPG_CHECK=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^GpgCheck=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_GPG_RESIGN=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^GpgResign=" | cut -d'=' -f2 | sed 's/"//g')
+    PLAN_REMINDERS=$(sed -n "/\[${PLANIFICATION}\]/,/\[/p" "$PLAN_CONF" | grep "^Reminder=" | cut -d'=' -f2 | sed 's/"//g')
+
+	# Pré-vérifications
+	checkAction; 			if [ $? -ne "0" ];then clean_exit;fi
+	checkIfRepoOrGroup; 	if [ $? -ne "0" ];then clean_exit;fi
+
+    # Traitement des rappels
+    # Envoi des mails de rappels si nécessaire. Les rappels sont définis en nombre de jours à l'avance (ex 7days = rappel 7 jours à l'avance) et sont séparés par des virgules. 
+	# Du coup on défini le séparateur de champ IFS comme étant une virgule. Mais d'abord on sauvegarde le séparateur par défaut dans $old_IFS :
+    old_IFS=$IFS
+	IFS=,
+	for REMINDER in $PLAN_REMINDERS;do
+		# On formatte le rappel car celui-ci contient une chaine non désirée 'day' car un rappel est toujours noté sous la forme : 1day,2days,etc
+		#REMINDER=$(echo ${REMINDER} | sed 's/day*//g')
+        # Si la date d'aujourd'hui correspond à une des dates de rappel définie (par ex nous sommes 7j avant le traitement et il y a justement une demande de rappel 7j avant), alors on récupère les repos concernés et on forge le message de rappel avec l'action associée (update ou changement d'env)
+		if [ $(date -d "$PLAN_DATE today - $REMINDER" +"%Y-%m-%d") == "$DATE_AMJ" ];then
+			# TEST OK :
+			# Cas où la planif à rappeler ne concerne qu'un seul repo/section
+			if [ ! -z "$PLAN_REPO_NAME" ];then
+				# Cas où l'action prévue est une mise à jour
+				if [ "$PLAN_ACTION" == "update" ];then
+					if [ "$OS_TYPE" == "Redhat" ];then
+						MSG_REMINDER="${MSG_REMINDER}\nMise à jour du repo ${PLAN_REPO_NAME} (environnement ${DEFAULT_ENV}) prévue le ${PLAN_DATE} à ${PLAN_TIME}"
+					fi
+					if [ "$OS_TYPE" == "Debian" ];then
+						MSG_REMINDER="${MSG_REMINDER}\nMise à jour de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST}) (environnement ${DEFAULT_ENV}) prévue le ${PLAN_DATE} à ${PLAN_TIME}"
+					fi
+				fi
+				# Cas où l'action prévue est un changement d'env
+				if [[ "$PLAN_ACTION" =~ "->" ]];then
+					PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+					PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+					if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
+						MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nPlan erreur 11 : environnements non définis"
+						continue
+					fi
+
+					if [ "$OS_TYPE" == "Redhat" ];then
+						MSG_REMINDER="${MSG_REMINDER}\nChangement d'environnement (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${PLAN_REPO_NAME} prévu le ${PLAN_DATE} à ${PLAN_TIME}"
+					fi
+					if [ "$OS_TYPE" == "Debian" ];then
+						MSG_REMINDER="${MSG_REMINDER}\nChangement d'environnement (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${PLAN_REPO_SECTION} du repo ${PLAN_REPO_NAME} (distribution ${PLAN_REPO_DIST}) prévu le ${PLAN_DATE} à ${PLAN_TIME}"
+					fi
+				fi
+			fi
+
+			# TEST OK : 
+			# Cas où la planif à rappeler concerne un groupe de repo
+			if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
+				# Pour récupérer correctement chaque ligne du groupe $PLAN_GROUP On redéfini le séparateur par le séparateur par défaut et non plus par une virgule
+				# On redéfinera la virgule après la fin de la boucle for
+				IFS=$old_IFS
+				for LINE in $(echo "$PLAN_GROUP_LIST");do
+					# Pour chaque ligne on récupère les infos du repo/section
+					if [ "$OS_TYPE" == "Redhat" ];then 
+						GROUP_REPO_NAME=$(echo $LINE | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+						GROUP_REPO_REALNAME=$(grep "^Name=\"${GROUP_REPO_NAME}\"" $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+					fi
+
+					if [ "$OS_TYPE" == "Debian" ];then
+						GROUP_REPO_NAME=$(echo $LINE | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+						GROUP_REPO_DIST=$(echo $LINE | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g')
+						GROUP_REPO_SECTION=$(echo $LINE | awk -F ',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g')
+					fi
+
+					# Cas où l'action prévue est une mise à jour
+					if [ "$PLAN_ACTION" == "update" ];then
+						if [ "$OS_TYPE" == "Redhat" ];then
+							MSG_REMINDER="${MSG_REMINDER}\nMise à jour du repo ${GROUP_REPO_NAME} (environnement ${DEFAULT_ENV}) prévue le ${PLAN_DATE} à ${PLAN_TIME}"
+						fi
+						if [ "$OS_TYPE" == "Debian" ];then
+							MSG_REMINDER="${MSG_REMINDER}\nMise à jour de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST}) (environnement ${DEFAULT_ENV}) prévue le ${PLAN_DATE} à ${PLAN_TIME}"
+						fi
+					fi
+
+					# Cas où l'action prévue est un changement d'env
+					if [[ "$PLAN_ACTION" =~ "->" ]];then
+						PLAN_REPO_ENV=$(echo $PLAN_ACTION | awk -F '->' '{print $1}')
+						PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
+						if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
+							MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nPlan erreur 11 : environnements non définis"
+							continue
+						fi
+						if [ "$OS_TYPE" == "Redhat" ];then
+							MSG_REMINDER="${MSG_REMINDER}\nChangement d'environnement (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) du repo ${GROUP_REPO_NAME} prévu le ${PLAN_DATE} à ${PLAN_TIME}"
+						fi
+						if [ "$OS_TYPE" == "Debian" ];then
+							MSG_REMINDER="${MSG_REMINDER}\nChangement d'environnement (${PLAN_REPO_ENV} -> ${PLAN_REPO_NEXTENV}) de la section ${GROUP_REPO_SECTION} du repo ${GROUP_REPO_NAME} (distribution ${GROUP_REPO_DIST}) prévu le ${PLAN_DATE} à ${PLAN_TIME}"
+						fi
+					fi
+				done
+				# On rétabli le séparateur comme étant une virgule pour pouvoir continuer à traiter les rappels suivants (séparés par une virgule)
+				IFS=, 
+			fi
+		fi		
+	done
+	IFS=$old_IFS
+done
+}
+
+
+# Suppression de la tâche planifiée si celle ci s'est bien exécutée, si ce n'est pas le cas alors on l'ajoute dans le fichier de log d'erreurs
+#if [ $? -ne "0" ];then
+#	echo "[Plan-${PLAN_ID}]:ERROR" >> $PLAN_LOG
+#else
+#	echo "[Plan-${PLAN_ID}]:OK" >> $PLAN_LOG
+#fi
