@@ -274,7 +274,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
         </table>
         </form>
         <hr>
-        <form action="planifications.php" method="post">
+        <form action="planifications.php" method="post" autocomplete="off">
         <input type="hidden" name="addPlanId" value="<?php if (empty($planId)) { echo "1"; /* initialise la numéro de planification à 1 si il n'y en a pas */ } else { echo $planId; }?>" />
         <table class="table-large">
             <tr>
@@ -283,16 +283,16 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             <?php
             echo "<tr>";
             echo "<td class=\"td-auto\">Date</td>";
-            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"date\" name=\"addPlanDate\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"date\" name=\"addPlanDate\" /></td>";
             echo "</tr>";
             echo "<tr>";
             echo "<td class=\"td-auto\">Heure</td>";
-            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"time\" name=\"addPlanTime\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"time\" name=\"addPlanTime\" /></td>";
             echo "</tr>";
             echo "<tr>";
             echo "<td class=\"td-auto\">Action</td>";
             echo "<td class=\"td-auto\" colspan=\"100%\">";
-            echo "<select name=\"addPlanAction\" id=\"planSelect\">";   //toto
+            echo "<select name=\"addPlanAction\" id=\"planSelect\">"; //toto
             foreach ($ENVS as $env) {
               // on récupère l'env qui suit l'env actuel :
               $nextEnv = exec("grep -A1 '$env' $ENV_CONF | grep -v '$env'");
@@ -306,21 +306,21 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "</tr>";
             echo "<tr>";
             echo "<td class=\"td-auto\">Repo</td>";
-            echo "<td class=\"td-auto\"><input type=\"text\" id=\"inputRepo\" name=\"addPlanRepo\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\"><input type=\"text\" id=\"inputRepo\" name=\"addPlanRepo\" /></td>";
             echo "<td class=\"td-auto\">ou Groupe</td>";
-            echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanGroup\" autocomplete=\"off\" placeholder=\"@\" /></td>";
+            echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanGroup\" placeholder=\"@\" /></td>";
             echo "</tr>";
             if ($OS_TYPE == "deb") { 
-              echo "<tr class=\"tr-hide\" id=\"hiddenDebInput\">";
+              echo "<tr class=\"hiddenDebInput\" class=\"tr-hide\">";
               echo "<td class=\"td-auto\">Dist</td>";
-              echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanDist\" autocomplete=\"off\" /></td>";
+              echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanDist\" /></td>";
               echo "</tr>";
-              echo "<tr class=\"tr-hide\">";
+              echo "<tr class=\"hiddenDebInput\" class=\"tr-hide\">";
               echo "<td class=\"td-auto\">Section</td>";
-              echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanSection\" autocomplete=\"off\" /></td>";
+              echo "<td class=\"td-auto\"><input type=\"text\" name=\"addPlanSection\" /></td>";
               echo "</tr>";
             }
-            echo "<tr class=\"tr-hide\">";
+            echo "<tr class=\"hiddenGpgInput\" class=\"tr-hide\">";
             echo "<td>GPG check</td>";
             echo "<td colspan=\"2\">";
             echo "<input type=\"radio\" id=\"addPlanGpgCheck_yes\" name=\"addPlanGpgCheck\" value=\"yes\" checked=\"yes\">";
@@ -330,7 +330,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo "</td>";
             echo "</tr>";
             if ($OS_TYPE == "rpm") { // si rpm, alors on propose de resigner les paquets ou non
-              echo "<tr class=\"tr-hide\">";
+              echo "<tr class=\"hiddenGpgInput\" class=\"tr-hide\">";
               echo "<td>Re-signer avec GPG</td>";
               echo "<td colspan=\"2\">";
               if ( $GPG_SIGN_PACKAGES == "yes" ) {
@@ -349,7 +349,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             }
             echo "<tr>";
             echo "<td class=\"td-auto\">Rappels</td>";
-            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"text\" name=\"addPlanReminder\" autocomplete=\"off\" /></td>";
+            echo "<td class=\"td-auto\" colspan=\"100%\"><input type=\"text\" name=\"addPlanReminder\" /></td>";
             echo "</tr>";?>
             <tr>
                 <td colspan="100%"><button type="submit" class="button-submit-large-blue">Ajouter</button></td>
@@ -359,7 +359,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
       </section>
     </section>
  
-  
+
 <!-- divs cachées de base -->
 <!-- GERER LES GROUPES -->
 <?php include('common-groupslist.inc.php'); ?>
@@ -372,28 +372,27 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 
 <script>
 // Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
-// Bind keyup event on the input
-$('#inputRepo').keyup(function() {
-  
-  // If value is not empty
-  if ($(this).val().length == 0) {
-    // Hide the element
-    $('#hiddenDebInput').hide();
-  } else {
-    // Otherwise show it
-    $('#hiddenDebInput').show();
-  }
-}).keyup(); // Trigger the keyup event, thus running the handler on page load
+  // Bind keyup event on the input
+  $('#inputRepo').keyup(function() {
+    // If value is not empty
+    if ($(this).val().length == 0) {
+      // Hide the element
+      $('.hiddenDebInput').hide();
+    } else {
+      // Otherwise show it
+      $('.hiddenDebInput').show();
+    }
+  }).keyup(); // Trigger the keyup event, thus running the handler on page load
 
 // Afficher des boutons radio si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
-$(function() {
-  $("#planSelect").change(function() {
-    if ($("#updateRepoSelect").is(":selected")) {
-      $(".tr-hide").show();
-    } else {
-      $(".tr-hide").hide();
-    }
-  }).trigger('change');
-});
+  $(function() {
+    $("#planSelect").change(function() {
+      if ($("#updateRepoSelect").is(":selected")) {
+        $(".hiddenGpgInput").show();
+      } else {
+        $(".hiddenGpgInput").hide();
+      }
+    }).trigger('change');
+  });
 </script>
 </html>

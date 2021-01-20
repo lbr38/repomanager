@@ -39,18 +39,20 @@
         $totalRepos = exec("grep  '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
         $totalReposArchived = exec("grep  '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
     ?>
-        <table>
-            <tr>
-                <td>Total repos</td>
-                <td><?php echo "<b>${totalRepos}</b>"; ?></td>
-            </tr>
-            <tr>
-                <td>Total repos archivés</td>
-                <td><?php echo "<b>${totalReposArchived}</b>"; ?></td>
-            </tr>
-        </table>
-        <p>Espace disque</p>
-        <div class="serverInfoDiskSpace">
+        <div class="serverInfo">
+            <?php if ($OS_TYPE == "rpm") { echo '<p>Repos</p>'; }
+                  if ($OS_TYPE == "deb") { echo '<p>Sections</p>'; }
+            ?>
+            <?php echo "<b>${totalRepos}</b>"; ?>
+        </div>
+        <div class="serverInfo">
+            <?php if ($OS_TYPE == "rpm") { echo '<p>Repos archivés</p>'; }
+                  if ($OS_TYPE == "deb") { echo '<p>Sections archivées</p>'; }
+            ?>
+            <?php echo "<b>${totalReposArchived}</b>"; ?>
+        </div>
+
+        <div class="serverInfo">
             <!-- graphique affichant l'espace utilisé sur le serveur (racine) -->
             <p>/</p>
             <?php
@@ -132,7 +134,7 @@
             </script>
         </div>
 
-        <div class="serverInfoDiskSpace">
+        <div class="serverInfo">
             <!-- graphique affichant l'espace utilisé par le répertoire des repos -->
             <p><?php echo "${REPOS_DIR}";?></p>
             <?php
@@ -218,6 +220,22 @@
             });
             </script>
         </div>
+
+        <br><br>
+
+        <table class="table-large">
+            <?php if ($AUTOMATISATION_ENABLED == "yes") {
+                echo '<tr>';
+                echo '<td>Dernières planifications</td>';
+                echo '</tr>';
+                echo '<tr>';
+                if (!file_exists("$PLAN_LOG")) {
+                    echo '<td>Aucune planification n\'a encore été exécutée</td>';
+                }
+                echo '</tr>';
+            }
+            ?>
+        </table>
     </section>
 </section>
 

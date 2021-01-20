@@ -913,23 +913,21 @@ img.cronStatus {
     margin: 10;
 }
 
-.serverInfoDiskSpace, .serverInfoRepo {
-    width: auto;
+.serverInfo { /* on écrase les valeurs ci-dessus */
+    width: 80px;
+    height: 110px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#252525;
     border-radius: 6px;
     padding-left: 5px;
+    padding-top: 5px;
     padding-bottom: 5px;
     display: inline-block;
     margin: 1px;
     text-align: center;
-}
-
-.serverInfoRepo {
-    width: 100%;
-    text-align: left;
+    vertical-align: top;
 }
 
 #newRepoCloseButton, #GroupsListSlideDownButton, #ReposSourcesSlideDownButton { /* Boutons 'croix' permettant de fermer la div coulissante */
