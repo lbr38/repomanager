@@ -8,7 +8,7 @@ CHECK_VERSION_ERROR=0
 GENERATE_REPO_CONF_FILES=0
 
 # Création du répertoire de logs si n'existe pas
-if [ ! -d "$CRON_LOG_DIR" ];then mkdir -p "$CRON_LOG_DIR";fi
+if [ ! -d "$CRON_LOGS_DIR" ];then mkdir -p "$CRON_LOGS_DIR";fi
 
 # Vidage du fichier de log
 if [ -f "$CRON_LOG" ];then echo -n> "$CRON_LOG";fi
@@ -26,7 +26,7 @@ fi
 # Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
 if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_CONF_FILES_DIR" ];then
     # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
-    if [ "$OS_TYPE" == "Redhat" ];then
+    if [ "$OS_FAMILY" == "Redhat" ];then
         while IFS=, read REPO_NAME REPO_REALNAME REPO_ENV REPO_DATE REPO_DESCRIPTION;do
             REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 
@@ -38,7 +38,7 @@ if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_CONF_FILES_DIR" ];then
         done < $REPOS_LIST
     fi
 
-    if [ "$OS_TYPE" == "Debian" ];then
+    if [ "$OS_FAMILY" == "Debian" ];then
         while IFS=, read REPO_NAME REPO_HOSTNAME REPO_DIST REPO_SECTION REPO_ENV REPO_DATE REPO_DESCRIPTION;do
             REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
             REPO_DIST=$(echo "$REPO_DIST" | cut -d'=' -f2 | sed 's/"//g')

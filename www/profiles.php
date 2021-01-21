@@ -38,11 +38,11 @@
   if (isset($_POST['profileName']) AND !empty($_POST['addProfileRepo'])) {
     $profileName = validateData($_POST['profileName']);
     $addProfileRepo = validateData($_POST['addProfileRepo']);
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
       $addProfileRepoDist = validateData($_POST['addProfileRepoDist']);
       $addProfileRepoSection = validateData($_POST['addProfileRepoSection']);
       exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
-    } elseif ($OS_TYPE == "rpm") {
+    } elseif ($OS_FAMILY == "Redhat") {
       exec("cd ${PROFILS_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}.repo");
     }
   }
@@ -51,11 +51,11 @@
   if (isset($_GET['action']) AND ($_GET['action'] == "deleteProfileRepo") AND isset($_GET['profileName']) AND isset($_GET['repoName'])) {
     $profileName = validateData($_GET['profileName']);
     $repoName = validateData($_GET['repoName']);
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
       $repoDist = validateData($_GET['repoDist']);
       $repoSection =  validateData($_GET['repoSection']);
       exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list");
-    } elseif ($OS_TYPE == "rpm") {
+    } elseif ($OS_FAMILY == "Redhat") {
       exec("unlink ${PROFILS_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}.repo");
     }
   }
@@ -128,12 +128,12 @@
                 
             foreach($repoConfFiles as $repoFile) { // Pour chaque répertoire de profil sur le serveur, on récupère les noms de fichier de conf (.repo ou .list selon l'OS)
               if (($repoFile != "..") AND ($repoFile != ".") AND ($repoFile != "config")){ // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
-                if ($OS_TYPE == "rpm") {
+                if ($OS_FAMILY == "Redhat") {
                   $repoFile = str_replace(".repo", "","$repoFile"); // remplace ".repo" par rien dans le nom du fichier, afin d'afficher seulement le nom du repo (ce qui nous interesse) et pas le nom complet du fichier
                   $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
                   $repoName = $repoFile;
                 }
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                   $repoFile = str_replace(".list", "","$repoFile"); // retire le suffixe ".list" afin de n'obtenir que le nom du repo, sa distribution et sa section
                   $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
                   $repoFile = preg_split("/_/", "$repoFile");
@@ -143,11 +143,11 @@
                 }
                 echo '<tr>';
                 
-                if ($OS_TYPE == "rpm") {
+                if ($OS_FAMILY == "Redhat") {
                   echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
                   echo "<td>${repoName}</td>";
                 }
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                   echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
                   echo "<td>${repoName}</td>";
                   echo "<td>${repoDist}</td>";
@@ -167,12 +167,12 @@
 
             echo '<tr>';
             echo '<td></td>';
-            if ($OS_TYPE == "rpm") { 
+            if ($OS_FAMILY == "Redhat") { 
               echo '<td><input type="text" name="addProfileRepo" class="input-small" placeholder="Nom du repo" /></td>';
               echo '<td><button type="submit" class="button-submit-xsmall-blue">Ajouter</button></td>';
             }
 
-            if ($OS_TYPE == "deb") { 
+            if ($OS_FAMILY == "Debian") { 
               echo '<td><input type="text" name="addProfileRepo" class="input-small" placeholder="Nom du repo" /></td>';
               echo '<td><input type="text" name="addProfileRepoDist" class="input-small" placeholder="Distribution" /></td>';
               echo '<td><input type="text" name="addProfileRepoSection" class="input-small" placeholder="Section" /></td>';

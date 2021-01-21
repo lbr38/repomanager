@@ -3,12 +3,12 @@
 <a href="#" id="ReposSourcesSlideDownButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
 
   <?php 
-    if ($OS_TYPE == "rpm") { echo "<h5>REPOS SOURCES</h5>"; }
-    if ($OS_TYPE == "deb") { echo "<h5>HOTES D'ORIGINES</h5>"; }
+    if ($OS_FAMILY == "Redhat") { echo "<h5>REPOS SOURCES</h5>"; }
+    if ($OS_FAMILY == "Debian") { echo "<h5>HOTES D'ORIGINES</h5>"; }
   ?>
   <div class="div-half-left">
   <?php
-  if ($OS_TYPE == "rpm") {
+  if ($OS_FAMILY == "Redhat") {
     echo "<p>Pour créer un miroir, repomanager doit connaitre l'URL de l'hôte à aspirer.<br>Renseigner ici l'URL en lui donnant un nom unique. Ce nom correspondra au \"Nom du repo\" dans les opérations.</p>";
     $reposFiles = scandir($REPOMANAGER_YUM_DIR);
     $i=0;
@@ -97,7 +97,7 @@
     echo "</form>";
   }
 
-  if ($OS_TYPE == "deb") {
+  if ($OS_FAMILY == "Debian") {
     echo "<p>Pour créer un miroir, debmirror a besoin de connaitre l'URL de l'hôte à aspirer. Renseignez l'URL ici en lui donnant un nom unique. <br>Ce nom correspondra au \"Nom du repo\" dans les opérations.</p>";
     echo "<table class=\"table-auto\">";
     echo "<thead>";
@@ -154,7 +154,7 @@
     <p>Liste des clés GPG du trousseau de repomanager</p>
     <table class="table-auto">
     <?php
-      if ($OS_TYPE == "rpm") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
+      if ($OS_FAMILY == "Redhat") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
         $gpgFiles = scandir($RPM_GPG_DIR);
         foreach($gpgFiles as $gpgFile) {
           if (($gpgFile != "..") AND ($gpgFile != ".")) {
@@ -172,7 +172,7 @@
         }
       }
 
-      if ($OS_TYPE == "deb") {
+      if ($OS_FAMILY == "Debian") {
         $gpgKeysList = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g'");
         $gpgKeysList = explode(PHP_EOL.PHP_EOL, $gpgKeysList);
         foreach ($gpgKeysList as $gpgKey) {

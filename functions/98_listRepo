@@ -7,7 +7,7 @@ sortLists
 
 ### Redhat / RPM ###
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	TAILLE_COLONNES="%-40s %-8s %-14s %-10s %s\n"	# défini la taille de chaque colonnes qui seront affichées par printf plus bas, ex : %-40s : affichage d'une chaine (s) de 40 caractères alignée à gauche (-). Pour la colonne Description (la dernière), on ne défini pas de limite de taille car il peut s'agir d'une chaine relativement longue (%s)
 	i=0;var_list_repo="";	# Initialisation de variables utilisées pour l'alternance des couleurs dans le tableau qui liste les repos
 
@@ -28,7 +28,7 @@ fi
 
 ### Debian / DEB ###
 
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 	TAILLE_COLONNES="%-30s %-20s %-25s %-10s %-15s %-10s %-s\n"
 
 	i=0;var_list_repo="";	# Initialisation de variable utilisées pour l'alternance des couleurs dans le tableau

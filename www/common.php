@@ -104,7 +104,7 @@ if (!empty($_POST['addGroupName'])) {
 
 // Cas où on souhaite ajouter un repo à un groupe (cette partie doit être placée avant le "Cas où on souhaite renommer un groupe") :
 // Cas Redhat :
-if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
+if ($OS_FAMILY == "Redhat" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
   $actualGroupName = validateData($_POST['actualGroupName']);
   $groupAddRepoName = validateData($_POST['groupAddRepoName']);
 
@@ -124,7 +124,7 @@ if ($OS_TYPE == "rpm" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
 }
 
 // Cas Debian :
-if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName']) AND !empty($_POST['groupAddRepoDist']) AND !empty($_POST['groupAddRepoSection'])) {
+if ($OS_FAMILY == "Debian" AND !empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName']) AND !empty($_POST['groupAddRepoDist']) AND !empty($_POST['groupAddRepoSection'])) {
   $actualGroupName = validateData($_POST['actualGroupName']);
   $groupAddRepoName = validateData($_POST['groupAddRepoName']);
   $groupAddRepoDist = validateData($_POST['groupAddRepoDist']);
@@ -148,7 +148,7 @@ if ($OS_TYPE == "deb" AND !empty($_POST['actualGroupName']) AND !empty($_POST['g
 
 // Cas où on souhaite supprimer un repo d'un groupe :
 // Cas Redhat :
-if ($OS_TYPE == "rpm" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo") AND !empty($_GET['groupName']) AND !empty($_GET['repoName'])) {
+if ($OS_FAMILY == "Redhat" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo") AND !empty($_GET['groupName']) AND !empty($_GET['repoName'])) {
   $groupName = validateData($_GET['groupName']);
   $groupDelRepoName = validateData($_GET['repoName']);
 
@@ -160,7 +160,7 @@ if ($OS_TYPE == "rpm" AND isset($_GET['action']) AND ($_GET['action'] == "delete
 }
 
 // Cas Debian :
-if ($OS_TYPE == "deb" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND !empty($_GET['repoDist']) AND !empty($_GET['repoSection']))) {
+if ($OS_FAMILY == "Debian" AND isset($_GET['action']) AND ($_GET['action'] == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND !empty($_GET['repoDist']) AND !empty($_GET['repoSection']))) {
   $groupName = validateData($_GET['groupName']);
   $groupDelRepoName = validateData($_GET['repoName']);
   $groupDelRepoDist = validateData($_GET['repoDist']);
@@ -203,7 +203,7 @@ if (isset($_GET['action']) AND ($_GET['action'] == "deleteGroup") AND !empty($_G
 //// REPOS SOURCES ////
 
 // Redhat : on a la possibilité d'ajouter de nouveaux fichiers .repo depuis l'accueil
-if ($OS_TYPE == "rpm") {
+if ($OS_FAMILY == "Redhat") {
   // Cas où on souhaite ajouter un nouveau fichier de conf :
   if (!empty($_POST['newRepoName']) AND !(empty($_POST['newRepoBaseUrl']) AND empty($_POST['newRepoMirrorList']))) {
     $error=0; // un peu de gestion d'erreur
@@ -289,7 +289,7 @@ if ($OS_TYPE == "rpm") {
 
 
 // Debian : on a la possibilité d'ajouter de nouvelles url hotes depuis l'accueil
-if ($OS_TYPE == "deb") {
+if ($OS_FAMILY == "Debian") {
    // Cas où on souhaite ajouter une nouvelle url hôte :
   if (!empty($_POST['newHostName']) AND !empty($_POST['newHostUrl'])) {
     $newHostName = $_POST['newHostName'];

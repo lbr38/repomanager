@@ -24,7 +24,7 @@ done
 
 VAR_MISSING=0
 
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
     if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ] || [ -z "${WWW_HOSTNAME}" ];then
         (( $VAR_MISSING++ ))
     fi
@@ -34,7 +34,7 @@ if [ "$OS_TYPE" == "Debian" ];then
     fi
 fi
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
     if [ -z "$REPO_NAME" ] || [ -z "${WWW_HOSTNAME}" ];then
         (( $VAR_MISSING++ ))
     fi

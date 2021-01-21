@@ -37,8 +37,8 @@ if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si l
 # Si le repo n'était pas présent dans repos.list
 if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${REPO_ENV}\"" $REPOS_LIST;then  # On vérifie que le repo 'base' (exemple) est bien présent dans le fichier repos.list, si oui on va pouvoir le passer en prod
 	(( ERROR++ ))
-	echo -e "[${ROUGE} ERREUR ${RESET}] Erreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} en ${REPO_ENV} sur ce serveur..."
-	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} en ${REPO_ENV} sur ce serveur..."
+	echo -e "[${ROUGE} ERREUR ${RESET}] Il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} en ${REPO_ENV} sur ce serveur..."
+	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur : Il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} en ${REPO_ENV} sur ce serveur..."
 fi
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment

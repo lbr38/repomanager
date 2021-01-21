@@ -40,8 +40,8 @@ ERROR="0"
 # Si la section est présente dans le fichier repos.list, alors on peut commencer l'opération
 if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\"" $REPOS_LIST;then
 	(( ERROR++ ))
-	echo -e "\n[${ROUGE} ERREUR ${RESET}] de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur."
-	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur de syntaxe ou il n'existe aucune section ${REPO_SECTION} du repo ${REPO_NAME} (distribution : ${REPO_DIST}) sur ce serveur"
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur."
+	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur : Il n'existe aucune section ${REPO_SECTION} du repo ${REPO_NAME} (distribution : ${REPO_DIST}) sur ce serveur"
 fi
 
 # Si la section existe déjà à la date du jour alors on annule l'opération

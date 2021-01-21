@@ -41,12 +41,6 @@ if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAUL
 	clean_exit
 fi
 
-# Si on ne connait pas la version de l'OS, on ne peut pas continuer
-if [ -z "$OS_VERSION" ];then
-	echo -e "[${ROUGE} ERREUR ${RESET}] La version d'OS n'est pas connue (vide)"
-	clean_exit
-fi
-
 ####
 
 echo -e "\nDébut de l'opération"

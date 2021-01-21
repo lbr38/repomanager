@@ -22,7 +22,15 @@ else
 	exit
 fi
 
-if [ -z "$OS_TYPE" ];then echo -e "[$JAUNE ERREUR ${RESET}] L'OS de cette machine n'a pas été reconnu (Debian, Redhat...)";clean_exit;fi
+# Si on ne connait pas l'OS ni sa version, on quitte
+if [ -z "$OS_FAMILY" ];then
+	echo -e "[$JAUNE ERREUR ${RESET}] L'OS de cette machine n'a pas été reconnu (Debian, Redhat...)"
+	exit
+fi
+if [ -z "$OS_VERSION" ];then
+	echo -e "[${ROUGE} ERREUR ${RESET}] La version d'OS n'est pas connue (vide)"
+	exit
+fi
 
 
 ## ↓ FONCTIONS ↓ ##
@@ -30,16 +38,13 @@ if [ -z "$OS_TYPE" ];then echo -e "[$JAUNE ERREUR ${RESET}] L'OS de cette machin
 print_help() { 
 SEP
 echo -e "\n
-Paramètres disponibles :
-    --repo          ➤  Afficher la liste des repos actuellement installés en prod et en test,
-    --oldrepo       ➤  Afficher la liste des repos archivés,
-    
-    --no-gpg-check  ➤  Désactiver la vérification de la signature des paquets lors du clonage d'un repo,
-    --check|-c      ➤  Vérification des fichiers de conf du script,
-
-    Opérations automatiques :   
-    --auto          ➤  Exécute automatiquement les tâches planifiées dans repomanager.conf
-    --suppr-auto    ➤  Supprime automatiquement les anciennes versions de repos archivées, en fonction de la retention renseignée dans repomanager.conf"
+${JAUNE}Toutes les opérations s'effectuent depuis l'interface web.${RESET}
+\n
+Paramètres disponibles en ligne de commande :
+  --repo, --list-repos, -r                  ➤  Afficher la liste des repos actifs
+  --archrepo, --list-archived-repos, -ar    ➤  Afficher la liste des repos archivés
+  --check, -c                               ➤  Vérification des fichiers de conf du script
+\n"
 SEP
 }
 
@@ -105,23 +110,23 @@ echo ""
 }
 
 newRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/01_newRepo-deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/01_newRepo-deb";fi
 }
 
 updateRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/02_updateRepo-rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/02_updateRepo-deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/02_updateRepo-rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/02_updateRepo-deb";fi
 }
 
 duplicateRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/03_duplicateRepo-rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/03_duplicateRepo-deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/03_duplicateRepo-rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/03_duplicateRepo-deb";fi
 }
 
 changeEnv() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/03_changeEnv-rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/03_changeEnv-deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/03_changeEnv-rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/03_changeEnv-deb";fi
 }
 
 # only for Debian
@@ -135,18 +140,18 @@ deleteDist() {
 }
 
 deleteRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/06_deleteRepo_rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/06_deleteRepo_deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/06_deleteRepo_rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/06_deleteRepo_deb";fi
 }
 
 deleteOldRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/07_deleteOldRepo_rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/07_deleteOldRepo_deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/07_deleteOldRepo_rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/07_deleteOldRepo_deb";fi
 }
 
 restoreOldRepo() {
-	if [ "$OS_TYPE" == "Redhat" ];then source "${FUNCTIONS}/08_restoreOldRepo_rpm";fi
-	if [ "$OS_TYPE" == "Debian" ];then source "${FUNCTIONS}/08_restoreOldRepo_deb";fi
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/08_restoreOldRepo_rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/08_restoreOldRepo_deb";fi
 }
 
 generateConf() {
@@ -184,7 +189,11 @@ fi
 }
 
 rappel_mail() {
-echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${HOSTNAME}" $EMAIL_DEST
+# Messages de rappels de planification
+if [ ! -z "$MSG_REMINDER" ];then
+	MSG_REMINDER="${MSG_REMINDER}\nCeci est un rappel automatique des planifications à venir :\n${MSG_REMINDER}\n\nVous pouvez à tout moment annuler une planification depuis l'onglet Planifications"
+	echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+fi
 }
 
 clean_exit() {
@@ -195,12 +204,16 @@ cd "$BASE_DIR"
 if [ "$TTY" -eq "0" ];then
 	# On commence par les messages d'erreur de conf
 	if [ ! -z "$MSG_CHECK_CONF_ERROR" ];then
-		MSG_MAIN="${MSG_MAIN}\n${MSG_CHECK_CONF_ERROR}\n${MSG_MAIN_ERROR}\n"
+		MSG_MAIN="${MSG_MAIN}\nErreur lors de la vérification de la configuration :\n${MSG_CHECK_CONF_ERROR}"
+	fi
+
+	if [ ! -z "$MSG_MAIN_ERROR" ];then
+		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement :\n${MSG_MAIN_ERROR}"
 	fi
 
 	# Messages d'erreur des planifications
 	if [ ! -z "$MSG_PLAN_ERROR" ];then
-		MSG_MAIN="${MSG_MAIN}\nErreur planifications\n${MSG_PLAN_ERROR}"
+		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement de la planification :\n${MSG_PLAN_ERROR}"
 	fi
 
 	# On ajoute aussi les messages de repos supprimés même si ce n'est pas une erreur
@@ -239,8 +252,18 @@ exit
 
 ## TRAITEMENT ##
 
-# Si le paramètre --web a été passé alors on indique au script qu'il n'y a pas de terminal ouvert sur le serveur
-if [ $# -ge 1 ];then if [ "$1" == "--web" ];then TTY="0";fi;fi
+# Pré-lecture des arguments
+if [ $# -ge "1" ];then
+	case "$1" in
+		--cronjob-daily)
+			TTY="0"
+			checkConf
+			getConf
+			cronjob_daily
+			clean_exit
+		;;
+	esac
+fi
 
 # Crée les répertoire de base si n'existent pas
 mkdir -p "${BASE_DIR}"
@@ -250,10 +273,10 @@ mkdir -p "${REPOS_DIR}"
 mkdir -p "${MAIN_LOGS_DIR}/"
 
 # Vidage des fichiers de logs
-echo -n> "$LOG"
-chmod 660 "$LOG"
+	echo -n> "$LOG"
+	chmod 660 "$LOG"
 
-# On écrit tout ce qu'il se passe dans le fichier de log
+# On écrit tout ce qu'il se passe dans le fichier de log principal
 exec &> >(tee -a "$LOG")
 
 # On récupère les infos sur la précédente exécution du script dans le fichier de log précédent
@@ -291,12 +314,12 @@ else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une lig
     echo ""
 fi
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Redhat/CentOS"
 	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
 fi
 
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Debian"
 	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: deb"
 fi
@@ -335,21 +358,25 @@ while [ $# -ge 1 ];do
             print_help
             clean_exit
        	;;
+		--tty)
+			TTY="1"
+		;;
+		--no-tty|--web)
+			TTY="0"
+		;;
 		--repo|--list-repos|-r)
         	listRepo
 	    	clean_exit
     	;;
-		--oldrepo|--list-archived-repos|-ar|-or)
+		--archrepo|--list-archived-repos|-ar)
 			listOldRepo
 			clean_exit
 		;;
 		--check|-c) # Vérifie la conf (checkConf ci-dessus) et quittes le script
 	    	clean_exit
     	;;
-		--web)
+		--planReminders)
 			TTY="0"
-		;;
-		--reminders)
 			planReminders
 			clean_exit
 		;;
@@ -416,16 +443,10 @@ while [ $# -ge 1 ];do
 		;;
 		--droits)
 			permissions
-			clean_exit
 		;;
 		--exec-plan)
 			PLAN_ID="$2"
 			execPlan "$PLAN_ID"
-			clean_exit
-		;;
-		--cronjob-daily)
-			cronjob_daily
-			clean_exit
 		;;
 # anciens paramètres (à vérifier)
         --suppr-auto)

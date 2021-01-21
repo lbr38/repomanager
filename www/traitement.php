@@ -63,7 +63,7 @@ function checkAction_newRepo() {
 // 1ère étape : on vérifie qu'on a bien reçu toutes les variables nécéssaires en POST :
 
     // Pour Debian si repoHostName est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "deb" AND empty($_GET['repoHostName'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoHostName'])) {
         echo "<tr>";
         echo "<td>Nom de l'hôte</td>";
         echo "<td><input type=\"text\" name=\"repoHostName\" autocomplete=\"off\" placeholder=\"Vous devez renseigner un nom d'hôte\"></td>";
@@ -74,7 +74,7 @@ function checkAction_newRepo() {
     }
 
     // Pour Redhat si repoRealname est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "rpm" AND empty($_GET['repoRealname'])) {
+    if ($OS_FAMILY == "Redhat" AND empty($_GET['repoRealname'])) {
         echo "<tr>";
         echo "<td>Nom du repo source</td>";
         echo "<td><input type=\"text\" name=\"repoRealname\" autocomplete=\"off\" placeholder=\"Vous devez renseigner le nom du repo source\"></td>";
@@ -93,7 +93,7 @@ function checkAction_newRepo() {
     echo "<td><input type=\"hidden\" name=\"repoAlias\" value=\"$repoAlias\"></td>";
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
@@ -104,7 +104,7 @@ function checkAction_newRepo() {
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
@@ -135,7 +135,7 @@ function checkAction_newRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoRealname) AND !empty($repoAlias) AND !empty($repoDescription) AND !empty($newRepoGpgCheck) AND !empty($repoGpgResign)) {
             if ($repoAlias === "noalias") {
                 $repoName = $repoRealname;
@@ -210,7 +210,7 @@ function checkAction_newRepo() {
 
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         if (!empty($repoHostName) AND !empty($repoAlias) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDescription) AND !empty($newRepoGpgCheck)) {
             // Si repoAlias a été transmis vide, alors repoName reprend le nom de l'hote et l'alias est set à 'null'
             if ($repoAlias === "noalias") {
@@ -302,7 +302,7 @@ function checkAction_updateRepo() {
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
@@ -313,7 +313,7 @@ function checkAction_updateRepo() {
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
@@ -324,7 +324,7 @@ function checkAction_updateRepo() {
     }
 
     // Si $repoGpgResign est vide, on le demande (rpm seulement)
-    if ($OS_TYPE == "rpm" AND empty($_GET['repoGpgResign'])) {
+    if ($OS_FAMILY == "Redhat" AND empty($_GET['repoGpgResign'])) {
         echo "<tr>";
         echo "<td>Re-signer avec GPG</td>";
         echo "<td>";
@@ -366,7 +366,7 @@ function checkAction_updateRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($updateRepoGpgCheck) AND !empty($repoGpgResign)) {
             // recup du vrai nom du repo :
             $repoRealname = exec("grep '^Name=\"${repoName}\",Realname=\".*\",' $REPOS_LIST | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
@@ -423,7 +423,7 @@ function checkAction_updateRepo() {
     }
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($updateRepoGpgCheck)) {
 
             // on récupère le nom de l'hôte :
@@ -511,7 +511,7 @@ function checkAction_changeEnv() {
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
@@ -522,7 +522,7 @@ function checkAction_changeEnv() {
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
@@ -566,7 +566,7 @@ function checkAction_changeEnv() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($repoEnv) AND !empty($repoNewEnv) AND !empty($repoDescription)) {
  
             // Ok on a toutes les infos mais pour changer l'env d'un repo, il faut vérifier qu'il existe
@@ -626,7 +626,7 @@ function checkAction_changeEnv() {
 
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoEnv) AND !empty($repoNewEnv) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais pour changer l'env d'un repo (section en réalité), il faut vérifier qu'il existe
@@ -712,7 +712,7 @@ function checkAction_duplicateRepo() {
     }
 
     // Si repoDist est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une distribution\"></td>";
@@ -723,7 +723,7 @@ function checkAction_duplicateRepo() {
     }
 
     // Si repoSection est vide, on affiche un formulaire pour le demander (Debian uniquement) :
-    if ($OS_TYPE == "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY == "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner une section\"></td>";
@@ -767,7 +767,7 @@ function checkAction_duplicateRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($repoEnv) AND !empty($repoNewName) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà
@@ -813,7 +813,7 @@ function checkAction_duplicateRepo() {
 
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoEnv) AND !empty($repoNewName) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier qu'un repo du même nom n'existe pas déjà
@@ -1085,7 +1085,7 @@ function checkAction_deleteRepo() {
     }
 
     // Pour Rehdat seulement : si repoEnv est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE == "rpm" AND empty($_GET['repoEnv'])) {
+    if ($OS_FAMILY == "Redhat" AND empty($_GET['repoEnv'])) {
         echo "<tr>";
         echo "<td>Env du repo</td>";
         echo "<td><input type=\"text\" name=\"repoEnv\" autocomplete=\"off\" placeholder=\"Vous devez renseigner l'env du repo\"></td>";
@@ -1099,7 +1099,7 @@ function checkAction_deleteRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($repoEnv)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo mentionné existe :
@@ -1143,7 +1143,7 @@ function checkAction_deleteRepo() {
 
     
     // Cas Debian :
-    if ($OS_TYPE == "deb") {    
+    if ($OS_FAMILY == "Debian") {    
         if (!empty($repoName)) {
             // Ok on a toutes les infos mais il faut vérifier que le repo mentionné existe :
             $checkifRepoExist = exec("grep '^Name=\"${repoName}\"' $REPOS_LIST");
@@ -1231,7 +1231,7 @@ function checkAction_deleteOldRepo() {
     }
 
     // Debian seulement si repoDist est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY = "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la distribution\"></td>";
@@ -1242,7 +1242,7 @@ function checkAction_deleteOldRepo() {
     }
 
     // Debian seulement si repoSection est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY = "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la section\"></td>";
@@ -1267,7 +1267,7 @@ function checkAction_deleteOldRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($repoDate)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo archivé mentionné existe :
@@ -1311,7 +1311,7 @@ function checkAction_deleteOldRepo() {
 
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {    
+    if ($OS_FAMILY == "Debian") {    
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate)) {
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :
             $checkifRepoExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_ARCHIVE_LIST");
@@ -1383,7 +1383,7 @@ function checkAction_restoreOldRepo() {
     }
 
     // Debian seulement si repoDist est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_GET['repoDist'])) {
+    if ($OS_FAMILY = "Debian" AND empty($_GET['repoDist'])) {
         echo "<tr>";
         echo "<td>Distribution</td>";
         echo "<td><input type=\"text\" name=\"repoDist\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la distribution\"></td>";
@@ -1394,7 +1394,7 @@ function checkAction_restoreOldRepo() {
     }
 
     // Debian seulement si repoSection est vide, on affiche un formulaire pour le demander 
-    if ($OS_TYPE = "deb" AND empty($_GET['repoSection'])) {
+    if ($OS_FAMILY = "Debian" AND empty($_GET['repoSection'])) {
         echo "<tr>";
         echo "<td>Section</td>";
         echo "<td><input type=\"text\" name=\"repoSection\" autocomplete=\"off\" placeholder=\"Vous devez renseigner la section\"></td>";
@@ -1438,7 +1438,7 @@ function checkAction_restoreOldRepo() {
 // 2ème étape, si on a toutes les variables, on demande une confirmation puis si on a la confirmation alors on lance l'exécution
 
     // Cas Redhat :
-    if ($OS_TYPE == "rpm") {
+    if ($OS_FAMILY == "Redhat") {
         if (!empty($repoName) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que le repo archivé mentionné existe :
@@ -1502,7 +1502,7 @@ function checkAction_restoreOldRepo() {
 
 
     // Cas Debian :
-    if ($OS_TYPE == "deb") {    
+    if ($OS_FAMILY == "Debian") {    
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoDate) AND !empty($repoDescription)) {
 
             // Ok on a toutes les infos mais il faut vérifier que la section archivée mentionnée existe :

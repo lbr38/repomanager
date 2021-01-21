@@ -67,6 +67,7 @@ server {
 
 
 	location ~ [^/]\.php(/|$) {
+			root WWW_DIR; # default is /var/www/repomanager
 	        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
 	        if (!-f $document_root$fastcgi_script_name) {
 	                return 404;

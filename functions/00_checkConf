@@ -15,7 +15,7 @@ if [ ! -f "$ENV_CONF" ];then touch "$ENV_CONF";fi
 # Si les fichiers de listes repos n'existent pas on les crée
 if [ ! -f "$REPOS_LIST" ];then touch "$REPOS_LIST";fi
 if [ ! -f "$REPOS_ARCHIVE_LIST" ];then touch "$REPOS_ARCHIVE_LIST";fi
-if [ ! -f "$HOSTS_CONF" ] && [ "$OS_TYPE" == "Debian" ];then touch "$HOSTS_CONF";fi
+if [ ! -f "$HOSTS_CONF" ] && [ "$OS_FAMILY" == "Debian" ];then touch "$HOSTS_CONF";fi
 
 # Création du répertoire contenant les fichiers de conf repos si n'existe pas
 if [ ! -d "$REPOS_CONF_FILES_DIR" ];then
@@ -86,7 +86,7 @@ if ! grep -q "^REPO_CONF_FILES_PREFIX=" "$CONF";then
 fi
 
 # Cas où le fichier de conf existe mais que la variable RELEASEVER n'est pas renseignée (on ne fait pas cette étape pour Debian)
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ -z $(grep "^RELEASEVER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
     	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         	MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'RELEASEVER' n'est pas renseignée dans le fichier de conf repomanager.conf."
@@ -282,9 +282,9 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
         fi
     fi
 
-    if [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS_STATE=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+    if [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS_ENV=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
         if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-            MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'ALLOW_AUTOUPDATE_REPOS_STATE' n'est pas renseignée dans le fichier de conf repomanager.conf."
+            MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'ALLOW_AUTOUPDATE_REPOS_ENV' n'est pas renseignée dans le fichier de conf repomanager.conf."
             (( CHECK_CONF_ERROR++ ))
         else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
             echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
@@ -360,7 +360,7 @@ nettoyage_fichier_conf
 
 
 ### 5 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ ! -f "$PASSPHRASE_FILE" ];then
 		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLe fichier passhrase est vide, les synchronisations automatiques de repos ne se lanceront pas..."
@@ -424,7 +424,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 fi
 
 ### 6 ### Vérification de la présence du module perl RPM4 permettant de signer les paquets
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ ! -f "/usr/bin/rpmresign" ];then	# Dans tous les cas (auto ou manuel) on va afficher l'erreur suivante 
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Le module RPM4 contenant rpmresign ne semble pas installé..."
 		(( CHECK_CONF_ERROR++ ))
@@ -441,7 +441,7 @@ fi
 
 ## Cas Redhat ##
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 
 	if [ -s "$REPOS_LIST" ];then # Si le fichier n'est pas vide alors on peut vérifier que son contenu est cohérent avec ${REPOS_DIR}/
 		sortLists # On tri le contenu des fichiers de liste
@@ -535,7 +535,7 @@ fi
 # Première vérif : lit chaque ligne du fichier repos.list et vérifie qu'un snapshot (répertoire) correspondant est bien présent dans ${REPOS_DIR}/
 # Deuxième vérif : dans l'autre sens : lit les snapshots dans ${REPOS_DIR}/ et vérifie qu'une ligne corespondante est bien présente dans repos.list
 # Fait la même chose pour repos-archive.list
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 
 	if [ -s "$REPOS_LIST" ];then
 		sortLists # On tri le contenu des fichiers de liste

@@ -33,23 +33,25 @@
         <?php include('common-operations.inc.php'); ?> 
     </section>
 
-    <section class="right" id="serverInfoSlideDiv">
+    <!--<section class="right" id="serverInfoSlideDiv">-->
+    <section id="serverInfoSlideDiv">
     <?php
         // Calcul du total des repos, en supprimant les doublons
         $totalRepos = exec("grep  '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
         $totalReposArchived = exec("grep  '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
     ?>
         <div class="serverInfo">
-            <?php if ($OS_TYPE == "rpm") { echo '<p>Repos</p>'; }
-                  if ($OS_TYPE == "deb") { echo '<p>Sections</p>'; }
+            <?php // nombre de repos/sections sur le serveur
+                if ($OS_FAMILY == "Redhat") { echo '<p>Repos</p>'; }
+                if ($OS_FAMILY == "Debian") { echo '<p>Sections</p>'; }
+                echo "<b>${totalRepos}</b>";
             ?>
-            <?php echo "<b>${totalRepos}</b>"; ?>
-        </div>
-        <div class="serverInfo">
-            <?php if ($OS_TYPE == "rpm") { echo '<p>Repos archivés</p>'; }
-                  if ($OS_TYPE == "deb") { echo '<p>Sections archivées</p>'; }
+
+            <?php // nombre de repos/sections archivés sur le serveur
+                if ($OS_FAMILY == "Redhat") { echo '<p>Repos archivés</p>'; }
+                if ($OS_FAMILY == "Debian") { echo '<p>Sections archivées</p>'; }
+                echo "<b>${totalReposArchived}</b>";
             ?>
-            <?php echo "<b>${totalReposArchived}</b>"; ?>
         </div>
 
         <div class="serverInfo">
@@ -221,21 +223,71 @@
             </script>
         </div>
 
-        <br><br>
+        <br>
 
-        <table class="table-large">
-            <?php if ($AUTOMATISATION_ENABLED == "yes") {
-                echo '<tr>';
-                echo '<td>Dernières planifications</td>';
-                echo '</tr>';
-                echo '<tr>';
-                if (!file_exists("$PLAN_LOG")) {
-                    echo '<td>Aucune planification n\'a encore été exécutée</td>';
+        <?php if ($AUTOMATISATION_ENABLED == "yes") {
+            echo '<div class="serverInfo">';
+            echo '<p>Dernière planification</p>';
+            if (!file_exists("$PLAN_LOG")) {
+                echo '<b>N/A</b>';
+            } else {
+                // Récup du dernier ID de planification dans le fichier de log
+                $lastPlanID = exec("grep '\[Plan-' $PLAN_LOG | tail -n1 | sed 's/\[Plan\-//g; s/\]//g'");
+                // Récup de toutes les informations et l'état de cette planification en utilisant la fonction planLogExplode
+                $plan = planLogExplode($lastPlanID, $PLAN_LOG, $OS_FAMILY); // Le tout est retourné dans un tableau et placé dans $plan
+                $planStatus = $plan[0];
+                $planError = $plan[1];
+                $planDate = $plan[2];
+                $planTime = $plan[3];
+
+                // Affichage du status, de la date et heure
+                echo '<a href="planifications.php"><b>';
+                if ($planStatus === "Error") {
+                    if (!empty($planDate)) { // Si une date a été retournée on l'affiche
+                        echo "$planDate ";
+                    }
+                    
+                    if (!empty($planTime)) { // Si une heure a été retournée on l'affiche
+                        echo "à $planTime ";
+                    }
+                    echo 'Erreur';
                 }
-                echo '</tr>';
+
+                if ($planStatus === "OK") {
+                    if (!empty($planDate)) { // Si une date a été retournée on l'affiche
+                        echo "$planDate ";
+                    }
+                    
+                    if (!empty($planTime)) { // Si une heure a été retournée on l'affiche
+                        echo "à $planTime ";
+                    }
+                    echo 'OK';
+                }
+                echo '</b></a>';
             }
-            ?>
-        </table>
+
+            echo '<p>Prochaine planification</p>';
+            if (!file_exists("$PLAN_CONF")) {
+                echo '<b>N/A</b>';
+            } else {
+                // première étape : on récupère toutes les dates dans le fichier de planifications, on trie la liste et on récupère la première de la liste
+                $nextPlanDate = exec("grep '^Date=' $PLAN_CONF | cut -d'=' -f2 | sed 's/\"//g' | sort | head -n1");
+                // ensuite si cette date apparait plusieurs fois dans le fichier de planifications (plusieurs planifications le même jour) on trie par heure
+                $countDate = exec("grep '${nextPlanDate}' $PLAN_CONF | wc -l");
+                if ($countDate === "1") {
+                    // récupération de l'heure et affichage
+                    $nextPlanTime = exec("sed -n '/${nextPlanDate}/{n;p;}' $PLAN_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+                    echo "<a href=\"planifications.php\"><b>${nextPlanDate} (${nextPlanTime})</b></a>";
+                }
+                if ($countDate > "1") {
+                    // récupération des dates et leur heure et affichage
+
+                }
+            }
+            echo '</div>';
+            // pour debug : var_dump($plan);
+        }
+        ?>
     </section>
 </section>
 
@@ -256,7 +308,6 @@
             // masquage du div contenant les infos serveur
             $("#serverInfoSlideDiv").animate({
                 width: 0,
-                padding: '0px' //$("#serverInfoSlideDiv").css('padding', '0px'); /* lorsqu'on masque la section contenant les infos serveur, on retire le padding afin qu'il soit complètement masqué, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
             });
             
             // affichage du div permettant de créer un nouveau repo/section à la place
@@ -276,7 +327,6 @@
             // affichage du div contenant les infos serveur à la place
             $("#serverInfoSlideDiv").delay(250).animate({
                 width: '97%',
-                padding: '10px' /* lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#serverInfoSlideDiv' */
             });
         });
     });

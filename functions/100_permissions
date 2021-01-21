@@ -48,7 +48,7 @@ if [ "$ACTUAL_USER" == "root" ];then
         find ${REPOS_DIR}/profils/ -type d -exec chmod 0770 {} \;
     fi
 
-    if [ "$OS_TYPE" == "Redhat" ];then
+    if [ "$OS_FAMILY" == "Redhat" ];then
         chown root:repomanager /etc/yum/vars/RELEASEVER
         chmod 660 /etc/yum/vars/RELEASEVER
         # permissions sur repomanager et ses fichiers de conf
@@ -83,9 +83,5 @@ if [ "$ACTUAL_USER" == "root" ];then
         if [ -f "/usr/local/lib64/perl5/RPM4.pm" ];then
             chmod o+r /usr/local/lib64/perl5/RPM4.pm
         fi
-    fi
-else
-    if [ "$TTY" -eq "1" ];then # On affiche le message suivant uniquement si un terminal est ouvert
-        echo -e "[${ROUGE} Erreur ${RESET}] Vous devez être root pour appliquer correctement les permissions"
     fi
 fi

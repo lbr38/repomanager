@@ -46,8 +46,8 @@ if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si l
 # Si le repo n'était pas présent dans repos.list
 if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_ENV}\"" ${REPOS_LIST};then
 	(( ERROR++ ))
-	echo -e "[${ROUGE} ERREUR ${RESET}] Erreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
-	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur de syntaxe ou il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
+	echo -e "[${ROUGE} ERREUR ${RESET}] Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
+	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur : Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
 fi
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment

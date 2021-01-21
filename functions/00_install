@@ -10,9 +10,9 @@ fi
 
 echo -e "\n${JAUNE}[ Configuration générale ]${RESET}\n"
 
-# Récupère le TYPE à partir de $OS_TYPE
-if [ "$OS_TYPE" == "Debian" ];then TYPE="deb";fi
-if [ "$OS_TYPE" == "Redhat" ];then TYPE="rpm";fi
+# Récupère le PACKAGE_TYPE à partir de $OS_FAMILY
+if [ "$OS_FAMILY" == "Debian" ];then PACKAGE_TYPE="deb";fi
+if [ "$OS_FAMILY" == "Redhat" ];then PACKAGE_TYPE="rpm";fi
 
 ## Alertes mail
 # Si le paramètre EMAIL_DEST n'est pas présent ou est vide
@@ -41,15 +41,15 @@ fi
 if [ "$MANAGE_PROFILES" == "y" ] || [ $(grep "^MANAGE_PROFILES=" $CONF | cut -d'=' -f2 | sed 's/"//g') == "yes" ];then
 	if ! grep -q "^REPO_CONF_FILES_PREFIX=" $CONF || [ -z $(grep "^REPO_CONF_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
 		REPO_CONF_FILES_PREFIX=""
-		if [ "$OS_TYPE" == "Redhat" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .repo qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
-		if [ "$OS_TYPE" == "Debian" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .list qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
+		if [ "$OS_FAMILY" == "Redhat" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .repo qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
+		if [ "$OS_FAMILY" == "Debian" ];then echo -ne "➤ Vous pouvez indiquer un préfix aux fichiers de configuration .list qui seront générés par repomanager (laisser vide pour ne pas ajouter de préfix) : "; read -p "" REPO_CONF_FILES_PREFIX;fi
 	else
 		REPO_CONF_FILES_PREFIX="$(grep "^REPO_CONF_FILES_PREFIX=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
 fi
 
 #### Spécifique Redhat ####
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 
 ## Releasever ##
 	# Si le paramètre RELEASEVER n'est pas présent ou est vide :
@@ -291,13 +291,13 @@ if [ "$AUTOMATISATION_ENABLED" == "y" ] || [ $(grep "^AUTOMATISATION_ENABLED=" $
 	fi
 
 	# Autoriser la mise à jour auto de l'env des repos (ex: passer de test à prod automatiquement)
-	if ! grep -q "^ALLOW_AUTOUPDATE_REPOS_STATE=" $CONF || [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS_STATE=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-		ALLOW_AUTOUPDATE_REPOS_STATE=""
-		while [ -z "$ALLOW_AUTOUPDATE_REPOS_STATE" ] || [[ "$ALLOW_AUTOUPDATE_REPOS_STATE" != "y" && "$ALLOW_AUTOUPDATE_REPOS_STATE" != "n" ]];do
-			echo -ne "➤ Autoriser la mise à jour automatique de l'env des repos ? (y/n) : "; read -p "" ALLOW_AUTOUPDATE_REPOS_STATE
+	if ! grep -q "^ALLOW_AUTOUPDATE_REPOS_ENV=" $CONF || [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS_ENV=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
+		ALLOW_AUTOUPDATE_REPOS_ENV=""
+		while [ -z "$ALLOW_AUTOUPDATE_REPOS_ENV" ] || [[ "$ALLOW_AUTOUPDATE_REPOS_ENV" != "y" && "$ALLOW_AUTOUPDATE_REPOS_ENV" != "n" ]];do
+			echo -ne "➤ Autoriser la mise à jour automatique de l'env des repos ? (y/n) : "; read -p "" ALLOW_AUTOUPDATE_REPOS_ENV
 		done
 	else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
-		ALLOW_AUTOUPDATE_REPOS_STATE="$(grep "^ALLOW_AUTOUPDATE_REPOS_STATE=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
+		ALLOW_AUTOUPDATE_REPOS_ENV="$(grep "^ALLOW_AUTOUPDATE_REPOS_ENV=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
 
 	# Configuration du nettoyage auto
@@ -327,7 +327,7 @@ if [ "$AUTOMATISATION_ENABLED" == "y" ] || [ $(grep "^AUTOMATISATION_ENABLED=" $
 # Si l'automatisation n'est pas activée, alors on passe tous ses sous-paramètres à "no"
 else
 	ALLOW_AUTOUPDATE_REPOS="no"
-	ALLOW_AUTOUPDATE_REPOS_STATE="no"
+	ALLOW_AUTOUPDATE_REPOS_ENV="no"
 	ALLOW_AUTODELETE_ARCHIVED_REPOS="no"
 	RETENTION=""
 fi
@@ -336,16 +336,16 @@ fi
 #### Génération du fichier de conf ####
 #### Ajout de toutes les infos récupérées précédemment, dans le fichier de conf ####
 
-echo -e "# Fichier de conf de repomanager\n" > "$CONF"
-		
+echo -e "# Fichier de configuration de repomanager\n" > "$CONF"
+
 # Configuration générale
 echo "[CONFIGURATION]" >> "$CONF"
 
 # Ajout du type de paquets que ce serveur gérera 
-echo "TYPE=\"$TYPE\"" >> "$CONF"
+echo "PACKAGE_TYPE=\"$PACKAGE_TYPE\"" >> "$CONF"
 
 # Config Releasever
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	echo "RELEASEVER=\"$RELEASEVER\"" >> "$CONF"
 fi
 
@@ -362,7 +362,7 @@ else
 fi
 
 # Config GPG (Centos seulement)
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	echo -e "\n[GPG]" >> "$CONF"
 	if [ "$GPG_SIGN_PACKAGES" == "yes" ] || [ "$GPG_SIGN_PACKAGES" == "y" ];then
 		echo "GPG_SIGN_PACKAGES=\"yes\"" >> "$CONF"
@@ -409,10 +409,10 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ] || [ "$AUTOMATISATION_ENABLED" == "y" 
 	else
 		echo -e "ALLOW_AUTOUPDATE_REPOS=\"no\"" >> "$CONF"
 	fi
-	if [ "$ALLOW_AUTOUPDATE_REPOS_STATE" == "yes" ] || [ "$ALLOW_AUTOUPDATE_REPOS_STATE" == "y" ];then
-		echo -e "ALLOW_AUTOUPDATE_REPOS_STATE=\"yes\"" >> "$CONF"
+	if [ "$ALLOW_AUTOUPDATE_REPOS_ENV" == "yes" ] || [ "$ALLOW_AUTOUPDATE_REPOS_ENV" == "y" ];then
+		echo -e "ALLOW_AUTOUPDATE_REPOS_ENV=\"yes\"" >> "$CONF"
 	else
-		echo -e "ALLOW_AUTOUPDATE_REPOS_STATE=\"no\"" >> "$CONF"
+		echo -e "ALLOW_AUTOUPDATE_REPOS_ENV=\"no\"" >> "$CONF"
 	fi
 	if [ "$ALLOW_AUTODELETE_ARCHIVED_REPOS" == "yes" ] || [ "$ALLOW_AUTODELETE_ARCHIVED_REPOS" == "y" ];then
 		echo -e "ALLOW_AUTODELETE_ARCHIVED_REPOS=\"yes\"" >> "$CONF"
@@ -425,12 +425,12 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ] || [ "$AUTOMATISATION_ENABLED" == "y" 
 else
 	echo -e "AUTOMATISATION_ENABLED=\"no\"" >> "$CONF"
 	echo -e "ALLOW_AUTOUPDATE_REPOS=\"no\"" >> "$CONF"
-	echo -e "ALLOW_AUTOUPDATE_REPOS_STATE=\"no\"" >> "$CONF"
+	echo -e "ALLOW_AUTOUPDATE_REPOS_ENV=\"no\"" >> "$CONF"
 	echo -e "ALLOW_AUTODELETE_ARCHIVED_REPOS=\"no\"" >> "$CONF"
 	echo -e "RETENTION=\"\"" >> "$CONF"
 fi
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	# Création du répetoire sui contiendra le cache yum (à voir si c'est toujours utile)
 	if [ ! -d "${BASE_DIR}/.cache/yum/" ];then 
 		mkdir -p "${BASE_DIR}/.cache/yum/"

@@ -29,17 +29,11 @@ done
 
 ERROR="0"
 
-# Si on ne connait pas la version de l'OS, on ne peut pas continuer
-if [ -z "$OS_VERSION" ];then
-	echo -e "[${ROUGE} ERREUR ${RESET}] La version d'OS n'est pas connue (vide)"
-	clean_exit
-fi
-
 # Si le repo est présent dans le fichier repos.list, alors on peut commencer l'opération
 if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\"" $REPOS_LIST;then
 	(( ERROR++ ))
-	echo -e "\n[${ROUGE} ERREUR ${RESET}] de syntaxe ou il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur."        
-	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur de syntaxe ou il n'existe aucun repo ${REPO_NAME} sur ce serveur."
+	echo -e "\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur."        
+	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur : Il n'existe aucun repo ${REPO_NAME} sur ce serveur."
 fi
 
 # Si le repo existe déjà à la date du jour alors on annule l'opération

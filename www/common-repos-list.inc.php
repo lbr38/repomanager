@@ -7,14 +7,14 @@
         <a href="#" id="GroupsListSlideUpButton" title="Gérer les groupes"><span>Gérer les groupes</span><img src="icons/folder.png" class="icon"/></a>
         <!-- Bouton "Gérer les repos/hôtes sources" -->
         <?php
-            if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
-            if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_FAMILY == "Redhat") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les repos sources\"><span>Gérer les repos sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
+            if ($OS_FAMILY == "Debian") { echo "<a href=\"#\" id=\"ReposSourcesSlideUpButton\" title=\"Gérer les hôtes sources\"><span>Gérer les hôtes sources</span><img src=\"icons/world.png\" class=\"icon\"/></a>"; }
         ?>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
             if (($uri == "/index.php") OR ($uri == "/")) {
-                if ($OS_TYPE == "rpm") { echo "<a href=\"#\" id=\"newRepoSlideButton\"><span class=\"hide\">Créer un nouveau repo</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
-                if ($OS_TYPE == "deb") { echo "<a href=\"#\" id=\"newRepoSlideButton\"><span class=\"hide\">Créer une nouvelle section</span><img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
+                if ($OS_FAMILY == "Redhat") { echo "<a href=\"#\" id=\"newRepoSlideButton\">Créer un nouveau repo<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
+                if ($OS_FAMILY == "Debian") { echo "<a href=\"#\" id=\"newRepoSlideButton\">Créer une nouvelle section<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
             }
         ?>
 
@@ -126,7 +126,7 @@ if ($filterByGroups == "yes") {
                 echo "<tr class=\"reposListHead\">";
                 echo "<td class=\"td-fit\"></td>";
                 echo "<td>Nom</td>";
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                     echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                     echo "<td>Distribution</td>";
                     echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
@@ -150,15 +150,15 @@ if ($filterByGroups == "yes") {
                     $repoLastEnv = '';
                     $rowData = explode(',', $repoName);
                     $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
-                    if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
+                    if ($OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
                         $repoDist = str_replace(['Dist=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Dist=""
                         $repoSection = str_replace(['Section=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Section=""
                     }
                     // Puis on recupère les informations manquantes dans le fichier repos.list
-                    if ($OS_TYPE == "rpm") {
+                    if ($OS_FAMILY == "Redhat") {
                         $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Realname=\".*\"' $REPOS_LIST");
                     }
-                    if ($OS_TYPE == "deb") {
+                    if ($OS_FAMILY == "Debian") {
                         $repoFullInformations = shell_exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_LIST");
                     }
                     $repoFullInformations = explode('Name=', $repoFullInformations);
@@ -167,12 +167,12 @@ if ($filterByGroups == "yes") {
                     foreach($repoFullInformations as $repoFull) {
                         $rowData = explode(',', $repoFull);
                         $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
-                        if ($OS_TYPE == "rpm") {
+                        if ($OS_FAMILY == "Redhat") {
                             $repoEnv = str_replace(['Env=', '"'], '', $rowData[2]); // on récupère la données et on formate à la volée en retirant Env=""
                             $repoDate = str_replace(['Date=', '"'], '', $rowData[3]); // on récupère la données et on formate à la volée en retirant Date=""
                             $repoDescription = str_replace(['Description=', '"'], '', $rowData[4]); // on récupère la données et on formate à la volée en retirant Description=""
                         }
-                        if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
+                        if ($OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
                             $repoDist = str_replace(['Dist=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Dist=""
                             $repoSection = str_replace(['Section=', '"'], "", $rowData[3]); // on récupère la données et on formate à la volée en retirant Section=""
                             $repoEnv = str_replace(['Env=', '"'], "", $rowData[4]); // on récupère la données et on formate à la volée en retirant Env=""
@@ -180,10 +180,10 @@ if ($filterByGroups == "yes") {
                             $repoDescription = str_replace(['Description=', '"'], "", $rowData[6]); // on récupère la données et on formate à la volée en retirant Description=""
                         }
                         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
-                        if ($OS_TYPE == "rpm" AND $printRepoSize == "yes") {
+                        if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
                             $repoSize = exec("du -hs ${REPOS_DIR}/${repoDate}_${repoName} | awk '{print $1}'");
                         }
-                        if ($OS_TYPE == "deb" AND $printRepoSize == "yes") {
+                        if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") {
                             $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
                         }
                         // Affichage des données
@@ -205,30 +205,30 @@ if ($filterByGroups == "yes") {
                         echo "<tr class=\"$listColor\">";
                         echo "<td class=\"td-fit\">";
                         // Affichage de l'icone "corbeille" pour supprimer le repo
-                        if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+                        if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
                             echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
                         }
-                        if ($OS_TYPE == "deb") {
+                        if ($OS_FAMILY == "Debian") {
                             echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
                         }
 
                         // Affichage de l'icone "dupliquer" pour dupliquer le repo
-                        if ($OS_TYPE == "rpm") {
+                        if ($OS_FAMILY == "Redhat") {
                             echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
                         }
-                        if ($OS_TYPE == "deb") {
+                        if ($OS_FAMILY == "Debian") {
                             echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
                         }
 
                         // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
+                        echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" /></a>";
 
                         // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
                         if ($repoEnv === $DEFAULT_ENV) {
-                            if ($OS_TYPE == "rpm") {
+                            if ($OS_FAMILY == "Redhat") {
                                 echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                             }
-                            if ($OS_TYPE == "deb") {
+                            if ($OS_FAMILY == "Debian") {
                                 echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
                             }
                         }
@@ -241,7 +241,7 @@ if ($filterByGroups == "yes") {
                             echo "<td>$repoName</td>";
                         }
 
-                        if ($OS_TYPE == "deb") {
+                        if ($OS_FAMILY == "Debian") {
                             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
                                 echo "<td class=\"td-xsmall\"></td>";
@@ -272,10 +272,10 @@ if ($filterByGroups == "yes") {
                         }
 
                         // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
-                        if ($OS_TYPE == "rpm") {
+                        if ($OS_FAMILY == "Redhat") {
                             echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
                         }
-                        if ($OS_TYPE == "deb") {
+                        if ($OS_FAMILY == "Debian") {
                             echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
                         }
                         echo "<td>$repoDate</td>";
@@ -288,11 +288,11 @@ if ($filterByGroups == "yes") {
                             echo "<td colspan=\"100%\">";
                             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
                             echo "<pre>";
-                            if ($OS_TYPE == "rpm") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+                            if ($OS_FAMILY == "Redhat") {
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
                             }
-                            if ($OS_TYPE == "deb") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                            if ($OS_FAMILY == "Debian") {
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
                             }
                             echo "</pre>";
                             echo "</div>";
@@ -313,7 +313,7 @@ if ($filterByGroups == "yes") {
 
                         // alternance des couleurs :
                         $repoLastName = $repoName;
-                        if ($OS_TYPE == "deb") {
+                        if ($OS_FAMILY == "Debian") {
                             $repoLastDist = $repoDist;
                             $repoLastSection = $repoSection;
                         }
@@ -331,7 +331,7 @@ if ($filterByGroups == "yes") {
     echo "<tr class=\"reposListHead\">";
     echo "<td class=\"td-fit\"></td>";
     echo "<td>Nom</td>";
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
@@ -357,13 +357,13 @@ if ($filterByGroups == "yes") {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
             //get row data
             $rowData = explode(',', $row);
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
                 $repoEnv = str_replace(['Env=', '"'], '', $rowData[2]);
                 $repoDate = str_replace(['Date=', '"'], '', $rowData[3]);
                 $repoDescription = str_replace(['Description=', '"'], '', $rowData[4]);
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
                 $repoDist = str_replace(['Dist=', '"'], '', $rowData[2]);
                 $repoSection = str_replace(['Section=', '"'], '', $rowData[3]);
@@ -373,10 +373,10 @@ if ($filterByGroups == "yes") {
             }
 
             // On cherche dans le fichier de groupes si le repo apparait :
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\"' $GROUPS_CONF");
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 $checkIfRepoIsInAGroup = exec("grep '^Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $GROUPS_CONF");
             }
             // Si le repo apparait dans un groupe alors on n'exécute pas la suite et on traite l'itération suivante de la boucle :
@@ -384,10 +384,10 @@ if ($filterByGroups == "yes") {
                 continue; 
             }
             // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
-            if ($OS_TYPE == "rpm" AND $printRepoSize == "yes") {
+            if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
                 $repoSize = exec("du -hs ${REPOS_DIR}/${repoDate}_${repoName} | awk '{print $1}'");
             }
-            if ($OS_TYPE == "deb" AND $printRepoSize == "yes") {
+            if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") {
                 $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
             }
             // Affichage des données
@@ -409,30 +409,30 @@ if ($filterByGroups == "yes") {
             echo "<tr class=\"$listColor\">";
             echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
-            if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+            if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             }
 
             // Affichage de l'icone "dupliquer" pour dupliquer le repo
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
             }
 
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" /></a>";
 
             // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
             if ($repoEnv === $DEFAULT_ENV) {
-                if ($OS_TYPE == "rpm") {
+                if ($OS_FAMILY == "Redhat") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                 }
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
                 }
             }
@@ -445,7 +445,7 @@ if ($filterByGroups == "yes") {
                 echo "<td>$repoName</td>";
             }
 
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
                     echo "<td class=\"td-xsmall\"></td>";
@@ -476,10 +476,10 @@ if ($filterByGroups == "yes") {
             }
 
             // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
             }
             echo "<td>$repoDate</td>";
@@ -492,11 +492,11 @@ if ($filterByGroups == "yes") {
             echo "<td colspan=\"100%\">";
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
-            if ($OS_TYPE == "rpm") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+            if ($OS_FAMILY == "Redhat") {
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
-            if ($OS_TYPE == "deb") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+            if ($OS_FAMILY == "Debian") {
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";
@@ -513,7 +513,7 @@ if ($filterByGroups == "yes") {
             echo "</script>";
             // alternance des couleurs :
             $repoLastName = $repoName;
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 $repoLastDist = $repoDist;
                 $repoLastSection = $repoSection;
             }
@@ -536,7 +536,7 @@ if ($filterByGroups == "no") {
     echo "<tr>";
     echo "<td class=\"td-fit\"></td>";
     echo "<td>Nom</td>";
-    if ($OS_TYPE == "deb") {
+    if ($OS_FAMILY == "Debian") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
@@ -556,13 +556,13 @@ if ($filterByGroups == "no") {
     foreach($rows as $row) {
         if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
             $rowData = explode(',', $row);
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
                 $repoEnv = str_replace(['Env=', '"'], '', $rowData[2]);
                 $repoDate = str_replace(['Date=', '"'], '', $rowData[3]);
                 $repoDescription = str_replace(['Description=', '"'], '', $rowData[4]);
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
                 $repoDist = str_replace(['Dist=', '"'], '', $rowData[2]);
                 $repoSection = str_replace(['Section=', '"'], '', $rowData[3]);
@@ -571,10 +571,10 @@ if ($filterByGroups == "no") {
                 $repoDescription = str_replace(['Description=', '"'], '', $rowData[6]);
             }
             // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
-            if ($OS_TYPE == "rpm" AND $printRepoSize == "yes") {
+            if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
                 $repoSize = exec("du -hs ${REPOS_DIR}/${repoDate}_${repoName} | awk '{print $1}'");
             }
-            if ($OS_TYPE == "deb" AND $printRepoSize == "yes") {
+            if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") {
                 $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
             }
             // Affichage des données
@@ -595,30 +595,30 @@ if ($filterByGroups == "no") {
             echo "<tr class=\"$listColor\">";
             echo "<td class=\"td-fit\">";
             // Affichage de l'icone "corbeille" pour supprimer le repo
-            if ($OS_TYPE == "rpm") { // si rpm on doit présicer repoEnv dans l'url
+            if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<a href=\"traitement.php?actionId=deleteRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
             }
 
             // Affichage de l'icone "dupliquer" pour dupliquer le repo
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<a href=\"traitement.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
             }
 
             // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
-            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" /></a>";
+            echo "<a href=\"#\"><img id=\"conftogg${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" /></a>";
 
             // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
             if ($repoEnv === $DEFAULT_ENV) {
-                if ($OS_TYPE == "rpm") {
+                if ($OS_FAMILY == "Redhat") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                 }
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                     echo "<a href=\"traitement.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
                 }
             }
@@ -631,7 +631,7 @@ if ($filterByGroups == "no") {
                 echo "<td>$repoName</td>";
             }
 
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                 if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
                     echo "<td class=\"td-xsmall\"></td>";
@@ -662,10 +662,10 @@ if ($filterByGroups == "no") {
             }
 
             // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
-            if ($OS_TYPE == "rpm") {
+            if ($OS_FAMILY == "Redhat") {
                 echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement au repo ${repoName} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
             }
-            if ($OS_TYPE == "deb") {
+            if ($OS_FAMILY == "Debian") {
                 echo "<td class=\"td-xsmall\"><a href=\"traitement.php?actionId=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Ajouter un nouvel environnement à la section ${repoSection} pointant sur la date ${repoDate}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
             }
             echo "<td>$repoDate</td>";
@@ -680,11 +680,11 @@ if ($filterByGroups == "no") {
             echo "<td colspan=\"100%\">";
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
-            if ($OS_TYPE == "rpm") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+            if ($OS_FAMILY == "Redhat") {
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
-            if ($OS_TYPE == "deb") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+            if ($OS_FAMILY == "Debian") {
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";
@@ -703,7 +703,7 @@ if ($filterByGroups == "no") {
         }
         $i++;
         if (!empty($repoName)) { $repoLastName = $repoName; }
-        if ($OS_TYPE == "deb") {
+        if ($OS_FAMILY == "Debian") {
             if (!empty($repoDist)) { $repoLastDist = $repoDist; }
             if (!empty($repoSection)) { $repoLastSection = $repoSection; }
         }

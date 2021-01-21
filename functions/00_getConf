@@ -6,7 +6,7 @@ EMAIL_DEST=$(grep "^EMAIL_DEST=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 MANAGE_PROFILES=$(grep "^MANAGE_PROFILES=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 REPO_CONF_FILES_PREFIX=$(grep "^REPO_CONF_FILES_PREFIX=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
     grep "^RELEASEVER=" "$CONF" | cut -d'=' -f2 > /etc/yum/vars/RELEASEVER
     GPG_SIGN_PACKAGES=$(grep "^GPG_SIGN_PACKAGES=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 
@@ -26,7 +26,7 @@ AUTOMATISATION_ENABLED=$(grep "^AUTOMATISATION_ENABLED=" "$CONF" | cut -d'=' -f2
 
 if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
     ALLOW_AUTOUPDATE_REPOS=$(grep "^ALLOW_AUTOUPDATE_REPOS=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
-    ALLOW_AUTOUPDATE_REPOS_STATE=$(grep "^ALLOW_AUTOUPDATE_REPOS_STATE=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+    ALLOW_AUTOUPDATE_REPOS_ENV=$(grep "^ALLOW_AUTOUPDATE_REPOS_ENV=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
     ALLOW_AUTODELETE_ARCHIVED_REPOS=$(grep "^ALLOW_AUTODELETE_ARCHIVED_REPOS=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
     
     if [ "$ALLOW_AUTODELETE_ARCHIVED_REPOS" == "yes" ];then

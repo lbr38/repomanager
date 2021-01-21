@@ -4,10 +4,12 @@
 @font-face{	font-family: 'Source Sans Pro Light';               src: url('../fonts/SourceSansPro-Light.otf')       format('truetype');	}
 @font-face{	font-family: 'Source Sans Pro Extra Light';         src: url('../fonts/SourceSansPro-ExtraLight.otf')  format('truetype');	}
 @font-face{ font-family: 'Courrier New';                        src: url('../fonts/cour.ttf')                      format('truetype');	}
-@font-face{ font-family: 'Akira';                               src: url('../fonts/Akira Expanded Demo.otf')       format('truetype');	}
 @font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')           format('truetype');	}
-@font-face{ font-family: 'ethnocentric it';                     src: url('../fonts/ethnocentric rg it.ttf')        format('truetype');	}
-@font-face{ font-family: 'ubuntu';                              src: url('../fonts/Ubuntu-R.ttf')                  format('truetype');	}
+@font-face{ font-family: 'Monofur';                              src: url('../fonts/monof55.ttf')                  format('truetype');	}
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@700&display=swap');
+
+
+
 
 /* Codes couleurs  
 
@@ -41,12 +43,27 @@
 
 
 body {
+    /* Gestion de l'affichage 'fade-in' de chaque page, afin de rendre l'affichage des pages plus agréable 
+    Voir @keyframes fadeInAnimation en complément ci-dessous */
+    animation: fadeInAnimation ease 0.01s;
+    animation-iteration-count: 1; 
+    animation-fill-mode: forwards;
+
     min-height: 100%;
     font-family: Source Sans Pro Regular;
     margin: 0;
     padding: 0;
     background-color: #333333;
     color: whitesmoke; /* couleur par défaut */
+}
+
+@keyframes fadeInAnimation { 
+    0% { 
+        opacity: 0; 
+    } 
+    100% { 
+        opacity: 1; 
+     } 
 }
 
 a {
@@ -91,6 +108,15 @@ header a {
 hr {
     border-color: gray;
     opacity: 0.11;
+}
+
+/* Quelques classes génériques permettant de créer des textes de couleurs */
+.greentext {
+    color: #5cb85c;
+}
+
+.redtext {
+    color: #d9534f;
 }
 
 /* Affichage de version alpha/beta sous le titre du produit */
@@ -194,7 +220,7 @@ section.left {
 }
 
 /* paramètres pour les sections sur la droite, et pour les sections masqués */
-section.right, #newRepoSlideDiv, #serverInfoSlideDiv {
+section.right, #newRepoSlideDiv {
     width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
     margin-bottom: 10;
     padding: 10;
@@ -215,6 +241,10 @@ section.right, #newRepoSlideDiv, #serverInfoSlideDiv {
 }
 
 #serverInfoSlideDiv {
+    width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
+    margin-bottom: 10;
+    vertical-align:top;
+    float: right;
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué lorsqu'on choisi de le masquer */
 }
 
@@ -273,11 +303,8 @@ table thead, .reposListHead {
 
 table.list-repos {
     width: 100%;
-    /*font-family: 'Courier New';
-    font-family: 'Source Sans Pro Regular'; */
-    font-family: ubuntu;
-    font-size: 12px;
-    white-space: nowrap;
+    /*font-family: 'Ubuntu Mono', monospace;*/
+    font-size: 13px;
 }
 
 table.list-repos td {
@@ -396,19 +423,6 @@ td {
     width: 500px;
 }
 
-table td.table-title {
-    background-color: #505050;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 20px;
-    width: 150px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
 
 #log {
     font-size: 13px;
@@ -557,6 +571,10 @@ input[type=text], input[type=date], input[type=time], input[type=number], select
     background-color:#474747;
 }
 
+select.select-small {
+    width: 100px;
+}
+
 input[type=text].input-small {
     width: 100px;
 }
@@ -616,7 +634,7 @@ input[type=text].input-large {
     border-radius: 2px;
     color: whitesmoke;
     padding: 3px;
-    width: 150px;
+    width: 100px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -866,8 +884,9 @@ img.cronStatus {
 }
 
 #newRepoSlideButton {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 5px;
 }
 
 #newRepoSlideButton {
@@ -881,14 +900,13 @@ img.cronStatus {
 
 #ReposListDisplayToggleButton:hover, #ReposSourcesSlideUpButton:hover, #GroupsListSlideUpButton:hover {
     padding-left: 8px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#252525;
     border-radius: 5px;
-    transition-duration: 0.1s;
 }
 
 .alert { /* div affichant une alerte au milieu de la page lorsqu'une action n'aboutie pas */
@@ -909,25 +927,32 @@ img.cronStatus {
 }
 
 .chart { /* largeur des graphiques chartjs */
-    width: 60px;
-    margin: 10;
+    width: 110px;
+    margin: auto; /* centrer les graphiques */
+    padding: 15px;
 }
 
-.serverInfo { /* on écrase les valeurs ci-dessus */
-    width: 80px;
-    height: 110px;
+.serverInfo {
+    width: 31.5%;
+    height: 200px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-    background-color:#252525;
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+    background-color:#2b2b2b;
     border-radius: 6px;
     padding-left: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
     display: inline-block;
     margin: 1px;
+    margin-bottom: 10px;
     text-align: center;
     vertical-align: top;
+}
+
+.serverInfo:hover {
+    background-color: #252525;
+    transition-duration: 0.4s;
 }
 
 #newRepoCloseButton, #GroupsListSlideDownButton, #ReposSourcesSlideDownButton { /* Boutons 'croix' permettant de fermer la div coulissante */

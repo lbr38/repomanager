@@ -34,23 +34,23 @@
             echo "<td></td>";
             echo "<td>⤷</td>";
             echo "<td class=\"td-auto\"><b>Repo</b></td>";
-            if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><b>Distribution</b></td>"; }
-            if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><b>Section</b></td>"; }
+            if ($OS_FAMILY == "Debian") { echo "<td class=\"td-auto\"><b>Distribution</b></td>"; }
+            if ($OS_FAMILY == "Debian") { echo "<td class=\"td-auto\"><b>Section</b></td>"; }
             echo "</tr>";
 
             foreach($repoGroupList as $repoName) {
                 $rowData = explode(',', $repoName);
                 $repoName = str_replace(['Name=', '"'], "", $rowData[0]); // on récupère la données et on formate à la volée en retirant Name=""
-                if ($OS_TYPE == "deb") { // si Debian on récupère aussi la distrib et la section
+                if ($OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
                   $repoDist = str_replace(['Dist=', '"'], "", $rowData[1]); // on récupère la données et on formate à la volée en retirant Dist=""
                   $repoSection = str_replace(['Section=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Section=""
                 }
                 echo "<tr>";
                 echo "<td></td>";
-                if ($OS_TYPE == "rpm") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName} du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
-                if ($OS_TYPE == "deb") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection} (repo ${repoName}) du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
+                if ($OS_FAMILY == "Redhat") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName} du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
+                if ($OS_FAMILY == "Debian") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection} (repo ${repoName}) du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
                 echo "<td class=\"td-auto\">${repoName}</td>";
-                if ($OS_TYPE == "deb") {
+                if ($OS_FAMILY == "Debian") {
                   echo "<td class=\"td-auto\">${repoDist}</td>";
                   echo "<td class=\"td-auto\">${repoSection}</td>";
                 }
@@ -62,8 +62,8 @@
         echo "<td></td>";
         // entrées permettant d'ajouter un repo au groupe. Pour rappel le nom du groupe est transmis en hidden (voir début du formulaire) :
         echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoName\" autocomplete=\"off\" placeholder=\"Nom du repo\" \></td>";
-        if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoDist\" autocomplete=\"off\" placeholder=\"Distribution\" \></td>"; }
-        if ($OS_TYPE == "deb") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoSection\" autocomplete=\"off\" placeholder=\"Section\" \></td>"; }
+        if ($OS_FAMILY == "Debian") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoDist\" autocomplete=\"off\" placeholder=\"Distribution\" \></td>"; }
+        if ($OS_FAMILY == "Debian") { echo "<td class=\"td-auto\"><input type=\"text\" name=\"groupAddRepoSection\" autocomplete=\"off\" placeholder=\"Section\" \></td>"; }
         echo "<td><button type=\"submit\" class=\"button-submit-xsmall-blue\">Ajouter</button></td>";
         echo "</tr>";
         echo "<tr>";

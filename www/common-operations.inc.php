@@ -1,6 +1,6 @@
 <!--<h5>OPERATIONS</h5>-->
 <?php
-if ($OS_TYPE == "rpm") {
+if ($OS_FAMILY == "Redhat") {
 echo '<h5>CRÉER UN NOUVEAU REPO</h5>';
 echo '
 <form action="/traitement.php" method="get" class="actionform" autocomplete="off">
@@ -52,7 +52,7 @@ echo '</td>
 ?>
 
 <?php
-if ($OS_TYPE == "deb") {
+if ($OS_FAMILY == "Debian") {
 echo "<h5>CRÉER UNE NOUVELLE SECTION</h5>";
 echo "<form action=\"/traitement.php\" method=\"get\" class=\"actionform\" autocomplete=\"off\">";
 echo "<input name=\"actionId\" type=\"hidden\" value=\"newRepo\">";

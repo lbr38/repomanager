@@ -9,7 +9,7 @@ if [ ! -f "$REPOS_ARCHIVE_LIST" ];then
 	touch "$REPOS_ARCHIVE_LIST"
 fi
 
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 	if [ ! -f "$HOSTS_CONF" ];then
 		touch "$HOSTS_CONF"
 	fi
@@ -18,7 +18,7 @@ fi
 echo "Vérification des dépendances..."
 
 ## Cas Redhat ##
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	CHECK_DEP=$(rpm -qa mutt)
 	if [ -z "$CHECK_DEP" ];then
 		echo -ne "Installation de mutt\t" &&
@@ -79,7 +79,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 fi
 
 ## Cas Debian ##
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 	CHECK_DEP=$(dpkg --list | grep "^ii  mutt ")
 	if [ -z "$CHECK_DEP" ];then
 		echo -ne "Installation de mutt\t" &&

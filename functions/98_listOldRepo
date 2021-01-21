@@ -8,7 +8,7 @@ sortLists
 
 i=0;var_list_repo=""; # Initialisation de variable utilisées pour l'alternance des couleurs dans le tableau
 
-if [ "$OS_TYPE" == "Redhat" ];then
+if [ "$OS_FAMILY" == "Redhat" ];then
 	TAILLE_COLONNES="%-40s %-15s %-10s %s\n"  # défini la taille de chaque colonnes qui seront affichées par printf ci-après, ex : %-40s : affichage d'une chaine (s) de 40 positions alignée à gauche (-). Pour la colonne Description (la dernière), on ne défini pas de taille car il peut s'agir d'une chaine relativement longue (%s)
 	SEP
 	echo -e "\n${BLANCB}REPOS ARCHIVES :${RESET}\n"
@@ -26,7 +26,7 @@ if [ "$OS_TYPE" == "Redhat" ];then
 	echo ""; SEP
 fi
 
-if [ "$OS_TYPE" == "Debian" ];then
+if [ "$OS_FAMILY" == "Debian" ];then
 	TAILLE_COLONNES="%-30s %-20s %-20s %-15s %-10s %-s\n"
 	SEP
 	echo -e "\n${BLANCB}REPOS ARCHIVES :${RESET}\n"
