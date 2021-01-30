@@ -48,6 +48,9 @@ if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=
 	(( ERROR++ ))
 	echo -e "[${ROUGE} ERREUR ${RESET}] Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
 	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur : Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) en ${REPO_ENV} sur ce serveur..."
+	if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+		(( PLAN_ERROR++ ))
+	fi
 fi
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment
@@ -67,6 +70,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[$ROUGE ERREUR $RESET] Ce repo est déjà en ${REPO_NEW_ENV} au ${REPO_DATE}\n"
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Ce repo est déjà en ${REPO_NEW_ENV} au ${REPO_DATE}\n"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -92,6 +98,9 @@ if [ "$ERROR" -eq "0" ];then
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du lien symbolique"
 			MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors de la création du lien symbolique"
+			if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+				(( PLAN_ERROR++ ))
+			fi
 		fi
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
@@ -112,6 +121,9 @@ if [ "$ERROR" -eq "0" ];then
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du lien symbolique"
 			MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors de la création du lien symbolique"
+			if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+				(( PLAN_ERROR++ ))
+			fi
 		fi
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
@@ -126,6 +138,9 @@ if [ "$ERROR" -eq "0" ];then
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
 				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
+				if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+					(( PLAN_ERROR++ ))
+				fi
 			fi
 		fi	
 			
@@ -140,6 +155,9 @@ if [ "$ERROR" -eq "0" ];then
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
 				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur pendant l'ajout des informations"
+				if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+					(( PLAN_ERROR++ ))
+				fi
 			fi
 		fi
 
@@ -153,6 +171,9 @@ if [ "$ERROR" -eq "0" ];then
 				(( ERROR++ ))
 				echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
 				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n  Erreur pendant l'ajout des informations"
+				if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+					(( PLAN_ERROR++ ))
+				fi
 			fi
 		fi
 

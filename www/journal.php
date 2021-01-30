@@ -1,9 +1,9 @@
 <?php
 // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-require 'vars/common.vars';
-require 'common-functions.php';
-require 'common.php';
-require 'vars/display.vars';
+require_once 'vars/common.vars';
+require_once 'common-functions.php';
+require_once 'common.php';
+require_once 'vars/display.vars';
 if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // On récupère la liste des fichiers de logs en les triant 

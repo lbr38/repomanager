@@ -175,6 +175,7 @@ checkIfRepoOrGroup() {
 
 # Traitement de la planification (numéro de planification spécifié en argument $1)
 execute() {
+PLAN_EXEC="1"
 echo -e "Traitement de la planification Plan-${PLAN_ID}\n"
 
 # Si les planifications ne sont pas activées, on quitte
@@ -425,6 +426,10 @@ rappel_mail
 }
 
 plan_exit() {
+# Création du fichier de log si il n'existe pas
+if [ ! -f "$PLAN_LOG" ];then
+	touch $PLAN_LOG
+fi
 # Si des erreurs on été rencontrées, on affiche le message d'erreur
 if [ "$PLAN_ERROR" -ne "0" ];then
 	# Suppression des lignes vides dans le message d'erreur si il y en a

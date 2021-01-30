@@ -3,10 +3,10 @@
 
 <?php
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'vars/common.vars';
-  require 'common-functions.php';
-  require 'common.php';
-  require 'vars/display.vars';
+  require_once 'vars/common.vars';
+  require_once 'common-functions.php';
+  require_once 'common.php';
+  require_once 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // Cas où on ajoute une planification
@@ -116,7 +116,8 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
         }
       }
       // Dans tous les cas on crée une tâche at avec l'id de la planification :
-      exec("echo '${REPOMANAGER} --web --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
+      // export de SHELL /bin/bash pour patcher une erreur sur CentOS où les tâches at ne se lancent pas car nginx n'a pas de shell (/sbin/nologin)
+      exec("SHELL=/bin/bash; export SHELL; echo '${REPOMANAGER} --exec-plan ${addPlanId}' | at ${addPlanTime} ${addPlanDate}");   // ajout d'une tâche at
       // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
       exec('sed -i "/^$/N;/^\n$/D" '.$PLAN_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
     }
@@ -153,8 +154,6 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
     $atId = exec("atq | grep \"${planDate}.*${planTime}:\" | awk '{print $1}'");
     exec("atrm $atId"); // suppression de la tache at
 
-    // ICI : trouver comment faire pour supprimer les taches at des rappels associées à cette planification
-
     // enfin, on supprime la ligne correspondante dans le fichier de conf :
     // supprime le nom du groupe entre [ ] ainsi que tout ce qui suit (ses repos) jusqu'à rencontrer une ligne vide (espace entre deux noms de groupes) :
     exec("sed -i '/^\[${planName}\]/,/^$/{d;}' $PLAN_CONF");
@@ -182,7 +181,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
         <?php
           // on commence par vérifier si une tache cron est déjà présente ou non :
           $actualCrontab = shell_exec("crontab -l"); // on récupère le contenu actuel de la crontab de $WWW_USER
-          if (strpos($actualCrontab, "--web --reminders") === false || strpos($actualCrontab, "#") !== false) { // si le contenu actuel ne contient pas de tâche cron de rappel ou bien si la tâche est commentée (#), alors on affiche un cercle rouge
+          if (strpos($actualCrontab, "--planReminders") === false || strpos($actualCrontab, "#") !== false) { // si le contenu actuel ne contient pas de tâche cron de rappel ou bien si la tâche est commentée (#), alors on affiche un cercle rouge
             echo '<a href="#"><img src="icons/red_circle.png" class="cronStatus" title="Il n\'y a pas de tâche cron active pour l\'envoi des rappels"/></a>';
           } else {
             echo '<a href="#"><img src="icons/green_circle.png" class="cronStatus" title="La tâche cron pour l\'envoi des rappels est active"/></a>'; // sinon on affiche un cercle vert
@@ -375,6 +374,9 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 echo '<td class="td-fit"><b>Section</b></td>';
               }
               echo '<td class="td-fit"><b>GPG Chk</b></td>';
+              if ($OS_FAMILY == "Redhat") {
+                echo '<td class="td-fit"><b>GPG Resign</b></td>';
+              }
               echo '<td class="td-fit"><b>Rappels</b></td>';
               echo '<td class="td-fit"><b>Status</b></td>';
               echo '</tr>';

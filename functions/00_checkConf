@@ -735,7 +735,6 @@ fi
 #	fi
 #done
 
-
 # Si aucune erreur, alors on affiche OK pour la vérification des planifications, sinon on envoie par mail les erreurs rencontrées   
 if [ "$CHECK_CONF_ERROR" -eq "0" ];then
     echo -e "[${VERT} OK ${RESET}]\n"

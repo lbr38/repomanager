@@ -34,13 +34,19 @@ if ! egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFA
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucun repo ${CYAN}${REPO_NAME}${RESET} sur ce serveur."        
 	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur : Il n'existe aucun repo ${REPO_NAME} sur ce serveur."
+	if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+		(( PLAN_ERROR++ ))
+	fi
 fi
 
 # Si le repo existe déjà à la date du jour alors on annule l'opération
 if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\"" $REPOS_LIST;then
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}."        
-	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}." 
+	MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Le repo ${REPO_NAME} existe déjà à la date du ${DATE_JMA}."
+	if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+		(( PLAN_ERROR++ ))
+	fi
 fi
 
 
@@ -63,6 +69,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
 		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Problème lors de la création du répertoire ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -76,24 +85,31 @@ if [ "$ERROR" -eq "0" ];then
 	if [ "$GPG_CHECK" == "no" ] || [ "$NO_GPG_CHECK" -eq "1" ];then	# Cas où on ne souhaite pas vérifier la signature des paquets du repo à cloner
 		if [ "$OS_VERSION" == "7" ];then
 			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf -l --repoid=${REPO_REALNAME} --norepopath --download_path=${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/
+			RESULT=$?
 		fi
 		if [ "$OS_VERSION" == "8" ];then
 			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --nogpgcheck --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
 		fi
 	else # Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
 		if [ "$OS_VERSION" == "7" ];then
 			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --gpgcheck -l --repoid=${REPO_REALNAME} --norepopath --download_path=${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/
+			RESULT=$?
 		fi
 		if [ "$OS_VERSION" == "8" ];then
 			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
 		fi
 	fi
-	if [ $? -eq "0" ];then
+	if [ "$RESULT" -eq "0" ];then
 		echo -e "\nCréation du repo ${REPO_NAME} terminé ${VERT}avec succès${RESET}"
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] reposync a rencontré un problème lors de la création du miroir"
 		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n reposync a rencontré un problème lors de la création du miroir"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
@@ -107,19 +123,22 @@ if [ "$ERROR" -eq "0" ];then
 		cd ${REPOS_DIR}/"${DATE_JMA}_${REPO_NAME}"/ &&	# On se mets à la racine du repo
 		shopt -s globstar # Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
 		if [ -f "/usr/bin/rpmresign" ];then
-			#/usr/bin/rpmresign --path "$GPGHOME" --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase	
 			/usr/bin/rpmresign  --path ${GPGHOME} --name ${GPG_KEYID} --passwordfile ${PASSPHRASE_FILE} **/*.rpm
-			#/usr/bin/rpmresign --macros $RPMMACROS --path $GPGHOME --passwordfile "$PASSPHRASE_FILE" **/*.rpm        # Si le module rpmresign est installé, on l'utilise (signature automatique en utilisant un fichier passphrase
+			RESULT=$?
 		else
 			rpmsign --addsign **/*.rpm	# Sinon on utilise rpmsign et on demande le mdp à l'utilisateur (pas possible d'utiliser un fichier passphrase)
+			RESULT=$?
 		fi
-		if [ $? -eq "0" ];then
+		if [ "$RESULT" -eq "0" ];then
 			shopt -u globstar && # Désactivation de globstar
 			echo -e "\nPaquets signés ${VERT}avec succès${RESET}"
 		else
 			(( ERROR++ ))
 			echo -e "[${ROUGE} ERREUR ${RESET}] La signature des paquets a rencontré une erreur"
 			MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n La signature des paquets a rencontré une erreur"
+			if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+				(( PLAN_ERROR++ ))
+			fi
 			echo -ne "Suppression de ce qui a été fait : "
 			rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 			echo -e "[${VERT} OK ${RESET}]"
@@ -138,6 +157,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] lors de la création du repo"
 		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur lors de la création du repo"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
@@ -156,6 +178,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
 		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur pendant la création du lien symbolique"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -184,6 +209,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
 		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n Erreur pendant l'ajout des informations"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 

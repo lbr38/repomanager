@@ -3,10 +3,10 @@
 
 <?php
     // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-    require 'vars/common.vars';
-    require 'common-functions.php';
-    require 'common.php';
-    require 'vars/display.vars';
+    require_once 'vars/common.vars';
+    require_once 'common-functions.php';
+    require_once 'common.php';
+    require_once 'vars/display.vars';
     if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
     // Comme la page contient un formulaire qui renvoie vers elle meme, on vérifie si des données ont été passées en POST (formulaire validé).
@@ -111,32 +111,28 @@
     if(!empty($_POST['automatisationEnable'])) {
         $automatisationEnable = validateData($_POST['automatisationEnable']);
         exec("sed -i 's/^AUTOMATISATION_ENABLED=.*/AUTOMATISATION_ENABLED=\"${automatisationEnable}\"/g' $REPOMANAGER_CONF");
-        
-        // si on a activé l'automatisation mais que le fichier de planifications n'existe pas alors on le crée
-        if(($automatisationEnable == "yes") AND (!file_exists($PLAN_CONF))) {
-            exec("echo '[PLANIFICATIONS]' > $PLAN_CONF");
+    }
+
+    // Activation des tâches cron
+    if (!empty($_POST['enableCron'])) {
+        // Récupération du contenu de la crontab actuelle dans un fichier temporaire
+        shell_exec("crontab -l > /tmp/repomanager_${WWW_USER}_crontab.tmp");
+        // On supprime toutes les lignes concernant repomanager dans ce fichier pour refaire propre
+        exec("sed -i '/repomanager/d' /tmp/repomanager_${WWW_USER}_crontab.tmp");
+
+        // Puis on ajoute les tâches cron suivantes au fichier temporaire
+        // Tâche cron journalière
+        file_put_contents("/tmp/repomanager_${WWW_USER}_crontab.tmp", "*/5 * * * * bash ${REPOMANAGER} --cronjob.daily".PHP_EOL, FILE_APPEND);
+
+        // Tâche cron d'envoi des rappels de planifications
+        if ($automatisationEnable === "yes") {
+            // si on a activé automatisationEnable === yes, alors on ajoute la tâche cron de rappels de planifications
+            file_put_contents("/tmp/repomanager_${WWW_USER}_crontab.tmp", "0 0 * * * bash ${REPOMANAGER} --planReminders".PHP_EOL, FILE_APPEND);
         }
 
-        // si on a activé l'automatisation mais qu'il n'y a pas la tâche cron hebdomadaire, on la crée
-        // on commence par vérifier si une tache cron est déjà présente ou non :
-        $actualCrontab = shell_exec("crontab -l"); // on récupère le contenu actuel de la crontab de $WWW_USER
-
-        // Il est possible qu'une tâche soit présente mais qu'elle soit commentée, dans ce cas on la supprime
-        if (strpos($actualCrontab, "#") !== false) { // on check si on trouve un caractère '#' dans la crontab actuelle
-            // on concatene le contenu actuel + suppression de la tâche commentée. On place le tout dans un fichier temporaire
-            file_put_contents("/tmp/${WWW_USER}_crontab.tmp", $actualCrontab."0 0 * * * ${REPOMANAGER} --web --reminders".PHP_EOL);
-            exec("sed -i '/#.*--web --reminders/d' /tmp/${WWW_USER}_crontab.tmp"); // suppression de la ligne commentée
-            exec("crontab /tmp/${WWW_USER}_crontab.tmp"); // on importe le fichier dans la crontab de $WWW_USER
-            unlink("/tmp/${WWW_USER}_crontab.tmp");
-        }
-
-        // si le contenu actuel ne contient pas de tâche cron de rappel, alors on la crée
-        if (strpos($actualCrontab, "--web --reminders") === false) {
-            // on concatene le contenu actuel + ajout de la nouvelle tâche. On place le tout dans un fichier temporaire
-            file_put_contents("/tmp/${WWW_USER}_crontab.tmp", $actualCrontab."0 0 * * * ${REPOMANAGER} --web --reminders".PHP_EOL);
-            exec("crontab /tmp/${WWW_USER}_crontab.tmp"); // on importe le fichier dans la crontab de $WWW_USER
-            unlink("/tmp/${WWW_USER}_crontab.tmp");
-        }
+        // Enfin on reimporte le contenu du fichier temporaire
+        exec("crontab /tmp/repomanager_${WWW_USER}_crontab.tmp");   // on importe le fichier dans la crontab de $WWW_USER
+        //unlink("/tmp/repomanager_${WWW_USER}_crontab.tmp");         // puis on supprime le fichier temporaire
     }
 
     // Autoriser la mise à jour des repos par l'automatisation
@@ -200,9 +196,9 @@
     }
     
     # D'autres paramètres spécifiques à rpm :
-    if ($OS_FAMILY == "Redhat") {    $RELEASEVER = exec("grep '^RELEASEVER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-                                $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-                                $GPG_KEYID = exec("grep '^GPG_KEYID=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    if ($OS_FAMILY == "Redhat") {   $RELEASEVER = exec("grep '^RELEASEVER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+                                    $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+                                    $GPG_KEYID = exec("grep '^GPG_KEYID=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     }
 ?>
 
@@ -218,7 +214,7 @@
                 <td><h4>CONFIGURATION GÉNÉRALE</h4</td>
             </tr>
             <tr>
-                <td>Type de paquets gérés</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Ce serveur gère des repos de paquets <?php if ($OS_FAMILY == "Redhat") { echo 'rpm'; } if ($OS_FAMILY == "Debian") { echo 'deb'; }?>" />Type de paquets gérés</td>
                 <td><input type="text" value=".<?php echo $PACKAGE_TYPE; ?>" readonly /></td>
             <?php 
             if ($OS_FAMILY == "Redhat") {
@@ -248,7 +244,7 @@
                 }        
             }?>
             <tr>
-                <td>Mise à jour automatique</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour lors de sa prochaine exécution si une mise à jour est disponible" />Mise à jour automatique</td>
                 <td>
                     <input type="radio" id="updateAuto_radio_yes" name="updateAuto" value="yes" <?php if ($UPDATE_AUTO == "yes" ) { echo 'checked'; }?>>
                     <label for="updateAuto_radio_yes">Yes</label>
@@ -257,7 +253,7 @@
                 </td>
             </tr>
             <tr>
-                <td>Sauvegarde avant mise à jour</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager créera un backup dans le répertoire indiqué avant de se mettre à jour" />Sauvegarde avant mise à jour</td>
                 <td>
                     <input type="radio" id="updateBackup_radio_yes" name="updateBackup" value="yes" <?php if ($UPDATE_BACKUP == "yes" ) { echo 'checked'; }?>>
                     <label for="updateBackup_radio_yes">Yes</label>
@@ -266,29 +262,29 @@
                 </td>
             <?php if ($UPDATE_BACKUP == "yes" ) {
             echo "<tr>";
-            echo "<td>Répertoire de sauvegarde</td>";
+            echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Répertoire de destination des backups avant mise à jour\" />Répertoire de sauvegarde</td>";
             echo "<td><input type=\"text\" name=\"updateBackupDir\" autocomplete=\"off\" value=\"${UPDATE_BACKUP_DIR}\"></td>";
             echo "</td>";
             echo "</tr>";
             } ?>
             </tr>
             <tr>
-                <td>Destinataire (alertes mails)</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="L'adresse renseignée recevra les mails d'erreurs et les rappels de planification. Il est possible de renseigner plusieurs adresses séparées par un espace" />Adresse mail</td>
                 <td><input type="text" name="emailDest" autocomplete="off" value="<?php echo $EMAIL_DEST; ?>"></td>
             </tr>
             <tr>
                 <td><br><h4>CONFIGURATION WEB</h4></td>
             </tr>
             <tr>
-                <td>Utilisateur web</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Utilisateur UNIX exécutant le service web de ce serveur" />Utilisateur web</td>
                 <td><input type="text" name="wwwUser" autocomplete="off" value="<?php echo $WWW_USER; ?>"></td>
             </tr>
             <tr>
-                <td>Hôte</td>
+                <td>Hôte<img src="icons/info.png" class="icon-verylowopacity" title="" /></td>
                 <td><input type="text" name="wwwHostname" autocomplete="off" value="<?php echo $WWW_HOSTNAME; ?>"></td>
             </tr>
             <tr>
-                <td>Activer la gestion des profils</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Activer la gestion des profils pour les clients yum-update-auto / apt-update-auto (en cours de dev)" />Activer la gestion des profils</td>
                 <td>
                     <input type="radio" id="manageProfiles_radio_yes" name="manageProfiles" value="yes" <?php if ($MANAGE_PROFILES == "yes" ) { echo 'checked'; }?>>
                     <label for="manageProfiles_radio_yes">Yes</label> 
@@ -299,10 +295,10 @@
             <tr>
                 <?php
                 if ($OS_FAMILY == "Debian") {
-                    echo '<td>Prefix des fichiers de repo \'.list\'</td>';
+                    echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Préfixe s\'ajoutant au nom de fichiers .list générés par repomanager, ex : repomanager-debian.list" />Préfixe des fichiers de repo \'.list\'</td>';
                 }
                 if ($OS_FAMILY == "Redhat") {
-                    echo '<td>Prefix des fichiers de repo \'.repo\'</td>';
+                    echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Préfixe s\'ajoutant au nom de fichiers .repo générés par repomanager, ex : repomanager-BaseOS.repo" />Préfixe des fichiers de repo \'.repo\'</td>';
                 }?>
                 <td><input type="text" name="symlinksPrefix" autocomplete="off" value="<?php echo $REPO_CONF_FILES_PREFIX; ?>"></td>
             </tr>
@@ -320,7 +316,7 @@
                 <td><br><h4>PLANIFICATIONS</h4></td>
             </tr>
             <tr>
-                <td>Activer les planifications</td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>
                 <td>
                     <input type="radio" id="automatisation_radio_yes" name="automatisationEnable" value="yes" <?php if ($AUTOMATISATION_ENABLED == "yes" ) { echo 'checked'; }?>>
                     <label for="automatisation_radio_yes">Yes</label> 
@@ -331,7 +327,7 @@
 
         <?php if ($AUTOMATISATION_ENABLED == "yes" ) { 
         echo "<tr>";
-        echo "<td>Autoriser la mise à jour automatique des repos</td>";
+        echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié\" />Autoriser la mise à jour automatique des repos</td>";
         echo "<td>";
         echo "<input type=\"radio\" id=\"allow_autoupdate_repos_radio_yes\" name=\"allowAutoUpdateRepos\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS == "yes") { echo "checked >"; } else { echo " >"; }
         echo "<label for=\"allow_autoupdate_repos_radio_yes\">Yes</label>";
@@ -340,7 +336,7 @@
         echo "</td>";
         echo "</tr>";
         echo "<tr>";
-        echo "<td>Autoriser la mise à jour automatique de l'env des repos</td>";
+        echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à modifier l'environnement d'un repo ou d'un groupe de repos spécifié\" />Autoriser la mise à jour automatique de l'env des repos</td>";
         echo "<td>";
         echo "<input type=\"radio\" id=\"allow_autoupdate_repos_env_radio_yes\" name=\"allowAutoUpdateReposEnv\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "yes") { echo "checked >"; } else { echo " >"; }
         echo "<label for=\"allow_autoupdate_repos_env_radio_yes\">Yes</label>";
@@ -349,7 +345,7 @@
         echo "</td>";
         echo "</tr>";
         echo "<tr>";
-        echo "<td>Autoriser la suppression automatique des anciens repos archivés</td>";
+        echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à supprimer les repos archivés (en fonction de la retention renseignée)\" />Autoriser la suppression automatique des anciens repos archivés</td>";
         echo "<td>";
         echo "<input type=\"radio\" id=\"allow_autodelete_old_repos_radio_yes\" name=\"allowAutoDeleteArchivedRepos\" value=\"yes\""; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") { echo "checked >"; } else { echo " >"; } 
         echo "<label for=\"allow_autodelete_old_repos_radio_yes\">Yes</label>";
@@ -358,12 +354,15 @@
         echo "</td>";
         echo "</tr>"; 
         echo "<tr>";
-        echo "<td>Retention (nombre de repos archivés à conserver)</td>";
+        echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Nombre de repos archivés du même nom à conserver avant suppression\" />Retention</td>";
         echo "<td><input type=\"number\" name=\"retention\" autocomplete=\"off\" value=\"${RETENTION}\"></td>";
         echo "</tr>";
         } ?>
             <tr>
-                <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
+                <td>
+                    <input type="hidden" name="enableCron" value="yes" />
+                    <button type="submit" class="button-submit-medium-green">Enregistrer</button>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -397,7 +396,7 @@
             <td><br><h4>ETAT DES CRON</h4></td>
         </tr>
         <tr>
-            <td>Tâche cron journalière</td>
+            <td><img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron exécutant des actions régulières tels que vérifier la disponibilité d'une nouvelle mise à jour, remettre en ordre les permissions sur les répertoires de repos. Tâche journalière s'exécutant toutes les 5min." />Tâche cron journalière</td>
             <td>
             <?php
             // si un fichier de log existe, on récupère l'état
@@ -416,12 +415,20 @@
             ?>
             </td>
         </tr>
-        <tr>
-            <td>Rappels auto. des planifications à venir</td>
-            <td>
+        <?php
+        if ($AUTOMATISATION_ENABLED == "yes") {
+            echo '<tr>';
+            echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron envoyant des rappels automatiques des futures planifications à venir" />Rappels automatique de planifications</td>';
+            // On vérifie la présence d'une ligne contenant planReminders dans la crontab
+            $cronStatus = shell_exec("crontab -l | grep 'planReminders'");
+            if (empty($cronStatus)) {
+                echo '<td>Status : <span class="redtext">Inactif</span></td>';
+            } else {
+                echo '<td>Status : <span class="greentext">Actif</span></td>';
+            }
+        }
+        ?>
 
-            </td>
-        </tr>
         <?php 
         /* Si un fichier de log cron existe c'est qu'il y a eu un problème lors de l'exécution de la tâche 
         On affiche donc une pastille rouge et le contenu du fichier de logs. 

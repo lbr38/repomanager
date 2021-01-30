@@ -180,13 +180,21 @@ cronjob_daily() {
 
 # à vérifier
 rapport_mail() {
-# Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un message d'erreur
+# Avant toute chose, on supprime les codes couleurs ANSI dans le fichier de log, ils sont utiles pour afficher de la couleur dans le terminal mais ils polluent le rapport mail qui devient illisible :
+sed 's/\x1b\[[0-9;]*m//g' "$LOG" > "$LOG_PARSED"
+
+# Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un mail avec un titre d'erreur
 if [ ! -z "$MSG_MAIN_ERROR" ] || [ ! -z "$MSG_CHECK_CONF_ERROR" ] || [ ! -z "$MSG_PLAN_ERROR" ];then
-	echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
-else
-	echo -e "$MSG_MAIN" | mutt -s "Tache automatique sur ${HOSTNAME}" -a $LOG -- $EMAIL_DEST
+	# Cas où il s'agit d'une planification
+	if [ "$PLAN_EXEC" -eq "1" ];then
+		echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Planification [Plan-${PLAN_ID}] sur ${HOSTNAME}" -a $LOG_PARSED -- $EMAIL_DEST
+	fi
+	# Autres cas
+	# if [ "$XXXXX" -eq "1" ];then
+	#
 fi
 }
+
 
 rappel_mail() {
 # Messages de rappels de planification
@@ -200,7 +208,7 @@ clean_exit() {
 # Retour au répertoire de base, pour ne pas empêcher un quelconque nettoyage de répertoire
 cd "$BASE_DIR"
 
-# En mode auto script lancé par cron), on concatene tous les messages d'erreurs rencontrés dans 1 message global afin de l'envoyer par mail :
+# En mode auto (planification), on concatene tous les messages d'erreurs rencontrés dans 1 message global afin de l'envoyer par mail :
 if [ "$TTY" -eq "0" ];then
 	# On commence par les messages d'erreur de conf
 	if [ ! -z "$MSG_CHECK_CONF_ERROR" ];then
@@ -221,10 +229,11 @@ if [ "$TTY" -eq "0" ];then
         MSG_MAIN="${MSG_MAIN}\n Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
 	fi
 
+	# Du coup si on a un message global, on l'affiche à l'écran pour qu'il soit affiché dans le log et on envoie un mail
 	if [ ! -z "$MSG_MAIN" ];then
 		echo -e "$MSG_MAIN"
 		rapport_mail
-	fi
+	fi	
 fi
 
 # On tri le contenu des fichiers de listes
@@ -235,7 +244,6 @@ permissions
 
 # Suppression des fichiers temporaires utilisés pendant l'opération
 rm /tmp/repomanager* -fr
-rm /tmp/${WWW_USER}_crontab.tmp -f
 
 # Suppression du script d'installation
 rm "${BASE_DIR}"/install -f
@@ -252,7 +260,7 @@ exit
 
 ## TRAITEMENT ##
 
-# Pré-lecture des arguments
+# Pré-lecture des paramètres, initialisation de variables supplémentaires
 if [ $# -ge "1" ];then
 	case "$1" in
 		--cronjob-daily)
@@ -261,6 +269,11 @@ if [ $# -ge "1" ];then
 			getConf
 			cronjob_daily
 			clean_exit
+		;;
+		--exec-plan)
+			TTY="0"
+			PLAN_EXEC=1
+			PLAN_ID=$2
 		;;
 	esac
 fi
@@ -351,7 +364,8 @@ REPO_ENV=""
 REPO_DATE=""
 REPO_DESCRIPTION=""
 
-
+# Si on en est là c'est que les vérifications sont passées (checkConf / getConf) et qu'on peut cette fois relire les paramètres pour lancer les opérations
+# Relecture des paramètres et lancement des opérations
 while [ $# -ge 1 ];do
 	case "$1" in
 		--help|-help|-h)
@@ -378,7 +392,6 @@ while [ $# -ge 1 ];do
 		--planReminders)
 			TTY="0"
 			planReminders
-			clean_exit
 		;;
 		--check-update|-cu)
 			checkUpdate
@@ -445,7 +458,6 @@ while [ $# -ge 1 ];do
 			permissions
 		;;
 		--exec-plan)
-			PLAN_ID="$2"
 			execPlan "$PLAN_ID"
 		;;
 # anciens paramètres (à vérifier)
@@ -460,7 +472,6 @@ while [ $# -ge 1 ];do
     esac
 	shift
 done
-
 
 # pour le moment ne pas s'occuper de ces deux options automatiques :
 #

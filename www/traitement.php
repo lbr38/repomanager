@@ -3,10 +3,10 @@
 
 <?php
     // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-    require 'vars/common.vars';
-    require 'common-functions.php';
-    require 'common.php';
-    require 'vars/display.vars';
+    require_once 'vars/common.vars';
+    require_once 'common-functions.php';
+    require_once 'common.php';
+    require_once 'vars/display.vars';
     if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 ?>
 
@@ -51,7 +51,7 @@
 
 // Action newRepo :
 function checkAction_newRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -280,7 +280,7 @@ function checkAction_newRepo() {
 
 
 function checkAction_updateRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -489,7 +489,7 @@ function checkAction_updateRepo() {
 
 
 function checkAction_changeEnv() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -689,7 +689,7 @@ function checkAction_changeEnv() {
 
 
 function checkAction_duplicateRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -861,7 +861,7 @@ function checkAction_duplicateRepo() {
 
 
 function checkAction_deleteSection() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -964,7 +964,7 @@ function checkAction_deleteSection() {
 
 
 function checkAction_deleteDist() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1063,7 +1063,7 @@ function checkAction_deleteDist() {
 
 
 function checkAction_deleteRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1208,7 +1208,7 @@ function checkAction_deleteRepo() {
 
 
 function checkAction_deleteOldRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {
@@ -1360,7 +1360,7 @@ function checkAction_deleteOldRepo() {
 // vérifier qu'un repo du même nom et en $DEFAULT_ENV n'existe pas déjà avant de restaurer
 
 function checkAction_restoreOldRepo() {
-    require 'vars/common.vars';
+    require_once 'vars/common.vars';
     
     // On va devoir retransmettre l'actionId à cette même page pour demander confirmation
     if (!empty($_GET['actionId'])) {

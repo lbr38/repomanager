@@ -42,6 +42,9 @@ if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_D
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucune section ${CYAN}${REPO_SECTION}${RESET} du repo ${CYAN}${REPO_NAME}${RESET} (distribution : ${REPO_DIST}) sur ce serveur."
 	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur : Il n'existe aucune section ${REPO_SECTION} du repo ${REPO_NAME} (distribution : ${REPO_DIST}) sur ce serveur"
+	if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+		(( PLAN_ERROR++ ))
+	fi
 fi
 
 # Si la section existe déjà à la date du jour alors on annule l'opération
@@ -49,6 +52,9 @@ if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIS
 	(( ERROR++ ))
 	echo -e "\n[${ROUGE} ERREUR ${RESET}] La section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) existe déjà à la date du ${DATE_JMA}."
 	MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n La section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) existe déjà à la date du ${DATE_JMA}."
+	if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+		(( PLAN_ERROR++ ))
+	fi
 fi
 
 # On traite uniquement si il n'y a pas eu d'erreur précédemment
@@ -60,6 +66,9 @@ if [ "$ERROR" -eq "0" ];then
 		echo -e "[${ROUGE} ERREUR ${RESET}] Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
 		(( ERROR++ ))
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Adresse de l'hôte incomplète. Vous devez renseigner l'hôte complet avec sa racine (ex : ftp.fr.debian.org/debian) dans votre gestionnaire d'hôtes"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -91,6 +100,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors de la création du répertoire ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors de la création du répertoire ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -101,15 +113,20 @@ if [ "$ERROR" -eq "0" ];then
 	# Dans le cas où on a précisé de ne pas vérifier les signatures GPG
 	if [ "$GPG_CHECK" == "no" ];then
 		/usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --root=$REPO_RACINE --dist=$REPO_DIST --host=$REPO_HOST --section=$REPO_SECTION --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup #--verbose --debug &&
+		RESULT=$?
 	else # Dans tous les autres cas (même si rien n'a été précisé)
 		/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --root=$REPO_RACINE --dist=$REPO_DIST --host=$REPO_HOST --section=$REPO_SECTION --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup #--verbose --debug &&
+		RESULT=$?
 	fi
-	if [ $? -eq "0" ];then
+	if [ "$RESULT" -eq "0" ];then
 		echo -e "\nMise à jour de la section ${REPO_SECTION} du repo ${REPO_NAME} (distribution ${REPO_DIST}) terminée ${VERT}avec succès${RESET}"
 	else
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] debmirror a rencontré un problème lors de la création du miroir"
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n debmirror a rencontré un problème lors de la création du miroir"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
@@ -128,6 +145,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant la création du lien symbolique"
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur pendant la création du lien symbolique"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
@@ -157,6 +177,9 @@ if [ "$ERROR" -eq "0" ];then
 		(( ERROR++ ))
 		echo -e "[${ROUGE} ERREUR ${RESET}] pendant l'ajout des informations"
 		MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Erreur pendant l'ajout des informations"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
 	fi
 fi
 
