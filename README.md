@@ -1,6 +1,6 @@
 <h1>Alpha version</h1>
 
-Compatible avec les sytèmes Redhat/CentOS et Debian/Ubuntu.
+Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu.
 
 Testé sur : 
 - Debian 10

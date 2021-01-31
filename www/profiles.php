@@ -103,6 +103,7 @@
 <section class="mainSectionRight">
     <section class="right">
       <h5>PROFILS</h5>
+      <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if ($OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if ($OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèrent automatiquement leur configuration et leurs fichiers de repo depuis leur serveur de repo.</p>
       <?php
         $i = 0;
         $profilesNames = scandir($PROFILS_MAIN_DIR);
@@ -186,7 +187,7 @@
             echo '<table class="table-large">';
             echo '<thead>';
             echo '<tr>';
-            echo "<td><a href=\"#\" id=\"profilConfigurationToggleButton${i}\">Configuration</a></td>";
+            echo "<td><a href=\"#\" id=\"profilConfigurationToggleButton${i}\">Configuration<img src=\"icons/chevron-circle-down.png\" class=\"icon\"/></a></td>";
             echo '</tr>';
             echo '</thead>';
             echo "<tbody id=\"profilConfigurationTbody${i}\" class=\"hide\">";
