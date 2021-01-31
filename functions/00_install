@@ -154,7 +154,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 reposdir=${REPOMANAGER_YUM_DIR}/
 keepcache=0
 debuglevel=2
-logfile=${REPOMANAGER_YUM_DIR}/repomanager.log
+#logfile=${REPOMANAGER_YUM_DIR}/repomanager.log
 exactarch=1
 obsoletes=1
 gpgcheck=1
@@ -493,13 +493,13 @@ else
 fi
 if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
 	# Si la tâche de rappels n'existe pas, alors on la rajoute à la suite du fichier exporté
-	if ! grep -q ".*--reminders" /tmp/${WWW_USER}_crontab.tmp;then
-		echo "0 0 * * * ${REPOMANAGER} --web --reminders" >> /tmp/${WWW_USER}_crontab.tmp
+	if ! grep -q ".*--planReminders" /tmp/${WWW_USER}_crontab.tmp;then
+		echo "0 0 * * * bash ${REPOMANAGER} --planReminders" >> /tmp/${WWW_USER}_crontab.tmp
 	fi
 	# Si la tâche existe mais qu'elle est commentée alors on la décommente
-	if grep -q "#.*--reminders" /tmp/${WWW_USER}_crontab.tmp;then
-		sed -i '/#.*--web --reminders/d' /tmp/${WWW_USER}_crontab.tmp
-		echo "0 0 * * * ${REPOMANAGER} --web --reminders" >> /tmp/${WWW_USER}_crontab.tmp
+	if grep -q "#.*--planReminders" /tmp/${WWW_USER}_crontab.tmp;then
+		sed -i '/#.*--planReminders/d' /tmp/${WWW_USER}_crontab.tmp
+		echo "0 0 * * * bash ${REPOMANAGER} --planReminders" >> /tmp/${WWW_USER}_crontab.tmp
 	fi
 fi
 # Si la tâche cron journalière n'existe pas, alors on la rajoute à la suite du fichier exporté

@@ -103,9 +103,72 @@ function planLogExplode($planId, $PLAN_LOG, $OS_FAMILY) {
   }
 
   $planReminder = str_replace(['Reminder=', '"'], '', $plan[$i]); // on récupère les rappels en retirant 'Reminder=""' de l'expression
+  $i++;
+  $planLogFile = str_replace(['Logfile=', '"'], '', $plan[$i]); // on récupère les rappels en retirant 'Logfile=""' de l'expression
 
   // On renvoie un return contenant toutes les valeurs ci-dessus, même celle nulles, ceci afin de s'adapter à toutes les situations et OS
-  return array($planStatus, $planError, $planDate, $planTime, $planAction, $planRepoOrGroup, $planGroup, $planRepo, $planDist, $planSection, $planGpgCheck, $planGpgResign, $planReminder);
+  return array($planStatus, $planError, $planDate, $planTime, $planAction, $planRepoOrGroup, $planGroup, $planRepo, $planDist, $planSection, $planGpgCheck, $planGpgResign, $planReminder, $planLogFile);
 }
+
+function selectlogs() {
+  require 'vars/common.vars';
+
+  // Si un fichier de log est actuellement sélectionné (en GET) alors on récupère son nom afin qu'il soit sélectionné dans la liste déroulante (s'il apparait)
+  if (!empty($_GET['logfile'])) {
+    $currentLogfile = validateData($_GET['logfile']);
+  }
+
+  // On récupère la liste des fichiers de logs en les triant 
+  $logfiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
+  
+  echo '<form action="viewlog.php" method="get" class="is-inline-block">';
+	echo '<select name="logfile" class="select-xxlarge">';
+	echo "<option value=\"$logfiles[0]\">Repomanager : dernier fichier de log</option>";
+	foreach($logfiles as $logfile) {
+    // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
+		if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^repomanager_/',$logfile)) {
+      // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
+      $logfileDate = exec("echo $logfile | awk -F '_' '{print $2}'");
+      $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
+      $logfileTime = exec("echo $logfile | awk -F '_' '{print $3}' | sed 's/.log//g'");
+      $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
+      if ($logfile === $currentLogfile) {
+        echo "<option value=\"${logfile}\" selected>Repomanager : traitement du $logfileDate à $logfileTime</option>";
+      } else {
+        echo "<option value=\"${logfile}\">Repomanager : traitement du $logfileDate à $logfileTime</option>";
+      }
+		}
+	}
+	echo '</select>';
+	echo '<button type="submit" class="button-submit-xsmall-blue">Afficher</button>';
+  echo '</form>';
+}
+
+function selectPlanlogs() {
+  require 'vars/common.vars';
+
+  // On récupère la liste des fichiers de logs en les triant 
+  $logfiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
+  //$logfiles = glob("$MAIN_LOGS_DIR/repomanager_*.log");
+
+  echo '<form action="viewlog.php" method="get" class="is-inline-block">';
+	echo '<select name="logfile" class="select-xxlarge">';
+	echo "<option value=\"$logfiles[0]\">Planification : dernier fichier de log</option>";
+	foreach($logfiles as $logfile) {
+    // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
+		if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^plan_/',$logfile)) {
+      // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
+      $logfileDate = exec("echo $logfile | awk -F '_' '{print $2}'");
+      $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
+      $logfileTime = exec("echo $logfile | awk -F '_' '{print $3}' | sed 's/.log//g'");
+      $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
+			echo "<option value=\"${logfile}\">Planification : traitement du $logfileDate à $logfileTime</option>";
+		}
+	}
+	echo '</select>';
+	echo '<button type="submit" class="button-submit-xsmall-blue">Afficher</button>';
+  echo '</form>';
+}
+
 
 ?>

@@ -231,7 +231,6 @@ if [ "$TTY" -eq "0" ];then
 
 	# Du coup si on a un message global, on l'affiche à l'écran pour qu'il soit affiché dans le log et on envoie un mail
 	if [ ! -z "$MSG_MAIN" ];then
-		echo -e "$MSG_MAIN"
 		rapport_mail
 	fi	
 fi
@@ -272,6 +271,9 @@ if [ $# -ge "1" ];then
 		;;
 		--exec-plan)
 			TTY="0"
+			LOGNAME="plan_${DATE_AMJ}_${HEURE_HMS}.log" # On ré-écrit le nom du fichier de log afin de le différencier des fichier de log commencant par repomanager_
+			LOG="${MAIN_LOGS_DIR}/${LOGNAME}"
+			eval $LOG
 			PLAN_EXEC=1
 			PLAN_ID=$2
 		;;
@@ -405,47 +407,38 @@ while [ $# -ge 1 ];do
 		--newRepo)
 			shift
 			newRepo $*
-			clean_exit
 		;;
         --updateRepo)
             shift           # on shift pour ne plus inclure --updateRepo parmi les paramètres
     		updateRepo $*   # puis on appelle la fonction updateRepo avec tous les paramètres suivants
-			clean_exit
         ;;
         --changeEnv)
             shift
             changeEnv $*
-			clean_exit
         ;;
 		--duplicateRepo)
 			shift
 			duplicateRepo $*
-			clean_exit
 		;;
 		--deleteRepo)
 			shift
 			deleteRepo $*
-			clean_exit
 		;;
 		--deleteDist)
 			shift
 			deleteDist $*
-			clean_exit
 		;;
 		--deleteSection)
 			shift
 			deleteSection $*
-			clean_exit
 		;;
 		--restoreOldRepo)
 			shift
 			restoreOldRepo $*
-			clean_exit
 		;;
 		--deleteOldRepo)
 			shift
 			deleteOldRepo $*
-			clean_exit
 		;;
 		--reset-install)
 			rm "$CONF" -f
@@ -467,7 +460,6 @@ while [ $# -ge 1 ];do
        	*)
        	echo "Unknown argument: $1"
        	print_help
-        clean_exit
        	;;
     esac
 	shift

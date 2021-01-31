@@ -66,12 +66,8 @@ else
 fi
 
 echo -ne " → Nettoyage :\t"
-echo -n "je suis à : "
-pwd
-echo "base dir : $BASE_DIR"
+
 cd "$BASE_DIR"
-echo -n "je suis à : "
-pwd
 rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf
 if [ $? -eq "0" ];then
     echo -e "[$VERT OK $RESET]"

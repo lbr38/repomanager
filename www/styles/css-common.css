@@ -440,7 +440,7 @@ section.log {
 }
 
 /* conf commune à toutes les icones */
-.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green {
+.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green, .icon-invisible {
     height: 11px;
     margin-left: 5px;
     margin-right: 5px;
@@ -456,7 +456,7 @@ section.log {
     opacity: 0.06;
 }
 
-.icon-lowopacity:hover {
+.icon-lowopacity:hover, .icon-verylowopacity:hover, .icon-invisible:hover {
     opacity: 1;
 }
 
@@ -473,15 +473,14 @@ section.log {
     opacity: 1;
 }
 
-.icon-verylowopacity:hover { 
-    opacity: 1;
-}
-
 .icon-verylowopacity-red:hover {
     /* trouver comment modifier la couleur du png en rouge */
     opacity: 1;
 }
 
+.icon-invisible { /* icone invisible, révélée par un passage de souris (hover) */
+    opacity: 0;
+}
 
 .li-operation-running {
     background-color: #d9534f;
@@ -573,6 +572,22 @@ input[type=text], input[type=date], input[type=time], input[type=number], select
 
 select.select-small {
     width: 100px;
+}
+
+select.select-medium {
+    width: 150px;
+}
+
+select.select-large {
+    width: 250px;
+}
+
+select.select-xlarge {
+    width: 300px;
+}
+
+select.select-xxlarge {
+    width: 400px;
 }
 
 input[type=text].input-small {
@@ -781,7 +796,7 @@ input[type=text].input-large {
     border-radius: 2px;
     color: whitesmoke;
     padding: 3px;
-    margin-top: 1px;
+    margin: 2px;
     width: 50px;
     text-align: center;
     text-decoration: none;
@@ -836,13 +851,6 @@ form.profileForm td {
     display: flex;
     justify-content: space-between;
     vertical-align: top;
-}
-
-/* CSS pour journal.php */
-#scrollLock {
-    position: fixed;
-    top: 0;
-    right: 0;
 }
 
 footer {
@@ -955,6 +963,10 @@ img.cronStatus {
     transition-duration: 0.4s;
 }
 
+.serverInfo:hover .icon-invisible { /* Lorsque la souris est sur le div, on affiche légèrement l'icone 'Fermer' invisible. Celle-ci devient pleinement visible si on place sa souris dessus */
+    opacity: 0.33;
+}
+
 #newRepoCloseButton, #GroupsListSlideDownButton, #ReposSourcesSlideDownButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;
 }
@@ -965,3 +977,51 @@ img.cronStatus {
     padding-top: 2px;
     padding-bottom: 2px;
 }
+
+/* Classes génériques */
+.is-inline {
+    display: inline;
+}
+
+.is-block {
+    display: block;
+}
+
+.is-inline-block {
+    display: inline-block;
+}
+
+.float-right {
+    float: right;
+}
+
+
+/* Boutons Top et Down pour atteindre le haut ou le bas de page */
+#scrollButtons {
+    position: fixed;
+    top: 220;
+    right: 10;
+}
+
+.button-top {
+    border-radius: 5px;
+    display: block;
+    background-color: #555555;
+    margin: 5px;
+    padding: 8px;
+    opacity: 0.50;
+}
+
+.button-down {
+    border-radius: 5px;
+    display: block;
+    background-color: #555555;
+    margin: 5px;
+    padding: 8px;
+    opacity: 0.50;
+}
+
+.button-top:hover, .button-down:hover {
+    opacity: 1;
+}
+

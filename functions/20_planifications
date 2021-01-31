@@ -433,8 +433,7 @@ fi
 # Si des erreurs on été rencontrées, on affiche le message d'erreur
 if [ "$PLAN_ERROR" -ne "0" ];then
 	# Suppression des lignes vides dans le message d'erreur si il y en a
-	MSG_PLAN_ERROR=$(echo -e "$MSG_PLAN_ERROR" | sed '/^$/d')
-	echo -e "$MSG_PLAN_ERROR"
+	MSG_MAIN_ERROR=$(echo -e "$MSG_MAIN_ERROR" | sed '/^$/d')
 fi
 
 # Ajout de la tâche planifiée dans le fichier de log avec son état (OK ou en erreur).
@@ -455,10 +454,13 @@ if [ "$PLAN_ERROR" -eq "0" ];then
 	echo "Status=\"OK\"" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
 else
 	echo "Status=\"Error\"" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
-	echo "Error=\"$MSG_PLAN_ERROR\"" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
+	echo "Error=\"$MSG_MAIN_ERROR\"" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
 fi
 # On récupère les paramètres de la planification exécutée :
 sed -n "/\[Plan-${PLAN_ID}\]/,/\[/p" "$PLAN_CONF" | grep -v "Plan-" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
+
+# On ajoute aussi le nom du ficher de log de cette planification :
+echo "Logfile=\"$LOGNAME\"" >> /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp
 
 # Enfin on ajoute les données de la planification dans le fichier de log :
 cat /tmp/repomanager_newplanlog_${PLAN_LOG_ID}.tmp >> $PLAN_LOG

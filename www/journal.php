@@ -7,14 +7,8 @@ require_once 'vars/display.vars';
 if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // On récupère la liste des fichiers de logs en les triant 
-$logFiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
-
-// Si un fichier de log a été sélectionné dans le formulaire, alors ce sera lui qui sera affiché
-if (!empty($_POST['logselect'])) {
-	$logFile = $_POST['logselect'];
-} else { // aucun fichier de log n'a été sélectionné, alors on affichera le dernier en date
-	$logFile = $logFiles[0]; // Celui en position 0 est le dernier fichier de log.
-}
+$logfiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
+$logfile = $logfiles[0]; // Celui en position 0 est le dernier fichier de log, c'est celui-ci qu'on affiche (lastlog)
 
 // bouton "Tuer le process en cours"
 if(isset($_GET['killprocess'])) {
@@ -37,7 +31,7 @@ $textColor = ""; //use CSS color
 // Don't have to change anything bellow
 if(!$textColor) $textColor = "black";
 if(isset($_GET['getLog'])) {
-	$output = file_get_contents("${MAIN_LOGS_DIR}/${logFile}"); // recup du contenu du fichier de log
+	$output = file_get_contents("${MAIN_LOGS_DIR}/${logfile}"); // recup du contenu du fichier de log
 	$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output); // suppression des codes ANSI (couleurs)
 	echo $output;
 } else {
@@ -84,38 +78,20 @@ if(isset($_GET['getLog'])) {
 		<?php include('common-header.inc.php'); ?>
 
 		<section class="main">
-			<form action="journal.php" method="post">
-			<table>
-			<tr>
-				<td>
-				<?php 
-				echo "<select name=\"logselect\">";
-				echo "<option value=\"$logFiles[0]\">Dernier fichier de log</option>";
-				foreach($logFiles as $logFile) {
-					if (($logFile != "..") AND ($logFile != ".") AND ($logFile != "lastlog.log")) { // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus)
-						echo "<option value=\"${logFile}\">${logFile}</option>";
-					}
-				}
-				echo "</select>";
-				?>
-				</td>
-				<td><button type="submit" class="button-submit-xsmall-blue">Afficher</button></td>
-				</tr>
-			</table>
-			</form>
+			<?php
+				selectlogs(); // Affichage de la liste des fichiers de logs
+			?>
 
 			<section class="log">
 				<pre><div id="log"></div></pre>
 			</section>
-			
+
 		</section>
 		<div id="bottom"></div> <!-- pour atteindre le bas de page -->
 
-		<div id="scrollLock"> 
-			<!--<input class="disableScrollLock" style="display: none;" type="button" value="Désactiver le scroll auto" /> 
-			<input class="enableScrollLock" type="button" value="Activer le scroll auto" />-->
-			<a href="#top" class="button-small">Top of document</a>
-			<a href="#bottom" class="button-small">Bottom of document</a>
+		<div id="scrollButtons">
+			<a href="#top" class="button-top" title="Atteindre le haut de page"><img src="icons/arrow-circle-up.png" /></a>
+			<a href="#bottom" class="button-down" title="Atteindre le bas de page"><img src="icons/arrow-circle-down.png" /></a>
 		</div>
 		<?php include('common-footer.inc.php'); ?>
 	</body>
