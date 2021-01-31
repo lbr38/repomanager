@@ -379,6 +379,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
               }
               echo '<td class="td-fit"><b>Rappels</b></td>';
               echo '<td class="td-fit"><b>Status</b></td>';
+              echo '<td class="td-fit"><b>Log</b></td>';
               echo '</tr>';
 
               $i = '0'; // Initialisation d'une variable qui servira pour chaque div d'erreur de planification caché, et affiché par js
@@ -407,6 +408,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 $planGpgCheck = $plan[10];
                 $planGpgResign = $plan[11];
                 $planReminder = $plan[12];
+                $planLogFile = $plan[13];
 
                 // Si une date a été retournée, on l'affiche
                 echo '<td class="td-fit">';
@@ -504,6 +506,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 } else {
                   echo '?';
                 }
+                echo '</td>';
 
                 // Status
                 echo '<td class="td-fit">';
@@ -515,6 +518,18 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 } else {
                   echo '?';
                 }
+                echo '</td>';
+
+                // Fichier de log
+                echo '<td class="td-fit">';
+                if (!empty($planLogFile)) {
+                  echo "<a href=\"viewlog.php?logfile=${planLogFile}\">Log</a>";
+                } else {
+                  echo '?';
+                }
+                echo '</td>';
+
+
                 echo '</tr>';
                 // Si le status était Error, alors on affiche une ligne (cachée) contenant le message d'erreur. 
                 if ($planStatus === "Error") {

@@ -122,7 +122,7 @@
 
         // Puis on ajoute les tâches cron suivantes au fichier temporaire
         // Tâche cron journalière
-        file_put_contents("/tmp/repomanager_${WWW_USER}_crontab.tmp", "*/5 * * * * bash ${REPOMANAGER} --cronjob.daily".PHP_EOL, FILE_APPEND);
+        file_put_contents("/tmp/repomanager_${WWW_USER}_crontab.tmp", "*/5 * * * * bash ${REPOMANAGER} --cronjob-daily".PHP_EOL, FILE_APPEND);
 
         // Tâche cron d'envoi des rappels de planifications
         if ($automatisationEnable === "yes") {
@@ -218,29 +218,29 @@
                 <td><input type="text" value=".<?php echo $PACKAGE_TYPE; ?>" readonly /></td>
             <?php 
             if ($OS_FAMILY == "Redhat") {
-                echo "<tr>";
-                echo "<td>Release version</td>";
+                echo '<tr>';
+                echo "<td><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Ce serveur créera des miroirs de repos pour CentOS $RELEASEVER uniquement\" />Version d'OS (release version)</td>";
                 echo "<td><input type=\"text\" name=\"releasever\" autocomplete=\"off\" value=\"$RELEASEVER\"></td>";
-                echo "</tr>";
-                echo "<tr>";
-                echo "<td>Signer les paquets avec GPG</td>";
-                echo "<td>";
+                echo '</tr>';
+                echo '<tr>';
+                echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d\'un miroir de repo" />Signer les paquets avec GPG</td>';
+                echo '<td>';
                 if ( $GPG_SIGN_PACKAGES == "yes" ) {
-                    echo "<input type=\"radio\" id=\"gpgSignPackages_yes\" name=\"gpgSignPackages\" value=\"yes\" checked=\"yes\" />";
-                    echo "<label for=\"gpgSignPackages_yes\">Yes</label>";
-                    echo "<input type=\"radio\" id=\"gpgSignPackages_no\" name=\"gpgSignPackages\" value=\"no\" />";
-                    echo "<label for=\"gpgSignPackages_no\">No</label>";
-                    echo "</td>";
-                    echo "<tr>";
-                    echo "<td>GPG Key ID (pour signature des paquets)</td>";
+                    echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes" checked="yes" />';
+                    echo '<label for="gpgSignPackages_yes">Yes</label>';
+                    echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" />';
+                    echo '<label for="gpgSignPackages_no">No</label>';
+                    echo '</td>';
+                    echo '<tr>';
+                    echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Adresse mail liée au trousseau de clé GPG servant à resigner les paquets" />GPG Key ID (pour signature des paquets)</td>';
                     echo "<td><input type=\"text\" name=\"gpgKeyID\" autocomplete=\"off\" value=\"$GPG_KEYID\"></td>";
-                    echo "</tr>"; 
+                    echo '</tr>'; 
                 } else {
-                    echo "<input type=\"radio\" id=\"gpgSignPackages_yes\" name=\"gpgSignPackages\" value=\"yes\"/>";
-                    echo "<label for=\"gpgSignPackages_yes\">Yes</label>";
-                    echo "<input type=\"radio\" id=\"gpgSignPackages_no\" name=\"gpgSignPackages\" value=\"no\" checked=\"yes\" />";
-                    echo "<label for=\"gpgSignPackages_no\">No</label>";
-                    echo "</td>";
+                    echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes"/>';
+                    echo '<label for="gpgSignPackages_yes">Yes</label>';
+                    echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" checked="yes" />';
+                    echo '<label for="gpgSignPackages_no">No</label>';
+                    echo '</td>';
                 }        
             }?>
             <tr>
@@ -280,7 +280,7 @@
                 <td><input type="text" name="wwwUser" autocomplete="off" value="<?php echo $WWW_USER; ?>"></td>
             </tr>
             <tr>
-                <td>Hôte<img src="icons/info.png" class="icon-verylowopacity" title="" /></td>
+                <td><img src="icons/info.png" class="icon-verylowopacity" title="" />Hôte</td>
                 <td><input type="text" name="wwwHostname" autocomplete="off" value="<?php echo $WWW_HOSTNAME; ?>"></td>
             </tr>
             <tr>

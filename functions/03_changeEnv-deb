@@ -90,7 +90,7 @@ if [ "$ERROR" -eq "0" ];then
 	# - ce repo avait déjà une version en prod, on modifie le lien symbo et on passe la version précédente en archive
 	# Cas 1 :
 	if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}";then	# Cas 1 : pas de version déjà en ${REPO_NEW_ENV}
-		echo -ne "Création du lien symbolique :\t"
+		echo -ne "Création du lien symbolique :\t\t\t"
 		ln -s ${REPO_DATE}_${REPO_SECTION}/ ${REPO_SECTION}_${REPO_NEW_ENV}
 		if [ $? -eq "0" ];then
 			echo -e "[${VERT} OK ${RESET}]"
@@ -105,7 +105,7 @@ if [ "$ERROR" -eq "0" ];then
 
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
-			echo -ne "Mise à jour des informations dans repos.list :\t"
+			echo -ne "Mise à jour des informations dans repos.list :\t\t"
 			echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\",Date=\"${REPO_DATE}\",Description=\"${REPO_DESCRIPTION}\"" >> ${REPOS_LIST} &&
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
