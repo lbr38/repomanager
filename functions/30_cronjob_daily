@@ -15,7 +15,7 @@ if [ -f "$CRON_LOG" ];then echo -n> "$CRON_LOG";fi
 
 # Vérification d'une nouvelle version disponible sur github
 # Récupère le numéro de version qui est publié sur github dans le fichier 'version'
-GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/alpha/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
+GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
 if [ -z "$GITHUB_VERSION" ];then
     (( CHECK_VERSION_ERROR++ ))
 else
@@ -24,7 +24,7 @@ else
 fi
 
 # Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
-if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_CONF_FILES_DIR" ];then
+if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_PROFILES_CONF_DIR" ];then
     # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
     if [ "$OS_FAMILY" == "Redhat" ];then
         while IFS=, read REPO_NAME REPO_REALNAME REPO_ENV REPO_DATE REPO_DESCRIPTION;do

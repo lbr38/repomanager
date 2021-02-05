@@ -42,10 +42,10 @@ if [ "$ACTUAL_USER" == "root" ];then
     fi
     
     # permissions sur le répertoire des profils
-    if [ -d "${REPOS_DIR}/profils/" ];then
-        chown -R ${WWW_USER}:repomanager ${REPOS_DIR}/profils/
-        find ${REPOS_DIR}/profils/ -type f -exec chmod 0660 {} \;
-        find ${REPOS_DIR}/profils/ -type d -exec chmod 0770 {} \;
+    if [ -d "${PROFILES_MAIN_DIR}/" ];then
+        chown -R ${WWW_USER}:repomanager ${PROFILES_MAIN_DIR}/
+        find ${PROFILES_MAIN_DIR}/ -type f -exec chmod 0660 {} \;
+        find ${PROFILES_MAIN_DIR}/ -type d -exec chmod 0770 {} \;
     fi
 
     if [ "$OS_FAMILY" == "Redhat" ];then

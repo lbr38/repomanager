@@ -22,7 +22,7 @@ CONFIRM=""
 ASSUMEYES="0"
 # Si on passe le paramètre --yes au script alors on utilise tous les paramètres par défaut et on répond 'y' à toutes les questions ci-dessous
 while [ $# -ge 1 ];do 
-    case "$1" in 
+    case "$1" in
         --yes|-y)
         ASSUMEYES="1"
         ;;

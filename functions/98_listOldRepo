@@ -17,7 +17,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 		REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
 		REPO_DESCRIPTION=$(echo "$REPO_DESCRIPTION" | cut -d'=' -f2 | sed 's/"//g')
-		REPO_SIZE=$(du -hs ${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME} | awk '{print $1}')	# Récup de la taille du snapshot
+		REPO_SIZE=$(du -hs ${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME} | awk '{print $1}')	# Récup de la taille du snapshot
 		if [ "$REPO_NAME" = "$var_list_repo" ];then :; else if [ $i -eq 0 ];then (( i++ )); elif [ $i -gt 0 ];then i=0;fi;fi	# Affichage des informations sous la forme  "repo  env  date  taille"
 		if [ $i -eq 0 ];then echo -ne "$GRIS"; printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_ENV" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION"; echo -ne "$RESET";fi # en alternant entre les couleurs gris / blanc afin de regrouper les repos de meme nom (ex epel prod et epel test) sous la même couleur et rendre le tableau plus facile à lire
 		if [ $i -gt 0 ];then printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_DATE" "$REPO_SIZE" "$REPO_DESCRIPTION"; fi
@@ -37,7 +37,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
 		REPO_SECTION=$(echo "$REPO_SECTION" | cut -d'=' -f2 | sed 's/"//g')
 		REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
 		REPO_DESCRIPTION=$(echo "$REPO_DESCRIPTION" | cut -d'=' -f2 | sed 's/"//g')
-		TAILLE_REPO=$(du -hs ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/99_old_version_${REPO_DATE}_${REPO_SECTION} | awk '{print $1}') # Récup de la taille du snapshot
+		TAILLE_REPO=$(du -hs ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${REPO_DATE}_${REPO_SECTION} | awk '{print $1}') # Récup de la taille du snapshot
 		printf "$TAILLE_COLONNES" " $REPO_NAME" "$REPO_DIST" "$REPO_SECTION" "$REPO_DATE" "$TAILLE_REPO" "$REPO_DESCRIPTION"
 	done < $REPOS_ARCHIVE_LIST
 	echo ""; SEP

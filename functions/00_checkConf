@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -ne "   Vérification des fichiers de conf : "
+echo -ne "   Vérification des fichiers de configuration : "
 ### 1 ###
 
 # Si le fichier de planifications n'existe pas, on le crée
@@ -18,8 +18,8 @@ if [ ! -f "$REPOS_ARCHIVE_LIST" ];then touch "$REPOS_ARCHIVE_LIST";fi
 if [ ! -f "$HOSTS_CONF" ] && [ "$OS_FAMILY" == "Debian" ];then touch "$HOSTS_CONF";fi
 
 # Création du répertoire contenant les fichiers de conf repos si n'existe pas
-if [ ! -d "$REPOS_CONF_FILES_DIR" ];then
-	mkdir -p "$REPOS_CONF_FILES_DIR"
+if [ ! -d "$REPOS_PROFILES_CONF_DIR" ];then
+	mkdir -p "$REPOS_PROFILES_CONF_DIR"
 fi
 
 # Création des répertoires de logs si n'existent pas
@@ -32,12 +32,12 @@ mkdir -p "$CRON_LOGS_DIR"
 # Vérification de la présence du fichier de conf repomanager.conf :
 # Si le fichier de conf n'existe pas ou est vide :
 if [ ! -f "$CONF" ] || [ ! -s "$CONF" ];then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLe fichier de conf repomanager.conf n'existe pas ou est vide. Il faut lancer repomanager manuellement pour le créer et le configurer" &&
 	    (( CHECK_CONF_ERROR++ ))
     fi
     if [ "$TTY" -eq "1" ];then
-	    # Si le script est lancé en mode manuel, on va vérifier que les dépendances sont installées, puis on va créer le fichier et demander les infos à l'utilisateur (fonction générate_conf)
+	    # Si le programme est lancé en mode manuel, on va vérifier que les dépendances sont installées, puis on va créer le fichier et demander les infos à l'utilisateur (fonction générate_conf)
 		echo -e "\n[$JAUNE WARNING $RESET] Aucun fichier de conf repomanager.conf n'a été trouvé pour ce script.\nCela semble une première installation de repomanager, les dépendances vont être vérifiées et le fichier de conf sera généré."
 		echo -ne "➤ Continuer (y/n) : "; read -p "" CONFIRM
 		if [ "$CONFIRM" != "y" ];then
@@ -54,7 +54,7 @@ fi
 ### 2 ###
 # Cas où le fichier de conf existe mais que la variable EMAIL_DEST n'est pas renseignée 
 if [ -z "$(grep "^EMAIL_DEST=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')" ];then
-    if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+    if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'EMAIL_DEST' n'est pas renseignée dans le fichier de conf repomanager.conf."
         (( CHECK_CONF_ERROR++ ))
     else # Si on est en mode manuel, on demande l'info à l'utilisateur
@@ -65,7 +65,7 @@ fi
 
 # Cas où le fichier de conf existe mais que la variable MANAGE_PROFILES n'est pas renseignée 
 if [ -z $(grep "^MANAGE_PROFILES=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-    if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+    if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'MANAGE_PROFILES' n'est pas renseignée dans le fichier de conf repomanager.conf."
         (( CHECK_CONF_ERROR++ ))
     else # Si on est en mode manuel, on demande l'info à l'utilisateur
@@ -76,7 +76,7 @@ fi
 
 # Cas où le fichier de conf existe mais que la variable REPO_CONF_FILES_PREFIX n'existe pas (elle peut être vide cependant) 
 if ! grep -q "^REPO_CONF_FILES_PREFIX=" "$CONF";then
-    if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+    if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'REPO_CONF_FILES_PREFIX' n'est pas renseignée dans le fichier de conf repomanager.conf."
         (( CHECK_CONF_ERROR++ ))
     else # Si on est en mode manuel, on demande l'info à l'utilisateur
@@ -88,7 +88,7 @@ fi
 # Cas où le fichier de conf existe mais que la variable RELEASEVER n'est pas renseignée (on ne fait pas cette étape pour Debian)
 if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ -z $(grep "^RELEASEVER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-    	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+    	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         	MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'RELEASEVER' n'est pas renseignée dans le fichier de conf repomanager.conf."
         	(( CHECK_CONF_ERROR++ ))
     	else	# Si on est en mode manuel, on demande l'info à l'utilisateur
@@ -99,7 +99,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
 	# Cas où le fichier de conf existe mais que la variable GPG_SIGN_PACKAGES n'est pas renseignée (on ne fait pas cette étape pour Debian)
 	if [ -z $(grep "^GPG_SIGN_PACKAGES=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'GPG_SIGN_PACKAGES' n'est pas renseignée dans le fichier de conf repomanager.conf."
 			(( CHECK_CONF_ERROR++ ))
 		else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -116,7 +116,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		mkdir -p "${GPGHOME}"
 		# Si le répertoire est vide alors on va demander à générer une clé gpg
 		if [ -z "$(ls -A ${GPGHOME}/)" ];then
-			if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+			if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLe répertoire .gnupg contenant la clé GPG de signature des paquets semble vide."
 				(( CHECK_CONF_ERROR++ ))
 			else
@@ -127,7 +127,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
 		# Cas où le répertoire .gnupg existe mais qu'il n'y a pas de trousseau
 		if [ ! -f "${GPGHOME}/pubring.kbx" ] && [ ! -f "${GPGHOME}/pubring.gpg" ];then # Si le trousseau pubring (.kbx ou .gpg selon la version) n'existe pas
-			if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+			if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nIl ne semble pas y avoir de trousseau de clé GPG pour la signature des paquets."
 				(( CHECK_CONF_ERROR++ ))
 			else
@@ -139,7 +139,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		# Cas où le répetoire .gnupg existe mais qu'il n'y a aucune clé dans le trousseau
 		LISTKEYS=$(gpg2 --homedir ${GPGHOME} --no-permission-warning --list-key)
 		if [ -z "$LISTKEYS" ];then
-			if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+			if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nIl ne semble pas y avoir de clé GPG pour la signature des paquets."
 				(( CHECK_CONF_ERROR++ ))
 			else
@@ -150,7 +150,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
         # Cas où le fichier de conf existe mais que la variable GPG_KEYID n'est pas renseignée (on ne fait pas cette étape pour Debian)
         if [ -z $(grep "^GPG_KEYID=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-            if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+            if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
                 MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'GPG_KEYID' n'est pas renseignée dans le fichier de conf repomanager.conf."
                 (( CHECK_CONF_ERROR++ ))
             else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -166,7 +166,7 @@ fi
 
 # Cas où le fichier de conf existe ; on récupère les informations concernant la mise à jour automatique de repomanager
 if [ -z $(grep "^UPDATE_AUTO=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'UPDATE_AUTO' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -177,9 +177,19 @@ else # On récupère la valeur de UPDATE_AUTO car on va en avoir besoin pour vé
 	UPDATE_AUTO=$(grep "^UPDATE_AUTO=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
+if [ -z $(grep "^UPDATE_BRANCH=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'UPDATE_BRANCH' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
+	fi
+fi
+
 # Cas où le fichier de conf existe ; on récupère les informations concernant la mise à jour automatique de repomanager
 if [ -z $(grep "^UPDATE_BACKUP=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'UPDATE_BACKUP' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -192,7 +202,7 @@ fi
 
 # Cas où le fichier de conf existe ; on récupère les informations concernant la mise à jour automatique de repomanager
 if [ -z $(grep "^UPDATE_BACKUP_DIR=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'UPDATE_BACKUP_DIR' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -203,45 +213,43 @@ else # On récupère la valeur de UPDATE_BACKUP_DIR car on va en avoir besoin po
 	UPDATE_BACKUP_DIR=$(grep "^UPDATE_BACKUP_DIR=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
-# Cas où le fichier de conf existe ; on récupère les informations concernant le module web
-if [ -z $(grep "^WWW_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_ENABLED' n'est pas renseignée dans le fichier de conf repomanager.conf."
+# Cas où le fichier de conf existe ; on récupère les informations concernant le web
+# Récupération l'utilisateur web
+if [ -z $(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_USER' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
 		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
 		install
 	fi
-else # On récupère la valeur de WWW_ENABLED car on va en avoir besoin pour vérifier la condition suivante
-	WWW_ENABLED=$(grep "^WWW_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
-# Si le module web est activé, on va récupérer l'utilisateur web
-if [ "$WWW_ENABLED" == "yes" ];then
-	if [ -z $(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_USER' n'est pas renseignée dans le fichier de conf repomanager.conf."
-			(( CHECK_CONF_ERROR++ ))
-		else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
-			echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
-			install
-		fi
+# Récupération du nom d'hote
+if [ -z $(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_HOSTNAME' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
 	fi
+fi
 
-    if [ -z $(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_HOSTNAME' n'est pas renseignée dans le fichier de conf repomanager.conf."
-			(( CHECK_CONF_ERROR++ ))
-		else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
-			echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
-			install
-		fi
+# Récupération de l'url d'accès aux repos
+if [ -z $(grep "^WWW_REPOS_DIR_URL=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_REPOS_DIR_URL' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
 	fi
 fi
 
 # Cas où le fichier de conf existe ; on récupère l'environnement (env) par défaut
 if [ -z $(cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1) ];then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
         MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nIl ne semble pas y avoir d'environnement renseigné dans la section [ENVIRONNEMENTS] du fichier de conf repomanager.conf."
         (( CHECK_CONF_ERROR++ ))
 	else
@@ -250,10 +258,9 @@ if [ -z $(cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1) ];then
 	fi
 fi
 
-
 # Cas où le fichier de conf existe ; on récupère les informations concernant l'automatisation
 if [ -z $(grep "^AUTOMATISATION_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'AUTOMATISATION_ENABLED' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -273,7 +280,7 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
 	fi
 
     if [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-        if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+        if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
             MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'ALLOW_AUTOUPDATE_REPOS' n'est pas renseignée dans le fichier de conf repomanager.conf."
             (( CHECK_CONF_ERROR++ ))
         else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -283,7 +290,7 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
     fi
 
     if [ -z $(grep "^ALLOW_AUTOUPDATE_REPOS_ENV=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-        if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+        if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
             MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'ALLOW_AUTOUPDATE_REPOS_ENV' n'est pas renseignée dans le fichier de conf repomanager.conf."
             (( CHECK_CONF_ERROR++ ))
         else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -293,7 +300,7 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
     fi
 
     if [ -z $(grep "^ALLOW_AUTODELETE_ARCHIVED_REPOS=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-        if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+        if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
             MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'ALLOW_AUTODELETE_ARCHIVED_REPOS' n'est pas renseignée dans le fichier de conf repomanager.conf."
             (( CHECK_CONF_ERROR++ ))
         else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -308,7 +315,7 @@ if [ "$AUTOMATISATION_ENABLED" == "yes" ];then
         SUPPR_AUTO="1"
 
         if [ -z $(grep "^RETENTION=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-            if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+            if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
                 MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'RETENTION' n'est pas renseignée dans le fichier de conf repomanager.conf."
                 (( CHECK_CONF_ERROR++ ))
             else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
@@ -324,45 +331,11 @@ fi
 # Suppression des commentaires dans le fichier de conf
 nettoyage_fichier_conf
 
-## Si le script est lancé en mode auto, celui ci va se baser sur les sections [REPOS] et [PLANIFICATION] pour être autonome. On vérifie alors que ces sections existe dans le fichier de conf et qu'elles ne sont pas vides.
-#if [ "$SYNC_AUTO" -eq "1" ] || [ "$PROD_AUTO" -eq "1" ];then
-#	# On vérifie que la section [REPOS] existe
-#	if ! grep -q "\[REPOS\]" "$CONF";then
-#		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune section [REPOS] trouvée dans le fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#	# On vérifie que la section [REPOS] n'est pas vide et qu'elle contient des repos à traiter 
-#	LISTE_DEPOTS=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF" | egrep "^.*:")
-#    if [ -z "$LISTE_DEPOTS" ];then
-#        MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucun dépôt renseigné dans la section [REPOS] du fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#
-#	# On vérifie que la section [PLANIFICATION] existe
-#	if ! grep -q "\[PLANIFICATION\]" "$CONF";then
-#		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune section [PLANIFICATIONS] trouvée dans le fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#	# On vérifie que la section [PLANIFICATION] n'est pas vide et qu'elle contient des tâches à traiter
-#	LISTE_PLANIFS=$(sed -n "/\[PLANIFICATION\]/,/\[/p" "$CONF" | egrep "^.*:")
-#    if [ -z "$LISTE_PLANIFS" ];then
-#        MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune planification renseignée dans la section [PLANIFICATION] du fichier de conf repomanager.conf..."
-#    	(( CHECK_CONF_ERROR++ ))
-#    fi
-#
-#        #if [ "$SUPPR_AUTO" -eq "1" ];then
-#        #        LISTE_ARCHIVES_A_SUPPR=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | egrep "^.*:.*:")
-#        #        if [ -z "$LISTE_ARCHIVES_A_SUPPR" ];then
-#        #                MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucun dépôt archivé renseigné dans la section [NETTOYAGE_AUTO] du fichier de conf repomanager.conf..."
-#        #                (( CHECK_CONF_ERROR++ ))
-#        #        fi
-#fi
 
-
-### 5 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
+### 4 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
 if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ ! -f "$PASSPHRASE_FILE" ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLe fichier passhrase est vide, les synchronisations automatiques de repos ne se lanceront pas..."
 			(( CHECK_CONF_ERROR++ ))
 		else # On crée le fichier si n'existe pas, puis on le configurera à l'étape suivante
@@ -372,7 +345,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
 	# Si le fichier passphrase existe mais est vide
 	if [ ! -s "$PASSPHRASE_FILE" ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
 			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLe fichier passhrase est vide, les synchronisations automatiques de repos ne se lanceront pas..."
 			(( CHECK_CONF_ERROR++ ))
 		else
@@ -399,7 +372,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		else
 			PASSPHRASE_TEST=$(echo "test" | gpg2 --homedir ${GPGHOME} -q --sign --passphrase-file ${PASSPHRASE_FILE} --batch --local-user ${GPG_KEYID} --no-permission-warning --output /dev/null --yes && echo "Passphrase OK")
 		fi
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on effectue le test et on envoie un mail en cas d'échec
+		if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on effectue le test et on envoie un mail en cas d'échec
 			if [[ "$PASSPHRASE_TEST" != *"Passphrase OK"* ]];then
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa passphrase configurée dans le fichier ${PASSPHRASE_FILE} n'est pas bonne." &&
 				(( CHECK_CONF_ERROR++ ))
@@ -477,7 +450,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		while IFS=, read REPO_NAME REPO_REALNAME REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
-			if [ ! -d "${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME}" ];then
+			if [ ! -d "${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME}" ];then
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucune version archivée '$REPO_NAME:$REPO_DATE' dans le répertoire '${REPOS_DIR}/'. Il faut corriger manuellement !"
 				(( CHECK_CONF_ERROR++ ))
 				clean_exit
@@ -510,17 +483,17 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 			fi
 		done
 	
-		# Deuxième vérif (dans l'autre sens) (pour sys et spec) :
+		# Deuxième vérif (dans l'autre sens) :
 		cd ${REPOS_DIR}/ &&
 		for REP in $(ls -A1);do
-			if [[ "$REP" =~ ^99_old_version.* ]];then
-				REPO_DATE=$(echo $REP | cut -d'_' -f4)
-				REPO_NAME=$(echo $REP | cut -d'_' -f5)
+			if [[ "$REP" =~ ^archived.* ]];then
+				REPO_DATE=$(echo $REP | cut -d'_' -f2)
+				REPO_NAME=$(echo $REP | cut -d'_' -f3)
 				REPO_NAME=${REPO_NAME%/}
 				if egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" "$REPOS_ARCHIVE_LIST";then
 					continue
 				else
-					MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Le fichier repos-archive.list ne contient aucune info pour '99_old_version_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
+					MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Le fichier repos-archive.list ne contient aucune info pour 'archived_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
 					(( CHECK_CONF_ERROR++ ))
 				fi
 			fi
@@ -597,7 +570,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
 			fi
 
 			# Enfin on vérifie si la section existe :
-			if [ ! -d "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/99_old_version_${REPO_DATE}_${REPO_SECTION}" ];then
+			if [ ! -d "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${REPO_DATE}_${REPO_SECTION}" ];then
 				echo -e "[${ROUGE} ERREUR ${RESET}]\n Il n'existe aucune version archivée '${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${REPO_DATE}' dans le répertoire '${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/'. Il faut corriger manuellement !\n"
 				clean_exit
 			fi
@@ -609,7 +582,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
 		# repos.list :
 		cd ${REPOS_DIR}/ &&
 		for REPO_NAME in */;do
-			if [ "$REPO_NAME" == "profils/" ];then continue;fi # Si le répertoire traité est le répoertoire des profils "profils/" alors on ignore et on passe au suivant
+			if [ "$REPO_NAME" == "profiles/" ];then continue;fi # Si le répertoire traité est le répoertoire des profils "profils/" alors on ignore et on passe au suivant
 			REPO_NAME=${REPO_NAME%/}  # On enlève le slash à la fin du nom (ftp.fr.debian.org) c'est mieux
 			cd $REPO_NAME/ &&
 			for REPO_DIST in */;do
@@ -657,11 +630,11 @@ if [ "$OS_FAMILY" == "Debian" ];then
 				REPO_DIST=${REPO_DIST%/}  # On enlève le slash à la fin du nom (wheezy) c'est mieux
 				cd $REPO_DIST/ &&
 				for LIEN in $(ls -A1);do  # On liste le contenu du répertoire ${REPOS_DIR}/*/ et pour chaque lien trouvé,
-					if [[ "$LIEN" =~ ^99_old_version.* ]];then  # si celui-ci commence par 99_old_version, alors on traite (ex : 99_old_version_02-03-2018_contrib) 
-						REPO_DATE=$(echo $LIEN | cut -d'_' -f4)    # On extrait sa date (02-03-2018)
-						REPO_SECTION=$(echo $LIEN | cut -d'_' -f5)   # On extrait sa section (contrib)
+					if [[ "$LIEN" =~ ^archived.* ]];then  # si celui-ci commence par archived, alors on traite (ex : archived_02-03-2018_contrib) 
+						REPO_DATE=$(echo $LIEN | cut -d'_' -f2)    # On extrait sa date (02-03-2018)
+						REPO_SECTION=$(echo $LIEN | cut -d'_' -f3)   # On extrait sa section (contrib)
 						if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"" "$REPOS_ARCHIVE_LIST";then
-							echo -e "[${ROUGE} ERREUR ${RESET}]\n Le fichier repos-archive.list ne contient aucune info pour '99_old_version_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
+							echo -e "[${ROUGE} ERREUR ${RESET}]\n Le fichier repos-archive.list ne contient aucune info pour 'archived_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
 							clean_exit
 						fi
 					fi

@@ -3,6 +3,10 @@
 # La fonction a besoin de 2 paramètres pour fonctionner :
 # Le nom du repo
 # La date du repo
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
+
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
 		REPO_NAME="$2"
@@ -30,7 +34,7 @@ sleep 1
 
 echo -ne "Suppression du repo archivé ${REPO_NAME} :\t"
 cd ${REPOS_DIR}/ &&
-rm 99_old_version_${REPO_DATE}_${REPO_NAME}/ -rf &&
+rm archived_${REPO_DATE}_${REPO_NAME}/ -rf &&
 echo -e "[${VERT} OK ${RESET}]"
 
 ####

@@ -60,7 +60,7 @@
 
   // Cas où on souhaite supprimer un profil
   // trouver moyen d'afficher une confirmation (boite de dialogue en javascript)
-  if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteprofile") AND !empty($_GET['profileName'])) {
+  if (!empty($_GET['action']) AND ($_GET['action'] == "deleteprofile") AND !empty($_GET['profileName'])) {
     $profileName = validateData($_GET['profileName']);
     exec("rm -fr ${PROFILES_MAIN_DIR}/${profileName}/");
     // Affichage d'un message
@@ -85,19 +85,10 @@
     }
   }
 
-  // Cas où on ajoute un repo/section à un profil $repoName
-  if (!empty($_POST['action']) AND (validateData($_POST['action']) == "addProfileRepo") AND !empty($_POST['profileName']) AND !empty($_POST['repoName'])) {
+  // Cas où on ajoute un repo/section à un profil toto
+  if (!empty($_POST['profileName']) AND !empty($_POST['addProfileRepo'])) {
     $profileName = validateData($_POST['profileName']);
-    $addProfileRepo = validateData($_POST['repoName']);
-
-    // Pour Debian, la fonction reposSelectList() a renvoyé une valeur contenant le nom du repo, la dist et la section séparés par un | (voir fonction reposSelectList())
-    // Du coup on explose $addProfileRepo pour en extraire les 3 valeurs
-    if ($OS_FAMILY == "Debian") {
-      $addProfileRepoExplode = explode('|', $addProfileRepo);
-      $addProfileRepo = $addProfileRepoExplode[0];
-      $addProfileRepoDist = $addProfileRepoExplode[1];
-      $addProfileRepoSection = $addProfileRepoExplode[2];
-    }
+    $addProfileRepo = validateData($_POST['addProfileRepo']);
     $error = 0;
     if ($OS_FAMILY == "Redhat") {
       // On vérifie que le repo existe :
@@ -113,7 +104,9 @@
         printAlert("Le repo $addProfileRepo a été ajouté au profil $profileName");
       }
     }
-    if ($OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
+    if ($OS_FAMILY == "Debian" AND !empty($_POST['addProfileRepoDist']) AND !empty($_POST['addProfileRepoSection'])) {
+      $addProfileRepoDist = validateData($_POST['addProfileRepoDist']);
+      $addProfileRepoSection = validateData($_POST['addProfileRepoSection']);
       // On vérifie que la section repo existe :
       $checkIfRepoExists = exec("grep '^Name=\"${addProfileRepo}\",Host=\".*\",Dist=\"${addProfileRepoDist}\",Section=\"${addProfileRepoSection}\"' $REPOS_LIST");
       if (empty($checkIfRepoExists)) {
@@ -130,7 +123,7 @@
   }
 
   // Cas où on souhaite supprimer un repo d'un profil
-  if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteProfileRepo") AND !empty($_GET['profileName']) AND !empty($_GET['repoName'])) {
+  if (!empty($_GET['action']) AND ($_GET['action'] == "deleteProfileRepo") AND !empty($_GET['profileName']) AND !empty($_GET['repoName'])) {
     $profileName = validateData($_GET['profileName']);
     $repoName = validateData($_GET['repoName']);
     if ($OS_FAMILY == "Redhat") {
@@ -181,51 +174,15 @@
     // Si pas d'erreur alors on peut renommer le répertoire de profil
     if ($error === 0) {
       // Créer le répertoire du profil :
-      if (!file_exists("${PROFILES_MAIN_DIR}/${newProfile}")) {
-        mkdir("${PROFILES_MAIN_DIR}/${newProfile}", 0775, true);
-      }
+      exec("mkdir -p ${PROFILES_MAIN_DIR}/${newProfile}");
       // Créer le fichier de config :
-      if (!file_exists("${PROFILES_MAIN_DIR}/${newProfile}/config")) {
-        touch("${PROFILES_MAIN_DIR}/${newProfile}/config");
-      }
+      exec("touch ${PROFILES_MAIN_DIR}/${newProfile}/config");
       // Créer le fichier de config du profil avec des valeurs vides ou par défaut :
       exec("echo 'EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"' > ${PROFILES_MAIN_DIR}/${newProfile}/config");
       // Affichage d'un message
       printAlert("Le profil $newProfile a été créé");
     }
   }
-
-  // Duplication d'un profil et sa configuration
-  // duplicateprofile&profileName=${profileName}
-  if (!empty($_GET['action']) AND (validateData($_GET['action']) == "duplicateprofile") AND !empty($_GET['profileName'])) {
-    $profileName = validateData($_GET['profileName']);
-    // On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
-    $newProfile = $profileName.'-'.mt_rand(100000,200000);
-    // On vérifie que le nouveau nom n'existe pas déjà (on sait jamais!)
-    $error = 0;
-    if (file_exists("${PROFILES_MAIN_DIR}/${newProfile}")) {
-      printAlert("Erreur : un profil du même nom ($newProfile) existe déjà");
-      $error++;
-    }
-    // Si pas d'erreur alors on peut renommer le répertoire de profil
-    if ($error === 0) {
-      // Créer le répertoire du profil :
-      if (!file_exists("${PROFILES_MAIN_DIR}/${newProfile}")) {
-        mkdir("${PROFILES_MAIN_DIR}/${newProfile}", 0775, true);
-      }
-      // Copie du contenu du répertoire du profil dupliqué afin de copier sa config et ses fichiers de repo
-      exec("cp -rP ${PROFILES_MAIN_DIR}/${profileName}/* ${PROFILES_MAIN_DIR}/${newProfile}/");
-
-      // Affichage d'un message
-      printAlert("Le profil $newProfile a été créé");
-      // Redirection vers la page
-      header('Location: profiles.php');
-    }
-  }
-
-  // Récupération de la conf dans le fichier de conf serveur
-  $serverConf_manageClientsConf = exec("grep '^MANAGE_CLIENTS_CONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
-  $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
 ?>
 
 <body>
@@ -234,211 +191,27 @@
 <section class="mainSectionLeft">
   <!-- REPOS ACTIFS -->
   <section class="left">
-  <h5>GESTION DES PROFILS</h5>
-    <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if ($OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if ($OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
-    <br>
-    <p><b>PROFILS</b></p>
-    <div class="profileDivContainer">
-    <?php
-        // Affichage des profils et leur configuration
-        $i = 0;
-        $profilesNames = scandir($PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
-        sort($profilesNames); // Tri des profils afin de les afficher dans l'ordre alpha
-        foreach($profilesNames as $profileName) {
-          if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != "${PROFILE_SERVER_CONF}")) { // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
-            //echo '<div class="profileDivSubContainer">';
-            echo '<td>';
-            echo '<div class="profileDiv">';
-            echo '<form action="profiles.php" method="post" autocomplete="off">';
-            echo '<table class="table-large">';
-            // On veut pouvoir renommer les profils, donc il faut transmettre le nom de profil actuel (actualProfileName),
-            echo "<input type=\"hidden\" name=\"actualProfileName\" value=\"${profileName}\" />";
-            // ainsi qu'afficher ce même profil actuel dans un input type=text qui permettra d'en renseigner un nouveau (profileName) :
-            echo '<tr>';
-            echo '<td>';
-            echo "<img src=\"icons/idcard.png\" class=\"icon\" /><input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"input-medium invisibleInput-green\" />";
-            echo '</td>';
-            echo '<td class="td-fit">';
-            echo "<a href=\"#\" id=\"profilConfigurationToggleButton${i}\" title=\"Configuration de $profileName\"><img class=\"icon-mediumopacity\" src=\"icons/cog.png\" /></a>";
-            echo "<a href=\"?action=duplicateprofile&profileName=${profileName}\" title=\"Créer un nouveau profil en dupliquant la configuration de $profileName\"><img class=\"icon-mediumopacity\" src=\"icons/duplicate.png\" /></a>";
-            echo "<a href=\"?action=deleteprofile&profileName=${profileName}\" title=\"Supprimer le profil ${profileName}\"><img class=\"icon-mediumopacity\" src=\"icons/bin.png\" /></a>";
-            echo '</td>';
-            echo '</tr>';
-            echo '</table>';
-            echo '</form>';
-
-            // Configuration de ce profil avec un div caché
-            echo "<div id=\"profilConfigurationTbody${i}\" class=\"hide profileDivConf\">";
-
-            echo '<form action="profiles.php" method="post" autocomplete="off">';
-            // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
-            echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
-            echo '<table class="table-large">';
-            if ($OS_FAMILY == "Redhat") {
-              echo '<tr>';
-              echo '<td><b>Repo</b></td>';
-              echo '<td></td>';
-              echo '</tr>';
-            }
-            if ($OS_FAMILY == "Debian") {
-              echo '<tr>';
-              echo '<td><b>Repo</b></td>';
-              echo '<td><b>Distribution</b></td>';
-              echo '<td><b>Section</b></td>';
-              echo '<td></td>';
-              echo '</tr>';
-            }
-            // Scan du répertoire du profil pour récupérer ses fichiers .repo ou .list selon le système
-            $profileName_dir = "${PROFILES_MAIN_DIR}/${profileName}";
-            $repoConfFiles = scandir($profileName_dir);
-
-            // Pour chaque répertoire de profil sur le serveur, on récupère les noms de fichier de conf (.repo ou .list selon l'OS)
-            foreach($repoConfFiles as $repoFile) {
-              if (($repoFile != "..") AND ($repoFile != ".") AND ($repoFile != "config")){ // Ne pas afficher les répertoires ../ et ./ ni le fichier de conf du profil
-                if ($OS_FAMILY == "Redhat") {
-                  $repoFile = str_replace(".repo", "","$repoFile"); // remplace ".repo" par rien dans le nom du fichier, afin d'afficher seulement le nom du repo (ce qui nous interesse) et pas le nom complet du fichier
-                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
-                  $repoName = $repoFile;
-                }
-                if ($OS_FAMILY == "Debian") {
-                  $repoFile = str_replace(".list", "","$repoFile"); // retire le suffixe ".list" afin de n'obtenir que le nom du repo, sa distribution et sa section
-                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
-                  $repoFile = preg_split("/_/", "$repoFile");
-                  $repoName = $repoFile[0];
-                  $repoDist = $repoFile[1];
-                  $repoSection = $repoFile[2];
-                }
-                echo '<tr>';
-                if ($OS_FAMILY == "Redhat") {
-                  echo "<td>${repoName}</td>";
-                  echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
-                }
-                if ($OS_FAMILY == "Debian") {
-                  echo "<td>${repoName}</td>";
-                  echo "<td>${repoDist}</td>";
-                  echo "<td>${repoSection}</td>";
-                  echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
-                }
-                echo "</tr>";
-              }
-            }
-            echo '</table>';
-            echo '</form>';
-
-            echo '<form action="profiles.php" method="post" autocomplete="off">';
-            echo '<input type="hidden" name="action" value="addProfileRepo" />';
-            echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
-
-            echo '<table class="table-large">';
-            if ($OS_FAMILY == "Redhat") {
-              echo '<tr>';
-              echo '<td class="td-large">';
-              echo '<select name="repoName">';
-              reposSelectList(); // La fonction affiche les options de liste déroulante contenant la liste des repos dans $REPOS_LIST
-              echo '</select>';
-              echo '</td>';
-              echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Ajouter"><b>+</b></button></td>';
-              echo '</tr>';
-            }
-            if ($OS_FAMILY == "Debian") {
-              echo '<tr>';
-              echo '<td colspan="3" class="td-large">';
-              echo '<select name="repoName">';
-              reposSelectList(); // La fonction affiche une liste déroulante avec la liste des repos dans $REPOS_LIST
-              echo '</select>';
-              echo '</td>';
-              echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Ajouter"><b>+</b></button></td>';
-              echo '</tr>';
-            }
-            echo '</table>';
-            echo '</form>';
-            echo '<br>';
-
-            // Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
-            if ($serverConf_manageClientsConf == "yes") {
-              // on récupére la conf du profil contenue dans le fichier "config"
-              $profileConf_excludeMajor = exec("grep '^EXCLUDE_MAJOR=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-              $profileConf_exclude = exec("grep '^EXCLUDE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-              $profileConf_needRestart = exec("grep '^NEED_RESTART=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-              $profileConf_keepCron = exec("grep '^KEEP_CRON=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-              $profileConf_allowOverwrite = exec("grep '^ALLOW_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-              $profileConf_allowReposFilesOverwrite = exec("grep '^ALLOW_REPOSFILES_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-
-              echo '<form action="profiles.php" method="post" autocomplete="off">';
-              // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
-              echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
-              echo '<table class="table-large">';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Paquets à exclure uniquement si sa nouvelle version est majeure">Paquets à exclure en cas de version majeure</td>';
-              echo "<td><input type=\"text\" name=\"profileConf_excludeMajor\" value=\"${profileConf_excludeMajor}\" /></td>";
-              echo '</tr>';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Paquets à exclure quelque soit la version proposée">Paquets à exclure (toute version)</td>';
-              echo "<td><input type=\"text\" name=\"profileConf_exclude\" value=\"${profileConf_exclude}\" /></td>";
-              echo '</tr>';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Services nécessitant un redémarrage après mise à jour">Services à redémarrer en cas de mise à jour</td>';
-              echo "<td><input type=\"text\" name=\"profileConf_needRestart\" value=\"${profileConf_needRestart}\" /></td>";
-              echo '</tr>';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Conserver ou non la tâche cron après exécution de la mise à jour">Conserver la tâche cron</td>';
-              echo '<td>';
-              echo "<input type=\"radio\" id=\"profileConf_keepCron_${profileName}_yes\" name=\"profileConf_keepCron\" value=\"yes\"";if ($profileConf_keepCron == "yes") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_keepCron_${profileName}_yes\">Yes</label>";
-              echo "<input type=\"radio\" id=\"profileConf_keepCron_${profileName}_no\" name=\"profileConf_keepCron\" value=\"no\"";if ($profileConf_keepCron == "no") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_keepCron_${profileName}_no\">No</label>";
-              echo '</td>';
-              echo '</tr>';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Autoriser linux-autoupdate à récupérer et écraser sa conf à chaque exécution">Autoriser la mise à jour auto. de la configuration</td>';
-              echo '<td>';
-              echo "<input type=\"radio\" id=\"profileConf_allowOverwrite_${profileName}_yes\" name=\"profileConf_allowOverwrite\" value=\"yes\"";if ($profileConf_allowOverwrite == "yes") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_allowOverwrite_${profileName}_yes\">Yes</label>";
-              echo "<input type=\"radio\" id=\"profileConf_allowOverwrite_${profileName}_no\" name=\"profileConf_allowOverwrite\" value=\"no\"";if ($profileConf_allowOverwrite == "no") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_allowOverwrite_${profileName}_no\">No</label>";
-              echo '</td>';
-              echo '</tr>';
-              echo '<tr>';
-              echo '<td class="td-fit" title="Autoriser linux-autoupdate à récupérer automatiquement les fichiers .list ou .repo de son profil">Autoriser la mise à jour auto. des fichiers de repo</td>';
-              echo '<td>';
-              echo "<input type=\"radio\" id=\"profileConf_allowReposFilesOverwrite_${profileName}_yes\" name=\"profileConf_allowReposFilesOverwrite\" value=\"yes\"";if ($profileConf_allowReposFilesOverwrite == "yes") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_allowReposFilesOverwrite_${profileName}_yes\">Yes</label>";
-              echo "<input type=\"radio\" id=\"profileConf_allowReposFilesOverwrite_${profileName}_no\" name=\"profileConf_allowReposFilesOverwrite\" value=\"no\"";if ($profileConf_allowReposFilesOverwrite == "no") { echo 'checked />'; } else { echo ' />'; }
-              echo "<label for=\"profileConf_allowReposFilesOverwrite_${profileName}_no\">No</label>";
-              echo '</td>';
-              echo '</tr>';
-              echo '<tr>';        
-              echo '<td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>';
-              echo '</tr>';
-              echo '</table>';
-              echo '</form>';
-            }
-
-            echo '</div>'; // Fermture de profilConfigurationTbody
-            // Afficher ou masquer la div 'profilConfigurationTbody' :
-            echo "<script>";
-            echo "$(document).ready(function(){";
-              echo "$(\"a#profilConfigurationToggleButton${i}\").click(function(){";
-                echo "$(\"div#profilConfigurationTbody${i}\").slideToggle(150);";
-                echo '$(this).toggleClass("open");';
-              echo "});";
-            echo "});";
-            echo "</script>";
-            $i++;
-            echo '</div>'; // Fermeture du profileDiv
-            //echo '</div>'; // Fermeture de profileDivSubContainer
-          }
-        }
-    ?>
-    </div>  <!-- Fermeture de profileDivContainer -->   
+      <?php include('common-repos-list.inc.php'); ?>
+  </section>
+  <section class="left">
+      <!-- REPOS ARCHIVÉS-->
+      <?php include('common-repos-archive-list.inc.php'); ?>
   </section>
 </section>
 
 <section class="mainSectionRight">
     <section class="right">
-    <p><b>Configuration de ce serveur</b></p>
-      <form action="profiles.php" method="post" autocomplete="off">
-        <table class="table-small background-gray">
+      <h5>GESTION DES PROFILS</h5>
+      <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if ($OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if ($OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+      <p><b>Configuration de ce serveur :</b></p>
+      <?php       
+        // Récupération de la conf dans le fichier de conf serveur
+        $serverConf_manageClientsConf = exec("grep '^MANAGE_CLIENTS_CONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
+        $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
+      ?>
+        
+      <form action="profiles.php" method="post" autocomplete="off" class="background-gray">
+        <table class="table-large">
           <tr>
             <td>URL d'accès aux profils</td>
             <td><input type="text" class="td-medium" value="<?php echo "$WWW_PROFILES_DIR_URL";?>" readonly /></td>
@@ -486,20 +259,203 @@
           </tr>
         </table>
       </form>
-    </section>
 
-    <section class="right">  
-      <p>Ajouter un nouveau profil :</p>
-      <form action="profiles.php" method="post" autocomplete="off">
-      <table class="table-small">
+    <p><b>PROFILS</b></p>
+    <?php
+        // Affichage des profils et leur configuration
+        $i = 0;
+        $profilesNames = scandir($PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
+        sort($profilesNames); // Tri des profils afin de les afficher dans l'ordre alpha
+        foreach($profilesNames as $profileName) {
+          if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != "${PROFILE_SERVER_CONF}")) { // fix temporaire pour ne pas afficher les répertoires ../ et ./ (trouver une autre solution plus propre)
+            echo '<form action="profiles.php" method="post" autocomplete="off">';
+            echo '<table class="table-large">';
+            // On veut pouvoir renommer les profils, donc il faut transmettre le nom de profil actuel (actualProfileName),
+            echo "<input type=\"hidden\" name=\"actualProfileName\" value=\"${profileName}\" />";
+            // ainsi qu'afficher ce même profil actuel dans un input type=text qui permettra d'en renseigner un nouveau (profileName) :
+            echo '<tr>';
+            echo '<td>';
+            echo "<img src=\"icons/idcard.png\" class=\"icon\" /><input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"input-medium invisibleInput\" />";
+            echo '</td>';
+            echo '<td class="td-fit">';
+            echo "<a href=\"?action=deleteprofile&profileName=${profileName}\" title=\"Supprimer le profil ${profileName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a>";
+            echo "<a href=\"?action=duplicateprofile&profileName=${profileName}\" title=\"Créer un nouveau profil en dupliquant la configuration de $profileName\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" /></a>";
+            echo '</td>';
+            echo '</tr>';
+            echo '</table>';
+            echo '</form>';
+
+            // Configuration de ce profil avec un div caché
+            echo "<a href=\"#\" id=\"profilConfigurationToggleButton${i}\"><p><b>Configuration</b><img src=\"icons/chevron-circle-down.png\" class=\"icon\"/></p></a>";
+            echo "<div id=\"profilConfigurationTbody${i}\" class=\"hide\">";
+
+            echo '<form action="profiles.php" method="post" autocomplete="off">';
+            // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
+            echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
+            echo '<table class="table-large background-gray">';
+            if ($OS_FAMILY == "Redhat") {
+              echo '<tr>';
+              echo '<td><b>Repo</b></td>';
+              echo '<td></td>';
+              echo '</tr>';
+            }
+            if ($OS_FAMILY == "Debian") {
+              echo '<tr>';
+              echo '<td><b>Repo</b></td>';
+              echo '<td><b>Distribution</b></td>';
+              echo '<td><b>Section</b></td>';
+              echo '<td></td>';
+              echo '</tr>';
+            }
+            // Scan du répertoire du profil pour récupérer ses fichiers .repo ou .list selon le système
+            $profileName_dir = "${PROFILES_MAIN_DIR}/${profileName}";
+            $repoConfFiles = scandir($profileName_dir);
+            
+            // Pour chaque répertoire de profil sur le serveur, on récupère les noms de fichier de conf (.repo ou .list selon l'OS)
+            foreach($repoConfFiles as $repoFile) {
+              if (($repoFile != "..") AND ($repoFile != ".") AND ($repoFile != "config")){ // Ne pas afficher les répertoires ../ et ./ ni le fichier de conf du profil
+                if ($OS_FAMILY == "Redhat") {
+                  $repoFile = str_replace(".repo", "","$repoFile"); // remplace ".repo" par rien dans le nom du fichier, afin d'afficher seulement le nom du repo (ce qui nous interesse) et pas le nom complet du fichier
+                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
+                  $repoName = $repoFile;
+                }
+                if ($OS_FAMILY == "Debian") {
+                  $repoFile = str_replace(".list", "","$repoFile"); // retire le suffixe ".list" afin de n'obtenir que le nom du repo, sa distribution et sa section
+                  $repoFile = str_replace("${REPO_CONF_FILES_PREFIX}", "","$repoFile"); // retire le prefix configuré dans l'onglet paramètres afin de n'obtenir que le nom du repo, sa distribution et sa section
+                  $repoFile = preg_split("/_/", "$repoFile");
+                  $repoName = $repoFile[0];
+                  $repoDist = $repoFile[1];
+                  $repoSection = $repoFile[2];
+                }
+                echo '<tr>';
+                
+                if ($OS_FAMILY == "Redhat") {
+                  echo "<td>${repoName}</td>";
+                  echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
+                }
+                if ($OS_FAMILY == "Debian") {
+                  echo "<td>${repoName}</td>";
+                  echo "<td>${repoDist}</td>";
+                  echo "<td>${repoSection}</td>";
+                  echo "<td class=\"td-fit\"><a href=\"?action=deleteProfileRepo&profileName=${profileName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection}\"><img class=\"icon-lowopacity\" src=\"icons/bin.png\" /></a></td>";
+                }
+                echo "</tr>";
+              }                      
+              // on en profite pour récupérer la conf du profil contenue dans le fichier "config", ce sera utile pour la suite
+              // voir si on peut faire autrement qu'avec une commande exec (voir du côté de php fopen)
+              $profileConf_excludeMajor = exec("grep '^EXCLUDE_MAJOR=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+              $profileConf_exclude = exec("grep '^EXCLUDE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+              $profileConf_needRestart = exec("grep '^NEED_RESTART=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+              $profileConf_keepCron = exec("grep '^KEEP_CRON=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+              $profileConf_allowOverwrite = exec("grep '^ALLOW_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+              $profileConf_allowReposFilesOverwrite = exec("grep '^ALLOW_REPOSFILES_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+            }
+
+            if ($OS_FAMILY == "Redhat") {
+              echo '<tr>';
+              echo '<td><input type="text" name="addProfileRepo" placeholder="Nom du repo" /></td>';
+              echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue"><b>+</b></button></td>';
+              echo '</tr>';
+            }
+
+            if ($OS_FAMILY == "Debian") {
+              echo '<tr>';
+              echo '<td><input type="text" name="addProfileRepo" class="input-small" placeholder="Nom du repo" /></td>';
+              echo '<td><input type="text" name="addProfileRepoDist" class="input-small" placeholder="Distribution" /></td>';
+              echo '<td><input type="text" name="addProfileRepoSection" class="input-small" placeholder="Section" /></td>';
+              echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue"><b>+</b></button></td>';
+              echo '</tr>';
+            }
+            echo '</table>';
+            echo '</form>';
+            echo '<br>';
+
+            // Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
+            if ($serverConf_manageClientsConf == "yes") {
+              echo '<form action="profiles.php" method="post" autocomplete="off">';
+              // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
+              echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
+              echo '<table class="table-large background-gray">';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Paquets à exclure uniquement si sa nouvelle version est majeure">Paquets à exclure en cas de version majeure</td>';
+              echo "<td><input type=\"text\" name=\"profileConf_excludeMajor\" value=\"${profileConf_excludeMajor}\" /></td>";
+              echo '</tr>';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Paquets à exclure quelque soit la version proposée">Paquets à exclure (toute version)</td>';
+              echo "<td><input type=\"text\" name=\"profileConf_exclude\" value=\"${profileConf_exclude}\" /></td>";
+              echo '</tr>';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Services nécessitant un redémarrage après mise à jour">Services à redémarrer en cas de mise à jour</td>';
+              echo "<td><input type=\"text\" name=\"profileConf_needRestart\" value=\"${profileConf_needRestart}\" /></td>";
+              echo '</tr>';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Conserver ou non la tâche cron après exécution de la mise à jour">Conserver la tâche cron</td>';
+              echo '<td>';
+              echo "<input type=\"radio\" id=\"profileConf_keepCron_${profileName}_yes\" name=\"profileConf_keepCron\" value=\"yes\"";if ($profileConf_keepCron == "yes") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_keepCron_${profileName}_yes\">Yes</label>";
+              echo "<input type=\"radio\" id=\"profileConf_keepCron_${profileName}_no\" name=\"profileConf_keepCron\" value=\"no\"";if ($profileConf_keepCron == "no") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_keepCron_${profileName}_no\">No</label>";
+              echo '</td>';
+              echo '</tr>';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Autoriser linux-autoupdate à récupérer et écraser sa conf à chaque exécution">Autoriser la mise à jour auto. de la configuration</td>';
+              echo '<td>';
+              echo "<input type=\"radio\" id=\"profileConf_allowOverwrite_${profileName}_yes\" name=\"profileConf_allowOverwrite\" value=\"yes\"";if ($profileConf_allowOverwrite == "yes") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_allowOverwrite_${profileName}_yes\">Yes</label>";
+              echo "<input type=\"radio\" id=\"profileConf_allowOverwrite_${profileName}_no\" name=\"profileConf_allowOverwrite\" value=\"no\"";if ($profileConf_allowOverwrite == "no") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_allowOverwrite_${profileName}_no\">No</label>";
+              echo '</td>';
+              echo '</tr>';
+              echo '<tr>';
+              echo '<td class="td-fit" title="Autoriser linux-autoupdate à récupérer automatiquement les fichiers .list ou .repo de son profil">Autoriser la mise à jour auto. des fichiers de repo</td>';
+              echo '<td>';
+              echo "<input type=\"radio\" id=\"profileConf_allowReposFilesOverwrite_${profileName}_yes\" name=\"profileConf_allowReposFilesOverwrite\" value=\"yes\"";if ($profileConf_allowReposFilesOverwrite == "yes") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_allowReposFilesOverwrite_${profileName}_yes\">Yes</label>";
+              echo "<input type=\"radio\" id=\"profileConf_allowReposFilesOverwrite_${profileName}_no\" name=\"profileConf_allowReposFilesOverwrite\" value=\"no\"";if ($profileConf_allowReposFilesOverwrite == "no") { echo 'checked />'; } else { echo ' />'; }
+              echo "<label for=\"profileConf_allowReposFilesOverwrite_${profileName}_no\">No</label>";
+              echo '</td>';
+              echo '</tr>';
+              echo '<tr>';        
+              echo '<td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>';
+              echo '</tr>';
+              echo '</table>';
+              echo '</form>';
+              echo '</div>';
+              echo '<hr>';
+              // Afficher ou masquer la div 'Configuration' :
+              echo "<script>";
+              echo "$(document).ready(function(){";
+                echo "$(\"a#profilConfigurationToggleButton${i}\").click(function(){";
+                  echo "$(\"div#profilConfigurationTbody${i}\").slideToggle(150);";
+                  echo '$(this).toggleClass("open");';
+                echo "});";
+              echo "});";
+              echo "</script>";
+              $i++;
+            }
+          }
+        }?>
+    </table>
+    <br>
+    <p>Ajouter un nouveau profil :</p>
+    <form action="profiles.php" method="post" autocomplete="off">
+      <table class="table-large">
         <tr>
-          <td><input type="text" name="newProfile" /></td>
-          <td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Ajouter">+</button></td>
+          <td>
+            <input type="text" name="newProfile" />
+            <button type="submit" class="button-submit-xsmall-blue">Ajouter</button>
+          </td>
         </tr>
       </table>
-      </form>
+    </form>
     </section>
 </section>
+<!-- divs cachées de base -->
+<!-- GERER LES GROUPES -->
+<?php include('common-groupslist.inc.php'); ?>
+
+<!-- REPOS/HOTES SOURCES -->
+<?php include('common-repos-sources.inc.php'); ?>
 
 <?php include('common-footer.inc.php'); ?>
 </body>

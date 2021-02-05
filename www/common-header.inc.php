@@ -1,8 +1,6 @@
-
-
 <header id="here">
   <ul id="menu">
-  <h1><a href="index.php">Repomanager</a></h1>
+  <span id="title"><a href="index.php">Repomanager</a></span>
   <span id="version">ALPHA</span>
     <li><a href="index.php">Opérations</a></li>
     <?php
@@ -13,15 +11,21 @@
       echo "<li><a href=\"profiles.php\">Gestion des profils</a></li>";
     } ?>
     <li><a href="configuration.php">Paramètres</a></li>
-    <?php if (empty($OPERATION_STATUS)) {
-      echo "<li><a href=\"journal.php\" class=\"li-operation-not-running\">Aucune opération en cours</a></li>";
-    } else {
-      if ($uri == "/journal.php") {
-        echo "<li><a href=\"journal.php\" class=\"li-operation-running\">Opération en cours</a><a href=\"journal.php?killprocess\" class=\"li-operation-running\">Tuer le process en cours</a></li>";
-      } else {
-        echo "<li><a href=\"journal.php\" class=\"li-operation-running\">Opération en cours</a>";
+    <?php 
+      if (empty($OPERATION_STATUS) AND empty($PLANIFICATION_STATUS)) {
+        echo "<li><a href=\"journal.php\" class=\"li-operation-not-running\">Aucune opération en cours</a></li>";
+      } 
+      if (!empty($OPERATION_STATUS)) {
+        if ($actual_uri == "/journal.php") {
+          echo '<li><a href="journal.php" class="li-operation-running">Opération en cours</a><a href="journal.php?killprocess" class="li-operation-running">Tuer le process en cours</a></li>';
+        } else {
+          echo '<li><a href="journal.php" class="li-operation-running">Opération en cours</a>';
+        }
       }
-    } ?>
+      if (!empty($PLANIFICATION_STATUS)) {
+        echo '<li><a href="viewlog.php?logfile=lastplanlog.log" class="li-operation-running">Planification en cours</a>';
+      }
+    ?>
   </ul>
 </header>
 

@@ -1,8 +1,12 @@
 #!/bin/bash
 
-# La fonction a besoin de 4 paramètres pour fonctionner :
+# La fonction a besoin de 2 paramètres pour fonctionner :
 # Le nom du repo
 # Le nom de la distribution
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
+
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
 		REPO_NAME="$2"

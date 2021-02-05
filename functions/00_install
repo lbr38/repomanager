@@ -226,14 +226,28 @@ if [ "$WWW_ENABLED" == "y" ] || [ $(grep "^WWW_ENABLED=" $CONF | cut -d'=' -f2 |
 	
 	# Si le paramètre WWW_HOSTNAME n'est pas présent ou est vide :
 	if ! grep -q "^WWW_HOSTNAME=" $CONF || [ -z $(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-		WWW_HOSTNAME=""
+		# WWW_HOSTNAME = le nom d'hôte de la machine si celui-ci est bien paramétré. Si ce n'est pas le cas (vide) alors on le demande
+		WWW_HOSTNAME="$HOSTNAME"
 		while [ -z "$WWW_HOSTNAME" ];do
-			echo -ne "➤ Indiquez l'adresse de l'hôte web (celui indiqué dans votre vhost) : "; read -p "" WWW_HOSTNAME
+			echo -ne "➤ Indiquez le nom d'hôte de ce serveur : "; read -p "" WWW_HOSTNAME
 		done
 	else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
 		WWW_HOSTNAME="$(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
 fi
+
+# Si le paramètre WWW_REPOS_DIR_URL n'est pas présent ou est vide :
+if ! grep -q "^WWW_REPOS_DIR_URL=" $CONF || [ -z $(grep "^WWW_REPOS_DIR_URL=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
+	WWW_REPOS_DIR_URL=""
+	while [ -z "$WWW_REPOS_DIR_URL" ];do
+		echo -ne "➤ Indiquez l'url d'accès au répertoire des repos (${REPOS_DIR}), configurée dans votre vhost : https://"; read -p "" WWW_REPOS_DIR_URL
+	done
+	# On reforge la variable en ajoutant https:// devant :
+	WWW_REPOS_DIR_URL="https://${WWW_REPOS_DIR_URL}"
+else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
+	WWW_REPOS_DIR_URL="$(grep "^WWW_REPOS_DIR_URL=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
+fi
+
 
 ## Environnements
 echo -e "\n${JAUNE}[ Environnements ]${RESET}\n"
@@ -382,18 +396,11 @@ echo "UPDATE_BACKUP_DIR=\"${UPDATE_BACKUP_DIR}\"" >> "$CONF"
 
 # Config web
 echo -e "\n[WWW]" >> "$CONF"
-
-if [ "$WWW_ENABLED" == "yes" ] || [ "$WWW_ENABLED" == "y" ];then
-	echo "WWW_ENABLED=\"yes\"" >> "$CONF"
-	# Ajout de l'utilisateur web et du nom d'hôte
-	echo "WWW_USER=\"${WWW_USER}\"" >> "$CONF"
-	echo "WWW_HOSTNAME=\"${WWW_HOSTNAME}\"" >> "$CONF"
-else
-	echo "WWW_ENABLED=\"no\"" >> "$CONF"
-	echo "WWW_USER=\"\"" >> "$CONF"
-	echo "WWW_HOSTNAME=\"\"" >> "$CONF"
-fi
-
+echo "WWW_ENABLED=\"yes\"" >> "$CONF"
+# Ajout de l'utilisateur web et du nom d'hôte
+echo "WWW_USER=\"${WWW_USER}\"" >> "$CONF"
+echo "WWW_HOSTNAME=\"${WWW_HOSTNAME}\"" >> "$CONF"
+echo "WWW_REPOS_DIR_URL=\"${WWW_REPOS_DIR_URL}\"" >> "$CONF"
 
 # Configuration des environnements
 echo -e "[ENVIRONNEMENTS]\n${totalenv}" > "$ENV_CONF"

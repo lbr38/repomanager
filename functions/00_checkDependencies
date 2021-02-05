@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Vérification que le minimum de fichiers nécessaires au script sont présents :
+## Vérification que le minimum de fichiers nécessaires au programme sont présents :
 if [ ! -f "$REPOS_LIST" ];then
 	touch "$REPOS_LIST"
 fi

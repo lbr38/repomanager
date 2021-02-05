@@ -1,13 +1,14 @@
 <?php
 
 // Fonction de vérification des données envoyées par formulaire
-function validateData($data){
+function validateData($data) {
   $data = trim($data);
   $data = stripslashes($data);
   $data = htmlspecialchars($data);
   return $data;
 }
 
+// Fonction permettant d'afficher une bulle d'alerte au mileu de la page
 function printAlert($message) {
   echo "<div class=\"alert\">";
   echo "<p>${message}</p>";
@@ -37,7 +38,9 @@ function checkUpdate($BASE_DIR, $VERSION) {
 }
 
 // explosion du tableau contenant tous les détails d'une planification récupérés dans une variable $plan
-function planLogExplode($planId, $PLAN_LOG, $OS_FAMILY) {
+function planLogExplode($planId) {
+  global $PLAN_LOG;
+  global $OS_FAMILY;
 
   if (!file_exists($PLAN_LOG)) {
     return "N/A";
@@ -107,15 +110,21 @@ function planLogExplode($planId, $PLAN_LOG, $OS_FAMILY) {
   $planLogFile = str_replace(['Logfile=', '"'], '', $plan[$i]); // on récupère les rappels en retirant 'Logfile=""' de l'expression
 
   // On renvoie un return contenant toutes les valeurs ci-dessus, même celle nulles, ceci afin de s'adapter à toutes les situations et OS
-  return array($planStatus, $planError, $planDate, $planTime, $planAction, $planRepoOrGroup, $planGroup, $planRepo, $planDist, $planSection, $planGpgCheck, $planGpgResign, $planReminder, $planLogFile);
+  if ($OS_FAMILY == "Redhat") {
+    return array($planStatus, $planError, $planDate, $planTime, $planAction, $planRepoOrGroup, $planGroup, $planRepo, $planGpgCheck, $planGpgResign, $planReminder, $planLogFile);
+  }
+  if ($OS_FAMILY == "Debian") {
+    return array($planStatus, $planError, $planDate, $planTime, $planAction, $planRepoOrGroup, $planGroup, $planRepo, $planDist, $planSection, $planGpgCheck, $planReminder, $planLogFile);
+  }
 }
 
-function selectlogs() {
-  require 'vars/common.vars';
+function selectlogs($MAIN_LOGS_DIR) {
 
   // Si un fichier de log est actuellement sélectionné (en GET) alors on récupère son nom afin qu'il soit sélectionné dans la liste déroulante (s'il apparait)
   if (!empty($_GET['logfile'])) {
     $currentLogfile = validateData($_GET['logfile']);
+  } else {
+    $currentLogfile = '';
   }
 
   // On récupère la liste des fichiers de logs en les triant 
@@ -144,8 +153,7 @@ function selectlogs() {
   echo '</form>';
 }
 
-function selectPlanlogs() {
-  require 'vars/common.vars';
+function selectPlanlogs($MAIN_LOGS_DIR) {
 
   // On récupère la liste des fichiers de logs en les triant 
   $logfiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
@@ -170,5 +178,82 @@ function selectPlanlogs() {
   echo '</form>';
 }
 
+function reloadPage($actual_uri) {
+  header("location: $actual_uri");
+}
 
+// Rechargement d'une div en fournissant sa class
+function refreshdiv_class($divclass) {
+  if (!empty($divclass)) {
+    echo '<script>';
+    echo "$( \".${divclass}\" ).load(window.location.href + \" .${divclass}\" );";
+    echo '</script>';
+  }
+}
+
+// Affichage d'une div cachée
+function showdiv_class($divclass) {
+  echo '<script>';
+  echo "$(document).ready(function() {";
+  echo "$('.${divclass}').show(); })";
+  echo '</script>';
+}
+
+// Liste déroulante des repos/sections
+// Avant d'appeler cette fonction il faut prévoir un select car celle-ci n'affiche que les options
+function reposSelectList() {
+  global $OS_FAMILY;
+  global $REPOS_LIST;
+
+  echo '<option value="">Sélectionnez un repo...</option>';
+  $repoFile = file_get_contents($REPOS_LIST);
+  $rows = explode("\n", $repoFile);
+  $lastRepoName="";
+  foreach($rows as $row) {
+    if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
+      $rowData = explode(',', $row);
+      if ($OS_FAMILY == "Redhat") {
+        $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
+        $repoEnv = str_replace(['Env=', '"'], '', $rowData[2]);
+        $repoDate = str_replace(['Date=', '"'], '', $rowData[3]);
+        $repoDescription = str_replace(['Description=', '"'], '', $rowData[4]);
+      }
+      if ($OS_FAMILY == "Debian") {
+        $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
+        $repoDist = str_replace(['Dist=', '"'], '', $rowData[2]);
+        $repoSection = str_replace(['Section=', '"'], '', $rowData[3]);
+        $repoEnv = str_replace(['Env=', '"'], '', $rowData[4]);
+        $repoDate = str_replace(['Date=', '"'], '', $rowData[5]);
+        $repoDescription = str_replace(['Description=', '"'], '', $rowData[6]);
+      }
+
+      if ($repoName !== $lastRepoName) { // Pour ne pas afficher de valeurs en double dans la liste
+        if ($OS_FAMILY == "Redhat") {
+          echo "<option value=\"${repoName}\">${repoName}</option>";
+        }
+        if ($OS_FAMILY == "Debian") {
+          echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
+        }
+      }
+      $lastRepoName = $repoName;
+    }
+  }
+}
+
+// Liste déroulante des groupes
+// Avant d'appeler cette fonction il faut prévoir un select car celle-ci n'affiche que les options
+function groupsSelectList() {
+  global $GROUPS_CONF;
+
+  echo '<option value="">Sélectionnez un groupe...</option>';
+  $repoGroupsFile = file_get_contents($GROUPS_CONF); // récupération de tout le contenu du fichier de groupes
+  $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
+  if (!empty($repoGroups)) {
+    $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
+    foreach($repoGroups as $groupName) {
+      $groupName = str_replace(["[", "]"], "", $groupName); // On retire les [ ] autour du nom du groupe
+      echo "<option value=\"${groupName}\">${groupName}</option>";
+    }
+  }
+}
 ?>

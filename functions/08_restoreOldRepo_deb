@@ -5,7 +5,11 @@
 # Le nom de la distribution
 # Le nom de la section
 # La date de la section
-# La description de la section
+# La description de la section (peut être vide)
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
+
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
 		REPO_NAME="$2"
@@ -60,7 +64,7 @@ unlink ${REPO_SECTION}_${DEFAULT_ENV} &&
 ####
 
 echo -ne "Remise en place de l'ancien snapshot :\t"
-mv 99_old_version_${REPO_DATE}_${REPO_SECTION} ${REPO_DATE}_${REPO_SECTION} &&
+mv archived_${REPO_DATE}_${REPO_SECTION} ${REPO_DATE}_${REPO_SECTION} &&
 echo -e "[$VERT OK $RESET]"
 
 ####
@@ -98,7 +102,7 @@ else
 	REPO_ACTUAL_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\",Date=\"${REPO_ACTUAL_DATE}\"" "${REPOS_LIST}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g')
 
 	echo -ne "Archivage du miroir de la section ${CYAN}${REPO_SECTION}${RESET} en date du ${CYAN}${REPO_DATE}${RESET} car il n'est plus utilisé par quelconque environnement :"
-	mv "${REPO_ACTUAL_DATE}_${REPO_SECTION}"/ "99_old_version_${REPO_ACTUAL_DATE}_${REPO_SECTION}" &&
+	mv "${REPO_ACTUAL_DATE}_${REPO_SECTION}"/ "archived_${REPO_ACTUAL_DATE}_${REPO_SECTION}" &&
 	echo -e "[$VERT OK $RESET]"
 
 	echo -ne "Mise à jour des informations dans repos.list :\t"

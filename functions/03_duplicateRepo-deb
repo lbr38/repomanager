@@ -4,10 +4,12 @@
 # Le nom du repo 
 # Le nom de la distribution
 # Le nom de la section
-# L'env du repo
+# L'env de la section
 # Le nouveau nom du repo
-# Une description
-# Si aucun paramètre n'a été passé, alors on les demande :
+# La description (peut être vide)
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
