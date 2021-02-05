@@ -11,7 +11,7 @@ $listColor = 'color1'; // initialise des variables permettant de changer la coul
 echo "<thead>";
 echo "<tr>";
 echo "<td class=\"td-fit\"></td>";
-echo "<td>Nom</td>";
+echo "<td>Repo</td>";
 if ($OS_FAMILY == "Debian") {
     echo "<td>Distribution</td>";
     echo "<td>Section</td>";
@@ -44,10 +44,10 @@ foreach($rows as $row) {
         }
         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
-            $repoSize = exec("du -hs ${REPOS_DIR}/99_old_version_${repoDate}_${repoName} | awk '{print $1}'");
+            $repoSize = exec("du -hs ${REPOS_DIR}/archived_${repoDate}_${repoName} | awk '{print $1}'");
         }
         if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") {
-            $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/99_old_version_${repoDate}_${repoSection} | awk '{print $1}'");
+            $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
         }
         // Affichage des données
         // on souhaite afficher des couleurs identiques si le nom du repo est identique avec le précédent affiché. Si ce n'est pas le cas alors on affiche une couleur différente afin de différencier les repos dans la liste

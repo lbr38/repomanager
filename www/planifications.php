@@ -1,12 +1,13 @@
+<!DOCTYPE html>
 <html>
 <?php include('common-head.inc.php'); ?>
 
 <?php
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require_once 'vars/common.vars';
-  require_once 'common-functions.php';
-  require_once 'common.php';
-  require_once 'vars/display.vars';
+  require 'vars/common.vars';
+  require 'common-functions.php';
+  require 'common.php';
+  require 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
 // Cas où on ajoute une planification
@@ -42,17 +43,27 @@ if (!empty($_POST['addPlanId']) AND !empty($_POST['addPlanDate']) AND !empty($_P
     }
 
     // on récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
-    if(!empty($_POST['addPlanRepo'])) { $addPlanRepo = validateData($_POST['addPlanRepo']); }
-    if(!empty($_POST['addPlanGroup'])) { $addPlanGroup = validateData($_POST['addPlanGroup']); }
+    // Cas où c'est un repo
+    if(!empty($_POST['addPlanRepo'])) {
+      $addPlanRepo = validateData($_POST['addPlanRepo']);
+      // Pour Debian, la fonction reposSelectList() a renvoyé une valeur contenant le nom du repo, la dist et la section séparés par un | (voir fonction reposSelectList())
+      // Du coup on explose $addPlanRepo pour en extraire les 3 valeurs
+      if ($OS_FAMILY == "Debian") {
+        $addPlanRepoExplode = explode('|', $addPlanRepo);
+        $addPlanRepo = $addPlanRepoExplode[0];
+        $addPlanDist = $addPlanRepoExplode[1];
+        $addPlanSection = $addPlanRepoExplode[2];
+      }
+    }
+    // Cas où c'est un groupe
+    if(!empty($_POST['addPlanGroup'])) {
+      $addPlanGroup = validateData($_POST['addPlanGroup']);
+    }
     // si les deux on été renseignés, on affiche une erreur
     if (!empty($addPlanRepo) AND !empty($addPlanGroup)) {
       $error++;
       printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux");
-    } 
-    
-    // Si on est sur Debian, on récupère aussi la distrib et la section (dans le cas où la planif n'est pas pour un groupe)
-    if(!empty($_POST['addPlanDist'])) { $addPlanDist = validateData($_POST['addPlanDist']); }
-    if(!empty($_POST['addPlanSection'])) { $addPlanSection = validateData($_POST['addPlanSection']); } 
+    }
 
     // on vérifie que le repo ou la section indiqué existe dans la liste des repos
     if (!empty($addPlanRepo)) {
@@ -164,14 +175,16 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
 
 <body>
 <?php include('common-header.inc.php'); ?>
-
-  
     <!-- REPOS ACTIFS -->
     <section class="mainSectionLeft">
       <section class="left">
           <!-- REPOS ACTIFS -->
           <?php include('common-repos-list.inc.php'); ?>
       </section>
+      <section class="left">
+        <!-- REPOS ARCHIVÉS-->
+        <?php include('common-repos-archive-list.inc.php'); ?>
+    </section>
     </section>
 
     <section class="mainSectionRight">
@@ -281,11 +294,11 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             <?php
             echo '<tr>';
             echo '<td class="td-fit">Date</td>';
-            echo '<td class="td-large" colspan="100%"><input type="date" name="addPlanDate" /></td>';
+            echo '<td class="td-large" colspan="100%"><input type="date" name="addPlanDate" required /></td>';
             echo '</tr>';
             echo '<tr>';
             echo '<td class="td-fit">Heure</td>';
-            echo '<td class="td-large" colspan="100%"><input type="time" name="addPlanTime" /></td>';
+            echo '<td class="td-large" colspan="100%"><input type="time" name="addPlanTime" required /></td>';
             echo '</tr>';
             echo '<tr>';
             echo '<td class="td-fit">Action</td>';
@@ -304,20 +317,18 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             echo '</tr>';
             echo '<tr>';
             echo '<td class="td-fit">Repo</td>';
-            echo '<td class="td-large"><input type="text" id="inputRepo" name="addPlanRepo" /></td>';
+            echo '<td class="td-large">';
+            echo '<select name="addPlanRepo">';
+            reposSelectList(); // La fonction affiche les options de liste déroulante contenant la liste des repos dans $REPOS_LIST
+            echo '</select>';
+            echo '</td>';
             echo '<td class="td-fit">ou Groupe</td>';
-            echo '<td class="td-large"><input type="text" name="addPlanGroup" placeholder="@" /></td>';
+            echo '<td class="td-large">';
+            echo '<select name="addPlanGroup">';
+            groupsSelectList(); // La fonction affiche les options de liste déroulante contenant la liste des groupes dans GROUPS_CONF
+            echo '</select>';
+            echo '</td>';
             echo '</tr>';
-            if ($OS_FAMILY == "Debian") { 
-              echo '<tr class="hiddenDebInput" class="tr-hide">';
-              echo '<td class="td-fit">Dist</td>';
-              echo '<td class="td-large"><input type="text" name="addPlanDist" /></td>';
-              echo '</tr>';
-              echo '<tr class="hiddenDebInput" class="tr-hide">';
-              echo '<td class="td-fit">Section</td>';
-              echo '<td class="td-large"><input type="text" name="addPlanSection" /></td>';
-              echo '</tr>';
-            }
             echo '<tr class="hiddenGpgInput" class="tr-hide">';
             echo '<td class="td-fit">GPG check</td>';
             echo '<td colspan="2">';
@@ -361,14 +372,13 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
             $pattern = "/Plan-/i"; // dans le fichier de log, les planifications commencent par Plan-
             $PLANIFICATIONS = preg_grep($pattern, file($PLAN_LOG)); // on récupère toutes les planifications passées, dans le fichier de log
             if(!empty($PLANIFICATIONS)) { // On affiche les planifs si il y en a (càd si $PLANIFICATIONS est non vide)
-              echo '<a href="#" id="lastPlans"><p><b>Planifications précédentes</b></p></a>';
-              echo '<div id="lastPlansDiv" class="hide">';
+              echo '<p><b>Historique des planifications</b></p>';
               echo '<table class="table-large">';
               echo '<tr>';
               echo '<td class="td-fit"><b>Date</b></td>';
               echo '<td class="td-fit"><b>Heure</b></td>';
               echo '<td class="td-fit"><b>Action</b></td>';
-              echo '<td class="td-fit"><b>Repo ou @groupe</b></td>';
+              echo '<td class="td-fit"><b>Cible</b></td>';
               if ($OS_FAMILY == "Debian") {
                 echo '<td class="td-fit"><b>Dist</b></td>';
                 echo '<td class="td-fit"><b>Section</b></td>';
@@ -389,7 +399,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 $planId = str_replace(['[Plan-', ']'], '', $plan); // on récupère uniquement l'ID
                 $planId = trim($planId);
                 // Récup de toutes les informations et l'état de cette planification en utilisant la fonction planLogExplode
-                $plan = planLogExplode($planId, $PLAN_LOG, $OS_FAMILY); // Le tout est retourné dans un tableau et placé dans $plan
+                $plan = planLogExplode($planId); // Le tout est retourné dans un tableau et placé dans $plan
 
                 // L'array renvoyé par la fonction est sous la forme suivante. Il renvoie toutes les valeurs existantes dans les planifications en settant à null celle qui ne concernent pas la planification en cours de traitement
                 // Les valeurs renvoyées par cet array seront donc toujours à la même position avec le même nom.
@@ -403,12 +413,20 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 $planRepoOrGroup = $plan[5];
                 $planGroup = $plan[6];
                 $planRepo = $plan[7];
-                $planDist = $plan[8];
-                $planSection = $plan[9];
-                $planGpgCheck = $plan[10];
-                $planGpgResign = $plan[11];
-                $planReminder = $plan[12];
-                $planLogFile = $plan[13];
+                if ($OS_FAMILY == "Redhat") {
+                  $planGpgCheck = $plan[8];
+                  $planGpgResign = $plan[9];
+                  $planReminder = $plan[10];
+                  $planLogFile = $plan[11];
+                }
+                if ($OS_FAMILY == "Debian") {
+                  $planDist = $plan[8];
+                  $planSection = $plan[9];
+                  $planGpgCheck = $plan[10];
+                  $planReminder = $plan[11];
+                  $planLogFile = $plan[12];
+                }
+                
 
                 // Si une date a été retournée, on l'affiche
                 echo '<td class="td-fit">';
@@ -511,7 +529,7 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 // Status
                 echo '<td class="td-fit">';
                 if (!empty($planStatus) AND ($planStatus === "Error")) {
-                  echo "<a href=\"#\" id=\"lastPlansError${i}\" class=\"redtext\">${planStatus}</a>";
+                  echo "<a href=\"#\" id=\"planErrorToggle${i}\" class=\"redtext\">${planStatus}</a>";
                 } 
                 elseif ($planStatus === "OK") {
                   echo "<span class=\"greentext\">${planStatus}</span>";
@@ -528,13 +546,11 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                   echo '?';
                 }
                 echo '</td>';
-
-
                 echo '</tr>';
                 // Si le status était Error, alors on affiche une ligne (cachée) contenant le message d'erreur. 
                 if ($planStatus === "Error") {
-                  echo "<tr id=\"lastPlansErrorTr${i}\" class=\"tr-hide\">";
-                  echo '<td colspan="100%">';
+                  echo '<tr>';
+                  echo "<td colspan=\"100%\" id=\"planErrorToggleTd${i}\" class=\"td-hide background-gray\">";
                   echo "$planError";
                   echo '</td>';
                   echo '</tr>';
@@ -542,8 +558,8 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                   echo "
                   <script>
                   $(document).ready(function(){
-                    $(\"a#lastPlansError${i}\").click(function(){
-                      $(\"tr#lastPlansErrorTr${i}\").slideToggle(50);
+                    $(\"a#planErrorToggle${i}\").click(function(){
+                      $(\"td#planErrorToggleTd${i}\").slideToggle(50);
                       $(this).toggleClass(\"open\");
                     });
                   });
@@ -552,37 +568,17 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
                 }
               }
               echo '</table>';
-              echo '</div>';
             }
           }
           ?>
       </section>
     </section>
 
-<!-- divs cachées de base -->
-<!-- GERER LES GROUPES -->
-<?php include('common-groupslist.inc.php'); ?>
-
-<!-- REPOS/HOTES SOURCES -->
-<?php include('common-repos-sources.inc.php'); ?>
-
 <?php include('common-footer.inc.php'); ?>
+
 </body>
 
 <script>
-// Afficher des inputs supplémentaires si quelque chose est tapé au clavier dans le input 'Repo'
-  // Bind keyup event on the input
-  $('#inputRepo').keyup(function() {
-    // If value is not empty
-    if ($(this).val().length == 0) {
-      // Hide the element
-      $('.hiddenDebInput').hide();
-    } else {
-      // Otherwise show it
-      $('.hiddenDebInput').show();
-    }
-  }).keyup(); // Trigger the keyup event, thus running the handler on page load
-
 // Afficher des boutons radio si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
   $(function() {
     $("#planSelect").change(function() {
@@ -592,14 +588,6 @@ if (!empty($_GET['action']) AND ($_GET['action'] == "deletePlan") AND !empty($_G
         $(".hiddenGpgInput").hide();
       }
     }).trigger('change');
-  });
-
-// Afficher les planifications précédentes
-  $(document).ready(function(){
-    $("a#lastPlans").click(function(){
-      $("div#lastPlansDiv").slideToggle(250);
-      $(this).toggleClass("open");
-    });
   });
 </script>
 </html>

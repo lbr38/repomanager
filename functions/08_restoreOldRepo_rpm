@@ -3,7 +3,11 @@
 # La fonction a besoin de 3 paramètres pour fonctionner :
 # Le nom du repo
 # La date du repo
-# La description du repo
+# La description du repo (peut être vide)
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
+
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
 		REPO_NAME="$2"
@@ -49,7 +53,7 @@ unlink ${REPO_NAME}_${DEFAULT_ENV}
 ####
 
 echo -ne "Remise en place de l'ancien snapshot :\t"
-mv 99_old_version_${REPO_DATE}_${REPO_NAME} ${REPO_DATE}_${REPO_NAME} &&
+mv archived_${REPO_DATE}_${REPO_NAME} ${REPO_DATE}_${REPO_NAME} &&
 echo -e "[${VERT} OK ${RESET}]"
 
 echo -ne "Création du lien symbolique :\t"
@@ -83,7 +87,7 @@ else
 	REPO_ACTUAL_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\",Date=\"${REPO_ACTUAL_DATE}\"" "${REPOS_LIST}" | awk -F ',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g')
 
 	echo -ne "Archivage du miroir du repo ${CYAN}${REPO_NAME}${RESET} en date du ${CYAN}${REPO_DATE}${RESET} car il n'est plus utilisé par quelconque environnement :"
-	mv "${REPO_ACTUAL_DATE}_${REPO_NAME}"/ "99_old_version_${REPO_ACTUAL_DATE}_${REPO_NAME}" &&
+	mv "${REPO_ACTUAL_DATE}_${REPO_NAME}"/ "archived_${REPO_ACTUAL_DATE}_${REPO_NAME}" &&
 	echo -e "[$VERT OK $RESET]"
 
 	echo -ne "Mise à jour des informations dans repos.list :\t"

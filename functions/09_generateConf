@@ -33,17 +33,17 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
     # Génération du fichier pour Redhat
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
-        echo "# Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" > "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-        echo "[${REPO_CONF_FILES_PREFIX}${REPO_NAME}___ENV__]" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-        echo "name=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-        echo "comment=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-        echo "baseurl=https://${WWW_HOSTNAME}/repo/${REPO_NAME}___ENV__" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-        echo "enabled=1" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "# Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" > "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "[${REPO_CONF_FILES_PREFIX}${REPO_NAME}___ENV__]" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "name=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "comment=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "baseurl=https://${WWW_HOSTNAME}/repo/${REPO_NAME}___ENV__" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "enabled=1" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
         if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
-            echo "gpgcheck=1" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
-            echo "gpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}_repos.pub" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+            echo "gpgcheck=1" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+            echo "gpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}_repos.pub" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
         else
-            echo "gpgcheck=0" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+            echo "gpgcheck=0" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
         fi
     fi
 fi
@@ -55,8 +55,8 @@ if [ "$OS_FAMILY" == "Debian" ];then
 
     # Génération du fichier pour Debian
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
-        echo "# Repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} sur ${WWW_HOSTNAME}" > "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
-        echo "deb https://${WWW_HOSTNAME}/repo/${REPO_NAME}/${REPO_DIST}/${REPO_SECTION}___ENV__ ${REPO_DIST} ${REPO_SECTION}" >> "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
+        echo "# Repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} sur ${WWW_HOSTNAME}" > "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
+        echo "deb https://${WWW_HOSTNAME}/repo/${REPO_NAME}/${REPO_DIST}/${REPO_SECTION}___ENV__ ${REPO_DIST} ${REPO_SECTION}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
     fi
 fi
 

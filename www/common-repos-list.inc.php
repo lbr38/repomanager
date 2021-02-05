@@ -12,18 +12,17 @@
         ?>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
-            if (($uri == "/index.php") OR ($uri == "/")) {
+            if (($actual_uri == "/index.php") OR ($actual_uri == "/")) {
                 if ($OS_FAMILY == "Redhat") { echo "<a href=\"#\" id=\"newRepoSlideButton\">Créer un nouveau repo<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></a>"; }
                 if ($OS_FAMILY == "Debian") { echo "<a href=\"#\" id=\"newRepoSlideButton\">Créer une nouvelle section<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></a>"; }
             }
         ?>
-
     </div>
 </div>
 
 <!-- div cachée, affichée par le bouton "Affichage" -->
 <div id="divReposListDisplay" class="divReposListDisplay">
-    <form action="" method="post">
+    <form action="<?php echo "$actual_uri"; ?>" method="post">
     <?php
         // afficher ou non la taille des repos/sections
         echo "<input type=\"hidden\" name=\"printRepoSize\" value=\"off\" />"; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
@@ -102,6 +101,16 @@
 </script>
 
 
+<!-- div cachée, affichée par le bouton "Gérer les groupes" -->
+<!-- GERER LES GROUPES -->
+<?php include('common-groupslist.inc.php'); ?>
+
+<!-- div cachée, affichée par le bouton "Gérer les repos/hôtes sources" -->
+<!-- REPOS/HOTES SOURCES -->
+<?php include('common-repos-sources.inc.php'); ?>
+
+
+<!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">
 <?php
 $i = 0; // initialise un compteur qui sera incrémenté pour chaque conftoggX (affichage d'une div cachée contenant la conf des repo, bouton Conf)
@@ -121,11 +130,11 @@ if ($filterByGroups == "yes") {
             $repoGroupList = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $GROUPS_CONF | sed '/^$/d' | grep -v '^\['"); // récupération des repos de ce groupe, en supprimant les lignes vides
             if (!empty($repoGroupList)) {
                 $repoGroupList = preg_split('/\s+/', trim($repoGroupList)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
-                // Affichage de l'entête (Nom, Distrib, Section, Env, Date...)*
+                // Affichage de l'entête (Repo, Distrib, Section, Env, Date...)*
                 echo "<tbody>";
                 echo "<tr class=\"reposListHead\">";
                 echo "<td class=\"td-fit\"></td>";
-                echo "<td>Nom</td>";
+                echo "<td>Repo</td>";
                 if ($OS_FAMILY == "Debian") {
                     echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
                     echo "<td>Distribution</td>";
@@ -289,10 +298,10 @@ if ($filterByGroups == "yes") {
                             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
                             echo "<pre>";
                             if ($OS_FAMILY == "Redhat") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
                             }
                             if ($OS_FAMILY == "Debian") {
-                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
                             }
                             echo "</pre>";
                             echo "</div>";
@@ -330,7 +339,7 @@ if ($filterByGroups == "yes") {
     echo "<tr><td><b>Défaut</b></td></tr>";
     echo "<tr class=\"reposListHead\">";
     echo "<td class=\"td-fit\"></td>";
-    echo "<td>Nom</td>";
+    echo "<td>Repo</td>";
     if ($OS_FAMILY == "Debian") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
@@ -493,10 +502,10 @@ if ($filterByGroups == "yes") {
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
             if ($OS_FAMILY == "Redhat") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
             if ($OS_FAMILY == "Debian") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";
@@ -535,7 +544,7 @@ if ($filterByGroups == "no") {
     echo "<thead>";
     echo "<tr>";
     echo "<td class=\"td-fit\"></td>";
-    echo "<td>Nom</td>";
+    echo "<td>Repo</td>";
     if ($OS_FAMILY == "Debian") {
         echo "<td class=\"td-xsmall\"></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
         echo "<td>Distribution</td>";
@@ -681,10 +690,10 @@ if ($filterByGroups == "no") {
             echo "<div id=\"confdiv${i}\" class=\"divReposConf\">";
             echo "<pre>";
             if ($OS_FAMILY == "Redhat") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}_${repoEnv}\nenabled=1\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
             }
             if ($OS_FAMILY == "Debian") {
-                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
+                echo "A exécuter directement depuis le terminal de la machine : \n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
             }
             echo "</pre>";
             echo "</div>";

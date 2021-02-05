@@ -1,11 +1,14 @@
 #!/bin/bash
 
-# La fonction a besoin de 4 paramètre pour fonctionner :
-# Le nom du repo 
-# Le nom personnalisé si existe
+# La fonction a besoin de 5 paramètres pour fonctionner :
+# Le nom du repo
+# Le nom de l'hôte source
 # Le nom de la distribution
 # Le nom de la section
-# Si aucun paramètre n'a été passé, alors on les demande :
+# Le check gpg si activé ou non
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
@@ -160,7 +163,7 @@ if [ "$ERROR" -eq "0" ];then
 		OLD_HOST_NAME=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST" | awk -F',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # on récupère aussi l'ancien hote au cas où il soit différent 
 		echo -ne "Archivage de l'ancienne version :\t"
 		cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
-		mv "${OLD_DATE_REPO}_${REPO_SECTION}/" "99_old_version_${OLD_DATE_REPO}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
+		mv "${OLD_DATE_REPO}_${REPO_SECTION}/" "archived_${OLD_DATE_REPO}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
 		echo -e "[${VERT} OK ${RESET}]"
 		echo -ne "Mise à jour des informations dans repos-archive.list :\t"
 		echo "Name=\"${REPO_NAME}\",Host=\"${OLD_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $REPOS_ARCHIVE_LIST

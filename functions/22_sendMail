@@ -1,0 +1,28 @@
+#!/bin/bash
+# Envoi de rapport mail
+
+# Avant toute chose, on supprime les codes couleurs ANSI dans le fichier de log, ils sont utiles pour afficher de la couleur dans le terminal mais ils polluent le rapport mail qui devient illisible :
+sed 's/\x1b\[[0-9;]*m//g' "$LOG" > "$LOG_PARSED"
+
+# Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un mail avec un titre d'erreur
+if [ ! -z "$MSG_MAIN_ERROR" ] || [ ! -z "$MSG_CHECK_CONF_ERROR" ] || [ ! -z "$MSG_PLAN_ERROR" ];then
+	# Cas où il s'agit d'une planification
+	if [ "$PLAN_EXEC" -eq "1" ];then
+		echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Planification [Plan-${PLAN_ID}] sur ${HOSTNAME}" -a $LOG_PARSED -- $EMAIL_DEST
+	fi
+	# Autres cas
+	# if [ "$XXXXX" -eq "1" ];then
+	#
+
+	# Si des repos/sections archivés o,nt été supprimés automatiquement alors on l'indique par mail
+	if [ ! -z "$MSG_DELETE_ARCHIVED_REPOS_AUTO" ];then
+		if [ "$OS_FAMILY" == "Redhat" ];then
+			MSG_DELETE_ARCHIVED_REPOS_AUTO="Les repos archivés suivants ont été automatiquement supprimés :\n${MSG_DELETE_ARCHIVED_REPOS_AUTO}\nVous pouvez modifier le paramétrage de la suppression automatique depuis l'onglet Paramètres"
+			echo -e "$MSG_DELETE_ARCHIVED_REPOS_AUTO" | mutt -s "[INFO] Repo(s) supprimé(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+		fi
+		if [ "$OS_FAMILY" == "Debian" ];then
+			MSG_DELETE_ARCHIVED_REPOS_AUTO="Les sections de repos archivées suivantes ont été automatiquement supprimées :\n${MSG_DELETE_ARCHIVED_REPOS_AUTO}\nVous pouvez modifier le paramétrage de la suppression automatique depuis l'onglet Paramètres"
+			echo -e "$MSG_DELETE_ARCHIVED_REPOS_AUTO" | mutt -s "[INFO] Section(s) de repo(s) supprimée(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+		fi	
+	fi
+fi

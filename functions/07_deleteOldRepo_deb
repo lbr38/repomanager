@@ -5,6 +5,10 @@
 # Le nom de la distribution
 # Le nom de la section
 # La date de la section
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
+
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
 		REPO_NAME="$2"
@@ -40,7 +44,7 @@ sleep 1
 
 echo -ne "Suppression de la section archivée ${REPO_SECTION} :\t\t"
 cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
-rm 99_old_version_${REPO_DATE}_${REPO_SECTION}/ -rf
+rm archived_${REPO_DATE}_${REPO_SECTION}/ -rf
 echo -e "[$VERT OK $RESET]"
 
 ####

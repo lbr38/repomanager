@@ -11,7 +11,7 @@ echo '
         <td><input type="text" name="repoRealname" placeholder="" required></td>
       </tr>
       <tr>
-        <td>Nom personnalisé</td>
+        <td>Nom personnalisé (fac.)</td>
         <td><input type="text" name="repoAlias" placeholder="Ne pas utiliser d\'underscore \'_\'"></td>
       </tr>
       <tr>

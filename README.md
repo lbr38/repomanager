@@ -5,6 +5,7 @@ Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu.
 Testé sur : 
 - Debian 10
 - CentOS 7, 8
+- Fedora 33
 - Ubuntu bionic
 
 <b>Dépendances</b>
@@ -22,6 +23,8 @@ debmirror (Debian)
 </pre>
 
 Repomanager installera lui même ces dépendances s'il détecte qu'elles ne sont pas présentes sur le système. Veillez donc à ce que le serveur ait au moins accès aux repositorys de base de son OS.
+
+Note pour les systèmes Redhat : Il faut désactiver SELinux ou faire en sorte qu'il ne n'empêche pas la bonne exécution de PHP.
 
 
 <h2>Installation</h2>
@@ -43,31 +46,65 @@ apt update && apt install nginx php-fpm
 #### Repomanager vhost ####
 
 server {
-    listen SERVER-IP:80 default_server;
-    server_name SERVERNAME.MYDOMAIN.COM;
-    access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log;
-    error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_error.log;
-    return 301 https://$server_name$request_uri;
+        listen SERVER-IP:80 default_server;
+        server_name SERVERNAME.MYDOMAIN.COM;
+        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log;
+        error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_error.log;
+        return 301 https://$server_name$request_uri;
 }
 
 server {
-    listen SERVER-IP:443 default_server ssl;
-    server_name SERVERNAME.MYDOMAIN.COM;
-    #rewrite ^/(.*)/$ /$1 permanent;
-    ssl_certificate      PATH-TO-CERTIFICATE.crt;
-    ssl_certificate_key  PATH-TO-PRIVATE-KEY.key;
-    access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log;
-    error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_error.log;
+        listen SERVER-IP:443 default_server ssl;
+        server_name SERVERNAME.MYDOMAIN.COM;
+        #rewrite ^/(.*)/$ /$1 permanent;
+
+        # SSL certificate files
+        ssl_certificate      PATH-TO-CERTIFICATE.crt;
+        ssl_certificate_key  PATH-TO-PRIVATE-KEY.key;
+
+	# Log files
+        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log;
+        error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_error.log;
+
+        # Security headers
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag none;
+        add_header X-Download-Options noopen;
+        add_header X-Permitted-Cross-Domain-Policies none;
+
+	# Custom error pages
+        error_page 404 /custom_404.html;
+        error_page 500 502 503 504 /custom_50x.html;
+        location = /custom_404.html {
+                root WWW_DIR/www/custom_errors;
+                internal;
+        }
+        location = /custom_50x.html {
+                root WWW_DIR/www/custom_errors;
+                internal;
+        }
+
+        # Enable gzip but do not remove ETag headers
+        gzip on;
+        gzip_vary on;
+        gzip_comp_level 4;
+        gzip_min_length 256;
+        gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
+        gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
+
 
 	location / {
-			root WWW_DIR; # default is /var/www/repomanager
-	        try_files $uri $uri/ =404;
+		root WWW_DIR; # default is /var/www/repomanager
+	        try_files $actual_uri $actual_uri/ =404;
 	        index index.php;
 	}
 
 
 	location ~ [^/]\.php(/|$) {
-			root WWW_DIR; # default is /var/www/repomanager
+		root WWW_DIR; # default is /var/www/repomanager
 	        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
 	        if (!-f $document_root$fastcgi_script_name) {
 	                return 404;
@@ -78,7 +115,7 @@ server {
 	}
 
 	location /repo {
-	        root REPOS_DIR; # default is /home/repo
+	        root REPOS_DIR; # default is /home
 	        autoindex off;
 	        allow all;
 	}

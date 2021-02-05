@@ -24,7 +24,7 @@ else
 fi
 
 # Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
-if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_CONF_FILES_DIR" ];then
+if [ "$MANAGE_PROFILES" == "yes" ] && [ -d "$REPOS_PROFILES_CONF_DIR" ];then
     # On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
     if [ "$OS_FAMILY" == "Redhat" ];then
         while IFS=, read REPO_NAME REPO_REALNAME REPO_ENV REPO_DATE REPO_DESCRIPTION;do

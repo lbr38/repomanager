@@ -1,20 +1,20 @@
 #!/bin/bash
 
-## Debian ##
+#	Format des liens sources :
+#	deb http://ftp.fr.debian.org/debian   stretch    main
+#	    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾
+#	           Origine et racine        Distribution  Section (main, contrib...)
 
-#if [ "$TTY" -eq "1" ];then
-#	echo -e "\nLa section sera créée en ${DEFAULT_ENV}. Attention son nom ne doit pas être en conflit avec une autre section.\n"
-#	echo -e "Format des liens sources : ${JAUNE}"
-#	echo -e "deb http://ftp.fr.debian.org/debian   stretch    main"
-#	echo -e "    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾"
-#	echo -e "           Origine et racine        Distribution  Section (main, contrib...) ${RESET}\n"
-#fi
-# La fonction a besoin de 4 paramètres pour fonctionner 
-# Le type de repo
-# Le nom du repo 
-# Le nom personnalisé si il y a
-# La description
-# Si aucun paramètre n'a été passé, alors on les demande :
+# La fonction a besoin de 6 paramètres pour fonctionner 
+# Le nom du repo
+# Le nom de l'hôte
+# Le nom de la distribution
+# Le nom de la section
+# Le check gpg si activé ou non
+# La description (peut être vide)
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
