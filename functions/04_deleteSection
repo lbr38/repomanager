@@ -5,7 +5,9 @@
 # Le nom de la distribution
 # Le nom de la section
 # L'env de la section
-# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)

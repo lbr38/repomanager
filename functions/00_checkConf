@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -ne "   Vérification des fichiers de conf : "
+echo -ne "   Vérification des fichiers de configuration : "
 ### 1 ###
 
 # Si le fichier de planifications n'existe pas, on le crée
@@ -18,8 +18,8 @@ if [ ! -f "$REPOS_ARCHIVE_LIST" ];then touch "$REPOS_ARCHIVE_LIST";fi
 if [ ! -f "$HOSTS_CONF" ] && [ "$OS_FAMILY" == "Debian" ];then touch "$HOSTS_CONF";fi
 
 # Création du répertoire contenant les fichiers de conf repos si n'existe pas
-if [ ! -d "$REPOS_CONF_FILES_DIR" ];then
-	mkdir -p "$REPOS_CONF_FILES_DIR"
+if [ ! -d "$REPOS_PROFILES_CONF_DIR" ];then
+	mkdir -p "$REPOS_PROFILES_CONF_DIR"
 fi
 
 # Création des répertoires de logs si n'existent pas
@@ -203,39 +203,37 @@ else # On récupère la valeur de UPDATE_BACKUP_DIR car on va en avoir besoin po
 	UPDATE_BACKUP_DIR=$(grep "^UPDATE_BACKUP_DIR=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
-# Cas où le fichier de conf existe ; on récupère les informations concernant le module web
-if [ -z $(grep "^WWW_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+# Cas où le fichier de conf existe ; on récupère les informations concernant le web
+# Récupération l'utilisateur web
+if [ -z $(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
 	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_ENABLED' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_USER' n'est pas renseignée dans le fichier de conf repomanager.conf."
 		(( CHECK_CONF_ERROR++ ))
 	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
 		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
 		install
 	fi
-else # On récupère la valeur de WWW_ENABLED car on va en avoir besoin pour vérifier la condition suivante
-	WWW_ENABLED=$(grep "^WWW_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
-# Si le module web est activé, on va récupérer l'utilisateur web
-if [ "$WWW_ENABLED" == "yes" ];then
-	if [ -z $(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_USER' n'est pas renseignée dans le fichier de conf repomanager.conf."
-			(( CHECK_CONF_ERROR++ ))
-		else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
-			echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
-			install
-		fi
+# Récupération du nom d'hote
+if [ -z $(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_HOSTNAME' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
 	fi
+fi
 
-    if [ -z $(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
-		if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
-			MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_HOSTNAME' n'est pas renseignée dans le fichier de conf repomanager.conf."
-			(( CHECK_CONF_ERROR++ ))
-		else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
-			echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
-			install
-		fi
+# Récupération de l'url d'accès aux repos
+if [ -z $(grep "^WWW_REPOS_DIR_URL=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
+	if [ "$TTY" -eq "0" ];then # Si le script est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'WWW_REPOS_DIR_URL' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
 	fi
 fi
 
@@ -477,7 +475,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		while IFS=, read REPO_NAME REPO_REALNAME REPO_DATE REPO_DESCRIPTION;do
 			REPO_NAME=$(echo "$REPO_NAME" | cut -d'=' -f2 | sed 's/"//g')
 			REPO_DATE=$(echo "$REPO_DATE" | cut -d'=' -f2 | sed 's/"//g')
-			if [ ! -d "${REPOS_DIR}/99_old_version_${REPO_DATE}_${REPO_NAME}" ];then
+			if [ ! -d "${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME}" ];then
 				MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Il n'existe aucune version archivée '$REPO_NAME:$REPO_DATE' dans le répertoire '${REPOS_DIR}/'. Il faut corriger manuellement !"
 				(( CHECK_CONF_ERROR++ ))
 				clean_exit
@@ -510,17 +508,17 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 			fi
 		done
 	
-		# Deuxième vérif (dans l'autre sens) (pour sys et spec) :
+		# Deuxième vérif (dans l'autre sens) :
 		cd ${REPOS_DIR}/ &&
 		for REP in $(ls -A1);do
-			if [[ "$REP" =~ ^99_old_version.* ]];then
-				REPO_DATE=$(echo $REP | cut -d'_' -f4)
-				REPO_NAME=$(echo $REP | cut -d'_' -f5)
+			if [[ "$REP" =~ ^archived.* ]];then
+				REPO_DATE=$(echo $REP | cut -d'_' -f2)
+				REPO_NAME=$(echo $REP | cut -d'_' -f3)
 				REPO_NAME=${REPO_NAME%/}
 				if egrep -q "^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"" "$REPOS_ARCHIVE_LIST";then
 					continue
 				else
-					MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Le fichier repos-archive.list ne contient aucune info pour '99_old_version_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
+					MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Le fichier repos-archive.list ne contient aucune info pour 'archived_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
 					(( CHECK_CONF_ERROR++ ))
 				fi
 			fi
@@ -597,7 +595,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
 			fi
 
 			# Enfin on vérifie si la section existe :
-			if [ ! -d "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/99_old_version_${REPO_DATE}_${REPO_SECTION}" ];then
+			if [ ! -d "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${REPO_DATE}_${REPO_SECTION}" ];then
 				echo -e "[${ROUGE} ERREUR ${RESET}]\n Il n'existe aucune version archivée '${REPO_NAME}:${REPO_DIST}:${REPO_SECTION}:${REPO_DATE}' dans le répertoire '${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/'. Il faut corriger manuellement !\n"
 				clean_exit
 			fi
@@ -609,7 +607,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
 		# repos.list :
 		cd ${REPOS_DIR}/ &&
 		for REPO_NAME in */;do
-			if [ "$REPO_NAME" == "profils/" ];then continue;fi # Si le répertoire traité est le répoertoire des profils "profils/" alors on ignore et on passe au suivant
+			if [ "$REPO_NAME" == "profiles/" ];then continue;fi # Si le répertoire traité est le répoertoire des profils "profils/" alors on ignore et on passe au suivant
 			REPO_NAME=${REPO_NAME%/}  # On enlève le slash à la fin du nom (ftp.fr.debian.org) c'est mieux
 			cd $REPO_NAME/ &&
 			for REPO_DIST in */;do
@@ -657,11 +655,11 @@ if [ "$OS_FAMILY" == "Debian" ];then
 				REPO_DIST=${REPO_DIST%/}  # On enlève le slash à la fin du nom (wheezy) c'est mieux
 				cd $REPO_DIST/ &&
 				for LIEN in $(ls -A1);do  # On liste le contenu du répertoire ${REPOS_DIR}/*/ et pour chaque lien trouvé,
-					if [[ "$LIEN" =~ ^99_old_version.* ]];then  # si celui-ci commence par 99_old_version, alors on traite (ex : 99_old_version_02-03-2018_contrib) 
-						REPO_DATE=$(echo $LIEN | cut -d'_' -f4)    # On extrait sa date (02-03-2018)
-						REPO_SECTION=$(echo $LIEN | cut -d'_' -f5)   # On extrait sa section (contrib)
+					if [[ "$LIEN" =~ ^archived.* ]];then  # si celui-ci commence par archived, alors on traite (ex : archived_02-03-2018_contrib) 
+						REPO_DATE=$(echo $LIEN | cut -d'_' -f2)    # On extrait sa date (02-03-2018)
+						REPO_SECTION=$(echo $LIEN | cut -d'_' -f3)   # On extrait sa section (contrib)
 						if ! egrep -q "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"" "$REPOS_ARCHIVE_LIST";then
-							echo -e "[${ROUGE} ERREUR ${RESET}]\n Le fichier repos-archive.list ne contient aucune info pour '99_old_version_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
+							echo -e "[${ROUGE} ERREUR ${RESET}]\n Le fichier repos-archive.list ne contient aucune info pour 'archived_${REPO_DATE}_${REPO_NAME}'. Il faut corriger manuellement !"
 							clean_exit
 						fi
 					fi

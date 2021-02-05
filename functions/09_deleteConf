@@ -30,7 +30,7 @@ if [ "$OS_FAMILY" == "Debian" ];then
     fi
 
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
-        rm -f "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
+        rm -f "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST}_${REPO_SECTION}.list"
     fi
 fi
 
@@ -40,7 +40,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
     fi
 
     if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
-        rm -f "${REPOS_CONF_FILES_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        rm -f "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
     fi
 fi
 

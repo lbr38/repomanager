@@ -43,16 +43,10 @@ ${JAUNE}Toutes les opérations s'effectuent depuis l'interface web.${RESET}
 Paramètres disponibles en ligne de commande :
   --repo, --list-repos, -r                  ➤  Afficher la liste des repos actifs
   --archrepo, --list-archived-repos, -ar    ➤  Afficher la liste des repos archivés
-  --check, -c                               ➤  Vérification des fichiers de conf du script
+  --check, -c                               ➤  Vérification des fichiers de configuration du script
 \n"
 SEP
-}
-
-nettoyage_fichier_conf() {    # Retire les commentaires et les lignes vides du fichier passé en paramètre et le renvoi dans le fichier $CONF_NETTOYEE
-CONF_NETTOYEE="/tmp/repomanager_conf_clean.txt"                 	# Ce fichier est destiné à récupérer le contenu du fichier de conf sans les commentaires ni espaces blancs
-echo -n> "$CONF_NETTOYEE"
-sed "/^[ \t]*#.*/d" $CONF | sed "/^[ \t]*$/d" > "$CONF_NETTOYEE"    # Suppression des commentaires et espaces blancs du fichier de liste passé en argument
-CONF="$CONF_NETTOYEE"                                               # La variable $CONF devient le fichier de liste nettoyé précedemment
+clean_exit
 }
 
 install() { 
@@ -71,42 +65,6 @@ checkConf() {
 # Récupération de la conf repomanager.conf
 getConf() {
 	source "${FUNCTIONS}/00_getConf"
-}
-
-execPlan() {
-	source "${FUNCTIONS}/20_planifications"
-	execute $PLAN_ID
-}
-
-planReminders() {
-	source "${FUNCTIONS}/20_planifications"
-	sendReminders
-}
-
-listRepo() {
-	source "${FUNCTIONS}/98_listRepo"
-}
-
-listOldRepo() {
-	source "${FUNCTIONS}/98_listOldRepo"
-}
-
-espace_disque() {
-echo -ne "\nEspace restant sur le serveur : "
-ESPACE_DISQUE=$(df | egrep "/$" | awk '{print $4}')   # Affichage de l'espace restant sur /home
-if [ $ESPACE_DISQUE -lt 50000000 ];then
-    echo -ne "${ROUGE}"
-    df -h | egrep "/$" | awk '{print $4}'
-    echo -ne "${RESET}"
-elif [ $ESPACE_DISQUE -lt 100000000 ];then
-    echo -ne "${JAUNE}"
-    df -h | egrep "/$" | awk '{print $4}'
-    echo -ne "${RESET}"
-else
-    df -h | egrep "/$" | awk '{print $4}'
-fi
-
-echo ""
 }
 
 newRepo() {
@@ -162,8 +120,30 @@ deleteConf() {
 	source "${FUNCTIONS}/09_deleteConf"
 }
 
+execPlan() {
+	source "${FUNCTIONS}/20_planifications"
+	execute $PLAN_ID
+}
+
+planReminders() {
+	source "${FUNCTIONS}/20_planifications"
+	sendReminders
+}
+
+cleanArchives() {
+	source "${FUNCTIONS}/21_cleanArchives"
+}
+
 sortLists() {
 	source "${FUNCTIONS}/98_sortLists"
+}
+
+listRepo() {
+	source "${FUNCTIONS}/98_listRepo"
+}
+
+listOldRepo() {
+	source "${FUNCTIONS}/98_listOldRepo"
 }
 
 update() {
@@ -176,6 +156,34 @@ permissions() {
 
 cronjob_daily() {
 	source "${FUNCTIONS}/30_cronjob_daily"
+}
+
+
+## Autres fonctions ##
+
+nettoyage_fichier_conf() {    # Retire les commentaires et les lignes vides du fichier passé en paramètre et le renvoi dans le fichier $CONF_NETTOYEE
+CONF_NETTOYEE="/tmp/repomanager_conf_clean.txt"                 	# Ce fichier est destiné à récupérer le contenu du fichier de conf sans les commentaires ni espaces blancs
+echo -n> "$CONF_NETTOYEE"
+sed "/^[ \t]*#.*/d" $CONF | sed "/^[ \t]*$/d" > "$CONF_NETTOYEE"    # Suppression des commentaires et espaces blancs du fichier de liste passé en argument
+CONF="$CONF_NETTOYEE"                                               # La variable $CONF devient le fichier de liste nettoyé précedemment
+}
+
+espace_disque() {
+echo -ne "\nEspace restant sur le serveur : "
+ESPACE_DISQUE=$(df | egrep "/$" | awk '{print $4}')   # Affichage de l'espace restant sur /home
+if [ $ESPACE_DISQUE -lt 50000000 ];then
+    echo -ne "${ROUGE}"
+    df -h | egrep "/$" | awk '{print $4}'
+    echo -ne "${RESET}"
+elif [ $ESPACE_DISQUE -lt 100000000 ];then
+    echo -ne "${JAUNE}"
+    df -h | egrep "/$" | awk '{print $4}'
+    echo -ne "${RESET}"
+else
+    df -h | egrep "/$" | awk '{print $4}'
+fi
+
+echo ""
 }
 
 # à vérifier
@@ -199,8 +207,18 @@ fi
 rappel_mail() {
 # Messages de rappels de planification
 if [ ! -z "$MSG_REMINDER" ];then
-	MSG_REMINDER="${MSG_REMINDER}\nCeci est un rappel automatique des planifications à venir :\n${MSG_REMINDER}\n\nVous pouvez à tout moment annuler une planification depuis l'onglet Planifications"
+	MSG_REMINDER="Ceci est un rappel automatique des planifications à venir :\n${MSG_REMINDER}\n\nVous pouvez à tout moment annuler une planification depuis l'onglet Planifications"
 	echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+fi
+
+if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
+	MSG_INFO_SUPPR_AUTO="Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
+	echo -e "$MSG_INFO_SUPPR_AUTO" | mutt -s "[INFO] Ancien(s) repo(s) supprimé(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+fi
+
+# Message global (regroupe erreurs et messages d'informations)
+if [ ! -z "$MSG_MAIN" ];then
+	echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Opération échouée sur ${WWW_HOSTNAME}" $EMAIL_DEST
 fi
 }
 
@@ -215,6 +233,7 @@ if [ "$TTY" -eq "0" ];then
 		MSG_MAIN="${MSG_MAIN}\nErreur lors de la vérification de la configuration :\n${MSG_CHECK_CONF_ERROR}"
 	fi
 
+	# Messages d'erreur lors du traitement d'une opération
 	if [ ! -z "$MSG_MAIN_ERROR" ];then
 		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement :\n${MSG_MAIN_ERROR}"
 	fi
@@ -224,15 +243,15 @@ if [ "$TTY" -eq "0" ];then
 		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement de la planification :\n${MSG_PLAN_ERROR}"
 	fi
 
-	# On ajoute aussi les messages de repos supprimés même si ce n'est pas une erreur
+	# Si des anciens repos ont été supprimés, on envoi un mail
 	if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
-        MSG_MAIN="${MSG_MAIN}\n Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
+		rapport_mail
 	fi
 
 	# Du coup si on a un message global, on l'affiche à l'écran pour qu'il soit affiché dans le log et on envoie un mail
 	if [ ! -z "$MSG_MAIN" ];then
 		rapport_mail
-	fi	
+	fi
 fi
 
 # On tri le contenu des fichiers de listes
@@ -240,9 +259,6 @@ sortLists
 
 # On réapplique les droits afin qu'ils soient d'aplomb pour la prochaine exécution
 permissions
-
-# Suppression des fichiers temporaires utilisés pendant l'opération
-rm /tmp/repomanager* -fr
 
 # Suppression du script d'installation
 rm "${BASE_DIR}"/install -f
@@ -252,6 +268,14 @@ rm "${BASE_DIR}"/update -fr
 
 # Suppression des fichiers ignore si il y en a
 rm "${BASE_DIR}"/.*ignore -fr
+
+# On supprime le fichier de log si KEEP_LOG != yes
+if [ "$KEEP_LOG" != "yes" ];then
+	rm "$LOG" -f
+fi
+
+# Suppression des fichiers temporaires utilisés pendant l'opération
+rm /tmp/repomanager* -fr
 
 exit
 }
@@ -273,11 +297,18 @@ if [ $# -ge "1" ];then
 			TTY="0"
 			LOGNAME="plan_${DATE_AMJ}_${HEURE_HMS}.log" # On ré-écrit le nom du fichier de log afin de le différencier des fichier de log commencant par repomanager_
 			LOG="${MAIN_LOGS_DIR}/${LOGNAME}"
-			eval $LOG
 			PLAN_EXEC=1
 			PLAN_ID=$2
 		;;
+		--planReminder)
+			TTY="0"
+			KEEP_LOG="no"
+		;;
 	esac
+fi
+# Si aucun paramètre n'a été passé au script, on ne fait pas la rotation de lastlog et on ne conserve pas le fichier de log
+if [ $# -eq "0" ];then
+	KEEP_LOG="no"
 fi
 
 # Crée les répertoire de base si n'existent pas
@@ -288,18 +319,18 @@ mkdir -p "${REPOS_DIR}"
 mkdir -p "${MAIN_LOGS_DIR}/"
 
 # Vidage des fichiers de logs
-	echo -n> "$LOG"
-	chmod 660 "$LOG"
+echo -n> "$LOG"
+chmod 660 "$LOG"
 
 # On écrit tout ce qu'il se passe dans le fichier de log principal
-exec &> >(tee -a "$LOG")
+if [ "$KEEP_LOG" == "yes" ];then exec &> >(tee -a "$LOG");fi
 
 # On récupère les infos sur la précédente exécution du script dans le fichier de log précédent
 if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then
 	LAST_EXECUTION_DATE=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $2}')
 	LAST_EXECUTION_DATE=$(date -d"$LAST_EXECUTION_DATE" +%d-%m-%Y)
 	LAST_EXECUTION_TIME=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
-	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%M:%Ss)
+	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%Mm%Ss)
 	LAST_EXECUTION_USER="$(cat ${MAIN_LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
 	LAST_EXECUTION_MESSAGE="Le ${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
 else
@@ -307,8 +338,17 @@ else
 fi
 
 # Puis on recrée un lien symbolique 'lastlog.log' pointant vers le fichier de log en cours
-if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then unlink "${MAIN_LOGS_DIR}/lastlog.log";fi
-ln -sf "$LOG" "${MAIN_LOGS_DIR}/lastlog.log"
+if [ "$KEEP_LOG" == "yes" ];then
+	# Suppression du lien symbolique pointant vers le précédent log, puis création d'un nouveau
+	rm -f "${MAIN_LOGS_DIR}/lastlog.log"
+	ln -sf "$LOG" "${MAIN_LOGS_DIR}/lastlog.log"
+
+	# Si l'opération en cours est issue d'une planification alors on crée aussi un lien symbolique lastplanlog.log
+	if [ "$PLAN_EXEC" -eq "1" ];then
+		rm -f "${MAIN_LOGS_DIR}/lastplanlog.log"
+		ln -sf "$LOG" "${MAIN_LOGS_DIR}/lastplanlog.log"
+	fi
+fi
 
 # Affichage du logo ASCI repomanager
 cat "${FUNCTIONS}/logo"                                                            
@@ -329,17 +369,17 @@ else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une lig
     echo ""
 fi
 
+printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: $OS_NAME $OS_VERSION ($OS_FAMILY)"
 if [ "$OS_FAMILY" == "Redhat" ];then
-	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Redhat/CentOS"
 	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
 fi
-
 if [ "$OS_FAMILY" == "Debian" ];then
-	printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: Debian"
 	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: deb"
 fi
+
 WHOAMI=$(whoami)
 printf "%-30s %s\n" "   ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
+printf "%-30s %s\n" "   ${JAUNE}Exécuté" "  ${RESET}: Le $DATE_JMA à $HEURE_HhMmSs"
 printf "%-30s %s\n" "   ${JAUNE}Dernière exécution" "  ${RESET}: $LAST_EXECUTION_MESSAGE"
 echo -e "\n\n"
 
@@ -372,7 +412,6 @@ while [ $# -ge 1 ];do
 	case "$1" in
 		--help|-help|-h)
             print_help
-            clean_exit
        	;;
 		--tty)
 			TTY="1"
@@ -392,8 +431,8 @@ while [ $# -ge 1 ];do
 	    	clean_exit
     	;;
 		--planReminders)
-			TTY="0"
 			planReminders
+			clean_exit
 		;;
 		--check-update|-cu)
 			checkUpdate
@@ -407,38 +446,47 @@ while [ $# -ge 1 ];do
 		--newRepo)
 			shift
 			newRepo $*
+			break
 		;;
         --updateRepo)
-            shift           # on shift pour ne plus inclure --updateRepo parmi les paramètres
-    		updateRepo $*   # puis on appelle la fonction updateRepo avec tous les paramètres suivants
+            shift
+    		updateRepo $*
+			break
         ;;
         --changeEnv)
             shift
             changeEnv $*
+			break
         ;;
 		--duplicateRepo)
 			shift
 			duplicateRepo $*
+			break
 		;;
 		--deleteRepo)
 			shift
 			deleteRepo $*
+			break
 		;;
 		--deleteDist)
 			shift
 			deleteDist $*
+			break
 		;;
 		--deleteSection)
 			shift
 			deleteSection $*
+			break
 		;;
 		--restoreOldRepo)
 			shift
 			restoreOldRepo $*
+			break
 		;;
 		--deleteOldRepo)
 			shift
 			deleteOldRepo $*
+			break
 		;;
 		--reset-install)
 			rm "$CONF" -f
@@ -452,10 +500,6 @@ while [ $# -ge 1 ];do
 		;;
 		--exec-plan)
 			execPlan "$PLAN_ID"
-		;;
-# anciens paramètres (à vérifier)
-        --suppr-auto)
-            SUPPR_AUTO=1
         ;;
        	*)
        	echo "Unknown argument: $1"
@@ -465,10 +509,6 @@ while [ $# -ge 1 ];do
 	shift
 done
 
-# pour le moment ne pas s'occuper de ces deux options automatiques :
-#
-#if [ "$SUPPR_AUTO" -eq "1" ];then
-	#traitement_nettoyage
-#fi
+cleanArchives
 
 clean_exit

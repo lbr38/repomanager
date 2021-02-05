@@ -1,12 +1,14 @@
+<!DOCTYPE html>
 <html>
 <?php include('common-head.inc.php'); ?>
 
 <?php
+
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require_once 'vars/common.vars';
-  require_once 'common-functions.php';
-  require_once 'common.php';
-  require_once 'vars/display.vars';
+  require 'vars/common.vars';
+  require 'common-functions.php';
+  require 'common.php';
+  require 'vars/display.vars';
   if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
 
   // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
@@ -30,8 +32,13 @@
         exec("sed -i 's/\$display_serverInfo_planInfo = \"yes\"/\$display_serverInfo_planInfo = \"no\"/g' ${WWW_DIR}/vars/display.vars");
       }
 
+      if ($divToClose === "connectionInfo") {
+        exec("sed -i 's/\$display_serverInfo_connectionInfo = \"yes\"/\$display_serverInfo_connectionInfo = \"no\"/g' ${WWW_DIR}/vars/display.vars");
+      }
+
     // rechargement de la page pour appliquer les modifications d'affichage
-    header("Refresh:0; url=index.php");
+    //header("Refresh:0; url=index.php");
+    header('Location: index.php');
   }
 ?>
 
@@ -67,7 +74,7 @@
         $totalReposArchived = exec("grep  '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
     
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer" class="float-right"><img class="icon-invisible" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         // nombre de repos/sections sur le serveur
         if ($OS_FAMILY == "Redhat") { echo '<p>Repos</p>'; }
         if ($OS_FAMILY == "Debian") { echo '<p>Sections</p>'; }
@@ -82,7 +89,7 @@
 
     if ($display_serverInfo_rootSpace == "yes") {
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=rootSpace" title="Fermer" class="float-right"><img class="icon-invisible" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=rootSpace" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         // graphique affichant l'espace utilisé sur le serveur (racine)
         echo '<p>/</p>';
     
@@ -169,7 +176,7 @@
     <?php
     if ($display_serverInfo_reposDirSpace == "yes") {
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=reposDirSpace" title="Fermer" class="float-right"><img class="icon-invisible" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=reposDirSpace" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         // graphique affichant l'espace utilisé par le répertoire des repos
         echo "<p>${REPOS_DIR}</p>";
         $diskTotalSpace = disk_total_space("${REPOS_DIR}");
@@ -257,7 +264,7 @@
         
     <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer" class="float-right"><img class="icon-invisible" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         echo '<p>Dernière planification</p>';
         if (!file_exists("$PLAN_LOG")) {
             echo '<b>N/A</b>';
@@ -265,7 +272,7 @@
             // Récup du dernier ID de planification dans le fichier de log
             $lastPlanID = exec("grep '\[Plan-' $PLAN_LOG | tail -n1 | sed 's/\[Plan\-//g; s/\]//g'");
             // Récup de toutes les informations et l'état de cette planification en utilisant la fonction planLogExplode
-            $plan = planLogExplode($lastPlanID, $PLAN_LOG, $OS_FAMILY); // Le tout est retourné dans un tableau et placé dans $plan
+            $plan = planLogExplode($lastPlanID); // Le tout est retourné dans un tableau et placé dans $plan
             $planStatus = $plan[0];
             $planError = $plan[1];
             $planDate = $plan[2];
@@ -315,30 +322,20 @@
         echo '</div>';
         // pour debug : var_dump($plan);
     }
+    
+    if ($display_serverInfo_connectionInfo == "yes") {
+        echo '<div class="serverInfo">';
+        echo '<a href="index.php?serverInfoSlideDivClose=connectionInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
+        echo '<p>Connexions actives</p>';
+        $connections = exec("netstat -an | grep ${serverIP}:80 | grep ESTABLISHED | wc -l");
+        echo "<b>${connections}</b>";
+        echo '</div>';
+    }
     ?>
     </section>
 </section>
 
-
-<!-- divs cachées de base -->
-<!-- GERER LES GROUPES -->
-<?php include('common-groupslist.inc.php'); ?>
-
-<!-- REPOS/HOTES SOURCES -->
-<?php include('common-repos-sources.inc.php'); ?>
-
 <?php include('common-footer.inc.php'); ?>
-
-<?php if ($reloadPage === "yes") {
-// Si reloadPage = yes alors il faut rafraichir la page afin d'appliquer certaines modification d'affichage
-// Nettoyage du cache navigateur puis rechargement de la page
-echo "<script>";
-echo "alert('test');";
-echo "Clear-Site-Data: \"*\";";
-echo "window.location.replace('/index.php');";
-echo "</script>";
-}
-?>
 
 <script> 
     $(document).ready(function(){
@@ -351,7 +348,7 @@ echo "</script>";
             // affichage du div permettant de créer un nouveau repo/section à la place
             $("#newRepoSlideDiv").delay(250).animate({
                 width: '97%',
-                padding: '10px' //$("#newRepoSlideDiv").css('padding', '10px'); /* lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
+                padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
             });
         });
         
@@ -359,7 +356,7 @@ echo "</script>";
             // masquage du div permettant de créer un nouveau repo/section
             $("#newRepoSlideDiv").animate({
                 width: 0,
-                padding: '0px' //$("#newRepoSlideDiv").css('padding', '0'); /* lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv' */
+                padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
             });
 
             // affichage du div contenant les infos serveur à la place

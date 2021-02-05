@@ -6,7 +6,10 @@
 # Le nom de la section
 # L'env de la section
 # Le nouvel env de la section
-# Si aucun paramètre n'a été passé, alors on les demande (on affiche la liste des repos d'abord, pour aider):
+# La description (peut être vide)
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
@@ -131,13 +134,13 @@ if [ "$ERROR" -eq "0" ];then
 			OLD_REPO_DATE=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne date de prod afin de la passer en tant que date n-1
 			OLD_REPO_DESCRIPTION=$(egrep "^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${REPO_NEW_ENV}\"" "${REPOS_LIST}" | awk -F ',' '{print $7}' | cut -d'=' -f2 | sed 's/"//g') && # On récupère l'ancienne description de prod pour la conserver
 			echo -ne "Passage de l'ancienne version de ${REPO_NEW_ENV} en archive :\t"
-			mv "${OLD_REPO_DATE}_${REPO_SECTION}/" "99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que 99_old_version_JJ-MM-AAAA_base/
+			mv "${OLD_REPO_DATE}_${REPO_SECTION}/" "archived_${OLD_REPO_DATE}_${REPO_SECTION}/" # On renomme l'ancienne version en tant que archived_JJ-MM-AAAA_base/
 			if [ $? -eq "0" ];then
 				echo -e "[${VERT} OK ${RESET}]"
 			else
 				(( ERROR++ ))
-				echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
-				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers 99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}"
+				echo -e "[${ROUGE} ERREUR ${RESET}] Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers archived_${OLD_REPO_DATE}_${REPO_SECTION}"
+				MSG_MAIN_ERROR="${MSG_MAIN_ERROR}\n Problème lors du renommage du répertoire ${OLD_REPO_DATE}_${REPO_SECTION} vers archived_${OLD_REPO_DATE}_${REPO_SECTION}"
 				if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
 					(( PLAN_ERROR++ ))
 				fi
@@ -180,8 +183,8 @@ if [ "$ERROR" -eq "0" ];then
 		# On continue uniquement si il n'y a pas eu d'erreur précédemment
 		if [ "$ERROR" -eq "0" ];then
 			echo -ne "Application des droits sur la section archivée :\t"
-			find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}/ -type f -exec chmod 0660 {} \;
-			find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/99_old_version_${OLD_REPO_DATE}_${REPO_SECTION}/ -type d -exec chmod 0770 {} \;
+			find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${OLD_REPO_DATE}_${REPO_SECTION}/ -type f -exec chmod 0660 {} \;
+			find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${OLD_REPO_DATE}_${REPO_SECTION}/ -type d -exec chmod 0770 {} \;
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 	fi

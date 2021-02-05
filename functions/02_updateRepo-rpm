@@ -2,8 +2,12 @@
 
 # La fonction a besoin de 3 paramètre pour fonctionner :
 # Le nom du repo 
-# Le vrai nom
-# Si aucun paramètre n'a été passé, alors on les demande :
+# Le nom du repo source
+# Le check gpg si activé ou non
+# La signature des paquets si activée ou non
+
+# Affichage des arguments passés si le mode debug est activé :
+if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
 
 while [ $# -ge 1 ];do case "$1" in
 	--repo-name)
@@ -192,7 +196,7 @@ if [ "$ERROR" -eq "0" ];then
 		OLD_REALNAME=$(egrep "^Name=\"${REPO_NAME}\",Realname=\".*\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST" | awk -F',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # on récupère aussi l'ancien hote au cas où il soit différent 
 		echo -ne "Archivage de l'ancienne version :\t"
 		cd ${REPOS_DIR}/ &&
-		mv "${OLD_DATE_REPO}_${REPO_NAME}/" "99_old_version_${OLD_DATE_REPO}_${REPO_NAME}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
+		mv "${OLD_DATE_REPO}_${REPO_NAME}/" "archived_${OLD_DATE_REPO}_${REPO_NAME}/" # On renomme l'ancienne version en tant que old_prod_JJ-MM-AAAA_base/
 		echo -e "[${VERT} OK ${RESET}]"
 		echo -ne "Mise à jour des informations dans repos-archive.list :\t"
 		echo "Name=\"${REPO_NAME}\",Realname=\"${OLD_REALNAME}\",Date=\"${OLD_DATE_REPO}\",Description=\"${OLD_DESCRIPTION}\"" >> $REPOS_ARCHIVE_LIST
