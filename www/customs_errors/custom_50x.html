@@ -1,33 +1,48 @@
 <!DOCTYPE html>
 <html>
+    <style>
+        @font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype');	}
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+        body { background-color: #333333; }
+        #errorDiv { 
+            width: 1000px;
+            height: 400px;
+            line-height: 400px;
+            margin: 0px;
+            padding: 0px;
+            margin: auto;
+            font-family: 'Montserrat', sans-serif;
+            color: whitesmoke;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow:
+            0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+            0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+            background-color:#2b2b2b;
+        }
 
-<style>
-    body { background-color: #333333; }
-    #errorDiv { 
-        width: 400px;
-        height: 400px;
-        margin: 0px;
-        padding: 0px;
-        margin: auto;
-        border-radius: 10px;
-        box-shadow:
-        0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-        0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-        background-color:#2b2b2b;
-        text-align: center;
-        vertical-align: middle;
-    }
-</style>
+        h1 {
+            font-size: 40px;
+            font-family: 'ethnocentric';
+            color: whitesmoke;
+            text-align: center;
+            margin-bottom: 100px;
+        }
 
-<head>
-    <title>Erreur serveur</title>
-</head>
-
-<body>
-<div id="errorDiv">
-    OOPS! An Error occured
-</div>
-
-
-</body>
+        p {
+            font-size: 30px;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: normal;
+        }
+    </style>
+    <head>
+        <title>Erreur 500</title>
+    </head>
+    <body>
+        <h1>REPOMANAGER</h1>
+        <div id="errorDiv">
+            <p>Une erreur est survenue !</p>
+        </div>
+    </body>
 </html>
