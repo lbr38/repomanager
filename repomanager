@@ -49,23 +49,17 @@ SEP
 clean_exit
 }
 
-install() { 
-	source "${FUNCTIONS}/00_install"
-}
+# Première installation ou réinstallation du fichier de conf repomanager.conf
+install() { source "${FUNCTIONS}/00_install"; }
 
-checkDependencies() { 
-	source "${FUNCTIONS}/00_checkDependencies"
-}
+# Vérification des dépendances
+checkDependencies() { source "${FUNCTIONS}/00_checkDependencies"; }
 
 # Vérifiction de la conf repomanager.conf
-checkConf() { 
-	source "${FUNCTIONS}/00_checkConf"
-}
+checkConf() { source "${FUNCTIONS}/00_checkConf"; }
 
 # Récupération de la conf repomanager.conf
-getConf() {
-	source "${FUNCTIONS}/00_getConf"
-}
+getConf() {	source "${FUNCTIONS}/00_getConf"; }
 
 newRepo() {
 	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
@@ -134,29 +128,35 @@ cleanArchives() {
 	source "${FUNCTIONS}/21_cleanArchives"
 }
 
-sortLists() {
-	source "${FUNCTIONS}/98_sortLists"
+sendMail() {
+	source "${FUNCTIONS}/22_sendMail"
 }
 
-listRepo() {
-	source "${FUNCTIONS}/98_listRepo"
-}
-
-listOldRepo() {
-	source "${FUNCTIONS}/98_listOldRepo"
-}
-
-update() {
-	source "${FUNCTIONS}/99_update"
-}
-
-permissions() {
-	source "${FUNCTIONS}/100_permissions"
+sendPlanReminderMail() {
+	source "${FUNCTIONS}/23_sendPlanReminderMail"
 }
 
 cronjob_daily() {
 	source "${FUNCTIONS}/30_cronjob_daily"
 }
+
+# Tri par ordre alpha des fichiers de listes de repos
+sortLists() { source "${FUNCTIONS}/98_sortLists"; }
+
+# Affichage de la liste des repos/sections dans le terminal
+listRepo() { source "${FUNCTIONS}/98_listRepo"; }
+
+# Affichage de la liste des repos/sections archivés dans le terminal
+listOldRepo() {	source "${FUNCTIONS}/98_listOldRepo"; }
+
+# Mise à jour de repomanager à partir de git
+update() { source "${FUNCTIONS}/99_update"; }
+
+# Remise en place des permissions sur les répertoires utilisés par le programme
+permissions() {	source "${FUNCTIONS}/100_permissions"; }
+
+# Nettoyage et fin du programme
+clean_exit() { source "${FUNCTIONS}/999_cleanExit"; }
 
 
 ## Autres fonctions ##
@@ -186,99 +186,8 @@ fi
 echo ""
 }
 
-# à vérifier
-rapport_mail() {
-# Avant toute chose, on supprime les codes couleurs ANSI dans le fichier de log, ils sont utiles pour afficher de la couleur dans le terminal mais ils polluent le rapport mail qui devient illisible :
-sed 's/\x1b\[[0-9;]*m//g' "$LOG" > "$LOG_PARSED"
-
-# Si l'une de ces 3 variables n'est pas vide, c'est qu'il y a eu des erreurs, on envoie donc un mail avec un titre d'erreur
-if [ ! -z "$MSG_MAIN_ERROR" ] || [ ! -z "$MSG_CHECK_CONF_ERROR" ] || [ ! -z "$MSG_PLAN_ERROR" ];then
-	# Cas où il s'agit d'une planification
-	if [ "$PLAN_EXEC" -eq "1" ];then
-		echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Planification [Plan-${PLAN_ID}] sur ${HOSTNAME}" -a $LOG_PARSED -- $EMAIL_DEST
-	fi
-	# Autres cas
-	# if [ "$XXXXX" -eq "1" ];then
-	#
-fi
-}
 
 
-rappel_mail() {
-# Messages de rappels de planification
-if [ ! -z "$MSG_REMINDER" ];then
-	MSG_REMINDER="Ceci est un rappel automatique des planifications à venir :\n${MSG_REMINDER}\n\nVous pouvez à tout moment annuler une planification depuis l'onglet Planifications"
-	echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
-fi
-
-if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
-	MSG_INFO_SUPPR_AUTO="Anciens repos supprimés :\n${MSG_INFO_SUPPR_AUTO}"
-	echo -e "$MSG_INFO_SUPPR_AUTO" | mutt -s "[INFO] Ancien(s) repo(s) supprimé(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
-fi
-
-# Message global (regroupe erreurs et messages d'informations)
-if [ ! -z "$MSG_MAIN" ];then
-	echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Opération échouée sur ${WWW_HOSTNAME}" $EMAIL_DEST
-fi
-}
-
-clean_exit() {
-# Retour au répertoire de base, pour ne pas empêcher un quelconque nettoyage de répertoire
-cd "$BASE_DIR"
-
-# En mode auto (planification), on concatene tous les messages d'erreurs rencontrés dans 1 message global afin de l'envoyer par mail :
-if [ "$TTY" -eq "0" ];then
-	# On commence par les messages d'erreur de conf
-	if [ ! -z "$MSG_CHECK_CONF_ERROR" ];then
-		MSG_MAIN="${MSG_MAIN}\nErreur lors de la vérification de la configuration :\n${MSG_CHECK_CONF_ERROR}"
-	fi
-
-	# Messages d'erreur lors du traitement d'une opération
-	if [ ! -z "$MSG_MAIN_ERROR" ];then
-		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement :\n${MSG_MAIN_ERROR}"
-	fi
-
-	# Messages d'erreur des planifications
-	if [ ! -z "$MSG_PLAN_ERROR" ];then
-		MSG_MAIN="${MSG_MAIN}\nErreur lors du traitement de la planification :\n${MSG_PLAN_ERROR}"
-	fi
-
-	# Si des anciens repos ont été supprimés, on envoi un mail
-	if [ ! -z "$MSG_INFO_SUPPR_AUTO" ];then
-		rapport_mail
-	fi
-
-	# Du coup si on a un message global, on l'affiche à l'écran pour qu'il soit affiché dans le log et on envoie un mail
-	if [ ! -z "$MSG_MAIN" ];then
-		rapport_mail
-	fi
-fi
-
-# On tri le contenu des fichiers de listes
-sortLists
-
-# On réapplique les droits afin qu'ils soient d'aplomb pour la prochaine exécution
-permissions
-
-# Suppression du script d'installation
-rm "${BASE_DIR}"/install -f
-
-# Suppression du répertoire de mise à jour si une mise à jour a eu lieu
-rm "${BASE_DIR}"/update -fr
-
-# Suppression des fichiers ignore si il y en a
-rm "${BASE_DIR}"/.*ignore -fr
-
-# On supprime le fichier de log si KEEP_LOG != yes
-if [ "$KEEP_LOG" != "yes" ];then
-	rm "$LOG" -f
-fi
-
-# Suppression des fichiers temporaires utilisés pendant l'opération
-rm /tmp/repomanager* -fr
-
-exit
-}
 
 
 ## TRAITEMENT ##

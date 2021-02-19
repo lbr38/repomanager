@@ -8,23 +8,20 @@ echo -n> $PARSE_FILE
 
 # Si ALLOW_AUTODELETE_ARCHIVED_REPOS != yes alors on quitte la fonction
 if [ "$ALLOW_AUTODELETE_ARCHIVED_REPOS" != "yes" ];then
-    echo "erreur suppression des vieux repos pas autorisé"
-    clean_exit
+    echo -e "[$JAUNE ERREUR $RESET] La suppression automatique des repos archivés n'est pas autorisée"
+    return 1
 fi
 
 # Si le paramètre retention est vide, alors on quitte la fonction
 if [ -z "$RETENTION" ];then
-    echo "erreur retention vide"
-	clean_exit
+    echo -e "[$JAUNE ERREUR $RESET] Le paramètre de retention est vide."
+	return 1
 fi
 
 
 ## Traitement ##
 # Cas Redhat
 if [ "$OS_FAMILY" == "Redhat" ];then
-    echo -e "\nNettoyage automatique des anciens repos archivés"
-    echo "Retention paramétrée : $RETENTION"
-
     # On récupère la liste de tous les repos archivés dans le fichier (on récupère le champ Name uniquement)
     REPOS_ARCHIVED=$(cat $REPOS_ARCHIVE_LIST | awk -F',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g' | sort -u)
 
@@ -35,6 +32,8 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 
         # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
         if [ -s "$PARSE_FILE" ];then
+            echo -e "\nNettoyage automatique des anciens repos archivés"
+            echo "Retention paramétrée : $RETENTION"
             for REPO_DATE in $(cat $PARSE_FILE);do
                 echo " - Suppression du repo archivé $REPO_NAME en date du $REPO_DATE"
                 #rm ${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME} -rf
@@ -42,7 +41,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
                 # On retire le repo supprimé de $REPOS_ARCHIVE_LIST
                 #sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST
                 # On mets dans une variable les noms de repos qui ont été supprimés
-                MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME en date du $REPO_DATE"
+                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n$REPO_NAME en date du $REPO_DATE"
             done
         fi
     done
@@ -50,9 +49,6 @@ fi
 
 # Cas Debian
 if [ "$OS_FAMILY" == "Debian" ];then
-echo -e "\nNettoyage automatique des anciennes sections de repos archivées"
-    echo "Retention paramétrée : $RETENTION"
-
     # On récupère la liste de tous les repos archivés dans le fichier (on récupère le champ Name uniquement)
     REPOS_ARCHIVED=$(cat $REPOS_ARCHIVE_LIST | awk -F',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g' | sort -u)
 
@@ -63,13 +59,15 @@ echo -e "\nNettoyage automatique des anciennes sections de repos archivées"
 
         # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
         if [ -s "$PARSE_FILE" ];then
+            echo -e "\nNettoyage automatique des anciennes sections de repos archivées"
+            echo "Retention paramétrée : $RETENTION"
             for REPO_DATE in $(cat $PARSE_FILE);do
                 echo " - Suppression de la section archivée $REPO_NAME en date du $REPO_DATE"
 
                 #rm ${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME} -rf
                 grep "^$REPO_NAME:$REPO_DATE" $REPOS_ARCHIVE_LIST >> $REPOS_DELETED
                 #sed -i /^$REPO_NAME:$REPO_DATE/d $REPOS_ARCHIVE_LIST
-                MSG_INFO_SUPPR_AUTO="$MSG_INFO_SUPPR_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
+                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
             done
         fi
     done

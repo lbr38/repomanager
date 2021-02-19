@@ -422,7 +422,7 @@ for PLANIFICATION in $(echo "$LISTE_DE_PLANIFICATIONS"); do
 	done
 	IFS=$old_IFS
 done
-rappel_mail
+sendPlanReminderMail
 }
 
 plan_exit() {

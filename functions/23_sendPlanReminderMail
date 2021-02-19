@@ -1,0 +1,12 @@
+#!/bin/bash
+# Messages de rappels de planification
+
+if [ ! -z "$MSG_REMINDER" ];then
+	MSG_REMINDER="Ceci est un rappel automatique des planifications à venir :\n${MSG_REMINDER}\n\nVous pouvez à tout moment annuler une planification depuis l'onglet Planifications"
+	echo -e "$MSG_REMINDER" | mutt -s "[RAPPEL] Tâche(s) automatique(s) planifiée(s) sur ${WWW_HOSTNAME}" $EMAIL_DEST
+fi
+
+# Message global (regroupe erreurs et messages d'informations)
+if [ ! -z "$MSG_MAIN" ];then
+	echo -e "$MSG_MAIN" | mutt -s "[ERREUR] Opération échouée sur ${WWW_HOSTNAME}" $EMAIL_DEST
+fi
