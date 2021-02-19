@@ -144,6 +144,7 @@ function checkAction_newRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 if ($newRepoGpgCheck == "no") {
                     if ($repoGpgResign == "no") {
                         exec("${REPOMANAGER} --web --newRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname --repo-description $repoDescription >/dev/null 2>/dev/null &");
@@ -216,6 +217,7 @@ function checkAction_newRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 if ($newRepoGpgCheck == "no") {
                     exec("${REPOMANAGER} --web --newRepo --gpg-check no --repo-name $repoName --repo-host-name $repoHostName --repo-dist $repoDist --repo-section $repoSection --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 } else {
@@ -351,6 +353,7 @@ function checkAction_updateRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 if ($updateRepoGpgCheck == "no") {
                     if ($repoGpgResign == "no") {
                         exec("${REPOMANAGER} --web --updateRepo --gpg-check no --gpg-resign no --repo-name $repoName --repo-real-name $repoRealname >/dev/null 2>/dev/null &");
@@ -418,6 +421,7 @@ function checkAction_updateRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 if ($updateRepoGpgCheck == "no") {
                     exec("${REPOMANAGER} --web --updateRepo --gpg-check no --repo-name $repoName --repo-host-name $repoHostName --repo-dist $repoDist --repo-section $repoSection >/dev/null 2>/dev/null &");
                 } else {
@@ -578,6 +582,7 @@ function checkAction_changeEnv() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --changeEnv --repo-name $repoName --repo-env $repoEnv --repo-new-env $repoNewEnv --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -637,6 +642,7 @@ function checkAction_changeEnv() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --changeEnv --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv --repo-new-env $repoNewEnv --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -766,6 +772,7 @@ function checkAction_duplicateRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --duplicateRepo --repo-name $repoName --repo-env $repoEnv --repo-new-name $repoNewName --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // on redirige vers la page de logs pour voir l'exécution
             }
@@ -810,6 +817,7 @@ function checkAction_duplicateRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --duplicateRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv --repo-new-name $repoNewName --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -911,6 +919,7 @@ function checkAction_deleteSection() {
 
         // Si on a reçu la confirmation en GET alors on traite :
         if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+            echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
             exec("${REPOMANAGER} --web --deleteSection --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-env $repoEnv >/dev/null 2>/dev/null &");
             echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
         }
@@ -1007,6 +1016,7 @@ function checkAction_deleteDist() {
 
         // Si on a reçu la confirmation en GET alors on traite :
         if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+            echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
             exec("${REPOMANAGER} --web --deleteDist --repo-name $repoName --repo-dist $repoDist >/dev/null 2>/dev/null &");
             echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
         }
@@ -1086,6 +1096,7 @@ function checkAction_deleteRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName --repo-env $repoEnv >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
@@ -1144,7 +1155,7 @@ function checkAction_deleteRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                echo "reponame : $repoName";
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1248,6 +1259,7 @@ function checkAction_deleteOldRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-date $repoDate >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
@@ -1288,6 +1300,7 @@ function checkAction_deleteOldRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --deleteOldRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-date $repoDate >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1428,6 +1441,7 @@ function checkAction_restoreOldRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
@@ -1492,6 +1506,7 @@ function checkAction_restoreOldRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --restoreOldRepo --repo-name $repoName --repo-dist $repoDist --repo-section $repoSection --repo-date $repoDate --repo-description $repoDescription >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }

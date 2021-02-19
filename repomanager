@@ -1,13 +1,13 @@
 #!/bin/bash
 set -u
-export LC_ALL="fr_FR.UTF-8" # Afin que crontab exécute ce script avec des locales en français
+export LC_ALL="fr_FR.UTF-8" # Afin que crontab exécute ce programme avec des locales en français
 export TERM="xterm-256color"
 export COLUMNS=190
 export GPG_TTY=$(tty)
 
 
 ## ↓ VARIABLES ↓ ##
-# Import de toutes les variables nécéssaires au script
+# Import de toutes les variables nécéssaires au programme
 if [ -f "/etc/repomanager/vars/customs.vars" ];then
 	source "/etc/repomanager/vars/customs.vars"
 else
@@ -43,7 +43,7 @@ ${JAUNE}Toutes les opérations s'effectuent depuis l'interface web.${RESET}
 Paramètres disponibles en ligne de commande :
   --repo, --list-repos, -r                  ➤  Afficher la liste des repos actifs
   --archrepo, --list-archived-repos, -ar    ➤  Afficher la liste des repos archivés
-  --check, -c                               ➤  Vérification des fichiers de configuration du script
+  --check, -c                               ➤  Vérification des fichiers de configuration de repomanager
 \n"
 SEP
 clean_exit
@@ -215,7 +215,7 @@ if [ $# -ge "1" ];then
 		;;
 	esac
 fi
-# Si aucun paramètre n'a été passé au script, on ne fait pas la rotation de lastlog et on ne conserve pas le fichier de log
+# Si aucun paramètre n'a été passé au programme, on ne fait pas la rotation de lastlog et on ne conserve pas le fichier de log
 if [ $# -eq "0" ];then
 	KEEP_LOG="no"
 fi
@@ -234,7 +234,7 @@ chmod 660 "$LOG"
 # On écrit tout ce qu'il se passe dans le fichier de log principal
 if [ "$KEEP_LOG" == "yes" ];then exec &> >(tee -a "$LOG");fi
 
-# On récupère les infos sur la précédente exécution du script dans le fichier de log précédent
+# On récupère les infos sur la précédente exécution du programme dans le fichier de log précédent
 if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then
 	LAST_EXECUTION_DATE=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $2}')
 	LAST_EXECUTION_DATE=$(date -d"$LAST_EXECUTION_DATE" +%d-%m-%Y)
@@ -336,7 +336,7 @@ while [ $# -ge 1 ];do
 			listOldRepo
 			clean_exit
 		;;
-		--check|-c) # Vérifie la conf (checkConf ci-dessus) et quittes le script
+		--check|-c) # Vérifie la conf (checkConf ci-dessus) et quittes le programme
 	    	clean_exit
     	;;
 		--planReminders)

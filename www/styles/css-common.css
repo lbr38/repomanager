@@ -137,6 +137,15 @@ hr {
     vertical-align: top;
 }
 
+.text-align-center {
+    text-align: center;
+}
+
+.img-align-center {
+    display: block;
+    margin: auto;
+}
+
 /* Quelques classes génériques permettant de créer des textes de couleurs */
 .greentext {
     color: #4CAF50;

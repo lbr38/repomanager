@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# On va utiliser des fichiers temporaires pour traiter 
-REPOS_DELETED="/tmp/repomanager_reposdeleted.tmp"
-PARSE_FILE="/tmp/repomanager_parsefile.tmp"
-echo -n> $REPOS_DELETED
-echo -n> $PARSE_FILE
+# On va utiliser un fichier temporaire pour traiter
+DATES_TO_DELETE="/tmp/repomanager_parsefile.tmp"
 
 # Si ALLOW_AUTODELETE_ARCHIVED_REPOS != yes alors on quitte la fonction
 if [ "$ALLOW_AUTODELETE_ARCHIVED_REPOS" != "yes" ];then
@@ -22,26 +19,27 @@ fi
 ## Traitement ##
 # Cas Redhat
 if [ "$OS_FAMILY" == "Redhat" ];then
+    echo -e "\n Nettoyage automatique des anciens repos archivés"
+
     # On récupère la liste de tous les repos archivés dans le fichier (on récupère le champ Name uniquement)
     REPOS_ARCHIVED=$(cat $REPOS_ARCHIVE_LIST | awk -F',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g' | sort -u)
 
     # Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
     for REPO_NAME in $(echo "$REPOS_ARCHIVED");do
         # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
-        grep "^Name=\"${REPO_NAME}\"" $REPOS_ARCHIVE_LIST | awk -F',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > $PARSE_FILE
+        grep "^Name=\"${REPO_NAME}\"" "$REPOS_ARCHIVE_LIST" | awk -F',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > "$DATES_TO_DELETE"
 
-        # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
-        if [ -s "$PARSE_FILE" ];then
-            echo -e "\nNettoyage automatique des anciens repos archivés"
-            echo "Retention paramétrée : $RETENTION"
-            for REPO_DATE in $(cat $PARSE_FILE);do
+        # Si le fichier n'est pas vide (contient les dates à supprimer) alors on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
+        if [ -s "$DATES_TO_DELETE" ];then
+            for REPO_DATE in $(cat $DATES_TO_DELETE);do
                 echo " - Suppression du repo archivé $REPO_NAME en date du $REPO_DATE"
-                #rm ${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME} -rf
-                #grep "^$REPO_NAME:$REPO_DATE" $REPOS_ARCHIVE_LIST >> $REPOS_DELETED
-                # On retire le repo supprimé de $REPOS_ARCHIVE_LIST
-                #sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST
-                # On mets dans une variable les noms de repos qui ont été supprimés
-                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n$REPO_NAME en date du $REPO_DATE"
+
+                # Suppression du miroir et du repo dans le fichier de liste
+                rm "${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME}" -rf
+                sed -i /^Name=\"${REPO_NAME}\",Realname=\".*\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST
+
+                # On met dans une variable les noms de repos qui ont été supprimés
+                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n - $REPO_NAME en date du $REPO_DATE"
             done
         fi
     done
@@ -49,25 +47,38 @@ fi
 
 # Cas Debian
 if [ "$OS_FAMILY" == "Debian" ];then
+    echo -e "\n Nettoyage automatique des anciennes sections de repos archivées"
+
     # On récupère la liste de tous les repos archivés dans le fichier (on récupère le champ Name uniquement)
-    REPOS_ARCHIVED=$(cat $REPOS_ARCHIVE_LIST | awk -F',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g' | sort -u)
+    REPOS_ARCHIVED=$(cat $REPOS_ARCHIVE_LIST | cut -d',' -f1,2,3,4 | sort -u) # Obtient une liste Name="repo",Host="host",Dist="dist",Section="section" sans doublons
 
     # Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par $RETENTION)
-    for REPO_NAME in $(echo "$REPOS_ARCHIVED");do
+    for REPO in $(echo "$REPOS_ARCHIVED");do
         # On mets dans un fichier toutes les dates trouvées pour ce repo, et on les trie du + vieux au + recent. Puis on supprime les 2 dates les plus récentes (avec le head)
-        grep "^Name=\"${REPO_NAME}\"" $REPOS_ARCHIVE_LIST | awk -F',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > $PARSE_FILE
+        # Ici le grep s'apparent à : grep "Name="repo",Host="host",Dist="dist",Section="section"" car il y a encore toutes ces informations dans $REPOS_ARCHIVED
+        grep "${REPO}" "$REPOS_ARCHIVE_LIST" | awk -F',' '{print $5}' | cut -d'=' -f2 | sed 's/"//g' | sort -t- -k3 -k2 -k1 | head -n -${RETENTION} > "$DATES_TO_DELETE"
 
-        # Si le fichier n'est pas vide on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
-        if [ -s "$PARSE_FILE" ];then
-            echo -e "\nNettoyage automatique des anciennes sections de repos archivées"
-            echo "Retention paramétrée : $RETENTION"
-            for REPO_DATE in $(cat $PARSE_FILE);do
-                echo " - Suppression de la section archivée $REPO_NAME en date du $REPO_DATE"
+        # Si le fichier n'est pas vide (contient les dates à supprimer) alors on traite (il pourrait être vide si le nb de vieux repos est inférieur à $RETENTION)
+        if [ -s "$DATES_TO_DELETE" ];then
+            # D'abord il faut récupérer le nom du repo, sa distribution et sa section
+            REPO_NAME=$(echo $REPO | awk -F',' '{print $1}' | cut -d'=' -f2 | sed 's/"//g')
+            REPO_DIST=$(echo $REPO | awk -F',' '{print $3}' | cut -d'=' -f2 | sed 's/"//g')
+            REPO_SECTION=$(echo $REPO | awk -F',' '{print $4}' | cut -d'=' -f2 | sed 's/"//g')
 
-                #rm ${REPOS_DIR}/archived_${REPO_DATE}_${REPO_NAME} -rf
-                grep "^$REPO_NAME:$REPO_DATE" $REPOS_ARCHIVE_LIST >> $REPOS_DELETED
-                #sed -i /^$REPO_NAME:$REPO_DATE/d $REPOS_ARCHIVE_LIST
-                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n$REPO_NAME du $REPO_DATE" # On mets dans une variable les noms de repos qui ont été nettoyés
+            if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ];then
+                echo "Erreur CA01 - Un paramètre est vide"
+                return 1
+            fi
+
+            for REPO_DATE in $(cat $DATES_TO_DELETE);do
+                echo " - Suppression de la section archivée $REPO_SECTION du repo $REPO_NAME (distribution $REPO_DIST) en date du $REPO_DATE"
+
+                # Suppression du miroir et du repo dans le fichier de liste
+                rm "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/archived_${REPO_DATE}_${REPO_SECTION}" -rf
+                sed -i /^Name=\"${REPO_NAME}\",Host=\".*\",Dist=\"${REPO_DIST//\//\\/}\",Section=\"${REPO_SECTION}\",Date=\"${REPO_DATE}\"/d $REPOS_ARCHIVE_LIST
+
+                # On met dans une variable les noms de repos qui ont été nettoyés
+                MSG_DELETE_ARCHIVED_REPOS_AUTO="$MSG_DELETE_ARCHIVED_REPOS_AUTO\n - Section $REPO_SECTION du repo $REPO_NAME (distribution $REPO_DIST) en date du $REPO_DATE"
             done
         fi
     done
