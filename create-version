@@ -12,7 +12,7 @@ CYAN=$(tput setaf 6)
 RESET=$(tput sgr0)
 
 DEV_DIR="/home/github/repomanager"
-DEV_BRANCH="alpha"
+DEV_BRANCH="beta"
 #RELEASE_BRANCH="releases"
 VERSION=""
 ARCHIVE_FULL_NAME=""

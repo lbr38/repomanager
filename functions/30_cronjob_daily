@@ -15,7 +15,7 @@ if [ -f "$CRON_LOG" ];then echo -n> "$CRON_LOG";fi
 
 # Vérification d'une nouvelle version disponible sur github
 # Récupère le numéro de version qui est publié sur github dans le fichier 'version'
-GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/alpha/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
+GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/beta/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
 if [ -z "$GITHUB_VERSION" ];then
     (( CHECK_VERSION_ERROR++ ))
 else

@@ -1,8 +1,26 @@
-<h1>Alpha version</h1>
+Repomanager est un outil de gestion de repos de paquets.
+
+Conçu pour un usage en entreprise, il permet de gérer facilement la mise à jour de paquets sur d'importants parcs de serveurs Linux.
+
+Outils et actions réalisables avec repomanager :
+
+- Créer des miroirs de repos à partir de n'importe quel repos public (repos Debian, CentOS ou autres éditeurs de logiciels).
+- Signer ses repos de paquets (GPG).
+- Système d'environnements permettant de mettre à jour d'abord un parc de serveurs de preprod puis un parc de serveurs prod (nb d'environnements illimités!)
+- Planifications automatiques permettant de réaliser automatiquement et à n'importe quelle date/heure les actions citées précédemment.
+
+Repomanager est un programme léger nécessitant seulement avec un serveur web + PHP et bash.
+Aucun système de gestion de bases de données n'est nécessaire.
+Un module perl (RPM4) est nécessaire sur CentOS
+
+![alt text](https://github.com/lbr38/repomanager/blob/beta/repomanager.png?raw=true)
+
+
+<h1>Beta</h1>
 
 Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu.
 
-Testé sur : 
+Testé régulièrement sur :
 - Debian 10
 - CentOS 7, 8
 - Fedora 33
@@ -10,12 +28,12 @@ Testé sur :
 
 <b>Dépendances</b>
 
-Pour fonctionner repomanager requiert la présence de certains logiciels couramment installés sur les distributions Linux, tels que :
+Pour fonctionner repomanager requiert la présence de certains paquets couramment installés sur les distributions Linux, tels que :
 <pre>
 rsync, curl, wget, mutt, at, gnupg2
 </pre>
 
-Ainsi que certains logiciels spécifiques nécessaires pour créer des miroirs de repo tels que :
+Ainsi que certains paquets spécifiques nécessaires pour créer des miroirs de repo tels que :
 <pre>
 yum-utils et createrepo (CentOS/Redhat)
 rpmresign (module perl RPM4) pour la signature des repos (CentOS/Redhat)
@@ -33,7 +51,7 @@ Note pour les systèmes Redhat : Il faut désactiver SELinux ou faire en sorte q
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Dans sa version alpha, repomanager n'a été testé qu'avec nginx+php-fpm. Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
+Dans sa version alpha et beta, repomanager n'a été testé qu'avec nginx+php-fpm. Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
 
 <pre>
 yum install nginx php-fpm
@@ -41,6 +59,8 @@ apt update && apt install nginx php-fpm
 </pre>
 
 <b>Vhost</b>
+
+Modèle de vhost nginx
 
 <pre>
 #### Repomanager vhost ####
@@ -57,6 +77,9 @@ server {
         listen SERVER-IP:443 default_server ssl;
         server_name SERVERNAME.MYDOMAIN.COM;
         #rewrite ^/(.*)/$ /$1 permanent;
+
+        root WWW_DIR;
+        index index.php;
 
         # SSL certificate files
         ssl_certificate      PATH-TO-CERTIFICATE.crt;
@@ -95,24 +118,20 @@ server {
         gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
         gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
 
+        location / {
+                try_files $uri $uri/ =404;
+        }
 
-	location / {
-		root WWW_DIR; # default is /var/www/repomanager
-	        try_files $actual_uri $actual_uri/ =404;
-	        index index.php;
-	}
-
-
-	location ~ [^/]\.php(/|$) {
-		root WWW_DIR; # default is /var/www/repomanager
-	        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-	        if (!-f $document_root$fastcgi_script_name) {
-	                return 404;
-	        }
-	        fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock; 
-	        fastcgi_index index.php;
-	        include fastcgi_params;
-	}
+        location ~ [^/]\.php(/|$) {
+                fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+                if (!-f $document_root$fastcgi_script_name) {
+                        return 404;
+                }
+                fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+                fastcgi_index index.php;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include fastcgi_params;
+        }
 
 	location /repo {
 	        root REPOS_DIR; # default is /home
@@ -132,7 +151,7 @@ Répertoire des fichiers web (par défaut /var/www/repomanager/)
 Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
 </pre>
 
-Ainsi que le répertoire des fichiers de configuration et variables (non modifiable) :
+Ainsi que le répertoire des fichiers de configuration (non modifiable) :
 <pre>
 /etc/repomanager/
 </pre>
