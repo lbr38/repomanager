@@ -13,7 +13,7 @@ if [ "$UPDATE_BACKUP" == "yes" ];then
     echo -ne "\n → Backup avant mise à jour :\t\t" &&
     mkdir -p "${BASE_DIR}/backups" &&
     cd /tmp/ &&
-    tar pczf"${DATE_AMJ}_${HEURE_HMS}_repomanager_backup.tar.gz" --exclude="${BASE_DIR}/backups" "${BASE_DIR}" "${WWW_DIR}" "${ETC_DIR}" &&
+    tar pczf "${DATE_AMJ}_${HEURE_HMS}_repomanager_backup.tar.gz" --exclude="${BASE_DIR}/backups" "${BASE_DIR}" "${WWW_DIR}" "${ETC_DIR}" &&
     if [ $? -eq "0" ];then
         echo -e "[$VERT OK $RESET]"
     else
