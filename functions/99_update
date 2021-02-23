@@ -3,7 +3,7 @@
 echo -e "Mise à jour de repomanager"
 
 if [ -z "$GITHUB_VERSION" ];then
-    GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/alpha/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
+    GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
     if [ -z "$GITHUB_VERSION" ];then
         echo -e "[$ROUGE ERREUR $RESET] Impossible de trouver le numéro de version diponible sur github"
         clean_exit
@@ -32,7 +32,7 @@ mkdir -p "${BASE_DIR}/update" &&
 cd "${BASE_DIR}/update" &&
 
 # Téléchargement du script intermédiaire de mise à jour :
-wget --no-cache -q -O repomanager-autoupdate "https://raw.githubusercontent.com/lbr38/repomanager/alpha/update/repomanager-autoupdate"
+wget --no-cache -q -O repomanager-autoupdate "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/update/repomanager-autoupdate"
 if [ $? -ne "0" ];then
     echo -e "[$ROUGE ERREUR $RESET] lors du téléchargement du script de mise à jour"
     clean_exit

@@ -26,6 +26,11 @@
         $updateBackupDir = validateData($_POST['updateBackupDir']);
         exec("sed -i 's|^UPDATE_BACKUP_DIR=.*|UPDATE_BACKUP_DIR=\"${updateBackupDir}\"|g' $REPOMANAGER_CONF");
     }
+    
+    if(!empty($_POST['updateBranch'])) {
+        $updateBranch = validateData($_POST['updateBranch']);
+        exec("sed -i 's|^UPDATE_BRANCH=.*|UPDATE_BRANCH=\"${updateBranch}\"|g' $REPOMANAGER_CONF");
+    }
 
     if(!empty($_POST['wwwUser'])) {
         $wwwUser = validateData($_POST['wwwUser']);
@@ -215,6 +220,7 @@
     $UPDATE_AUTO = exec("grep '^UPDATE_AUTO=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     $UPDATE_BACKUP = exec("grep '^UPDATE_BACKUP=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     $UPDATE_BACKUP_DIR = exec("grep '^UPDATE_BACKUP_DIR=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
+    $UPDATE_BRANCH = exec("grep '^UPDATE_BRANCH=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     // Paramètres WWW
     $WWW_USER = exec("grep '^WWW_USER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
     $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
@@ -270,6 +276,14 @@
                 </td>
             </tr>
             <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Choisir quelle version de mise à jour recevoir" />Branche de mise à jour</td>
+                <td>
+                <select name="updateBranch">
+                <option value="alpha" <?php if ($UPDATE_BRANCH == "alpha") { echo 'selected'; } ?>>alpha</option>
+                <option value="beta" <?php if ($UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
+                </td>
+            </tr>
+            <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager créera un backup dans le répertoire indiqué avant de se mettre à jour" />Sauvegarde avant mise à jour</td>
                 <td>
                     <input type="radio" id="updateBackup_radio_yes" name="updateBackup" value="yes" <?php if ($UPDATE_BACKUP == "yes" ) { echo 'checked'; }?>>
@@ -277,11 +291,12 @@
                     <input type="radio" id="updateBackup_radio_no" name="updateBackup" value="no" <?php if ($UPDATE_BACKUP == "no" ) { echo 'checked'; }?>>
                     <label for="updateBackup_radio_no">No</label>
                 </td>
-            <?php if ($UPDATE_BACKUP == "yes") {
+            <?php
+            if ($UPDATE_BACKUP == "yes") {
             echo "<tr>";
-            echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Répertoire de destination des backups avant mise à jour\" />Répertoire de sauvegarde</td>";
-            echo "<td><input type=\"text\" name=\"updateBackupDir\" autocomplete=\"off\" value=\"${UPDATE_BACKUP_DIR}\"></td>";
-            echo "</td>";
+                echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Répertoire de destination des backups avant mise à jour\" />Répertoire de sauvegarde</td>";
+                echo "<td><input type=\"text\" name=\"updateBackupDir\" autocomplete=\"off\" value=\"${UPDATE_BACKUP_DIR}\"></td>";
+                echo "</td>";
             echo "</tr>";
             } ?>
             </tr>

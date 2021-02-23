@@ -15,11 +15,14 @@ if [ "$OS_FAMILY" == "Redhat" ];then
     fi
 fi
 
+UPDATE_AUTO=$(grep "^UPDATE_AUTO=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+UPDATE_BRANCH=$(grep "^UPDATE_BRANCH=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+UPDATE_BACKUP=$(grep "^UPDATE_BACKUP=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+UPDATE_BACKUP_DIR=$(grep "^UPDATE_BACKUP_DIR=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+
 WWW_ENABLED=$(grep "^WWW_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
-if [ "$WWW_ENABLED" == "yes" ];then
-    WWW_USER=$(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
-    WWW_HOSTNAME=$(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
-fi
+WWW_USER=$(grep "^WWW_USER=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
+WWW_HOSTNAME=$(grep "^WWW_HOSTNAME=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 
 DEFAULT_ENV=$(cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1)
 AUTOMATISATION_ENABLED=$(grep "^AUTOMATISATION_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')

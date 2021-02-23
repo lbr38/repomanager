@@ -177,6 +177,16 @@ else # On récupère la valeur de UPDATE_AUTO car on va en avoir besoin pour vé
 	UPDATE_AUTO=$(grep "^UPDATE_AUTO=" "$CONF" | cut -d'=' -f2 | sed 's/"//g')
 fi
 
+if [ -z $(grep "^UPDATE_BRANCH=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
+	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
+		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\nLa variable 'UPDATE_BRANCH' n'est pas renseignée dans le fichier de conf repomanager.conf."
+		(( CHECK_CONF_ERROR++ ))
+	else # Si en mode pas-auto, on demande l'info directement à l'utilisateur
+		echo -e "[$JAUNE WARNING $RESET] Fichier de conf repomanager.conf incomplet..."
+		install
+	fi
+fi
+
 # Cas où le fichier de conf existe ; on récupère les informations concernant la mise à jour automatique de repomanager
 if [ -z $(grep "^UPDATE_BACKUP=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ] ;then
 	if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
@@ -247,7 +257,6 @@ if [ -z $(cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1) ];then
 		install
 	fi
 fi
-
 
 # Cas où le fichier de conf existe ; on récupère les informations concernant l'automatisation
 if [ -z $(grep "^AUTOMATISATION_ENABLED=" "$CONF" | cut -d'=' -f2 | sed 's/"//g') ];then
@@ -322,42 +331,8 @@ fi
 # Suppression des commentaires dans le fichier de conf
 nettoyage_fichier_conf
 
-## Si le programme est lancé en mode auto, celui ci va se baser sur les sections [REPOS] et [PLANIFICATION] pour être autonome. On vérifie alors que ces sections existe dans le fichier de conf et qu'elles ne sont pas vides.
-#if [ "$SYNC_AUTO" -eq "1" ] || [ "$PROD_AUTO" -eq "1" ];then
-#	# On vérifie que la section [REPOS] existe
-#	if ! grep -q "\[REPOS\]" "$CONF";then
-#		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune section [REPOS] trouvée dans le fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#	# On vérifie que la section [REPOS] n'est pas vide et qu'elle contient des repos à traiter 
-#	LISTE_DEPOTS=$(sed -n "/\[REPOS\]/,/\[/p" "$CONF" | egrep "^.*:")
-#    if [ -z "$LISTE_DEPOTS" ];then
-#        MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucun dépôt renseigné dans la section [REPOS] du fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#
-#	# On vérifie que la section [PLANIFICATION] existe
-#	if ! grep -q "\[PLANIFICATION\]" "$CONF";then
-#		MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune section [PLANIFICATIONS] trouvée dans le fichier de conf repomanager.conf..."
-#        (( CHECK_CONF_ERROR++ ))
-#    fi
-#	# On vérifie que la section [PLANIFICATION] n'est pas vide et qu'elle contient des tâches à traiter
-#	LISTE_PLANIFS=$(sed -n "/\[PLANIFICATION\]/,/\[/p" "$CONF" | egrep "^.*:")
-#    if [ -z "$LISTE_PLANIFS" ];then
-#        MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucune planification renseignée dans la section [PLANIFICATION] du fichier de conf repomanager.conf..."
-#    	(( CHECK_CONF_ERROR++ ))
-#    fi
-#
-#        #if [ "$SUPPR_AUTO" -eq "1" ];then
-#        #        LISTE_ARCHIVES_A_SUPPR=$(sed -n "/\[NETTOYAGE_AUTO\]/,/\[/p" "$CONF" | egrep "^.*:.*:")
-#        #        if [ -z "$LISTE_ARCHIVES_A_SUPPR" ];then
-#        #                MSG_CHECK_CONF_ERROR="${MSG_CHECK_CONF_ERROR}\n[${ROUGE} ERREUR ${RESET}] Aucun dépôt archivé renseigné dans la section [NETTOYAGE_AUTO] du fichier de conf repomanager.conf..."
-#        #                (( CHECK_CONF_ERROR++ ))
-#        #        fi
-#fi
 
-
-### 5 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
+### 4 ### Fin des vérifications du fichier de conf, on vérifie la passphrase (on ne fait pas cette étape pour Debian)
 if [ "$OS_FAMILY" == "Redhat" ];then
 	if [ ! -f "$PASSPHRASE_FILE" ];then
 		if [ "$TTY" -eq "0" ];then # Si le programme est lancé en auto (pas de terminal, via crontab), alors on ne fait rien à part envoyer un mail d'erreur
