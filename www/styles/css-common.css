@@ -190,14 +190,14 @@ hr {
     padding: 1px;
     float: left;
     position: absolute;
-    top: 43px;
+    top: 41px;
     left: 210px;
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
     font-size: 9px;
     font-weight: bold;
     color: whitesmoke;
-    background-color:#d9534f;
+    background-color:#4CAF50;
     border-radius: 1px;
 }
 

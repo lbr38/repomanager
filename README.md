@@ -1,4 +1,30 @@
-<h1>Alpha version</h1>
+<h1>REPOMANAGER</h1>
+
+Repomanager est un gestionnaire de repos de paquets.
+
+Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à jours sur d'importants parcs de serveurs Linux, il permet de créer facilement des miroirs de repos publics (ex: repos Debian, CentOS, ou autres éditeurs tiers) et d'en gérer plusieurs versions par environnements.
+
+<b>Principales fonctionnalités :</b>
+
+- Créer des miroirs de repos, les mettre à jour, les dupliquer, les déployer sur les serveurs clients.
+- Signer ses repos de paquets avec GPG.
+- Système d'environnements (ex preprod, prod) permettant de rendre accessible les miroirs d'abord par les serveurs preprod, puis par les serveurs prod (nb d'environnements illimité).
+- Planifications automatiques permettant d'exécuter les actions ci-dessus à n'importe quelle date/heure.
+
+(voir tableau ci-dessous pour la liste complète)
+
+![alt text](https://github.com/lbr38/repomanager/blob/beta/repomanager.png?raw=true)
+
+<b>Ressources :</b>
+
+Repomanager est très léger car il repose sur Bash et se pilote depuis une web-UI (user interface).
+Il nécessite seulement un service web + PHP sans module complémentaire. Aucun système de gestion de base de données n'est nécessaire.
+
+Le CPU et la RAM sont essentiellement sollicités lors de la création de miroirs et selon le nombre de paquets à copier et signer.
+L'espace disque est à adapter en fonction du nombre de miroirs créés / nombre de paquets qu'ils contiennent.
+
+
+<h1>Beta version</h1>
 
 Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu.
 
@@ -7,6 +33,26 @@ Testé sur :
 - CentOS 7, 8
 - Fedora 33
 - Ubuntu bionic
+
+<p>Fonctionnalités actuelles et futures de la version Beta</p>
+
+| **Fonctions basiques et avancées** | **Disponible en version Beta** |
+|----------|---------------|
+| Créer un miroir à partir d'un repo public | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Signer ses repos avec GPG | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes (repos rpm seulement pour le moment) |
+| Dupliquer un repo | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Renommer un repo | ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) No (à venir) |
+| Archiver un repo | ![#00aa00](https://placehold.it/e repos à partir repos à partir/00aa00/000000?text=+) Yes |
+| Restaurer un repo archivé | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Créer des groupes de repos | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Planifier la mise à jour d'un repo | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Planifier la bascule d'environnement | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Rappels de planifications (mail) | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Nettoyage automatique des repos archivés | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Mise à jour automatique de repomanager | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
+| Créer des patchs zero-day (uploader un ou plusieurs paquet(s) patché dans ses repos) | ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) No (à venir) |
+
 
 <b>Dépendances</b>
 
@@ -33,7 +79,7 @@ Note pour les systèmes Redhat : Il faut désactiver SELinux ou faire en sorte q
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Dans sa version alpha, repomanager n'a été testé qu'avec nginx+php-fpm. Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
+Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm. Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
 
 <pre>
 yum install nginx php-fpm

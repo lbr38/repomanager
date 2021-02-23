@@ -23,7 +23,7 @@ if(isset($_GET['killprocess'])) {
 <?php include('common-header.inc.php'); ?>
 	<section class="main">
 		<?php
-		selectlogs($MAIN_LOGS_DIR); // Affichage de la liste des fichiers de logs
+		selectlogs(); // Affichage de la liste des fichiers de logs
 		?>
 
 		<section class="center">

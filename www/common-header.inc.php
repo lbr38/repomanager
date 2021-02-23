@@ -1,7 +1,7 @@
 <header id="here">
   <ul id="menu">
   <span id="title"><a href="index.php">Repomanager</a></span>
-  <span id="version">ALPHA</span>
+  <span id="version">BETA</span>
     <li><a href="index.php">Opérations</a></li>
     <?php
     if ($AUTOMATISATION_ENABLED == "yes") {

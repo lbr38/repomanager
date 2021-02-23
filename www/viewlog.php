@@ -22,8 +22,8 @@
 	<?php include('common-header.inc.php'); ?>
 	<section class="main">
 		<?php
-		selectlogs($MAIN_LOGS_DIR); // Affichage de la liste des fichiers de logs
-		selectPlanlogs($MAIN_LOGS_DIR);
+		selectlogs(); // Affichage de la liste des fichiers de logs
+		selectPlanlogs();
 		if ($logfile == "none") {
 			echo "<p>Aucun fichier de log sélectionné</p>";
 		} ?>

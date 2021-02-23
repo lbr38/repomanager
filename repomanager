@@ -240,7 +240,7 @@ if [ -f "${MAIN_LOGS_DIR}/lastlog.log" ];then
 	LAST_EXECUTION_DATE=$(date -d"$LAST_EXECUTION_DATE" +%d-%m-%Y)
 	LAST_EXECUTION_TIME=$(readlink -f ${MAIN_LOGS_DIR}/lastlog.log | awk -F '/' '{print $NF}' | awk -F '_' '{print $3}' | sed 's/.log//g' | sed 's/-/:/g')
 	LAST_EXECUTION_TIME=$(date -d"$LAST_EXECUTION_TIME" +%Hh%Mm%Ss)
-	LAST_EXECUTION_USER="$(cat ${MAIN_LOGS_DIR}/lastlog.log | grep 'Exécuté par' | sed 's/.*: //g')"
+	LAST_EXECUTION_USER="$(cat ${MAIN_LOGS_DIR}/lastlog.log | grep 'Exécuté par' | uniq | sed 's/.*: //g')"
 	LAST_EXECUTION_MESSAGE="Le ${LAST_EXECUTION_DATE} à ${LAST_EXECUTION_TIME} (${LAST_EXECUTION_USER})"
 else
 	LAST_EXECUTION_MESSAGE="N/A"

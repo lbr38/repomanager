@@ -198,51 +198,14 @@
         exec("sed -i 's/^RETENTION=.*/RETENTION=\"${retention}\"/g' $REPOMANAGER_CONF");
     }
 
-// D'autres paramètres enregistrés dans display.vars
+    // D'autres paramètres enregistrés dans display.vars
     if (!empty($_POST['debugMode'])) {
         $debugMode = validateData($_POST['debugMode']);
         exec("sed -i 's/^\$debugMode.*/\$debugMode = \"${debugMode}\";/g' ${WWW_DIR}/vars/display.vars");
     }
 
-
-// Puis on récupère les infos du fichier de conf pour les afficher
-    $PACKAGE_TYPE = exec("grep '^PACKAGE_TYPE=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    if ($PACKAGE_TYPE === "deb") {
-        $OS_FAMILY = "Debian";
-    }
-    if ($PACKAGE_TYPE === "rpm") {
-        $OS_FAMILY = "Redhat";
-    }
-    $EMAIL_DEST = exec("grep '^EMAIL_DEST=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $MANAGE_PROFILES = exec("grep '^MANAGE_PROFILES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $REPO_CONF_FILES_PREFIX = exec("grep '^REPO_CONF_FILES_PREFIX=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    // Paramètres de maj
-    $UPDATE_AUTO = exec("grep '^UPDATE_AUTO=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $UPDATE_BACKUP = exec("grep '^UPDATE_BACKUP=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $UPDATE_BACKUP_DIR = exec("grep '^UPDATE_BACKUP_DIR=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $UPDATE_BRANCH = exec("grep '^UPDATE_BRANCH=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    // Paramètres WWW
-    $WWW_USER = exec("grep '^WWW_USER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $WWW_HOSTNAME = exec("grep '^WWW_HOSTNAME=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    $WWW_REPOS_DIR_URL = exec("grep '^WWW_REPOS_DIR_URL=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    // Environnements
-    $ENVS = shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]'"); // récupération de tous les env dans un tableau
-    $ENVS = explode("\n", $ENVS);
-    $ENVS = array_filter($ENVS); // on supprime les lignes vides du tableau si il y en a
-    // Paramètres automatisation    
-    $AUTOMATISATION_ENABLED = exec("grep '^AUTOMATISATION_ENABLED=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    if ($AUTOMATISATION_ENABLED == "yes" ) {
-        $ALLOW_AUTOUPDATE_REPOS = exec("grep '^ALLOW_AUTOUPDATE_REPOS=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-        $ALLOW_AUTOUPDATE_REPOS_ENV = exec("grep '^ALLOW_AUTOUPDATE_REPOS_ENV=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-        $ALLOW_AUTODELETE_ARCHIVED_REPOS = exec("grep '^ALLOW_AUTODELETE_ARCHIVED_REPOS=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-        $RETENTION = exec("grep '^RETENTION=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    }
-    
-    # D'autres paramètres spécifiques à rpm :
-    if ($OS_FAMILY == "Redhat") {   $RELEASEVER = exec("grep '^RELEASEVER=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-                                    $GPG_SIGN_PACKAGES = exec("grep '^GPG_SIGN_PACKAGES=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-                                    $GPG_KEYID = exec("grep '^GPG_KEYID=' $REPOMANAGER_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-    }
+    // Puis on recharge les infos du fichier de conf pour les afficher
+    require 'vars/common.vars';
 ?>
 
 <body>

@@ -320,7 +320,6 @@
             }
         }
         echo '</div>';
-        // pour debug : var_dump($plan);
     }
     
     if ($display_serverInfo_connectionInfo == "yes") {

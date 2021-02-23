@@ -13,7 +13,6 @@ function printAlert($message) {
   echo "<div class=\"alert\">";
   echo "<p>${message}</p>";
   echo "</div>";
-
   echo '<script type="text/javascript">';
   echo '$(document).ready(function () {';
   echo 'window.setTimeout(function() {';
@@ -26,9 +25,11 @@ function printAlert($message) {
 }
 
 // vérification d'une nouvelle mise à jour github
-function checkUpdate($BASE_DIR, $VERSION) {
-  $GIT_VERSION= exec("grep 'GITHUB_VERSION=' ${BASE_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/\"//g'");
-  
+function checkUpdate() {
+  global $BASE_DIR;
+  global $VERSION;
+  global $GIT_VERSION;
+
   if (empty($GIT_VERSION)) {
     //echo "version : $GIT_VERSION";
     echo "<p>Erreur lors de la vérification des nouvelles mises à jour</p>";
@@ -118,7 +119,8 @@ function planLogExplode($planId) {
   }
 }
 
-function selectlogs($MAIN_LOGS_DIR) {
+function selectlogs() {
+  global $MAIN_LOGS_DIR;
 
   // Si un fichier de log est actuellement sélectionné (en GET) alors on récupère son nom afin qu'il soit sélectionné dans la liste déroulante (s'il apparait)
   if (!empty($_GET['logfile'])) {
@@ -153,7 +155,8 @@ function selectlogs($MAIN_LOGS_DIR) {
   echo '</form>';
 }
 
-function selectPlanlogs($MAIN_LOGS_DIR) {
+function selectPlanlogs() {
+  global $MAIN_LOGS_DIR;
 
   // On récupère la liste des fichiers de logs en les triant 
   $logfiles = scandir("$MAIN_LOGS_DIR/", SCANDIR_SORT_DESCENDING);
