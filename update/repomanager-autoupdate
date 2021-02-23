@@ -25,7 +25,7 @@ wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GIT
 if [ $? -eq "0" ];then
     echo -e "[$VERT OK $RESET]"
 else
-    echo -e "[$ROUGE ERREUR $RESET] lors du téléchargement"
+    echo -e "[$ROUGE ERREUR $RESET] lors du téléchargement (https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz)"
     exit
 fi
 
