@@ -2,12 +2,10 @@
 
 echo -e "Mise à jour de repomanager"
 
+GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
 if [ -z "$GITHUB_VERSION" ];then
-    GITHUB_VERSION=$(curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" | grep 'VERSION=' | cut -d'=' -f2 | sed 's/"//g')
-    if [ -z "$GITHUB_VERSION" ];then
-        echo -e "[$ROUGE ERREUR $RESET] Impossible de trouver le numéro de version diponible sur github"
-        clean_exit
-    fi
+    echo -e "[$ROUGE ERREUR $RESET] Impossible de trouver le numéro de version diponible sur github"
+    clean_exit
 fi
 
 # Backup avant mise à jour
@@ -15,7 +13,7 @@ if [ "$UPDATE_BACKUP" == "yes" ];then
     echo -ne "\n → Backup avant mise à jour :\t\t" &&
     mkdir -p "${BASE_DIR}/backups" &&
     cd /tmp/ &&
-    tar pczf"${DATE_AMJ}_${HEURE_HMS}_repomanager_backup.tar.gz" --exclude="${BASE_DIR}/backups" "${BASE_DIR}" "${WWW_DIR}" "${ETC_DIR}" &&
+    tar pczf "${DATE_AMJ}_${HEURE_HMS}_repomanager_backup.tar.gz" --exclude="${BASE_DIR}/backups" "${BASE_DIR}" "${WWW_DIR}" "${ETC_DIR}" &&
     if [ $? -eq "0" ];then
         echo -e "[$VERT OK $RESET]"
     else

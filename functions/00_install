@@ -393,6 +393,7 @@ echo -e "\n[UPDATE]" >> "$CONF"
 echo "UPDATE_AUTO=\"${UPDATE_AUTO}\"" >> "$CONF"
 echo "UPDATE_BACKUP=\"${UPDATE_BACKUP}\"" >> "$CONF"
 echo "UPDATE_BACKUP_DIR=\"${UPDATE_BACKUP_DIR}\"" >> "$CONF"
+echo "UPDATE_BRANCH=\"beta\"" >> "$CONF"
 
 # Config web
 echo -e "\n[WWW]" >> "$CONF"
