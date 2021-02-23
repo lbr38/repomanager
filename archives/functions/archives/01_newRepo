@@ -1,0 +1,488 @@
+#!/bin/bash
+set -u
+# Création d'un repo (Redhat/Centos) ou d'une section de repo (Debian)
+
+#	Format des liens sources Debian :
+#	deb http://ftp.fr.debian.org/debian   stretch    main
+#	    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾
+#	        Hôte source et racine       Distribution  Section (main, contrib...)
+# Signer des repos sous Debian : https://wiki.debian.org/DebianRepository/SetupWithReprepro
+
+# Import de toutes les variables nécéssaires au programme
+if [ -f "/etc/repomanager/vars/customs.vars" ];then
+	source "/etc/repomanager/vars/customs.vars"
+else
+	echo "Erreur : impossible de trouver le fichier de variables customs.vars"
+	exit 1
+fi
+
+if [ -f "/etc/repomanager/vars/main.vars" ];then
+	source "/etc/repomanager/vars/main.vars"
+else
+	echo "Erreur : impossible de trouver le fichier de variables main.vars"
+	exit 1
+fi
+
+source "${BASE_DIR}/functions/00_getConf"
+
+# La fonction a besoin des paramètres suivants pour fonctionner 
+# Le fichier de log dans lequel écrire
+# Le nom du repo
+# Le nom de l'hôte source (debian)
+# Le nom du repo source (redhat/cecntos)
+# Le nom de la distribution (debian)
+# Le nom de la section (debian)
+# Le check gpg si activé ou non
+# La signature GPG du repo si activé ou non
+# La description (peut être vide)
+# Un groupe (peut être vide)
+
+while [ $# -ge 1 ];do case "$1" in
+	--log)
+		LOGFILE="$2"
+		shift
+	;;
+	--pid)
+		PID="$2"
+		shift
+	;;
+	--repo-name)
+		REPO_NAME="$2"
+		shift
+	;;
+	--repo-real-name)
+		REPO_REALNAME="$2"
+		shift
+	;;
+	--repo-host-name)
+		REPO_HOST_NAME="$2"
+		shift
+	;;
+	--repo-dist)
+		REPO_DIST="$2"
+		shift
+	;;
+	--repo-section)
+		REPO_SECTION="$2"
+		shift
+	;;
+	--gpg-check)
+		GPG_CHECK="$2"
+		shift
+	;;
+	--gpg-resign)
+		GPG_SIGN_PACKAGES="$2" # on réécrit la variable GPG_SIGN_PACKAGES par ce qui a été transmis
+		shift
+	;;
+	--repo-group)
+		REPO_GROUP="$2"
+		shift
+	;;
+	--repo-description)
+		# on shift un coup pour récupérer tous les derniers arguments $* (la description pouvant contenir des espaces, chaque espace est un nouvel argument, c'est pour ça qu'on récupère tout)
+		shift
+		REPO_DESCRIPTION="$*"
+	;;
+	*)
+	esac
+	shift
+done
+
+deletePid() {
+	rm "${WWW_DIR}/operations/pid/${PID}.pid" -f
+}
+
+if [ "$REPO_DESCRIPTION" == "nodescription" ];then REPO_DESCRIPTION="";fi # Si la description est égale à 'nodescription' alors elle doit être laissée vide
+if [ "$REPO_GROUP" == "nogroup" ];then REPO_GROUP="";fi
+
+# On écrit tout ce qu'il se passe dans le fichier de log
+exec &> >(tee -a "$LOGFILE")
+
+if [ "$OS_FAMILY" == "Redhat" ];then echo "<h5>CREATION D'UN NOUVEAU REPO</h5>";fi
+if [ "$OS_FAMILY" == "Debian" ];then echo "<h5>CREATION D'UNE NOUVELLE SECTION DE REPO</h5>";fi
+
+# Récupération d'informations supplémentaires (Debian)
+if [ "$OS_FAMILY" == "Debian" ];then
+	HOST_FULL_URL=$(grep "^Name=\"${REPO_HOST_NAME}\",Url=" $HOSTS_CONF | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/"//g') # Récupère l'url complète
+	REPO_HOST=$(echo "$HOST_FULL_URL" | cut -d'/' -f1)
+	# Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
+	REPO_RACINE=$(echo "$HOST_FULL_URL" | sed "s/${REPO_HOST}//g")
+	if [ -z "$REPO_HOST" ];then
+		echo "<br><span class=\"redtext\">Erreur : </span>impossible de déterminer l'adresse de l'hôte source"
+		deletePid
+		exit 1
+	fi
+	if [ -z "$REPO_RACINE" ];then
+		echo "<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la racine de l'URL hôte"
+		deletePid
+		exit 1
+	fi
+fi
+
+# Affichage du récapitulatif de l'opération
+echo "<table>"
+if [ "$OS_FAMILY" == "Redhat" ];then
+	echo "
+	<tr>
+		<td>Repo source :</td>
+		<td><b>$REPO_REALNAME</b></td>
+	</tr>
+	<tr>
+		<td>Nom du repo :</td>
+		<td><b>$REPO_NAME</b></td>
+	</tr>"
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	echo "
+	<tr>
+		<td>Hôte source :</td>
+		<td><b>$HOST_FULL_URL</b></td>
+	</tr>
+	<tr>
+		<td>Nom du repo :</td>
+		<td><b>$REPO_NAME</b></td>
+	</tr>
+	<tr>
+		<td>Distribution :</td>
+		<td><b>$REPO_DIST</b></td>
+	</tr>
+	<tr>
+		<td>Section :</td>
+		<td><b>$REPO_SECTION</b></td>
+	</tr>"
+fi
+echo "
+	<tr>
+		<td>Vérification des signatures GPG :</td>
+		<td><b>$GPG_CHECK</b></td>
+	</tr>
+	<tr>
+		<td>Signature du repo :</td>
+		<td><b>$GPG_SIGN_PACKAGES</b></td>
+	</tr>"
+if [ ! -z "$REPO_GROUP" ];then
+echo "
+	<tr>
+		<td>Ajout à un groupe :</td>
+		<td><b>$REPO_GROUP</b></td>
+	</tr>"
+fi
+echo "</table>"
+
+## VERIFICATIONS ##
+
+# On vérifie quand même que le repo n'existe pas déjà :
+if [ "$OS_FAMILY" == "Redhat" ];then
+	if egrep -q "^Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST";then 
+		echo "<br><span class=\"redtext\">Erreur : </span>le repo <b>$REPO_NAME</b> existe déjà en <b>${DEFAULT_ENV}</b>"
+		deletePid
+		exit 1
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	if egrep -q "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\,Env=\"${DEFAULT_ENV}\"" "$REPOS_LIST";then 
+		echo "<br><span class=\"redtext\">Erreur : </span>la section <b>$REPO_SECTION</b> du repo <b>$REPO_NAME</b> existe déjà en <b>${DEFAULT_ENV}</b>"
+		deletePid
+		exit 1
+	fi
+fi
+
+
+## TRAITEMENT ##
+
+# Création du répertoire du repo/section
+if [ "$OS_FAMILY" == "Redhat" ];then
+	if ! mkdir -p "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}";then
+		echo "<br><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}</b> a échouée"
+		deletePid
+		exit 1
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	if ! mkdir -p "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}";then
+		echo "<br><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}</b> a échouée"
+		deletePid
+		exit 1
+	fi
+fi
+
+# Récupération des paquets
+echo '<br>Récupération des paquets '
+echo '<span class="getPackagesLoading">en cours<img src="images/loading.gif" class="icon" /></span><span class="getPackagesOK greentext hide">✔</span><span class="getPackagesKO redtext hide">✕</span>'
+if [ "$OS_FAMILY" == "Redhat" ];then
+	echo '<div class="hide getPackagesDiv">'
+	echo '<pre>'
+	cd "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"/ &&
+	if [ "$GPG_CHECK" == "no" ];then
+		if [ "$OS_VERSION" == "7" ];then
+			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf -l --repoid=${REPO_REALNAME} --norepopath --download_path="${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
+		fi
+		if [ "$OS_VERSION" == "8" ];then
+			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --nogpgcheck --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
+		fi
+	else # Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
+		if [ "$OS_VERSION" == "7" ];then
+			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --gpgcheck -l --repoid=${REPO_REALNAME} --norepopath --download_path="${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
+		fi
+		if [ "$OS_VERSION" == "8" ];then
+			reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --repoid=${REPO_REALNAME} --download-path "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/"
+			RESULT=$?
+		fi
+	fi
+	echo '</pre></div>'
+
+	if [ "$RESULT" -eq "0" ];then
+		echo '<style>'
+		echo '.getPackagesLoading { display: none; }'
+		echo '.getPackagesOK { display: inline-block; }'
+		echo '</style>'
+	else
+		echo '<style>'
+		echo '.getPackagesLoading { display: none; }'
+		echo '.getPackagesKO { display: inline-block; }'
+		echo '</style>'
+		echo "<br><span class=\"redtext\">Erreur : </span>reposync a rencontré un problème lors de la création du miroir"
+		echo "<br>Suppression de ce qui a été fait : "
+		rm "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}" -rf &&
+		echo '<span class="greentext">OK</span>'
+		deletePid
+		exit 1
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	echo '<div class="hide getPackagesDiv">'
+	echo '<pre>'
+	# Dans le cas où on a précisé de ne pas vérifier les signatures GPG :
+	if [ "$GPG_CHECK" == "no" ];then
+		/usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --root=${REPO_RACINE} --dist=${REPO_DIST} --host=${REPO_HOST} --section=${REPO_SECTION} --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup
+		RESULT=$?
+	else # Dans tous les autres cas (même si rien n'a été précisé)
+		/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --root=${REPO_RACINE} --dist=${REPO_DIST} --host=${REPO_HOST} --section=${REPO_SECTION} --arch=amd64 ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup
+		RESULT=$?
+	fi
+	echo '</pre></div>'
+
+	if [ "$RESULT" -eq "0" ];then
+		echo '<style>'
+		echo '.getPackagesLoading { display: none; }'
+		echo '.getPackagesOK { display: inline-block; }'
+		echo '</style>'
+	else
+		echo '<style>'
+		echo '.getPackagesLoading { display: none; }'
+		echo '.getPackagesKO { display: inline-block; }'
+		echo '</style>'
+		echo "<br><span class=\"redtext\">Erreur : </span>debmirror a rencontré un problème lors de la création du miroir"
+		echo "<br>Suppression de ce qui a été fait : "
+		rm "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}" -rf &&
+		echo '<span class="greentext">OK</span>'
+		deletePid
+		exit 1
+	fi
+fi
+
+# Signature des paquets/du repo avec GPG
+# Si c'est Redhat/Centos on resigne les paquets
+# Si c'est Debian on signe le repo (Release.gpg)
+if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
+	if [ "$OS_FAMILY" == "Redhat" ];then
+		echo '<br>Signature des paquets (GPG) '
+		echo '<span class="signPackagesLoading">en cours<img src="images/loading.gif" class="icon" /></span><span class="signPackagesOK greentext hide">✔</span><span class="signPackagesKO redtext hide">✕</span>'
+		echo '<div class="hide signRepoDiv">'
+		echo '<pre>'
+		# On se mets à la racine du repo
+		cd "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}"/ &&
+		# Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
+		shopt -s globstar
+		if [ -f "/usr/bin/rpmresign" ];then
+			/usr/bin/rpmresign --path "${GPGHOME}" --name "${GPG_KEYID}" --passwordfile "${PASSPHRASE_FILE}" **/*.rpm
+			RESULT=$?
+		else
+			rpmsign --addsign **/*.rpm	# Sinon on utilise rpmsign et on demande le mdp à l'utilisateur (pas possible d'utiliser un fichier passphrase)
+			RESULT=$?
+		fi
+		echo '</pre></div>'
+
+		if [ "$RESULT" -eq "0" ];then
+			# Désactivation de globstar
+			shopt -u globstar
+			echo '<style>'
+			echo '.signPackagesLoading { display: none; }'
+			echo '.signPackagesOK { display: inline-block; }'
+			echo '</style>'
+		else
+			echo '<style>'
+			echo '.signPackagesLoading { display: none; }'
+			echo '.signPackagesKO { display: inline-block; }'
+			echo '</style>'
+			echo "<span class=\"redtext\">Erreur : </span>la signature des paquets a échouée"
+			echo "<br>Suppression de ce qui a été fait : "
+			rm "${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}" -rf &&
+			echo '<span class="greentext">OK</span>'
+			deletePid
+			exit 1
+		fi
+	fi
+	if [ "$OS_FAMILY" == "Debian" ];then
+		# On va utiliser un répertoire temporaire pour travailler
+		TEMP_DIR="/tmp/deb_packages"
+		mkdir -p "$TEMP_DIR"
+		echo '<br>Signature du repo (GPG) '
+		echo '<span class="signPackagesLoading">en cours<img src="images/loading.gif" class="icon" /></span><span class="signPackagesOK greentext hide">✔</span><span class="signPackagesKO redtext hide">✕</span>'
+		echo '<div class="hide signRepoDiv">'
+		echo '<pre>'
+		cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ &&	# On se mets à la racine de la section
+		# On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
+		find . -name "*.deb" -exec mv '{}' $TEMP_DIR \;
+		# Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
+		rm -rf ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/*
+		# Création du répertoire conf et des fichiers de conf du repo
+		mkdir -p ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/conf
+		# Création du fichier "distributions"
+		echo -e "Origin: Repo $REPO_NAME sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: ${REPO_DIST}\nArchitectures: i386 amd64\nComponents: ${REPO_SECTION}\nDescription: Miroir du repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION}\nSignWith: ${GPG_KEYID}\nPull: ${REPO_SECTION}" > conf/distributions
+		# Création du fichier "options"
+		echo -e "basedir ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}\nask-passphrase" > conf/options
+		# Cration du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+		/usr/bin/reprepro --gnupghome ${GPGHOME} includedeb ${REPO_DIST} ${TEMP_DIR}/*.deb
+		RESULT=$?
+		echo '</pre></div>'
+
+		rm -rf "$TEMP_DIR"
+		if [ $RESULT -eq "0" ];then
+			echo '<style>'
+			echo '.signPackagesLoading { display: none; }'
+			echo '.signPackagesOK { display: inline-block; }'
+			echo '</style>'
+		else
+			echo '<style>'
+			echo '.signPackagesLoading { display: none; }'
+			echo '.signPackagesKO { display: inline-block; }'
+			echo '</style>'
+			echo "<br><span class=\"redtext\">Erreur : </span>la signature de la section <b>$REPO_SECTION</b> du repo <b>$REPO_NAME</b> a échouée"
+			echo "<br>Suppression de ce qui a été fait : "
+			rm "${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}" -rf &&
+			echo '<span class="greentext">OK</span>'
+			deletePid
+			exit 1
+		fi
+	fi
+fi
+
+# Création des metadata du repo (Redhat/centos uniquement)
+if [ "$OS_FAMILY" == "Redhat" ];then
+	echo '<br>Création du dépôt (metadata) '
+	echo '<span class="createRepoLoading">en cours<img src="images/loading.gif" class="icon" /></span><span class="createRepoOK greentext hide">✔</span><span class="createRepoKO redtext hide">✕</span>'
+	echo '<div class="hide">'
+	echo '<pre>'
+	createrepo -v ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/
+	RESULT=$?
+	echo '</pre></div>'
+
+	if [ $RESULT -eq "0" ];then
+		echo '<style>'
+		echo '.createRepoLoading { display: none; }'
+		echo '.createRepoOK { display: inline-block; }'
+		echo '</style>'
+	else
+		echo '<style>'
+		echo '.createRepoLoading { display: none; }'
+		echo '.createRepoKO { display: inline-block; }'
+		echo '</style>'
+		echo "<br><span class=\"redtext\">Erreur : </span>la création du repo a échouée"
+		echo "<br>Suppression de ce qui a été fait : "
+		rm ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -rf &&
+		echo '<span class="greentext">OK</span>'
+		deletePid
+		exit 1
+	fi
+fi
+
+# Création du lien symbolique (environnement)
+if [ "$OS_FAMILY" == "Redhat" ];then
+	cd ${REPOS_DIR}/ &&
+	ln -s ${DATE_JMA}_${REPO_NAME}/ ${REPO_NAME}_${DEFAULT_ENV}
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur : </span>la finalisation du repo a échouée"
+		deletePid
+		exit 1
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/ &&
+	ln -sf ${DATE_JMA}_${REPO_SECTION}/ ${REPO_SECTION}_${DEFAULT_ENV}
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur : </span>la finalisation du repo a échouée"
+		deletePid
+		exit 1
+	fi
+fi
+
+# Ajout des informations dans repos.list
+if [ "$OS_FAMILY" == "Redhat" ];then
+	echo "Name=\"${REPO_NAME}\",Realname=\"${REPO_REALNAME}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $REPOS_LIST # On mets à jour les infos dans le fichier repos.list (par exemple)
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur :</span>l'ajout du repo <b>$REPO_NAME</b> à la liste des repos actifs a échoué"
+		deletePid
+		exit 1
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	echo "Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\",Date=\"${DATE_JMA}\",Description=\"${REPO_DESCRIPTION}\"" >> $REPOS_LIST # On mets à jour les infos dans le fichier repos.list (par exemple)
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur :</span>l'ajout de la section <b>$REPO_SECTION</b> du repo <b>$REPO_NAME</b> à la liste des repos actifs a échoué"
+		deletePid
+		exit 1
+	fi
+fi
+
+# Ajout au groupe si un groupe a été renseigné
+if [ ! -z "$REPO_GROUP" ];then
+	if grep -q "$REPO_GROUP" "$GROUPS_CONF";then
+		if [ "$OS_FAMILY" == "Redhat" ];then
+			# on formatte la chaine à insérer
+			groupNewContent="Name=\"${REPO_NAME}\"";
+		fi
+		if [ "$OS_FAMILY" == "Debian" ];then
+			# on formatte la chaine à insérer
+			groupNewContent="Name=\"${REPO_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\"";
+		fi
+		# ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
+		# ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
+		lineToInsert=$(sed -n "/\[${REPO_GROUP}\]/,/^$/=" $GROUPS_CONF | tail -n1);
+		# enfin, on insert la nouvelle ligne au numéro de ligne récupéré :
+		sed -i "${lineToInsert}i\\${groupNewContent}" $GROUPS_CONF
+	else
+		echo "<br><span class=\"redtext\">Erreur : </span>impossible d'ajouter au groupe <b>$REPO_GROUP</b> car il n'existe pas"
+	fi
+fi
+
+# Application des droits sur le repo/section créé
+if [ "$OS_FAMILY" == "Redhat" ];then
+	find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type f -exec chmod 0660 {} \; &&
+	find ${REPOS_DIR}/${DATE_JMA}_${REPO_NAME}/ -type d -exec chmod 0770 {} \;
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur le repo <b>$REPO_NAME</b> a échoué"
+	fi
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type f -exec chmod 0660 {} \; &&
+	find ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -type d -exec chmod 0770 {} \;
+	if [ $? -ne "0" ];then
+		echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur la section <b>$REPO_SECTION</b> a échoué"
+	fi
+fi
+
+# Génération du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+if [ "$OS_FAMILY" == "Redhat" ];then
+	php ${WWW_DIR}/functions/generateConf.php $REPO_NAME
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+	php ${WWW_DIR}/functions/generateConf.php $REPO_NAME $REPO_DIST $REPO_SECTION
+fi
+
+echo '<br><span class="greentext">Opération terminée</span><br>'
+deletePid # Suppression du PID (fonction créée en début de fichier)
+exit 0

@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Génère les fichiers de conf repo .list ou .repo
+# Ces fichiers sont utilisés pour les profils et sont téléchargés par les serveurs/postes clients
+# L'environnement dans ces fichiers est générique (__ENV__), c'est le serveur/poste client qui le modifie à la volée lors du téléchargement et 
+# en fonction de l'environnement qui est indiqué dans son fichier de conf
+
+while [ $# -ge 1 ];do
+    case "$1" in
+        --repo-name)
+            REPO_NAME="$2"
+            shift
+        ;;
+        --repo-dist)
+            REPO_DIST="$2"
+            shift
+        ;;
+        --repo-section)
+            REPO_SECTION="$2"
+            shift
+        ;;
+        *)
+	esac
+	shift
+done
+
+VAR_MISSING=0
+
+if [ "$OS_FAMILY" == "Redhat" ];then
+    if [ -z "$REPO_NAME" ] || [ -z "$WWW_HOSTNAME" ];then
+        (( VAR_MISSING++ ))
+    fi
+
+    # Génération du fichier pour Redhat
+    if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
+        echo "# Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" > "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "[${REPO_CONF_FILES_PREFIX}${REPO_NAME}___ENV__]" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "name=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "comment=Repo ${REPO_NAME} sur ${WWW_HOSTNAME}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "baseurl=https://${WWW_HOSTNAME}/repo/${REPO_NAME}___ENV__" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        echo "enabled=1" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
+            echo "gpgcheck=1" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+            echo "gpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}_repos.pub" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        else
+            echo "gpgcheck=0" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}.repo"
+        fi
+    fi
+fi
+
+if [ "$OS_FAMILY" == "Debian" ];then
+    if [ -z "$REPO_NAME" ] || [ -z "$REPO_DIST" ] || [ -z "$REPO_SECTION" ] || [ -z "$WWW_HOSTNAME" ];then
+        (( VAR_MISSING++ ))
+    fi
+
+    # Si le nom de la distribution contient un slash (par exemple c'est le cas avec debian-security : buster/updates), alors on devra remplacer ce slash par un tiret dans le nom du fichier
+    if echo "$REPO_DIST" | grep -q "/";then
+        REPO_DIST_FORMATTED="$(echo $REPO_DIST | sed 's|/|\[slash\]|g')"
+    else
+        REPO_DIST_FORMATTED="$REPO_DIST"
+    fi
+
+    # Génération du fichier pour Debian
+    if [ "$VAR_MISSING" -eq "0" ];then # on traite uniquement si il n'y a pas eu d'erreur
+        echo "# Repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION} sur ${WWW_HOSTNAME}" > "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST_FORMATTED}_${REPO_SECTION}.list"
+        echo "deb https://${WWW_HOSTNAME}/repo/${REPO_NAME}/${REPO_DIST}/${REPO_SECTION}___ENV__ ${REPO_DIST} ${REPO_SECTION}" >> "${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${REPO_NAME}_${REPO_DIST_FORMATTED}_${REPO_SECTION}.list"
+    fi
+fi
+
+if [ "$VAR_MISSING" -gt "0" ];then
+    echo "[ ERREUR ] Impossible de générer le fichier de conf repo sur le serveur, une variable nécéssaire à la génération est vide"
+    return 1
+fi

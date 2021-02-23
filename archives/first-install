@@ -1,0 +1,359 @@
+#!/bin/bash
+# Première installation des fichiers de repomanager
+# Permet de mettre en place les fichiers de configuration au bon endroit (copie dans /etc/...)
+
+# Si ce script est exécuté, c'est que l'archive a été extraite, on peut donc copier les fichiers au bon endroit
+
+if [ "$OS_FAMILY" == "Redhat" ];then
+    RELEASEVER=$OS_VERSION
+fi
+
+## Répertoire d'installation de repomanager
+#echo -e "\nRépertoire d'installation de repomanager (par défaut /home/repomanager/)"
+#if [ "$ASSUMEYES" == "0" ];then
+#    echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" BASE_DIR
+#fi
+#if [ -z "$BASE_DIR" ];then
+#    BASE_DIR="/home/repomanager"
+#fi
+#if [ -d "$BASE_DIR" ];then
+#    if [ "$ASSUMEYES" == "0" ];then
+#        echo -n "Le répertoire $BASE_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+#        if [ "$CONFIRM" != "y" ];then
+#            exit
+#        fi
+#    fi
+#    # On supprime le contenu du répertoire 
+#    rm "$BASE_DIR" -rf
+#fi
+## Si le répertoire n'existe pas, on le crée
+#if [ ! -d "$BASE_DIR" ];then
+#    mkdir -p "$BASE_DIR"
+#fi
+
+
+#### DEPENDANCES ####
+
+echo "Vérification des dépendances..."
+
+## Cas Redhat ##
+if [ "$OS_FAMILY" == "Redhat" ];then
+	CHECK_DEP=$(rpm -qa curl)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de curl\t" &&
+    	yum install curl -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa rsync) # rsync est utilisé lors de mises à jour
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de rsync\t" &&
+    	yum install rsync -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa yum-utils)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de yum-utils (reposync)\t" &&
+    	yum install yum-utils -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa createrepo_c)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de createrepo_c\t" &&
+    	yum install createrepo_c -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa gnupg2)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de gnupg2\t" &&
+    	yum install gnupg2 -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(rpm -qa sudo)
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de sudo\t" &&
+    	yum install sudo -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	if [ ! -f "/usr/bin/rpmresign" ];then
+		echo -ne "Installation du module perl CPAN RPM4 (rpmresign)\t" &&
+		yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
+		cpanm PkgConfig --force &&
+		cpanm RPM4 --force && 
+		ln -s /usr/local/bin/rpmresign /usr/bin/rpmresign &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+fi
+
+## Cas Debian ##
+if [ "$OS_FAMILY" == "Debian" ];then
+	CHECK_DEP=$(dpkg --list | grep "^ii  curl ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de curl\t" &&
+		apt-get -qq install curl -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  rsync ") # rsync est utilisé lors de mises à jour
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de rsync\t" &&
+		apt-get -qq install rsync -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  debmirror ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de debmirror\t" &&
+		apt-get -qq install debmirror -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  reprepro ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de reprepro\t" &&
+		apt-get -qq install reprepro -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  sudo ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de sudo\t" &&
+		apt-get -qq install sudo -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
+fi
+
+
+#### REPERTOIRES ####
+
+## Répertoire d'installation de www
+echo -e "\n➤ Répertoire d'installation de repomanager (par défaut /var/www/repomanager/)"
+echo "Vous devrez créer un vhost qui publie ce répertoire"
+echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" WWW_DIR
+
+if [ -z "$WWW_DIR" ];then
+    WWW_DIR="/var/www/repomanager"
+fi
+if [ -d "$WWW_DIR" ];then
+    echo -n "Le répertoire $WWW_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+    if [ "$CONFIRM" != "y" ];then
+        exit
+    fi
+
+    # On supprime le contenu du répertoire 
+    rm "$WWW_DIR" -rf
+fi
+# Si le répertoire n'existe pas, on le crée
+if [ ! -d "$WWW_DIR" ];then
+    mkdir -p "$WWW_DIR"
+fi
+
+
+## Répertoire de stockage des repos
+echo -e "\n➤ Répertoire de stockage des repos (par défaut /home/repo/)"
+echo "La taille de ce répertoire peut devenir conséquente selon votre usage de repomanager. Pensez à allouer suffisamment d'espace disque à ce répertoire."
+echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" REPOS_DIR
+
+if [ -z "$REPOS_DIR" ];then
+    REPOS_DIR="/home/repo"
+fi
+if [ -d "$REPOS_DIR" ];then
+    echo -n "Le répertoire $REPOS_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+    if [ "$CONFIRM" != "y" ];then
+        exit
+    fi
+
+    # On supprime le contenu du répertoire 
+    rm "$REPOS_DIR" -rf
+fi
+# Si le répertoire n'existe pas, on le crée
+if [ ! -d "$REPOS_DIR" ];then
+    mkdir -p "$REPOS_DIR"
+fi
+
+# Création des répertoires $WWW_DIR et du répertoire de configurations
+#mkdir -p /etc/repomanager/vars/
+mkdir -p "${WWW_DIR}/configurations/"
+mkdir -p "${WWW_DIR}/.gnupg/"
+
+# Copie des fichiers web
+cp -r ${PWD}/www/* ${WWW_DIR}/
+
+# Copie des fichiers de repomanager (fonctions bash)
+cp -r ${PWD}/functions ${WWW_DIR}/
+
+# Copie du fichier de version actuelle
+cp version ${WWW_DIR}/
+
+# Copie puis création d'un lien symbolique vers le programme principal
+cp ${PWD}/repomanager ${WWW_DIR}/repomanager
+#rm /usr/bin/repomanager -f
+#ln -s ${WWW_DIR}/repomanager /usr/bin/repomanager
+#chmod 700 ${WWW_DIR}/repomanager
+
+
+#### CONFIGURATION ####
+
+## Utilisateur web $WWW_USER
+# On tente de déctecter l'utilisateur web
+WWW_USER=""
+if grep -q "nginx:" /etc/passwd;then
+	WWW_USER="nginx"
+elif grep -q "www-data:" /etc/passwd;then
+	WWW_USER="www-data"
+elif grep -q "apache:" /etc/passwd;then
+	WWW_USER="apache"
+fi
+if egrep -q "^nginx|^www-data|^apache" /etc/passwd;then # Si plusieurs utilisateurs web semblent détectés, alors on laisse la variable à vide afin que ça soit l'utilisateur qui précise lequel utiliser
+    WWW_USER=""
+fi
+
+if [ ! -z "$WWW_USER" ];then
+    echo -e "\n➤ Utilisateur exécutant le serveur web (détecté automatiquement : $WWW_USER)"
+    echo "Laissez vide pour utiliser $WWW_USER, sinon précisez l'utilisateur : "; read -p "" WWW_USER
+else
+    echo -ne "\n➤ Utilisateur exécutant le serveur web : "; read -p "" WWW_USER
+fi
+
+echo "\n➤ Quelle sera l'adresse URL de repomanager : "; read -p "https://" WWW_HOSTNAME
+
+
+## Clé GPG
+if [ "$OS_FAMILY" == "Redhat" ];then
+    echo -e "\n➤ Avec Repomanager vous avez la possibilité de signer les paquets de vos repositories avec GPG."
+fi
+if [ "$OS_FAMILY" == "Debian" ];then
+    echo -e "\n➤ Avec Repomanager vous avez la possibilité de signer vos repositories avec GPG."
+fi
+echo "Cet assistant peut générer pour vous une clé dans le trousseau de repomanager prévu à cet effet."
+echo -ne "Souhaitez-vous générer une clé maintenant (recommandé) (y/n) : "; read -p "" CONFIRM
+if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
+    GENERATE_A_KEY_FOR_ME="yes" # Pour demander à l'assistant de nous aider à générer une clé (ci-après)
+    GPG_SIGN_PACKAGES="yes"
+    GPGHOME="${WWW_DIR}/.gnupg"
+    GPG_KEYID=""
+    PASSPHRASE=""
+    PASSPHRASE_FILE="${WWW_DIR}/.gnupg/passphrase"
+
+    # Il faut créer le sous-répertoire private-keys-v1.d/ si il n'existe pas, sinon gpg gueule
+	mkdir -p "${GPGHOME}/private-keys-v1.d/"
+    
+    # On vérifie qu'une clé GPG n'existe pas déjà dans le trousseau
+    # Cas où une clé est déjà présente dans le trousseau
+    if gpg2 --homedir $GPGHOME --no-permission-warning --list-key 2>/dev/null | egrep -q "^pub|^sub|";then
+        echo -ne "Une ou plusieurs clés GPG semblent déjà configurées dans le trousseau de repomanager à l'emplacement '${GPGHOME}'. Souhaitez-vous afficher les clés de ce trousseau (y/n) : " CONFIRM
+        if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
+            gpg2 --homedir $GPGHOME --no-permission-warning --list-key 2>/dev/null
+            echo -ne "\nUtiliser une des clés présentes dans le trousseau ? (y/n) : " CONFIRM
+            if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
+                GENERATE_A_KEY_FOR_ME="no" # On désactive la génération par l'assistant puisqu'on va utiliser une clé déjà générée
+                while [ -z "$GPG_KEYID" ];do
+				    echo -ne "➤ Email lié à la clé GPG servant à signer les paquets : "; read -p "" GPG_KEYID
+			    done
+                while [ -z "$PASSPHRASE" ];do
+				    echo -ne "➤ Passphrase de la clé GPG : "; read -s PASSPHRASE
+			    done
+            fi
+        fi
+    fi
+    if [ "$GENERATE_A_KEY_FOR_ME" == "yes" ];then
+        echo -e "${JAUNE}Vous devez renseigner toutes les infos demandées${RESET}"
+		# Initialisation de variables utilisées pour générer la clé GPG
+		key_length="";key_name="";key_description="";key_email="";key_passphrase=""
+		# On demande les informations pour la génération de la clé
+		echo -ne "➤ Taille de clé (1024 / 2048 / 4096) : "; read -p "" key_length
+		echo -ne "➤ Nom : "; read -p "" key_name
+		echo -ne "➤ Description : "; read -p "" key_description
+		echo -ne "➤ Email : "; read -p "" key_email
+		echo -ne "➤ Passphrase : "; read -s key_passphrase
+		echo ""
+		mkdir -p "$GPGHOME" &&
+		cd "$GPGHOME" &&
+		echo -e "Key-Type: RSA\nKey-Length: ${key_length}\nSubkey-Type: RSA\nSubkey-Length: ${key_length}\nName-Real: ${key_name}\nName-Comment: ${key_description}\nName-Email: ${key_email}\nExpire-Date: 0\nPassphrase: ${key_passphrase}" > gpg-template-file &&
+		gpg2 --batch --gen-key --homedir ${GPGHOME} --no-permission-warning gpg-template-file 2>/dev/null && # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage
+		echo -e "Génération de la clé GPG [$VERT OK $RESET]\n" &&
+		rm -f gpg-template-file
+		GPG_KEYID="$key_email"
+		PASSPHRASE="$key_passphrase"
+		echo "$key_passphrase" > "$PASSPHRASE_FILE"
+        echo "Génération terminée"
+    fi
+else
+    GPG_SIGN_PACKAGES="no"
+fi
+
+echo -e "\nConfiguration de repomanager"
+
+# Génération des premières lignes et sections de repomanager.conf
+echo "[PATHS]" > ${WWW_DIR}/configurations/repomanager.conf
+echo "WWW_DIR = \"$WWW_DIR\"" >> ${WWW_DIR}/configurations/repomanager.conf
+echo "REPOS_DIR = \"$REPOS_DIR\"" >> ${WWW_DIR}/configurations/repomanager.conf
+echo -e "\n[CONFIGURATION]" >> ${WWW_DIR}/configurations/repomanager.conf
+if [ "$OS_FAMILY" == "Redhat" ];then
+    echo "RELEASEVER = \"$RELEASEVER\"" >> ${WWW_DIR}/configurations/repomanager.conf
+fi
+echo -e "\n[GPG]" >> ${WWW_DIR}/configurations/repomanager.conf
+echo -e "\n[UPDATE]" >> ${WWW_DIR}/configurations/repomanager.conf
+echo -e "\n[WWW]" >> ${WWW_DIR}/configurations/repomanager.conf
+echo "WWW_HOSTNAME = \"$WWW_HOSTNAME\"" >> ${WWW_DIR}/configurations/repomanager.conf
+echo "WWW_USER = \"$WWW_USER\"" >> ${WWW_DIR}/configurations/repomanager.conf
+echo -e "\n[AUTOMATISATION]" >> ${WWW_DIR}/configurations/repomanager.conf
+echo -e "\n[CRON]" >> ${WWW_DIR}/configurations/repomanager.conf
+
+# Création d'un groupe repomanager
+if ! grep -q "repomanager" /etc/group;then
+	groupadd repomanager
+	usermod -G repomanager "$WWW_USER" # l'utilisateur web est intégré au groupe repomanager
+fi
+
+# Conf cron pour pouvoir autoriser WWW_USER à modifier sa crontab
+if [ -f "/etc/cron.deny" ];then
+	if grep -q "$WWW_USER" /etc/cron.deny;then
+		sed -i "/${WWW_USER}/d" /etc/cron.deny 
+	fi
+fi
+# L'utilisateur web doit être présent dans /etc/at.allow :
+if [ -f "/etc/cron.allow" ];then
+	if ! grep -q "$WWW_USER" /etc/cron.allow;then
+		echo "$WWW_USER" >> /etc/cron.allow
+	fi
+fi
+
+if [ "$OS_FAMILY" == "Redhat" ];then
+# Création du fichier RELEASEVER dans lequel on injecte la version des paquets qu'on synchronise sur ce serveur
+	if [ ! -f "/etc/yum/vars/RELEASEVER" ];then
+		mkdir -p "/etc/yum/vars/"		# On crée le répertoire et le fichier, les droits dessus seront ensuite ajustés par la fonction permissions
+		touch /etc/yum/vars/RELEASEVER    
+	fi
+	echo "$RELEASEVER" > /etc/yum/vars/RELEASEVER
+    chown root:repomanager /etc/yum/vars/RELEASEVER
+    chmod 660 /etc/yum/vars/RELEASEVER
+
+	# Création du répertoire contenant les clés gpg importées par repomanager
+	if [ ! -d "$RPM_GPG_DIR" ];then
+		mkdir -p "$RPM_GPG_DIR" # Création du répertoire, la fonction permissions se chargera de mettre en place les bons droits dessus
+	fi
+    chown -R root:repomanager "$RPM_GPG_DIR"
+    find ${RPM_GPG_DIR}/ -type f -exec chmod 0664 {} \;
+    chmod 770 "$RPM_GPG_DIR"
+
+	## Fichier de conf yum "/etc/yum.repos.d/repomanager/repomanager.conf"
+	if [ ! -f "/etc/yum.repos.d/repomanager/repomanager.conf" ];then
+		mkdir -p "/etc/yum.repos.d/repomanager/"
+		echo -e "[main]\nreposdir=/etc/yum.repos.d/repomanager/\nkeepcache=0\ndebuglevel=2\n#logfile=/etc/yum.repos.d/repomanager/repomanager.log\nexactarch=1\nobsoletes=1\ngpgcheck=1\nplugins=1\ninstallonly_limit=5\ndistroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
+	fi
+fi
+
+# Application des droits sur le répertoire $WWW_DIR
+chown -R ${WWW_USER}:repomanager $WWW_DIR
+chmod -R 770 $WWW_DIR
+chmod 700 ${WWW_DIR}/.gnupg
+
+echo -e "\nTerminé"
+
+echo -e "\nhttps://$WWW_HOSTNAME"

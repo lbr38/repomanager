@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html>
-<meta http-equiv="Expires" content="Mon, 26 Jul 1997 05:00:00 GMT">
-<meta http-equiv="Pragma" content="no-cache">
+<!--<meta http-equiv="Expires" content="Mon, 26 Jul 1997 05:00:00 GMT">
+<meta http-equiv="Pragma" content="no-cache">-->
 
 <?php include('common-head.inc.php'); ?>
 
 <?php
-
   // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'vars/common.vars';
-  require 'common-functions.php';
+  require 'functions/load_common_variables.php';
+  require 'functions/load_display_variables.php';
+  require 'functions/common-functions.php';
   require 'common.php';
-  require 'vars/display.vars';
-  if ($debugMode == "enabled") { echo "Mode debug activé : "; print_r($_POST); }
+  cleanConfFiles();
+  if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
   // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
   if (!empty($_GET['serverInfoSlideDivClose'])) {
-      // On récupère le nom de la div qu'on souhaite retirer
-      $divToClose = validateData($_GET['serverInfoSlideDivClose']);
+    // On récupère le nom de la div qu'on souhaite retirer
+    $divToClose = validateData($_GET['serverInfoSlideDivClose']);
+    // On récupère le contenu actuel de display.ini
+    $displayConfiguration = parse_ini_file("$DISPLAY_CONF", true);
+    if ($divToClose === "reposInfo") {
+      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
+    }
+    if ($divToClose === "rootSpace") {
+      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
+    }
+    if ($divToClose === "reposDirSpace") {
+      $displayConfiguration['serverinfo']['display_serverInfo_reposDirSpace'] = 'no';
+    }
+    if ($divToClose === "planInfo") {
+      $displayConfiguration['serverinfo']['display_serverInfo_planInfo'] = 'no';
+    }
+    if ($divToClose === "connectionInfo") {
+      $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
+    }
 
-      if ($divToClose === "reposInfo") {
-        exec("sed -i 's/\$display_serverInfo_reposInfo = \"yes\"/\$display_serverInfo_reposInfo = \"no\"/g' ${WWW_DIR}/vars/display.vars");
-      }
-
-      if ($divToClose === "rootSpace") {
-        exec("sed -i 's/\$display_serverInfo_rootSpace = \"yes\"/\$display_serverInfo_rootSpace = \"no\"/g' ${WWW_DIR}/vars/display.vars");
-      }
-
-      if ($divToClose === "reposDirSpace") {
-        exec("sed -i 's/\$display_serverInfo_reposDirSpace = \"yes\"/\$display_serverInfo_reposDirSpace = \"no\"/g' ${WWW_DIR}/vars/display.vars");
-      }
-
-      if ($divToClose === "planInfo") {
-        exec("sed -i 's/\$display_serverInfo_planInfo = \"yes\"/\$display_serverInfo_planInfo = \"no\"/g' ${WWW_DIR}/vars/display.vars");
-      }
-
-      if ($divToClose === "connectionInfo") {
-        exec("sed -i 's/\$display_serverInfo_connectionInfo = \"yes\"/\$display_serverInfo_connectionInfo = \"no\"/g' ${WWW_DIR}/vars/display.vars");
-      }
+    // On écrit les modifications dans le fichier display.ini
+    write_ini_file("$DISPLAY_CONF", $displayConfiguration);
 
     // rechargement de la page pour appliquer les modifications d'affichage
-    //header("Refresh:0; url=index.php");
     header('Location: index.php');
   }
 ?>
@@ -48,24 +47,13 @@
 <body>
 <?php include('common-header.inc.php'); ?>
 
-<!-- section 'conteneur' principal englobant toutes les sections de gauche -->
-<section class="mainSectionLeft">
-    <section class="left">
-        <!-- REPOS ACTIFS -->
-        <?php include('common-repos-list.inc.php'); ?>
-    </section>
-    <section class="left">
-        <!-- REPOS ARCHIVÉS-->
-        <?php include('common-repos-archive-list.inc.php'); ?>
-    </section>
-</section>
-
 <!-- section 'conteneur' principal englobant toutes les sections de droite -->
+<!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
 <section class="mainSectionRight">
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
     <section class="right" id="newRepoSlideDiv">
-        <a href="#" id="newRepoCloseButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
-        <?php include('common-operations.inc.php'); ?> 
+        <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
+        <?php include('create-repo.inc.php'); ?> 
     </section>
 
     <!--<section class="right" id="serverInfoSlideDiv">-->
@@ -73,8 +61,14 @@
     <?php
     if ($display_serverInfo_reposInfo == "yes") {
         // Calcul du total des repos, en supprimant les doublons
-        $totalRepos = exec("grep  '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
-        $totalReposArchived = exec("grep  '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | cut -d'=' -f2 | sed 's/\"//g' | uniq | wc -l");
+        if ($OS_FAMILY == "Redhat") {
+            $totalRepos = exec("grep '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | uniq | wc -l");
+            $totalReposArchived = exec("grep '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | uniq | wc -l");
+        }
+        if ($OS_FAMILY == "Debian") {
+            $totalRepos = exec("grep '^Name=' $REPOS_LIST | awk -F ',' '{print $1,$2,$3,$4}' | uniq | wc -l");
+            $totalReposArchived = exec("grep '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1,$2,$3,$4}' | uniq | wc -l");
+        }
     
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
@@ -262,69 +256,33 @@
             });";
         echo '</script>';
         echo '</div>';
-    }
-    ?>
+    } ?>
         
     <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         echo '<p>Dernière planification</p>';
-        if (!file_exists("$PLAN_LOG")) {
+        $planFiles = shell_exec("ls -A1 $PLAN_LOGS_DIR/ | egrep '^plan-'");
+        if (empty($planFiles)) {
             echo '<b>N/A</b>';
         } else {
-            // Récup du dernier ID de planification dans le fichier de log
-            $lastPlanID = exec("grep '\[Plan-' $PLAN_LOG | tail -n1 | sed 's/\[Plan\-//g; s/\]//g'");
-            // Récup de toutes les informations et l'état de cette planification en utilisant la fonction planLogExplode
-            $plan = planLogExplode($lastPlanID); // Le tout est retourné dans un tableau et placé dans $plan
-            $planStatus = $plan[0];
-            $planError = $plan[1];
-            $planDate = $plan[2];
-            $planTime = $plan[3];
-            // Affichage du status, de la date et heure
-            echo '<a href="planifications.php"><b>';
-            if ($planStatus === "Error") {
-                if (!empty($planDate)) { // Si une date a été retournée on l'affiche
-                    echo "$planDate ";
-                }
-                
-                if (!empty($planTime)) { // Si une heure a été retournée on l'affiche
-                    echo "à $planTime ";
-                }
-                echo 'Erreur';
-            }
-            if ($planStatus === "OK") {
-                if (!empty($planDate)) { // Si une date a été retournée on l'affiche
-                    echo "$planDate ";
-                }
-                
-                if (!empty($planTime)) { // Si une heure a été retournée on l'affiche
-                    echo "à $planTime ";
-                }
-                echo 'OK';
-            }
-            echo '</b></a>';
+            $planFile = shell_exec("ls -A1 $PLAN_LOGS_DIR/ | egrep '^plan-' | tail -n1");
+            $lastPlanDate = str_replace(['Date=', '"'], '', exec("egrep '^Date=' $PLAN_LOGS_DIR/$planFile"));
+            $lastPlanTime = str_replace(['Time=', '"'], '', exec("egrep '^Time=' $PLAN_LOGS_DIR/$planFile"));
+            echo "<a href=\"planifications.php\"><b>${lastPlanDate} (${lastPlanTime})</b></a>";
         }
-
         echo '<p>Prochaine planification</p>';
-        if (!file_exists("$PLAN_CONF")) {
+        $planFiles = shell_exec("ls -A1 $PLANS_DIR/ | egrep '^plan-'");
+        if (empty($planFiles)) {
             echo '<b>N/A</b>';
         } else {
-            // première étape : on récupère toutes les dates dans le fichier de planifications, on trie la liste et on récupère la première de la liste
-            $nextPlanDate = exec("grep '^Date=' $PLAN_CONF | cut -d'=' -f2 | sed 's/\"//g' | sort | head -n1");
-            // ensuite si cette date apparait plusieurs fois dans le fichier de planifications (plusieurs planifications le même jour) on trie par heure
-            $countDate = exec("grep '${nextPlanDate}' $PLAN_CONF | wc -l");
-            if ($countDate === "1") {
-                // récupération de l'heure et affichage
-                $nextPlanTime = exec("sed -n '/${nextPlanDate}/{n;p;}' $PLAN_CONF | cut -d'=' -f2 | sed 's/\"//g'");
-                echo "<a href=\"planifications.php\"><b>${nextPlanDate} (${nextPlanTime})</b></a>";
-            }
-            if ($countDate > "1") {
-                // récupération des dates et leur heure et affichage
-            }
+            $planFile = shell_exec("ls -A1 $PLANS_DIR/ | egrep '^plan-' | head -n1");
+            $nextPlanDate = str_replace(['Date=', '"'], '', exec("egrep '^Date=' $PLANS_DIR/$planFile"));
+            $nextPlanTime = str_replace(['Time=', '"'], '', exec("egrep '^Time=' $PLANS_DIR/$planFile"));
+            echo "<a href=\"planifications.php\"><b>${nextPlanDate} (${nextPlanTime})</b></a>";
         }
         echo '</div>';
     }
-    
     // Ne fonctionne pas correctement
     /*if ($display_serverInfo_connectionInfo == "yes") {
         echo '<div class="serverInfo">';
@@ -335,6 +293,19 @@
         echo '</div>';
     }*/
     ?>
+    </section>
+</section>
+
+<!-- section 'conteneur' principal englobant toutes les sections de gauche -->
+<!-- On charge la section de gauche après celle de droite car elle peut mettre plus de temps à charger (si bcp de repos) -->
+<section class="mainSectionLeft">
+    <section class="left">
+        <!-- REPOS ACTIFS -->
+        <?php include('common-repos-list.inc.php'); ?>
+    </section>
+    <section class="left">
+        <!-- REPOS ARCHIVÉS-->
+        <?php include('common-repos-archive-list.inc.php'); ?>
     </section>
 </section>
 

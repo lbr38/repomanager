@@ -1,5 +1,5 @@
 <div class="divGroupsList">
-<a href="#" id="GroupsListCloseButton" title="Fermer"><img class="icon-lowopacity" src="icons/close.png" /></a>
+<img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
 <h5>GESTION DES GROUPES</h5>
 <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
 <br>
@@ -10,7 +10,6 @@
 </form>
 <br>
   <?php
-    $repoGroupsFile = file_get_contents($GROUPS_CONF); // récupération de tout le contenu du fichier de groupes
     $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
     // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
     if (!empty($repoGroups)) {
@@ -18,9 +17,10 @@
       echo '<div class="groupDivContainer">';
       $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
       $i = 0;
+      $j = 0;
       foreach($repoGroups as $groupName) {
         $groupName = str_replace(["[", "]"], "", $groupName); // On retire les [ ] autour du nom du groupe
-        echo '<div class="groupDiv">';
+        echo "<div class=\"groupDiv\">";
         // on créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
         echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
         echo '<table class="table-large">';
@@ -29,11 +29,12 @@
         echo '<tr>';
         echo '<td>';
         // on affiche le nom actuel du groupe dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newGroupeName) :
-        echo "<img src=\"icons/folder.png\" class=\"icon\" /><input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"input-medium invisibleInput-blue\" />";
+        echo "<input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"input-medium invisibleInput-blue\" />";
         echo '</td>'; 
         echo '<td class="td-fit">';
-        echo "<a href=\"#\" id=\"groupConfigurationToggleButton${i}\" title=\"Configuration de $groupName\"><img class=\"icon-mediumopacity\" src=\"icons/cog.png\" /></a>";
-        echo "<a href=\"?action=deleteGroup&groupName=${groupName}\" title=\"Supprimer le groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
+        echo "<img id=\"groupConfigurationToggleButton${i}\" class=\"icon-mediumopacity\" title=\"Configuration de $groupName\" src=\"icons/cog.png\" />";
+        echo "<img src=\"icons/bin.png\" class=\"groupDeleteToggleButton${i} icon-lowopacity\" title=\"Supprimer le groupe ${groupName}\" />";
+        deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv${i}", "groupDeleteToggleButton${i}");
         echo '</td>';
         echo '</tr>';
         echo '</table>';
@@ -65,14 +66,21 @@
                   $repoSection = str_replace(['Section=', '"'], "", $rowData[2]); // on récupère la données et on formate à la volée en retirant Section=""
                 }
                 echo '<tr>';
-                if ($OS_FAMILY == "Redhat") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}\" title=\"Retirer le repo ${repoName} du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
-                if ($OS_FAMILY == "Debian") { echo "<td class=\"td-fit\"><a href=\"?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\" title=\"Retirer la section ${repoSection} (repo ${repoName}) du groupe ${groupName}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\" /></a></td>"; }
+                if ($OS_FAMILY == "Redhat") {
+                  echo "<td class=\"td-fit\"><img src=\"icons/bin.png\" class=\"groupDeleteRepoToggleButton${j} icon-lowopacity\" title=\"Retirer le repo ${repoName} du groupe ${groupName}\" /></td>";
+                  deleteConfirm("Êtes-vous sûr de vouloir retirer le repo $repoName du groupe $groupName", "?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}", "groupDeleteRepoDiv${j}", "groupDeleteRepoToggleButton${j}");
+                }
+                if ($OS_FAMILY == "Debian") {
+                  echo "<td class=\"td-fit\"><img src=\"icons/bin.png\" class=\"groupDeleteRepoToggleButton${j} icon-lowopacity\" title=\"Retirer la section ${repoSection} (repo ${repoName}) du groupe ${groupName}\" /></td>";
+                  deleteConfirm("Êtes-vous sûr de vouloir retirer la section $repoSection ($repoName $repoDist) du groupe $groupName", "?action=deleteGroupRepo&groupName=${groupName}&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}", "groupDeleteRepoDiv${j}", "groupDeleteRepoToggleButton${j}");
+                }
                 echo "<td class=\"td-auto\">${repoName}</td>";
                 if ($OS_FAMILY == "Debian") {
                   echo "<td class=\"td-auto\">${repoDist}</td>";
                   echo "<td class=\"td-auto\">${repoSection}</td>";
                 }
                 echo '</tr>';
+                ++$j;
             }
         } else {
           echo '<tr>';
@@ -84,7 +92,7 @@
         echo '<tr>';
         echo '<td colspan="100%">';
         // select permettant d'ajouter un repo au groupe. Pour rappel le nom du groupe est transmis en hidden (voir début du formulaire) :
-        echo '<select name="groupAddRepoName">';
+        echo '<select class="reposSelectList" name="groupAddRepoName[]" multiple>';
         reposSelectList();
         echo '</select>';
         echo '</td>';
@@ -96,13 +104,13 @@
         // Afficher ou masquer la div 'groupConfigurationTbody' :
         echo "<script>";
         echo "$(document).ready(function(){";
-          echo "$(\"a#groupConfigurationToggleButton${i}\").click(function(){";
+          echo "$(\"#groupConfigurationToggleButton${i}\").click(function(){";
             echo "$(\"div#groupConfigurationTbody${i}\").slideToggle(150);";
             echo '$(this).toggleClass("open");';
           echo "});";
         echo "});";
         echo "</script>";
-        $i++;
+        ++$i;
         echo '</div>'; // cloture de groupDiv
       }
       echo '</div>'; // cloture de groupDivContainer
@@ -122,5 +130,12 @@ $(document).ready(function(){
     $('#GroupsListCloseButton').click(function() {
       $('div.divGroupsList').slideToggle(150);
     });
+});
+</script>
+<script>
+// Script Select2 pour transformer un select multiple en liste déroulante
+$('.reposSelectList').select2({
+  closeOnSelect: false,
+  placeholder: 'Ajouter un repo...'
 });
 </script>

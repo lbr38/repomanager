@@ -1,9 +1,3 @@
-@font-face{ font-family: 'Source Sans Pro';                     src: url('../fonts/SourceSansPro-Light.otf')       format('truetype');	}
-@font-face{	font-family: 'Source Sans Pro Regular';             src: url('../fonts/SourceSansPro-Regular.otf')     format('truetype');	}
-@font-face{	font-family: 'Source Sans Pro SemiBold';            src: url('../fonts/SourceSansPro-Semibold.otf')    format('truetype');	}
-@font-face{	font-family: 'Source Sans Pro Light';               src: url('../fonts/SourceSansPro-Light.otf')       format('truetype');	}
-@font-face{	font-family: 'Source Sans Pro Extra Light';         src: url('../fonts/SourceSansPro-ExtraLight.otf')  format('truetype');	}
-@font-face{ font-family: 'Courrier New';                        src: url('../fonts/cour.ttf')                      format('truetype');	}
 @font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')           format('truetype');	}
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
 
@@ -49,6 +43,12 @@ body {
     padding: 0px;
     background-color: #333333;
     color: whitesmoke; /* couleur par défaut */
+/*
+    -webkit-transform: translateZ(0);
+   -moz-transform: translateZ(0);
+   -ms-transform: translateZ(0);
+   -o-transform: translateZ(0);
+   transform: translateZ(0);*/
 }
 
 @keyframes fadeInAnimation { 
@@ -73,7 +73,7 @@ a:hover {
                   .25px .25px white;
 }
 
-p, label, a {
+p, label, a, span {
     font-size: 13px;
     color: whitesmoke;
 }
@@ -146,6 +146,10 @@ hr {
     margin: auto;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 /* Quelques classes génériques permettant de créer des textes de couleurs */
 .greentext {
     color: #4CAF50;
@@ -153,6 +157,10 @@ hr {
 
 .redtext {
     color: #d9534f;
+}
+
+.yellowtext {
+    color: #f0ad4e;
 }
 
 /* Classes génériques permettant de créer des div ou autres block avec un fond défini et des bords arrondis */
@@ -280,7 +288,8 @@ section.mainSectionLeft {
 section.mainSectionRight {
     width: 30%;
     padding-right: 10px;
-    display: inline-block;
+    /*display: inline-block;*/
+    float: right;
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
@@ -328,19 +337,6 @@ section.right, #newRepoSlideDiv {
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué lorsqu'on choisi de le masquer */
 }
 
-section.right label {
-    font-size: 13px;
-    width: 100px;
-}
-
-section.right input {
-    width: 100%;
-}
-
-section.right input[type=radio] {
-    width: 20px;
-}
-
 form.actionform {
     padding: 5px;
     border-radius: 2px;
@@ -378,6 +374,15 @@ table thead, .reposListHead {
 table.list-repos, table.list-repos-archived {
     width: 100%;
     font-size: 13px;
+    /* optimisation pour l'affichage des tableaux sur Chrome */
+    /*-webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);*/
+         /* -webkit-transform: translateZ(0);
+   -moz-transform: translateZ(0);
+   -ms-transform: translateZ(0);
+   -o-transform: translateZ(0);
+   transform: translateZ(0);*/
+   /* toto */
 }
 
 table.list-repos td, table.list-repos-archived td {
@@ -391,13 +396,13 @@ table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
     padding-right: 0px;
 }
 
-.list-repos tr.color1 td, table.list-repos-archived tr.color1 td { 
+/*.list-repos tr.color1 td, table.list-repos-archived tr.color1 td { 
     color: var(--color1);
 }
 
 .list-repos tr.color2 td, table.list-repos-archived tr.color2 td { 
     color: var(--color2);
-}
+}*/
 
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
 td.td-redbackground span, td.td-greenbackground span, td.td-bluebackground span, td.td-whitebackground span {
@@ -495,6 +500,7 @@ td {
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
+    cursor: pointer;
 }
 
 .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
@@ -502,7 +508,7 @@ td {
 }
 
 .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green { /* pour une icone encore plus transparente */
-    opacity: 0.06;
+    opacity: 0.08;
 }
 
 .icon-lowopacity:hover, .icon-verylowopacity:hover, .icon-invisible:hover, .icon-mediumopacity:hover {
@@ -570,7 +576,7 @@ td {
     background-color: #3e8e41;
 }
 
-.divReposConf, .divGroupsList, .divReposSources, .divReposListDisplay, .divManageReposSources {
+.divReposConf, .divGroupsList, .divReposListDisplay, .divManageReposSources {
     display: none;
 }
 
@@ -602,14 +608,9 @@ td {
      background-color: #252525;
 }
 
-.divReposSources textarea {
-    min-height: 200px;
-}
-
-
 /* form, button, input, textarea */
 
-input[type=text], input[type=date], input[type=time], input[type=number], select {
+input[type=text], input[type=date], input[type=time], input[type=number], input[type=color], select {
     width: 100%;
     display: inline-block;
     border: none;
@@ -620,15 +621,19 @@ input[type=text], input[type=date], input[type=time], input[type=number], select
     background-color:#474747;
 }
 
-input[type=text].input-small, .select-small {
+input[type=color].color-xsmall {
+    width: 50px;
+}
+
+input[type=text].input-small, .select-small, input[type=color].color-small {
     width: 100px;
 }
 
-input[type=text].input-medium, .select-medium {
+input[type=text].input-medium, .select-medium, input[type=color].color-medium {
     width: 150px;
 }
 
-input[type=text].input-large, .select-large {
+input[type=text].input-large, .select-large, input[type=color].color-large {
     width: 250px;
 }
 
@@ -636,219 +641,68 @@ input[type=text].input-large, .select-large {
     width: 400px;
 }
 
-.button-operations-large {
-    background-color: #555555;
+/* Tous les boutons */
+.button-submit-large-blue, .button-submit-medium-blue, .button-submit-small-blue, .button-submit-xsmall-blue, .button-submit-xxsmall-blue, .button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green, .button-submit-large-red, .button-submit-medium-red, .button-submit-small-red, .button-submit-xsmall-red, .button-submit-xxsmall-red
+{
     border: none;
     border-radius: 2px;
-    width: 100%;
-    margin: 1;
-    color: whitesmoke;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    text-align: left;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-large {
-    background-color: #555555;
-    border: none;
-    border-radius: 2px;
-    width: 100%;
-    margin: 1;
-    color: whitesmoke;
-    padding: 4px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-xsmall {
-    background-color: #505050;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    width: 40px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-small {
-    background-color: #505050;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
+    margin-top: 10px;
     padding: 3px;
-    width: 100px;
+    color: whitesmoke;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 13px;
+    cursor: pointer;
 }
-
-.button-submit-large-red {
+/* Tous les boutons bleus */
+.button-submit-large-blue, .button-submit-medium-blue, .button-submit-small-blue, .button-submit-xsmall-blue, .button-submit-xxsmall-blue {
+    background-color: #0275d8;
+}
+/* Tous les boutons verts */
+.button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green {
+    background-color: #4CAF50;
+}
+/* Tous les boutons rouges */
+.button-submit-large-red, .button-submit-medium-red, .button-submit-small-red, .button-submit-xsmall-red, .button-submit-xxsmall-red {
     background-color: #d9534f;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
+}
+/* Boutons taille large */
+.button-large, .button-submit-large-blue, .button-submit-large-green, .button-submit-large-red {
     width: 100%;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
 }
-
-.button-submit-large-red:hover {
-    transition-duration: 0.4s;
-    background-color: #b14440;
-}
-
-.button-submit-large-green {
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
-    width: 100%;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-submit-large-green:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
-}
-
-.button-submit-medium-green {
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
+/* Boutons taille moyenne */
+.button-medium, .button-submit-medium-blue, .button-submit-medium-green, .button-submit-medium-red {
     width: 150px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
 }
-
-.button-submit-medium-green:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
-}
-
-.button-submit-small-green {
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
+/* Boutons petite taille */
+.button-small, .button-submit-small-blue, .button-submit-small-green, .button-submit-small-red {
     width: 100px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
 }
-
-.button-submit-small-green:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
-}
-
-.button-submit-xsmall-green {
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
+/* Boutons très petite taille */
+.button-xsmall, .button-submit-xsmall-blue, .button-submit-xsmall-green, .button-submit-xsmall-red {
     width: 50px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
 }
-
-.button-submit-xsmall-green:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
-}
-
-.button-submit-large-blue {
-    background-color: #0275d8;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
-    width: 100%;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-submit-medium-blue {
-    background-color: #0275d8;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin-top: 10px;
-    width: 150px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
-.button-submit-xsmall-blue {
-    background-color: #0275d8;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 3px;
-    margin: 2px;
-    width: 50px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
-}
-
 /* Boutton carré */
-.button-submit-xxsmall-blue {
-    background-color: #0275d8;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
+.button-xxsmall, .button-submit-xxsmall-blue, .button-submit-xxsmall-green, .button-submit-xxsmall-red {
     padding: 2px;
     margin: 2px;
     width: 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 13px;
 }
-
-.button-submit-large-blue:hover, .button-submit-medium-blue:hover, .button-submit-xsmall-blue:hover, .button-submit-xxsmall-blue:hover {
+/* Tous les boutons bleus :hover */
+.button-submit-large-blue:hover, .button-submit-medium-blue:hover, .button-submit-small-blue:hover, .button-submit-xsmall-blue:hover, .button-submit-xxsmall-blue:hover {
     transition-duration: 0.4s;
     background-color: #0468c0;
 }
-
-.button-xsmall:hover, .button-small:hover, .button-large:hover, .button-action:hover, .button-operations-large:hover {
-    background-color: #505050;
+/* Tous les boutons verts :hover */
+.button-submit-large-green:hover, .button-submit-medium-green:hover, .button-submit-small-green:hover, .button-submit-xsmall-green:hover, .button-submit-xxsmall-green:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+/* Tous les boutons rouges :hover */
+.button-submit-large-red:hover, .button-submit-medium-red:hover, .button-submit-small-red:hover, .button-submit-xsmall-red:hover, .button-submit-xxsmall-red:hover {
+    transition-duration: 0.4s;
+    background-color: #b14440;
 }
 
 /* Menu gestion des profils */
@@ -876,6 +730,7 @@ input[type=text].invisibleInput-green:hover {
 
 input[type=text].invisibleInput-blue {
     background-color: #0468c0;
+    width: 100%;
 }
 
 textarea {
@@ -966,9 +821,11 @@ img.cronStatus {
     border-radius: 5px;
 }
 
-.alert { /* div affichant une alerte au milieu de la page lorsqu'une action n'aboutie pas */
-    width: 300px;
-    height: 50px;
+.alert, .deleteAlert { /* div affichant une alerte au milieu de la page */
+    width: 100%;
+    max-width: 600px;
+    padding-top: 20px;
+    padding-bottom: 20px;
     border-radius: 5px;
     position: fixed; /* on positionne le div au centre de la page */
     top: 50%;
@@ -979,8 +836,25 @@ img.cronStatus {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#252525;
     color: whitesmoke;
+    font-size: 13px;
     text-align: center;
     vertical-align: middle;
+}
+
+.deleteAlert a, .deleteAlert span {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid black;
+}
+
+.deleteButton {
+    background-color: #d9534f;
+}
+
+.deleteButton:hover {
+    background-color: #b14440;
 }
 
 .chart { /* largeur des graphiques chartjs */
@@ -1031,37 +905,35 @@ img.cronStatus {
     position: fixed;
     top: 220px;
     right: 10px;
+    text-align: right;
 }
 
-.button-top {
-    border-radius: 5px;
+.button-top-down {
     display: block;
-    background-color: #555555;
+    margin-right: 0;
+    align-self: right;
     margin: 5px;
-    padding: 8px;
     opacity: 0.50;
-}
-
-.button-down {
     border-radius: 5px;
-    display: block;
     background-color: #555555;
-    margin: 5px;
-    padding: 8px;
-    opacity: 0.50;
 }
 
-.button-top:hover, .button-down:hover {
+.button-top-down img {
+    display: block;
+    padding: 8px;
+}
+
+.button-top-down:hover {
     opacity: 1;
 }
 
-.profileDivContainer, .groupDivContainer {
+.profileDivContainer, .groupDivContainer, .reposSourcesDivContainer {
     display: flex;
     height: 100%;
     flex-wrap: wrap;
 }
 
-.profileDiv {
+.profileDiv, .reposSourcesDiv {
     flex: 0 0 48%;
     flex-grow : 0;
     margin: 4px;
@@ -1070,7 +942,7 @@ img.cronStatus {
 }
 
 .groupDiv {
-    flex: 0 0 30%;
+    flex: 0 0 32%;
     flex-grow : 0;
     margin: 4px;
     background-color: #0468c0;
@@ -1085,10 +957,43 @@ img.cronStatus {
     border-radius: 2px;
 }
 
+.reposSourcesDiv span {
+    font-size: 13px;
+}
+
+.reposSourcesDiv textarea {
+    min-height: 200px;
+    font-size: 11px;
+}
+
 .profileDivConf, .groupDivConf {
     margin: 0px;
     padding: 4px;
     background-color: #252525;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px
+}
+
+.loading {
+    display: none;
+}
+
+
+/* Scrollbar personnalisée */
+/* Compatible Chrome uniquement */
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #252525;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #596EB5;
+    border-radius: 5px;
+    /*border: 1px solid #0275d8;*/
 }

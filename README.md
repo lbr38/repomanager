@@ -17,8 +17,7 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 <b>Ressources :</b>
 
-Repomanager est très léger car il repose sur Bash et se pilote depuis une web-UI (user interface).
-Il nécessite seulement un service web + PHP sans module complémentaire. Aucun système de gestion de base de données n'est nécessaire.
+Repomanager ne nécessite qu'un service web + PHP (7 minimum). Aucun système de gestion de base de données n'est nécessaire.
 
 Le CPU et la RAM sont essentiellement sollicités lors de la création de miroirs et selon le nombre de paquets à copier et signer.
 L'espace disque est à adapter en fonction du nombre de miroirs créés / nombre de paquets qu'ils contiennent.
@@ -26,39 +25,32 @@ L'espace disque est à adapter en fonction du nombre de miroirs créés / nombre
 
 <h1>Beta version</h1>
 
-Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu.
-
-Testé sur : 
-- Debian 10
-- CentOS 7, 8
-- Fedora 33
-- Ubuntu bionic
+Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu :
+- Debian 10, Ubuntu bionic
+- CentOS 7, 8, Fedora 33
 
 <p>Fonctionnalités actuelles et futures de la version Beta</p>
 
 | **Fonctions basiques et avancées** | **Disponible en version Beta** |
 |----------|---------------|
-| Créer un miroir à partir d'un repo public | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Signer ses repos avec GPG | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes (repos rpm seulement pour le moment) |
-| Dupliquer un repo | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Renommer un repo | ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) No (à venir) |
-| Archiver un repo | ![#00aa00](https://placehold.it/e repos à partir repos à partir/00aa00/000000?text=+) Yes |
-| Restaurer un repo archivé | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Créer des groupes de repos | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Planifier la mise à jour d'un repo | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Planifier la bascule d'environnement | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Rappels de planifications (mail) | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Nettoyage automatique des repos archivés | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Mise à jour automatique de repomanager | ![#00aa00](https://placehold.it/15/00aa00/000000?text=+) Yes |
-| Créer des patchs zero-day (uploader un ou plusieurs paquet(s) patché dans ses repos) | ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) No (à venir) |
+| Créer un miroir à partir d'un repo public | Yes |
+| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | Yes |
+| Signer ses repos avec GPG | Yes |
+| Dupliquer un repo | Yes |
+| Archiver un repo | Yes |
+| Restaurer un repo archivé | Yes |
+| Créer des groupes de repos | Yes |
+| Planifier la mise à jour d'un repo | Yes |
+| Rappels de planifications (mail) | Yes |
+| Mise à jour automatique de repomanager | Yes |
+| Créer des patchs zero-day (uploader un ou plusieurs paquet(s) patché dans ses repos) | à venir |
 
 
 <b>Dépendances</b>
 
 Pour fonctionner repomanager requiert la présence de certains logiciels couramment installés sur les distributions Linux, tels que :
 <pre>
-rsync, curl, wget, mutt, at, gnupg2
+rsync, curl, wget, gnupg2
 </pre>
 
 Ainsi que certains logiciels spécifiques nécessaires pour créer des miroirs de repo tels que :
@@ -70,7 +62,7 @@ debmirror (Debian)
 
 Repomanager installera lui même ces dépendances s'il détecte qu'elles ne sont pas présentes sur le système. Veillez donc à ce que le serveur ait au moins accès aux repositorys de base de son OS.
 
-Note pour les systèmes Redhat : Il faut désactiver SELinux ou faire en sorte qu'il ne n'empêche pas la bonne exécution de PHP.
+Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et faire en sorte qu'il n'empêche pas la bonne exécution de PHP.
 
 
 <h2>Installation</h2>
@@ -79,11 +71,11 @@ Note pour les systèmes Redhat : Il faut désactiver SELinux ou faire en sorte q
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm. Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
+Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm (7.4). Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
 
 <pre>
-yum install nginx php-fpm
-apt update && apt install nginx php-fpm
+yum install nginx php-fpm php-cli
+apt update && apt install nginx php-fpm php-cli
 </pre>
 
 <b>Vhost</b>
@@ -173,7 +165,7 @@ server {
 
 Le programme s'installe dans 3 répertoires différents choisis par l'utilisateur au moment de l'installation :
 <pre>
-Répertoire du programme bash (par défaut /home/repomanager/)
+Répertoire des scripts bash (par défaut /home/repomanager/)
 Répertoire des fichiers web (par défaut /var/www/repomanager/)
 Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
 </pre>

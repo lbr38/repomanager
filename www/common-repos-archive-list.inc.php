@@ -24,23 +24,22 @@ echo "<td>Description</td>";
 echo "</tr>";
 echo "</thead>";
 
-$repoFile = file_get_contents($REPOS_ARCHIVE_LIST);
-$rows = explode("\n", $repoFile);
+$rows = explode("\n", file_get_contents($REPOS_ARCHIVE_LIST));
 foreach($rows as $row) {
     if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
         //get row data
         $rowData = explode(',', $row);
         if ($OS_FAMILY == "Redhat") {
-          $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
-          $repoDate = str_replace(['Date=', '"'], '', $rowData[2]);
-          $repoDescription = str_replace(['Description=', '"'], '', $rowData[3]);
+          $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
+          $repoDate = strtr($rowData['2'], ['Date=' => '', '"' => '']);
+          $repoDescription = strtr($rowData['3'], ['Description=' => '', '"' => '']);
         }
         if ($OS_FAMILY == "Debian") {
-          $repoName = str_replace(['Name=', '"'], '', $rowData[0]);
-          $repoDist = str_replace(['Dist=', '"'], '', $rowData[2]);
-          $repoSection = str_replace(['Section=', '"'], '', $rowData[3]);
-          $repoDate = str_replace(['Date=', '"'], '', $rowData[4]);
-          $repoDescription = str_replace(['Description=', '"'], '', $rowData[5]);
+          $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
+          $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
+          $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
+          $repoDate = strtr($rowData['4'], ['Date=' => '', '"' => '']);
+          $repoDescription = strtr($rowData['5'], ['Description=' => '', '"' => '']);
         }
         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
@@ -59,17 +58,17 @@ foreach($rows as $row) {
         echo "<td class=\"td-fit\">";
         // Affichage de l'icone "corbeille" pour supprimer le repo
         if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
-            echo "<a href=\"traitement.php?actionId=deleteOldRepo&repoName=${repoName}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
+            echo "<a href=\"check.php?actionId=deleteOldRepo&repoName=${repoName}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
         }
         if ($OS_FAMILY == "Debian") {
-            echo "<a href=\"traitement.php?actionId=deleteOldRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
+            echo "<a href=\"check.php?actionId=deleteOldRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
         }
         // Affichage de l'icone "remise en production du repo"
         if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
-            echo "<a href=\"traitement.php?actionId=restoreOldRepo&repoName=${repoName}&repoDate=${repoDate}&repoDescription=${repoDescription}\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
+            echo "<a href=\"check.php?actionId=restoreOldRepo&repoName=${repoName}&repoDate=${repoDate}&repoDescription=${repoDescription}\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
         }
         if ($OS_FAMILY == "Debian") {
-            echo "<a href=\"traitement.php?actionId=restoreOldRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=${repoDate}&repoDescription=${repoDescription}\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
+            echo "<a href=\"check.php?actionId=restoreOldRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=${repoDate}&repoDescription=${repoDescription}\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
         }
         echo "</td>";
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
@@ -105,5 +104,7 @@ foreach($rows as $row) {
         if (!empty($repoSection)) { $repoLastSection = $repoSection; }
     }
 }
+
+unset($i, $j, $repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv);  
 ?>
 </table>
