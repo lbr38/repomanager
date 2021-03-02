@@ -2,18 +2,18 @@
   <ul id="menu">
   <span id="title"><a href="index.php">Repomanager</a></span>
   <span id="version">BETA</span>
-    <li><a href="index.php">Opérations</a></li>
-    <?php
+  <?php if ($actual_uri !== "/install.php") {
+    // On n'affiche les liens du menu uniquement si on n'est pas sur la page d'install
+    echo '<li><a href="index.php">Opérations</a></li>';
     if ($AUTOMATISATION_ENABLED == "yes") {
-        echo "<li><a href=\"planifications.php\">Planifications</a></li>";
+        echo '<li><a href="planifications.php">Planifications</a></li>';
     }
     if ($MANAGE_PROFILES == "yes") {
-      echo "<li><a href=\"profiles.php\">Gestion des profils</a></li>";
-    } ?>
-    <li><a href="configuration.php">Paramètres</a></li>
-    <?php 
+      echo '<li><a href="profiles.php">Gestion des profils</a></li>';
+    }
+    echo '<li><a href="configuration.php">Paramètres</a></li>';
       if (empty($OPERATION_STATUS) AND empty($PLANIFICATION_STATUS)) {
-        echo "<li><a href=\"journal.php\" class=\"li-operation-not-running\">Aucune opération en cours</a></li>";
+        echo '<li><a href="journal.php" class="li-operation-not-running">Aucune opération en cours</a></li>';
       } 
       if (!empty($OPERATION_STATUS)) {
         if ($actual_uri == "/journal.php") {
@@ -25,7 +25,7 @@
       if (!empty($PLANIFICATION_STATUS)) {
         echo '<li><a href="viewlog.php?logfile=lastplanlog.log" class="li-operation-running">Planification en cours</a>';
       }
-    ?>
+    } ?>
   </ul>
 </header>
 

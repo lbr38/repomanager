@@ -114,4 +114,11 @@ if [ "$OS_FAMILY" == "Debian" ];then
 		apt-get -qq install debmirror -y > /dev/null &&
         echo -e "[${VERT} OK ${RESET}]"
 	fi
+
+	CHECK_DEP=$(dpkg --list | grep "^ii  reprepro ")
+	if [ -z "$CHECK_DEP" ];then
+		echo -ne "Installation de reprepro\t" &&
+		apt-get -qq install reprepro -y > /dev/null &&
+        echo -e "[${VERT} OK ${RESET}]"
+	fi
 fi

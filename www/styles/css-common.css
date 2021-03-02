@@ -266,6 +266,7 @@ section.center {
      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
     background-color:#2b2b2b;
     overflow: hidden;
+    font-size: 13px;
 }
 
 /* Sections conteneurs permettant de séparer les pages en deux */
@@ -374,32 +375,32 @@ table thead, .reposListHead {
     font-weight: bold;
 }
 
-table.list-repos {
+table.list-repos, table.list-repos-archived {
     width: 100%;
     font-size: 13px;
 }
 
-table.list-repos td {
+table.list-repos td, table.list-repos-archived td {
     padding-left: 10px;
     padding-right: 10px;
 }
 
-table.list-repos td.td-xsmall {
+table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
     max-width: 8px;
     padding-left: 0px;
     padding-right: 0px;
 }
 
-.list-repos tr.color1 td { 
+.list-repos tr.color1 td, table.list-repos-archived tr.color1 td { 
     color: var(--color1);
 }
 
-.list-repos tr.color2 td { 
+.list-repos tr.color2 td, table.list-repos-archived tr.color2 td { 
     color: var(--color2);
 }
 
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
-table.list-repos td.td-redbackground span, table.list-repos td.td-greenbackground span, table.list-repos td.td-bluebackground span, table.list-repos td.td-whitebackground span {
+td.td-redbackground span, td.td-greenbackground span, td.td-bluebackground span, td.td-whitebackground span {
     font-size: 11px;
     padding-left: 4px;
     padding-right: 4px;
@@ -411,37 +412,37 @@ table.list-repos td.td-redbackground span, table.list-repos td.td-greenbackgroun
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
 }
 
-table.list-repos td.td-redbackground span {
+td.td-redbackground span {
     background-color: #d9534f;
     color: whitesmoke;
 }
 
-table.list-repos td.td-greenbackground span {
+td.td-greenbackground span {
     background-color:#4CAF50;
     color: whitesmoke;
 }
 
-table.list-repos td.td-bluebackground span {
+td.td-bluebackground span {
     background-color: #0275d8;
     color: whitesmoke;
 }
 
-table.list-repos td.td-whitebackground span {
+td.td-whitebackground span {
     background-color: #f7f7f7;
     color: black;
 }
 
-table.list-repos td.td-greenbackground span:hover {
+td.td-greenbackground span:hover {
     transition-duration: 0.4s;
     background-color: #3e8e41;
 }
 
-table.list-repos td.td-redbackground span:hover {
+td.td-redbackground span:hover {
     transition-duration: 0.4s;
     background-color: #b14440;
 }
 
-table.list-repos td.td-bluebackground span:hover {
+td.td-bluebackground span:hover {
     transition-duration: 0.4s;
     background-color: #0468c0;
 }
@@ -996,7 +997,6 @@ img.cronStatus {
      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
     background-color:#2b2b2b;
     border-radius: 6px;
-    padding-left: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
     display: inline-block;

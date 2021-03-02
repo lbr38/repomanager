@@ -49,6 +49,13 @@
         if ($OS_FAMILY == "Debian") {
             exec("find ${REPOS_PROFILES_CONF_DIR}/ -type f -name '*.list' -print0 | xargs -0 sed -i 's/${OLD_WWW_HOSTNAME}/${NEW_WWW_HOSTNAME}/g'");
         }
+
+        // On remplace aussi dans le fichier profils/hostname.conf si existe
+        if (file_exists("$PROFILE_SERVER_CONF")) {
+            $content = file_get_contents("$PROFILE_SERVER_CONF");
+            $content = preg_replace("/${OLD_WWW_HOSTNAME}/", "${NEW_WWW_HOSTNAME}", $content);
+            file_put_contents("$PROFILE_SERVER_CONF", $content);
+        }
     }
 
     // url d'accès aux repos
@@ -103,7 +110,6 @@
                 }
             }
         }
-
         // enfin, remplace le préfix dans le fichier de conf repomanager.conf
         exec("sed -i 's/^REPO_CONF_FILES_PREFIX=.*/REPO_CONF_FILES_PREFIX=\"${newRepoFilesPrefix}\"/g' $REPOMANAGER_CONF");
     }   
@@ -288,26 +294,26 @@
                 echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Ce serveur créera des miroirs de repos pour CentOS $RELEASEVER uniquement\" />Version de paquets gérée</td>";
                 echo "<td><input type=\"text\" name=\"releasever\" autocomplete=\"off\" value=\"${RELEASEVER}\"></td>";
                 echo '</tr>';
+            }
+            echo '<tr>';
+            echo '<td class=\"td-large\"><img src="icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d\'un miroir de repo" />Signer les paquets avec GPG</td>';
+            echo '<td>';
+            if ($GPG_SIGN_PACKAGES == "yes") {
+                echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes" checked="yes" />';
+                echo '<label for="gpgSignPackages_yes">Yes</label>';
+                echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" />';
+                echo '<label for="gpgSignPackages_no">No</label>';
+                echo '</td>';
                 echo '<tr>';
-                echo '<td class=\"td-large\"><img src="icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d\'un miroir de repo" />Signer les paquets avec GPG</td>';
-                echo '<td>';
-                if ($GPG_SIGN_PACKAGES == "yes") {
-                    echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes" checked="yes" />';
-                    echo '<label for="gpgSignPackages_yes">Yes</label>';
-                    echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" />';
-                    echo '<label for="gpgSignPackages_no">No</label>';
-                    echo '</td>';
-                    echo '<tr>';
-                    echo '<td class=\"td-large\"><img src="icons/info.png" class="icon-verylowopacity" title="Adresse mail liée au trousseau de clé GPG servant à resigner les paquets" />GPG Key ID (pour signature des paquets)</td>';
-                    echo "<td><input type=\"text\" name=\"gpgKeyID\" autocomplete=\"off\" value=\"$GPG_KEYID\"></td>";
-                    echo '</tr>'; 
-                } else {
-                    echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes"/>';
-                    echo '<label for="gpgSignPackages_yes">Yes</label>';
-                    echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" checked="yes" />';
-                    echo '<label for="gpgSignPackages_no">No</label>';
-                    echo '</td>';
-                }        
+                echo '<td class=\"td-large\"><img src="icons/info.png" class="icon-verylowopacity" title="Adresse mail liée au trousseau de clé GPG servant à resigner les paquets" />GPG Key ID (pour signature des paquets)</td>';
+                echo "<td><input type=\"text\" name=\"gpgKeyID\" autocomplete=\"off\" value=\"$GPG_KEYID\"></td>";
+                echo '</tr>'; 
+            } else {
+                echo '<input type="radio" id="gpgSignPackages_yes" name="gpgSignPackages" value="yes"/>';
+                echo '<label for="gpgSignPackages_yes">Yes</label>';
+                echo '<input type="radio" id="gpgSignPackages_no" name="gpgSignPackages" value="no" checked="yes" />';
+                echo '<label for="gpgSignPackages_no">No</label>';
+                echo '</td>';
             }?>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Répertoire local de stockage des repos" />Répertoire des repos</td>
@@ -364,91 +370,89 @@
         </form>
 
         <form action="configuration.php" method="post" autocomplete="off">
+        <table class="table-medium"> 
+            <tr>
+                <td><br><h4>PLANIFICATIONS</h4></td>
+            </tr>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>
+                <td>
+                    <input type="radio" id="automatisation_radio_yes" name="automatisationEnable" value="yes" <?php if ($AUTOMATISATION_ENABLED == "yes" ) { echo 'checked'; }?>>
+                    <label for="automatisation_radio_yes">Yes</label> 
+                    <input type="radio" id="automatisation_radio_no" name="automatisationEnable" value="no" <?php if ($AUTOMATISATION_ENABLED == "no" ) { echo 'checked'; }?>>
+                    <label for="automatisation_radio_no">No</label> 
+                </td>
+            </tr>
+        <?php if ($AUTOMATISATION_ENABLED == "yes") { 
+        echo "<tr>";
+        echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié\" />Autoriser la mise à jour automatique des repos</td>";
+        echo "<td>";
+        echo "<input type=\"radio\" id=\"allow_autoupdate_repos_radio_yes\" name=\"allowAutoUpdateRepos\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS == "yes") { echo "checked >"; } else { echo " >"; }
+        echo "<label for=\"allow_autoupdate_repos_radio_yes\">Yes</label>";
+        echo "<input type=\"radio\" id=\"allow_autoupdate_repos_radio_no\" name=\"allowAutoUpdateRepos\" value=\"no\""; if ($ALLOW_AUTOUPDATE_REPOS == "no" ) { echo "checked >"; } else { echo " >"; }
+        echo "<label for=\"allow_autoupdate_repos_radio_no\">No</label>";
+        echo "</td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à modifier l'environnement d'un repo ou d'un groupe de repos spécifié\" />Autoriser la mise à jour automatique de l'env des repos</td>";
+        echo "<td>";
+        echo "<input type=\"radio\" id=\"allow_autoupdate_repos_env_radio_yes\" name=\"allowAutoUpdateReposEnv\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "yes") { echo "checked >"; } else { echo " >"; }
+        echo "<label for=\"allow_autoupdate_repos_env_radio_yes\">Yes</label>";
+        echo "<input type=\"radio\" id=\"allow_autoupdate_repos_env_radio_no\" name=\"allowAutoUpdateReposEnv\" value=\"no\""; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "no" ) { echo "checked >"; } else { echo " >"; }
+        echo "<label for=\"allow_autoupdate_repos_env_radio_no\">No</label>";
+        echo "</td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à supprimer les repos archivés (en fonction de la retention renseignée)\" />Autoriser la suppression automatique des anciens repos archivés</td>";
+        echo "<td>";
+        echo "<input type=\"radio\" id=\"allow_autodelete_old_repos_radio_yes\" name=\"allowAutoDeleteArchivedRepos\" value=\"yes\""; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") { echo "checked >"; } else { echo " >"; } 
+        echo "<label for=\"allow_autodelete_old_repos_radio_yes\">Yes</label>";
+        echo "<input type=\"radio\" id=\"allow_autodelete_old_repos_radio_no\" name=\"allowAutoDeleteArchivedRepos\" value=\"no\""; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "no" ) { echo "checked >"; } else { echo " >"; }
+        echo "<label for=\"allow_autodelete_old_repos_radio_no\">No</label>";
+        echo "</td>";
+        echo "</tr>"; 
+        echo "<tr>";
+        echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Nombre de repos archivés du même nom à conserver avant suppression\" />Retention</td>";
+        echo "<td><input type=\"number\" name=\"retention\" autocomplete=\"off\" value=\"${RETENTION}\"></td>";
+        echo "</tr>";
+        } ?>
+            <tr>
+                <td>
+                    <input type="hidden" name="enableCron" value="yes" />
+                    <button type="submit" class="button-submit-medium-green">Enregistrer</button>
+                </td>
+            </tr>
+        </table>
+        </form>
+
+        <form action="configuration.php" method="post" autocomplete="off">
         <table class="table-medium">
             <tr>
                 <td><br><h4>ENVIRONNEMENTS</h4></td>
             </tr>
-                <?php // Affichage des envs actuels
-                foreach ($ENVS as $env) {
-                    echo '<tr>';
-                    if ($env === $DEFAULT_ENV) {
-                        echo '<td class="td-large">Defaut</td>';
-                    } else {
-                        echo '<td class="td-large"></td>';
-                    }
-                    echo '<td>';
-                    echo "<input type=\"text\" class=\"input-large\" name=\"actualEnv[]\" value=\"${env}\" />";
-                    echo "<a href=\"configuration.php?deleteEnv=${env}\" title=\"Supprimer l'environnement ${env}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
-                    echo '</td>';
-                    echo '</tr>';
+            <?php // Affichage des envs actuels
+            foreach ($ENVS as $env) {
+                echo '<tr>';
+                if ($env === $DEFAULT_ENV) {
+                    echo '<td class="td-large">Defaut</td>';
+                } else {
+                    echo '<td class="td-large"></td>';
                 }
-                ?>
-                <tr>
-                    <td></td>
-                    <td><input type="text" class="input-large" name="newEnv" placeholder="Ajouter un nouvel environnement" /><button type="submit" class="button-submit-xxsmall-blue">+</button></td></td>
-                </tr>
-                <tr>
-                    <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
-                </tr>
-            </table>
-            </form>
-
-            <form action="configuration.php" method="post" autocomplete="off">
-            <table class="table-medium"> 
-                <tr>
-                    <td><br><h4>PLANIFICATIONS</h4></td>
-                </tr>
-                <tr>
-                    <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>
-                    <td>
-                        <input type="radio" id="automatisation_radio_yes" name="automatisationEnable" value="yes" <?php if ($AUTOMATISATION_ENABLED == "yes" ) { echo 'checked'; }?>>
-                        <label for="automatisation_radio_yes">Yes</label> 
-                        <input type="radio" id="automatisation_radio_no" name="automatisationEnable" value="no" <?php if ($AUTOMATISATION_ENABLED == "no" ) { echo 'checked'; }?>>
-                        <label for="automatisation_radio_no">No</label> 
-                    </td>
-                </tr>
-
-            <?php if ($AUTOMATISATION_ENABLED == "yes") { 
-            echo "<tr>";
-            echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié\" />Autoriser la mise à jour automatique des repos</td>";
-            echo "<td>";
-            echo "<input type=\"radio\" id=\"allow_autoupdate_repos_radio_yes\" name=\"allowAutoUpdateRepos\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS == "yes") { echo "checked >"; } else { echo " >"; }
-            echo "<label for=\"allow_autoupdate_repos_radio_yes\">Yes</label>";
-            echo "<input type=\"radio\" id=\"allow_autoupdate_repos_radio_no\" name=\"allowAutoUpdateRepos\" value=\"no\""; if ($ALLOW_AUTOUPDATE_REPOS == "no" ) { echo "checked >"; } else { echo " >"; }
-            echo "<label for=\"allow_autoupdate_repos_radio_no\">No</label>";
-            echo "</td>";
-            echo "</tr>";
-            echo "<tr>";
-            echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à modifier l'environnement d'un repo ou d'un groupe de repos spécifié\" />Autoriser la mise à jour automatique de l'env des repos</td>";
-            echo "<td>";
-            echo "<input type=\"radio\" id=\"allow_autoupdate_repos_env_radio_yes\" name=\"allowAutoUpdateReposEnv\" value=\"yes\""; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "yes") { echo "checked >"; } else { echo " >"; }
-            echo "<label for=\"allow_autoupdate_repos_env_radio_yes\">Yes</label>";
-            echo "<input type=\"radio\" id=\"allow_autoupdate_repos_env_radio_no\" name=\"allowAutoUpdateReposEnv\" value=\"no\""; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "no" ) { echo "checked >"; } else { echo " >"; }
-            echo "<label for=\"allow_autoupdate_repos_env_radio_no\">No</label>";
-            echo "</td>";
-            echo "</tr>";
-            echo "<tr>";
-            echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Autoriser repomanager à supprimer les repos archivés (en fonction de la retention renseignée)\" />Autoriser la suppression automatique des anciens repos archivés</td>";
-            echo "<td>";
-            echo "<input type=\"radio\" id=\"allow_autodelete_old_repos_radio_yes\" name=\"allowAutoDeleteArchivedRepos\" value=\"yes\""; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") { echo "checked >"; } else { echo " >"; } 
-            echo "<label for=\"allow_autodelete_old_repos_radio_yes\">Yes</label>";
-            echo "<input type=\"radio\" id=\"allow_autodelete_old_repos_radio_no\" name=\"allowAutoDeleteArchivedRepos\" value=\"no\""; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "no" ) { echo "checked >"; } else { echo " >"; }
-            echo "<label for=\"allow_autodelete_old_repos_radio_no\">No</label>";
-            echo "</td>";
-            echo "</tr>"; 
-            echo "<tr>";
-            echo "<td class=\"td-large\"><img src=\"icons/info.png\" class=\"icon-verylowopacity\" title=\"Nombre de repos archivés du même nom à conserver avant suppression\" />Retention</td>";
-            echo "<td><input type=\"number\" name=\"retention\" autocomplete=\"off\" value=\"${RETENTION}\"></td>";
-            echo "</tr>";
+                echo '<td>';
+                echo "<input type=\"text\" class=\"input-large\" name=\"actualEnv[]\" value=\"${env}\" />";
+                echo "<a href=\"configuration.php?deleteEnv=${env}\" title=\"Supprimer l'environnement ${env}\"><img src=\"icons/bin.png\" class=\"icon-lowopacity\"/></a>";
+                echo '</td>';
+                echo '</tr>';
             } ?>
-                <tr>
-                    <td>
-                        <input type="hidden" name="enableCron" value="yes" />
-                        <button type="submit" class="button-submit-medium-green">Enregistrer</button>
-                    </td>
-                </tr>
-            </table>
-            </form>
+            <tr>
+                <td></td>
+                <td><input type="text" class="input-large" name="newEnv" placeholder="Ajouter un nouvel environnement" /><button type="submit" class="button-submit-xxsmall-blue">+</button></td></td>
+            </tr>
+            <tr>
+                <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
+            </tr>
+        </table>
+        </form>
     </section>
 </section>
 

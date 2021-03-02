@@ -61,19 +61,17 @@ checkConf() { source "${FUNCTIONS}/00_checkConf"; }
 # Récupération de la conf repomanager.conf
 getConf() {	source "${FUNCTIONS}/00_getConf"; }
 
+# Création d'un nouveau repo/section
 newRepo() {
-	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
-	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/01_newRepo-deb";fi
+	#if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/01_newRepo-rpm";fi
+	#if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/01_newRepo-deb_new";fi
+	source "${FUNCTIONS}/01_newRepo"
 }
 
+# Mise à jour d'un repo/section
 updateRepo() {
 	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/02_updateRepo-rpm";fi
 	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/02_updateRepo-deb";fi
-}
-
-duplicateRepo() {
-	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/03_duplicateRepo-rpm";fi
-	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/03_duplicateRepo-deb";fi
 }
 
 changeEnv() {
@@ -81,12 +79,17 @@ changeEnv() {
 	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/03_changeEnv-deb";fi
 }
 
-# only for Debian
+duplicateRepo() {
+	if [ "$OS_FAMILY" == "Redhat" ];then source "${FUNCTIONS}/03_duplicateRepo-rpm";fi
+	if [ "$OS_FAMILY" == "Debian" ];then source "${FUNCTIONS}/03_duplicateRepo-deb";fi
+}
+
+# Debian seulement
 deleteSection() { 
 	source "${FUNCTIONS}/04_deleteSection"
 }
 
-# only for Debian
+# Debian seulement
 deleteDist() { 
 	source "${FUNCTIONS}/05_deleteDist" 
 }
@@ -187,9 +190,6 @@ echo ""
 }
 
 
-
-
-
 ## TRAITEMENT ##
 
 # Pré-lecture des paramètres, initialisation de variables supplémentaires
@@ -259,38 +259,38 @@ if [ "$KEEP_LOG" == "yes" ];then
 	fi
 fi
 
-# Affichage du logo ASCI repomanager
-cat "${FUNCTIONS}/logo"                                                            
-
-# Affichage de la version en cours et vérification de la disponibilité d'une nouvelle version sur github
-printf "%-30s %s" "   ${JAUNE}Version" "${RESET}: $VERSION "
-
-if [ -f "${BASE_DIR}/cron/github.version" ];then
-	GITHUB_VERSION=$(grep '^GITHUB_VERSION=' ${BASE_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/"//g')
-fi
-if [ -z "$GITHUB_VERSION" ];then
-    echo ""
-# Compare la version de github avec la version actuelle :
-elif [ "$VERSION" != "$GITHUB_VERSION" ];then
-	UPDATE_AVAILABLE="1"
-    echo -e "(${JAUNE}nouvelle version disponible sur github${RESET})"
-else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une ligne
-    echo ""
-fi
-
-printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: $OS_NAME $OS_VERSION ($OS_FAMILY)"
-if [ "$OS_FAMILY" == "Redhat" ];then
-	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
-fi
-if [ "$OS_FAMILY" == "Debian" ];then
-	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: deb"
-fi
-
-WHOAMI=$(whoami)
-printf "%-30s %s\n" "   ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
-printf "%-30s %s\n" "   ${JAUNE}Exécuté" "  ${RESET}: Le $DATE_JMA à $HEURE_HhMmSs"
-printf "%-30s %s\n" "   ${JAUNE}Dernière exécution" "  ${RESET}: $LAST_EXECUTION_MESSAGE"
-echo -e "\n\n"
+## Affichage du logo ASCI repomanager
+#cat "${FUNCTIONS}/logo"                                                   
+#
+## Affichage de la version en cours et vérification de la disponibilité d'une nouvelle version sur github
+#printf "%-30s %s" "   ${JAUNE}Version" "${RESET}: $VERSION "
+#
+#if [ -f "${BASE_DIR}/cron/github.version" ];then
+#	GITHUB_VERSION=$(grep '^GITHUB_VERSION=' ${BASE_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/"//g')
+#fi
+#if [ -z "$GITHUB_VERSION" ];then
+#    echo ""
+## Compare la version de github avec la version actuelle :
+#elif [ "$VERSION" != "$GITHUB_VERSION" ];then
+#	UPDATE_AVAILABLE="1"
+#    echo -e "(${JAUNE}nouvelle version disponible sur github${RESET})"
+#else # Si il n'y a pas de mise à jour, on n'affiche rien, mais on saute une ligne
+#    echo ""
+#fi
+#
+#printf "%-30s %s\n" "   ${JAUNE}OS" "${RESET}: $OS_NAME $OS_VERSION ($OS_FAMILY)"
+#if [ "$OS_FAMILY" == "Redhat" ];then
+#	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: rpm"
+#fi
+#if [ "$OS_FAMILY" == "Debian" ];then
+#	printf "%-30s %s\n" "   ${JAUNE}Paquets gérés" "  ${RESET}: deb"
+#fi
+#
+#WHOAMI=$(whoami)
+#printf "%-30s %s\n" "   ${JAUNE}Exécuté par" "  ${RESET}: $WHOAMI"
+#printf "%-30s %s\n" "   ${JAUNE}Exécuté" "  ${RESET}: Le $DATE_JMA à $HEURE_HhMmSs"
+#printf "%-30s %s\n" "   ${JAUNE}Dernière exécution" "  ${RESET}: $LAST_EXECUTION_MESSAGE"
+#echo -e "\n\n"
 
 # On vérifie la conf générale de repomanager.conf ainsi que la cohérence des infos dans les fichiers repos.list et repo_spec.conf avant de commencer
 checkConf

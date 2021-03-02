@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# La fonction a besoin de 5 paramètres pour fonctionner :
+# La fonction a besoin de 6 paramètres pour fonctionner :
 # Le nom du repo
 # Le nom de l'hôte source
 # Le nom de la distribution
 # Le nom de la section
 # Le check gpg si activé ou non
+# La signature du repo si activée ou non
 
 # Affichage des arguments passés si le mode debug est activé :
 if [ "$DEBUG_MODE" == "enabled" ];then echo "Arguments : $@";fi
@@ -29,6 +30,10 @@ while [ $# -ge 1 ];do case "$1" in
 	;;
 	--gpg-check)
 		GPG_CHECK="$2"
+		shift
+	;;
+	--gpg-resign)
+		GPG_SIGN_PACKAGES="$2" # on réécrit la variable GPG_SIGN_PACKAGES par ce qui a été transmis
 		shift
 	;;
 	*)
@@ -78,15 +83,6 @@ fi
 # On continue uniquement si il n'y a pas eu d'erreur précédemment
 if [ "$ERROR" -eq "0" ];then
 	OLD_DATE_REPO=$(egrep "^Name=\"${REPO_NAME}\",Host=\"${REPO_HOST_NAME}\",Dist=\"${REPO_DIST}\",Section=\"${REPO_SECTION}\",Env=\"${DEFAULT_ENV}\"" $REPOS_LIST | awk -F ',' '{print $6}' | cut -d'=' -f2 | sed 's/"//g')	# On récupère du coup sa date de synchro
-	#echo "Debug :"
-	#echo "olddatesynchro : $OLD_DATE_REPO"
-	#echo "repo : $REPO_NAME"
-	#echo "dist: $REPO_DIST"
-	#echo "section : $REPO_SECTION"
-	#echo "host_name : $REPO_HOST_NAME"
-	#echo "url : $HOST_FULL_URL"
-	#echo "hote : $REPO_HOST"
-	#echo "racine : $REPO_RACINE"
 
 	####
 
@@ -133,6 +129,39 @@ if [ "$ERROR" -eq "0" ];then
 		echo -ne "Suppression de ce qui a été fait : "
 		rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} -rf &&
 		echo -e "[${VERT} OK ${RESET}]"
+	fi
+fi
+
+if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
+	# On va utiliser un répertoire temporaire pour travailler
+	TEMP_DIR="/tmp/repomanager_deb_packages"
+	mkdir -p "$TEMP_DIR"
+	echo -e "\nSignature du repo :"
+	cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ &&	# On se mets à la racine de la section
+	# On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
+	find . -name "*.deb" -exec mv '{}' $TEMP_DIR \;
+	# Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
+	rm -rf ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/*
+	# Création du répertoire conf et des fichiers de conf du repo
+	mkdir -p ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/conf
+	# Création du fichier "distributions"
+	echo -e "Origin: Repo $REPO_NAME sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: ${REPO_DIST}\nArchitectures: i386 amd64\nComponents: ${REPO_SECTION}\nDescription: Miroir du repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION}\nSignWith: ${GPG_KEYID}\nPull: ${REPO_SECTION}" > conf/distributions
+	# Création du fichier "options"
+	echo -e "verbose\nbasedir ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}\nask-passphrase" > conf/options
+	# Cration du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+	/usr/bin/reprepro --gnupghome ${GPGHOME} includedeb ${REPO_DIST} ${TEMP_DIR}/*.deb
+	if [ $? -eq "0" ];then
+		echo -e "\nSection $REPO_SECTION du repo $REPO_NAME ($REPO_DIST) signée ${VERT}avec succès${RESET}"
+	else
+		(( ERROR++ ))
+		echo -e "[ ERREUR ] La signature de la section $REPO_SECTION du repo $REPO_NAME a rencontré une erreur"
+		MSG_MAIN_ERROR="$MSG_MAIN_ERROR\n La signature de la section $REPO_SECTION du repo $REPO_NAME a rencontré une erreur"
+		if [ "$PLAN_EXEC" -eq "1" ];then # Si cette tâche est exécutée par une planification, alors il faut incrémenter la variable d'erreur utilisée par la fonction planification
+			(( PLAN_ERROR++ ))
+		fi
+		echo -ne "Suppression de ce qui a été fait : "
+		rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -rf &&
+		echo -e "[ OK ]"
 	fi
 fi
 

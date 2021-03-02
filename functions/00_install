@@ -5,7 +5,6 @@ if [ ! -f "$CONF" ];then
     touch $CONF
 fi
 
-
 ## [CONFIGURATION] ##
 
 echo -e "\n${JAUNE}[ Configuration générale ]${RESET}\n"
@@ -61,6 +60,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 	else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
 		RELEASEVER="$(grep "^RELEASEVER=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
+fi
 
 ## Clé GPG ##
 	# Si le paramètre GPG_SIGN_PACKAGES n'est pas présent ou est vide :
@@ -73,7 +73,7 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		GPG_SIGN_PACKAGES="$(grep "^GPG_SIGN_PACKAGES=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 	fi
 
-	# Si on signe les paquets avec gpg, alors on récupère sa clé gpg
+	# Si on signe les paquets avec gpg, alors on crée les répertoires nécessaires
 	if [ "$GPG_SIGN_PACKAGES" == "y" ] || [ $(grep "^GPG_SIGN_PACKAGES=" $CONF | cut -d'=' -f2 | sed 's/"//g') == "yes" ];then
 		if [ ! -d "$GPGHOME" ] || [ ! -d "${GPGHOME}/private-keys-v1.d/" ];then
 			mkdir -p "$GPGHOME"
@@ -93,8 +93,8 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 				while [ -z "$PASSPHRASE" ];do
 					echo -ne "➤ Passphrase de la clé GPG : "; read -s PASSPHRASE
 				done
-
-			elif [ "$CONFIRM" == "n" ];then
+			fi
+			if [ "$CONFIRM" == "n" ];then
 				echo -e "Génération d'une nouvelle clé GPG"
 				echo -e "${JAUNE}Vous devez renseigner toutes les infos demandées${RESET}"
 				# Initialisation de variables utilisées pour générer la clé GPG
@@ -109,20 +109,13 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 				echo ""
 				mkdir -p "$GPGHOME" &&
 				cd "$GPGHOME" &&
-				echo "Key-Type: RSA
-	Key-Length: $key_length
-	Subkey-Type: RSA
-	Subkey-Length: $key_length
-	Name-Real: $key_name
-	Name-Comment: $key_description
-	Name-Email: $key_email
-	Expire-Date: 0
-	Passphrase: $key_passphrase" > gpg-template-file &&
+				echo -e "Key-Type: RSA\nKey-Length: ${key_length}\nSubkey-Type: RSA\nSubkey-Length: ${key_length}\nName-Real: ${key_name}\nName-Comment: ${key_description}\nName-Email: ${key_email}\nExpire-Date: 0\nPassphrase: ${key_passphrase}" > gpg-template-file &&
 				gpg2 --batch --gen-key --homedir ${GPGHOME} --no-permission-warning gpg-template-file 2>/dev/null && # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage
 				echo -e "Génération de la clé GPG [$VERT OK $RESET]\n" &&
 				rm -f gpg-template-file
 				GPG_KEYID="$key_email"
 				PASSPHRASE="$key_passphrase"
+				echo "$key_passphrase" > "$PASSPHRASE_FILE"
 			fi
 		else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
 			GPG_KEYID="$(grep "^GPG_KEYID=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
@@ -139,28 +132,11 @@ if [ "$OS_FAMILY" == "Redhat" ];then
 		fi
 	fi
 
-	## Rpmmacros ## à voir si c'est toujours utile
-	# On injecte l'email du propriétaire de la clé dans le fichier .rpmmacros (utilisé par rpmresign)
-#	if [ ! -f "$RPMMACROS" ];then
-#		if [ -z "$key_email" ];then # Si la clé GPG existe déjà et qu'on n'est pas passé par l'utilitaire de génération, on demande l'info à l'utilisateur
-#			echo -ne "➤ Email lié à la clé GPG servant à signer les paquets : ";read -p "" key_email
-#		fi
-#			echo "%_gpg_name <${key_email}>" > $RPMMACROS
-#	fi
+if [ "$OS_FAMILY" == "Redhat" ];then
 	## Fichier de conf yum "yum.repos.d/repomanager/repomanager.conf"
 	if [ ! -f "${REPOMANAGER_YUM_DIR}/repomanager.conf" ];then
 		mkdir -p "${REPOMANAGER_YUM_DIR}"
-		echo "[main]
-reposdir=${REPOMANAGER_YUM_DIR}/
-keepcache=0
-debuglevel=2
-#logfile=${REPOMANAGER_YUM_DIR}/repomanager.log
-exactarch=1
-obsoletes=1
-gpgcheck=1
-plugins=1
-installonly_limit=5
-distroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
+		echo -e "[main]\nreposdir=${REPOMANAGER_YUM_DIR}/\nkeepcache=0\ndebuglevel=2\n#logfile=${REPOMANAGER_YUM_DIR}/repomanager.log\nexactarch=1\nobsoletes=1\ngpgcheck=1\nplugins=1\ninstallonly_limit=5\ndistroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
 	fi
 fi
 
@@ -186,54 +162,34 @@ else # Sinon on récupère la valeur actuellement présente (car à la fin on va
 	UPDATE_BACKUP_DIR="$(grep "^UPDATE_BACKUP_DIR=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 fi
 
-## Config web
-# Si le paramètre WWW_ENABLED n'est pas présent ou est vide
-if ! grep -q "^WWW_ENABLED=" $CONF || [ -z $(grep "^WWW_ENABLED=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-	WWW_ENABLED=""
-	while [ -z "$WWW_ENABLED" ] || [[ "$WWW_ENABLED" != "y" && "$WWW_ENABLED" != "n" ]];do
-		echo -ne "➤ Activer le module web (interface web pour repomanager), (un serveur web doit être installé) (y/n) : "; read -p "" WWW_ENABLED
-	done
-else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
-	WWW_ENABLED="$(grep "^WWW_ENABLED=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
-fi
-
-
 ## Utilisateur web
-# Si WWW_ENABLED est activé, alors on récupère l'utilisateur web (nginx, www-data...) :
-if [ "$WWW_ENABLED" == "y" ] || [ $(grep "^WWW_ENABLED=" $CONF | cut -d'=' -f2 | sed 's/"//g') == "yes" ];then
-
-	# Si le paramètre WWW_USER n'est pas présent ou est vide :
-	if ! grep -q "^WWW_USER=" $CONF || [ -z $(grep "^WWW_USER=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-		if cat /etc/passwd | grep -q "nginx";then
-			WWW_USER="nginx"
-		elif cat /etc/passwd | grep -q "www-data";then
-			WWW_USER="www-data"
-		elif cat /etc/passwd | grep -q "apache";then
-			WWW_USER="apache"
-		elif cat /etc/passwd | egrep "^nginx:|^www-data:|^apache:";then
-			echo -ne "➤ ${JAUNE}Plusieurs utilisateurs web ont été détectés, merci de renseigner l'utilisateur principal : ${RESET}"; WWW_USER
-		else
-			echo -ne "➤ ${JAUNE}Aucun utilisateur web n'a été détecté, merci de renseigner l'utilisateur principal : ${RESET}"; WWW_USER
-		fi
-	else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
-		WWW_USER="$(grep "^WWW_USER=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
+# Si le paramètre WWW_USER n'est pas présent ou est vide :
+if ! grep -q "^WWW_USER=" $CONF || [ -z $(grep "^WWW_USER=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
+	if cat /etc/passwd | grep -q "nginx";then
+		WWW_USER="nginx"
+	elif cat /etc/passwd | grep -q "www-data";then
+		WWW_USER="www-data"
+	elif cat /etc/passwd | grep -q "apache";then
+		WWW_USER="apache"
+	elif cat /etc/passwd | egrep "^nginx:|^www-data:|^apache:";then
+		echo -ne "➤ ${JAUNE}Plusieurs utilisateurs web ont été détectés, merci de renseigner l'utilisateur principal : ${RESET}"; WWW_USER
+	else
+		echo -ne "➤ ${JAUNE}Aucun utilisateur web n'a été détecté, merci de renseigner l'utilisateur principal : ${RESET}"; WWW_USER
 	fi
+else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
+	WWW_USER="$(grep "^WWW_USER=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 fi
 
 ## Host web
-# Si WWW_ENABLED est activé, alors on récupère le nom d'hôte web
-if [ "$WWW_ENABLED" == "y" ] || [ $(grep "^WWW_ENABLED=" $CONF | cut -d'=' -f2 | sed 's/"//g') == "yes" ];then
-	
-	# Si le paramètre WWW_HOSTNAME n'est pas présent ou est vide :
-	if ! grep -q "^WWW_HOSTNAME=" $CONF || [ -z $(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
-		# WWW_HOSTNAME = le nom d'hôte de la machine si celui-ci est bien paramétré. Si ce n'est pas le cas (vide) alors on le demande
-		WWW_HOSTNAME="$HOSTNAME"
-		while [ -z "$WWW_HOSTNAME" ];do
-			echo -ne "➤ Indiquez le nom d'hôte de ce serveur : "; read -p "" WWW_HOSTNAME
-		done
-	else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
-		WWW_HOSTNAME="$(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
-	fi
+# Si le paramètre WWW_HOSTNAME n'est pas présent ou est vide :
+if ! grep -q "^WWW_HOSTNAME=" $CONF || [ -z $(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g') ];then
+	# WWW_HOSTNAME = le nom d'hôte de la machine si celui-ci est bien paramétré. Si ce n'est pas le cas (vide) alors on le demande
+	WWW_HOSTNAME="$HOSTNAME"
+	while [ -z "$WWW_HOSTNAME" ];do
+		echo -ne "➤ Indiquez le nom d'hôte de ce serveur : "; read -p "" WWW_HOSTNAME
+	done
+else # Sinon on récupère la valeur actuellement présente (car à la fin on va regénèrer complètement le fichier)
+	WWW_HOSTNAME="$(grep "^WWW_HOSTNAME=" $CONF | cut -d'=' -f2 | sed 's/"//g')"
 fi
 
 # Si le paramètre WWW_REPOS_DIR_URL n'est pas présent ou est vide :
@@ -375,17 +331,15 @@ else
 	echo "REPO_CONF_FILES_PREFIX=\"\"" >> "$CONF"
 fi
 
-# Config GPG (Centos seulement)
-if [ "$OS_FAMILY" == "Redhat" ];then
-	echo -e "\n[GPG]" >> "$CONF"
-	if [ "$GPG_SIGN_PACKAGES" == "yes" ] || [ "$GPG_SIGN_PACKAGES" == "y" ];then
-		echo "GPG_SIGN_PACKAGES=\"yes\"" >> "$CONF"
-		echo "GPG_KEYID=\"$GPG_KEYID\"" >> "$CONF"
-		echo "$PASSPHRASE" > "$PASSPHRASE_FILE"
-		gpg2 --no-permission-warning --homedir "$GPGHOME" --export -a "$GPG_KEYID" > ${REPOS_DIR}/${WWW_HOSTNAME}.pub 2>/dev/null # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage		
-	else
-		echo "GPG_SIGN_PACKAGES=\"no\"" >> "$CONF"
-	fi
+# Config GPG
+echo -e "\n[GPG]" >> "$CONF"
+if [ "$GPG_SIGN_PACKAGES" == "yes" ] || [ "$GPG_SIGN_PACKAGES" == "y" ];then
+	echo "GPG_SIGN_PACKAGES=\"yes\"" >> "$CONF"
+	echo "GPG_KEYID=\"$GPG_KEYID\"" >> "$CONF"
+	echo "$PASSPHRASE" > "$PASSPHRASE_FILE"
+	gpg2 --no-permission-warning --homedir "$GPGHOME" --export -a "$GPG_KEYID" > ${REPOS_DIR}/${WWW_HOSTNAME}.pub 2>/dev/null # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage		
+else
+	echo "GPG_SIGN_PACKAGES=\"no\"" >> "$CONF"
 fi
 
 # Mise à jour
@@ -397,7 +351,6 @@ echo "UPDATE_BRANCH=\"beta\"" >> "$CONF"
 
 # Config web
 echo -e "\n[WWW]" >> "$CONF"
-echo "WWW_ENABLED=\"yes\"" >> "$CONF"
 # Ajout de l'utilisateur web et du nom d'hôte
 echo "WWW_USER=\"${WWW_USER}\"" >> "$CONF"
 echo "WWW_HOSTNAME=\"${WWW_HOSTNAME}\"" >> "$CONF"

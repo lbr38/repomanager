@@ -219,7 +219,7 @@ function checkAction_newRepo() {
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --newRepo --gpg-check $newRepoGpgCheck --gpg-resign $repoGpgResign --repo-name $repoName --repo-host-name $repoHostName --repo-dist $repoDist --repo-section $repoSection --repo-description $repoDescription >/dev/null 2>/dev/null &");
-                echo "<script>window.location.replace('/run.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
+                echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
 
         // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :
@@ -970,7 +970,7 @@ function checkAction_deleteDist() {
         $checkifDistExist = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' $REPOS_LIST");
         if (empty($checkifDistExist)) {
             echo "<tr>";
-            echo "<td>Erreur : Il n'existe aucune distribution ${repoDist} du repo ${repoName}</td>";
+            echo "<td>Erreur : Il n'existe aucune distribution ${repoSection} du repo ${repoName}</td>";
             echo "</tr>";
             echo "<tr>";
             echo "<td colspan=\"100%\"><a href=\"index.php\"><button class=\"button-submit-large-red\">Retour</button></a></td>";
@@ -1008,10 +1008,9 @@ function checkAction_deleteDist() {
 
         // Si on a reçu la confirmation en GET alors on traite :
         if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-            echo "<tr><td class=\"td-fit\">Distribution :</td><td><b>$repoDist</b></td></tr>";
-            echo "<tr><td class=\"td-fit\">Repo :</td><td><b>$repoName</b></td></tr>";
-            deleteDist($repoName, $repoDist);
-            echo '<tr><td colspan="100%"><br>Supprimé <span class="greentext">✔</span></td></tr>';
+            echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
+            exec("${REPOMANAGER} --web --deleteDist --repo-name $repoName --repo-dist $repoDist >/dev/null 2>/dev/null &");
+            echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
         }
 
     // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :
@@ -1089,12 +1088,9 @@ function checkAction_deleteRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                echo "<tr><td class=\"td-fit\">Repo :</td><td><b>$repoName</b></td></tr>";
-                deleteRepo_rpm($repoName, $repoEnv);
-                echo '<tr><td colspan="100%"><br>Supprimé <span class="greentext">✔</span></td></tr>';
-                /*echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
                 exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName --repo-env $repoEnv >/dev/null 2>/dev/null &");
-                echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution*/
+                echo "<script>window.location.replace('/journal.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
     
         // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :
@@ -1151,12 +1147,9 @@ function checkAction_deleteRepo() {
 
             // Si on a reçu la confirmation en GET alors on traite :
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
-                echo "<tr><td class=\"td-fit\">Repo :</td><td><b>$repoName</b></td></tr>";
-                deleteRepo_deb($repoName);
-                echo '<tr><td colspan="100%"><br>Supprimé <span class="greentext">✔</span></td></tr>';
-                //echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
-                //exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName >/dev/null 2>/dev/null &");
-                //echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
+                echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';
+                exec("${REPOMANAGER} --web --deleteRepo --repo-name $repoName >/dev/null 2>/dev/null &");
+                echo "<script>window.location.replace('/journal.php');</script>"; // Dans les deux cas on redirige vers la page de logs pour voir l'exécution
             }
 
         // Dans le cas où on n'a pas transmis toutes les infos, un formulaire est apparu pour demander les infos manquantes, on ajoute alors un bouton submit pour valider ce formulaire :

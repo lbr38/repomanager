@@ -5,12 +5,13 @@
 #	    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾|‾‾‾    ‾‾|‾
 #	           Origine et racine        Distribution  Section (main, contrib...)
 
-# La fonction a besoin de 6 paramètres pour fonctionner 
+# La fonction a besoin de 7 paramètres pour fonctionner 
 # Le nom du repo
 # Le nom de l'hôte
 # Le nom de la distribution
 # Le nom de la section
 # Le check gpg si activé ou non
+# La signature GPG du repo si activé ou non
 # La description (peut être vide)
 
 # Affichage des arguments passés si le mode debug est activé :
@@ -35,6 +36,10 @@ while [ $# -ge 1 ];do case "$1" in
 	;;
 	--gpg-check)
 		GPG_CHECK="$2"
+		shift
+	;;
+	--gpg-resign)
+		GPG_SIGN_PACKAGES="$2" # on réécrit la variable GPG_SIGN_PACKAGES par ce qui a été transmis
 		shift
 	;;
 	--repo-description)
@@ -98,6 +103,37 @@ else
 	rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION} -rf &&
 	echo -e "[${VERT} OK ${RESET}]"
 	clean_exit
+fi
+
+####
+
+if [ "$GPG_SIGN_PACKAGES" == "yes" ];then
+	# On va utiliser un répertoire temporaire pour travailler
+	TEMP_DIR="/tmp/repomanager_deb_packages"
+	mkdir -p "$TEMP_DIR"
+	echo -e "\nSignature du repo :"
+	cd ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ &&	# On se mets à la racine de la section
+	# On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
+	find . -name "*.deb" -exec mv '{}' $TEMP_DIR \;
+	# Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
+	rm -rf ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/*
+	# Création du répertoire conf et des fichiers de conf du repo
+	mkdir -p ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/conf
+	# Création du fichier "distributions"
+	echo -e "Origin: Repo $REPO_NAME sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: ${REPO_DIST}\nArchitectures: i386 amd64\nComponents: ${REPO_SECTION}\nDescription: Miroir du repo ${REPO_NAME}, distribution ${REPO_DIST}, section ${REPO_SECTION}\nSignWith: ${GPG_KEYID}\nPull: ${REPO_SECTION}" > conf/distributions
+	# Création du fichier "options"
+	echo -e "verbose\nbasedir ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}\nask-passphrase" > conf/options
+	# Cration du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+	/usr/bin/reprepro --gnupghome ${GPGHOME} includedeb ${REPO_DIST} ${TEMP_DIR}/*.deb
+	if [ $? -eq "0" ];then
+		echo -e "\nSection $REPO_SECTION du repo $REPO_NAME ($REPO_DIST) signée ${VERT}avec succès${RESET}"
+	else
+		echo -e "[${ROUGE} ERREUR ${RESET}] La signature de la section $REPO_SECTION du repo $REPO_NAME a rencontré une erreur"
+		echo -ne "Suppression de ce qui a été fait : "
+		rm ${REPOS_DIR}/${REPO_NAME}/${REPO_DIST}/${DATE_JMA}_${REPO_SECTION}/ -rf &&
+		echo -e "[${VERT} OK ${RESET}]"
+		clean_exit
+	fi
 fi
 
 ####

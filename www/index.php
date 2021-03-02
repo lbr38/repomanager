@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+<meta http-equiv="Expires" content="Mon, 26 Jul 1997 05:00:00 GMT">
+<meta http-equiv="Pragma" content="no-cache">
+
 <?php include('common-head.inc.php'); ?>
 
 <?php
@@ -322,14 +325,15 @@
         echo '</div>';
     }
     
-    if ($display_serverInfo_connectionInfo == "yes") {
+    // Ne fonctionne pas correctement
+    /*if ($display_serverInfo_connectionInfo == "yes") {
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=connectionInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         echo '<p>Connexions actives</p>';
         $connections = exec("netstat -an | grep ${serverIP}:80 | grep ESTABLISHED | wc -l");
         echo "<b>${connections}</b>";
         echo '</div>';
-    }
+    }*/
     ?>
     </section>
 </section>

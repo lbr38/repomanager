@@ -1,5 +1,5 @@
 <h5>REPOS ARCHIVÉS</h5>
-<table class="list-repos">
+<table class="list-repos-archived">
 <?php
 
 // initialise des variables permettant de simplifier l'affichage dans la liste des repos
@@ -106,5 +106,4 @@ foreach($rows as $row) {
     }
 }
 ?>
-</tbody>
 </table>

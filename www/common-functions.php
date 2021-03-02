@@ -259,4 +259,180 @@ function groupsSelectList() {
     }
   }
 }
+
+function generateConf($repoName) {
+  global $OS_FAMILY;
+  global $WWW_HOSTNAME;
+  global $REPOS_PROFILES_CONF_DIR;
+  global $REPO_CONF_FILES_PREFIX;
+
+  // Génération du fichier pour Redhat
+  if ($OS_FAMILY == "Redhat" AND !empty($repoName)) {
+    $content = "# Repo $repoName sur $WWW_HOSTNAME";
+    $content = "${content}\n[${REPO_CONF_FILES_PREFIX}${repoName}___ENV__]";
+    $content = "${content}\nname=Repo ${repoName} sur ${WWW_HOSTNAME}";
+    $content = "${content}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}";
+    $content = "${content}\nbaseurl=https://${WWW_HOSTNAME}/repo/${repoName}___ENV__";
+    $content = "${content}\nenabled=1";
+    if ($GPG_SIGN_PACKAGES == "yes") {
+      $content = "${content}\ngpgcheck=1";
+      $content = "${content}\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}_repos.pub";
+    } else {
+      $content = "${content}\ngpgcheck=0";
+    }
+    
+    if (!file_exists("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}.repo")) {
+      touch("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}.repo");
+    }
+
+    file_put_contents("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}.repo", $content);
+  }
+
+  // Génération du fichier pour Debian
+  if ($OS_FAMILY == "Debian" AND !empty($repoName) AND !empty($repoDist) AND !empty($repoSection)) {
+    $content = "# Repo ${repoName}, distribution ${repoDist}, section ${repoSection} sur ${WWW_HOSTNAME}";
+    $content = "${content}\ndeb https://${WWW_HOSTNAME}/repo/${repoName}/${repoDist}/${repoSection}___ENV__ ${repoDist} ${repoSection}";
+
+    if (!file_exists("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
+      touch("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list");
+    }
+
+    file_put_contents("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list");
+  }
+}
+
+function deleteDist($repoName, $repoDist) {
+  global $REPOS_LIST;
+  global $REPOS_ARCHIVE_LIST;
+  global $GROUPS_CONF;
+  global $REPOS_DIR;
+
+  # On vérifie que le repo renseigné est bien présent dans le fichier repo_sys/spec.conf, alors on peut commencer l'opération
+  $checkIfRepoExists = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\"' ${REPOS_LIST}");
+  if (empty($checkIfRepoExists)) {
+    printAlert("Erreur : le repo $repoName (distribution $repoDist) n'existe pas");
+    return 1;
+  }
+
+  # Suppression du répertoire de la distribution. Comme PHP c'est de la merde et qu'il ne sait pas supprimer un répertoire non-vide, obligé d'utiliser une cmd système
+  exec("rm ${REPOS_DIR}/${repoName}/${repoDist} -rf");
+  
+  # On supprime le répertoire parent (repo) si celui-ci est vide après la suppression de la distribution :
+  $checkIfDirIsEmpty = exec("ls -A ${REPOS_DIR}/${repoName}/");
+  if (empty($checkIfDirIsEmpty)) {
+    exec("rm ${REPOS_DIR}/${repoName}/ -rf");
+  }
+
+  # On mets à jour les infos dans le fichier repos.list ainsi que le fichier repos-archives.list en supprimant la ligne du repo
+  $repos_list_content = file_get_contents("$REPOS_LIST");
+  $repos_archives_content = file_get_contents("$REPOS_ARCHIVE_LIST");
+  $repos_list_content = preg_replace("/Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\".*/", "", $repos_list_content);
+  $repos_archives_content = preg_replace("/Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\".*/", "", $repos_archives_content);
+  file_put_contents("$REPOS_LIST", $repos_list_content);
+  file_put_contents("$REPOS_ARCHIVE_LIST", $repos_archives_content);
+  # Suppression des lignes laissées vide par preg_replace, parce que PHP c'est de la merde
+  exec ("sed -i '/^$/d' $REPOS_LIST");
+  exec ("sed -i '/^$/d' $REPOS_ARCHIVE_LIST");
+
+  # Comme on a a supprimé toute une distribution, on a forcément supprimé toutes ses sections. On retire donc toutes les occurences de la distribution dans le fichier de groupes
+  $groups_content = file_get_contents("$GROUPS_CONF");
+  $groups_content = preg_replace("/Name=\"${repoName}\",Dist=\"${repoDist}\".*/", "", $groups_content);
+  file_put_contents("$GROUPS_CONF", $groups_content);
+
+  refreshdiv_class("list-repos");
+  refreshdiv_class("list-repos-archived");
+}
+
+function deleteRepo_rpm($repoName, $repoEnv) {
+  global $REPOS_LIST;
+  global $REPOS_ARCHIVE_LIST;
+  global $GROUPS_CONF;
+  global $REPOS_DIR;
+
+  # On vérifie que le repo renseigné est bien présent dans le fichier repos.list, si oui alors on peut commencer l'opération
+  $checkIfRepoExists = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' ${REPOS_LIST}");
+  if (empty($checkIfRepoExists)) {
+    printAlert("Erreur : le repo $repoName ($repoEnv) n'existe pas");
+    return 1;
+  }
+
+  # Récupération de la date du repo
+  $repoDate = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\"' $REPOS_LIST | awk -F ',' '{print $4}' | cut -d'=' -f2 | sed 's/\"//g'");
+  if (empty($repoDate)) {
+    printAlert("Erreur lors de la récupération de la date du repo");
+    return 1;
+  }
+
+  # Suppression du lien symbolique du repo
+  if (!unlink("${REPOS_DIR}/${repoName}_${repoEnv}"))  {
+    printAlert("Erreur lors de la suppression du repo");
+    return 1;
+  }
+
+  # On mets à jour les infos dans le fichier repos.list
+  $repos_list_content = file_get_contents("$REPOS_LIST");
+  $repos_list_content = preg_replace("/Name=\"${repoName}\",Realname=\".*\",Env=\"${repoEnv}\",Date=\"${repoDate}\".*/", "", $repos_list_content);
+  file_put_contents("$REPOS_LIST", $repos_list_content);
+  
+  # Suppression des lignes laissées vide par preg_replace, parce que PHP c'est de la merde
+  exec ("sed -i '/^$/d' $REPOS_LIST");
+
+  # Vérifications avant suppression définitive du miroir :
+  $checkIfMirrorIsUsed = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\".*\",Date=\"${repoDate}\"' ${REPOS_LIST}");
+  # Si la version du repo n'est plus utilisée par un autre env (nom du repo + date du repo n'apparait plus dans le fichier) alors on supprime le répertoire du repo
+  if (empty($checkIfMirrorIsUsed)) {
+    exec("rm ${REPOS_DIR}/${repoDate}_${repoName}/ -rf");
+  }
+
+  # Si il n'y a plus du tout de trace du repo dans le fichier de conf, alors on peut supprimer son fichier de conf repo, et on peut le retirer des groupes où il est présent
+  $checkIfRepoExists = exec("grep '^Name=\"${repoName}\",Realname=\".*\",Env=\".*\"' ${REPOS_LIST}");
+  if (empty($checkIfRepoExists)) {
+    # Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
+    // deleteConf --repo-name ${repoName}
+
+    # Suppression du repo du fichier de groupes
+    $groups_content = file_get_contents("$GROUPS_CONF");
+    $groups_content = preg_replace("/Name=\"${repoName}\".*/", "", $groups_content);
+    file_put_contents("$GROUPS_CONF", $groups_content);
+  }
+
+  refreshdiv_class("list-repos");
+  refreshdiv_class("list-repos-archived");  
+}
+
+function deleteRepo_deb($repoName) {
+  global $REPOS_LIST;
+  global $REPOS_ARCHIVE_LIST;
+  global $GROUPS_CONF;
+  global $REPOS_DIR;
+
+  # On vérifie que le repo renseigné est bien présent dans le fichier repos.list, si oui alors on peut commencer l'opération
+  $checkIfRepoExists = exec("grep '^Name=\"${repoName}\"' ${REPOS_LIST}");
+  if (empty($checkIfRepoExists)) {
+    printAlert("Erreur : le repo $repoName n'existe pas");
+    return 1;
+  }
+
+  # Suppression du répertoire du repo
+  exec("rm ${REPOS_DIR}/${repoName} -rf");
+
+  # On mets à jour les infos dans le fichier repos.list ainsi que le fichier repos-archives.list en supprimant la ligne du repo
+  $repos_list_content = file_get_contents("$REPOS_LIST");
+  $repos_archives_content = file_get_contents("$REPOS_ARCHIVE_LIST");
+  $repos_list_content = preg_replace("/Name=\"${repoName}\".*/", "", $repos_list_content);
+  $repos_archives_content = preg_replace("/Name=\"${repoName}\".*/", "", $repos_archives_content);
+  file_put_contents("$REPOS_LIST", $repos_list_content);
+  file_put_contents("$REPOS_ARCHIVE_LIST", $repos_archives_content);
+  # Suppression des lignes laissées vide par preg_replace, parce que PHP c'est de la merde
+  exec ("sed -i '/^$/d' $REPOS_LIST");
+  exec ("sed -i '/^$/d' $REPOS_ARCHIVE_LIST");
+
+  # Comme on a a supprimé tout un repo, on a forcément supprimé toutes ses distributions et sections (sur Debian). On retire donc toutes les occurences du repo dans le fichier de groupes
+  $groups_content = file_get_contents("$GROUPS_CONF");
+  $groups_content = preg_replace("/Name=\"${repoName}\".*/", "", $groups_content);
+  file_put_contents("$GROUPS_CONF", $groups_content);
+
+  refreshdiv_class("list-repos");
+  refreshdiv_class("list-repos-archived");
+}
 ?>

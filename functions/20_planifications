@@ -283,7 +283,6 @@ if ([ ! -z "$PLAN_GROUP" ] && [ ! -z "$PLAN_GROUP_LIST" ]);then
 				MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (EP04) : Environnement(s) non défini(s)"
 				plan_exit
 			fi
-			# toto
 			# vérifier si le repo à traiter possède un environnement correspondant à ${PLAN_REPO_ENV} :
 
 
@@ -356,7 +355,7 @@ for PLANIFICATION in $(echo "$LISTE_DE_PLANIFICATIONS"); do
 					PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
 					if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
 						(( PLAN_ERROR++ ))
-						MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (RP01) : Environnement(s) non défini(s)" # toto : c'est un rappel alors ça ne peut pas être MSG_PLAN_ERROR
+						MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (RP01) : Environnement(s) non défini(s)" # c'est un rappel alors ça ne peut pas être MSG_PLAN_ERROR
 						continue
 					fi
 
@@ -404,7 +403,7 @@ for PLANIFICATION in $(echo "$LISTE_DE_PLANIFICATIONS"); do
 						PLAN_REPO_NEXTENV=$(echo $PLAN_ACTION | awk -F '->' '{print $2}')
 						if [ -z "$PLAN_REPO_ENV" ] || [ -z "$PLAN_REPO_NEXTENV" ];then
 							(( PLAN_ERROR++ ))
-							MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (RP01) : Environnement(s) non défini(s)" # toto : c'est un rappel alors ça ne peut pas être MSG_PLAN_ERROR
+							MSG_PLAN_ERROR="${MSG_PLAN_ERROR}\nErreur (RP01) : Environnement(s) non défini(s)" # c'est un rappel alors ça ne peut pas être MSG_PLAN_ERROR
 							continue
 						fi
 						if [ "$OS_FAMILY" == "Redhat" ];then
