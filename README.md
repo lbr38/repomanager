@@ -8,7 +8,7 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 - Créer des miroirs de repos, les mettre à jour, les dupliquer, les déployer sur les serveurs clients.
 - Signer ses repos de paquets avec GPG.
-- Système d'environnements (ex preprod, prod) permettant de rendre accessible les miroirs d'abord par les serveurs preprod, puis par les serveurs prod (nb d'environnements illimité).
+- Système d'environnements (ex preprod, prod) permettant de rendre accessible les miroirs à des environnements de serveurs particuliers (nb d'environnement illimité).
 - Planifications automatiques permettant d'exécuter les actions ci-dessus à n'importe quelle date/heure.
 
 (voir tableau ci-dessous pour la liste complète)
@@ -17,9 +17,9 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 <b>Ressources :</b>
 
-Repomanager ne nécessite qu'un service web + PHP (7 minimum). Aucun système de gestion de base de données n'est nécessaire.
+Repomanager ne nécessite qu'un service web + PHP (7 minimum) et sqlite.
 
-Le CPU et la RAM sont essentiellement sollicités lors de la création de miroirs et selon le nombre de paquets à copier et signer.
+Le CPU et la RAM sont essentiellement sollicités pendant la création de miroirs et selon le nombre de paquets à copier et signer.
 L'espace disque est à adapter en fonction du nombre de miroirs créés / nombre de paquets qu'ils contiennent.
 
 
@@ -33,16 +33,15 @@ Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu :
 
 | **Fonctions basiques et avancées** | **Disponible en version Beta** |
 |----------|---------------|
-| Créer un miroir à partir d'un repo public | Yes |
-| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | Yes |
-| Signer ses repos avec GPG | Yes |
-| Dupliquer un repo | Yes |
-| Archiver un repo | Yes |
-| Restaurer un repo archivé | Yes |
-| Créer des groupes de repos | Yes |
-| Planifier la mise à jour d'un repo | Yes |
-| Rappels de planifications (mail) | Yes |
-| Mise à jour automatique de repomanager | Yes |
+| Créer un miroir à partir d'un repo public | ✅ |
+| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | ✅ |
+| Signer ses repos avec GPG | ✅ |
+| Dupliquer un repo | ✅ |
+| Archiver / restaurer un repo | ✅ |
+| Créer des groupes de repos | ✅ |
+| Planifier la mise à jour d'un repo | ✅ |
+| Rappels de planifications (mail) | ✅ |
+| Mise à jour automatique de repomanager | ✅ |
 | Créer des patchs zero-day (uploader un ou plusieurs paquet(s) patché dans ses repos) | à venir |
 
 
@@ -71,11 +70,21 @@ Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et f
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm (7.4). Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
+Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm (PHP 7.4). Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
 
 <pre>
-yum install nginx php-fpm php-cli
-apt update && apt install nginx php-fpm php-cli
+yum install nginx php-fpm php-cli php-pdo sqlite
+apt update && apt install nginx php-fpm php-cli php7.4-sqlite3 sqlite3
+</pre>
+
+<b>SQLite</b>
+S'assurer que l'extension sqlite pour php est activée (généralement dans /etc/php.d/) :
+
+<pre>
+vim /etc/php/7.4/mods-available/sqlite3.ini # Debian
+vim /etc/php.d/20-sqlite3.ini               # Redhat/CentOS
+
+extension=sqlite3.so
 </pre>
 
 <b>Vhost</b>
@@ -161,18 +170,12 @@ server {
 </pre>
 
 
-<b>repomanager</b>
+<b>Repomanager</b>
 
-Le programme s'installe dans 3 répertoires différents choisis par l'utilisateur au moment de l'installation :
+Le programme s'installe dans 2 répertoires différents choisis par l'utilisateur au moment de l'installation :
 <pre>
-Répertoire des scripts bash (par défaut /home/repomanager/)
 Répertoire des fichiers web (par défaut /var/www/repomanager/)
 Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
-</pre>
-
-Ainsi que le répertoire des fichiers de configuration et variables (non modifiable) :
-<pre>
-/etc/repomanager/
 </pre>
 
 Il est préférable de procéder à l'installation en tant que root ou sudo afin que l'utilisateur puisse correctement mettre en place les bonnes permissions sur tous les répertoires utilisés par repomanager.
@@ -184,13 +187,13 @@ su -
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/RELEASE/repomanager_RELEASE.tar.gz
 tar xzf repomanager_RELEASE.tar.gz
-cd /tmp/repomanager
+cd /tmp/repomanager/www/
 </pre>
 
-Utilisez le script first-install qui se chargera de vous demander les chemins des 3 répertoires d'installation et d'y copier les bons fichiers.
+Utilisez le script repomanager qui se chargera de vous demander les chemins des 2 répertoires d'installation et d'y copier les bons fichiers.
 <pre>
-chmod 700 first-install
-./first-install
+chmod 700 repomanager
+./repomanager --install
 </pre>
 
 Enfin, répondre aux questions posées par repomanager afin de mettre en place sa configuration. Il est possible d'interrompre la configuration à tout moment par Ctrl+C.

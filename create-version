@@ -14,8 +14,6 @@ RESET=$(tput sgr0)
 DEV_DIR="/home/github/repomanager"
 DEV_BRANCH="beta"
 #RELEASE_BRANCH="releases"
-VERSION=""
-ARCHIVE_FULL_NAME=""
 ARCHIVE_PATH="/tmp"
 IGNORE_FILE="/home/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
 CONFIRM=""
@@ -39,8 +37,7 @@ if [ "$CONFIRM" != "y" ];then
     exit
 fi
 
-echo "# Version actuelle" > ${DEV_DIR}/version
-echo "VERSION=\"$VERSION\"" >> ${DEV_DIR}/version
+echo "$VERSION" > ${DEV_DIR}/version
 
 # Suppression du répertoire /tmp/repomanager si existe car on va avoir besoin qu'il soit vierge
 rm /tmp/repomanager -rf

@@ -1,4 +1,8 @@
 <?php
+require_once('class/Group.php');
+$group = new Group();
+$groupList = $group->listAll();
+
 if ($OS_FAMILY == "Redhat") {
   echo '<h5>CRÉER UN NOUVEAU REPO</h5>';
   echo '<form action="/check.php" method="get" class="actionform" autocomplete="off">';
@@ -7,7 +11,7 @@ if ($OS_FAMILY == "Redhat") {
   echo '<tr>';
   echo '<td>Nom du repo source</td>';
   echo '<td>';
-  echo '<select name="repoRealname" required>';
+  echo '<select name="repoSource" required>';
   echo '<option value="">Sélectionner un repo source...</option>';
   $reposFiles = scandir($REPOMANAGER_YUM_DIR);
   foreach($reposFiles as $repoFileName) {
@@ -54,18 +58,18 @@ if ($OS_FAMILY == "Redhat") {
   echo '</td>';
   echo '</tr>';
   // Possibilité d'ajouter à un groupe, si il y en a
-  $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
+  //$repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
   // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
-  if (!empty($repoGroups)) {
+  if (!empty($groupList)) {
     echo '<tr>';
     echo '<td>Ajouter à un groupe (fac.)</td>';
     echo '<td>';
     echo '<select name="repoGroup">';
     echo '<option value="">Sélectionner un groupe...</option>';
-    $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
+    //$repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
     $i = 0;
     $j = 0;
-    foreach($repoGroups as $groupName) {
+    foreach($groupList as $groupName) {
       $groupName = str_replace(["[", "]"], "", $groupName);
       echo "<option value=\"$groupName\">$groupName</option>";
     }
@@ -90,7 +94,7 @@ if ($OS_FAMILY == "Debian") {
   echo '<tr>';
   echo '<td>Nom de l\'hôte source</td>';
   echo '<td>';
-  echo '<select name="repoHostName" required>';
+  echo '<select name="repoSource" required>';
   echo '<option value="">Sélectionner un hôte source...</option>';
   $rows = explode("\n", file_get_contents($HOSTS_CONF));
   $j=0;
@@ -147,18 +151,18 @@ if ($OS_FAMILY == "Debian") {
   echo '</td>';
   echo '</tr>';
   // Possibilité d'ajouter à un groupe, si il y en a
-  $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
+  //$repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
   // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
-  if (!empty($repoGroups)) {
+  if (!empty($groupList)) {
     echo '<tr>';
     echo '<td>Ajouter à un groupe (fac.)</td>';
     echo '<td>';
     echo '<select name="repoGroup">';
     echo '<option value="">Sélectionner un groupe...</option>';
-    $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
+    //$repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
     $i = 0;
     $j = 0;
-    foreach($repoGroups as $groupName) {
+    foreach($groupList as $groupName) {
       $groupName = str_replace(["[", "]"], "", $groupName);
       echo "<option value=\"$groupName\">$groupName</option>";
     }

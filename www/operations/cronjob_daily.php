@@ -4,9 +4,10 @@
 $WWW_DIR = dirname(__FILE__, 2);
 
 // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-require "${WWW_DIR}/functions/load_common_variables.php";
-require "${WWW_DIR}/functions/common-functions.php";
-require "${WWW_DIR}/functions/generateConf.php";
+require_once("${WWW_DIR}/functions/load_common_variables.php");
+require_once("${WWW_DIR}/class/Repo.php");
+
+$repo = new Repo();
 
 $permissionsError = 0;
 $checkVersionError = 0;
@@ -28,57 +29,64 @@ exec("echo -n> $CRON_LOG");
 
 // VERSION DISPONIBLE SUR GITHUB //
 
-// Vérification d'une nouvelle version disponible sur github
-// Récupère le numéro de version qui est publié sur github dans le fichier 'version'
-$githubAvailableVersion = exec("curl -s -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version' | grep 'VERSION=' | cut -d'=' -f2 | sed 's/\"//g'");
+/**
+ *  Vérification d'une nouvelle version disponible sur github
+ *  Récupère le numéro de version qui est publié sur github dans le fichier 'version'
+ */
+$githubAvailableVersion = exec("curl -s -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version'");
 
 if (empty($githubAvailableVersion)) {
   ++$checkVersionError;
 } else {
-  file_put_contents("$CRON_DIR/github.version", "# Version disponible sur github\nGITHUB_VERSION=\"$githubAvailableVersion\"");
+  file_put_contents("${CRON_DIR}/github.version", $githubAvailableVersion.PHP_EOL);
 }
 
 
 // GENERATION DES FICHIERS DE CONF DE PROFILS //
 
-// Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
+/**
+ *  Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
+ */
 if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
-  // Création du répertoire des configurations de profils si n'existe pas
+
+  /**
+   *  Création du répertoire des configurations de profils si n'existe pas
+   */
   if (!file_exists($REPOS_PROFILES_CONF_DIR)) { mkdir($REPOS_PROFILES_CONF_DIR, 0770, true); }
   if (!is_dir("${TEMP_DIR}/cronjob_daily/files")) { mkdir("${TEMP_DIR}/cronjob_daily/files", 0770, true); }
 
-  // On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
-  $rows = explode("\n", file_get_contents($REPOS_LIST));
-  foreach($rows as $row) {
-    if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-      $rowData = explode(',', $row);
-      if ($OS_FAMILY == "Redhat") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-      }
+  /**
+   *  On récupère toute la liste des repos actifs pour regénérer leur fichier de conf
+   */
+  $reposList = $repo->listAll();
+  
+  if (!empty($reposList)) {
+    foreach($reposList as $repo) {
+      $repoName = $repo['Name'];
       if ($OS_FAMILY == "Debian") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-        $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
-        $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
+        $repoDist = $repo['Dist'];
+        $repoSection = $repo['Section'];
       }
 
-      // On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
-			if ($OS_FAMILY == "Redhat") {
-        if (generateConf_rpm($repoName, "${TEMP_DIR}/cronjob_daily/files") === false) {
-					++$generateConfError;
-				}
-			}
-			if ($OS_FAMILY == "Debian") {
-				if (generateConf_deb($repoName, $repoDist, $repoSection, "${TEMP_DIR}/cronjob_daily/files") === false) {
-					++$generateConfError;
-				}
-			}
+      /**
+       *  On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
+       */
+      if ($OS_FAMILY == "Redhat") { $repo = new Repo(compact('repoName')); }
+      if ($OS_FAMILY == "Debian") { $repo = new Repo(compact('repoName', 'repoDist', 'repoSection')); }
 
-      // Enfin on copie les fichiers générés dans le répertoire temporaire dans le répertoire habituel des fichiers de conf, en copiant uniquement les différences et en supprimant les fichiers inutilisés
+      $repo->generateConf("${TEMP_DIR}/cronjob_daily/files");
+
+      /**
+       *  Enfin on copie les fichiers générés dans le répertoire temporaire dans le répertoire habituel des fichiers de conf, en copiant uniquement les différences et en supprimant les fichiers inutilisés
+       */
       exec("rsync -a --delete-after ${TEMP_DIR}/cronjob_daily/files/ ${REPOS_PROFILES_CONF_DIR}/", $output, $return);
       if ($return != 0) {	++$generateConfError; }
-		}
-	}
-  // Suppression du répertoire temporaire
+	  }
+  }
+
+  /**
+   *  Suppression du répertoire temporaire
+   */
   if (is_dir("${TEMP_DIR}/cronjob_daily/files")) {
     exec("rm -rf ${TEMP_DIR}/cronjob_daily/files", $output, $return);
     if ($return != 0) {	++$generateConfError; }
@@ -86,10 +94,22 @@ if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
 }
 
 
+// SUPPRESSION DES FICHIERS TEMPORAIRES //
+
+/**
+ *  Supprime les fichiers dans .temp + vieux de 2 jours
+ */
+if (is_dir($TEMP_DIR)) {
+  exec("find ${TEMP_DIR}/ -mindepth 1 -mtime +2 -delete");
+}
+
+
 // APPLICATION DES PERMISSIONS //
 
-// Réapplique les bons droits sur le répertoire parent des repos
-// Laisser cette tâche en dernier car c'est la plus longue
+/**
+ *  Réapplique les bons droits sur le répertoire parent des repos
+ *  Laisser cette tâche en dernier car c'est la plus longue
+ */
 
 // NOTE : trouver comment gérer le retour d'erreur sur cette commande find (peut être voir du côté de xargs plutôt que exec)
 if ($CRON_APPLY_PERMS == "yes") {

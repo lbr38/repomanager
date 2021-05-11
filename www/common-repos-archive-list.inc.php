@@ -8,39 +8,35 @@ $repoLastDist = '';
 $repoLastSection = '';
 $listColor = 'color1'; // initialise des variables permettant de changer la couleur dans l'affichage de la liste des repos
 
-echo "<thead>";
-echo "<tr>";
-echo "<td class=\"td-fit\"></td>";
-echo "<td>Repo</td>";
+echo '<thead>';
+echo '<tr>';
+echo '<td class="td-fit"></td>';
+echo '<td>Repo</td>';
 if ($OS_FAMILY == "Debian") {
-    echo "<td>Distribution</td>";
-    echo "<td>Section</td>";
+echo '<td>Distribution</td>';
+echo '<td>Section</td>';
 }
-echo "<td>Date</td>";
+echo '<td>Date</td>';
 if ($printRepoSize == "yes") { // On affiche la taille des repos seulement si souhaité
-    echo "<td>Taille</td>";
+echo '<td>Taille</td>';
 }
-echo "<td>Description</td>";
-echo "</tr>";
-echo "</thead>";
+echo '<td>Description</td>';
+echo '</tr>';
+echo '</thead>';
 
-$rows = explode("\n", file_get_contents($REPOS_ARCHIVE_LIST));
-foreach($rows as $row) {
-    if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-        //get row data
-        $rowData = explode(',', $row);
-        if ($OS_FAMILY == "Redhat") {
-          $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-          $repoDate = strtr($rowData['2'], ['Date=' => '', '"' => '']);
-          $repoDescription = strtr($rowData['3'], ['Description=' => '', '"' => '']);
-        }
+$repo = new Repo();
+$reposList = $repo->listAll_archived();
+    
+if (!empty($reposList)) {
+    foreach($reposList as $repo) {
+        $repoName = $repo['Name'];
         if ($OS_FAMILY == "Debian") {
-          $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-          $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
-          $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
-          $repoDate = strtr($rowData['4'], ['Date=' => '', '"' => '']);
-          $repoDescription = strtr($rowData['5'], ['Description=' => '', '"' => '']);
+            $repoDist = $repo['Dist'];
+            $repoSection = $repo['Section'];
         }
+        $repoDate = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
+        $repoDescription = $repo['Description'];
+
         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
             $repoSize = exec("du -hs ${REPOS_DIR}/archived_${repoDate}_${repoName} | awk '{print $1}'");
@@ -55,7 +51,7 @@ foreach($rows as $row) {
             elseif ($listColor == "color2") { $listColor = 'color1'; }
         }
         echo "<tr class=\"$listColor\">";
-        echo "<td class=\"td-fit\">";
+        echo '<td class="td-fit">';
         // Affichage de l'icone "corbeille" pour supprimer le repo
         if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
             echo "<a href=\"check.php?actionId=deleteOldRepo&repoName=${repoName}&repoDate=${repoDate}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
@@ -70,23 +66,23 @@ foreach($rows as $row) {
         if ($OS_FAMILY == "Debian") {
             echo "<a href=\"check.php?actionId=restoreOldRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=${repoDate}&repoDescription=${repoDescription}\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
         }
-        echo "</td>";
+        echo '</td>';
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
         if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
-            echo "<td></td>";
+            echo '<td></td>';
         } else {
             echo "<td>$repoName</td>";
         }
         if ($OS_FAMILY == "Debian") {
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
-                echo "<td></td>";
+                echo '<td></td>';
             } else {
                 echo "<td>$repoDist</td>";
             }
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
-                echo "<td></td>";
+                echo '<td></td>';
             } else {
                 echo "<td>$repoSection</td>";
             }
@@ -96,7 +92,7 @@ foreach($rows as $row) {
             echo "<td>$repoSize</td>";
         }
         echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
-        echo "</tr>";
+        echo '</tr>';
     }
     if (!empty($repoName)) { $repoLastName = $repoName; }
     if ($OS_FAMILY == "Debian") {

@@ -4,10 +4,10 @@
 
 <?php
 	// Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-	require 'functions/load_common_variables.php';
-    require 'functions/load_display_variables.php';
-    require 'functions/common-functions.php';
-    require 'common.php';
+	require_once('functions/load_common_variables.php');
+  	require_once('functions/load_display_variables.php');
+  	require_once('functions/common-functions.php');
+  	require_once('common.php');
 	if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
 // bouton "Tuer le process en cours"

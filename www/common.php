@@ -81,71 +81,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
   header("Location: $actual_url");
 }
 
- 
-//// GROUPES ////
-// Traitement des données envoyées par le formulaire de gestion des groupes de repos
-
-// Cas où on souhaite ajouter un nouveau groupe : 
-if (!empty($_POST['addGroupName'])) {
-  $addGroupName = validateData($_POST['addGroupName']);
-  newGroup($addGroupName);
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-
-// Cas où on souhaite ajouter un repo à un groupe (cette partie doit être placée avant le "Cas où on souhaite renommer un groupe") :
-if (!empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
-  $actualGroupName = validateData($_POST['actualGroupName']);
-  //$groupAddRepoName = validateData($_POST['groupAddRepoName']);
-
-  foreach ($_POST['groupAddRepoName'] as $selectedOption) {
-    $groupAddRepoName = validateData($selectedOption);
-
-    // Note pour Debian : le repo, la distribution et la section sont concaténées dans $groupAddRepoName et séparées par un |
-    addRepoToGroup($groupAddRepoName, $actualGroupName);
-  }
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-
-// Cas où on souhaite supprimer un repo/section d'un groupe :
-// Cas Redhat :
-if ($OS_FAMILY == "Redhat" AND !empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroupRepo") AND !empty($_GET['groupName']) AND !empty($_GET['repoName'])) {
-  $groupName = validateData($_GET['groupName']);
-  $groupDelRepoName = validateData($_GET['repoName']);
-  deleteRepoFromGroup($groupDelRepoName, $groupName);
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-// Cas Debian :
-if ($OS_FAMILY == "Debian" AND !empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroupRepo" AND !empty($_GET['groupName']) AND !empty($_GET['repoName']) AND !empty($_GET['repoDist']) AND !empty($_GET['repoSection']))) {
-  $groupName = validateData($_GET['groupName']);
-  $groupDelRepoName = validateData($_GET['repoName']);
-  $groupDelRepoDist = validateData($_GET['repoDist']);
-  $groupDelRepoSection = validateData($_GET['repoSection']);
-  $groupDelRepoName = "${groupDelRepoName}|${groupDelRepoDist}|${groupDelRepoSection}";
-  deleteSectionFromGroup($groupDelRepoName, $groupName);
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-
-// Cas où on souhaite renommer un groupe :
-if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
-  $actualGroupName = validateData($_POST['actualGroupName']);
-  $newGroupName = validateData($_POST['newGroupName']);
-  renameGroup($actualGroupName, $newGroupName);
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-
-// Cas où on souhaite supprimer un groupe :
-if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroup") AND !empty($_GET['groupName'])) {
-  $groupName = validateData($_GET['groupName']);
-  deleteGroup($groupName);
-  refreshdiv_class('divGroupsList');
-  showdiv_class('divGroupsList');
-}
-
 
 //// REPOS SOURCES ////
 
@@ -312,13 +247,5 @@ if ($OS_FAMILY == "Debian") {
     refreshdiv_class('divManageReposSources');
     showdiv_class('divManageReposSources');
   }
-}
-
-// Vérifications de la présence des fichiers de base
-if (!file_exists($GROUPS_CONF)) { // Si le fichier de groupes n'existe pas, on le créé
-  file_put_contents($GROUPS_CONF, "[GROUPES]\n\n");
-}
-if (!file_exists($ENV_CONF)) { // Si le fichier de groupes n'existe pas, on le créé
-  file_put_contents($ENV_CONF, "[ENVIRONNEMENTS]\n\n");
 }
 ?>

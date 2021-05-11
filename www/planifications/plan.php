@@ -1,67 +1,80 @@
 <?php
 
 if (empty($argv)) {
-  return "Erreur : aucun argument passé";
+  exit('Erreur : aucun argument passé');
 }
-/*
-if ($argv[1] == "exec") {
-  $ACTION_EXEC = '1';
-} else if ($argv[1] == "reminders") {
-  $ACTION_REMINDER = '1';
-} else {
-  return "Erreur : argument ".$argv[1]." inconnu";
-}*/
 
 $WWW_DIR = dirname(__FILE__, 2);
 
 // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-require "${WWW_DIR}/functions/load_common_variables.php";
-require "${WWW_DIR}/functions/common-functions.php";
-require "${WWW_DIR}/planifications/plan_checkAction.php";
-require "${WWW_DIR}/planifications/plan_checkIfRepoOrGroup.php";
-require "${WWW_DIR}/planifications/plan_exit.php";
-require "${WWW_DIR}/planifications/plan_exec.php";
-require "${WWW_DIR}/planifications/plan_reminder.php";
+require_once("${WWW_DIR}/functions/load_common_variables.php");
+require_once("${WWW_DIR}/functions/common-functions.php");
+require_once("${WWW_DIR}/class/Planification.php");
 
 // Date et heure actuelle (à laquelle est exécuté ce script)
-//$todayDate = date("Y-m-d");
-//$todayTime = date("H\hi");
 $todayDate = exec("date +%Y-%m-%d");
-$todayTime = exec("date +%Hh%M");
+$todayTime = exec("date +%H:%M");
 
+/**
+ *  1. On vérifie la présence d'une ou plusieurs planification dans le pool
+ */
+$plan = new Planification();
+$plansQueued = $plan->listQueue();
 
-$planFiles = shell_exec("ls -A1 $PLANS_DIR/ | egrep '^plan-'");
-if(!empty($planFiles)) {
-  $message_rappel = '';
-  $planFiles = preg_split('/\s+/', trim($planFiles));
-  foreach($planFiles as $planFile) {
-    $planId = str_replace(['[', ']'], '', exec("egrep '^\[' $PLANS_DIR/$planFile"));
-    $planDate = str_replace(['Date=', '"'], '', exec("egrep '^Date=' $PLANS_DIR/$planFile"));
-    $planTime = str_replace(['Time=', '"'], '', exec("egrep '^Time=' $PLANS_DIR/$planFile"));
-    $planReminder = str_replace(['Reminder=', '"'], '', exec("egrep '^Reminder=' $PLANS_DIR/$planFile"));
+if(!empty($plansQueued)) {
+    $message_rappel = '';
 
-    // Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($todayDate et $todayTime) alors on exécute la planification
-    if (($argv[1] == "exec-plans") AND ($planDate == $todayDate) AND ($planTime == $todayTime)) {
-      plan_exec($planId);
-    }
+    /**
+     *  On traite chaque planification
+     *  On récupère son id, sa date et son heure d'exécution ainsi que les rappels
+     */
 
-    // Si la date actuelle ($todayDate) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
-    if ($argv[1] == "send-reminders" AND !empty($planReminder)) {
-      $planReminder = explode(",", $planReminder);
+    foreach($plansQueued as $planQueued) {
+        $planId       = $planQueued['Plan_id'];
+        $planDate     = $planQueued['Plan_date'];
+        $planTime     = $planQueued['Plan_time'];
+        $planReminder = $planQueued['Plan_reminder'];
 
-      foreach($planReminder as $reminder) {
-        $reminderDate = date_create("$planDate")->modify("-${reminder} days")->format('Y-m-d');
-
-        if ($reminderDate == $todayDate) {
-          $msg = generateReminders($planId);
-          $message_rappel = "${message_rappel}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br>";
+        /**
+         *  Exécution
+         *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($todayDate et $todayTime) alors on exécute la planification
+         */
+        if (($argv[1] == "exec-plans") AND ($planDate == $todayDate) AND ($planTime == $todayTime)) {
+            // On indique à $plan quel est l'id de la planification et on l'exécute
+            $plan->id = $planId;
+            $plan->exec();
         }
-      }
+
+        /**
+         *  Traitement des rappels
+         *  Si la date actuelle ($todayDate) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
+         */
+        if ($argv[1] == "send-reminders" AND !empty($planReminder)) {
+            $planReminder = explode(",", $planReminder);
+
+            /**
+             *  Une planification peut avoir 1 ou plusiers rappels. Pour chaque rappel, on regarde si sa date correspond à la date du jour - le nb de jour du rappel
+             */
+            foreach($planReminder as $reminder) {
+                $reminderDate = date_create($planDate)->modify("-${reminder} days")->format('Y-m-d');
+
+                if ($reminderDate == $todayDate) {
+                    // On indique à $plan quel est l'id de la planification et on génère le message de rappel
+                    $plan->id = $planId;
+                    $msg = $plan->generateReminders();
+                    $message_rappel = "${message_rappel}<span><b>Planification du $plan->date à $plan->time :</b></span><br><span>- $msg</span><br>";
+                }
+            }
+        }
     }
-  }
-  if (!empty($message_rappel)) {
-    sendMail($message_rappel, $EMAIL_DEST);
-  }
+    
+    /**
+     *  2. Si il y a des rappels à envoyer, alors on envoi un mail
+     */
+    if (!empty($message_rappel)) {
+        include_once("${WWW_DIR}/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $message_rappel
+        $plan->sendMail("[RAPPEL] Planification(s) à venir sur $WWW_HOSTNAME", $template);
+    }
 }
 exit();
 ?>

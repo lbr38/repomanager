@@ -7,14 +7,14 @@
         <span id="GroupsListSlideUpButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="icons/folder.png" class="icon"/></span>
         <!-- Bouton "Gérer les repos/hôtes sources" -->
         <?php
-            if ($OS_FAMILY == "Redhat") { echo "<span id=\"ReposSourcesSlideUpButton\" class=\"pointer\" title=\"Gérer les repos sources\">Gérer les repos sources<img src=\"icons/world.png\" class=\"icon\"/></span>"; }
-            if ($OS_FAMILY == "Debian") { echo "<span id=\"ReposSourcesSlideUpButton\" class=\"pointer\" title=\"Gérer les hôtes sources\">Gérer les hôtes sources<img src=\"icons/world.png\" class=\"icon\"/></span>"; }
+            if ($OS_FAMILY == "Redhat") { echo '<span id="ReposSourcesSlideUpButton" class="pointer" title="Gérer les repos sources">Gérer les repos sources<img src="icons/world.png" class="icon"/></span>'; }
+            if ($OS_FAMILY == "Debian") { echo '<span id="ReposSourcesSlideUpButton" class="pointer" title="Gérer les hôtes sources">Gérer les hôtes sources<img src="icons/world.png" class="icon"/></span>'; }
         ?>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
             if (($actual_uri == "/index.php") OR ($actual_uri == "/")) {
-                if ($OS_FAMILY == "Redhat") { echo "<span id=\"newRepoSlideButton\" class=\"pointer\">Créer un nouveau repo<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer un nouveau repo\" /></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span id=\"newRepoSlideButton\" class=\"pointer\">Créer une nouvelle section<img class=\"icon\" src=\"icons/plus.png\" title=\"Créer une nouvelle section\" /></span>"; }
+                if ($OS_FAMILY == "Redhat") { echo '<span id="newRepoSlideButton" class="pointer">Créer un nouveau repo<img class="icon" src="icons/plus.png" title="Créer un nouveau repo" /></span>'; }
+                if ($OS_FAMILY == "Debian") { echo '<span id="newRepoSlideButton" class="pointer">Créer une nouvelle section<img class="icon" src="icons/plus.png" title="Créer une nouvelle section" /></span>'; }
             }
         ?>
     </div>
@@ -90,10 +90,6 @@
   });
 });
 </script>
-
-<!-- div cachée, affichée par le bouton "Gérer les groupes" -->
-<!-- GERER LES GROUPES -->
-<?php include('common-groupslist.inc.php'); ?>
 
 <!-- div cachée, affichée par le bouton "Gérer les repos/hôtes sources" -->
 <!-- REPOS/HOTES SOURCES -->

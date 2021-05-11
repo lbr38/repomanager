@@ -323,7 +323,7 @@ section.right, #newRepoSlideDiv {
 }
 
 /* on écrase certaines des valeurs ci-dessus afin que la section soit masquée au chargement de la page */
-#newRepoSlideDiv {
+#newRepoSlideDiv, #groupsDiv {
     width: 0px; /* longueur de 0 par défaut, pour que cette section soit complètement masqué. */
     padding: 0px; /* padding forcé à 0 par défaut, pour que cette section soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois la section affichée */
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
@@ -382,7 +382,6 @@ table.list-repos, table.list-repos-archived {
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
    transform: translateZ(0);*/
-   /* toto */
 }
 
 table.list-repos td, table.list-repos-archived td {
@@ -927,7 +926,7 @@ img.cronStatus {
     opacity: 1;
 }
 
-.profileDivContainer, .groupDivContainer, .reposSourcesDivContainer {
+.profileDivContainer, .reposSourcesDivContainer {
     display: flex;
     height: 100%;
     flex-wrap: wrap;
@@ -942,8 +941,7 @@ img.cronStatus {
 }
 
 .groupDiv {
-    flex: 0 0 32%;
-    flex-grow : 0;
+    width: 100%;
     margin: 4px;
     background-color: #0468c0;
     border-radius: 2px;

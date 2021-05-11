@@ -153,7 +153,6 @@
     echo '</form>';
 
     // récupération de tous les hotes renseignés dans $HOSTS_CONF
-    //$rows = explode("\n", file_get_contents($HOSTS_CONF));
     $rows = preg_split('/\s+/', trim(file_get_contents($HOSTS_CONF)));
     if (!empty($rows)) {
       echo '<p><b>Hôtes actuels :</b></p>';

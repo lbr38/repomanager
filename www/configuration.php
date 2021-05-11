@@ -2,18 +2,36 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-// Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-require 'functions/load_common_variables.php';
-require 'functions/load_display_variables.php';
-require 'functions/common-functions.php';
-require 'common.php';
+/**
+ *  Import des variables et fonctions nécessaires
+ */
+require_once('functions/load_common_variables.php');
+require_once('functions/load_display_variables.php');
+require_once('functions/common-functions.php');
+require_once('common.php');
 if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; print_r($_POST); echo '<br>GET '; print_r($_GET); }
+
+/**
+ *  Mise à jour de Repomanager
+ */
+    
+if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
+    //exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+    $result = '0';
+    if ($result == 0) {
+        $updateStatus = 'OK';
+    } else {
+        $updateStatus = 'Error';
+        $updateError = "$output";
+    }
+}
 
 // Si un des formulaires de la page a été validé alors on entre dans cette condition
 if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfiguration") {
 
     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
     $repomanager_conf_array = parse_ini_file("$REPOMANAGER_CONF", true);
+
 
 /**
  *  Section PATHS
@@ -397,7 +415,7 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="" />Famille d'OS</td>
-                <td><input type="text" value="<?php echo "$OS_FAMILY";?>" readonly /></td>
+                <td><input type="text" value="<?php echo $OS_FAMILY;?>" readonly /></td>
                 <td class="td-fit">
                 <?php if (empty($OS_FAMILY)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
                 </td>
@@ -436,6 +454,8 @@ if (!empty($_GET['deleteEnv'])) {
                 <option value="beta" <?php if ($UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
                 </td>
                 <td class="td-fit">
+                <input type="button" onclick="location.href='configuration.php?action=update'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="⭮">
+                <?php if (!empty($updateStatus)) { echo $updateStatus; } ?>
                 <?php if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
                 </td>
             </tr>
@@ -801,7 +821,7 @@ if (!empty($_GET['deleteEnv'])) {
             <tr>
                 <td>
                     <button type="submit" class="button-submit-medium-green">Enregistrer</button>
-                    <a href="configuration.php?action=enableCron"><button class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab">⭮</button>
+                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="⭮">
                 </td>
             </tr>
             </table>

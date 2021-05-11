@@ -27,7 +27,7 @@
       }
     }
     if (!empty($planificationRunning)) {
-      echo '<li><a href="run.php?logfile=lastplanlog.log" class="li-operation-running">Planification en cours</a>';
+      echo '<li><a href="run.php" class="li-operation-running">Planification en cours</a>';
     }
   } ?>
   </ul>

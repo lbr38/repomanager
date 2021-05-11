@@ -26,33 +26,33 @@ function checkArguments($argumentType, $argumentName) {
         }
     }
     // Le nom du repo source sera toujours obligatoire
-    if ($argumentName === 'repoRealname') {
-        if (empty($_GET['repoRealname'])) {
+    if ($argumentName === 'repoSource') {
+        if (empty($_GET['repoSource'])) {
             echo '<tr>';
             echo '<td>Nom du repo source</td>';
-            echo '<td><input type="text" name="repoRealname" placeholder="Vous devez renseigner un nom de repo source" required /></td>';
+            echo '<td><input type="text" name="repoSource" placeholder="Vous devez renseigner un nom de repo source" required /></td>';
             echo '</tr>';
         }
-        if (!empty($_GET['repoRealname'])) {
-            $repoRealname = validateData($_GET['repoRealname']);
-            echo "<td><input type=\"hidden\" name=\"repoRealname\" value=\"$repoRealname\"></td>";
-            return $repoRealname;
+        if (!empty($_GET['repoSource'])) {
+            $repoSource = validateData($_GET['repoSource']);
+            echo "<td><input type=\"hidden\" name=\"repoSource\" value=\"$repoSource\"></td>";
+            return $repoSource;
         }
     }
     // Le nom de l'hôte source sera toujours obligatoire
-    if ($argumentName === 'repoHostName') {
-        if (empty($_GET['repoHostName'])) {
+    /*if ($argumentName === 'repoSource') {
+        if (empty($_GET['repoSource'])) {
             echo '<tr>';
             echo '<td>Nom de l\'hôte</td>';
-            echo '<td><input type="text" name="repoHostName" placeholder="Vous devez renseigner un nom d\'hôte source" required /></td>';
+            echo '<td><input type="text" name="repoSource" placeholder="Vous devez renseigner un nom d\'hôte source" required /></td>';
             echo '</tr>';
         }
-        if (!empty($_GET['repoHostName'])) {
-            $repoHostName = validateData($_GET['repoHostName']);
-            echo "<td><input type=\"hidden\" name=\"repoHostName\" value=\"$repoHostName\"></td>";
-            return $repoHostName;
+        if (!empty($_GET['repoSource'])) {
+            $repoSource = validateData($_GET['repoSource']);
+            echo "<td><input type=\"hidden\" name=\"repoSource\" value=\"$repoSource\"></td>";
+            return $repoSource;
         }
-    }
+    }*/
     // Le nom du repo sera toujours obligatoire
     if ($argumentName === 'repoName') {
         if (empty($_GET['repoName'])) {
@@ -218,7 +218,10 @@ function checkArguments($argumentType, $argumentName) {
     }
     // Ajout à un groupe sera toujours facultatif
     if ($argumentName === 'repoGroup') {
-        global $GROUPS_CONF;
+        require_once('class/Group.php');
+
+        $group = new Group();
+
         // Si le groupe est optionnel et qu'il a été transmis vide, alors on le set à 'nogroup'
         if ($argumentType == 'optionnal') {
             if (isset($_GET['repoGroup']) AND empty($_GET['repoGroup'])) {
@@ -232,20 +235,17 @@ function checkArguments($argumentType, $argumentName) {
                 return $repoGroup;
             }
             if (!isset($_GET['repoGroup'])) {
-                $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
+                $groupList = $group->listAll();
                 // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
-                if (!empty($repoGroups)) {
+                if (!empty($groupList)) {
                     echo '<tr>';
                     echo '<td>Ajouter à un groupe (fac.)</td>';
                     echo '<td>';
                     echo '<select name="repoGroup">';
                     echo '<option value="">Sélectionner un groupe...</option>';
-                    $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
-                    $i = 0;
-                    $j = 0;
-                    foreach($repoGroups as $groupName) {
-                    $groupName = str_replace(["[", "]"], "", $groupName);
-                    echo "<option value=\"$groupName\">$groupName</option>";
+                    foreach($groupList as $groupName) {
+                        $groupName = str_replace(["[", "]"], "", $groupName);
+                        echo "<option value=\"$groupName\">$groupName</option>";
                     }
                     echo '</select>';
                     echo '</td>';
@@ -262,12 +262,12 @@ function checkArguments($argumentType, $argumentName) {
     if ($argumentName === 'repoGpgCheck') {
         if (empty($_GET['repoGpgCheck'])) {
             echo '<tr>';
-            echo "<td>GPG check</td>";
-            echo "<td colspan=\"2\">";
-            echo "<input type=\"radio\" id=\"repoGpgCheck_yes\" name=\"repoGpgCheck\" value=\"yes\" checked=\"yes\">";
-            echo "<label for=\"repoGpgCheck_yes\">Yes</label>";
-            echo "<input type=\"radio\" id=\"repoGpgCheck_no\" name=\"repoGpgCheck\" value=\"no\">";
-            echo "<label for=\"repoGpgCheck_no\">No</label>";
+            echo '<td>GPG check</td>';
+            echo '<td colspan="2">';
+            echo '<input type="radio" id="repoGpgCheck_yes" name="repoGpgCheck" value="yes" checked="yes">';
+            echo '<label for="repoGpgCheck_yes">Yes</label>';
+            echo '<input type="radio" id="repoGpgCheck_no" name="repoGpgCheck" value="no">';
+            echo '<label for="repoGpgCheck_no">No</label>';
             echo '</td>';
             echo '</tr>';
         }

@@ -6,11 +6,17 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-  // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'functions/load_common_variables.php';
-  require 'functions/load_display_variables.php';
-  require 'functions/common-functions.php';
-  require 'common.php';
+  /**
+   *  Import des variables et fonctions nécessaires
+   */
+  require_once('functions/load_common_variables.php');
+  require_once('functions/load_display_variables.php');
+  require_once('functions/common-functions.php');
+  require_once('common.php');
+  require_once('class/Repo.php');
+  require_once('class/Planification.php');
+  $repo = new Repo();
+  $plan = new Planification();
   cleanConfFiles();
   if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
@@ -37,7 +43,7 @@
     }
 
     // On écrit les modifications dans le fichier display.ini
-    write_ini_file("$DISPLAY_CONF", $displayConfiguration);
+    write_ini_file($DISPLAY_CONF, $displayConfiguration);
 
     // rechargement de la page pour appliquer les modifications d'affichage
     header('Location: index.php');
@@ -56,20 +62,20 @@
         <?php include('create-repo.inc.php'); ?> 
     </section>
 
+    <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
+    <!-- GERER LES GROUPES -->
+    <section class="right" id="groupsDiv">
+        <?php include('common-groupslist.inc.php'); ?>
+    </section>
+
     <!--<section class="right" id="serverInfoSlideDiv">-->
     <section id="serverInfoSlideDiv">
     <?php
     if ($display_serverInfo_reposInfo == "yes") {
-        // Calcul du total des repos, en supprimant les doublons
-        if ($OS_FAMILY == "Redhat") {
-            $totalRepos = exec("grep '^Name=' $REPOS_LIST | awk -F ',' '{print $1}' | uniq | wc -l");
-            $totalReposArchived = exec("grep '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1}' | uniq | wc -l");
-        }
-        if ($OS_FAMILY == "Debian") {
-            $totalRepos = exec("grep '^Name=' $REPOS_LIST | awk -F ',' '{print $1,$2,$3,$4}' | uniq | wc -l");
-            $totalReposArchived = exec("grep '^Name=' $REPOS_ARCHIVE_LIST | awk -F ',' '{print $1,$2,$3,$4}' | uniq | wc -l");
-        }
-    
+        // Récupération du total des repos actifs et repos archivés
+        $totalRepos = $repo->countActive();
+        $totalReposArchived = $repo->countArchived();
+
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         // nombre de repos/sections sur le serveur
@@ -95,7 +101,7 @@
         $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
         $diskTotalSpace = $diskTotalSpace / 1073741824;
         $diskUsedSpace = $diskUsedSpace / 1073741824;
-        // Formattage des données pour avoir un résultat sans virgule et un résultat en poucentage
+        // Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
         $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
         $diskFreeSpacePercent = $diskFreeSpace . '%';
         $diskUsedSpace = round(100 - ($diskFreeSpace));
@@ -113,7 +119,7 @@
                         label: 'Espace disque utilisé',
                         data: [$diskUsedSpace, $diskFreeSpace],
                         backgroundColor: [";
-                            // affichage de différente couleur suivant l'espace utilisé
+                            // affichage de différentes couleurs suivant l'espace utilisé
                             if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
                                 // vert
                                 echo "'rgb(92, 184, 92, 0.80)',";
@@ -181,7 +187,7 @@
         $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
         $diskTotalSpace = $diskTotalSpace / 1073741824;
         $diskUsedSpace = $diskUsedSpace / 1073741824;
-        // Formattage des données pour avoir un résultat sans virgule et un résultat en poucentage
+        // Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
         $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
         $diskFreeSpacePercent = $diskFreeSpace . '%';
         $diskUsedSpace = round(100 - ($diskFreeSpace));
@@ -199,7 +205,7 @@
                         label: 'Espace disque utilisé',
                         data: [$diskUsedSpace, $diskFreeSpace],
                         backgroundColor: [";
-                            // affichage de différente couleur suivant l'espace utilisé
+                            // affichage de différentes couleurs suivant l'espace utilisé
                             if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
                                 // vert
                                 echo "'rgb(92, 184, 92, 0.80)',";
@@ -262,23 +268,21 @@
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         echo '<p>Dernière planification</p>';
-        $planFiles = shell_exec("ls -A1 $PLAN_LOGS_DIR/ | egrep '^plan-'");
-        if (empty($planFiles)) {
+        $lastPlan = $plan->last();
+        if (empty($lastPlan)) {
             echo '<b>N/A</b>';
         } else {
-            $planFile = shell_exec("ls -A1 $PLAN_LOGS_DIR/ | egrep '^plan-' | tail -n1");
-            $lastPlanDate = str_replace(['Date=', '"'], '', exec("egrep '^Date=' $PLAN_LOGS_DIR/$planFile"));
-            $lastPlanTime = str_replace(['Time=', '"'], '', exec("egrep '^Time=' $PLAN_LOGS_DIR/$planFile"));
+            $lastPlanDate = $lastPlan['Plan_date'];
+            $lastPlanTime = $lastPlan['Plan_time'];
             echo "<a href=\"planifications.php\"><b>${lastPlanDate} (${lastPlanTime})</b></a>";
         }
         echo '<p>Prochaine planification</p>';
-        $planFiles = shell_exec("ls -A1 $PLANS_DIR/ | egrep '^plan-'");
-        if (empty($planFiles)) {
+        $nextPlan = $plan->next();
+        if (empty($nextPlan)) {
             echo '<b>N/A</b>';
         } else {
-            $planFile = shell_exec("ls -A1 $PLANS_DIR/ | egrep '^plan-' | head -n1");
-            $nextPlanDate = str_replace(['Date=', '"'], '', exec("egrep '^Date=' $PLANS_DIR/$planFile"));
-            $nextPlanTime = str_replace(['Time=', '"'], '', exec("egrep '^Time=' $PLANS_DIR/$planFile"));
+            $nextPlanDate = $nextPlan['Plan_date'];
+            $nextPlanTime = $nextPlan['Plan_time'];
             echo "<a href=\"planifications.php\"><b>${nextPlanDate} (${nextPlanTime})</b></a>";
         }
         echo '</div>';

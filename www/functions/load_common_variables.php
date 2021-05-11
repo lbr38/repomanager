@@ -19,10 +19,6 @@ foreach($repomanager_conf_array as $key => $value) {
     }
 }
 
-// Emplacements des répertoires de base
-//$ETC_DIR = "/etc/repomanager";
-//$BASE_DIR = exec("grep '^BASE_DIR=' ${ETC_DIR}/vars/customs.vars | cut -d'=' -f2 | sed 's/\"//g'");
-//$REPOS_DIR = exec("grep '^REPOS_DIR=' ${ETC_DIR}/vars/customs.vars | cut -d'=' -f2 | sed 's/\"//g'");
 $BASE_DIR = $WWW_DIR;
 $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 
@@ -30,21 +26,20 @@ $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 $REPOMANAGER_CONF = "${WWW_DIR}/configurations/repomanager.conf";
 $DISPLAY_CONF = "${WWW_DIR}/configurations/display.ini";
 $ENV_CONF = "${WWW_DIR}/configurations/envs.conf";
-$GROUPS_CONF = "${WWW_DIR}/configurations/groups.conf";
 $HOSTS_CONF = "${WWW_DIR}/configurations/hosts.conf";
 
-// Emplacement des fichiers de listes
-$REPOS_LIST = "${WWW_DIR}/configurations/repos.list";
-$REPOS_ARCHIVE_LIST = "${WWW_DIR}/configurations/repos-archive.list";
+// Emplacement de la DB :
+$DB_DIR = "${WWW_DIR}/db";
+$DB = "${WWW_DIR}/db/repomanager.db";
+
+// Emplacement des groupes
+$GROUPS_DIR = "${WWW_DIR}/configurations/groups";
 
 // Emplacement du répertoire de cache
 $WWW_CACHE = "${WWW_DIR}/cache";
 
 // Emplacement du répertoire de clé GPG
 $GPGHOME = "${WWW_DIR}/.gnupg";
-
-// Répertoire pool de planifications
-$PLANS_DIR = "${WWW_DIR}/planifications/pool";
 
 // Répertoire des résultats de tâches cron
 $CRON_DIR = "${WWW_DIR}/cron";
@@ -54,10 +49,6 @@ $LOGS_DIR = "${WWW_DIR}/logs";
 
     // Logs du programme
     $MAIN_LOGS_DIR = "${LOGS_DIR}/main";
-
-    // Logs des planifications
-    $PLAN_LOGS_DIR = "${LOGS_DIR}/plans";
-    $PLAN_LOG = "${PLAN_LOGS_DIR}/plans.log";
 
     // Logs des cron
     $CRON_LOGS_DIR = "${LOGS_DIR}/cron";
@@ -70,16 +61,12 @@ $PID_DIR = "${WWW_DIR}/operations/pid";
 $TEMP_DIR = "${WWW_DIR}/.temp";
 
 // Création des fichiers et répertoires précédemment définis, si n'existent pas
-if (!file_exists($REPOS_LIST)) { touch($REPOS_LIST); }
-if (!file_exists($REPOS_ARCHIVE_LIST)) { touch($REPOS_ARCHIVE_LIST); }
 if (!file_exists($HOSTS_CONF)) { touch($HOSTS_CONF); }
-if (!file_exists($GROUPS_CONF)) { touch($GROUPS_CONF); }
 if (!file_exists($ENV_CONF)) { touch($ENV_CONF); }
+if (!is_dir($DB_DIR)) { mkdir($DB_DIR, 0770, true); }
 if (!is_dir($GPGHOME)) { mkdir($GPGHOME, 0770, true); }
-if (!is_dir($PLANS_DIR)) { mkdir($PLANS_DIR, 0770, true); }
 if (!is_dir($LOGS_DIR)) { mkdir($LOGS_DIR, 0770, true); }
 if (!is_dir($MAIN_LOGS_DIR)) { mkdir($MAIN_LOGS_DIR, 0770, true); }
-if (!is_dir($PLAN_LOGS_DIR)) { mkdir($PLAN_LOGS_DIR, 0770, true); }
 if (!is_dir($CRON_LOGS_DIR)) { mkdir($CRON_LOGS_DIR, 0770, true); }
 if (!is_dir($CRON_DIR)) { mkdir($CRON_DIR, 0770, true); }
 if (!is_dir($PID_DIR)) { mkdir($PID_DIR, 0770, true); }
@@ -112,11 +99,20 @@ array_walk($listVal, function(&$v, $k){
 $OS_INFO = array_combine($listIds, $listVal);
 
 // Puis à partir de l'array $OS_INFO on détermine la famille d'os, son nom et sa version
-if(preg_match('(rhel|centos|fedora)', $OS_INFO['id_like']) === 1) { 
-    $OS_FAMILY="Redhat";
-}
-if(preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', $OS_INFO['id_like']) === 1) { 
-    $OS_FAMILY="Debian";
+if (!empty($OS_INFO['id_like'])) {
+    if(preg_match('(rhel|centos|fedora)', $OS_INFO['id_like']) === 1) { 
+        $OS_FAMILY="Redhat";
+    }
+    if(preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', $OS_INFO['id_like']) === 1) { 
+        $OS_FAMILY="Debian";
+    }
+} else if (!empty($OS_INFO['id'])) {
+    if(preg_match('(rhel|centos|fedora)', $OS_INFO['id']) === 1) { 
+        $OS_FAMILY="Redhat";
+    }
+    if(preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', $OS_INFO['id']) === 1) { 
+        $OS_FAMILY="Debian";
+    }
 }
 $OS_NAME = $OS_INFO['name'];
 $OS_VERSION = $OS_INFO['version_id'];
@@ -128,6 +124,7 @@ if ($OS_FAMILY === "Redhat") {
     // emplacement des clés gpg importées par repomanager
     $RPM_GPG_DIR = "/etc/pki/rpm-gpg/repomanager";
     $RELEASEVER = $repomanager_conf_array['RELEASEVER'];
+    $PASSPHRASE_FILE = "${GPGHOME}/passphrase";
 }
 
 // Profils
@@ -141,7 +138,6 @@ $REPO_CONF_FILES_PREFIX = $repomanager_conf_array['REPO_CONF_FILES_PREFIX'];
 // Config générale pour repomanager
 if ($OS_FAMILY == "Redhat") { $PACKAGE_TYPE = 'rpm'; }
 if ($OS_FAMILY == "Debian") { $PACKAGE_TYPE = 'deb'; }
-//$PACKAGE_TYPE = $repomanager_conf_array['PACKAGE_TYPE'];
 $AUTOMATISATION_ENABLED = $repomanager_conf_array['AUTOMATISATION_ENABLED'];
 if ($AUTOMATISATION_ENABLED == "yes") {
   $ALLOW_AUTOUPDATE_REPOS = $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'];
@@ -151,6 +147,9 @@ if ($AUTOMATISATION_ENABLED == "yes") {
 }
 $ENVS = explode("\n", shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]'"));
 $ENVS = array_filter($ENVS); // on supprime les lignes vides du tableau si il y en a
+if(empty($ENVS)) {
+    ++$EMPTY_CONFIGURATION_VARIABLES;
+}
 $ENVS_TOTAL = shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | wc -l");
 $DEFAULT_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1");
 $LAST_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | tail -n1");
@@ -176,8 +175,8 @@ $CRON_APPLY_PERMS = $repomanager_conf_array['CRON_APPLY_PERMS'];
 $CRON_PLAN_REMINDERS_ENABLED = $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'];
 
 // Version actuelle et version disponible sur github
-$VERSION = exec("grep '^VERSION=' ${WWW_DIR}/version | cut -d'=' -f2 | sed 's/\"//g'");
-$GIT_VERSION= exec("grep 'GITHUB_VERSION=' ${WWW_DIR}/cron/github.version | awk -F= '{print $2}' | sed 's/\"//g'");
+$VERSION = file_get_contents("${WWW_DIR}/version");
+$GIT_VERSION = file_get_contents("${WWW_DIR}/cron/github.version");
 
 // Autres :
 if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) {

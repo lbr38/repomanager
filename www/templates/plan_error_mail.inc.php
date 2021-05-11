@@ -367,7 +367,7 @@ $template = "<!doctype html>
                                 <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">
                                   <tbody>
                                     <tr>
-                                      <td> <a href=\"https://${WWW_HOSTNAME}/run.php?logfile=${LOGNAME}\" target=\"_blank\">Voir les détails</a> </td>
+                                      <td> <a href=\"https://${WWW_HOSTNAME}/run.php?logfile={$this->log->name}\" target=\"_blank\">Voir les détails</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>

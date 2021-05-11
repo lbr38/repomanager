@@ -32,6 +32,8 @@ function manageProfileRepos($profileName, $profileRepos) {
   global $REPOS_LIST;
   global $OS_FAMILY;
 
+  $repo = new Repo();
+
   //$profileRepos => validateData fait plus bas
 
   // D'abord on supprime tous les repos présents, avant de rajouter seulement ceux qui ont été sélectionnés dans la liste
@@ -64,8 +66,7 @@ function manageProfileRepos($profileName, $profileRepos) {
 
     if ($OS_FAMILY == "Redhat") {
       // On vérifie que le repo existe :
-      $checkIfRepoExists = exec("grep '^Name=\"${addProfileRepo}\"' $REPOS_LIST");
-      if (empty($checkIfRepoExists)) {
+      if ($repo->exists($addProfileRepo) === false) {
         printAlert("Le repo $addProfileRepo n'existe pas");
         continue;
       }
@@ -74,8 +75,7 @@ function manageProfileRepos($profileName, $profileRepos) {
 
     if ($OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
       // On vérifie que la section repo existe :
-      $checkIfRepoExists = exec("grep '^Name=\"${addProfileRepo}\",Host=\".*\",Dist=\"${addProfileRepoDist}\",Section=\"${addProfileRepoSection}\"' $REPOS_LIST");
-      if (empty($checkIfRepoExists)) {
+      if ($repo->section_exists($addProfileRepo, $addProfileRepoDist, $addProfileRepoSection) === false) {
         printAlert("La section $addProfileRepoSection du repo $addProfileRepo n'existe pas");
         continue;
       }

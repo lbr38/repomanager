@@ -3,12 +3,16 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-  // Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
-  require 'functions/load_common_variables.php';
-  require 'functions/load_display_variables.php';
-  require 'functions/common-functions.php';
-  require 'functions/profiles_functions.php';
-  require 'common.php';
+  /**
+   *  Import des variables et fonctions nécessaires
+   */
+  require_once('functions/load_common_variables.php');
+  require_once('functions/load_display_variables.php');
+  require_once('functions/common-functions.php');
+  require_once('functions/profiles_functions.php');
+  require_once('common.php');
+  require_once('class/Repo.php');
+  $repo = new Repo();
   if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
   // Créer le répertoire principal des profils si n'existe pas
@@ -185,74 +189,57 @@
             echo '</table>';
             echo '</form>';
 
-            // Configuration de ce profil avec un div caché //
+            // Configuration de ce profil dans un div caché, affichable en cliquant sur la roue crantée //
             echo "<div id=\"profileConfigurationDiv${i}\" class=\"hide profileDivConf\">";
             echo '<form action="profiles.php" method="post" autocomplete="off">';
             // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
             echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
             echo '<input type="hidden" name="action" value="manageProfileConfiguration" />';
-            if ($OS_FAMILY == "Redhat") {
-              echo '<p>Repos :</p>';
-            }
-            if ($OS_FAMILY == "Debian") {
-              echo '<p>Sections de repos :</p>';
-            }
-            echo '<table class="table-large">';
-            echo '<tr>';
-            echo '<td colspan="100%">';
-            echo '<select class="reposSelectList" name="profileRepos[]" multiple>';
-            // On récupère la liste des repos actifs
-            // Puis pour chaque repos, on regarde si celui-ci est déjà présent dans le profil, si c'est le cas il sera affiché sélectionné dans la liste déroulante, si ce n'est pas le cas il sera disponible dans la liste déroulante
-            $rows = explode("\n", file_get_contents($REPOS_LIST));
-            $lastRepoName = '';
-            $lastRepoDist = '';
-            $lastRepoSection = '';
-            foreach($rows as $row) {
-              if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-                $rowData = explode(',', $row);
+            if ($serverConf_manageClients_reposConf == "yes") {
                 if ($OS_FAMILY == "Redhat") {
-                  $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-                  $repoEnv = strtr($rowData['2'], ['Env=' => '', '"' => '']);
-                  $repoDate = strtr($rowData['3'], ['Date=' => '', '"' => '']);
-                  $repoDescription = strtr($rowData['4'], ['Description=' => '', '"' => '']);
+                  echo '<p>Repos :</p>';
                 }
                 if ($OS_FAMILY == "Debian") {
-                  $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-                  $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
-                  $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
+                  echo '<p>Sections de repos :</p>';
                 }
-                // Pour ne pas afficher de valeurs en double dans la liste
-                if ($OS_FAMILY == "Redhat" AND $repoName !== $lastRepoName) {
-                  // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                  if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}.repo")) {
-                    echo "<option value=\"${repoName}\" selected>${repoName}</option>";
-                  } else {
-                    echo "<option value=\"${repoName}\">${repoName}</option>";
+                echo '<table class="table-large">';
+                echo '<tr>';
+                echo '<td colspan="100%">';
+                echo '<select class="reposSelectList" name="profileRepos[]" multiple>';
+                // On récupère la liste des repos actifs
+                // Puis pour chaque repos, on regarde si celui-ci est déjà présent dans le profil, si c'est le cas il sera affiché sélectionné dans la liste déroulante, si ce n'est pas le cas il sera disponible dans la liste déroulante
+                $reposList = $repo->listAll_distinct();
+                foreach($reposList as $myrepo) {
+                  $repoName = $myrepo['Name'];
+                  if ($OS_FAMILY == "Debian") {
+                    $repoDist = $myrepo['Dist'];
+                    $repoSection = $myrepo['Section'];
+                  }
+                  if ($OS_FAMILY == "Redhat") {
+                    // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
+                    if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}.repo")) {
+                      echo "<option value=\"${repoName}\" selected>${repoName}</option>";
+                    } else {
+                      echo "<option value=\"${repoName}\">${repoName}</option>";
+                    }
+                  }
+                  if ($OS_FAMILY == "Debian") {
+                    // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
+                    if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
+                      echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
+                    } else {
+                      echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
+                    }
                   }
                 }
-                // Pour ne pas afficher de valeurs en double dans la liste
-                if ($OS_FAMILY == "Debian" AND ($repoName !== $lastRepoName OR $repoDist !== $lastRepoDist OR $repoSection !== $lastRepoSection)) {
-                  // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                  if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
-                    echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
-                  } else {
-                    echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
-                  }
-                }
-                $lastRepoName = $repoName;
-                if ($OS_FAMILY == "Debian") {
-                  $lastRepoDist = $repoDist;
-                  $lastRepoSection = $repoSection;
-                }
-              }
+                echo '</select>';
+                echo '</td>';
+                echo '</tr>';
+                echo '</table>';
+                echo '<br>';
+                echo '<hr>';
+                echo '<br>'; 
             }
-            echo '</select>';
-            echo '</td>';
-            echo '</tr>';
-            echo '</table>';
-            echo '<br>';
-            echo '<hr>';
-            echo '<br>';  
 
             // Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
             if ($serverConf_manageClientsConf == "yes") {
@@ -354,12 +341,13 @@
               echo "<label for=\"profileConf_allowReposFilesOverwrite_${profileName}_no\">No</label>";
               echo '</td>';
               echo '</tr>';
-              echo '<tr>';        
-              echo '<td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>';
-              echo '</tr>';
               echo '</table>';
-              echo '</form>';
             }
+            // On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no :
+            if ($serverConf_manageClients_reposConf == "yes" OR $serverConf_manageClientsConf == "yes") {
+              echo '<button type="submit" class="button-submit-large-green">Enregistrer</button>';
+            }
+            echo '</form>';
             echo '</div>'; // Fermture de profileConfigurationDiv
             // Afficher ou masquer la div 'profileConfigurationDiv' :
             echo "<script>";
@@ -403,10 +391,10 @@
           </tr>
           <?php
           if (!empty($RELEASEVER) AND $RELEASEVER !== $OS_VERSION) {
-          echo '<tr>';
-          echo '<td>Version de paquets gérée</td>';
-          echo "<td><input type=\"text\" class=\"td-medium\" value=\"$RELEASEVER\" readonly /></td>";
-          echo '</tr>';
+            echo '<tr>';
+            echo '<td>Version de paquets gérée</td>';
+            echo "<td><input type=\"text\" class=\"td-medium\" value=\"$RELEASEVER\" readonly /></td>";
+            echo '</tr>';
           }
           ?>
           <tr>

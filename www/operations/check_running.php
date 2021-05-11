@@ -8,7 +8,8 @@ if (!empty($argv[3])) { $steps = $argv[3]; } // Nombre d'étapes totales
 function writeStepLog($LOGFILE, $OPERATION_TEMP_DIR, $steps) {
     $j = 0;
     // Suppression du fichier de log avant de le reconstruire
-    unlink("$LOGFILE");
+    unlink($LOGFILE);
+    touch($LOGFILE);
 
     // On ajoute chaque log d'étape au fichier de log principal
     // Exemple : ./temp/PID/1/1.log

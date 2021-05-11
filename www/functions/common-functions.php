@@ -112,41 +112,6 @@ function planificationRunning() {
   return false;
 }
 
-// parsage du tableau contenant tous les détails d'une planification récupérés dans un array $plan
-function planLogExplode($planId) {
-  global $PLAN_LOGS_DIR;
-  global $OS_FAMILY;
-
-  $plan = file_get_contents("${PLAN_LOGS_DIR}/plan-${planId}.log");
-  $array = parse_ini_string($plan);
-  
-  $planStatus = $array['Status'];
-  if ($planStatus === "OK") {
-    $planError = 'null'; // si on n'a pas eu d'erreur on set la variable à null
-  } else {
-    $planError = $array['Error'];
-  }
-  if (!empty($array['Date'])) { $planDate = $array['Date']; } else { $planDate = ''; }
-  if (!empty($array['Time'])) { $planTime = $array['Time']; } else { $planTime = ''; }
-  if (!empty($array['Action'])) { $planAction = $array['Action']; } else { $planAction = ''; }
-  if (!empty($array['Group'])) { $planGroup = $array['Group']; } else { $planGroup = ''; }
-  if (!empty($array['Repo'])) { $planRepo = $array['Repo']; } else { $planRepo = ''; }
-  if (!empty($array['Dist'])) { $planDist = $array['Dist']; } else { $planDist = ''; }
-  if (!empty($array['Section'])) { $planSection = $array['Section']; } else { $planSection = ''; }
-  if (!empty($array['GpgCheck'])) { $planGpgCheck = $array['GpgCheck']; } else { $planGpgCheck = ''; }
-  if (!empty($array['GpgResign'])) { $planGpgResign = $array['GpgResign']; } else { $planGpgResign = ''; }
-  if (!empty($array['Reminder'])) { $planReminder = $array['Reminder']; } else { $planReminder = ''; }
-  if (!empty($array['Logfile'])) { $planLogFile = $array['Logfile']; } else { $planLogFile = ''; }
-
-  // On renvoie un return contenant toutes les valeurs ci-dessus, même celle nulles, ceci afin de s'adapter à toutes les situations et OS
-  if ($OS_FAMILY == "Redhat") {
-    return array($planStatus, $planError, $planDate, $planTime, $planAction, $planGroup, $planRepo, $planGpgCheck, $planGpgResign, $planReminder, $planLogFile);
-  }
-  if ($OS_FAMILY == "Debian") {
-    return array($planStatus, $planError, $planDate, $planTime, $planAction, $planGroup, $planRepo, $planDist, $planSection, $planGpgCheck, $planReminder, $planLogFile);
-  }
-}
-
 function selectlogs() {
   global $MAIN_LOGS_DIR;
 
@@ -166,9 +131,9 @@ function selectlogs() {
     // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
 		if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^repomanager_/',$logfile)) {
       // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
-      $logfileDate = exec("echo $logfile | awk -F '_' '{print $2}'");
+      $logfileDate = exec("echo $logfile | awk -F '_' '{print $3}'");
       $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
-      $logfileTime = exec("echo $logfile | awk -F '_' '{print $3}' | sed 's/.log//g'");
+      $logfileTime = exec("echo $logfile | awk -F '_' '{print $4}' | sed 's/.log//g'");
       $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
       if ($logfile === $currentLogfile) {
         echo "<option value=\"${logfile}\" selected>Repomanager : traitement du $logfileDate à $logfileTime</option>";
@@ -203,9 +168,9 @@ function selectPlanlogs() {
     // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
 		if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^plan_/',$logfile)) {
       // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
-      $logfileDate = exec("echo $logfile | awk -F '_' '{print $2}'");
+      $logfileDate = exec("echo $logfile | awk -F '_' '{print $3}'");
       $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
-      $logfileTime = exec("echo $logfile | awk -F '_' '{print $3}' | sed 's/.log//g'");
+      $logfileTime = exec("echo $logfile | awk -F '_' '{print $4}' | sed 's/.log//g'");
       $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
       if ($logfile === $currentLogfile) {
         echo "<option value=\"${logfile}\" selected>Planification : traitement du $logfileDate à $logfileTime</option>";
@@ -291,171 +256,6 @@ function reposSelectList() {
   }
 }
 
-// Liste déroulante des repos/sections. 
-// Ici seuls ceux de l'environnement $DEFAULT_ENV sont affichés
-// Avant d'appeler cette fonction il faut prévoir un select car celle-ci n'affiche que les options
-function reposSelectList_defaultEnv() {
-  global $OS_FAMILY;
-  global $REPOS_LIST;
-  global $DEFAULT_ENV;
-
-  echo '<option value="">Sélectionnez un repo...</option>';
-  $rows = explode("\n", shell_exec("grep 'Env=\"${DEFAULT_ENV}\"' $REPOS_LIST"));
-  $lastRepoName = '';
-  $lastRepoDist = '';
-  $lastRepoSection = '';
-  foreach($rows as $row) {
-    if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-      $rowData = explode(',', $row);
-      if ($OS_FAMILY == "Redhat") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-        $repoEnv = strtr($rowData['2'], ['Env=' => '', '"' => '']);
-        $repoDate = strtr($rowData['3'], ['Date=' => '', '"' => '']);
-        $repoDescription = strtr($rowData['4'], ['Description=' => '', '"' => '']);
-      }
-      if ($OS_FAMILY == "Debian") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-        $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
-        $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
-        $repoEnv = strtr($rowData['4'], ['Env=' => '', '"' => '']);
-        $repoDate = strtr($rowData['5'], ['Date=' => '', '"' => '']);
-        $repoDescription = strtr($rowData['6'], ['Description=' => '', '"' => '']);
-      }
-      
-      // Pour ne pas afficher de valeurs en double dans la liste
-      if ($OS_FAMILY == "Redhat" AND $repoName !== $lastRepoName) {
-        echo "<option value=\"${repoName}\">${repoName}</option>";
-      }
-      // Pour ne pas afficher de valeurs en double dans la liste
-      if ($OS_FAMILY == "Debian" AND ($repoName !== $lastRepoName OR $repoDist !== $lastRepoDist OR $repoSection !== $lastRepoSection)) {
-        echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
-      }
-      $lastRepoName = $repoName;
-      if ($OS_FAMILY == "Debian") {
-        $lastRepoDist = $repoDist;
-        $lastRepoSection = $repoSection;
-      }
-    }
-  }
-  unset($rows, $rowData, $lastRepoName, $lastRepoDist, $lastRepoSection, $repoName, $repoEnv, $repoDate, $repoDescription);
-  if ($OS_FAMILY == "Debian") {
-    unset($repoDist, $repoSection);
-  }
-}
-
-// Liste déroulante des groupes
-// Avant d'appeler cette fonction il faut prévoir un select car celle-ci n'affiche que les options
-function groupsSelectList() {
-  global $GROUPS_CONF;
-
-  echo '<option value="">Sélectionnez un groupe...</option>';
-  $repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
-  if (!empty($repoGroups)) {
-    $repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
-    foreach($repoGroups as $groupName) {
-      $groupName = str_replace(["[", "]"], "", $groupName); // On retire les [ ] autour du nom du groupe
-      echo "<option value=\"${groupName}\">${groupName}</option>";
-    }
-  }
-  unset($repoGroups, $groupName);
-}
-
-// Créer un nouveau groupe
-function newGroup($addGroupName) {
-  global $GROUPS_CONF;
-
-  // On vérifie que le groupe n'existe pas déjà :
-  $checkIfGroupExists = exec("grep '\[@${addGroupName}\]' $GROUPS_CONF");
-  if (!empty($checkIfGroupExists)) {
-    printAlert("Le groupe <b>$addGroupName</b> existe déjà");
-  } else {
-    // on formate pour que le contenu soit ajouté en laissant un saut de ligne vide et entre crochets et avec un @ devant le nom du groupe
-    // on laisse aussi deux sauts de lignes après car le dernier groupe du fichier doit être suivi de deux lignes vides, sinon l'ajout de repo dans ce dernier groupe ne fonctionne pas
-    // à noter que la suppression des lignes en doubles plus bas n'affecte pas le dernier groupe du fichier (les deux lignes restent toujours bien en place, tant mieux)
-    $addGroupNameFormated = "\n\n[@${addGroupName}]\n\n"; 
-    // Ecrit le contenu dans le fichier, en utilisant le drapeau
-    // FILE_APPEND pour rajouter à la suite du fichier et
-    // LOCK_EX pour empêcher quiconque d'autre d'écrire dans le fichier en même temps
-    file_put_contents($GROUPS_CONF, $addGroupNameFormated, FILE_APPEND | LOCK_EX);
-    // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-    exec('sed -i "/^$/N;/^\n$/D" '.$GROUPS_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
-    // Affichage d'un message et rechargement de la div
-    printAlert("Le groupe <b>$addGroupName</b> a été créé");
-  }
-  unset($addGroupName, $checkIfGroupExists);
-}
-
-// Ajouter un repo à un groupe
-function addRepoToGroup($repoName, $groupName) {
-  global $REPOS_LIST;
-  global $GROUPS_CONF;
-  global $OS_FAMILY;
-  $error = 0;
-
-  if ($OS_FAMILY == "Redhat") {
-    // on vérifie d'abord que le repo à ajouter existe bien
-    $checkIfRepoExists = exec("grep '^Name=\"${repoName}\"' $REPOS_LIST");
-    if (empty($checkIfRepoExists)) {
-      printAlert("Le repo <b>$repoName</b> n'existe pas");
-      $error++;
-    }
-    // On vérifie que le repo n'est pas déjà présent dans le groupe
-    $checkIfRepoIsAlreadyInGroup = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $GROUPS_CONF | sed '/^$/d' | grep '^Name=\"${repoName}\"'");
-    if (!empty($checkIfRepoIsAlreadyInGroup)) {
-      printAlert("Le repo <b>$repoName</b> est déjà présent dans le groupe <b>$groupName</b>");
-      $error++;
-    }
-    // On traite uniquement si il n'y a pas eu d'erreurs
-    if ($error === 0) {
-      // on formatte la chaine à insérer à partir des infos récupérées en POST
-      $groupNewContent = "Name=\"${repoName}\"";
-      // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
-      // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
-      $lineToInsert = exec("sed -n '/\[${groupName}\]/,/^$/=' $GROUPS_CONF | tail -n1");
-      // enfin, on insert la nouvelle ligne au numéro de ligne récupéré :
-      exec("sed -i '${lineToInsert}i\\${groupNewContent}' $GROUPS_CONF");
-
-      // Affichage d'un message et rechargement de la div
-      printAlert("Le repo <b>$repoName</b> a été ajouté au groupe <b>$groupName</b>");
-    }
-  }
-
-  if ($OS_FAMILY == "Debian") {
-    // Pour Debian, la variable $repoName contient le nom du repo, la dist et la section séparés par un | 
-    // Du coup on explose $addPlanRepo pour en extraire les 3 valeurs
-    $repoNameExplode = explode('|', $repoName);
-    $repoName = $repoNameExplode[0];
-    $repoDist = $repoNameExplode[1];
-    $repoSection = $repoNameExplode[2];
-  
-    // on vérifie d'abord que la section à ajouter existe bien
-    $checkIfSectionExists = exec("grep '^Name=\"${repoName}\",Host=\".*\",Dist=\"${repoDist}\",Section=\"${repoSection}\"' $REPOS_LIST");
-    if (empty($checkIfSectionExists)) {
-      printAlert("La section <b>$repoSection</b> du repo <b>$repoName</b> n'existe pas");
-      $error++;
-    }
-    // On vérifie que la section de repo n'est pas déjà présente dans le groupe
-    $checkIfRepoIsAlreadyInGroup = shell_exec("sed -n '/\[${groupName}\]/,/\[/p' $GROUPS_CONF | sed '/^$/d' | grep '^Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"'");
-    if (!empty($checkIfRepoIsAlreadyInGroup)) {
-      printAlert("La section <b>$repoSection</b> du repo <b>$repoName</b> est déjà présente dans le groupe <b>$groupName</b>");
-      $error++;
-    }
-    // On traite uniquement si il n'y a pas eu d'erreurs
-    if ($error === 0) {
-      // on formatte la chaine à insérer à partir des infos récupérées en POST
-      $groupNewContent = "Name=\"${repoName}\",Dist=\"${repoDist}\",Section=\"${repoSection}\"";
-      // ensuite on commence par récupérer le n° de ligne où sera insérée la nouvelle chaine. Ici la commande sed affiche les numéros de lignes du groupe et tous ses repos actuels jusqu'à rencontrer une 
-      // ligne vide (celle qui nous intéresse car on va insérer le nouveau repo à cet endroit), on ne garde donc que le dernier n° de ligne qui s'affiche (tail -n1) :  
-      $lineToInsert = exec("sed -n '/\[${groupName}\]/,/^$/=' $GROUPS_CONF | tail -n1");
-      // enfin, on insert la nouvelle ligne au numéro de ligne récupéré :
-      exec("sed -i '${lineToInsert}i\\${groupNewContent}' $GROUPS_CONF");
-      // Affichage d'un message et rechargement de la div
-      printAlert("La section <b>$repoSection</b> du repo <b>$repoName</b> a été ajoutée au groupe <b>$groupName</b>");
-    }
-  }
-  unset($checkIfSectionExists, $checkIfRepoIsAlreadyInGroup, $groupNewContent, $lineToInsert, $repoName, $groupName);
-}
-
 // Suppression d'un repo d'un groupe en particulier
 function deleteRepoFromGroup($repoName, $groupName) {
   global $GROUPS_CONF;
@@ -525,126 +325,6 @@ function deleteSectionFromAllGroup($repoName) {
   unset($repoName, $content);
 }
 
-function renameGroup($actualGroupName, $newGroupName) {
-  global $GROUPS_CONF;
-
-  // on traite à condition que $actualGroupName != $newGroupName
-  if ("$newGroupName" !== "$actualGroupName") { 
-    // On vérifie que le nouveau nom de groupe n'existe pas déjà :
-    $checkIfGroupExists = exec("grep '\[${newGroupName}\]' $GROUPS_CONF");
-    if (!empty($checkIfGroupExists)) {
-      printAlert("Le groupe <b>$newGroupName</b> existe déjà");
-    } else {
-      // Remplacement
-      exec("sed -i 's/\[${actualGroupName}\]/\[${newGroupName}\]/g' $GROUPS_CONF");
-      // Affichage d'un message
-      printAlert("Le repo <b>$actualGroupName</b> a été renommé en <b>$newGroupName</b>");
-    }
-  }
-  unset($actualGroupName, $newGroupName);
-}
-
-function deleteGroup($groupName) {
-  global $GROUPS_CONF;
-
-  $checkIfGroupExists = exec("grep '\[${groupName}\]' $GROUPS_CONF");
-  if (empty($checkIfGroupExists)) {
-    printAlert("Le groupe <b>$groupName</b> n'existe pas");
-  } else {
-    // supprime le nom du groupe entre [ ] ainsi que tout ce qui suit (ses repos) jusqu'à rencontrer une ligne vide (espace entre deux noms de groupes) :
-    exec("sed -i '/^\[${groupName}\]/,/^$/{d;}' $GROUPS_CONF");
-    // on formate un coup le fichier afin de supprimer les doubles saut de lignes si il y en a :
-    exec('sed -i "/^$/N;/^\n$/D" '.$GROUPS_CONF.''); // obligé d'utiliser de simples quotes et de concatenation sinon php évalue le \n et la commande sed ne fonctionne pas
-    // Affichage d'un message et rechargement de la div
-    printAlert("Le groupe <b>$groupName</b> a été supprimé");
-    unset($checkIfGroupExists, $groupName);
-  }
-}
-
-// Créer un nouveau fichier de log et un PID pour une opération en cours
-function createLog() {
-  global $MAIN_LOGS_DIR;
-  global $PID_DIR;
-  $date = exec("date +%Y-%m-%d");
-  $heure = exec("date +%H-%M-%S");
-  $LOG = "repomanager_${date}_${heure}.log";
-  $PID = mt_rand(10001, 99999);
-
-  // Génération du fichier PID
-  if (!file_exists("$PID_DIR")) {
-    mkdir("$PID_DIR", 0770);
-  }
-  if (!file_exists("${PID_DIR}/${PID}.pid")) {
-    touch("${PID_DIR}/${PID}.pid");
-    file_put_contents("${PID_DIR}/${PID}.pid", "PID=\"$PID\"\nLOG=\"$LOG\"");
-  }
-
-  // Génération du fichier de log
-  if (file_exists("${MAIN_LOGS_DIR}/lastlog.log")) {
-    unlink("${MAIN_LOGS_DIR}/lastlog.log");
-  }
-  exec("ln -s $LOG ${MAIN_LOGS_DIR}/lastlog.log");
-  file_put_contents("${MAIN_LOGS_DIR}/${LOG}", "<html><br>
-  <span>Opération exécutée le : <b>${date} à ${heure}</b></span><br>
-  <span>PID : <b>${PID}.pid</b></span><br><br>");
-
-  // On retourne le PID et le nom du fichier de logs
-  return array($PID, $LOG);
-}
-
-// Créer un nouveau fichier de log et un PID pour une planification en cours
-function createPlanLog($planId) {
-  global $MAIN_LOGS_DIR;
-  global $PID_DIR;
-  $date = exec("date +%Y-%m-%d");
-  $heure = exec("date +%H-%M-%S");
-  $LOG = "plan_${date}_${heure}_$planId.log";
-  $PID = $planId;
-
-  // Génération du fichier PID
-  if (!file_exists("$PID_DIR")) {
-    mkdir("$PID_DIR", 0770);
-  }
-  if (!file_exists("${PID_DIR}/${PID}.pid")) {
-    touch("${PID_DIR}/${PID}.pid");
-    file_put_contents("${PID_DIR}/${PID}.pid", "PID=\"$PID\"\nLOG=\"$LOG\"");
-  }
-
-  // Génération du fichier de log
-  if (file_exists("${MAIN_LOGS_DIR}/lastlog.log")) {
-    unlink("${MAIN_LOGS_DIR}/lastlog.log");
-  }
-  exec("ln -s $LOG ${MAIN_LOGS_DIR}/lastlog.log");
-  file_put_contents("${MAIN_LOGS_DIR}/${LOG}", "<html><br>
-  <span>Traitement de la planification <b>'Plan-${planId}'</b> le : <b>${date} à ${heure}</b></span><br>
-  <span>PID : <b>${PID}.pid</b></span><br><br>");
-
-  // On retourne le PID et le nom du fichier de logs
-  return array($PID, $LOG);
-}
-
-// Ecriture dans le fichier de logs
-function writeLog($msg) {
-  global $MAIN_LOGS_DIR;
-
-  $LOG = "${MAIN_LOGS_DIR}/lastlog.log";
-  file_put_contents("$LOG", "$msg", FILE_APPEND);
-}
-
-// Suppression du fichier PID
-function deletePid($PID) {
-  global $PID_DIR;
-
-  if (file_exists("${PID_DIR}/${PID}.pid")) { unlink("${PID_DIR}/${PID}.pid"); }
-}
-
-function closeOperation($PID) {
-  writeLog("</table>");           // Cloture du tableau du fichier de log
-  deletePid($PID);                // Suppression du PID
-  cleanConfFiles();               // Nettoyage des fichiers de listes de repos
-  refreshdiv_class("list-repos"); // Rafraichissement de la liste des repos
-  refreshdiv_class("list-repos-archived");
-}
 
 function checkCronReminder() {
   $cronStatus = shell_exec("crontab -l | grep 'planifications/plan.php' | grep -v '#'");
@@ -768,5 +448,7 @@ function enableCron() {
   // Enfin on reimporte le contenu du fichier temporaire
   exec("crontab ${TEMP_DIR}/${WWW_USER}_crontab.tmp");   // on importe le fichier dans la crontab de $WWW_USER
   unlink("${TEMP_DIR}/${WWW_USER}_crontab.tmp");         // puis on supprime le fichier temporaire
+
+  printAlert('Tâches cron redéployées');
 }
 ?>
