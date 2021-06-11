@@ -33,7 +33,7 @@ trait deleteSection {
          *  2. On vérifie que la section renseignée existe bien
          */
         if ($this->section_exists($this->name, $this->dist, $this->section) === false) {
-            echo '<tr><td colspan="100%"><br><span class=\"redtext\">Erreur : </span>cette section n\'existe pas</td></tr>';
+            echo '<p><span class="redtext">Erreur : </span>cette section n\'existe pas</p>';
             return;
         }
 
@@ -47,7 +47,7 @@ trait deleteSection {
          */
         if (file_exists("${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->section}_{$this->env}")) {
             if (!unlink("${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->section}_{$this->env}")) {
-                echo '<tr><td colspan="100%"><br><span class=\"redtext\">Erreur : </span>impossible de supprimer le lien symbolique de la section</td></tr>';
+                echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le lien symbolique de la section</p>';
                 return;
             }
         }
@@ -62,12 +62,12 @@ trait deleteSection {
          */
         $result = $this->db->countRows("SELECT * from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Date = '$this->date'");
         if ($result != 0) {
-            echo "<tr><td colspan=\"100%\"><br>La version du miroir de cette section est toujours utilisée pour d'autres environnements. Le miroir du $this->dateFormatted n'est donc pas supprimé</td></tr>";
+            echo "<p>La version du miroir de cette section est toujours utilisée pour d'autres environnements. Le miroir du $this->dateFormatted n'est donc pas supprimé</p>";
         } else {
             // Suppression du miroir puisque'il n'est plus utilisé par aucun environnement
             exec("rm ${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->dateFormatted}_{$this->section} -rf", $output, $result);
             if ($result != 0) {
-                echo '<tr><td colspan="100%"><br><span class=\"redtext\">Erreur : </span>impossible de supprimer le miroir</td></tr>';
+                echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le miroir</p>';
                 return;
             }
         }

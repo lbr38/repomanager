@@ -101,13 +101,13 @@ trait restore {
          */
         if ($OS_FAMILY == "Redhat") {
             if (!rename("${REPOS_DIR}/archived_{$this->dateFormatted}_{$this->name}", "${REPOS_DIR}/{$this->dateFormatted}_{$this->name}")) {
-                echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>impossible de restaurer le miroir du $this->dateFormatted</td></tr>";
+                echo "<p><span class=\"redtext\">Erreur : </span>impossible de restaurer le miroir du $this->dateFormatted</p>";
                 return;
             }
         }
         if ($OS_FAMILY == "Debian") {
             if (!rename("${REPOS_DIR}/{$this->name}/{$this->dist}/archived_{$this->dateFormatted}_{$this->section}", "${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->dateFormatted}_{$this->section}")) {
-                echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>impossible de restaurer le miroir du $this->dateFormatted</td></tr>";
+                echo "<p><span class=\"redtext\">Erreur : </span>impossible de restaurer le miroir du $this->dateFormatted</p>";
                 return;
             }
         }
@@ -222,13 +222,13 @@ trait restore {
              */
             if ($OS_FAMILY == "Redhat") {
                 if (!rename("${REPOS_DIR}/${repoActualDateFormatted}_{$this->name}", "${REPOS_DIR}/archived_${repoActualDateFormatted}_{$this->name}")) {
-                    echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>impossible d'archiver le miroir en date du $repoActualDateFormatted</td></tr>";
+                    echo "<p><span class=\"redtext\">Erreur : </span>impossible d'archiver le miroir en date du $repoActualDateFormatted</p>";
                     return;
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if (!rename("${REPOS_DIR}/{$this->name}/{$this->dist}/${repoActualDateFormatted}_{$this->section}", "${REPOS_DIR}/{$this->name}/{$this->dist}/archived_${repoActualDateFormatted}_{$this->section}")) {
-                    echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>impossible d'archiver le miroir en date du $repoActualDateFormatted</td></tr>";
+                    echo "<p><span class=\"redtext\">Erreur : </span>impossible d'archiver le miroir en date du $repoActualDateFormatted</p>";
                     return;
                 }
             }

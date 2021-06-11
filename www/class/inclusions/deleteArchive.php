@@ -38,13 +38,13 @@ trait deleteArchive {
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->existsDate($this->name, $this->date, 'archived') === false) {
-                echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>le repo $repo->name archivé à la date du $repo->date n'existe pas</td></tr>";
+                echo "<p><span class=\"redtext\">Erreur : </span>le repo $repo->name archivé à la date du $repo->date n'existe pas</p>";
                 return;
             }
         }
         if ($OS_FAMILY == "Debian") {
             if ($this->section_existsDate($this->name, $this->dist, $this->section, $this->date, 'archived') === false) {
-                echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>la section de repo $repo->section archivée à la date du $repo->date n'existe pas</td></tr>";
+                echo "<p><span class=\"redtext\">Erreur : </span>la section de repo $repo->section archivée à la date du $repo->date n'existe pas</p>";
                 return;
             }
         }
@@ -63,7 +63,7 @@ trait deleteArchive {
             }
         }
         if ($result != 0) {
-            echo '<tr><td colspan="100%"><br><span class=\"redtext\">Erreur : </span>lors de la suppression du miroir</td></tr>';
+            echo '<p><span class="redtext">Erreur : </span>lors de la suppression du miroir</p>';
             return;
         }
 

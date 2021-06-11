@@ -24,7 +24,7 @@ trait deleteDist {
          *  2. On vérifie que la distribution renseignée existe bien
          */
         if ($this->dist_exists($this->name, $this->dist) === false) {
-            echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>la distribution <b>$this->dist</b> du repo <b>$this->name</b> n'existe pas</td></tr>";
+            echo "<p><span class=\"redtext\">Erreur : </span>la distribution <b>$this->dist</b> du repo <b>$this->name</b> n'existe pas</p>";
             return;
         }
 
@@ -33,7 +33,7 @@ trait deleteDist {
          */
         exec("rm ${REPOS_DIR}/{$this->name}/{$this->dist} -rf", $output, $result);
         if ($result != 0) {
-            echo "<tr><td colspan=\"100%\"><br><span class=\"redtext\">Erreur : </span>impossible de supprimer le répertoire de la distribution</td></tr>";
+            echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le répertoire de la distribution</p>';
             return;
         }
 

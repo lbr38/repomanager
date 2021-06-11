@@ -34,7 +34,7 @@ trait op_archive {
         }
         $oldRepoDateFormatted = DateTime::createFromFormat('Y-m-d', $oldRepoDate)->format('d-m-Y');
         if (empty($oldRepoDate) OR empty($oldRepoDateFormatted)) {
-            throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de récupérer la date de l'ancien repo");
+            throw new Exception('<p><span class="redtext">Erreur : </span>impossible de récupérer la date de l\'ancien repo</p>');
         }
         // On a également récupéré la description
         while ($data = $resultDescription->fetchArray()) {
@@ -78,7 +78,7 @@ trait op_archive {
             echo "<br>Archivage de l'ancienne version : ";
             if ($OS_FAMILY == "Redhat") {
                 if (!rename("${REPOS_DIR}/${oldRepoDateFormatted}_{$this->name}", "${REPOS_DIR}/archived_${oldRepoDateFormatted}_{$this->name}")) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>pendant l'archivage de l'ancienne version");
+                    throw new Exception('<p><span class=\"redtext\">Erreur : </span>impossible d\'archiver l\'ancienne version</p>');
                 }
                 /**
                  *  Insertion en BDD du nouveau repo archivé
@@ -88,7 +88,7 @@ trait op_archive {
 
             if ($OS_FAMILY == "Debian") {
                 if (!rename("${REPOS_DIR}/{$this->name}/{$this->dist}/${oldRepoDateFormatted}_{$this->section}", "${REPOS_DIR}/{$this->name}/{$this->dist}/archived_${oldRepoDateFormatted}_{$this->section}")) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>pendant l'archivage de l'ancienne version");
+                    throw new Exception('<p><span class=\"redtext\">Erreur : </span>impossible d\'archiver l\'ancienne version</p>');
                 }
                 /**
                  *  Insertion en BDD du nouveau repo archivé
@@ -100,16 +100,7 @@ trait op_archive {
         /**
          *  Cas où on n'archive pas : on ne fait rien
          */
-        /*if ($count != 0) {
-            if ($OS_FAMILY == "Redhat") {
-                $this->db->exec("UPDATE repos SET Date = '$this->date' WHERE Name = '$this->name' AND Env = '$this->env' AND Date = '$oldRepoDate' AND Status = 'active'");
-                //$this->db->exec("DELETE FROM repos WHERE Name = '$this->name' AND Env = '$this->env' AND Date = '$oldRepoDate' AND Status = 'active'");
-            }
-            if ($OS_FAMILY == "Debian") {
-                $this->db->exec("UPDATE repos SET Date = '$this->date' WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Date = '$oldRepoDate' AND Status = 'active'");
-                //$this->db->exec("DELETE FROM repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Date = '$oldRepoDate' AND Status = 'active'");
-            }
-        }*/
+        
         $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
 
         return true;

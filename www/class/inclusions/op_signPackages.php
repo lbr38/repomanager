@@ -1,6 +1,6 @@
 <?php
 trait op_signPackages {
-/**
+    /**
     *   Signature des paquets (Redhat) ou du repo (Debian) avec GPG
     */
     public function op_signPackages() {
@@ -47,8 +47,8 @@ trait op_signPackages {
                     echo '.signPackagesLoading { display: none; }';
                     echo '.signPackagesKO { display: inline-block; }';
                     echo '</style>';
-                    echo "<span class=\"redtext\">Erreur : </span>la signature des paquets a échouée";
-                    echo "<br>Suppression de ce qui a été fait : ";
+                    echo '<br><span class="redtext">Erreur : </span>la signature des paquets a échouée';
+                    echo '<br>Suppression de ce qui a été fait : ';
                     exec ("rm -rf '${REPOS_DIR}/${DATE_JMA}_{$this->name}'");
                     echo '<span class="greentext">OK</span>';
                     $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
@@ -60,7 +60,7 @@ trait op_signPackages {
             if ($OS_FAMILY == "Debian") {
                 // On va utiliser un répertoire temporaire pour travailler
                 $TMP_DIR = '/tmp/deb_packages';
-                mkdir("$TMP_DIR", 0770, true);
+                mkdir($TMP_DIR, 0770, true);
                 echo '<br>Signature du repo (GPG) ';
                 echo '<span class="signPackagesLoading">en cours<img src="images/loading.gif" class="icon" /></span><span class="signPackagesOK greentext hide">✔</span><span class="signPackagesKO redtext hide">✕</span>';
                 echo '<div class="hide signRepoDiv"><pre>';
