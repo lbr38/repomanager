@@ -1,13 +1,14 @@
 #!/bin/bash
 # Script de mise à jour de repomanager
 # Il télécharge la dernière archive tar.gz disponible, la décompresse et copie les fichiers et répertoires
-
 set -u
 
-GITHUB_VERSION=$(cat ../cron/github.version)
+CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+WWW_DIR=$(echo "$CURRENT" | sed 's|/update||g')
+GITHUB_VERSION=$(cat ${WWW_DIR}/cron/github.version)
 
 if [ -z "$GITHUB_VERSION" ];then
-    echo -e "[$ROUGE ERREUR $RESET] La variable contenant le numéro de version github est vide"
+    echo -e "[ ERREUR ] Numéro de version github inconu"
     exit 1
 fi
 
@@ -17,46 +18,63 @@ mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/ &&
 cd /tmp/repomanager-update_${GITHUB_VERSION}/
 
 # Téléchargement de la nouvelle version :
-echo -ne " → Téléchargement de la nouvelle version :\t"
 wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
-if [ $? -eq "0" ];then
-    echo -e "[$VERT OK $RESET]"
-else
-    echo -e "[$ROUGE ERREUR $RESET] lors du téléchargement (https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz)"
+if [ $? -ne "0" ];then
+    echo -e "[ ERREUR ] lors du téléchargement (https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz)"
     exit 1
 fi
 
-echo -ne " → Décompression de l'archive :\t"
 tar xzf repomanager_${GITHUB_VERSION}.tar.gz
-if [ $? -eq "0" ];then
-    echo -e "[$VERT OK $RESET]"
-else
-    echo -e "[$ROUGE ERREUR $RESET] lors de l'extraction"
+if [ $? -ne "0" ];then
+    echo -e "[ ERREUR ] lors de l'extraction"
     exit 1
 fi
 
-# Copie des fichiers au bon endroits. On utilise rsync pour ne copier que la différence et ne pas risquer de supprimer des fichiers de l'utilisateur.
-cd repomanager &&
-echo -ne " → Mise à jour de ${WWW_DIR} :\t"
-rsync -a --quiet www/ ${WWW_DIR}/
-if [ $? -eq "0" ];then
-    echo -e "[$VERT OK $RESET]"
-else
-    echo -e "[$ROUGE ERREUR $RESET] lors de la mise à jour du répertoire '${WWW_DIR}'"
+# Copie des fichiers au bon endroit
+cd /tmp/repomanager-update_${GITHUB_VERSION}/repomanager &&
+# .php
+rsync -a --quiet --include '*/' --include '*.php' --exclude '*' www/ ${WWW_DIR}/ &&
+# Css
+rsync -a --quiet --delete-after --exclude 'www/styles/colors.php' www/styles/ ${WWW_DIR}/styles/ &&
+# JS
+rsync -a --quiet --delete-after www/js/ ${WWW_DIR}/js/ &&
+# images
+rsync -a --quiet --delete-after www/images/ ${WWW_DIR}/images/ &&
+# icons
+rsync -a --quiet --delete-after www/icons/ ${WWW_DIR}/icons/ &&
+# fonts
+rsync -a --quiet --delete-after www/fonts/ ${WWW_DIR}/fonts/ &&
+# version
+rsync -a --quiet version ${WWW_DIR}/
+# display.ini
+# Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/www/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
+cp www/configurations/display.ini www/configurations/display.ini.tmp
+# On récupère tous les paramètres du nouveau fichier display.ini
+# Puis pour chaque paramètres, on récupère sa valeur côté display.ini actuellement en place, ceci afin de ne pas écraser la conf actuelle de l'utilisateur
+PARAMETERS=$(egrep "^.*=" www/configurations/display.ini | awk '{print $1}')
+for PARAM in $PARAMETERS;do
+    ACTUAL_VALUE=$(egrep "^$PARAM" ${WWW_DIR}/configurations/display.ini | awk '{print $3}')
+    sed -i "s/${PARAM}.*/${PARAM} = ${ACTUAL_VALUE}/g" www/configurations/display.ini.tmp
+done &&
+\cp www/configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
+if [ $? -ne "0" ];then
+    echo -e "[ ERREUR ] lors de la mise à jour du répertoire '${WWW_DIR}'"
     exit 1
 fi
 
-echo -ne " → Nettoyage :\t"
-
-cd "$WWW_DIR"
-rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf
-if [ $? -eq "0" ];then
-    echo -e "[$VERT OK $RESET]"
-else
-    echo -e "[$ROUGE ERREUR $RESET] lors de la suppression de /tmp/repomanager-update_${GITHUB_VERSION}/"
+# Nettoyage
+cd "$WWW_DIR" &&
+# Suppression de certains vieux répertoires inutilisés si existe dans la cible
+rm -rf "${WWW_DIR}/archives"
+rm -rf "${WWW_DIR}/vars"
+rm -rf "${WWW_DIR}/jquery"
+rm -rf "${WWW_DIR}/chartjs"
+rm -rf "${WWW_DIR}/logs/plans"
+# Suppression du répertoire de mise à jour
+rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
+if [ $? -ne "0" ];then
+    echo -e "[ ERREUR ] lors de la suppression de /tmp/repomanager-update_${GITHUB_VERSION}/"
     exit 1
 fi
-
-exec ${WWW_DIR}/repomanager -p
 
 exit 0

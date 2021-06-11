@@ -275,7 +275,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
         <hr>
 
         <form action="planifications.php" method="post" autocomplete="off">
-        <p><b>Ajouter une planification</b></p>
+        <p><b><img src="icons/plus.png" class="icon" />Ajouter une planification</b></p>
         <table class="table-large">
             <?php
             echo '<tr>';
@@ -410,7 +410,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
          */
         $plansDone = $plans->listDone();
         if (!empty($plansDone)) {
-            echo '<p><b>Historique des planifications</b></p>';
+            echo '<p><img src="icons/history.png" class="icon" /><b>Historique des planifications</b></p>';
             echo '<table class="table-large">';
             echo '<tr>';
             echo '<td class="td-fit"><b>Date</b></td>';

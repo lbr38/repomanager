@@ -176,7 +176,7 @@
             // ainsi qu'afficher ce même profil actuel dans un input type=text qui permettra d'en renseigner un nouveau (profileName) :
             echo '<tr>';
             echo '<td>';
-            echo "<img src=\"icons/idcard.png\" class=\"icon\" /><input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"input-large invisibleInput-green\" />";
+            echo "<input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"invisibleInput-green\" />";
             echo '</td>';
             echo '<td class="td-fit">';
             echo "<img id=\"profileConfigurationToggleButton${i}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"icons/cog.png\" />";
@@ -405,6 +405,9 @@
               <input type="radio" id="serverConf_manageClientsConf_no" name="serverConf_manageClientsConf" value="no" <?php if ($serverConf_manageClientsConf == "no") { echo "checked"; } ?>/>
               <label for="serverConf_manageClientsConf_no">No</label>
             </td>
+            <?php if (empty($serverConf_manageClientsConf)) {
+              echo '<td class="td-fit"><img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
+            } ?>
           </tr>
           <tr>
             <td>Gérer la configuration des repos clients</td>
@@ -414,6 +417,9 @@
               <input type="radio" id="serverConf_manageClients_reposConf_no" name="serverConf_manageClients_reposConf" value="no" <?php if ($serverConf_manageClients_reposConf == "no") { echo "checked"; } ?>/>
               <label for="serverConf_manageClients_reposConf_no">No</label>
             </td>
+            <?php if (empty($serverConf_manageClients_reposConf)) {
+              echo '<td class="td-fit"><img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
+            } ?>
           </tr>
           <tr>
             <td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>

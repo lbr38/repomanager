@@ -10,6 +10,8 @@ $display_ini_array = parse_ini_file("${WWW_DIR}/configurations/display.ini");
 
 // Chargement des paramètres d'affichage de la liste des repos
 $printRepoSize = $display_ini_array['printRepoSize'];
+$printRepoType = $display_ini_array['printRepoType'];
+$printRepoSignature = $display_ini_array['printRepoSignature'];
 $filterByGroups = $display_ini_array['filterByGroups'];
 $concatenateReposName = $display_ini_array['concatenateReposName'];
 $alternateColors = $display_ini_array['alternateColors'];

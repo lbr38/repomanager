@@ -35,6 +35,24 @@
         }
         echo '<label for="printRepoSize">Afficher la taille du repo</label><br>';
 
+        // afficher ou non le type des repos (miroir ou local)
+        echo '<input type="hidden" name="printRepoType" value="off" />';
+        if ($printRepoType == "yes") {
+            echo '<input type="checkbox" id="printRepoType" name="printRepoType" value="on" checked />';
+        } else {
+            echo '<input type="checkbox" id="printRepoType" name="printRepoType" value="on" />';
+        }
+        echo '<label for="printRepoType">Afficher le type du repo</label><br>';
+
+        // afficher ou non la signature gpg des repos
+        echo '<input type="hidden" name="printRepoSignature" value="off" />';
+        if ($printRepoSignature == "yes") {
+            echo '<input type="checkbox" id="printRepoSignature" name="printRepoSignature" value="on" checked />';
+        } else {
+            echo '<input type="checkbox" id="printRepoSignature" name="printRepoSignature" value="on" />';
+        }
+        echo '<label for="printRepoSignature">Afficher la signature du repo</label><br>';
+
         // filtrer ou non par groupe
         echo '<input type="hidden" name="filterByGroups" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($filterByGroups == "yes") {

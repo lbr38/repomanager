@@ -57,6 +57,7 @@
                         $repoTime = $repo['Time'];
                         $repoDescription = $repo['Description'];
                         $repoType = $repo['Type'];
+                        $repoSigned = $repo['Signed'];
                         
                         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
                         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
@@ -172,11 +173,26 @@
                         echo "<input type=\"text\" class=\"invisibleInput\" name=\"repoDescription\" value=\"$repoDescription\" />";
                         echo '</td>';
                         echo '<td class="td-fit">';
-                        if ($repoType == "mirror") {
-                            echo "<img class=\"icon-lowopacity\" src=\"icons/world.png\" title=\"Type : miroir ($repoSource)\" />";
+                        
+                        // Affichage de l'icone du type de repo (miroir ou local)
+                        if ($printRepoType == "yes") {
+                            if ($repoType == "mirror") {
+                                echo "<img class=\"icon-lowopacity\" src=\"icons/world.png\" title=\"Type : miroir ($repoSource)\" />";
+                            } elseif ($repoType == "local") {
+                                echo '<img class="icon-lowopacity" src="icons/pin.png" title="Type : local" />';
+                            } else {
+                                echo '<span title="Type : inconnu">?</span>';
+                            }
                         }
-                        if ($repoType == "local") {
-                            echo '<img class="icon-lowopacity" src="icons/pin.png" title="Type : local" />';
+                        // Affichage de l'icone de signature GPG du repo
+                        if ($printRepoSignature == "yes") {
+                            if ($repoSigned == "yes") {
+                                echo '<img class="icon-lowopacity" src="icons/key.png" title="Repo signé avec GPG" />';
+                            } elseif ($repoSigned == "no") {
+                                echo '<img class="icon-lowopacity" src="icons/key2.png" title="Repo non-signé avec GPG" />';
+                            } else {
+                                echo '<span title="Signature GPG : inconnue">?</span>';
+                            }
                         }
                         echo '</td>';
                         echo '</tr>';
