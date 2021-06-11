@@ -22,6 +22,7 @@
 
 <!-- div cachée, affichée par le bouton "Affichage" -->
 <div id="divReposListDisplay" class="divReposListDisplay">
+    <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" /> 
     <form action="<?php echo "$actual_uri"; ?>" method="post">
         <input type="hidden" name="action" value="configureDisplay" />
     <?php
@@ -32,7 +33,7 @@
         } else {
             echo '<input type="checkbox" id="printRepoSize" name="printRepoSize" value="on" />';
         }
-        echo '<label for="printRepoSize">Taille du repo</label><br>';
+        echo '<label for="printRepoSize">Afficher la taille du repo</label><br>';
 
         // filtrer ou non par groupe
         echo '<input type="hidden" name="filterByGroups" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
@@ -83,11 +84,15 @@
     </form>
 </div>
 <script> // Afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
-  $(document).ready(function(){
-  $("#ReposListDisplayToggleButton").click(function(){
-    $("div.divReposListDisplay").slideToggle(100);
-    $(this).toggleClass("open");
-  });
+$(document).ready(function(){
+   $("#ReposListDisplayToggleButton").click(function(){
+      $("div.divReposListDisplay").slideToggle(150);
+      $(this).toggleClass("open");
+    });
+    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
+    $('#DisplayCloseButton').click(function() {
+      $('div.divReposListDisplay').slideToggle(150);
+    });
 });
 </script>
 

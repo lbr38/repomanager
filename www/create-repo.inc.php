@@ -58,15 +58,12 @@ if ($OS_FAMILY == "Redhat") {
   echo '</td>';
   echo '</tr>';
   // Possibilité d'ajouter à un groupe, si il y en a
-  //$repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
-  // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
   if (!empty($groupList)) {
     echo '<tr>';
     echo '<td>Ajouter à un groupe (fac.)</td>';
     echo '<td>';
     echo '<select name="repoGroup">';
     echo '<option value="">Sélectionner un groupe...</option>';
-    //$repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
     $i = 0;
     $j = 0;
     foreach($groupList as $groupName) {
@@ -94,7 +91,7 @@ if ($OS_FAMILY == "Debian") {
   echo '<tr>';
   echo '<td>Nom de l\'hôte source</td>';
   echo '<td>';
-  echo '<select name="repoSource" required>';
+  echo '<select id="repoSourceSelect" name="repoSource" required>';
   echo '<option value="">Sélectionner un hôte source...</option>';
   $rows = explode("\n", file_get_contents($HOSTS_CONF));
   $j=0;
@@ -151,15 +148,12 @@ if ($OS_FAMILY == "Debian") {
   echo '</td>';
   echo '</tr>';
   // Possibilité d'ajouter à un groupe, si il y en a
-  //$repoGroups = shell_exec("grep '^\[@.*\]' $GROUPS_CONF"); // récupération de tous les noms de groupes si il y en a 
-  // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide) :
   if (!empty($groupList)) {
     echo '<tr>';
     echo '<td>Ajouter à un groupe (fac.)</td>';
     echo '<td>';
     echo '<select name="repoGroup">';
     echo '<option value="">Sélectionner un groupe...</option>';
-    //$repoGroups = preg_split('/\s+/', trim($repoGroups)); // on éclate le résultat précédent car tout a été récupéré sur une seule ligne
     $i = 0;
     $j = 0;
     foreach($groupList as $groupName) {
@@ -177,3 +171,10 @@ if ($OS_FAMILY == "Debian") {
   echo '</form>';
 }
 ?>
+<script>
+/*
+$('#repoSourceSelect').select2({
+  closeOnSelect: false,
+  placeholder: 'Sélectionner un hôte source...'
+});*/
+</script>

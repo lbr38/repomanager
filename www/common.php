@@ -3,13 +3,22 @@
 // Des formulaires peuvent être communs à plusieurs pages (on retrouve le même formulaire sur plusieurs pages, par exemple pour les groupes), 
 // la récupération de leur valeur en POST et leur traitement est donc placé ici, pour éviter le code en doublon
 
+// MODIFICATION DES INFORMATIONS DANS LA LISTE DES REPOS //
+if (!empty($_POST['action']) AND validateData($_POST['action']) == "repoListEditRepo") {
+  require_once("${WWW_DIR}/class/Repo.php");
+  $repoId = validateData($_POST['repoId']);
+  $repoDescription = validateData($_POST['repoDescription']);
+  $myRepo = new Repo(compact('repoId', 'repoDescription'));
+  $myRepo->edit();
+}
+
 
 // AFFICHAGE DANS LISTE DES REPOS //
 
 if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDisplay") {
 
   // On récupère le contenu actuel de display.ini
-  $displayConfiguration = parse_ini_file("$DISPLAY_CONF", true);
+  $displayConfiguration = parse_ini_file($DISPLAY_CONF, true);
 
   // Liste des repos : choisir d'afficher ou non la taille des repos
   if (!empty($_POST['printRepoSize'])) {

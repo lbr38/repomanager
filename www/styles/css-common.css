@@ -708,11 +708,11 @@ input[type=text].input-large, .select-large, input[type=color].color-large {
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
 input[type=text].invisibleInput, input[type=text].invisibleInput2, input[type=text].invisibleInput-green, input[type=text].invisibleInput-blue {
     border: none;
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 input[type=text].invisibleInput {
-    background-color: #252525;
+    background-color: #2b2b2b;
 }
 
 input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur différent */
@@ -888,7 +888,7 @@ img.cronStatus {
     opacity: 0.33;
 }
 
-#newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
+#newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton, #DisplayCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;
 }
 

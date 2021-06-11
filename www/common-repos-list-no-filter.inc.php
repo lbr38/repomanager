@@ -30,7 +30,9 @@ $reposList = $repo->listAll();
     
 if (!empty($reposList)) {
     foreach($reposList as $repo) {
+        $repoId = $repo['Id'];
         $repoName = $repo['Name'];
+        $repoSource = $repo['Source'];
         if ($OS_FAMILY == "Debian") {
             $repoDist = $repo['Dist'];
             $repoSection = $repo['Section'];
@@ -39,6 +41,7 @@ if (!empty($reposList)) {
         $repoDate = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
         $repoTime = $repo['Time'];
         $repoDescription = $repo['Description'];
+        $repoType = $repo['Type'];
 
         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
@@ -63,6 +66,12 @@ if (!empty($reposList)) {
                 echo '</tr>';
             }
         }
+
+        // début du form de modification de la ligne du repo
+        echo '<form action="" method="post" autocomplete="off">';
+        echo '<input type="hidden" name="action" value="repoListEditRepo" />';
+        echo "<input type=\"hidden\" name=\"repoId\" value=\"$repoId\" />";
+
         echo "<tr class=\"$listColor\">";
         echo '<td class="td-fit">';
         // Affichage de l'icone "corbeille" pour supprimer le repo
@@ -142,8 +151,20 @@ if (!empty($reposList)) {
         if ($printRepoSize == "yes") {
             echo "<td>$repoSize</td>";
         }
-        echo "<td class=\"td-fit\" title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
+        echo '<td>';
+        echo "<input type=\"text\" class=\"invisibleInput\" name=\"repoDescription\" value=\"$repoDescription\" />";
+        echo '</td>';
+        echo '<td class="td-fit">';
+        if ($repoType == "mirror") {
+            echo "<img class=\"icon-lowopacity\" src=\"icons/world.png\" title=\"Type : miroir ($repoSource)\" />";
+        }
+        if ($repoType == "local") {
+            echo '<img class="icon-lowopacity" src="icons/pin.png" title="Type : local" />';
+        }
+        echo '</td>';
         echo '</tr>';
+        echo '</form>';
+
         echo '<tr>';
         echo '<td colspan="100%">';
         echo "<div id=\"clientConfDiv${i}\" class=\"divReposConf\">";

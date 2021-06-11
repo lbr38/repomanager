@@ -63,6 +63,8 @@ class Repo {
             die('Erreur : '.$e->getMessage());
         }
         
+        /* Id */
+        if (!empty($repoId)) { $this->id = $repoId; }
         /* Nom */
         if (!empty($repoName)) { $this->name = $repoName; }
         /* Nouveau nom */
@@ -569,6 +571,14 @@ class Repo {
         if (empty($this->rootUrl)) {
             throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer la racine de l\'URL hôte');
         }
+    }
+
+/**
+ *  MODIFICATION DES INFORMATIONS DU REPO
+ */
+    public function edit() {
+        $this->db->exec("UPDATE repos SET Description = '$this->description' WHERE Id = '$this->id'");
+        printAlert('Modifications prises en compte');
     }
 
 
