@@ -743,7 +743,7 @@ public function new() {
      *  Liste la prochaine planification exécutée
      */
     public function next() {
-        $result = $this->db->queryArray("SELECT Plan_date, Plan_time FROM planifications WHERE Plan_status = 'done' OR Plan_status = 'error' ORDER BY Plan_date ASC, Plan_time ASC LIMIT 1");
+        $result = $this->db->queryArray("SELECT Plan_date, Plan_time FROM planifications WHERE Plan_status = 'queued' ORDER BY Plan_date ASC, Plan_time ASC LIMIT 1");
         return $result;
     }
 

@@ -67,8 +67,7 @@
         <?php include('common-groupslist.inc.php'); ?>
     </section>
 
-    <!--<section class="right" id="serverInfoSlideDiv">-->
-    <section id="serverInfoSlideDiv">
+    <section id="serverInfoContainer">
     <?php
     if ($display_serverInfo_reposInfo == "yes") {
         // Récupération du total des repos actifs et repos archivés
@@ -318,9 +317,14 @@
     $(document).ready(function(){
         $("#newRepoSlideButton").click(function(){
             // masquage du div contenant les infos serveur
-            $("#serverInfoSlideDiv").animate({
+            /*$("#serverInfoSlideDiv").animate({
                 width: 0,
-            });
+            });*/
+
+            // masquage du div permettant de gérer les groupes
+            /*$("#groupsDiv").animate({
+                width: 0,
+            });*/
             
             // affichage du div permettant de créer un nouveau repo/section à la place
             $("#newRepoSlideDiv").delay(250).animate({
@@ -337,9 +341,9 @@
             });
 
             // affichage du div contenant les infos serveur à la place
-            $("#serverInfoSlideDiv").delay(250).animate({
+            /*$("#serverInfoSlideDiv").delay(250).animate({
                 width: '97%',
-            });
+            });*/
         });
     });
 </script>

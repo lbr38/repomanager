@@ -138,15 +138,16 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
 
 <body>
 <?php include('common-header.inc.php'); ?>
-    <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
-    <!-- GERER LES GROUPES -->
-    <section class="right" id="groupsDiv">
-        <?php include('common-groupslist.inc.php'); ?>
-    </section>
 
     <!-- section 'conteneur' principal englobant toutes les sections de droite -->
     <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionRight">
+      <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
+      <!-- GERER LES GROUPES -->
+      <section class="right" id="groupsDiv">
+        <?php include('common-groupslist.inc.php'); ?>
+      </section>
+
       <section class="right">
         <div id="planCronStatus">
         <h5>PLANIFICATIONS</h5>
