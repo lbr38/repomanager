@@ -29,7 +29,6 @@ function manageProfileRepos($profileName, $profileRepos) {
   global $PROFILES_MAIN_DIR;
   global $REPOS_PROFILES_CONF_DIR;
   global $REPO_CONF_FILES_PREFIX;
-  global $REPOS_LIST;
   global $OS_FAMILY;
 
   $repo = new Repo();

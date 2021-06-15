@@ -327,7 +327,6 @@ public function new() {
  */
     public function generateReminders() {
         global $PLANS_DIR;
-        global $REPOS_LIST;
         global $OS_FAMILY;
         global $DEFAULT_ENV;
       
@@ -625,7 +624,6 @@ public function new() {
     // Vérification que le repo existe
     private function checkIfRepoExists() {
         global $OS_FAMILY;
-        global $REPOS_LIST;
     
         if ($OS_FAMILY == "Redhat") {
             // Vérification que le repo existe
@@ -661,7 +659,6 @@ public function new() {
     // Récupération de la liste des repo dans le groupe
     private function getGroupRepoList() {
         global $GROUPS_CONF;
-        global $REPOS_LIST;
         global $OS_FAMILY;
 
         // on récupère tous les repos du groupe
