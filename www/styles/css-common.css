@@ -309,7 +309,7 @@ section.left {
 }
 
 /* paramètres pour les sections sur la droite, et pour les sections masqués */
-section.right, #newRepoSlideDiv {
+section.right, #newRepoSlideDiv{
     width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
     margin-bottom: 10px;
     padding: 10px;
@@ -329,12 +329,39 @@ section.right, #newRepoSlideDiv {
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
 }
 
-#serverInfoSlideDiv {
-    width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
+#serverInfoContainer {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
     margin-bottom: 10px;
     vertical-align:top;
-    float: right;
-    overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué lorsqu'on choisi de le masquer */
+    border-radius: 5px;
+}
+
+.serverInfo {
+    flex: 0 0 32.3%;
+    height: 200px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+    background-color:#2b2b2b;
+    border-radius: 6px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.serverInfo:hover {
+    background-color: #252525;
+    transition-duration: 0.4s;
+}
+
+.serverInfo:hover .icon-invisible { /* Lorsque la souris est sur le div, on affiche légèrement l'icone 'Fermer' invisible. Celle-ci devient pleinement visible si on place sa souris dessus */
+    opacity: 0.33;
 }
 
 form.actionform {
@@ -394,14 +421,6 @@ table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
     padding-left: 0px;
     padding-right: 0px;
 }
-
-/*.list-repos tr.color1 td, table.list-repos-archived tr.color1 td { 
-    color: var(--color1);
-}
-
-.list-repos tr.color2 td, table.list-repos-archived tr.color2 td { 
-    color: var(--color2);
-}*/
 
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
 td.td-redbackground span, td.td-greenbackground span, td.td-bluebackground span, td.td-whitebackground span {
@@ -708,11 +727,11 @@ input[type=text].input-large, .select-large, input[type=color].color-large {
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
 input[type=text].invisibleInput, input[type=text].invisibleInput2, input[type=text].invisibleInput-green, input[type=text].invisibleInput-blue {
     border: none;
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 input[type=text].invisibleInput {
-    background-color: #252525;
+    background-color: #2b2b2b;
 }
 
 input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur différent */
@@ -862,33 +881,7 @@ img.cronStatus {
     padding: 15px;
 }
 
-.serverInfo {
-    width: 31.5%;
-    height: 200px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-    background-color:#2b2b2b;
-    border-radius: 6px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    display: inline-block;
-    margin: 1px;
-    margin-bottom: 10px;
-    text-align: center;
-    vertical-align: top;
-}
-
-.serverInfo:hover {
-    background-color: #252525;
-    transition-duration: 0.4s;
-}
-
-.serverInfo:hover .icon-invisible { /* Lorsque la souris est sur le div, on affiche légèrement l'icone 'Fermer' invisible. Celle-ci devient pleinement visible si on place sa souris dessus */
-    opacity: 0.33;
-}
-
-#newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
+#newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton, #DisplayCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;
 }
 

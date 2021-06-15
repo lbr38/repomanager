@@ -17,10 +17,10 @@ trait op_getPackages {
         ob_start();
 
         if (empty($op_type)) {
-            throw new Exception('<br><span class="redtext">Erreur : </span>le paramètre <b>op_type</b> est vide (fonction op_getPackages)');
+            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération inconnu (vide)</p>');
         }
         if ($op_type != "new" AND $op_type != "update") {
-            throw new Exception('<br><span class="redtext">Erreur : </span>le paramètre <b>op_type</b> est invalide (fonction op_getPackages)');
+            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération invalide</p>');
         }
 
         //// VERIFICATIONS ////
@@ -33,12 +33,12 @@ trait op_getPackages {
         if ($op_type == "new") {        
             if ($OS_FAMILY == "Redhat") {
                 if ($this->existsEnv($this->name, $DEFAULT_ENV) === true) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>le repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if ($this->section_existsEnv($this->name, $this->dist, $this->section, $DEFAULT_ENV) === true) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
                 }
             }
         }
@@ -47,23 +47,23 @@ trait op_getPackages {
             // Vérifie si le repo qu'on souhaite mettre à jour existe bien
             if ($OS_FAMILY == "Redhat") {
                 if ($this->existsEnv($this->name, $DEFAULT_ENV) === false) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>le repo <b>$this->name</b> n'existe pas");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>$this->name</b> n'existe pas</p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if ($this->section_existsEnv($this->name, $this->dist, $this->section, $DEFAULT_ENV) === false) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> n'existe pas");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> n'existe pas</p>");
                 }
             }
             // Vérifie si le repo à mettre à jour n'existe pas déjà à la date du jour
             if ($OS_FAMILY == "Redhat") {
                 if ($this->existsDateEnv($this->name, $this->date, $DEFAULT_ENV) === true) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if ($this->section_existsDateEnv($this->name, $this->dist, $this->section, $this->date, $DEFAULT_ENV) === true) {
-                    throw new Exception("<br><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>$this->section</b> du repo <b>$this->name</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
                 }
             }
         }
@@ -75,21 +75,21 @@ trait op_getPackages {
         // Création du répertoire du repo/section
         if ($OS_FAMILY == "Redhat") {
             if (is_dir("${REPOS_DIR}/${DATE_JMA}_{$this->name}")) {
-                throw new Exception("<br><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> existe déjà");
+                throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> existe déjà</p>");
             }
 
             if (!mkdir("${REPOS_DIR}/${DATE_JMA}_{$this->name}", 0770, true)) {
-                throw new Exception("<br><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> a échouée");
+                throw new Exception("<p><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> a échouée</p>");
             }
         }
 
         if ($OS_FAMILY == "Debian") {
             if (is_dir("${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}")) {
-                throw new Exception("<br><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> existe déjà");
+                throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> existe déjà</p>");
             }
 
             if (!mkdir("${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}", 0770, true)) {
-                throw new Exception("<br><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> a échouée");
+                throw new Exception("<p><span class=\"redtext\">Erreur : </span>la création du répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> a échouée</p>");
             }
         }
 
@@ -130,8 +130,8 @@ trait op_getPackages {
                 echo '.getPackagesLoading { display: none; }';
                 echo '.getPackagesKO { display: inline-block; }';
                 echo '</style>';
-                echo "<br><span class=\"redtext\">Erreur : </span>reposync a rencontré un problème lors de la création du miroir";
-                echo "<br>Suppression de ce qui a été fait : ";
+                echo '<br><span class="redtext">Erreur : </span>reposync a rencontré un problème lors de la création du miroir';
+                echo '<br>Suppression de ce qui a été fait : ';
                 exec("rm -rf '${REPOS_DIR}/${DATE_JMA}_{$this->name}'");
                 echo '<span class="greentext">OK</span>';
                 $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
@@ -143,10 +143,8 @@ trait op_getPackages {
         if ($OS_FAMILY == "Debian") {
             // Dans le cas où on a précisé de ne pas vérifier les signatures GPG :
             if ($this->gpgCheck == "no") {
-                //exec("/usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --root={$this->rootUrl} --dist={$this->dist} --host={$this->hostUrl} --section={$this->section} --arch=amd64 ${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup >> {$this->log->steplog}", $output, $result);
                 exec("/usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --rsync-extra=none --root={$this->rootUrl} --dist={$this->dist} --host={$this->hostUrl} --section={$this->section} --arch=amd64 ${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup >> {$this->log->steplog}", $output, $result);
             } else { // Dans tous les autres cas (même si rien n'a été précisé)
-                //exec("/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --root={$this->rootUrl} --dist={$this->dist} --host={$this->hostUrl} --section={$this->section} --arch=amd64 ${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup >> {$this->log->steplog}", $output, $result);
                 exec("/usr/bin/debmirror --check-gpg --keyring=${GPGHOME}/trustedkeys.gpg --nosource --passive --method=http --rsync-extra=none --root={$this->rootUrl} --dist={$this->dist} --host={$this->hostUrl} --section={$this->section} --arch=amd64 ${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup >> {$this->log->steplog}", $output, $result);
             }
             echo '</pre></div>';

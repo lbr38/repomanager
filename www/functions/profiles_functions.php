@@ -55,8 +55,6 @@ function manageProfileRepos($profileName, $profileRepos) {
   foreach ($profileRepos as $selectedOption) {
     $addProfileRepo = validateData($selectedOption);
 
-    // Pour Debian, la fonction reposSelectList() a renvoyé une (ou plusieurs) valeur contenant le nom du repo, la dist et la section séparés par un | (voir fonction reposSelectList())
-    // Du coup on explose $addProfileRepo pour en extraire les 3 valeurs
     if ($OS_FAMILY == "Debian") {
       $addProfileRepoExplode = explode('|', $addProfileRepo);
       $addProfileRepo = $addProfileRepoExplode[0];

@@ -142,11 +142,16 @@ $(document).ready(function(){
     $(document).ready(function(){
         $("#GroupsListSlideUpButton").click(function(){
             // masquage du div contenant les infos serveur
-            $("#serverInfoSlideDiv").animate({
+            /*$("#serverInfoSlideDiv").animate({
                 width: 0,
-            });
+            });*/
+			// masquage du div createrepo
+			/*$("#newRepoSlideDiv").animate({
+				width: 0,
+				padding: '0px'
+            });*/
             
-            // affichage du div permettant de créer un nouveau repo/section à la place
+            // affichage du div permettant de gérer les groupes
             $("#groupsDiv").delay(250).animate({
                 width: '97%',
                 padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
@@ -161,9 +166,9 @@ $(document).ready(function(){
             });
 
             // affichage du div contenant les infos serveur à la place
-            $("#serverInfoSlideDiv").delay(250).animate({
+            /*$("#serverInfoSlideDiv").delay(250).animate({
                 width: '97%',
-            });
+            });*/
         });
     });
 </script>

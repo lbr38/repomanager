@@ -12,10 +12,10 @@ trait op_finalize {
         global $TEMP_DIR;
 
         if (empty($op_type)) {
-            throw new Exception("<br><span class=\"redtext\">Erreur : </span>le paramètre <b>op_type</b> est vide (fonction op_finalize)");
+            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération inconnu (vide)</p>');
         }
         if ($op_type != "new" AND $op_type != "update") {
-            throw new Exception("<br><span class=\"redtext\">Erreur : </span>le paramètre <b>op_type</b> est invalide (fonction op_finalize)");
+            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération invalide</p>');
         }
 
         ob_start();
@@ -52,12 +52,12 @@ trait op_finalize {
                 }
 
                 if (empty($repoId)){
-                    echo "<br><span class=\"redtext\">Erreur : impossible de récupérer l'Id du repo $this->name</span>";
+                    echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du repo $this->name</p>";
                     return;
                 }
 
                 if (empty($groupId)) {
-                    echo "<br><span class=\"redtext\">Erreur : impossible de récupérer l'Id du groupe $this->group</span>";
+                    echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du groupe $this->group</p>";
                     return;
                 }
                 $this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");

@@ -24,22 +24,6 @@ function clearCache($WWW_CACHE) {
   echo "</script>";
 }
 
-function cleanConfFiles() {
-  global $REPOS_LIST;
-  global $REPOS_ARCHIVE_LIST;
-
-  // Nettoie les lignes vides dans les fichiers de listes et tri
-  if (file_exists("$REPOS_LIST")) {
-    exec("sed -i '/^$/d' $REPOS_LIST");
-    exec("sort -o $REPOS_LIST $REPOS_LIST");
-  }
-
-  if (file_exists("$REPOS_ARCHIVE_LIST")) {
-    exec("sed -i '/^$/d' $REPOS_ARCHIVE_LIST");
-    exec("sort -o $REPOS_ARCHIVE_LIST $REPOS_ARCHIVE_LIST");
-  }
-}
-
 // Fonction permettant d'afficher une bulle d'alerte au mileu de la page
 function printAlert($message) {
   echo '<div class="alert">';
@@ -78,20 +62,6 @@ function deleteConfirm($message, $url, $divID, $aID) {
   echo '</div>';
 
   unset($message, $url, $divID, $aID);
-}
-
-// vérification d'une nouvelle mise à jour github
-function checkUpdate() {
-  global $BASE_DIR;
-  global $VERSION;
-  global $GIT_VERSION;
-
-  if (empty($GIT_VERSION)) {
-    //echo "version : $GIT_VERSION";
-    echo "<p>Erreur lors de la vérification des nouvelles mises à jour</p>";
-  } elseif ("$VERSION" !== "$GIT_VERSION") {
-    echo "<p>Une nouvelle version est disponible</p>";
-  }
 }
 
 function operationRunning() {
@@ -205,55 +175,6 @@ function showdiv_class($divclass) {
   echo "$(document).ready(function() {";
   echo "$('.${divclass}').show(); })";
   echo '</script>';
-}
-
-// Liste déroulante des repos/sections
-// Avant d'appeler cette fonction il faut prévoir un select car celle-ci n'affiche que les options
-function reposSelectList() {
-  global $OS_FAMILY;
-  global $REPOS_LIST;
-
-  echo '<option value="">Sélectionnez un repo...</option>';
-  $rows = explode("\n", file_get_contents($REPOS_LIST));
-  $lastRepoName = '';
-  $lastRepoDist = '';
-  $lastRepoSection = '';
-  foreach($rows as $row) {
-    if(!empty($row) AND $row !== "[REPOS]") { // on ne traite pas les lignes vides ni la ligne [REPOS] (1ère ligne du fichier)
-      $rowData = explode(',', $row);
-      if ($OS_FAMILY == "Redhat") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-        $repoEnv = strtr($rowData['2'], ['Env=' => '', '"' => '']);
-        $repoDate = strtr($rowData['3'], ['Date=' => '', '"' => '']);
-        $repoDescription = strtr($rowData['4'], ['Description=' => '', '"' => '']);
-      }
-      if ($OS_FAMILY == "Debian") {
-        $repoName = strtr($rowData['0'], ['Name=' => '', '"' => '']);
-        $repoDist = strtr($rowData['2'], ['Dist=' => '', '"' => '']);
-        $repoSection = strtr($rowData['3'], ['Section=' => '', '"' => '']);
-        $repoEnv = strtr($rowData['4'], ['Env=' => '', '"' => '']);
-        $repoDate = strtr($rowData['5'], ['Date=' => '', '"' => '']);
-        $repoDescription = strtr($rowData['6'], ['Description=' => '', '"' => '']);
-      }
-      // Pour ne pas afficher de valeurs en double dans la liste
-      if ($OS_FAMILY == "Redhat" AND $repoName !== $lastRepoName) {
-        echo "<option value=\"${repoName}\">${repoName}</option>";
-      }
-      // Pour ne pas afficher de valeurs en double dans la liste
-      if ($OS_FAMILY == "Debian" AND ($repoName !== $lastRepoName OR $repoDist !== $lastRepoDist OR $repoSection !== $lastRepoSection)) {
-        echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
-      }
-      $lastRepoName = $repoName;
-      if ($OS_FAMILY == "Debian") {
-        $lastRepoDist = $repoDist;
-        $lastRepoSection = $repoSection;
-      }
-    }
-  }
-  unset($rows, $rowData, $lastRepoName, $repoName, $repoEnv, $repoDate, $repoDescription);
-  if ($OS_FAMILY == "Debian") {
-    unset($repoDist, $repoSection);
-  }
 }
 
 // Suppression d'un repo d'un groupe en particulier

@@ -10,5 +10,7 @@
     <link rel="stylesheet" type='text/css' href="styles/select2.css">
     <!-- Import ChartJS -->
     <script src="js/chartjs/Chart.bundle.min.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" />
     <title>Repomanager</title>
 </head>

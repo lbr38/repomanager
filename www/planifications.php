@@ -69,8 +69,6 @@ if (!empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($
             $repoName = validateData($_POST['addPlanRepo']);
         }
 
-      // Pour Debian, la fonction reposSelectList() a renvoyé une valeur contenant le nom du repo, la dist et la section séparés par un | (voir fonction reposSelectList())
-      // Du coup on explose $addPlanRepo pour en extraire les 3 valeurs
         if ($OS_FAMILY == "Debian") {
             $addPlanRepoExplode = explode('|', validateData($_POST['addPlanRepo']));
             $repoName = $addPlanRepoExplode[0];
@@ -140,15 +138,16 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
 
 <body>
 <?php include('common-header.inc.php'); ?>
-    <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
-    <!-- GERER LES GROUPES -->
-    <section class="right" id="groupsDiv">
-        <?php include('common-groupslist.inc.php'); ?>
-    </section>
 
     <!-- section 'conteneur' principal englobant toutes les sections de droite -->
     <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionRight">
+      <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
+      <!-- GERER LES GROUPES -->
+      <section class="right" id="groupsDiv">
+        <?php include('common-groupslist.inc.php'); ?>
+      </section>
+
       <section class="right">
         <div id="planCronStatus">
         <h5>PLANIFICATIONS</h5>
@@ -275,7 +274,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
         <hr>
 
         <form action="planifications.php" method="post" autocomplete="off">
-        <p><b>Ajouter une planification</b></p>
+        <p><b><img src="icons/plus.png" class="icon" />Ajouter une planification</b></p>
         <table class="table-large">
             <?php
             echo '<tr>';
@@ -410,7 +409,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
          */
         $plansDone = $plans->listDone();
         if (!empty($plansDone)) {
-            echo '<p><b>Historique des planifications</b></p>';
+            echo '<p><img src="icons/history.png" class="icon" /><b>Historique des planifications</b></p>';
             echo '<table class="table-large">';
             echo '<tr>';
             echo '<td class="td-fit"><b>Date</b></td>';

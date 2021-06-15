@@ -14,15 +14,23 @@ if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; 
 /**
  *  Mise à jour de Repomanager
  */
-    
+
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
-    //exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    $result = '0';
-    if ($result == 0) {
+    $error = 0;
+    exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+    if ($result != 0) {
+        ++$error;
+    }
+
+    exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+    if ($result != 0) {
+        ++$error;
+    }
+
+    if ($error == 0) {
         $updateStatus = 'OK';
     } else {
-        $updateStatus = 'Error';
-        $updateError = "$output";
+        $updateStatus = 'Erreur pendant la mise à jour';
     }
 }
 
@@ -454,9 +462,13 @@ if (!empty($_GET['deleteEnv'])) {
                 <option value="beta" <?php if ($UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
                 </td>
                 <td class="td-fit">
-                <input type="button" onclick="location.href='configuration.php?action=update'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="⭮">
-                <?php if (!empty($updateStatus)) { echo $updateStatus; } ?>
-                <?php if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                <?php
+                    if ($UPDATE_AVAILABLE == "yes") {
+                        echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
+                    }
+                    if (!empty($updateStatus)) { echo $updateStatus; }
+                    if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
+                ?>
                 </td>
             </tr>
             <tr>
@@ -821,7 +833,7 @@ if (!empty($_GET['deleteEnv'])) {
             <tr>
                 <td>
                     <button type="submit" class="button-submit-medium-green">Enregistrer</button>
-                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="⭮">
+                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="↻">
                 </td>
             </tr>
             </table>

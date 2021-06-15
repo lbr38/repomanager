@@ -134,7 +134,8 @@ class Group {
             
         } else {
             if ($OS_FAMILY == "Redhat") {
-                $reposInGroup = $this->db->query("SELECT repos.Name, repos.Source, repos.Env, repos.Date, repos.Time, repos.Description
+                // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
+                $reposInGroup = $this->db->query("SELECT repos.Id, repos.Name, repos.Source, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
                 FROM repos
                 INNER JOIN group_members
                     ON repos.Id = group_members.Id_repo
@@ -144,7 +145,8 @@ class Group {
                 ORDER BY repos.Name");
             }
                 if ($OS_FAMILY == "Debian") {
-                $reposInGroup = $this->db->query("SELECT repos.Name, repos.Source, repos.Dist, repos.Section, repos.Env, repos.Date, repos.Time, repos.Description
+                // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
+                $reposInGroup = $this->db->query("SELECT repos.Id, repos.Name, repos.Source, repos.Dist, repos.Section, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
                 FROM repos
                 INNER JOIN group_members
                     ON repos.Id = group_members.Id_repo

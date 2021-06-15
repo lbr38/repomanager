@@ -73,11 +73,11 @@ trait duplicate {
          *  On vérifie que le nouveau nom du repo n'existe pas déjà
          */
         if ($this->exists($this->name) === false) {
-            echo '<br><span class="redtext">Erreur : le repo à dupliquer n\'existe pas</span>';
+            echo '<p><span class="redtext">Erreur : </span>le repo à dupliquer n\'existe pas</p>';
             return;
         }
         if ($this->exists($this->newName) === true) {
-            echo "<br><span class=\"redtext\">Erreur : un repo $this->newName existe déjà</span>";
+            echo "<p><span class=\"redtext\">Erreur : </span>un repo $this->newName existe déjà</p>";
             return;
         }
 
@@ -107,7 +107,7 @@ trait duplicate {
         if ($OS_FAMILY == "Redhat") {
             if (!file_exists("${REPOS_DIR}/{$this->dateFormatted}_{$this->newName}")) {
                 if (!mkdir("${REPOS_DIR}/{$this->dateFormatted}_{$this->newName}", 0770, true)) {
-                echo "<br><span class=\"redtext\">Erreur : impossible de créer le répertoire ${REPOS_DIR}/{$this->newName}</span>";
+                echo "<p><span class=\"redtext\">Erreur : </span>impossible de créer le répertoire ${REPOS_DIR}/{$this->newName}</p>";
                 return;
                 }
             }
@@ -115,7 +115,7 @@ trait duplicate {
         if ($OS_FAMILY == "Debian") {
             if (!file_exists("${REPOS_DIR}/{$this->newName}/{$this->dist}")) {
                 if (!mkdir("${REPOS_DIR}/{$this->newName}/{$this->dist}", 0770, true)) {
-                    echo "<br><span class=\"redtext\">Erreur : impossible de créer le répertoire ${REPOS_DIR}/{$this->newName}/{$this->dist}</span>";
+                    echo "<p><span class=\"redtext\">Erreur : </span>impossible de créer le répertoire ${REPOS_DIR}/{$this->newName}/{$this->dist}</p>";
                     return;
                 }
             }
@@ -132,7 +132,7 @@ trait duplicate {
             exec("\cp -r ${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->dateFormatted}_{$this->section} ${REPOS_DIR}/{$this->newName}/{$this->dist}/{$this->dateFormatted}_{$this->section}", $output, $result);
         }
         if ($result != 0) {
-            echo '<br><span class="redtext">Erreur lors de la copie du répertoire</span>';
+            echo '<p><span class="redtext">Erreur : </span>copie du répertoire impossible</p>';
             return;
         }
 
@@ -146,7 +146,7 @@ trait duplicate {
             exec("cd ${REPOS_DIR}/{$this->newName}/{$this->dist}/ && ln -s {$this->dateFormatted}_{$this->section}/ {$this->section}_${DEFAULT_ENV}", $output, $result);
         }
         if ($result != 0) {
-            echo '<br><span class="redtext">Erreur lors de la création du lien symbolique</span>';
+            echo '<p><span class="redtext">Erreur :</span>création du lien symbolique impossible</p>';
             return;
         }
 
@@ -184,12 +184,12 @@ trait duplicate {
             }
 
             if (empty($repoId)){
-                echo "<br><span class=\"redtext\">Erreur : impossible de récupérer l'Id du repo $this->newName</span>";
+                echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du repo $this->newName</p>";
                 return;
             }
 
             if (empty($groupId)) {
-                echo "<br><span class=\"redtext\">Erreur : impossible de récupérer l'Id du groupe $this->group</span>";
+                echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du groupe $this->group</p>";
                 return;
             }
             $this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");

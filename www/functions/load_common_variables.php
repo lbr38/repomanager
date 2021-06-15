@@ -177,6 +177,11 @@ $CRON_PLAN_REMINDERS_ENABLED = $repomanager_conf_array['CRON_PLAN_REMINDERS_ENAB
 // Version actuelle et version disponible sur github
 $VERSION = file_get_contents("${WWW_DIR}/version");
 $GIT_VERSION = file_get_contents("${WWW_DIR}/cron/github.version");
+if (!empty($VERSION) AND !empty($GIT_VERSION) AND $VERSION !== $GIT_VERSION) {
+    $UPDATE_AVAILABLE = "yes";
+} else {
+    $UPDATE_AVAILABLE = "no";
+}
 
 // Autres :
 if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) {

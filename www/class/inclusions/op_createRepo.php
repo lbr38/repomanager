@@ -35,8 +35,8 @@ trait op_createRepo {
                 echo '.createRepoLoading { display: none; }';
                 echo '.createRepoKO { display: inline-block; }';
                 echo '</style>';
-                echo "<br><span class=\"redtext\">Erreur : </span>la création du repo a échouée";
-                echo "<br>Suppression de ce qui a été fait : ";
+                echo '<br><span class="redtext">Erreur : </span>la création du repo a échouée';
+                echo '<br>Suppression de ce qui a été fait : ';
                 exec("rm -rf '${REPOS_DIR}/${DATE_JMA}_{$this->name}'");
                 echo '<span class="greentext">OK</span>';
                 $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
@@ -54,7 +54,7 @@ trait op_createRepo {
             exec("cd ${REPOS_DIR}/{$this->name}/{$this->dist}/ && ln -sfn ${DATE_JMA}_{$this->section}/ {$this->section}_${DEFAULT_ENV}", $output, $result);
         }
         if ($result != 0) {
-            throw new Exception('<br><span class="redtext">Erreur : </span>la finalisation du repo a échouée');
+            throw new Exception('<p><span class="redtext">Erreur : </span>la finalisation du repo a échouée</p>');
         }
         return true;
     }
