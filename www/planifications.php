@@ -69,8 +69,6 @@ if (!empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($
             $repoName = validateData($_POST['addPlanRepo']);
         }
 
-      // Pour Debian, la fonction reposSelectList() a renvoyé une valeur contenant le nom du repo, la dist et la section séparés par un | (voir fonction reposSelectList())
-      // Du coup on explose $addPlanRepo pour en extraire les 3 valeurs
         if ($OS_FAMILY == "Debian") {
             $addPlanRepoExplode = explode('|', validateData($_POST['addPlanRepo']));
             $repoName = $addPlanRepoExplode[0];

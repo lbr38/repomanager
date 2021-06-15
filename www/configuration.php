@@ -454,9 +454,13 @@ if (!empty($_GET['deleteEnv'])) {
                 <option value="beta" <?php if ($UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
                 </td>
                 <td class="td-fit">
-                <input type="button" onclick="location.href='configuration.php?action=update'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="⭮">
-                <?php if (!empty($updateStatus)) { echo $updateStatus; } ?>
-                <?php if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                <?php
+                    if ($UPDATE_AVAILABLE == "yes") {
+                        echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
+                    }
+                    if (!empty($updateStatus)) { echo $updateStatus; }
+                    if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
+                ?>
                 </td>
             </tr>
             <tr>
@@ -821,7 +825,7 @@ if (!empty($_GET['deleteEnv'])) {
             <tr>
                 <td>
                     <button type="submit" class="button-submit-medium-green">Enregistrer</button>
-                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="⭮">
+                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="↻">
                 </td>
             </tr>
             </table>

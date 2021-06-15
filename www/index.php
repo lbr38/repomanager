@@ -17,7 +17,6 @@
   require_once('class/Planification.php');
   $repo = new Repo();
   $plan = new Planification();
-  cleanConfFiles();
   if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
   // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
