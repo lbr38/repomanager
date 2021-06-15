@@ -14,15 +14,23 @@ if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; 
 /**
  *  Mise à jour de Repomanager
  */
-    
+
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
-    //exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    $result = '0';
-    if ($result == 0) {
+    $error = 0;
+    exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+    if ($result != 0) {
+        ++$error;
+    }
+
+    exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+    if ($result != 0) {
+        ++$error;
+    }
+
+    if ($error == 0) {
         $updateStatus = 'OK';
     } else {
-        $updateStatus = 'Error';
-        $updateError = "$output";
+        $updateStatus = 'Erreur pendant la mise à jour';
     }
 }
 

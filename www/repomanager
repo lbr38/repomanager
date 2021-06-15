@@ -308,6 +308,13 @@ firstInstall() {
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 
+		CHECK_DEP=$(rpm -qa wget)
+		if [ -z "$CHECK_DEP" ];then
+			echo -ne "Installation de wget\t" &&
+			yum install wget -y > /dev/null &&
+			echo -e "[${VERT} OK ${RESET}]"
+		fi
+
 		if [ ! -f "/usr/bin/rpmresign" ];then
 			echo -ne "Installation du module perl CPAN RPM4 (rpmresign)\t" &&
 			yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
@@ -352,6 +359,13 @@ firstInstall() {
 		if [ -z "$CHECK_DEP" ];then
 			echo -ne "Installation de sudo\t" &&
 			apt-get -qq install sudo -y > /dev/null &&
+			echo -e "[${VERT} OK ${RESET}]"
+		fi
+
+		CHECK_DEP=$(dpkg --list | grep "^ii  wget ")
+		if [ -z "$CHECK_DEP" ];then
+			echo -ne "Installation de wget\t" &&
+			apt-get -qq install wget -y > /dev/null &&
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 
