@@ -12,7 +12,6 @@
   require_once('common.php');
   require_once('class/Repo.php');
   $repo = new Repo();
-  if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 ?>
 
 <body>

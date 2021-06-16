@@ -9,7 +9,6 @@ require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
 require_once('common.php');
-if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; print_r($_POST); echo '<br>GET '; print_r($_GET); }
 
 /**
  *  Mise à jour de Repomanager

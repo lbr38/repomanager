@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html>
-<!--<meta http-equiv="Expires" content="Mon, 26 Jul 1997 05:00:00 GMT">
-<meta http-equiv="Pragma" content="no-cache">-->
 
 <?php include('common-head.inc.php'); ?>
 
@@ -17,14 +15,13 @@
   require_once('class/Planification.php');
   $repo = new Repo();
   $plan = new Planification();
-  if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
 
   // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
   if (!empty($_GET['serverInfoSlideDivClose'])) {
     // On récupère le nom de la div qu'on souhaite retirer
     $divToClose = validateData($_GET['serverInfoSlideDivClose']);
     // On récupère le contenu actuel de display.ini
-    $displayConfiguration = parse_ini_file("$DISPLAY_CONF", true);
+    $displayConfiguration = parse_ini_file($DISPLAY_CONF, true);
     if ($divToClose === "reposInfo") {
       $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
     }
@@ -65,6 +62,12 @@
     <!-- GERER LES GROUPES -->
     <section class="right" id="groupsDiv">
         <?php include('common-groupslist.inc.php'); ?>
+    </section>
+
+    <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
+    <!-- GERER LES SOURCES -->
+    <section class="right" id="sourcesDiv">
+        <?php include('common-repos-sources.inc.php'); ?>
     </section>
 
     <section id="serverInfoContainer">
@@ -316,18 +319,9 @@
 <script> 
     $(document).ready(function(){
         $("#newRepoSlideButton").click(function(){
-            // masquage du div contenant les infos serveur
-            /*$("#serverInfoSlideDiv").animate({
-                width: 0,
-            });*/
-
-            // masquage du div permettant de gérer les groupes
-            /*$("#groupsDiv").animate({
-                width: 0,
-            });*/
-            
             // affichage du div permettant de créer un nouveau repo/section à la place
-            $("#newRepoSlideDiv").delay(250).animate({
+            $("#newRepoSlideDiv").animate({
+                opacity: 1,
                 width: '97%',
                 padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
             });
@@ -336,14 +330,10 @@
         $("#newRepoCloseButton").click(function(){
             // masquage du div permettant de créer un nouveau repo/section
             $("#newRepoSlideDiv").animate({
+                opacity: 0,
                 width: 0,
                 padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
             });
-
-            // affichage du div contenant les infos serveur à la place
-            /*$("#serverInfoSlideDiv").delay(250).animate({
-                width: '97%',
-            });*/
         });
     });
 </script>

@@ -3,17 +3,16 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-  /**
-   *  Import des variables et fonctions nécessaires
-   */
-  require_once('functions/load_common_variables.php');
-  require_once('functions/load_display_variables.php');
-  require_once('functions/common-functions.php');
-  require_once('functions/profiles_functions.php');
-  require_once('common.php');
-  require_once('class/Repo.php');
-  $repo = new Repo();
-  if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
+/**
+ *  Import des variables et fonctions nécessaires
+ */
+require_once('functions/load_common_variables.php');
+require_once('functions/load_display_variables.php');
+require_once('functions/common-functions.php');
+require_once('functions/profiles_functions.php');
+require_once('common.php');
+require_once('class/Repo.php');
+$repo = new Repo();
 
   // Créer le répertoire principal des profils si n'existe pas
   // boolean true = créee récursivement tous les sous-répertoires si n'existent pas

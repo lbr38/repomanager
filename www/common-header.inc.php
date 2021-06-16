@@ -1,3 +1,19 @@
+<?php
+if ($DEBUG_MODE == "enabled") { 
+    echo '<b>Mode debug activé</b>';
+    if (!empty($_POST)) {
+        echo '<br>POST : <pre>';
+        print_r($_POST);
+        echo '</pre>';
+    }
+    if (!empty($_GET)) {
+        echo '<br>GET : <pre>';
+        print_r($_GET);
+        echo '</pre>';
+    }
+}
+?>
+
 <header id="here">
   <ul id="menu">
   <span id="title"><a href="index.php">Repomanager</a></span>

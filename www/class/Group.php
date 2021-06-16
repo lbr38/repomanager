@@ -25,7 +25,7 @@ class Group {
 /**
  *  CREER UN GROUPE
  */
-    public function create(string $name) {
+    public function new(string $name) {
         /**
          *  1. On vérifie que le groupe n'existe pas déjà
          */

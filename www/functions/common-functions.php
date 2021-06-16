@@ -170,11 +170,30 @@ function refreshdiv_class($divclass) {
 }
 
 // Affichage d'une div cachée
-function showdiv_class($divclass) {
+function showdiv_byclass($divclass) {
   echo '<script>';
   echo "$(document).ready(function() {";
   echo "$('.${divclass}').show(); })";
   echo '</script>';
+}
+
+function showdiv_byid($divid) {
+  echo '<script>';
+  echo "$(document).ready(function() {";
+  echo "$('#${divid}').show(); })";
+  echo '</script>';
+}
+
+function animatediv_byid($divid) {
+  echo "<script>
+  $(document).ready(function(){
+    $(\"#${divid}\").animate({
+        width: '97%',
+        padding: '10px',
+        opacity: 1
+    });
+  });
+  </script>";
 }
 
 // Suppression d'un repo d'un groupe en particulier
