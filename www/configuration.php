@@ -19,18 +19,20 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     // On récupère la dernière version du script de mise à jour avant de l'exécuter
     exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
     if ($result != 0) {
-        ++$error;
+        $error = 1;
     }
 
     exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
     if ($result != 0) {
-        ++$error;
+        $error = 2;
     }
 
     if ($error == 0) {
         $updateStatus = 'OK';
-    } else {
-        $updateStatus = 'Erreur pendant la mise à jour';
+    } elseif ($error == 1) {
+        $updateStatus = 'Erreur pendant le téléchargement de la mise à jour';
+    } elseif ($error == 2) {
+        $updateStatus = 'Erreur pendant l\'exécution de la mise à jour';
     }
 }
 

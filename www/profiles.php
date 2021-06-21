@@ -257,7 +257,7 @@ $repo = new Repo();
               $profileConf_needRestart = explode(',', $profileConf_needRestart);
 
               // Liste des paquets sélectionnables dans la liste des paquets à exclure
-              $listPackages = "apache,httpd,php,php-fpm,mysql,fail2ban,nrpe,munin-node,node,newrelic,nginx,haproxy,netdata,nfs,rsnapshot,kernel,java,redis,varnish,mongo,rabbit,clamav,clam";
+              $listPackages = "apache,httpd,php,php-fpm,mysql,fail2ban,nrpe,munin-node,node,newrelic,nginx,haproxy,netdata,nfs,rsnapshot,kernel,java,redis,varnish,mongo,rabbit,clamav,clam,gpg,gnupg";
               $listPackages = explode(',', $listPackages); // explode cette liste pour retourner un tableau
               sort($listPackages);  // tri par ordre alpha 
               // Puis pour chaque paquet de cette liste, si celui-ci apparait dans $profileConf_excludeMajor alors on l'affiche comme sélectionné "selected"
