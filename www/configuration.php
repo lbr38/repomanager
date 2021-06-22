@@ -16,23 +16,44 @@ require_once('common.php');
 
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     $error = 0;
-    // On récupère la dernière version du script de mise à jour avant de l'exécuter
-    exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    if ($result != 0) {
-        $error = 1;
-    }
 
-    exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    if ($result != 0) {
-        $error = 2;
+    /**
+     *  Backup avant mise à jour
+     */
+    if ($UPDATE_BACKUP_ENABLED == "yes") {
+        if (!is_dir($UPDATE_BACKUP_DIR)) {
+            if (!mkdir($UPDATE_BACKUP_DIR)) {
+                $error++;
+                $errorMsg = "Erreur : impossible de créer le répertoire de sauvegarde $UPDATE_BACKUP_DIR";
+            }
+        } else {
+            exec("tar xzf /tmp/${DATE_AMJ}_${HEURE}_repomanager_backup.tar.gz $WWW_DIR" ,$output, $result);
+            if ($result != 0) {
+                $error++;
+                $errorMsg = 'Erreur lors de la sauvegarde de la configuration actuelle de repomanager';
+            }
+        }
     }
 
     if ($error == 0) {
+        // On récupère la dernière version du script de mise à jour avant de l'exécuter
+        exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        if ($result != 0) {
+            $error++;
+            $errorMsg = 'Erreur pendant le téléchargement de la mise à jour';
+        }
+
+        exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        if ($result != 0) {
+            $error++;
+            $errorMsg = 'Erreur pendant l\'exécution de la mise à jour';
+        }
+    }
+    
+    if ($error == 0) {
         $updateStatus = 'OK';
-    } elseif ($error == 1) {
-        $updateStatus = 'Erreur pendant le téléchargement de la mise à jour';
-    } elseif ($error == 2) {
-        $updateStatus = 'Erreur pendant l\'exécution de la mise à jour';
+    } else {
+        $updateStatus = $errorMsg;   
     }
 }
 

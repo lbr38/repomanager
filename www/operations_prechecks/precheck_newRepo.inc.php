@@ -3,7 +3,6 @@ function precheck_newRepo() {
     global $OS_FAMILY;
     global $WWW_DIR;
     global $REPOMANAGER_YUM_DIR;
-    global $HOSTS_CONF;
     global $DEFAULT_ENV;
 
     require_once('class/Repo.php');
@@ -105,17 +104,7 @@ function precheck_newRepo() {
             }
 
             /**
-             *  4. On vérifie qu'une url hôte source existe pour le repo source renseigné
-             */
-            $checkifRepoHostExist = exec("grep '^Name=\"{$repo->source}\",' $HOSTS_CONF");
-            if (empty($checkifRepoHostExist)) {
-                echo "<tr><td>Erreur : Il n'existe aucune URL hôte pour le nom de repo <b>{$repo->name}</b></td></tr>";
-                echo '<tr><td colspan="100%"><a href="index.php" class="button-submit-large-red">Retour</a></td></tr>';
-                return;
-            }
-
-            /**
-             *  5. Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
+             *  4. Si on n'a pas encore reçu la confirmation alors on la demande (et on revalide le formulaire sur cette meme page, en renvoyant toutes les variables nécéssaires grâce aux input hidden)
              */
             if (empty($_GET['confirm'])) {
                 echo '<tr><td colspan="100%">L\'opération va créer une nouvelle section de repo :</td></tr>';
@@ -126,7 +115,7 @@ function precheck_newRepo() {
             }
 
             /**
-             *  6. Si on a reçu la confirmation en GET alors on traite
+             *  5. Si on a reçu la confirmation en GET alors on traite
              */
             if (!empty($_GET['confirm']) AND (validateData($_GET['confirm']) == "yes")) {
                 echo '<tr><td>Chargement <img src="images/loading.gif" class="icon" /></td></tr>';

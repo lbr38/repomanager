@@ -1,9 +1,9 @@
 <?php
 function precheck_updateRepo() {
     require_once('class/Repo.php');
+    require_once('class/Source.php');
     global $OS_FAMILY;
     global $WWW_DIR;
-    global $HOSTS_CONF;
     global $REPOMANAGER_YUM_DIR;
     global $DEFAULT_ENV;
 
@@ -83,6 +83,7 @@ function precheck_updateRepo() {
         if (!empty($repoName) AND !empty($repoDist) AND !empty($repoSection) AND !empty($repoGpgCheck) AND !empty($repoGpgResign)) {
             $repoEnv = $DEFAULT_ENV;
             $repo = new Repo(compact('repoName', 'repoDist', 'repoSection', 'repoEnv'));
+            $source = new Source();
 
             /**
              *  3. On récupère toutes les informations du repo à mettre à jour à partir de la BDD, notamment la source
@@ -100,8 +101,7 @@ function precheck_updateRepo() {
             /**
              *  5. On vérifie dans le fichiers des hotes que le repo souce récupéré existe bien
              */
-            $checkIfHostExists = exec("grep 'Name=\"$repo->source\",' $HOSTS_CONF");
-            if (empty($checkIfHostExists)) {
+            if ($source->db->countRows("SELECT * FROM sources WHERE Name = '$repo->source'") == 0) {
                 echo "<tr><td>Erreur : L'hôte source $repo->source du repo $repo->name n'existe pas/plus</td></tr>";
                 echo '<tr><td colspan="100%"><a href="index.php" class="button-submit-large-red">Retour</a></td></tr>';
                 return;

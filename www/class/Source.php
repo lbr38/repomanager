@@ -2,7 +2,7 @@
 
 class Source {
     public $name;
-    private $db;
+    public $db;
 
     public function __construct(array $variables = []) {
         extract($variables);
@@ -25,6 +25,9 @@ class Source {
         global $REPOMANAGER_YUM_DIR;
         global $WWW_HOSTNAME;
         global $RPM_GPG_DIR;
+        global $TEMP_DIR;
+        global $GPGHOME;
+        global $DEBUG_MODE;
 
         /**
          *  Sur Redhat/Centos, on crée un fichier dans /etc/yum.repos.d/repomanager/
@@ -97,6 +100,38 @@ class Source {
          *  Sur Debian, on ajoute l'url en BDD
          */
         if ($OS_FAMILY == "Debian") {
+            /**
+             *  Si une clé GPG a été transmise alors on l'importe
+             */
+            if (!empty($_POST['addSourceGpgKey'])) {
+                $addSourceGpgKey = validateData($_POST['addSourceGpgKey']);
+                $gpgTempFile = "${TEMP_DIR}/repomanager_newgpgkey.tmp"; // création d'un fichier temporaire
+                file_put_contents($gpgTempFile, $addSourceGpgKey, FILE_APPEND | LOCK_EX); // ajout de la clé gpg à l'intérieur d'un fichier temporaire, afin de l'importer
+                $output=null; // un peu de gestion d'erreur
+                $retval=null;
+                exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --import $gpgTempFile", $output, $result);
+                if ($result != 0) {
+                    // Affichage d'un message d'erreur
+                    printAlert("Erreur lors de l'import de la clé GPG");
+                    if ($DEBUG_MODE == "yes") { print_r($output); }
+                    unlink($gpgTempFile); // suppression du fichier temporaire
+                    return;
+                }
+                /**
+                 *  Si l'import de la clé GPG s'est bien passé alors on récupère son ID pour pouvoir l'ajouter en BDD
+                 */
+
+
+
+                unlink($gpgTempFile); // suppression du fichier temporaire
+            }
+
+            /*if (!empty($addSourceGpgKey)) {
+                $this->db->exec("INSERT INTO sources ('Name', 'Url', 'Gpgkey') VALUES ('$name', '$url', '')");
+            } else {
+                $this->db->exec("INSERT INTO sources ('Name', 'Url') VALUES ('$name', '$url')");
+            }*/
+
             $this->db->exec("INSERT INTO sources ('Name', 'Url') VALUES ('$name', '$url')");
         }
 

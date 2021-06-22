@@ -112,31 +112,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
 // Debian : on a la possibilité d'ajouter de nouvelles url hotes depuis l'accueil
 if ($OS_FAMILY == "Debian") {
-    // Cas où on souhaite ajouter une nouvelle url hôte :
-    if (!empty($_POST['newHostName']) AND !empty($_POST['newHostUrl'])) {
-        $newHostName = validateData($_POST['newHostName']);
-        $newHostUrl = validateData($_POST['newHostUrl']);
-        if (!empty($_POST['newHostGpgKey'])) { // on importe la clé si elle a été transmise 
-            $newHostGpgKey = validateData($_POST['newHostGpgKey']);
-            $gpgTempFile = '/tmp/repomanager_newgpgkey.tmp'; // création d'un fichier temporaire
-            file_put_contents($gpgTempFile, $newHostGpgKey, FILE_APPEND | LOCK_EX); // ajout de la clé gpg à l'intérieur d'un fichier temporaire, afin de l'importer
-            $output=null; // un peu de gestion d'erreur
-            $retval=null;
-            exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --import $gpgTempFile", $output, $retval);
-            if ($retval !== 0) {
-                // Affichage d'un message et rechargement de la div
-                printAlert("Erreur lors de l'import de la clé GPG");
-                if ($DEBUG_MODE == "yes") { print_r($output); }
-            } 
-            unlink($gpgTempFile); // suppression du fichier temporaire
-        }
-        exec("echo 'Name=\"${newHostName}\",Url=\"${newHostUrl}\"' >> $HOSTS_CONF"); // import du nom et de l'url dans le fichier des hôtes
-        // Affichage d'un message et rechargement de la div
-        printAlert("L'hôte $newHostName a été ajouté. Vous pouvez créer des sections à partir de cet hôte");
-        refreshdiv_class('divManageReposSources');
-        showdiv_byclass('divManageReposSources');
-    }
-
     // Cas où on souhaite supprimer un clé gpg du trousseau de repomanager :
     if (isset($_GET['action']) AND (validateData($_GET['action']) == "deleteGpgKey") AND !empty($_GET['gpgKeyID'])) {
         $gpgKeyID = validateData($_GET['gpgKeyID']);

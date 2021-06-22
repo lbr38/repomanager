@@ -26,7 +26,6 @@ $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 $REPOMANAGER_CONF = "${WWW_DIR}/configurations/repomanager.conf";
 $DISPLAY_CONF = "${WWW_DIR}/configurations/display.ini";
 $ENV_CONF = "${WWW_DIR}/configurations/envs.conf";
-$HOSTS_CONF = "${WWW_DIR}/configurations/hosts.conf";
 
 // Emplacement de la DB :
 $DB_DIR = "${WWW_DIR}/db";
@@ -61,7 +60,6 @@ $PID_DIR = "${WWW_DIR}/operations/pid";
 $TEMP_DIR = "${WWW_DIR}/.temp";
 
 // Création des fichiers et répertoires précédemment définis, si n'existent pas
-if (!file_exists($HOSTS_CONF)) { touch($HOSTS_CONF); }
 if (!file_exists($ENV_CONF)) { touch($ENV_CONF); }
 if (!is_dir($DB_DIR)) { mkdir($DB_DIR, 0770, true); }
 if (!is_dir($GPGHOME)) { mkdir($GPGHOME, 0770, true); }
@@ -196,6 +194,8 @@ if (!empty($_SERVER['SERVER_ADDR'])) {
 
 // Date du jour
 $DATE_JMA = exec("date +%d-%m-%Y");
+$DATE_AMJ = exec("date +%Y-%m-%d");
+$HEURE = exec("date +%H-%M");
 
 unset($repomanager_conf_array);
 ?>

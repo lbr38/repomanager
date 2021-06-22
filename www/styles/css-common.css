@@ -43,8 +43,8 @@ body {
     padding: 0px;
     background-color: #333333;
     color: whitesmoke; /* couleur par défaut */
-/*
-    -webkit-transform: translateZ(0);
+
+   /*-webkit-transform: translateZ(0);
    -moz-transform: translateZ(0);
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
@@ -970,18 +970,22 @@ img.cronStatus {
     opacity: 1;
 }
 
-.profileDivContainer, .reposSourcesDivContainer {
-    display: flex;
-    height: 100%;
-    flex-wrap: wrap;
+.profileDivContainer {
+    width: 100%;
 }
 
-.profileDiv, .reposSourcesDiv {
-    flex: 0 0 48%;
-    flex-grow : 0;
-    margin: 4px;
-    background-color: #4CAF50;
+.profileDiv {
     border-radius: 2px;
+    width: 48%;
+    margin: 4px;
+    display: inline;
+    background-color: #4CAF50;
+    float: left;
+}
+
+.profileDiv table {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .groupDiv, .sourceDiv {

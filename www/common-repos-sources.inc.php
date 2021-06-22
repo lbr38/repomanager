@@ -87,12 +87,73 @@ if ($OS_FAMILY == "Debian") {
     echo '<span>Url :</span><br>';
     echo '<input type="text" class="input-large" name="addSourceUrl" required /><br>';
     echo '<span>Clé GPG (optionnelle) :</span><br>';
-    echo '<textarea name="newHostGpgKey" placeholder="Format ASCII" /></textarea>'; 
+    echo '<textarea name="addSourceGpgKey" placeholder="Format ASCII" /></textarea>'; 
 }
 ?>
 <br>
 <button type="submit" class="button-submit-medium-blue" title="Ajouter">Ajouter</button>
 </form>
+<br>
+<?php
+/**
+ *  LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
+ */
+
+/**
+ *  Dans le cas de rpm, les clés gpg sont stockées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
+*/
+if ($OS_FAMILY == "Redhat") {
+    $gpgKeys = scandir($RPM_GPG_DIR);
+}
+
+/**
+ *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
+ */
+if ($OS_FAMILY == "Debian") {
+    $gpgKeys = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+    $gpgKeys = explode("\n\n", $gpgKeys);
+}
+
+if (!empty($gpgKeys)) {
+    echo '<p><b>Liste des clés GPG du trousseau de repomanager :</b></p>';
+    echo '<table class="table-large">';
+
+    $j=0;
+    foreach($gpgKeys as $gpgKey) {
+        if ($OS_FAMILY == "Redhat") {
+            if (($gpgKey != "..") AND ($gpgKey != ".")) {
+                echo '<tr>';
+                echo '<td>';
+                echo "<img class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKey}\" src=\"icons/bin.png\" />";
+                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKey}", "?action=deleteGpgKey&gpgKeyFile=${gpgKey}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
+                echo '</td>';
+                echo '<td>';
+                echo $gpgKey;
+                echo '</td>';
+                echo '</tr>';
+            }
+        }
+        if ($OS_FAMILY == "Debian") {
+            $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'"); // on récup uniquement l'ID de la clé GPG
+            $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID); // retire tous les espaces blancs
+            $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+            if (!empty($gpgKeyID) AND !empty($gpgKeyName)) {
+                echo '<tr>';
+                echo '<td>';
+                echo "<img src=\"icons/bin.png\" class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKeyID}\" />";
+                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKeyName}", "?action=deleteGpgKey&gpgKeyID=${gpgKeyID}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
+                echo '</td>';
+                echo '<td>';
+                echo "$gpgKeyName ($gpgKeyID)";
+                echo '</td>';
+                echo '</tr>';
+            }
+        }
+        ++$j;
+    }
+    echo '</table>';
+} ?>
+    
 
 <br>
   	<?php

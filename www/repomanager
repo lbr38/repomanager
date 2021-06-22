@@ -519,7 +519,15 @@ firstInstall() {
 			echo ""
 			mkdir -p "$GPGHOME" &&
 			cd "$GPGHOME" &&
-			echo -e "Key-Type: RSA\nKey-Length: ${key_length}\nSubkey-Type: RSA\nSubkey-Length: ${key_length}\nName-Real: ${key_name}\nName-Comment: ${key_description}\nName-Email: ${key_email}\nExpire-Date: 0\nPassphrase: ${key_passphrase}" > gpg-template-file &&
+			#echo -e "Key-Type: RSA\nKey-Length: ${key_length}\nSubkey-Type: RSA\nSubkey-Length: ${key_length}\nName-Real: ${key_name}\nName-Comment: ${key_description}\nName-Email: ${key_email}\nExpire-Date: 0\nPassphrase: ${key_passphrase}" > gpg-template-file &&
+			echo "Key-Type: RSA" > gpg-template-file
+			echo "Key-Length: ${key_length}" >> gpg-template-file
+			echo "Key-Usage: sign" >> gpg-template-file
+			echo "Name-Real: ${key_name}" >> gpg-template-file
+			echo "Name-Comment: ${key_description}" >> gpg-template-file
+			echo "Name-Email: ${key_email}" >> gpg-template-file
+			echo "Expire-Date: 0" >> gpg-template-file
+			echo "Passphrase: ${key_passphrase}" >> gpg-template-file &&
 			gpg2 --batch --gen-key --homedir ${GPGHOME} --no-permission-warning gpg-template-file 2>/dev/null && # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage
 			echo -e "Génération de la clé GPG [$VERT OK $RESET]\n" &&
 			rm -f gpg-template-file
