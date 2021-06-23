@@ -94,7 +94,7 @@
             echo '<label for="alternativeColor1"> Couleur 1 : </label>';
             echo "<input type=\"color\" class=\"color-xsmall\" name=\"alternativeColor1\" value=\"${alternativeColor1}\" id=\"alternativeColor1\">";
             echo '<label for="alternativeColor2"> Couleur 2 : </label>';
-            echo "<input type=\"color\" class=\"color-xsmall\" name=\"alternativeColor2\" value=\"${alternativeColor2}\" id=\"alternativeColor1\">";
+            echo "<input type=\"color\" class=\"color-xsmall\" name=\"alternativeColor2\" value=\"${alternativeColor2}\" id=\"alternativeColor2\">";
         }
         ?>
         <br><br>
@@ -114,12 +114,9 @@ $(document).ready(function(){
 });
 </script>
 
-<!-- div cachée, affichée par le bouton "Gérer les repos/hôtes sources" -->
-<!-- REPOS/HOTES SOURCES -->
-<?php include('common-repos-sources.inc.php'); ?>
-
 <!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">
+
 <?php
 $i = 0; // initialise un compteur qui sera incrémenté pour chaque conftoggX (affichage d'une div cachée contenant la conf des repo, bouton Conf)
 // Filtre par noms de groupes

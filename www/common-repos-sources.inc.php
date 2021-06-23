@@ -1,63 +1,70 @@
-<div class="divManageReposSources">
+<?php
+require_once('class/Source.php');
+$source = new Source();
+
+// Cas où on souhaite ajouter un nouveau repo source : 
+if (!empty($_POST['addSourceName'])) {
+    $source->new(validateData($_POST['addSourceName']), validateData($_POST['addSourceUrl']));
+}
+
+// Cas où on souhaite supprimer un repo source :
+if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteSource") AND !empty($_GET['sourceName'])) {
+    $source->delete(validateData($_GET['sourceName']));
+}
+
+// Cas où on souhaite renommer un repo source :
+if (!empty($_POST['newSourceName']) AND !empty($_POST['actualSourceName']) AND !empty($_POST['newSourceUrl']) AND !empty($_POST['actualSourceUrl'])) {
+    $source->name = validateData($_POST['actualSourceName']);
+    $source->rename(validateData($_POST['newSourceName']), validateData($_POST['newSourceUrl']));
+}
+
+// Cas où on souhaite modifier la conf d'un repo source
+if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validateData($_POST['action']) == "editRepoSourceConf" AND !empty($_POST['option'])) {
+    $sourceName = validateData($_POST['actualSourceName']);
+    $sourceFile = "$REPOMANAGER_YUM_DIR/${sourceName}.repo"; // Le fichier dans lequel on va écrire
+    $options = $_POST['option'];
+
+    $content = "[${sourceName}]".PHP_EOL;
+    foreach ($options as $option) {
+        $content = $content . $option['name'] . "=" . $option['value'] . PHP_EOL;
+    }
+    file_put_contents("$REPOMANAGER_YUM_DIR/${sourceName}.repo", $content);
+}
+
+?>
+
 <img id="ReposSourcesCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
-  <?php 
+<?php 
     if ($OS_FAMILY == "Redhat") { echo "<h5>REPOS SOURCES</h5>"; }
     if ($OS_FAMILY == "Debian") { echo "<h5>HOTES SOURCES</h5>"; }
-  ?>
-  
-  <?php
-  $i=0;
-  // Cas Redhat
-  if ($OS_FAMILY == "Redhat") {
-    echo '<p>Pour créer un miroir, repomanager doit connaitre l\'URL du repo source.</p>';
-    echo '<hr>';
-    echo '<div class="div-68 is-inline-block">';
-    // Formulaire d'ajout d'un nouveau repo source rpm
-    echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-    echo '<p><b>Ajouter un nouveau repo source :</b></p>';
-    echo '<table class="table-large">';
-    echo '<tr>';
-    echo '<td><b>1.</b></td>';
-    echo '<td colspan="100%">Nom du repo :</td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td></td>';
-    echo '<td><input type="text" class="input-medium" name="newRepoName" id="newRepoNameInput" required></td>';
-    echo '<td class="td-hide" id="newRepoNameHiddenTd"></td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td><b>2.</b></td>';
-    echo '<td colspan="100%">Type d\'URL :</td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td></td>';
-    echo '<td colspan="100%">';
-    echo '<select name="newRepoUrlType" class="select-medium">';
+?>
+<p>Pour créer un miroir, repomanager doit connaitre l'URL du repo source.</p>
+<br>
+
+<p><b>Ajouter un nouveau repo source :</b></p>
+<?php 
+echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+// Cas Redhat/Centos
+if ($OS_FAMILY == "Redhat") {
+    echo '<span>Nom :</span><br>';
+    echo '<input type="text" class="input-large" name="addSourceName" required /><br>';
+    echo '<span>Url :</span><br>';
+    echo '<select name="addSourceUrlType" class="select-small" required>';
     echo '<option value="baseurl">baseurl</option>';
     echo '<option value="mirrorlist">mirrorlist</option>';
     echo '<option value="metalink">metalink</option>';
-    echo '</select> ';
-    echo '<input type="text" name="newRepoUrl" class="input-large">';
-    echo '</td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td><b>3.</b></td>';
-    echo '<td colspan="100%">Ce repo distant dispose d\'une clé GPG ';
-    echo '<select id="newRepoSourceSelect" class="select-small">';
-    echo '<option id="newRepoSourceSelect_yes">Oui</option>';
-    echo '<option id="newRepoSourceSelect_no">Non</option>';
     echo '</select>';
-    echo '</td>';
-    echo '</tr>';
-    echo '<tr class="tr-hide">';
-    echo '<td></td>';
-    echo '<td colspan="100%">Vous pouvez utilisez une clé déjà présente dans le trousseau de repomanager ou renseignez l\'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte dans le trousseau de repomanager.</td>';
-    echo '</tr>';
-    echo '<tr class="tr-hide">';
-    echo '<td></td>';
-    echo '<td class="td-fit">Clé GPG du trousseau de repomanager :</td>';
-    echo '<td>';
-    echo '<select name="existingRepoGpgKey">';
+    echo '<input type="text" name="addSourceUrl" class="input-large"><br>';
+    echo '<span>Ce repo source dispose d\'une clé GPG : </span>';
+    echo '<select id="newRepoSourceSelect" class="select-small">';
+    echo '<option id="newRepoSourceSelect_no">Non</option>';
+    echo '<option id="newRepoSourceSelect_yes">Oui</option>';
+    echo '</select>';
+    echo '<div class="sourceGpgDiv hide">';
+    echo '<br>';
+    echo '<span>Vous pouvez utilisez une clé déjà présente dans le trousseau de repomanager ou renseignez l\'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte dans le trousseau de repomanager.</span><br>';
+    echo '<span>Clé GPG du trousseau de repomanager :</span><br>';
+    echo '<select name="existingGpgKey">';
     echo '<option value="">Choisir une clé GPG...</option>';
     $gpgFiles = scandir($RPM_GPG_DIR);
     foreach($gpgFiles as $gpgFile) {
@@ -66,192 +73,267 @@
       }
     }
     echo '</select>';
-    echo '</td>';
-    echo '</tr>';
-    echo '<tr class="tr-hide">';
-    echo '<td></td>';
-    echo '<td class="td-fit">URL vers une clé GPG :</td>';
-    echo '<td><input type="text" name="newRepoGpgKeyURL" placeholder="https://"></td>';
-    echo '</tr>';
-    echo '<tr class="tr-hide">';
-    echo '<td></td>';
-    echo '<td class="td-fit">Importer une nouvelle clé GPG (format ASCII) :</td>';
-    echo '<td><textarea name="newRepoGpgKeyText"></textarea></td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td></td>';
-    echo '<td colspan="100%"><button type="submit" class="button-submit-medium-blue">Ajouter</button></td>';
-    echo '</tr>';
-    echo '</table>';
-    echo '</form>';
-    echo '<br>';
+      echo '<span>URL vers une clé GPG :</span><br>';
+    echo '<input type="text" name="gpgKeyURL" placeholder="https://"><br>';
+    echo '<span>Importer une nouvelle clé GPG :</span><br>';
+    echo '<textarea name="gpgKeyText" placeholder="Format ASCII"></textarea>';
+    echo '</div>';
+}
 
-    // Affichage des repos sources actuels
-    $reposFiles = scandir($REPOMANAGER_YUM_DIR);
-    echo '<p><b>Repos sources actuels :</b></p>';
-    echo '<div class="reposSourcesDivContainer">';
-    foreach($reposFiles as $repoFileName) {
-      if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) { // on ignore le fichier principal repomanager.conf (qui est dans /etc/yum.repos.d/repomanager/)
-        // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
-        $repoFileNameFormated = str_replace(".repo", "", $repoFileName);
-        // on récupère le contenu du fichier
-        $content = file_get_contents("${REPOMANAGER_YUM_DIR}/${repoFileName}", true);
-        echo '<div class="reposSourcesDiv">';
-          echo "<span>$repoFileNameFormated</span>";
-          // bouton pour supprimer le repo source
-          echo "<img src=\"icons/bin.png\" class=\"repoSourceDeleteToggle${i} float-right icon-lowopacity\" title=\"Supprimer le repo $repoFileNameFormated\" />";
-          deleteConfirm("Êtes-vous sûr de vouloir supprimer le repo source $repoFileNameFormated", "?action=deleteRepoFile&repoFileName=${repoFileName}", "repoSourceDeleteDiv${i}", "repoSourceDeleteToggle${i}");
-          // bouton pour afficher la conf du repo source
-          echo "<img id=\"reposSourcesToggle${i}\" class=\"float-right icon-lowopacity\" src=\"icons/cog.png\" />";
-          // conf dans un div caché
-          echo "<div id=\"reposSourcesConfDiv${i}\" class=\"hide\">";
-          echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-          echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
-          echo "<input type=\"hidden\" name=\"repoFileName\" value=\"${repoFileName}\" />";
-          echo '<textarea class="reposSourcesTextarea">';
-          echo "${content}";
-          echo '</textarea>';
-          echo '<td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>';
-          echo '</form>';
-          echo '</div>'; // clôture de reposSourcesConfDiv${i}
-        echo '</div>'; // clôture de reposSourcesDiv
-        // Afficher ou masquer la div qui affiche la conf de chaque repo source :
-        echo '<script>';
-        echo '$(document).ready(function(){';
-        echo "$(\"#reposSourcesToggle${i}\").click(function(){";
-        echo "$(\"div#reposSourcesConfDiv${i}\").slideToggle(250);";
-        echo '$(this).toggleClass("open");';
-        echo '});';
-        echo '});';
-        echo '</script>';
-        ++$i;
-      }
-    }
-    echo '</div>'; // clôture de reposSourcesDivContainer
-    echo '</div>'; // clôture de <div class="div-68 is-inline-block">
-  }
+// Cas Debian
+if ($OS_FAMILY == "Debian") {
+    echo '<span>Nom :</span><br>';
+    echo '<input type="text" class="input-large" name="addSourceName" required /><br>';
+    echo '<span>Url :</span><br>';
+    echo '<input type="text" class="input-large" name="addSourceUrl" required /><br>';
+    echo '<span>Clé GPG (optionnelle) :</span><br>';
+    echo '<textarea name="addSourceGpgKey" placeholder="Format ASCII" /></textarea>'; 
+}
+?>
+<br>
+<button type="submit" class="button-submit-medium-blue" title="Ajouter">Ajouter</button>
+</form>
+<br>
+<?php
+/**
+ *  LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
+ */
 
+/**
+ *  Dans le cas de rpm, les clés gpg sont stockées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
+*/
+if ($OS_FAMILY == "Redhat") {
+    $gpgKeys = scandir($RPM_GPG_DIR);
+}
 
-  // Cas Debian
-  if ($OS_FAMILY == "Debian") {
-    echo '<p>Pour créer un miroir, debmirror a besoin de connaitre l\'URL de l\'hôte source.</p>';
-    echo '<hr>';
-    echo '<div class="div-68 is-inline-block">';
-    echo '<p>Renseignez l\'URL de l\'hôte source en lui donnant un nom unique.</p>';
-    echo '<p><b>Ajouter une nouvelle url hôte :</b></p>';
-    echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+/**
+ *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
+ */
+if ($OS_FAMILY == "Debian") {
+    $gpgKeys = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+    $gpgKeys = explode("\n\n", $gpgKeys);
+}
+
+if (!empty($gpgKeys)) {
+    echo '<p><b>Liste des clés GPG du trousseau de repomanager :</b></p>';
     echo '<table class="table-large">';
-    echo '<tr>';
-    echo '<td class="td-medium"><input type="text" name="newHostName" placeholder="Donner un nom à l\'hôte"/></td>';
-    echo '<td class="td-medium"><input type="text" name="newHostUrl" placeholder="Adresse URL de l\'hôte" /></td>';
-    echo '</tr>';
-    echo '<tr>';
-    echo '<td colspan="2"><textarea name="newHostGpgKey" placeholder="Clé GPG (optionnel)" /></textarea></td>';
-    echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Ajouter">+</button></td>';
-    echo '<tr>';
-    echo '</table>';
-    echo '</form>';
 
-    // récupération de tous les hotes renseignés dans $HOSTS_CONF
-    $rows = preg_split('/\s+/', trim(file_get_contents($HOSTS_CONF)));
-    if (!empty($rows)) {
-      echo '<p><b>Hôtes actuels :</b></p>';
-      echo '<div class="reposSourcesDivContainer">';
-      foreach($rows as $data) {
-        $rowData = explode(',', $data);
-        $hostName = str_replace(['Name=', '"'], '', $rowData[0]);
-        $repoHost = str_replace(['Url=', '"'], '', $rowData[1]);
-        echo '<div class="reposSourcesDiv">';
-        echo "<span>${hostName} (${repoHost})</span>";
-        echo "<img src=\"icons/bin.png\" class=\"repoSourceDeleteToggle${i} float-right icon-lowopacity\" title=\"Supprimer l'hôte ${hostName}\" />";
-        deleteConfirm("Êtes-vous sûr de vouloir supprimer l'hôte source $hostName", "?action=deleteHost&hostName=${hostName}", "repoSourceDeleteDiv${i}", "repoSourceDeleteToggle${i}");
-        echo '</div>';
-        ++$i;
-      }
-      echo '</div>'; // cloture de <div class="reposSourcesDivContainer">
-    }
-    echo '</div>'; // cloture de <div class="div-45...>
-  } ?>
-
-  <div class="div-28 is-inline-block align-top float-right">
-    <p>Liste des clés GPG du trousseau de repomanager</p>
-    <table class="table-large">
-   
-    <?php
     $j=0;
-    if ($OS_FAMILY == "Redhat") { // dans le cas de rpm, les clés gpg sont importées dans $RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
-      $gpgFiles = scandir($RPM_GPG_DIR);
-      foreach($gpgFiles as $gpgFile) {
-        if (($gpgFile != "..") AND ($gpgFile != ".")) {
-          echo '<tr>';
-          echo '<td>';
-          echo "<img class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgFile}\" src=\"icons/bin.png\" />";
-          deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgFile}", "?action=deleteGpgKey&gpgKeyFile=${gpgFile}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
-          echo '</td>';
-          echo '<td>';
-          echo "${gpgFile}";
-          echo '</td>';
-          echo '</tr>';
-          ++$j;
+    foreach($gpgKeys as $gpgKey) {
+        if ($OS_FAMILY == "Redhat") {
+            if (($gpgKey != "..") AND ($gpgKey != ".")) {
+                echo '<tr>';
+                echo '<td>';
+                echo "<img class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKey}\" src=\"icons/bin.png\" />";
+                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKey}", "?action=deleteGpgKey&gpgKeyFile=${gpgKey}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
+                echo '</td>';
+                echo '<td>';
+                echo $gpgKey;
+                echo '</td>';
+                echo '</tr>';
+            }
         }
-      }
+        if ($OS_FAMILY == "Debian") {
+            $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'"); // on récup uniquement l'ID de la clé GPG
+            $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID); // retire tous les espaces blancs
+            $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+            if (!empty($gpgKeyID) AND !empty($gpgKeyName)) {
+                echo '<tr>';
+                echo '<td>';
+                echo "<img src=\"icons/bin.png\" class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKeyID}\" />";
+                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKeyName}", "?action=deleteGpgKey&gpgKeyID=${gpgKeyID}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
+                echo '</td>';
+                echo '<td>';
+                echo "$gpgKeyName ($gpgKeyID)";
+                echo '</td>';
+                echo '</tr>';
+            }
+        }
+        ++$j;
+    }
+    echo '</table>';
+} ?>
+    
+
+<br>
+  	<?php
+  	/**
+   	 *  AFFICHAGE DES REPOS SOURCES ACTUELS
+     */
+
+    /**
+     *  1. Récupération de tous les noms de sources
+     */
+
+    if ($OS_FAMILY == "Redhat") {
+        $sourcesList = scandir($REPOMANAGER_YUM_DIR);
+    }
+    if ($OS_FAMILY == "Debian") {
+        $sourcesList = $source->listAll();
     }
 
-    if ($OS_FAMILY == "Debian") {
-      $gpgKeysList = shell_exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g'");
-      $gpgKeysList = explode(PHP_EOL.PHP_EOL, $gpgKeysList);
-      foreach ($gpgKeysList as $gpgKey) {
-        $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'"); // on récup uniquement l'ID de la clé GPG
-        $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID); // retire tous les espaces blancs
-        $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-        if (!empty($gpgKeyID) AND !empty($gpgKeyName)) {
-          echo '<tr>';
-          echo '<td>';
-          echo "<img src=\"icons/bin.png\" class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKeyID}\" />";
-          deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKeyName}", "?action=deleteGpgKey&gpgKeyID=${gpgKeyID}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
-          echo '</td>';
-          echo '<td>';
-          echo "$gpgKeyName ($gpgKeyID)";
-          echo '</td>';
-          echo '</tr>';
-          ++$j;
-        }
-      }
-    } ?>
-    </table>
-  </div>
-</div>
+    /**
+     *  2. Affichage des groupes si il y en a
+     */
+
+    if (!empty($sourcesList)) {
+		echo "<p><b>Repos sources actuels :</b></p>";
+		$i = 0;
+
+      	foreach($sourcesList as $source) {
+            if ($OS_FAMILY == "Redhat") {
+                if (($source == "..") OR ($source == ".") OR ($source == "repomanager.conf")) {
+                    continue;
+                }
+                $sourceName = str_replace(".repo", "", $source);
+                // on récupère le contenu du fichier
+                $content = explode("\n", file_get_contents("${REPOMANAGER_YUM_DIR}/${source}", true));
+            }
+            if ($OS_FAMILY == "Debian") {
+                $sourceName = $source['Name'];
+                $sourceUrl = $source['Url'];
+            }
+
+        	echo '<div class="sourceDiv">';
+
+			/**
+			 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
+			 */
+
+			echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+
+			// On veut pouvoir renommer le repo source, donc il faut transmettre le nom de repo source actuel (actualSourceName)
+            // Idem pour l'url (Debian seulement)
+			echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
+            if ($OS_FAMILY == "Debian") {
+                echo "<input type=\"hidden\" name=\"actualSourceUrl\" value=\"${sourceUrl}\" />";
+            }
+
+			echo '<table class="table-large">';
+			echo '<tr>';
+			// On affiche le nom actuel du repo source dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newSourceName)
+            // Idem pour l'url (Debian seulement)
+			echo "<td><input type=\"text\" value=\"${sourceName}\" name=\"newSourceName\" class=\"input-medium invisibleInput-blue\" /></td>";
+            if ($OS_FAMILY == "Debian") {
+                echo "<td><input type=\"text\" value=\"${sourceUrl}\" name=\"newSourceUrl\" class=\"input-medium invisibleInput-blue\" /></td>";
+            }
+		
+			// Boutons configuration et suppression du repo source
+			echo '<td class="td-fit">';
+			if ($OS_FAMILY == "Redhat") {
+                echo "<img id=\"sourceConfigurationToggleButton${i}\" class=\"icon-mediumopacity\" title=\"Configuration de $sourceName\" src=\"icons/cog.png\" />";
+            }
+			echo "<img src=\"icons/bin.png\" class=\"sourceDeleteToggleButton${i} icon-lowopacity\" title=\"Supprimer le repo source ${sourceName}\" />";
+			deleteConfirm("Etes-vous sûr de vouloir supprimer le repo source $sourceName", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv${i}", "sourceDeleteToggleButton${i}");
+			echo '</td>';
+			echo '</tr>';
+			echo '</table>';
+            echo '<input type="submit" class="input-hidden" />';
+			echo '</form>';
+
+			/**
+			 *  4. La liste des repos sources est placée dans un div caché
+			 */
+            if ($OS_FAMILY == "Redhat") {
+                echo "<div id=\"sourceConfigurationTbody${i}\" class=\"hide sourceDivConf\">";
+            
+                echo '<p>Paramètres :</p>';
+
+                // On va récupérer la configuration du repo source et l'afficher      
+                echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+                // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
+                echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
+                echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
+                $j = 0;
+                foreach ($content as $option) {
+                    if (empty($option)) { continue; }
+                    $optionName = exec("echo '$option' | awk -F'=' '{print $1}'");
+                    $optionValue = exec("echo '$option' | cut -d'=' -f 2-");
+                    if ($optionName == "[$sourceName]") { continue; }
+                    if (substr($optionName, 0, 1 ) === "#") { continue; }
+
+                    echo "<input type=\"text\" class=\"input-small\" name=\"option[$j][name]\" value=\"$optionName\" readonly />";
+                    if ($optionValue == "1" OR $optionValue == "0") {
+                        echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_yes\" name=\"option[$j][value]\" value=\"1\" "; if ($optionValue == 1) { echo 'checked />'; } else { echo '/>'; }
+                        echo "<label for=\"${sourceName}_${optionName}_enabled_yes\">Yes</label>";
+                        echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_no\" name=\"option[$j][value]\" value=\"0\" "; if ($optionValue == 0) { echo 'checked />'; } else { echo '/>'; }
+                        echo "<label for=\"${sourceName}_${optionName}_enabled_no\">No</label>";
+                    } else {
+                        echo "<input type=\"text\" class=\"input-large\" name=\"option[$j][value]\" value=\"$optionValue\" />";
+                    }
+                    echo '<br>';
+                    ++$j;
+                }
+                echo '<br>';
+                echo '<a href="javascript:;" id="add-new-param">Ajouter un paramètre</a>';
+                echo '<br>';
+                echo '<button type="submit" class="button-submit-large-blue" title="Enregistrer">Enregistrer</button>';
+                echo '</form>';
+                echo '<br>';
+                echo '</div>'; // cloture de sourceConfigurationTbody${i}
+
+                // Afficher ou masquer la div 'sourceConfigurationTbody' :
+                echo "<script>";
+                echo "$(document).ready(function(){";
+                echo "$(\"#sourceConfigurationToggleButton${i}\").click(function(){";
+                echo "$(\"div#sourceConfigurationTbody${i}\").slideToggle(150);";
+                echo '$(this).toggleClass("open");';
+                echo "});";
+                echo "});";
+                echo "</script>";
+
+                echo '</div>'; // cloture de sourceDivConf
+
+                echo "
+                <script>
+                document.getElementById('add-new-param').onclick = function () {
+                    let template = '<input type=\"text\" class=\"input-small\" name=\"option[${j}][name]\" readonly /><input type=\"text\" class=\"input-large\" name=\"option[${j}][value]\" />';
+                
+                    let container = document.getElementById('sourceConfigurationTbody${i}');
+                    let toto = document.createElement('span');
+                    toto.innerHTML = template;
+                    container.appendChild(toto);
+                }
+                </script>";
+                
+            }
+            ++$i;
+            echo '</div>'; // cloture de sourceDiv
+      	}
+    }
+   ?>
+ </table>
 
 <script> 
-// Afficher ou masquer la div permettant de gérer les repos/hôtes sources (div s'affichant en bas de la page)
 $(document).ready(function(){
-    // Le bouton up permet d'afficher la div et également de la fermer si on reclique dessus
-    $('#ReposSourcesSlideUpButton').click(function() {
-        $('div.divManageReposSources').slideToggle(150);
+    $("#ReposSourcesSlideUpButton").click(function(){            
+        // affichage du div permettant de gérer les sources
+        $("#sourcesDiv").animate({
+            width: '97%',
+            padding: '10px',
+            opacity: 1
+        });
     });
-
-    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
-    $('#ReposSourcesCloseButton').click(function() {
-      $('div.divManageReposSources').slideToggle(150);
+    
+    $("#ReposSourcesCloseButton").click(function(){
+        // masquage du div permettant de gérer les sources
+        $("#sourcesDiv").delay(50).animate({
+            opacity: 0,
+            width: 0,
+            padding: '0px'
+        });
     });
 });
 
 
-// rpm : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
+// Redhat : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
 $(function() {
   $("#newRepoSourceSelect").change(function() {
     if ($("#newRepoSourceSelect_yes").is(":selected")) {
-      $(".tr-hide").show();
+      $(".sourceGpgDiv").show();
     } else {
-      $(".tr-hide").hide();
+      $(".sourceGpgDiv").hide();
     }
   }).trigger('change');
-});
-
-// rpm : affiche une td avec le nom final du repo entre crochets [] tel qu'il sera inséré dans son fichier
-$("#newRepoNameInput").on("input", function(){
-  $(".td-hide").show(); // D'abord on affiche la td cachée
-  var content = $('#newRepoNameInput').val(); // on récupère le contenu du input #newRepoNameInput
-  $("#newRepoNameHiddenTd").text(content + ".repo"); // on affiche le contenu à l'intérieur de la td, concaténé de '.repo' afin d'afficher le nom du fichier complet
 });
 </script>

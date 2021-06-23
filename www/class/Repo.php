@@ -50,7 +50,6 @@ class Repo {
 
     public function __construct(array $variables = []) {
         global $OS_FAMILY;
-        global $HOSTS_CONF;
         global $DEFAULT_ENV;
         extract($variables);
 
@@ -558,10 +557,9 @@ class Repo {
  *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
  */
     private function getFullSource() {
-        global $HOSTS_CONF;
-
-        // Récupère l'url complète dans hosts.conf
-        $this->sourceFullUrl = exec("grep '^Name=\"{$this->source}\",Url=' $HOSTS_CONF | awk -F ',' '{print $2}' | cut -d'=' -f2 | sed 's/\"//g'");
+        // Récupère l'url complète
+        $result = $this->db->querySingleRow("SELECT Url FROM sources WHERE Name = '$this->source'");
+        $this->sourceFullUrl = $result['Url'];
         $this->hostUrl = exec("echo '$this->sourceFullUrl' | cut -d'/' -f1");
         // Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
         $this->rootUrl = exec("echo '$this->sourceFullUrl' | sed 's/$this->hostUrl//g'");

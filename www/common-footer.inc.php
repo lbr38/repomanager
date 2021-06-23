@@ -1,3 +1,9 @@
+<script>
+$(window).on("load",function(){
+     $(".loader-wrapper").fadeOut("slow");
+});
+</script>
+
 <footer>
     <?php
         echo "<p>$VERSION</p>";

@@ -46,6 +46,8 @@ rsync -a --quiet --delete-after www/icons/ ${WWW_DIR}/icons/ &&
 rsync -a --quiet --delete-after www/fonts/ ${WWW_DIR}/fonts/ &&
 # version
 rsync -a --quiet version ${WWW_DIR}/
+# favicon
+rsync -a --quiet www/favicon.ico ${WWW_DIR}/
 # display.ini
 # Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/www/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
 cp www/configurations/display.ini www/configurations/display.ini.tmp
@@ -64,12 +66,18 @@ fi
 
 # Nettoyage
 cd "$WWW_DIR" &&
-# Suppression de certains vieux répertoires inutilisés si existe dans la cible
+# Suppression de certains vieux répertoires ou fichiers inutilisés si existe dans la cible
 rm -rf "${WWW_DIR}/archives"
 rm -rf "${WWW_DIR}/vars"
 rm -rf "${WWW_DIR}/jquery"
 rm -rf "${WWW_DIR}/chartjs"
 rm -rf "${WWW_DIR}/logs/plans"
+rm -f "${WWW_DIR}/configurations/groups.conf"
+rm -f "${WWW_DIR}/configurations/hosts.conf"
+rm -f "${WWW_DIR}/configurations/repos.list"
+rm -f "${WWW_DIR}/configurations/repos-archive.list"
+
+
 # Suppression du répertoire de mise à jour
 rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
 if [ $? -ne "0" ];then

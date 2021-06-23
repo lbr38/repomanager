@@ -43,8 +43,8 @@ body {
     padding: 0px;
     background-color: #333333;
     color: whitesmoke; /* couleur par défaut */
-/*
-    -webkit-transform: translateZ(0);
+
+   /*-webkit-transform: translateZ(0);
    -moz-transform: translateZ(0);
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
@@ -59,6 +59,53 @@ body {
         opacity: 1; 
      } 
 }
+
+.loader-wrapper {
+    width: 100%;
+    height: 100%;
+    float: left;
+    margin-top: 50px;
+    position: absolute;
+    top: 50;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .loader {
+    display: inline;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    border: 4px solid #fff;
+    animation: loader 2s infinite ease;
+  }
+
+  /*
+  .loader-inner {
+    vertical-align: top;
+    display: inline-block;
+    width: 100%;
+    background-color: #fff;
+    animation: loader-inner 2s infinite ease-in;
+  }
+  
+  @keyframes loader {
+    0% { transform: rotate(0deg);}
+    25% { transform: rotate(180deg);}
+    50% { transform: rotate(180deg);}
+    75% { transform: rotate(360deg);}
+    100% { transform: rotate(360deg);}
+  }
+  @keyframes loader-inner {
+    0% { height: 0%;}
+    25% { height: 0%;}
+    50% { height: 100%;}
+    75% { height: 100%;}
+    100% { height: 0%;}
+  }*/
+
+
 
 a {
     text-decoration: none;
@@ -309,7 +356,7 @@ section.left {
 }
 
 /* paramètres pour les sections sur la droite, et pour les sections masqués */
-section.right, #newRepoSlideDiv{
+section.right, #newRepoSlideDiv {
     width: 97%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionRight' */
     margin-bottom: 10px;
     padding: 10px;
@@ -323,7 +370,7 @@ section.right, #newRepoSlideDiv{
 }
 
 /* on écrase certaines des valeurs ci-dessus afin que la section soit masquée au chargement de la page */
-#newRepoSlideDiv, #groupsDiv {
+#newRepoSlideDiv, #groupsDiv, #sourcesDiv {
     width: 0px; /* longueur de 0 par défaut, pour que cette section soit complètement masqué. */
     padding: 0px; /* padding forcé à 0 par défaut, pour que cette section soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois la section affichée */
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
@@ -655,6 +702,10 @@ input[type=text].input-large, .select-large, input[type=color].color-large {
     width: 250px;
 }
 
+.input-hidden {
+    display: none;
+}
+
 .select-xxlarge {
     width: 400px;
 }
@@ -919,51 +970,50 @@ img.cronStatus {
     opacity: 1;
 }
 
-.profileDivContainer, .reposSourcesDivContainer {
-    display: flex;
-    height: 100%;
-    flex-wrap: wrap;
+.profileDivContainer {
+    width: 100%;
 }
 
-.profileDiv, .reposSourcesDiv {
-    flex: 0 0 48%;
-    flex-grow : 0;
+.profileDiv {
+    border-radius: 2px;
+    width: 48%;
     margin: 4px;
+    display: inline;
     background-color: #4CAF50;
-    border-radius: 2px;
+    float: left;
 }
 
-.groupDiv {
+.profileDiv table {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.groupDiv, .sourceDiv {
     width: 100%;
     margin: 4px;
     background-color: #0468c0;
     border-radius: 2px;
 }
 
-.reposSourcesDiv {
-    width: 100%;
-    margin: 4px;
-    padding: 4px;
-    background-color: #0468c0;
-    border-radius: 2px;
-}
-
-.reposSourcesDiv span {
-    font-size: 13px;
-}
-
-.reposSourcesDiv textarea {
-    min-height: 200px;
-    font-size: 11px;
-}
-
-.profileDivConf, .groupDivConf {
+.profileDivConf, .groupDivConf, .sourceDivConf {
     margin: 0px;
     padding: 4px;
     background-color: #252525;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px
 }
+
+.sourceDivConf input[type=text].input-small {
+    background-color: #252525;
+    border: none;
+    margin-right: 5px;
+    margin-bottom: 2px;
+}
+
+.sourceDivConf input[type=text].input-large {
+    width: 80%;
+}
+
 
 .loading {
     display: none;

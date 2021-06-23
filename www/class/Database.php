@@ -113,6 +113,15 @@ class databaseConnection extends SQLite3 {
         Plan_status CHAR(7),
         Plan_error VARCHAR(255),
         Plan_logfile VARCHAR(255))");
+
+        /**
+         *  Crée la table sources si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS sources (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Url VARCHAR(255) NOT NULL,
+        Gpgkey VARCHAR(255))");
     }
 
     /**

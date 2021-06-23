@@ -9,7 +9,6 @@ require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
 require_once('common.php');
-if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; print_r($_POST); echo '<br>GET '; print_r($_GET); }
 
 /**
  *  Mise à jour de Repomanager
@@ -17,20 +16,44 @@ if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; 
 
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     $error = 0;
-    exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    if ($result != 0) {
-        ++$error;
-    }
 
-    exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
-    if ($result != 0) {
-        ++$error;
+    /**
+     *  Backup avant mise à jour
+     */
+    if ($UPDATE_BACKUP_ENABLED == "yes") {
+        if (!is_dir($UPDATE_BACKUP_DIR)) {
+            if (!mkdir($UPDATE_BACKUP_DIR)) {
+                $error++;
+                $errorMsg = "Erreur : impossible de créer le répertoire de sauvegarde $UPDATE_BACKUP_DIR";
+            }
+        } else {
+            exec("tar xzf /tmp/${DATE_AMJ}_${HEURE}_repomanager_backup.tar.gz $WWW_DIR" ,$output, $result);
+            if ($result != 0) {
+                $error++;
+                $errorMsg = 'Erreur lors de la sauvegarde de la configuration actuelle de repomanager';
+            }
+        }
     }
 
     if ($error == 0) {
+        // On récupère la dernière version du script de mise à jour avant de l'exécuter
+        exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        if ($result != 0) {
+            $error++;
+            $errorMsg = 'Erreur pendant le téléchargement de la mise à jour';
+        }
+
+        exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        if ($result != 0) {
+            $error++;
+            $errorMsg = 'Erreur pendant l\'exécution de la mise à jour';
+        }
+    }
+    
+    if ($error == 0) {
         $updateStatus = 'OK';
     } else {
-        $updateStatus = 'Erreur pendant la mise à jour';
+        $updateStatus = $errorMsg;   
     }
 }
 
@@ -415,12 +438,10 @@ if (!empty($_GET['deleteEnv'])) {
 <?php include('common-header.inc.php');?>
 <section class="mainSectionLeft">
     <section class="left">
+        <h5>CONFIGURATION GÉNÉRALE</h5>
         <form action="configuration.php" method="post" autocomplete="off">
         <input type="hidden" name="action" value="applyConfiguration" />
         <table class="table-medium">
-            <tr>
-                <td colspan="100%"><h4>CONFIGURATION GÉNÉRALE</h4</td>
-            </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="" />Famille d'OS</td>
                 <td><input type="text" value="<?php echo $OS_FAMILY;?>" readonly /></td>
@@ -503,10 +524,8 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
         </table>
 
+        <br><h5>REPOS</h5>
         <table class="table-medium">
-            <tr>
-                <td><br><h4>REPOS</h4</td>
-            </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Ce serveur gère des repos de paquets <?php if ($OS_FAMILY == "Redhat") { echo 'rpm'; } if ($OS_FAMILY == "Debian") { echo 'deb'; }?>" />Type de paquets</td>
                 <td><input type="text" value=".<?php echo $PACKAGE_TYPE; ?>" readonly /></td>
@@ -555,10 +574,8 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
         </table>
 
+        <br><h5>CONFIGURATION WEB</h5>
         <table class="table-medium">
-            <tr>
-                <td><br><h4>CONFIGURATION WEB</h4></td>
-            </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Utilisateur Linux exécutant le service web de ce serveur" />Utilisateur web</td>
                 <td><input type="text" name="wwwUser" autocomplete="off" value="<?php echo $WWW_USER; ?>"></td>
@@ -606,10 +623,8 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
         </table>
 
+        <br><h5>PLANIFICATIONS</h5>
         <table class="table-medium"> 
-            <tr>
-                <td><br><h4>PLANIFICATIONS</h4></td>
-            </tr>
             <?php
             echo '<tr>';
             echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>';
@@ -691,12 +706,10 @@ if (!empty($_GET['deleteEnv'])) {
 
 <section class="mainSectionRight">
     <section class="right">
+        <h5>ENVIRONNEMENTS</h5>
         <form action="configuration.php" method="post" autocomplete="off">
             <input type="hidden" name="action" value="applyConfiguration" />
             <table class="table-large">
-                <tr>
-                    <td><br><h4>ENVIRONNEMENTS</h4></td>
-                </tr>
                 <?php // Affichage des envs actuels
                 $i=0;
                 foreach ($ENVS as $env) {
@@ -727,12 +740,10 @@ if (!empty($_GET['deleteEnv'])) {
             </table>
         </form>
 
+        <br><h5>CRONS</h5>
         <form action="configuration.php" method="post">
         <input type="hidden" name="action" value="applyConfiguration" />
             <table class="table-large">
-                <tr>
-                    <td colspan="100%"><br><h4>CRONS</h4></td>
-                </tr>
                 <tr>
                     <td><img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron exécutant des actions régulières telles que vérifier la disponibilité d'une nouvelle mise à jour, remettre en ordre les permissions sur les répertoires de repos. Tâche journalière s'exécutant toutes les 5min." />Activer la tâche cron journalière</td>        
                     <td>
@@ -838,12 +849,11 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
             </table>
         </form>
+
+        <br><h5>MODE DEBUG</h5>
         <form action="configuration.php" method="post">
         <input type="hidden" name="action" value="applyConfiguration" />
             <table class="table-medium">
-                <tr>
-                    <td><h4>MODE DEBUG</h4></td>
-                </tr>
                 <tr>
                     <td>
                         <select name="debugMode" class="select-small">

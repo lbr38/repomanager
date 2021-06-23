@@ -4,7 +4,7 @@ $group = new Group();
 
 // Cas où on souhaite ajouter un nouveau groupe : 
 if (!empty($_POST['addGroupName'])) {
-  	$group->create(validateData($_POST['addGroupName']));
+  	$group->new(validateData($_POST['addGroupName']));
 }
 
 // Cas où on souhaite supprimer un groupe :
@@ -125,50 +125,23 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
   </table>
 
 <script> 
-// Afficher ou masquer la div permettant de gérer les groupes (div s'affichant en bas de la page)
-$(document).ready(function(){
-    // Le bouton up permet d'afficher la div et également de la fermer si on reclique dessus
-    $('#GroupsListSlideUpButton').click(function() {
-        $('div.divGroupsList').slideToggle(150);
-    });
-
-    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
-    $('#GroupsListCloseButton').click(function() {
-      $('div.divGroupsList').slideToggle(150);
-    });
-});
-</script>
-<script> 
     $(document).ready(function(){
-        $("#GroupsListSlideUpButton").click(function(){
-            // masquage du div contenant les infos serveur
-            /*$("#serverInfoSlideDiv").animate({
-                width: 0,
-            });*/
-			// masquage du div createrepo
-			/*$("#newRepoSlideDiv").animate({
-				width: 0,
-				padding: '0px'
-            });*/
-            
+        $("#GroupsListSlideUpButton").click(function(){           
             // affichage du div permettant de gérer les groupes
-            $("#groupsDiv").delay(250).animate({
+            $("#groupsDiv").animate({
+				opacity: 1,
                 width: '97%',
-                padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+                padding: '10px'
             });
         });
         
         $("#GroupsListCloseButton").click(function(){
-            // masquage du div permettant de créer un nouveau repo/section
+            // masquage du div permettant de gérer les groupes
             $("#groupsDiv").animate({
+				opacity: 0,
                 width: 0,
-                padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+                padding: '0px'
             });
-
-            // affichage du div contenant les infos serveur à la place
-            /*$("#serverInfoSlideDiv").delay(250).animate({
-                width: '97%',
-            });*/
         });
     });
 </script>

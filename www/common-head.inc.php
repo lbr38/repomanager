@@ -14,3 +14,9 @@
     <link rel="icon" href="favicon.ico" />
     <title>Repomanager</title>
 </head>
+
+<!-- Affichage d'un logo chargement de la page -->
+<!--<div class="loader-wrapper">
+    <img src="images/loading.gif" />
+    <span class="loader"><span class="loader-inner"></span></span>
+</div>-->

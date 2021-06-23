@@ -16,8 +16,6 @@ require_once('class/Planification.php');
 $repo  = new Repo();
 $group = new Group();
 
-if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : '; echo '<br>POST '; print_r($_POST); echo '<br>GET '; print_r($_GET); }
-
 // Cas où on ajoute une planification
 if (!empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($_POST['addPlanAction'])) {
     $error = 0; // un peu de gestion d'erreur

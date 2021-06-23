@@ -6,7 +6,6 @@ trait op_archive {
     public function op_archive() {
         global $OS_FAMILY;
         global $REPOS_DIR;
-        global $REPOS_ARCHIVE_LIST;
         global $DEFAULT_ENV;
 
         ob_start();

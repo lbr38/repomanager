@@ -3,17 +3,16 @@
 <?php include('common-head.inc.php'); ?>
 
 <?php
-  /**
-   *  Import des variables et fonctions nécessaires
-   */
-  require_once('functions/load_common_variables.php');
-  require_once('functions/load_display_variables.php');
-  require_once('functions/common-functions.php');
-  require_once('functions/profiles_functions.php');
-  require_once('common.php');
-  require_once('class/Repo.php');
-  $repo = new Repo();
-  if ($DEBUG_MODE == "enabled") { echo 'Mode debug activé : ';	echo '<br>POST '; print_r($_POST); echo '<br>GET ';	print_r($_GET); }
+/**
+ *  Import des variables et fonctions nécessaires
+ */
+require_once('functions/load_common_variables.php');
+require_once('functions/load_display_variables.php');
+require_once('functions/common-functions.php');
+require_once('functions/profiles_functions.php');
+require_once('common.php');
+require_once('class/Repo.php');
+$repo = new Repo();
 
   // Créer le répertoire principal des profils si n'existe pas
   // boolean true = créee récursivement tous les sous-répertoires si n'existent pas
@@ -258,7 +257,7 @@
               $profileConf_needRestart = explode(',', $profileConf_needRestart);
 
               // Liste des paquets sélectionnables dans la liste des paquets à exclure
-              $listPackages = "apache,httpd,php,php-fpm,mysql,fail2ban,nrpe,munin-node,node,newrelic,nginx,haproxy,netdata,nfs,rsnapshot,kernel,java,redis,varnish,mongo,rabbit,clamav,clam";
+              $listPackages = "apache,httpd,php,php-fpm,mysql,fail2ban,nrpe,munin-node,node,newrelic,nginx,haproxy,netdata,nfs,rsnapshot,kernel,java,redis,varnish,mongo,rabbit,clamav,clam,gpg,gnupg";
               $listPackages = explode(',', $listPackages); // explode cette liste pour retourner un tableau
               sort($listPackages);  // tri par ordre alpha 
               // Puis pour chaque paquet de cette liste, si celui-ci apparait dans $profileConf_excludeMajor alors on l'affiche comme sélectionné "selected"
