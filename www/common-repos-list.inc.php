@@ -25,7 +25,8 @@
     <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" /> 
     <form action="<?php echo "$actual_uri"; ?>" method="post">
         <input type="hidden" name="action" value="configureDisplay" />
-    <?php
+        <p><b>Informations</b></p>
+        <?php
         // afficher ou non la taille des repos/sections
         echo '<input type="hidden" name="printRepoSize" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($printRepoSize == "yes") {
@@ -52,7 +53,9 @@
             echo '<input type="checkbox" id="printRepoSignature" name="printRepoSignature" value="on" />';
         }
         echo '<label for="printRepoSignature">Afficher la signature du repo</label><br>';
-
+        ?>
+        <p><b>Filtrage</b></p>
+        <?php
         // filtrer ou non par groupe
         echo '<input type="hidden" name="filterByGroups" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
         if ($filterByGroups == "yes") {

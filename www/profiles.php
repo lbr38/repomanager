@@ -148,7 +148,7 @@ $repo = new Repo();
 <section class="mainSectionLeft">
   <!-- REPOS ACTIFS -->
   <section class="left">
-  <h5>GESTION DES PROFILS</h5>
+  <h5>PROFILS</h5>
     <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if ($OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if ($OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
     <br>
     <p>Ajouter un nouveau profil :</p>

@@ -17,6 +17,7 @@ include_once("${WWW_DIR}/class/inclusions/deleteSection.php");
 include_once("${WWW_DIR}/class/inclusions/duplicate.php");
 include_once("${WWW_DIR}/class/inclusions/deleteArchive.php");
 include_once("${WWW_DIR}/class/inclusions/restore.php");
+include_once("${WWW_DIR}/class/inclusions/cleanArchives.php");
 
 class Repo {
     public $db;
@@ -46,7 +47,7 @@ class Repo {
      *  Import des traits nécessaires pour les opérations sur les repos/sections
      */
     use op_printDetails, op_getPackages, op_signPackages, op_createRepo, op_archive, op_finalize;
-    use changeEnv, duplicate, delete, deleteDist, deleteSection, deleteArchive, restore;
+    use changeEnv, duplicate, delete, deleteDist, deleteSection, deleteArchive, restore, cleanArchives;
 
     public function __construct(array $variables = []) {
         global $OS_FAMILY;
@@ -137,6 +138,7 @@ class Repo {
         global $TEMP_DIR;
         global $OS_FAMILY;
         global $WWW_DIR;
+        global $PID_DIR;
 
         /**
          *  Création d'un fichier de log principal + un fichier PID
@@ -144,10 +146,18 @@ class Repo {
         $this->log = new Log('repomanager');
 
         /**
+         *  Ajout du PID de ce processus dans le fichier PID ainsi que l'action effectuée et la cible (le repo)
+         */
+        $this->log->addsubpid(getmypid());
+        $this->log->addaction('new');
+        if ($OS_FAMILY == "Redhat") { $this->log->addtarget(array('name' => $this->name)); }
+        if ($OS_FAMILY == "Debian") { $this->log->addtarget(array('name' => $this->name, 'dist' => $this->dist, 'section' => $this->section)); }
+
+        /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 5;
-        exec("php ${WWW_DIR}/operations/check_running.php {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ${WWW_DIR}/operations/check_running.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
@@ -199,6 +209,7 @@ class Repo {
         global $TEMP_DIR;
         global $OS_FAMILY;
         global $WWW_DIR;
+        global $PID_DIR;
 
         /**
          *  Création d'un fichier de log principal + un fichier PID
@@ -206,10 +217,18 @@ class Repo {
         $this->log = new Log('repomanager');
 
         /**
+         *  Ajout du PID de ce processus dans le fichier PID ainsi que l'action effectuée et la cible (le repo)
+         */
+        $this->log->addsubpid(getmypid());
+        $this->log->addaction('update');
+        if ($OS_FAMILY == "Redhat") { $this->log->addtarget(array('name' => $this->name)); }
+        if ($OS_FAMILY == "Debian") { $this->log->addtarget(array('name' => $this->name, 'dist' => $this->dist, 'section' => $this->section)); }
+
+        /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 6;
-        exec("php ${WWW_DIR}/operations/check_running.php {$this->log->location} ${TEMP_DIR}/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ${WWW_DIR}/operations/check_running.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} ${TEMP_DIR}/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**

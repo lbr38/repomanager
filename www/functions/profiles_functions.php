@@ -67,7 +67,7 @@ function manageProfileRepos($profileName, $profileRepos) {
         printAlert("Le repo $addProfileRepo n'existe pas");
         continue;
       }
-      exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}.repo");
+      exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}.repo");
     }
 
     if ($OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
@@ -82,7 +82,7 @@ function manageProfileRepos($profileName, $profileRepos) {
       if (!empty($checkIfDistContainsSlash)) {
         $addProfileRepoDist = str_replace("/", "[slash]","$addProfileRepoDist");
       }
-      exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
+      exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
     }
   }
 }

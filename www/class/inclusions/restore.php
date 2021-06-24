@@ -117,12 +117,12 @@ trait restore {
          */
         if ($OS_FAMILY == "Redhat") {
             if (!file_exists("${REPOS_DIR}/{$this->name}_{$this->env}")) {
-                exec("cd ${REPOS_DIR} && ln -s {$this->dateFormatted}_{$this->name}/ {$this->name}_{$this->env}");
+                exec("cd ${REPOS_DIR} && ln -sfn {$this->dateFormatted}_{$this->name}/ {$this->name}_{$this->env}");
             }
         }
         if ($OS_FAMILY == "Debian") {
             if (!file_exists("${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->name}_{$this->env}")) {
-                exec("cd ${REPOS_DIR}/{$this->name}/{$this->dist}/ && ln -s {$this->dateFormatted}_{$this->section}/ {$this->section}_{$this->env}");
+                exec("cd ${REPOS_DIR}/{$this->name}/{$this->dist}/ && ln -sfn {$this->dateFormatted}_{$this->section}/ {$this->section}_{$this->env}");
             }
         }
 

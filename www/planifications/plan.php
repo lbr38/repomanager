@@ -62,7 +62,7 @@ if(!empty($plansQueued)) {
                     // On indique à $plan quel est l'id de la planification et on génère le message de rappel
                     $plan->id = $planId;
                     $msg = $plan->generateReminders();
-                    $message_rappel = "${message_rappel}<span><b>Planification du $plan->date à $plan->time :</b></span><br><span>- $msg</span><br>";
+                    $message_rappel = "${message_rappel}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
                 }
             }
         }

@@ -6,12 +6,11 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 <b>Principales fonctionnalités :</b>
 
-- Créer des miroirs de repos, les mettre à jour, les dupliquer, les déployer sur les serveurs clients.
+- Créer des miroirs de repos, les mettre à jour, les dupliquer, les rendre accessibles aux serveurs clients.
 - Signer ses repos de paquets avec GPG.
-- Système d'environnements (ex preprod, prod) permettant de rendre accessible les miroirs à des environnements de serveurs particuliers (nb d'environnement illimité).
-- Planifications automatiques permettant d'exécuter les actions ci-dessus à n'importe quelle date/heure.
+- Système d'environnements (ex: preprod, prod...) permettant de rendre accessible les miroirs à des environnements de serveurs particuliers
+- Planifications automatiques permettant d'exécuter les actions ci-dessus à une date/heure souhaitée.
 
-(voir tableau ci-dessous pour la liste complète)
 
 ![alt text](https://github.com/lbr38/repomanager/blob/beta/repomanager.png?raw=true)
 
@@ -23,9 +22,9 @@ Le CPU et la RAM sont essentiellement sollicités pendant la création de miroir
 L'espace disque est à adapter en fonction du nombre de miroirs créés / nombre de paquets qu'ils contiennent.
 
 
-<h1>Beta version</h1>
+<h1>Version beta</h1>
 
-Compatible avec les systèmes Redhat/CentOS et Debian/Ubuntu :
+Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 - Debian 10, Ubuntu bionic
 - CentOS 7, 8, Fedora 33
 
@@ -78,6 +77,7 @@ apt update && apt install nginx php-fpm php-cli php7.4-sqlite3 sqlite3
 </pre>
 
 <b>SQLite</b>
+
 S'assurer que l'extension sqlite pour php est activée (généralement dans /etc/php.d/) :
 
 <pre>

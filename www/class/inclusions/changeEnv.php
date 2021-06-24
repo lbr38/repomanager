@@ -319,6 +319,8 @@ trait changeEnv {
         }
 
         echo '<p>Terminé <span class="greentext">✔</span></p>';
+
+        $this->cleanArchives();
     }
 }
 ?>
