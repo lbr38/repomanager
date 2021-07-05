@@ -39,20 +39,6 @@ function checkArguments($argumentType, $argumentName) {
             return $repoSource;
         }
     }
-    // Le nom de l'hôte source sera toujours obligatoire
-    /*if ($argumentName === 'repoSource') {
-        if (empty($_GET['repoSource'])) {
-            echo '<tr>';
-            echo '<td>Nom de l\'hôte</td>';
-            echo '<td><input type="text" name="repoSource" placeholder="Vous devez renseigner un nom d\'hôte source" required /></td>';
-            echo '</tr>';
-        }
-        if (!empty($_GET['repoSource'])) {
-            $repoSource = validateData($_GET['repoSource']);
-            echo "<td><input type=\"hidden\" name=\"repoSource\" value=\"$repoSource\"></td>";
-            return $repoSource;
-        }
-    }*/
     // Le nom du repo sera toujours obligatoire
     if ($argumentName === 'repoName') {
         if (empty($_GET['repoName'])) {

@@ -25,7 +25,7 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 ?>
 
 <img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
-<h5>GESTION DES GROUPES</h5>
+<h5>GROUPES</h5>
 <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
 <br>
 

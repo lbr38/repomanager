@@ -89,6 +89,8 @@ trait op_finalize {
 
         echo '<p>Terminé <span class="greentext">✔</span></p>';
 
+        $this->cleanArchives();
+
         $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND);
 
         return true;

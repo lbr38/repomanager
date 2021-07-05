@@ -1,12 +1,8 @@
-@font-face{ font-family: 'ethnocentric';                        src: url('../fonts/ethnocentric rg.ttf')           format('truetype');	}
+@font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype'); }
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
 
 
 /* Codes couleurs  
-
-// inputs //
-
-
 
 // boutons //
     boutons bleu :              #0275d8
@@ -129,31 +125,6 @@ h1, h2, h3, h4, h5 {
 	color: whitesmoke;
 }
 
-header {
-    width: 100%;
-    margin-bottom: 70px;
-    -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-header #title {
-    font-family: 'ethnocentric';
-    margin-left: 20px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    display: inline-block;
-    color: whitesmoke;
-}
-
-header a {
-    font-size: 18px;
-}
-
 hr {
     border-color: gray;
     opacity: 0.11;
@@ -243,10 +214,10 @@ hr {
 #version {
     width: 35px;
     padding: 1px;
-    float: left;
-    position: absolute;
-    top: 41px;
-    left: 210px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 6px;
+    vertical-align: middle;
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
     font-size: 9px;
@@ -256,20 +227,107 @@ hr {
     border-radius: 1px;
 }
 
-#menu {
-    margin: auto;
-    display: block;
-    padding: 0px; /* force padding à 0, sinon le navigateur ajoute un padding par défaut de 40px à gauche */
+header {
+    width: 100%;
+    margin-bottom: 70px;
 }
 
-#menu li {
-	display: inline-block;
-	list-style: none;
+header a {
+    font-size: 18px;
 }
 
-#menu a {
-    margin-right: 60px;
-    position: sticky;
+nav {
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+}
+.menu{
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0;
+}
+.menu > li{
+    float: left;
+    font-size: 18px;
+    margin-right: 70px;
+    height: 40px;
+    line-height: 40px;
+    cursor: pointer;
+    text-align: left;
+}
+.sub-menu{
+    transform: scale(0);
+    transform-origin: top center;
+    transition: all 100ms ease-in-out;
+    list-style-type: none;
+    padding-left: 0;
+}
+.sub-menu li{
+    width: 100%;
+    color: white;
+    transform: scale(0);
+    transform-origin: top center;
+    transition: all 100ms ease-in-out;
+    line-height: 1px;
+    height: 22px;
+}
+.sub-menu li:last-child{
+    border-bottom: 0;
+}
+.menu > li:hover .sub-menu li{
+    transform: scale(1);
+}
+.menu > li:hover .sub-menu{
+    transform: scale(1);
+}
+.li-operation-running {
+    background-color: #d9534f;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 2px 10px;
+    text-align: center;
+}
+.li-operation-running:hover {
+    transition-duration: 0.4s;
+    background-color: #b14440;
+}
+.li-operation-running a {
+    font-size: 13px;
+    text-decoration: none;
+}
+.li-operation-not-running {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 2px;
+    color: whitesmoke;
+    padding: 2px 10px;
+    text-align: center;
+    font-size: 13px;
+    text-decoration: none;
+}
+.li-operation-not-running:hover {
+    transition-duration: 0.4s;
+    background-color: #3e8e41;
+}
+.li-operation-not-running a {
+    font-size: 13px;
+    text-decoration: none;
+}
+#title {
+    font-family: 'ethnocentric';
+    margin-left: 20px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    display: inline-block;
+    color: whitesmoke;
 }
 
 section.main {
@@ -295,18 +353,10 @@ section.main {
     vertical-align: top;
 }
 
-.div-28 { width: 28%; padding: 10px; }
-.div-29 { width: 29%; padding: 10px; }
-.div-30 { width: 30%; padding: 10px; }
-.div-33 { width: 33%; padding: 10px; }
-.div-45 { width: 45%; padding: 10px; }
-.div-48 { width: 48%; padding: 10px; }
-.div-49 { width: 49%; padding: 10px; }
-.div-50 { width: 50%; padding: 10px; }
-.div-65 { width: 65%; padding: 10px; }
-.div-67 { width: 67%; padding: 10px; }
-.div-68 { width: 68%; padding: 10px; }
-.div-69 { width: 69%; padding: 10px; }
+.div-28 { width: 28%; padding: 10px; }.div-29 { width: 29%; padding: 10px; }.div-30 { width: 30%; padding: 10px; }
+.div-33 { width: 33%; padding: 10px; }.div-45 { width: 45%; padding: 10px; }.div-48 { width: 48%; padding: 10px; }
+.div-49 { width: 49%; padding: 10px; }.div-50 { width: 50%; padding: 10px; }.div-65 { width: 65%; padding: 10px; }
+.div-67 { width: 67%; padding: 10px; }.div-68 { width: 68%; padding: 10px; }.div-69 { width: 69%; padding: 10px; }
 .div-70 { width: 70%; padding: 10px; }
 
 section.center {
@@ -606,41 +656,6 @@ td {
     opacity: 0.55;
 }
 
-
-.li-operation-running {
-    background-color: #d9534f;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 2px 10px;
-    text-align: center;
-    font-size: 13px;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.li-operation-running:hover {
-    transition-duration: 0.4s;
-    background-color: #b14440;
-}
-
-.li-operation-not-running {
-    background-color: #4CAF50;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 2px 10px;
-    text-align: center;
-    font-size: 13px;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.li-operation-not-running:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
-}
-
 .divReposConf, .divGroupsList, .divReposListDisplay, .divManageReposSources {
     display: none;
 }
@@ -793,10 +808,6 @@ input[type=text].invisibleInput-green {
     background-color: #4CAF50;
 }
 
-input[type=text].invisibleInput-green:hover {
-    background-color: #3e8e41;
-}
-
 input[type=text].invisibleInput-blue {
     background-color: #0468c0;
     width: 100%;
@@ -946,7 +957,7 @@ img.cronStatus {
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
 #scrollButtons {
     position: fixed;
-    top: 220px;
+    top: 250px;
     right: 10px;
     text-align: right;
 }
@@ -989,8 +1000,9 @@ img.cronStatus {
 }
 
 .groupDiv, .sourceDiv {
-    width: 100%;
     margin: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     background-color: #0468c0;
     border-radius: 2px;
 }
@@ -1013,7 +1025,6 @@ img.cronStatus {
 .sourceDivConf input[type=text].input-large {
     width: 80%;
 }
-
 
 .loading {
     display: none;

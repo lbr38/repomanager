@@ -1,6 +1,8 @@
 <?php
 // Chargement des variables //
 
+date_default_timezone_set('Europe/Paris');
+
 $WWW_DIR = dirname(__FILE__, 2);
 
 // Si le fichier repomanager.conf n'existe pas, on redirige vers la page d'install
@@ -72,7 +74,7 @@ if (!is_dir($TEMP_DIR)) { mkdir($TEMP_DIR, 0770, true); }
 if (!file_exists($WWW_CACHE)) {
     // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
     if (file_exists("/dev/shm")) { 
-        exec("cd $WWW_DIR && ln -sf /dev/shm cache"); 
+        exec("cd $WWW_DIR && ln -sfn /dev/shm cache"); 
     } else { 
         mkdir("${WWW_DIR}/cache", 0770, true); 
     }

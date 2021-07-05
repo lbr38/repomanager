@@ -119,26 +119,26 @@
 
                     // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                     if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
-                        echo '<td></td>';
+                        echo '<td class="td-fit"></td>';
                     } else {
-                        echo "<td>$repoName</td>";
+                        echo "<td class=\"td-fit\">$repoName</td>";
                     }
                     if ($OS_FAMILY == "Debian") {
                         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                         if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
                             echo '<td class="td-xsmall"></td>';
-                            echo '<td></td>';
+                            echo '<td class="td-fit"></td>';
                         } else {
                             echo "<td class=\"td-xsmall\"><a href=\"check.php?actionId=deleteDist&repoName=${repoName}&repoDist=${repoDist}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
-                            echo "<td>$repoDist</td>";
+                            echo "<td class=\"td-fit\">$repoDist</td>";
                         }
                         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
                         if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
                             echo "<td class=\"td-xsmall\"><a href=\"check.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
-                            echo '<td></td>';
+                            echo '<td class="td-fit"></td>';
                         } else {
                             echo "<td class=\"td-xsmall\"><a href=\"check.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
-                            echo "<td>$repoSection</td>";
+                            echo "<td class=\"td-fit\">$repoSection</td>";
                         }
                     }
 

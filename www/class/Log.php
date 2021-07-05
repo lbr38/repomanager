@@ -6,7 +6,7 @@ class Log {
     public $time;
     public $name;       // Nom complet du fichier de log (repomanager_... ou plan_...)
     public $location;   // Emplacement du fichier de log
-    public $title;
+    public $action;
     public $pid;
     public $steplog;
 
@@ -17,6 +17,8 @@ class Log {
         if (empty($type)) {
             throw new Error('Erreur : le type de fichier de log ne peut pas être vide');
         }
+
+        if (!empty($action)) { $this->action = $action; }
 
         /**
          *  Génération d'un PID
@@ -47,8 +49,11 @@ class Log {
          *   Création du fichier PID
          */
         
-        touch("${PID_DIR}/{$this->pid}.pid");
-        file_put_contents("${PID_DIR}/{$this->pid}.pid", "PID=\"{$this->pid}\"LOG=\"$this->name\"");
+        //touch("${PID_DIR}/{$this->pid}.pid");
+        file_put_contents("${PID_DIR}/{$this->pid}.pid", "PID=\"{$this->pid}\"\nLOG=\"$this->name\"".PHP_EOL);
+        if (!empty($this->action)) {
+            file_put_contents("${PID_DIR}/{$this->pid}.pid", "ACTION=\"{$this->action}\"".PHP_EOL, FILE_APPEND);
+        }
 
         /**
          *  Génération du fichier de log
@@ -69,16 +74,55 @@ class Log {
         exec("ln -sfn $this->location ${MAIN_LOGS_DIR}/lastlog.log");
     }
 
+    /**
+     *  Ajout d'un subpid au fichier de PID principal
+     */
+    public function addsubpid(string $pid) {
+        global $PID_DIR;
+        file_put_contents("${PID_DIR}/{$this->pid}.pid", "SUBPID=\"${pid}\"".PHP_EOL, FILE_APPEND);
+    }
+
+    /**
+     *  Ajout de l'action en cours de traitement au fichier de PID principal
+     */
+    public function addaction(string $action) {
+        global $PID_DIR;
+        file_put_contents("${PID_DIR}/{$this->pid}.pid", "ACTION=\"${action}\"".PHP_EOL, FILE_APPEND);
+    }
+
+    /**
+     *  Ajout de la cible en cours de traitement au fichier de PID principal
+     */
+    public function addtarget(array $variables = []) {
+        global $PID_DIR;
+        global $OS_FAMILY;
+        extract($variables);
+        
+        // Si la cible en cours de traitement est un groupe
+        if (!empty($group)) {
+            file_put_contents("${PID_DIR}/{$this->pid}.pid", "GROUP=\"${group}\"".PHP_EOL, FILE_APPEND);
+        }
+        // Si la cible en cours de traitement est un repo
+        if (!empty($name)) {
+            if ($OS_FAMILY == "Redhat") {
+                file_put_contents("${PID_DIR}/{$this->pid}.pid", "NAME=\"${name}\"".PHP_EOL, FILE_APPEND);
+            }
+            if ($OS_FAMILY == "Debian") {
+                file_put_contents("${PID_DIR}/{$this->pid}.pid", "NAME=\"${name}\"\nDIST=\"${dist}\"\nSECTION=\"${section}\"".PHP_EOL, FILE_APPEND);
+            }
+        }
+    }
+
     public function write(string $content) {
         file_put_contents($this->location, $content);
     }
 
     public function close() {
         global $PID_DIR;
+
         /**
          *  Suppression du fichier PID
          */
-
         if (file_exists("${PID_DIR}/{$this->pid}.pid")) {
             unlink("${PID_DIR}/{$this->pid}.pid");
         }

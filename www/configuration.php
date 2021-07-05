@@ -22,15 +22,18 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
      */
     if ($UPDATE_BACKUP_ENABLED == "yes") {
         if (!is_dir($UPDATE_BACKUP_DIR)) {
-            if (!mkdir($UPDATE_BACKUP_DIR)) {
+            if (!mkdir($UPDATE_BACKUP_DIR, 0770, true)) {
                 $error++;
                 $errorMsg = "Erreur : impossible de créer le répertoire de sauvegarde $UPDATE_BACKUP_DIR";
             }
         } else {
-            exec("tar xzf /tmp/${DATE_AMJ}_${HEURE}_repomanager_backup.tar.gz $WWW_DIR" ,$output, $result);
+            $backupName = "${DATE_AMJ}_${HEURE}_repomanager_backup.tar.gz";
+            exec("tar czf /tmp/${backupName} $WWW_DIR" ,$output, $result);
             if ($result != 0) {
                 $error++;
                 $errorMsg = 'Erreur lors de la sauvegarde de la configuration actuelle de repomanager';
+            } else {
+                exec("mv /tmp/${backupName} $UPDATE_BACKUP_DIR/");
             }
         }
     }
@@ -140,7 +143,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
                         }
                         
                         // création du nouveau avec le nouveau prefix :
-                        exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -s ${REPOS_PROFILES_CONF_DIR}/${newSymlinkName}");
+                        exec("cd ${PROFILES_MAIN_DIR}/${profileName}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${newSymlinkName}");
                     }
                 }
             }
@@ -369,7 +372,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      *  On écrit toutes les modifications dans le fichier display.ini
      */
 
-    write_ini_file("$REPOMANAGER_CONF", $repomanager_conf_array);
+    write_ini_file($REPOMANAGER_CONF, $repomanager_conf_array);
 
     /**
      *  On appelle enableCron pour qu'il ré-écrive / supprime les lignes de la crontab
@@ -412,14 +415,14 @@ if (!empty($_POST['actualEnv'])) {
         $actualEnvTotal = "${actualEnvTotal}\n${actualEnvName}";
     }
     // On ré-écrit le tout dans le fichier envs.conf
-    file_put_contents("$ENV_CONF", "[ENVIRONNEMENTS]${actualEnvTotal}".PHP_EOL);   
+    file_put_contents($ENV_CONF, "[ENVIRONNEMENTS]${actualEnvTotal}".PHP_EOL);   
 }
 
 // Ajout d'un nouvel environnement
 if (!empty($_POST['newEnv'])) {
     $newEnv = validateData($_POST['newEnv']);
     // On écrit le nouvel env dans le fichier envs.conf, avant 'prod'
-    file_put_contents("$ENV_CONF", "${newEnv}".PHP_EOL,FILE_APPEND);
+    file_put_contents($ENV_CONF, "${newEnv}".PHP_EOL,FILE_APPEND);
     // Puis rechargement de la page pour appliquer les modifications de configuration
     header('Location: configuration.php');
 }
@@ -482,15 +485,24 @@ if (!empty($_GET['deleteEnv'])) {
                 <option value="alpha" <?php if ($UPDATE_BRANCH == "alpha") { echo 'selected'; } ?>>alpha</option>
                 <option value="beta" <?php if ($UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
                 </td>
-                <td class="td-fit">
                 <?php
-                    if ($UPDATE_AVAILABLE == "yes") {
-                        echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
-                    }
-                    if (!empty($updateStatus)) { echo $updateStatus; }
-                    if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
+                if ($UPDATE_AVAILABLE == "yes") {
+                    echo '<td class="td-fit">';
+                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
+                    echo '</td>';
+                }
+                if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
                 ?>
-                </td>
+            </tr>
+                <?php
+                if (!empty($updateStatus)) {
+                    echo '<tr>';
+                    echo '<td colspan="2">';
+                    echo $updateStatus;
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                ?>
             </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager créera un backup dans le répertoire indiqué avant de se mettre à jour" />Sauvegarde avant mise à jour</td>

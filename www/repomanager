@@ -607,8 +607,7 @@ firstInstall() {
 	if [ "$OS_FAMILY" == "Redhat" ];then
 	# Création du fichier RELEASEVER dans lequel on injecte la version des paquets qu'on synchronise sur ce serveur
 		if [ ! -f "/etc/yum/vars/RELEASEVER" ];then
-			mkdir -p "/etc/yum/vars/"		# On crée le répertoire et le fichier, les droits dessus seront ensuite ajustés par la fonction permissions
-			touch /etc/yum/vars/RELEASEVER    
+			mkdir -p "/etc/yum/vars/"		# On crée le répertoire; les droits dessus seront ensuite ajustés par la fonction permissions  
 		fi
 		echo "$RELEASEVER" > /etc/yum/vars/RELEASEVER
 		chown root:repomanager /etc/yum/vars/RELEASEVER
@@ -660,7 +659,7 @@ while [ $# -ge 1 ];do
 			permissions
 			exit
 		;;
-		--droits|permissions|-p)
+		--droits|--permissions|-p)
 			permissions
 			exit
 		;;

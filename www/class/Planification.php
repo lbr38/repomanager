@@ -185,6 +185,7 @@ public function new() {
                 $this->checkAction_update_allowed();
                 $this->checkAction_update_gpgCheck();
                 $this->checkAction_update_gpgResign();
+                $this->log->addaction('update'); // ajout de l'action au fichier de PID principal
             }
 
             /**
@@ -192,6 +193,7 @@ public function new() {
              */
             if (strpos($this->action, '->') !== false) {
                 $this->checkAction_env_allowed();
+                $this->log->addaction('->'); // ajout de l'action au fichier de PID principal
             }
             
             /**
@@ -229,40 +231,46 @@ public function new() {
 
         // TRAITEMENT //
 
-            /**
-             *  1. Cas où on traite 1 repo seulement
-             */
-            if (!empty($this->repo->name) AND empty($this->group->name)) {
-                // Si $this->action = update alors on met à jour le repo
-                if ($this->action == "update") {
-                    if ($this->repo->update() === false) {
-                        $this->close(2, 'Une erreur est survenue pendant le traitement, voir les logs');
-                    }
-                }
+        /**
+         *  1. Cas où on traite 1 repo seulement
+         */
+        if (!empty($this->repo->name) AND empty($this->group->name)) {
+            // Ajout de la cible dans le fichier de PID principal de la planification
+            if ($OS_FAMILY == "Redhat") { $this->log->addtarget(array('name' => $this->repo->name)); }
+            if ($OS_FAMILY == "Debian") { $this->log->addtarget(array('name' => $this->repo->name, 'dist' => $this->repo->dist, 'section' => $this->repo->section)); }
 
-                // Si $this->action contient '->' alors il s'agit d'un changement d'env
-                if (strpos($this->action, '->') !== false) {
-                    // Récupération de l'environnement source et de l'environnement cible
-                    $this->repo->env = exec("echo '$this->action' | awk -F '->' '{print $1}'");
-                    $this->repo->newEnv = exec("echo '$this->action' | awk -F '->' '{print $2}'");
-                    if (empty($this->repo->env) OR empty($this->repo->newEnv)) {
-                        $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)'); // On sort avec 1 car on considère que c'est une erreur de type vérification
-                    }
-
-                    // Traitement
-                    if ($OS_FAMILY == "Redhat") { $this->log->title = 'NOUVEL ENVIRONNEMENT DE REPO'; }
-                    if ($OS_FAMILY == "Debian") { $this->log->title = 'NOUVEL ENVIRONNEMENT DE SECTION'; }
-                    if ($this->repo->changeEnv() === false) {
-                        $this->close(2, 'Une erreur est survenue pendant le traitement, voir les logs');
-                    }
+            // Si $this->action = update alors on met à jour le repo
+            if ($this->action == "update") {
+                if ($this->repo->update() === false) {
+                    $this->close(2, 'Une erreur est survenue pendant le traitement, voir les logs');
                 }
             }
-        
+
+            // Si $this->action contient '->' alors il s'agit d'un changement d'env
+            if (strpos($this->action, '->') !== false) {
+                // Récupération de l'environnement source et de l'environnement cible
+                $this->repo->env = exec("echo '$this->action' | awk -F '->' '{print $1}'");
+                $this->repo->newEnv = exec("echo '$this->action' | awk -F '->' '{print $2}'");
+                if (empty($this->repo->env) OR empty($this->repo->newEnv)) {
+                    $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)'); // On sort avec 1 car on considère que c'est une erreur de type vérification
+                }
+
+                // Traitement
+                if ($OS_FAMILY == "Redhat") { $this->log->title = 'NOUVEL ENVIRONNEMENT DE REPO'; }
+                if ($OS_FAMILY == "Debian") { $this->log->title = 'NOUVEL ENVIRONNEMENT DE SECTION'; }
+                if ($this->repo->changeEnv() === false) {
+                    $this->close(2, 'Une erreur est survenue pendant le traitement, voir les logs');
+                }
+            }
+        }
 
         /**
          *  2. Cas où on traite un groupe de repos/sections
          */
         if (!empty($this->group->name) AND !empty($this->groupList)) {
+            // Ajout de la cible dans le fichier de PID principal de la planification
+            $this->log->addtarget(array('group' => $this->group->name));
+
             // Comme on boucle pour traiter plusieurs repos/sections, on ne peut pas tout quitter en cas d'erreur tant qu'on a pas bouclé sur tous les repos.
             // Du coup on initialise une variable qu'on incrémentera en cas d'erreur.
             // A la fin si cette variable > 0 alors on pourra quitter ce script en erreur ($this->close 1)
@@ -336,7 +344,7 @@ public function new() {
         //$planFile = "plan-{$this->id}.conf";
               
         /**
-         *  1. Récupération des informations de la planification toto
+         *  1. Récupération des informations de la planification
          */
         $this->getInfo();
      
@@ -464,6 +472,9 @@ public function new() {
         // Pour envoyer un mail HTML il faut inclure ces headers
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = 'Content-type: text/html; charset=utf8';
+        $headers[] = "From: noreply@${WWW_HOSTNAME}";
+        $headers[] = "X-Sender: noreply@${WWW_HOSTNAME}";
+        $headers[] = "Reply-To: noreply@${WWW_HOSTNAME}";
         mail($EMAIL_DEST, $title, $template, implode("\r\n", $headers));
     }
 
@@ -522,7 +533,7 @@ public function new() {
                 if (!empty($this->logList)) {
                     foreach ($this->logList as $log) {
                         $content = $content . file_get_contents($log);
-                        // On supprime le sous-fichier de log puisque son contenu vient d'ere récupéré et qu'il sera intégré au fichier de log de la planification
+                        // On supprime le sous-fichier de log puisque son contenu vient d'etre récupéré et qu'il sera intégré au fichier de log de la planification
                         unlink($log);
                     }
                 }

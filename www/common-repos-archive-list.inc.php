@@ -69,22 +69,22 @@ if (!empty($reposList)) {
         echo '</td>';
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
         if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
-            echo '<td></td>';
+            echo '<td class="td-fit"></td>';
         } else {
-            echo "<td>$repoName</td>";
+            echo "<td class=\"td-fit\">$repoName</td>";
         }
         if ($OS_FAMILY == "Debian") {
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
-                echo '<td></td>';
+                echo '<td class="td-fit"></td>';
             } else {
-                echo "<td>$repoDist</td>";
+                echo "<td class=\"td-fit\">$repoDist</td>";
             }
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
             if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
-                echo '<td></td>';
+                echo '<td class="td-fit"></td>';
             } else {
-                echo "<td>$repoSection</td>";
+                echo "<td class=\"td-fit\">$repoSection</td>";
             }
         }
         echo "<td>$repoDate</td>";
