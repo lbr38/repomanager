@@ -101,8 +101,6 @@ body {
     100% { height: 0%;}
   }*/
 
-
-
 a {
     text-decoration: none;
     /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
@@ -131,55 +129,25 @@ hr {
 }
 
 /* Classes génériques */
-.is-inline {
-    display: inline;
-}
-
-.is-block {
-    display: block;
-}
-
-.is-inline-block {
-    display: inline-block;
-}
-
-.float-left {
-    float: left;
-}
-
-.float-right {
-    float: right;
-}
-
-.align-top {
-    vertical-align: top;
-}
-
-.text-align-center {
-    text-align: center;
-}
+.is-inline { display: inline; }
+.is-block { display: block; }
+.is-inline-block { display: inline-block; }
+.float-left { float: left; }
+.float-right { float: right; }
+.align-top { vertical-align: top; }
+.text-align-center { text-align: center; }
 
 .img-align-center {
     display: block;
     margin: auto;
 }
 
-.pointer {
-    cursor: pointer;
-}
+.pointer { cursor: pointer; }
 
 /* Quelques classes génériques permettant de créer des textes de couleurs */
-.greentext {
-    color: #4CAF50;
-}
-
-.redtext {
-    color: #d9534f;
-}
-
-.yellowtext {
-    color: #f0ad4e;
-}
+.greentext { color: #4CAF50; }
+.redtext { color: #d9534f; }
+.yellowtext { color: #f0ad4e; }
 
 /* Classes génériques permettant de créer des div ou autres block avec un fond défini et des bords arrondis */
 .background-gray, .background-green, .background-blue {
@@ -191,24 +159,10 @@ hr {
      padding: 2px;
 }
 
-.background-green {
-     background-color: #4CAF50;
-}
-
-.background-blue {
-     background-color: #0275d8;
-}
-
-.background-green:hover {
-    background-color: #3e8e41;
-    transition-duration: 0.4s;
-}
-
-.background-blue:hover {
-    background-color: #0468c0;
-    transition-duration: 0.4s;
-}
-
+.background-green { background-color: #4CAF50; }
+.background-blue { background-color: #0275d8; }
+.background-green:hover { background-color: #3e8e41; transition-duration: 0.4s; }
+.background-blue:hover { background-color: #0468c0; transition-duration: 0.4s; }
 
 /* Affichage de version alpha/beta sous le titre du produit */
 #version {
@@ -479,29 +433,19 @@ table {
     display: inline-block;
 }
 
-.table-large {
-    width: 100%;
-}
-
-.table-medium {
-    width: 65%;
-}
-
-table.actiontable { /* réservé aux tableaux d'actions (opérations) sur la page d'index */
-    width: 100%;
-}
-
-table thead, .reposListHead {
-    font-weight: bold;
-}
+.table-large { width: 100%; }
+.table-medium { width: 65%; }
+/* réservé aux tableaux d'actions (opérations) sur la page d'index */
+table.actiontable { width: 100%; }
+table thead, .reposListHead { font-weight: bold; }
 
 table.list-repos, table.list-repos-archived {
     width: 100%;
     font-size: 13px;
     /* optimisation pour l'affichage des tableaux sur Chrome */
     /*-webkit-transform: translate3d(0, 0, 0);
-          transform: translate3d(0, 0, 0);*/
-         /* -webkit-transform: translateZ(0);
+        transform: translate3d(0, 0, 0);*/
+        /* -webkit-transform: translateZ(0);
    -moz-transform: translateZ(0);
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
@@ -610,13 +554,15 @@ td {
 }
 
 /* conf commune à toutes les icones */
-.icon, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green, .icon-invisible, .icon-mediumopacity {
+.icon, .icon-small, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green, .icon-invisible, .icon-mediumopacity {
     height: 11px;
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
     cursor: pointer;
 }
+
+.icon-small { height: 8px; }
 
 .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green {
     opacity: 0.33;
@@ -813,22 +759,26 @@ input[type=text].invisibleInput-blue {
     width: 100%;
 }
 
+.env {
+    font-size: 11px;
+    color: black;
+    background-color: whitesmoke;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-radius: 3px;
+    box-shadow:
+    0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+    0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+}
+
 textarea {
     width: 100%;
     font-size: 13px;
     color: whitesmoke;
     background-color:#3b3b3b;
     border-radius: 3px;
-}
-
-.div-inline {
-    display: inline-block;
-}
-
-.div-inline-right {
-    display: inline-block;
-    margin-right: 0px;
-    margin-left: auto;
 }
 
 .div-flex {
@@ -846,27 +796,18 @@ footer {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#2b2b2b;
 }
+footer p { color: gray; }
+/* lien vers github dans le footer */
+#github img { width: 25px; }
 
-footer p {
-    color: gray;
-}
-
-#github img { /* lien vers github dans le footer */
-    width: 25px;
-}
-
-/* pastilles vertes ou rouge, petite taille */
-img.cronStatus {
-    width: 8px;
-}
-
-#planCronStatus h5, img {
-    display: inline-block;
-}
+/* Cron : pastilles vertes ou rouge */
+#planCronStatus h5, #planCronStatus span { display: inline-block; }
 /* on veut que la pastille soit placée sur la droite */
-#planCronStatus img {
+#planCronStatus span {
+    color: gray;
     float: right;
 }
+#planCronStatus img { width: 8px; }
 
 /* Boutons au sommet de la liste des repos permettant d'afficher les div cachées (groupes, repos sources) */
 #ReposListDisplayToggleButton, #ReposSourcesSlideUpButton, #GroupsListSlideUpButton {
@@ -981,10 +922,6 @@ img.cronStatus {
     opacity: 1;
 }
 
-.profileDivContainer {
-    width: 100%;
-}
-
 .profileDiv {
     border-radius: 2px;
     width: 48%;
@@ -999,15 +936,7 @@ img.cronStatus {
     padding-bottom: 2px;
 }
 
-.groupDiv, .sourceDiv {
-    margin: 4px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    background-color: #0468c0;
-    border-radius: 2px;
-}
-
-.profileDivConf, .groupDivConf, .sourceDivConf {
+.profileDivConf, .detailsDiv {
     margin: 0px;
     padding: 4px;
     background-color: #252525;
@@ -1015,21 +944,19 @@ img.cronStatus {
     border-bottom-right-radius: 2px
 }
 
-.sourceDivConf input[type=text].input-small {
+.sourceDivs input[type=text].input-small {
     background-color: #252525;
     border: none;
     margin-right: 5px;
     margin-bottom: 2px;
 }
 
-.sourceDivConf input[type=text].input-large {
+.sourceDivs input[type=text].input-large {
     width: 80%;
 }
 
-.loading {
-    display: none;
-}
-
+/* Gif de chargement caché par défaut */
+.loading { display: none; }
 
 /* Scrollbar personnalisée */
 /* Compatible Chrome uniquement */
@@ -1048,4 +975,24 @@ img.cronStatus {
     background: #596EB5;
     border-radius: 5px;
     /*border: 1px solid #0275d8;*/
+}
+
+/* divs avec rubans de couleurs */
+/* Container */
+.header-container {
+    width: 100%;
+    margin: 4px;
+}
+/* rubans de couleurs */
+.header-green, .header-red, .header-white {
+    border-radius: 2px;
+}
+.header-green { background-color: #4CAF50; }
+.header-red   { background-color: #d9534f; }
+.header-blue  { background-color: #0468c0 }
+.header-white { background-color: whitesmoke; }
+.header-white td { color: black; }
+.header-green table, .header-red table, .header-white table, .header-blue table {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }

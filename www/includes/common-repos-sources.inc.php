@@ -29,9 +29,7 @@ if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validate
         $content = $content . $option['name'] . "=" . $option['value'] . PHP_EOL;
     }
     file_put_contents("$REPOMANAGER_YUM_DIR/${sourceName}.repo", $content);
-}
-
-?>
+} ?>
 
 <img id="ReposSourcesCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
 <?php 
@@ -194,138 +192,116 @@ if (!empty($gpgKeys)) {
                 $sourceUrl = $source['Url'];
             }
 
-        	echo '<div class="sourceDiv">';
+            echo '<div class="header-container sourceDivs">';
+                echo '<div class="header-blue">';
 
-			/**
-			 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
-			 */
+                /**
+                 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
+                 */
 
-			echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-
-			// On veut pouvoir renommer le repo source, donc il faut transmettre le nom de repo source actuel (actualSourceName)
-            // Idem pour l'url (Debian seulement)
-			echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
-            if ($OS_FAMILY == "Debian") {
-                echo "<input type=\"hidden\" name=\"actualSourceUrl\" value=\"${sourceUrl}\" />";
-            }
-
-			echo '<table class="table-large">';
-			echo '<tr>';
-			// On affiche le nom actuel du repo source dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newSourceName)
-            // Idem pour l'url (Debian seulement)
-			echo "<td><input type=\"text\" value=\"${sourceName}\" name=\"newSourceName\" class=\"input-medium invisibleInput-blue\" /></td>";
-            if ($OS_FAMILY == "Debian") {
-                echo "<td><input type=\"text\" value=\"${sourceUrl}\" name=\"newSourceUrl\" class=\"input-medium invisibleInput-blue\" /></td>";
-            }
-		
-			// Boutons configuration et suppression du repo source
-			echo '<td class="td-fit">';
-			if ($OS_FAMILY == "Redhat") {
-                echo "<img id=\"sourceConfigurationToggleButton${i}\" class=\"icon-mediumopacity\" title=\"Configuration de $sourceName\" src=\"icons/cog.png\" />";
-            }
-			echo "<img src=\"icons/bin.png\" class=\"sourceDeleteToggleButton${i} icon-lowopacity\" title=\"Supprimer le repo source ${sourceName}\" />";
-			deleteConfirm("Etes-vous sûr de vouloir supprimer le repo source $sourceName", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv${i}", "sourceDeleteToggleButton${i}");
-			echo '</td>';
-			echo '</tr>';
-			echo '</table>';
-            echo '<input type="submit" class="input-hidden" />';
-			echo '</form>';
-
-			/**
-			 *  4. La liste des repos sources est placée dans un div caché
-			 */
-            if ($OS_FAMILY == "Redhat") {
-                echo "<div id=\"sourceConfigurationTbody${i}\" class=\"hide sourceDivConf\">";
-            
-                echo '<p>Paramètres :</p>';
-
-                // On va récupérer la configuration du repo source et l'afficher      
                 echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-                // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
-                echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
-                echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
-                $j = 0;
-                foreach ($content as $option) {
-                    if (empty($option)) { continue; }
-                    $optionName = exec("echo '$option' | awk -F'=' '{print $1}'");
-                    $optionValue = exec("echo '$option' | cut -d'=' -f 2-");
-                    if ($optionName == "[$sourceName]") { continue; }
-                    if (substr($optionName, 0, 1 ) === "#") { continue; }
 
-                    echo "<input type=\"text\" class=\"input-small\" name=\"option[$j][name]\" value=\"$optionName\" readonly />";
-                    if ($optionValue == "1" OR $optionValue == "0") {
-                        echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_yes\" name=\"option[$j][value]\" value=\"1\" "; if ($optionValue == 1) { echo 'checked />'; } else { echo '/>'; }
-                        echo "<label for=\"${sourceName}_${optionName}_enabled_yes\">Yes</label>";
-                        echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_no\" name=\"option[$j][value]\" value=\"0\" "; if ($optionValue == 0) { echo 'checked />'; } else { echo '/>'; }
-                        echo "<label for=\"${sourceName}_${optionName}_enabled_no\">No</label>";
-                    } else {
-                        echo "<input type=\"text\" class=\"input-large\" name=\"option[$j][value]\" value=\"$optionValue\" />";
+                // On veut pouvoir renommer le repo source, donc il faut transmettre le nom de repo source actuel (actualSourceName)
+                // Idem pour l'url (Debian seulement)
+                echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
+                if ($OS_FAMILY == "Debian") {
+                    echo "<input type=\"hidden\" name=\"actualSourceUrl\" value=\"${sourceUrl}\" />";
+                }
+
+                echo '<table class="table-large">';
+                echo '<tr>';
+                // On affiche le nom actuel du repo source dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newSourceName)
+                // Idem pour l'url (Debian seulement)
+                echo "<td><input type=\"text\" value=\"${sourceName}\" name=\"newSourceName\" class=\"input-medium invisibleInput-blue\" /></td>";
+                if ($OS_FAMILY == "Debian") {
+                    echo "<td><input type=\"text\" value=\"${sourceUrl}\" name=\"newSourceUrl\" class=\"input-medium invisibleInput-blue\" /></td>";
+                }
+		
+                // Boutons configuration et suppression du repo source
+                echo '<td class="td-fit">';
+                if ($OS_FAMILY == "Redhat") {
+                    echo "<img id=\"sourceConfigurationToggleButton${i}\" class=\"icon-mediumopacity\" title=\"Configuration de $sourceName\" src=\"icons/cog.png\" />";
+                }
+                echo "<img src=\"icons/bin.png\" class=\"sourceDeleteToggleButton${i} icon-lowopacity\" title=\"Supprimer le repo source ${sourceName}\" />";
+                deleteConfirm("Etes-vous sûr de vouloir supprimer le repo source $sourceName", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv${i}", "sourceDeleteToggleButton${i}");
+                echo '</td>';
+                echo '</tr>';
+                echo '</table>';
+                echo '<input type="submit" class="input-hidden" />';
+                echo '</form>';
+
+                /**
+                 *  4. La liste des repos sources est placée dans un div caché
+                 */
+                if ($OS_FAMILY == "Redhat") {
+                    echo "<div id=\"sourceConfigurationTbody${i}\" class=\"hide detailsDiv\">";
+                
+                    echo '<p>Paramètres :</p>';
+
+                    // On va récupérer la configuration du repo source et l'afficher      
+                    echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+                    // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
+                    echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
+                    echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
+                    $j = 0;
+                    foreach ($content as $option) {
+                        if (empty($option)) { continue; }
+                        $optionName = exec("echo '$option' | awk -F'=' '{print $1}'");
+                        $optionValue = exec("echo '$option' | cut -d'=' -f 2-");
+                        if ($optionName == "[$sourceName]") { continue; }
+                        if (substr($optionName, 0, 1 ) === "#") { continue; }
+
+                        echo "<input type=\"text\" class=\"input-small\" name=\"option[$j][name]\" value=\"$optionName\" readonly />";
+                        if ($optionValue == "1" OR $optionValue == "0") {
+                            echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_yes\" name=\"option[$j][value]\" value=\"1\" "; if ($optionValue == 1) { echo 'checked />'; } else { echo '/>'; }
+                            echo "<label for=\"${sourceName}_${optionName}_enabled_yes\">Yes</label>";
+                            echo "<input type=\"radio\" id=\"${sourceName}_${optionName}_enabled_no\" name=\"option[$j][value]\" value=\"0\" "; if ($optionValue == 0) { echo 'checked />'; } else { echo '/>'; }
+                            echo "<label for=\"${sourceName}_${optionName}_enabled_no\">No</label>";
+                        } else {
+                            echo "<input type=\"text\" class=\"input-large\" name=\"option[$j][value]\" value=\"$optionValue\" />";
+                        }
+                        echo '<br>';
+                        ++$j;
                     }
                     echo '<br>';
-                    ++$j;
+                    echo '<a href="javascript:;" id="add-new-param">Ajouter un paramètre</a>';
+                    echo '<br>';
+                    echo '<button type="submit" class="button-submit-large-blue" title="Enregistrer">Enregistrer</button>';
+                    echo '</form>';
+                    echo '<br>';
+                    echo '</div>'; // cloture de sourceConfigurationTbody${i}
+
+                    // Afficher ou masquer la div 'sourceConfigurationTbody' :
+                    echo "<script>";
+                    echo "$(document).ready(function(){";
+                    echo "$(\"#sourceConfigurationToggleButton${i}\").click(function(){";
+                    echo "$(\"div#sourceConfigurationTbody${i}\").slideToggle(150);";
+                    echo '$(this).toggleClass("open");';
+                    echo "});";
+                    echo "});";
+                    echo "</script>";
+
+                    echo "
+                    <script>
+                    document.getElementById('add-new-param').onclick = function () {
+                        let template = '<input type=\"text\" class=\"input-small\" name=\"option[${j}][name]\" readonly /><input type=\"text\" class=\"input-large\" name=\"option[${j}][value]\" />';
+                    
+                        let container = document.getElementById('sourceConfigurationTbody${i}');
+                        let toto = document.createElement('span');
+                        toto.innerHTML = template;
+                        container.appendChild(toto);
+                    }
+                    </script>";
                 }
-                echo '<br>';
-                echo '<a href="javascript:;" id="add-new-param">Ajouter un paramètre</a>';
-                echo '<br>';
-                echo '<button type="submit" class="button-submit-large-blue" title="Enregistrer">Enregistrer</button>';
-                echo '</form>';
-                echo '<br>';
-                echo '</div>'; // cloture de sourceConfigurationTbody${i}
-
-                // Afficher ou masquer la div 'sourceConfigurationTbody' :
-                echo "<script>";
-                echo "$(document).ready(function(){";
-                echo "$(\"#sourceConfigurationToggleButton${i}\").click(function(){";
-                echo "$(\"div#sourceConfigurationTbody${i}\").slideToggle(150);";
-                echo '$(this).toggleClass("open");';
-                echo "});";
-                echo "});";
-                echo "</script>";
-
-                echo '</div>'; // cloture de sourceDivConf
-
-                echo "
-                <script>
-                document.getElementById('add-new-param').onclick = function () {
-                    let template = '<input type=\"text\" class=\"input-small\" name=\"option[${j}][name]\" readonly /><input type=\"text\" class=\"input-large\" name=\"option[${j}][value]\" />';
-                
-                    let container = document.getElementById('sourceConfigurationTbody${i}');
-                    let toto = document.createElement('span');
-                    toto.innerHTML = template;
-                    container.appendChild(toto);
-                }
-                </script>";
-                
-            }
-            ++$i;
-            echo '</div>'; // cloture de sourceDiv
+                ++$i;
+                echo '</div>'; // cloture de header-blue
+            echo '</div>'; // cloture de header-container
       	}
     }
    ?>
  </table>
 
 <script> 
-$(document).ready(function(){
-    $("#ReposSourcesSlideUpButton").click(function(){            
-        // affichage du div permettant de gérer les sources
-        $("#sourcesDiv").animate({
-            width: '97%',
-            padding: '10px',
-            opacity: 1
-        });
-    });
-    
-    $("#ReposSourcesCloseButton").click(function(){
-        // masquage du div permettant de gérer les sources
-        $("#sourcesDiv").delay(50).animate({
-            opacity: 0,
-            width: 0,
-            padding: '0px'
-        });
-    });
-});
-
-
 // Redhat : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
 $(function() {
   $("#newRepoSourceSelect").change(function() {

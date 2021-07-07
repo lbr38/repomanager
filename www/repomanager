@@ -149,7 +149,7 @@ permissions() {
 		WWW_DIR="/var/www/repomanager"
 	fi
 
-	echo -e "${JAUNE}Application de permissions${RESET}"
+	echo -ne "${JAUNE} Application de permissions... ${RESET}"
 
     if [ ! -d "$WWW_DIR" ];then
         echo "Erreur : le répertoire $WWW_DIR n'existe pas"
@@ -244,6 +244,7 @@ permissions() {
             fi
         fi
     fi
+	echo -e "${VERT}OK${RESET}\n"
 }
 
 # Assistant de première installation de repomanager

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <?php
   /**
@@ -15,7 +15,7 @@
 ?>
 
 <body>
-<?php include('common-header.inc.php');
+<?php include('includes/common-header.inc.php');
 
 // On vérifie qu'une action a été demandée
 if (empty($_GET['actionId'])) {
@@ -94,15 +94,15 @@ if (empty($_GET['actionId'])) {
 <section class="mainSectionLeft">
     <section class="left">
         <!-- REPOS ACTIFS -->
-        <?php include('common-repos-list.inc.php'); ?>
+        <?php include('includes/common-repos-list.inc.php'); ?>
     </section>
     <section class="left">
         <!-- REPOS ARCHIVÉS-->
-        <?php include('common-repos-archive-list.inc.php'); ?>
+        <?php include('includes/common-repos-archive-list.inc.php'); ?>
     </section>
 </section>
 
-<?php include('common-footer.inc.php'); ?>
+<?php include('includes/common-footer.inc.php'); ?>
 
 <script>
 // Le clic sur le bouton confirmer fait afficher l'icone de chargement (gif) et fait disparaitre le bouton confirmer

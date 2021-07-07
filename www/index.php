@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <?php
   /**
@@ -47,7 +47,7 @@
 ?>
 
 <body>
-<?php include('common-header.inc.php'); ?>
+<?php include('includes/common-header.inc.php'); ?>
 
 <!-- section 'conteneur' principal englobant toutes les sections de droite -->
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
@@ -55,19 +55,19 @@
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
     <section class="right" id="newRepoSlideDiv">
         <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
-        <?php include('create-repo.inc.php'); ?> 
+        <?php include('includes/create-repo.inc.php'); ?> 
     </section>
 
     <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
     <!-- GERER LES GROUPES -->
     <section class="right" id="groupsDiv">
-        <?php include('common-groupslist.inc.php'); ?>
+        <?php include('includes/common-groupslist.inc.php'); ?>
     </section>
 
     <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
     <!-- GERER LES SOURCES -->
     <section class="right" id="sourcesDiv">
-        <?php include('common-repos-sources.inc.php'); ?>
+        <?php include('includes/common-repos-sources.inc.php'); ?>
     </section>
 
     <section id="serverInfoContainer">
@@ -306,36 +306,15 @@
 <section class="mainSectionLeft">
     <section class="left">
         <!-- REPOS ACTIFS -->
-        <?php include('common-repos-list.inc.php'); ?>
+        <?php include('includes/common-repos-list.inc.php'); ?>
     </section>
     <section class="left">
         <!-- REPOS ARCHIVÉS-->
-        <?php include('common-repos-archive-list.inc.php'); ?>
+        <?php include('includes/common-repos-archive-list.inc.php'); ?>
     </section>
 </section>
 
-<?php include('common-footer.inc.php'); ?>
+<?php include('includes/common-footer.inc.php'); ?>
 
-<script> 
-    $(document).ready(function(){
-        $("#newRepoSlideButton").click(function(){
-            // affichage du div permettant de créer un nouveau repo/section à la place
-            $("#newRepoSlideDiv").animate({
-                opacity: 1,
-                width: '97%',
-                padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
-            });
-        });
-        
-        $("#newRepoCloseButton").click(function(){
-            // masquage du div permettant de créer un nouveau repo/section
-            $("#newRepoSlideDiv").animate({
-                opacity: 0,
-                width: 0,
-                padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
-            });
-        });
-    });
-</script>
 </body>
 </html>

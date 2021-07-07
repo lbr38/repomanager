@@ -84,32 +84,32 @@ if (!empty($reposList)) {
         }
         // Affichage de l'icone "dupliquer" pour dupliquer le repo
         if ($OS_FAMILY == "Redhat") {
-            echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+            echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
         }
         if ($OS_FAMILY == "Debian") {
-            echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+            echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
         }
         // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
         echo "<img id=\"clientConfToggle${i}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" />";
         // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
-        if ($repoEnv === $DEFAULT_ENV) {
+        if ($repoEnv == $DEFAULT_ENV) {
             if ($OS_FAMILY == "Redhat") {
-                echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
             }
             if ($OS_FAMILY == "Debian") {
-                echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
+                echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoSection} (${repoEnv})\" /></a>";
             }
         }
         echo "</td>";
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
-        if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
+        if ($concatenateReposName == "yes" AND $repoName == $repoLastName) {
             echo '<td></td>';
         } else {
             echo "<td>$repoName</td>";
         }
         if ($OS_FAMILY == "Debian") {
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
-            if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
+            if ($concatenateReposName == "yes" AND $repoName == $repoLastName AND $repoDist == $repoLastDist) {
                 echo '<td class="td-xsmall"></td>';
                 echo '<td></td>';
             } else {
@@ -117,7 +117,7 @@ if (!empty($reposList)) {
                 echo "<td>$repoDist</td>";
             }
             // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
-            if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
+            if ($concatenateReposName == "yes" AND $repoName == $repoLastName AND $repoDist == $repoLastDist AND $repoSection == $repoLastSection) {
                 echo "<td class=\"td-xsmall\"><a href=\"check.php?actionId=deleteSection&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
                 echo '<td></td>';
             } else {
@@ -156,7 +156,6 @@ if (!empty($reposList)) {
         echo "<input type=\"text\" class=\"invisibleInput\" name=\"repoDescription\" value=\"$repoDescription\" />";
         echo '</td>';
         echo '<td class="td-fit">';
-
         // Affichage de l'icone du type de repo (miroir ou local)
         if ($printRepoType == "yes") {
             if ($repoType == "mirror") {
@@ -175,6 +174,13 @@ if (!empty($reposList)) {
             } else {
                 echo '<span title="Signature GPG : inconnue">?</span>';
             }
+        }
+        // Affichage de l'icone "explorer"
+        if ($OS_FAMILY == "Redhat") {
+            echo "<a href=\"explore.php?repo=${repoName}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
+        }
+        if ($OS_FAMILY == "Debian") {
+            echo "<a href=\"explore.php?repo=${repoName}&dist=${repoDist}&section=${repoSection}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
         }
         echo '</td>';
         echo '</tr>';

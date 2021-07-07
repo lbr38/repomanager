@@ -1,5 +1,6 @@
+<!DOCTYPE html>
 <html>
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <?php
 /**
@@ -438,7 +439,7 @@ if (!empty($_GET['deleteEnv'])) {
 ?>
 
 <body>
-<?php include('common-header.inc.php');?>
+<?php include('includes/common-header.inc.php');?>
 <section class="mainSectionLeft">
     <section class="left">
         <h5>CONFIGURATION GÉNÉRALE</h5>
@@ -881,6 +882,6 @@ if (!empty($_GET['deleteEnv'])) {
         </form>
     </section>
 </section>
-<?php include('common-footer.inc.php'); ?>
+<?php include('includes/common-footer.inc.php'); ?>
 </body>
 </html>

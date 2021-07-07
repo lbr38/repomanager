@@ -30,12 +30,15 @@ $reposList = $repo->listAll_archived();
 if (!empty($reposList)) {
     foreach($reposList as $repo) {
         $repoName = $repo['Name'];
+        $repoSource = $repo['Source'];
         if ($OS_FAMILY == "Debian") {
             $repoDist = $repo['Dist'];
             $repoSection = $repo['Section'];
         }
         $repoDate = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
         $repoDescription = $repo['Description'];
+        $repoType = $repo['Type'];
+        $repoSigned = $repo['Signed'];
 
         // On calcule la taille des repos seulement si souhaité (car cela peut être une grosse opération si le repo est gros) :
         if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
@@ -92,6 +95,27 @@ if (!empty($reposList)) {
             echo "<td>$repoSize</td>";
         }
         echo "<td title=\"${repoDescription}\">$repoDescription</td>"; // avec un title afin d'afficher une info-bulle au survol (utile pour les descriptions longues)
+        echo '<td class="td-fit">';
+        // Affichage de l'icone du type de repo (miroir ou local)
+        if ($printRepoType == "yes") {
+            if ($repoType == "mirror") {
+                echo "<img class=\"icon-lowopacity\" src=\"icons/world.png\" title=\"Type : miroir ($repoSource)\" />";
+            }
+            if ($repoType == "local") {
+                echo '<img class="icon-lowopacity" src="icons/pin.png" title="Type : local" />';
+            }
+        }
+        // Affichage de l'icone de signature GPG du repo
+        if ($printRepoSignature == "yes") {
+            if ($repoSigned == "yes") {
+                echo '<img class="icon-lowopacity" src="icons/key.png" title="Repo signé avec GPG" />';
+            } elseif ($repoSigned == "no") {
+                echo '<img class="icon-lowopacity" src="icons/key2.png" title="Repo non-signé avec GPG" />';
+            } else {
+                echo '<span title="Signature GPG : inconnue">?</span>';
+            }
+        }
+        echo '</td>';
         echo '</tr>';
     }
     if (!empty($repoName)) { $repoLastName = $repoName; }

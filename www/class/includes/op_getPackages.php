@@ -77,8 +77,10 @@ trait op_getPackages {
          *  2. Création du répertoire du repo/section
          */
         if ($OS_FAMILY == "Redhat") {
+            // Si le répertoire existe déjà, on le supprime
             if (is_dir("${REPOS_DIR}/${DATE_JMA}_{$this->name}")) {
-                throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> existe déjà</p>");
+                exec("rm -rf ${REPOS_DIR}/${DATE_JMA}_{$this->name}");
+                //throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/${DATE_JMA}_{$this->name}</b> existe déjà</p>");
             }
 
             if (!mkdir("${REPOS_DIR}/${DATE_JMA}_{$this->name}", 0770, true)) {
@@ -86,8 +88,10 @@ trait op_getPackages {
             }
         }
         if ($OS_FAMILY == "Debian") {
+            // Si le répertoire existe déjà, on le supprime
             if (is_dir("${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}")) {
-                throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> existe déjà</p>");
+                exec("rm -rf ${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}");
+                //throw new Exception("<p><span class=\"redtext\">Erreur : </span>le répertoire <b>${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}</b> existe déjà</p>");
             }
 
             if (!mkdir("${REPOS_DIR}/{$this->name}/{$this->dist}/${DATE_JMA}_{$this->section}", 0770, true)) {

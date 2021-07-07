@@ -1,6 +1,8 @@
 <?php
 
-// Fonction de vérification des données envoyées par formulaire
+/**
+ *  Fonction de vérification des données envoyées par formulaire
+ */
 function validateData($data) {
     $data = trim($data);
     $data = stripslashes($data);
@@ -9,7 +11,7 @@ function validateData($data) {
 }
 
 function clearCache($WWW_CACHE) {
-    // Suppression du cache serveur
+    // Suppression du 'faux' cache ram du serveur
     // 2 cas possibles : 
     // il s'agit d'un répertoire classique sur le disque
     // ou il s'agit d'un lien symbolique vers /dev/smh (en ram)
@@ -24,7 +26,9 @@ function clearCache($WWW_CACHE) {
     echo "</script>";
 }
 
-// Fonction permettant d'afficher une bulle d'alerte au mileu de la page
+/**
+ *  Fonction permettant d'afficher une bulle d'alerte au milieu de la page
+ */
 function printAlert($message) {
     echo '<div class="alert">';
     echo "<p>${message}</p>";
@@ -40,11 +44,13 @@ function printAlert($message) {
     echo '</script>';
 }
 
-// Fonction affichant un message de confirmation avant de supprimer
-// $message = le message à afficher
-// $url = lien GET vers la page de suppression
-// $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
-// $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
+/**
+ *  Fonction affichant un message de confirmation avant de supprimer
+ *  $message = le message à afficher
+ *  $url = lien GET vers la page de suppression
+ *  $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
+ *  $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
+ */
 function deleteConfirm($message, $url, $divID, $aID) {
     echo "<div id=\"${divID}\" class=\"hide deleteAlert\">";
     echo "<p>${message}</p>";
@@ -63,6 +69,10 @@ function deleteConfirm($message, $url, $divID, $aID) {
     unset($message, $url, $divID, $aID);
 }
 
+/**
+ *  Fonction vérifiant si une opération est en cours d'exéution et récupère les informations relative à celle-ci.
+ *  Les informations sont ensuite traitées et affichées dans le bandeau principal par includes/common-header.inc.php
+ */
 function operationRunning() {
     global $PID_DIR;
 
@@ -85,6 +95,10 @@ function operationRunning() {
     return false;
 }
 
+/**
+ *  Fonction vérifiant si une planification est en cours d'exécution et récupère les informations relative à celle-ci.
+ *  Les informations sont ensuite traitées et affichées dans le bandeau principal par includes/common-header.inc.php
+ */
 function planificationRunning() {
     global $PID_DIR;
 
@@ -105,12 +119,12 @@ function planificationRunning() {
         return $datas;
     }
 
-/*  if (!empty(exec("grep 'plan_' ${PID_DIR}/*.pid"))) {
-        return true;
-    }*/
     return false;
 }
 
+/**
+ *  Récupère les fichiers de logs d'opérations passées ou en cours et les affiche dans un select
+ */
 function selectlogs() {
     global $MAIN_LOGS_DIR;
 
@@ -147,6 +161,9 @@ function selectlogs() {
     unset($logfiles, $logfile, $logfileDate, $logfileTime);
 }
 
+/**
+ *  Récupère les fichiers de logs de planifications passées ou en cours et les affiche dans un select
+ */
 function selectPlanlogs() {
     global $MAIN_LOGS_DIR;
 
@@ -183,11 +200,10 @@ function selectPlanlogs() {
     unset($logfiles, $logfile, $logfileDate, $logfileTime);
 }
 
-function reloadPage($actual_uri) {
-    header("location: $actual_uri");
-}
 
-// Rechargement d'une div en fournissant sa class
+/**
+ *  Rechargement d'une div en fournissant sa class css
+ */
 function refreshdiv_class($divclass) {
     if (!empty($divclass)) {
         echo '<script>';
@@ -196,7 +212,9 @@ function refreshdiv_class($divclass) {
     }
 }
 
-// Affichage d'une div cachée
+/**
+ *  Affichage d'une div cachée en fournissant sa class
+ */
 function showdiv_byclass($divclass) {
     echo '<script>';
     echo "$(document).ready(function() {";
@@ -204,6 +222,9 @@ function showdiv_byclass($divclass) {
     echo '</script>';
 }
 
+/**
+ *  Affichage d'une div cachée en fournissant son id
+ */
 function showdiv_byid($divid) {
     echo '<script>';
     echo "$(document).ready(function() {";
@@ -211,6 +232,9 @@ function showdiv_byid($divid) {
     echo '</script>';
 }
 
+/**
+ *  Anime (affiche ou ferme) une div en fournissant son id
+ */
 function animatediv_byid($divid) {
     echo "<script>
     $(document).ready(function(){
@@ -223,9 +247,11 @@ function animatediv_byid($divid) {
     </script>";
 }
 
-
+/**
+ *  Vérifie que la tâche cron des rappels de planifications est en place
+ */
 function checkCronReminder() {
-    $cronStatus = shell_exec("crontab -l | grep 'planifications/plan.php' | grep -v '#'");
+    $cronStatus = shell_exec("crontab -l | grep 'send-reminders' | grep -v '#'");
     if (empty($cronStatus)) {
         return 'Off';
     } else {
@@ -233,6 +259,10 @@ function checkCronReminder() {
     }
 }
 
+/**
+ *  Fonction d'écriture d'un fichier ini
+ *  Lui fournir un array contenant le paramètre et sa valeur et éventuellement sa section
+ */
 if (!function_exists('write_ini_file')) {
     /**
      * Write an ini configuration file
@@ -310,7 +340,9 @@ if (!function_exists('write_ini_file')) {
     }
 }
 
-// Ecrit le contenu de la crontab de $WWW_USER
+/**
+ *  Inscrit les tâches cron dans la crontab de $WWW_USER
+ */
 function enableCron() {
     global $WWW_DIR;
     global $WWW_USER;

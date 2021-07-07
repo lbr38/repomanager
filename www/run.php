@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <?php
 /**
@@ -70,7 +70,7 @@ if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) 
 
 <body>
 <div id="top"></div> <!-- pour atteindre le haut de la page -->
-<?php include('common-header.inc.php'); ?>
+<?php include('includes/common-header.inc.php'); ?>
 	<section class="main">
 		<?php
 			selectlogs(); // Affichage de la liste des fichiers de logs
@@ -114,7 +114,7 @@ if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) 
 		</div>
 	</section>
 
-	<?php include('common-footer.inc.php'); ?>
+	<?php include('includes/common-footer.inc.php'); ?>
 	<div id="bottom"></div> <!-- pour atteindre le bas de page -->
 </body>
 

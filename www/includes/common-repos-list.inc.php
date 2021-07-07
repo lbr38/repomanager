@@ -20,6 +20,70 @@
     </div>
 </div>
 
+
+<script>
+/* AFFICHAGE DES DIVS CACHÉES : Gérer les groupes, Gérer les repos sources, Créer un nouveau repo */
+$(document).ready(function(){
+    $("#GroupsListSlideUpButton").click(function(){           
+        // affichage du div permettant de gérer les groupes
+        $("#groupsDiv").animate({
+            opacity: 1,
+            width: '97%',
+            padding: '10px'
+        });
+    });
+    
+    $("#GroupsListCloseButton").click(function(){
+        // masquage du div permettant de gérer les groupes
+        $("#groupsDiv").animate({
+            opacity: 0,
+            width: 0,
+            padding: '0px'
+        });
+    });
+});
+
+$(document).ready(function(){
+    $("#ReposSourcesSlideUpButton").click(function(){            
+        // affichage du div permettant de gérer les sources
+        $("#sourcesDiv").animate({
+            width: '97%',
+            padding: '10px',
+            opacity: 1
+        });
+    });
+    
+    $("#ReposSourcesCloseButton").click(function(){
+        // masquage du div permettant de gérer les sources
+        $("#sourcesDiv").delay(50).animate({
+            opacity: 0,
+            width: 0,
+            padding: '0px'
+        });
+    });
+});
+
+$(document).ready(function(){
+    $("#newRepoSlideButton").click(function(){
+        // affichage du div permettant de créer un nouveau repo/section à la place
+        $("#newRepoSlideDiv").animate({
+            opacity: 1,
+            width: '97%',
+            padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+        });
+    });
+    
+    $("#newRepoCloseButton").click(function(){
+        // masquage du div permettant de créer un nouveau repo/section
+        $("#newRepoSlideDiv").animate({
+            opacity: 0,
+            width: 0,
+            padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+        });
+    });
+});
+</script>
+
 <!-- div cachée, affichée par le bouton "Affichage" -->
 <div id="divReposListDisplay" class="divReposListDisplay">
     <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" /> 
@@ -129,14 +193,14 @@ if ($filterByGroups == "yes") {
          if (!file_exists("${WWW_CACHE}/repos-list-filter-group.html")) {
             touch("${WWW_CACHE}/repos-list-filter-group.html");
             ob_start();
-            include('common-repos-list-filter-groups.inc.php');
+            include(__DIR__.'/common-repos-list-filter-groups.inc.php');
             $content = ob_get_clean();
             file_put_contents("${WWW_CACHE}/repos-list-filter-group.html", $content);
         }
         // Enfin on affiche le fichier html généré
         include("${WWW_CACHE}/repos-list-filter-group.html");
     } else {
-        include('common-repos-list-filter-groups.inc.php');
+        include(__DIR__.'/common-repos-list-filter-groups.inc.php');
     }
 }
 
@@ -147,14 +211,14 @@ if ($filterByGroups == "no") {
         if (!file_exists("${WWW_CACHE}/repos-list-no-filter.html")) {
             touch("${WWW_CACHE}/repos-list-no-filter.html");
             ob_start();
-            include('common-repos-list-no-filter.inc.php');
+            include(__DIR__.'/common-repos-list-no-filter.inc.php');
             $content = ob_get_clean();
             file_put_contents("${WWW_CACHE}/repos-list-no-filter.html", $content);
         }
         // Enfin on affiche le fichier html généré
         include("${WWW_CACHE}/repos-list-no-filter.html");
     } else {
-        include('common-repos-list-no-filter.inc.php');
+        include(__DIR__.'/common-repos-list-no-filter.inc.php');
     }
 }
 

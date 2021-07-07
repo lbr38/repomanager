@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <?php
 /**
@@ -143,7 +143,7 @@ $repo = new Repo();
 ?>
 
 <body>
-<?php include('common-header.inc.php'); ?>
+<?php include('includes/common-header.inc.php'); ?>
 
 <section class="mainSectionLeft">
   <!-- REPOS ACTIFS -->
@@ -428,7 +428,7 @@ $repo = new Repo();
     </section>
 </section>
 
-<?php include('common-footer.inc.php'); ?>
+<?php include('includes/common-footer.inc.php'); ?>
 </body>
 <script>
 // Script Select2 pour transformer un select multiple en liste déroulante

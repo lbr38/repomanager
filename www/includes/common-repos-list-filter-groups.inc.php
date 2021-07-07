@@ -98,10 +98,10 @@
                     }
                     // Affichage de l'icone "dupliquer" pour dupliquer le repo
                     if ($OS_FAMILY == "Redhat") {
-                        echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+                        echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
                     }
                     if ($OS_FAMILY == "Debian") {
-                        echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-blue\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                        echo "<a href=\"check.php?actionId=duplicateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
                     }
 
                     // Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
@@ -109,10 +109,10 @@
                     // Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV
                     if ($repoEnv === $DEFAULT_ENV) {
                         if ($OS_FAMILY == "Redhat") {
-                            echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                            echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                         }
                         if ($OS_FAMILY == "Debian") {
-                            echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity-blue\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoName} (${repoEnv})\" /></a>";
+                            echo "<a href=\"check.php?actionId=updateRepo&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoSection} (${repoEnv})\" /></a>";
                         }
                     }
                     echo '</td>';
@@ -190,6 +190,13 @@
                         } else {
                             echo '<span title="Signature GPG : inconnue">?</span>';
                         }
+                    }
+                    // Affichage de l'icone "explorer"
+                    if ($OS_FAMILY == "Redhat") {
+                        echo "<a href=\"explore.php?repo=${repoName}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
+                    }
+                    if ($OS_FAMILY == "Debian") {
+                        echo "<a href=\"explore.php?repo=${repoName}&dist=${repoDist}&section=${repoSection}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
                     }
                     echo '</td>';
                     echo '</tr>';

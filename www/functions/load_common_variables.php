@@ -1,13 +1,17 @@
 <?php
-// Chargement des variables //
-
 date_default_timezone_set('Europe/Paris');
+
+/**
+ *  CHARGEMENT DES CONSTANTES
+ */
 
 $WWW_DIR = dirname(__FILE__, 2);
 
 // Si le fichier repomanager.conf n'existe pas, on redirige vers la page d'install
 if (!file_exists("${WWW_DIR}/configurations/repomanager.conf")) {
-    header("Location: installation.php");
+    //header("Location: installation.php");
+    echo "Erreur : fichier de configuration introuvable. Relancez l'installation de repomanager.";
+    die();
 }
 
 // Récupération de tous les paramètres définis dans le fichier repomanager.conf
@@ -21,7 +25,6 @@ foreach($repomanager_conf_array as $key => $value) {
     }
 }
 
-$BASE_DIR = $WWW_DIR;
 $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 
 // Emplacements des fichiers de conf
@@ -118,7 +121,7 @@ $OS_NAME = $OS_INFO['name'];
 $OS_VERSION = $OS_INFO['version_id'];
 
 // pour Redhat : emplacement de la conf yum
-if ($OS_FAMILY === "Redhat") {
+if ($OS_FAMILY == "Redhat") {
     $REPOMANAGER_YUM_DIR = "/etc/yum.repos.d/repomanager";
     $REPOMANAGER_YUM_CONF = "/etc/yum.repos.d/repomanager/repomanager.conf";
     // emplacement des clés gpg importées par repomanager

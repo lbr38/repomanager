@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<?php include('common-head.inc.php'); ?>
+<?php include('includes/common-head.inc.php'); ?>
 
 <header>
   <ul id="menu">
