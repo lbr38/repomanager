@@ -4,20 +4,23 @@ require_once("${WWW_DIR}/class/Database.php");
 
 class Group {
     public $db;
+    public $id; // Id en BDD
     public $name;
 
     public function __construct(array $variables = []) {
         extract($variables);
 
         /**
-         *  Instanciation d'une db car on paut avoir besoin de récupérer certaines infos en BDD
+         *  Instanciation d'une db car on peut avoir besoin de récupérer certaines infos en BDD
          */
         try {
-            $this->db = new databaseConnection();
+            $this->db = new Database();
         } catch(Exception $e) {
             die('Erreur : '.$e->getMessage());
         }
 
+        /* Id */
+        if (!empty($groupId)) { $this->id = $groupId; }
         /* Nom */
         if (!empty($groupName)) { $this->name = $groupName; }
     }
@@ -29,9 +32,13 @@ class Group {
         /**
          *  1. On vérifie que le groupe n'existe pas déjà
          */
-        $result = $this->db->query("SELECT * FROM groups WHERE Name = '$name'");
+        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
+        $stmt->bindValue(':name', $name);
+        $result = $stmt->execute();
 
-        // Compte le nombre de lignes retournées, si il a +0 ligne alors le groupe existe déjà
+        /**
+         *  2. Compte le nombre de lignes retournées, si il a +0 ligne alors le groupe existe déjà
+         */
         $count = 0;
         while ($row = $result->fetchArray()) {
             $count++;  
@@ -39,15 +46,21 @@ class Group {
     
         if ($count > 0) {
             printAlert("Le groupe <b>${name}</b> existe déjà");
+            animatediv_byid('groupsDiv');
             return;
         }
 
         /**
-         *  2. Insertion du nouveau groupe
+         *  3. Insertion du nouveau groupe
          */
-        $this->db->exec("INSERT INTO groups (Name) VALUES ('$name')");
+        $stmt = $this->db->prepare("INSERT INTO groups (Name) VALUES (:name)");
+        $stmt->bindValue(':name', $name);
+        $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été créé");
+        animatediv_byid('groupsDiv');
+
+        unset($stmt, $result);
     }
 
 /**
@@ -64,58 +77,80 @@ class Group {
         /**
          *  2. On vérifie que le nouveau nom de groupe n'existe pas déjà
          */
-        $result = $this->db->query("SELECT * FROM groups WHERE Name = '$newName'");
+        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:newname");
+        $stmt->bindValue(':newname', $newName);
+        $result = $stmt->execute();
 
-        // Compte le nombre de lignes retournées, si il a +0 ligne alors le groupe existe déjà
+        /**
+         *  Compte le nombre de lignes retournées, si il a +0 ligne alors le groupe existe déjà
+         */
         $count = 0;
         while ($row = $result->fetchArray()) {
             $count++;
         }
     
         if ($count > 0) {
-            printAlert("Le groupe <b>${newName}</b> existe déjà");
+            printAlert("Le groupe <b>$newName</b> existe déjà");
+            animatediv_byid('groupsDiv');
             return;
         }
 
         /**
          *  3. Renommage du groupe
          */
-        $this->db->exec("UPDATE groups SET Name = '$newName' WHERE Name = '$actualName'");
-        printAlert("Le groupe <b>${actualName}</b> a été renommé en <b>${newName}</b>");
+        $stmt = $this->db->prepare("UPDATE groups SET Name=:newname WHERE Name=:actualname");
+        $stmt->bindValue(':newname', $newName);
+        $stmt->bindValue(':actualname', $actualName);
+        $result = $stmt->execute();
+
+        printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>");
+        animatediv_byid('groupsDiv');
+
+        unset($stmt, $result);
     }
 
 /**
  *  SUPPRIMER UN GROUPE
  */
     public function delete(string $name) {
+
         /**
          *  1. On vérifie que le groupe existe
          */
-        $result = $this->db->query("SELECT * FROM groups WHERE Name = '$name'");
+        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
+        $stmt->bindValue(':name', $name);
+        $result = $stmt->execute();
 
-        // Compte le nombre de lignes retournées, si il a 0 ligne alors le groupe n'existe pas
+        /**
+         *  Compte le nombre de lignes retournées, si il a 0 ligne alors le groupe n'existe pas
+         */
         $count = 0;
         while ($row = $result->fetchArray()) {
             $count++;  
         }
     
         if ($count == 0) {
-            printAlert("Le groupe <b>${name}</b> n'existe pas");
+            printAlert("Le groupe <b>$name</b> n'existe pas");
+            animatediv_byid('groupsDiv');
             return;
         }
 
         /**
          *  2. Supprime toutes les entrées concernant ce groupe dans group_members afin que les repos repassent sur le groupe par défaut
          */
-        $this->db->exec("DELETE FROM group_members
-        WHERE Id_group IN (SELECT Id FROM groups WHERE Name = '$name')");
+        $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group IN (SELECT Id FROM groups WHERE Name=:name)");
+        $stmt->bindValue(':name', $name);
+        $result = $stmt->execute();
 
         /**
          *  3. Suppression du groupe
          */
-        $this->db->exec("DELETE FROM groups WHERE Name = '$name'");
+        $stmt = $this->db->prepare("DELETE FROM groups WHERE Name=:name");
+        $stmt->bindValue(':name', $name);
+        $result = $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été supprimé");
+        animatediv_byid('groupsDiv');
     }
 
 /**
@@ -128,9 +163,16 @@ class Group {
          *  Si le groupe est 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe 
          */
         if ($groupName == 'Default') {
-            $reposInGroup = $this->db->query("SELECT * FROM repos
-            WHERE Id NOT IN (SELECT Id_repo FROM group_members)
-            ORDER BY repos.Name");
+            if ($OS_FAMILY == "Redhat") {
+                $reposInGroup = $this->db->query("SELECT * FROM repos
+                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                ORDER BY repos.Name ASC, repos.Env ASC");
+            }
+            if ($OS_FAMILY == "Debian") {
+                $reposInGroup = $this->db->query("SELECT * FROM repos
+                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
+            }
             
         } else {
             if ($OS_FAMILY == "Redhat") {
@@ -142,7 +184,8 @@ class Group {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = '$groupName'
-                ORDER BY repos.Name");
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Env ASC");
             }
                 if ($OS_FAMILY == "Debian") {
                 // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
@@ -153,7 +196,8 @@ class Group {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = '$groupName'
-                ORDER BY repos.Name");
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
             }
         }
 
@@ -177,13 +221,13 @@ class Group {
         if ($groupName == 'Default') {
             if ($OS_FAMILY == "Redhat") {
                 $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name FROM repos
-                WHERE Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name");
+                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                ORDER BY repos.Name ASC");
             }
             if ($OS_FAMILY == "Debian") {
                 $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section FROM repos
-                WHERE Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name");
+                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                ORDER BY repos.Name ASC, repos.Dist ASC");
             }            
         } else {
             if ($OS_FAMILY == "Redhat") {
@@ -194,7 +238,8 @@ class Group {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = '$groupName'
-                ORDER BY repos.Name");
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC");
             }
                 if ($OS_FAMILY == "Debian") {
                 $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
@@ -204,7 +249,8 @@ class Group {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name = '$groupName'
-                ORDER BY repos.Name");
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Dist ASC");
             }
         }
 
@@ -230,7 +276,8 @@ class Group {
                 ON repos.Id = group_members.Id_repo
             INNER JOIN groups
                 ON groups.Id = group_members.Id_group
-            WHERE groups.Name = '$groupName';");
+            WHERE groups.Name = '$groupName'
+            AND repos.Status = 'active';");
 
             /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name
             FROM repos
@@ -242,7 +289,7 @@ class Group {
 
             $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name
             FROM repos
-            WHERE repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+            WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
         }
         if ($OS_FAMILY == "Debian") {
             $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
@@ -251,7 +298,8 @@ class Group {
                 ON repos.Id = group_members.Id_repo
             INNER JOIN groups
                 ON groups.Id = group_members.Id_group
-            WHERE groups.Name = '$groupName';");
+            WHERE groups.Name = '$groupName'
+            AND repos.Status = 'active';");
 
             /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
             FROM repos
@@ -263,7 +311,7 @@ class Group {
 
             $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
             FROM repos
-            WHERE repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+            WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
         }
 
         while ($datas = $reposInGroup->fetchArray()) { $reposIn[] = $datas; }
@@ -334,10 +382,10 @@ class Group {
              *  Récupération à partir de la BDD de l'id du repo à ajouter. Il peut y avoir plusieurs Id si le repo a plusieurs environnements.
              */
             if ($OS_FAMILY == "Redhat") {
-                $result = $this->db->query("SELECT Id FROM repos WHERE Name = '$repoName'");
+                $result = $this->db->query("SELECT Id FROM repos WHERE Name = '$repoName' AND Status = 'active'");
             }
             if ($OS_FAMILY == "Debian") {
-                $result = $this->db->query("SELECT Id FROM repos WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection'");
+                $result = $this->db->query("SELECT Id FROM repos WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Status = 'active'");
             }
             while ($row = $result->fetchArray()) {
                 $repoId = $row['Id'];
@@ -347,7 +395,7 @@ class Group {
                  *  Le format de cet INSERT est fait de sorte à ne pas insérer un Id_repo si celui-ci est déjà présent en BDD
                  */
                 $this->db->exec("INSERT INTO group_members (Id_repo, Id_group)
-                Select $repoId, $groupId Where not exists(SELECT * from group_members where Id_repo = '$repoId' AND Id_group = '$groupId')");
+                SELECT $repoId, $groupId WHERE not exists(SELECT * from group_members where Id_repo = '$repoId' AND Id_group = '$groupId')");
                 $reposId[] = $repoId; // On stocke dans reposId[] TOUS les Id des repos sélectionnés (tout environnements confondus) car on va en avoir besoin par la suite
             }
         }
@@ -368,6 +416,9 @@ class Group {
                 $this->db->query("DELETE FROM group_members WHERE Id_repo = '$actualRepoId' AND Id_group = '$groupId'");
             }
         }
+
+        printAlert('Modifications prises en compte');
+        animatediv_byid('groupsDiv');
     }
 
 /**
@@ -377,11 +428,35 @@ class Group {
         $this->db->exec("DELETE FROM group_members WHERE Id_repo NOT IN (SELECT Id FROM repos)");
     }
 
+
+/**
+ *  Recupère le nom du groupe à partir de son ID en BDD
+ */
+    public function db_getName() {
+        $result = $this->db->query("SELECT Name from groups WHERE Id = '$this->id'");
+    
+        while ($row = $result->fetchArray()) {
+            $this->name = $row['Name'];
+        }
+    }
+
+/**
+ *  LISTER LES INFORMATIONS DE TOUS LES GROUPES
+ *  Sauf le groupe par défaut
+ */
+    public function listAll() {
+        $result = $this->db->query("SELECT * FROM groups");
+        while ($datas = $result->fetchArray()) { $group[] = $datas; }
+        if (!empty($group)) {
+            return $group;
+        }
+    }
+
 /**
  *  LISTER TOUS LES NOMS DE GROUPES
  *  Sauf le groupe par défaut
  */
-    public function listAll() {
+    public function listAllName() {
         $query = $this->db->query("SELECT * FROM groups");
         while ($datas = $query->fetchArray()) { 
             $group[] = $datas['Name'];
@@ -416,9 +491,23 @@ class Group {
 /**
  *  VERIFICATIONS
  */
-/**
- *  Vérifie si le groupe existe
- */
+
+    /**
+     *  Vérifie que l'Id du groupe existe en BDD
+     *  Retourne true si existe
+     *  Retourne false si n'existe pas
+     */
+    public function existsId() {
+        if ($this->db->countRows("SELECT * FROM groups WHERE Id = '$this->id'") == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     *  Vérifie si le groupe existe
+     */
     public function exists() {
         $result = $this->db->countRows("SELECT * FROM groups WHERE Name = '$this->name'");
         if ($result == 0) {

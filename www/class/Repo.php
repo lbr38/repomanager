@@ -1,32 +1,19 @@
 <?php
 global $WWW_DIR;
-
 require_once("${WWW_DIR}/class/Database.php");
 require_once("${WWW_DIR}/class/Log.php");
 require_once("${WWW_DIR}/class/Group.php");
-include_once("${WWW_DIR}/class/inclusions/op_printDetails.php");
-include_once("${WWW_DIR}/class/inclusions/op_getPackages.php");
-include_once("${WWW_DIR}/class/inclusions/op_signPackages.php");
-include_once("${WWW_DIR}/class/inclusions/op_createRepo.php");
-include_once("${WWW_DIR}/class/inclusions/op_archive.php");
-include_once("${WWW_DIR}/class/inclusions/op_finalize.php");
-include_once("${WWW_DIR}/class/inclusions/changeEnv.php");
-include_once("${WWW_DIR}/class/inclusions/delete.php");
-include_once("${WWW_DIR}/class/inclusions/deleteDist.php");
-include_once("${WWW_DIR}/class/inclusions/deleteSection.php");
-include_once("${WWW_DIR}/class/inclusions/duplicate.php");
-include_once("${WWW_DIR}/class/inclusions/deleteArchive.php");
-include_once("${WWW_DIR}/class/inclusions/restore.php");
-include_once("${WWW_DIR}/class/inclusions/cleanArchives.php");
+include_once("${WWW_DIR}/class/includes/cleanArchives.php");
 
 class Repo {
     public $db;
-    public $id;
+    public $id; // l'id en BDD du repo
     public $name;
     public $source;
     public $dist;
     public $section;
     public $date;
+    public $dateFormatted;
     public $time;
     public $env;
     public $description;
@@ -35,36 +22,40 @@ class Repo {
 
     // Variable supplémentaires utilisées lors d'opérations sur le repo
     public $newName;
-    public $dateFormatted;
     public $newEnv;
     public $sourceFullUrl;
     public $hostUrl;
     public $rootUrl;
     public $gpgCheck;
+    public $gpgResign;
     public $log;
 
     /**
      *  Import des traits nécessaires pour les opérations sur les repos/sections
      */
-    use op_printDetails, op_getPackages, op_signPackages, op_createRepo, op_archive, op_finalize;
-    use changeEnv, duplicate, delete, deleteDist, deleteSection, deleteArchive, restore, cleanArchives;
+    use cleanArchives;
 
     public function __construct(array $variables = []) {
         global $OS_FAMILY;
         global $DEFAULT_ENV;
+        global $DATE_YMD;
+        global $DATE_DMY;
+
         extract($variables);
 
         /**
          *  Instanciation d'une db car on peut avoir besoin de récupérer certaines infos en BDD
          */
         try {
-            $this->db = new databaseConnection();
+            $this->db = new Database();
         } catch(Exception $e) {
             die('Erreur : '.$e->getMessage());
         }
         
         /* Id */
         if (!empty($repoId)) { $this->id = $repoId; }
+        /* Type */
+        if (!empty($repoType)) { $this->type = $repoType; }
         /* Nom */
         if (!empty($repoName)) { $this->name = $repoName; }
         /* Nouveau nom */
@@ -97,8 +88,10 @@ class Repo {
             $this->description = '';
         }
         /* Date */
-        if (empty($repoDate)) { 
-            $this->date = exec("date +%Y-%m-%d"); 
+        if (empty($repoDate)) {
+            // Si aucune date n'a été transmise alors on prend la date du jour
+            $this->date = $DATE_YMD;
+            $this->dateFormatted = $DATE_DMY;
         } else { 
             // $repoDate est généralement au format d-m-Y, on le convertit en format DATETIME pour qu'il puisse être facilement inséré en BDD
             $this->date = DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d');
@@ -114,7 +107,7 @@ class Repo {
             /**
              *  On récupère au passage l'url source complète
              */
-            if ($OS_FAMILY == "Debian") {
+            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") {
                 $this->getFullSource();
             }
         }
@@ -127,162 +120,6 @@ class Repo {
         }
         /* gpg check */
         if (!empty($repoGpgCheck)) { $this->gpgCheck = $repoGpgCheck; }
-        /* Type */
-        if (!empty($repoType)) { $this->type = $repoType; }
-    }
-
-/**
- *  CREER UN NOUVEAU REPO/SECTION
- */
-    public function new() {
-        global $TEMP_DIR;
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $PID_DIR;
-
-        /**
-         *  Création d'un fichier de log principal + un fichier PID
-         */
-        $this->log = new Log('repomanager');
-
-        /**
-         *  Ajout du PID de ce processus dans le fichier PID ainsi que l'action effectuée et la cible (le repo)
-         */
-        $this->log->addsubpid(getmypid());
-        $this->log->addaction('new');
-        if ($OS_FAMILY == "Redhat") { $this->log->addtarget(array('name' => $this->name)); }
-        if ($OS_FAMILY == "Debian") { $this->log->addtarget(array('name' => $this->name, 'dist' => $this->dist, 'section' => $this->section)); }
-
-        /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
-         */
-        $steps = 5;
-        exec("php ${WWW_DIR}/operations/check_running.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
-
-        try {
-            /**
-             *  Etape 0 : Afficher le tritre de l'opération
-             */
-            $this->log->steplog(0);
-            if ($OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h5>CREATION D'UN NOUVEAU REPO</h5>"); }
-            if ($OS_FAMILY == "Debian") { file_put_contents($this->log->steplog, "<h5>CREATION D'UNE NOUVELLE SECTION DE REPO</h5>"); }
-            /**
-             *  Etape 1 : Afficher les détails de l'opération
-             */
-            $this->log->steplog(1);
-            $this->op_printDetails();
-            /**
-            *   Etape 2 => en commun avec updateRepo sauf la partie // On vérifie quand même que le repo n'existe pas déjà 
-            */
-            $this->log->steplog(2);
-            $this->op_getPackages('new');
-            /**
-            *   Etape 3 => en commun avec updateRepo
-            */
-            $this->log->steplog(3);
-            $this->op_signPackages();
-            /**
-            *   Etape 4 : Création du repo et liens symboliques => commun avec updateRepo
-            */
-            $this->log->steplog(4);
-            $this->op_createRepo();
-            /**
-            *   Etape 5 : Finalisation du repo (ajout en BDD et application des droits)
-            */
-            $this->log->steplog(5);
-            $this->op_finalize('new');
-
-        } catch(Exception $e) {
-            file_put_contents($this->log->steplog, $e->getMessage(), FILE_APPEND);
-        }
-        /**
-         *  Cloture de l'opération
-         */
-        $this->log->closeStepOperation();
-    }
-
-
-/**
- *  METTRE A JOUR UN REPO/SECTION
- */
-    public function update() {
-        global $TEMP_DIR;
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $PID_DIR;
-
-        /**
-         *  Création d'un fichier de log principal + un fichier PID
-         */
-        $this->log = new Log('repomanager');
-
-        /**
-         *  Ajout du PID de ce processus dans le fichier PID ainsi que l'action effectuée et la cible (le repo)
-         */
-        $this->log->addsubpid(getmypid());
-        $this->log->addaction('update');
-        if ($OS_FAMILY == "Redhat") { $this->log->addtarget(array('name' => $this->name)); }
-        if ($OS_FAMILY == "Debian") { $this->log->addtarget(array('name' => $this->name, 'dist' => $this->dist, 'section' => $this->section)); }
-
-        /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
-         */
-        $steps = 6;
-        exec("php ${WWW_DIR}/operations/check_running.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} ${TEMP_DIR}/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
-
-        try {
-            /**
-             *  Etape 0 : Afficher le titre de l'opération
-             */
-            $this->log->steplog(0);
-            if ($OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h5>MISE A JOUR D'UN REPO</h5>"); }
-            if ($OS_FAMILY == "Debian") { file_put_contents($this->log->steplog, "<h5>MISE A JOUR D'UNE SECTION DE REPO</h5>"); }
-            /**
-             *  Etape 1 : Afficher les détails de l'opération
-             */
-            $this->log->steplog(1);
-            $this->op_printDetails();
-            /**
-            *   Etape 2 => en commun avec updateRepo sauf la partie // On vérifie quand même que le repo n'existe pas déjà 
-            */
-            $this->log->steplog(2);
-            $this->op_getPackages('update');
-            /**
-            *   Etape 3 => en commun avec updateRepo
-            */
-            $this->log->steplog(3);
-            $this->op_signPackages();
-            /**
-            *   Etape 4 : Création du repo et liens symboliques => commun avec updateRepo
-            */
-            $this->log->steplog(4);
-            $this->op_createRepo();
-            /**
-             *  Etape 5 : Archivage de l'ancien repo/section
-             */
-            $this->log->steplog(5);
-            $this->op_archive();
-            /**
-            *   Etape 6 : Finalisation du repo (ajout en BDD et application des droits)
-            */
-            $this->log->steplog(6);
-            $this->op_finalize('update');
-
-        } catch(Exception $e) {
-            file_put_contents($this->log->steplog, $e->getMessage(), FILE_APPEND);
-            /**
-             *  Cloture de l'opération
-             */
-            $this->log->closeStepOperation();
-            /**
-             *  Cas où cette fonction est lancée par une planification : la planif attend un retour, on lui renvoie false pour lui indiquer qu'il y a eu une erreur
-             */
-            return false;
-        }
-        /**
-         *  Cloture de l'opération
-         */
-        $this->log->closeStepOperation();
     }
 
 
@@ -297,10 +134,10 @@ class Repo {
         global $OS_FAMILY;
 
         if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->query("SELECT * FROM repos ORDER BY Name ASC");
+            $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Env ASC");
         }
         if ($OS_FAMILY == "Debian") {
-            $result = $this->db->query("SELECT * FROM repos ORDER BY Name ASC, Dist ASC, Section ASC");
+            $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
         }
         while ($datas = $result->fetchArray()) { $repos[] = $datas; }
         if (!empty($repos)) {
@@ -314,7 +151,12 @@ class Repo {
     public function listAll_archived() {
         global $OS_FAMILY;
 
-        $result = $this->db->query("SELECT * FROM repos_archived ORDER BY Name ASC");
+        if ($OS_FAMILY == "Redhat") {
+            $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC");
+        }
+        if ($OS_FAMILY == "Debian") {
+            $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
+        }
         while ($datas = $result->fetchArray()) { $repos[] = $datas; }
         if (!empty($repos)) {
             return $repos;
@@ -326,8 +168,8 @@ class Repo {
  */
     public function listAll_distinct() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos"); }
+        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC"); }
+        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
         while ($datas = $result->fetchArray()) { $repos[] = $datas; }
         if (!empty($repos)) {
             return $repos;
@@ -339,8 +181,8 @@ class Repo {
  */
     public function listAll_distinct_byEnv(string $env) {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Env = '$env'"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Env = '$env'"); }
+        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Id, Name FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC"); }
+        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
         while ($datas = $result->fetchArray()) { $repos[] = $datas; }
         if (!empty($repos)) {
             return $repos;
@@ -352,8 +194,8 @@ class Repo {
  */
     public function countActive() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos"); }
+        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos WHERE Status = 'active'"); }
+        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'"); }
         return $result;
     }
 
@@ -362,8 +204,8 @@ class Repo {
  */
     public function countArchived() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos_archived"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived"); }
+        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'"); }
+        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'"); }
         return $result;
     }
 
@@ -372,13 +214,26 @@ class Repo {
  *  VERIFICATIONS
  */
 
+    /**
+     *  Vérifie que l'Id du repo existe en BDD
+     *  Retourne true si existe
+     *  Retourne false si n'existe pas
+     */
+    public function existsId() {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 /**
  *  Vérifie que le repo existe
  *  Retourne true si existe
  *  Retourne false si n'existe pas
  */
     public function exists(string $name) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -391,7 +246,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function existsEnv(string $name, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Env = '$env'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Env = '$env' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -406,7 +261,7 @@ class Repo {
     public function existsDate(string $name, string $date, string $status) {
         // Recherche dans la table repos
         if ($status == 'active') {
-            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date'") == 0) {
+            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date' AND Status = 'active'") == 0) {
                 return false;
             } else {
                 return true;
@@ -414,7 +269,7 @@ class Repo {
         }
         // Recherche dans la table repos_archived
         if ($status == 'archived') {
-            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date'") == 0) {
+            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date' AND Status = 'active'") == 0) {
                 return false;
             } else {
                 return true;
@@ -428,7 +283,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function existsDateEnv(string $name, string $date, string $env) {
-    if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date' AND Env = '$env'") == 0) {
+    if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date' AND Env = '$env' AND Status = 'active'") == 0) {
         return false;
     } else {
         return true;
@@ -441,7 +296,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function dist_exists(string $name, string $dist) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -454,7 +309,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_exists(string $name, string $dist, string $section) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -467,7 +322,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_existsEnv(string $name, string $dist, string $section, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Env = '$env'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Env = '$env' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -482,7 +337,7 @@ class Repo {
     public function section_existsDate(string $name, string $dist, string $section, string $date, string $status) {
         // Recherche dans la table repos
         if ($status == 'active') {
-            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date'") == 0) {
+            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Status = 'active'") == 0) {
                 return false;
             } else {
                 return true;
@@ -490,7 +345,7 @@ class Repo {
         }
         // Recherche dans la table repos_archived
         if ($status == 'archived') {
-            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date'") == 0) {
+            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Status = 'active'") == 0) {
                 return false;
             } else {
                 return true;
@@ -504,7 +359,7 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_existsDateEnv(string $name, string $dist, string $section, string $date, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Env = '$env'") == 0) {
+        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Env = '$env' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
@@ -512,21 +367,112 @@ class Repo {
     }
 
 /**
- *  Recupère toutes les information du repo/de la section en BDD
+ *  Récupère l'ID du repo/de la section en BDD
+ */
+    public function db_getId() {
+        global $OS_FAMILY;
+
+        if ($OS_FAMILY == "Redhat") {
+            $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
+        }
+
+        if ($OS_FAMILY == "Debian") {
+            $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        }
+
+        $stmt->bindValue(':name', $this->name);
+        if ($OS_FAMILY == "Debian") {
+            $stmt->bindValue(':dist', $this->dist);
+            $stmt->bindValue(':section', $this->section);
+        }
+        $stmt->bindValue(':env', $this->env);
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray()) {
+            $this->id = $row['Id'];
+        }
+
+        unset($stmt, $result);
+    }
+
+    /**
+     *  Comme au dessus mais pour un repo/section archivé
+     */
+    public function db_getId_archived() {
+        global $OS_FAMILY;
+
+        if ($OS_FAMILY == "Redhat") {
+            $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
+        }
+
+        if ($OS_FAMILY == "Debian") {
+            $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+        }
+
+        $stmt->bindValue(':name', $this->name);
+        if ($OS_FAMILY == "Debian") {
+            $stmt->bindValue(':dist', $this->dist);
+            $stmt->bindValue(':section', $this->section);
+        }
+        $stmt->bindValue(':date', $this->date);
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray()) {
+            $this->id = $row['Id'];
+        }
+
+        unset($stmt, $result);
+    }
+
+/**
+ *  Recupère toutes les information du repo/de la section en BDD à partie de son ID
+ */
+    public function db_getAllById() {
+        global $OS_FAMILY;
+
+        $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
+        $stmt->bindValue(':id', $this->id);
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray()) {
+            $this->name = $row['Name'];
+            if ($OS_FAMILY == 'Debian') {
+                $this->dist = $row['Dist'];
+                $this->section = $row['Section'];
+            }
+            $this->source = $row['Source'];
+            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") {
+                $this->getFullSource();
+            }
+            $this->date = $row['Date'];
+            $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $row['Date'])->format('d-m-Y');
+            $this->env = $row['Env'];
+            $this->type = $row['Type'];
+            $this->signed = $row['Signed']; $this->gpgResign = $this->signed;
+            $this->description = $row['Description'];
+        }
+
+        unset($stmt);
+    }
+
+/**
+ *  Recupère toutes les information du repo/de la section en BDD à partir de son nom et son env
  */
     public function db_getAll() {
         global $OS_FAMILY;
 
         if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Env = '$this->env'");
+            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
         }
 
         if ($OS_FAMILY == "Debian") {
-            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env'");
+            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
         }
         while ($row = $result->fetchArray()) {
+            $this->id = $row['Id'];
             $this->source = $row['Source'];
             $this->date = $row['Date'];
+            $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $row['Date'])->format('d-m-Y');
             $this->type = $row['Type'];
             $this->signed = $row['Signed'];
             $this->description = $row['Description'];
@@ -539,11 +485,11 @@ class Repo {
         global $OS_FAMILY;
 
         if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Env = '$this->env'");
+            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
         }
 
         if ($OS_FAMILY == "Debian") {
-            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env'");
+            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
         }
         $this->date = $result['Date'];
         $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $result['Date'])->format('d-m-Y');
@@ -556,11 +502,14 @@ class Repo {
         global $OS_FAMILY;
 
         if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name'");
+            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Status = 'active'");
         }
 
         if ($OS_FAMILY == "Debian") {
-            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section'");
+            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Status = 'active'");
+        }
+        if (empty($result['Source'])) {
+            throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la source de du repo <b>$this->name</b>");
         }
         $this->source = $result['Source'];
 
@@ -576,11 +525,16 @@ class Repo {
  *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
  */
     private function getFullSource() {
-        // Récupère l'url complète
+        /**
+         *  Récupère l'url complète
+         */
         $result = $this->db->querySingleRow("SELECT Url FROM sources WHERE Name = '$this->source'");
         $this->sourceFullUrl = $result['Url'];
         $this->hostUrl = exec("echo '$this->sourceFullUrl' | cut -d'/' -f1");
-        // Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian
+        
+        /**
+         *  Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian)
+         */
         $this->rootUrl = exec("echo '$this->sourceFullUrl' | sed 's/$this->hostUrl//g'");
         if (empty($this->hostUrl)) {
             throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer l\'adresse de l\'hôte source');
@@ -597,7 +551,6 @@ class Repo {
         $this->db->exec("UPDATE repos SET Description = '$this->description' WHERE Id = '$this->id'");
         printAlert('Modifications prises en compte');
     }
-
 
 /**
  *  GENERATION DE CONF

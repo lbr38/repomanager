@@ -1,14 +1,13 @@
 <?php
-
 /**
  *  Template de fichier de log pour chaque opération
  */
 
 $logContent = "
-<span>Opération exécutée le : <b>{$log->date} à {$log->time}</b></span><br>
-<span>PID : <b>{$log->pid}.pid</b></span><br><br>
+<span>Opération exécutée le : <b>".DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y')."</b> à <b>".DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s')."</b></span><br>
+<span>PID : <b>{$this->log->pid}.pid</b></span><br><br>
 
-<h5>${title}</h5>
+<h3>$title</h3>
 
 $content";
 ?>

@@ -8,10 +8,10 @@ class Source {
         extract($variables);
 
         /**
-         *  Instanciation d'une db car on paut avoir besoin de récupérer certaines infos en BDD
+         *  Instanciation d'une db car on peut avoir besoin de récupérer certaines infos en BDD
          */
         try {
-            $this->db = new databaseConnection();
+            $this->db = new Database();
         } catch(Exception $e) {
             die('Erreur : '.$e->getMessage());
         }

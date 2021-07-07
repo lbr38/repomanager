@@ -67,7 +67,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   /*background-color: white;*/
   background-color: #474747;
   border: 1px solid #aaa;
-  border-radius: 4px;
+  border-radius: 2px;
   box-sizing: border-box;
   display: block;
   position: absolute;
@@ -149,7 +149,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   background-color: #474747; /* modifié */
   /*background-color: #fff;*/
   border: 1px solid #aaa;
-  border-radius: 4px; }
+  border-radius: 2px; }
   .select2-container--default .select2-selection--single .select2-selection__rendered {
     /*color: #444;*/
     line-height: 28px; }
@@ -199,7 +199,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 
 .select2-container--default .select2-selection--multiple {
   background-color: #474747; /* modifié */
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: text;
   padding-bottom: 5px;
   padding-right: 5px;
@@ -216,8 +216,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     right: 0;
     padding: 1px; }
   .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: #0468c0; /* modifié */
-    border-radius: 4px;
+    background-color: #006699; /* modifié */
+    border-radius: 2px;
     box-sizing: border-box;
     display: inline-block;
     margin-left: 5px;
@@ -352,7 +352,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 .select2-container--classic .select2-selection--single {
   background-color: #f7f7f7;
   border: 1px solid #aaa;
-  border-radius: 4px;
+  border-radius: 2px;
   outline: 0;
   background-image: -webkit-linear-gradient(top, white 50%, #eeeeee 100%);
   background-image: -o-linear-gradient(top, white 50%, #eeeeee 100%);
@@ -444,7 +444,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 .select2-container--classic .select2-selection--multiple {
   background-color: white;
   border: 1px solid #aaa;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: text;
   outline: 0;
   padding-bottom: 5px;
@@ -456,7 +456,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   .select2-container--classic .select2-selection--multiple .select2-selection__choice {
     background-color: #e4e4e4;
     border: 1px solid #aaa;
-    border-radius: 4px;
+    border-radius: 2px;
     display: inline-block;
     margin-left: 5px;
     margin-top: 5px;
