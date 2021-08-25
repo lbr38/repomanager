@@ -89,7 +89,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
         }
     }
 
-    // Modification des couleurs, voir comment on peut améliorer car c'est très bricolage
+    // Modification des couleurs
     if (!empty($_POST['alternativeColor1'])) {
         $alternativeColor1 = validateData($_POST['alternativeColor1']);
         $displayConfiguration['display']['alternativeColor1'] = "$alternativeColor1";
@@ -100,10 +100,23 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
         $displayConfiguration['display']['alternativeColor2'] = "$alternativeColor2";
     }
 
-    // On écrit les modifications dans le fichier display.ini
-    write_ini_file("$DISPLAY_CONF", $displayConfiguration);
+    // activation du cache
+    if (!empty($_POST['cache_repos_list'])) {
+        $cache_repos_list = validateData($_POST['cache_repos_list']);
+        if ($cache_repos_list == "on") {
+            $displayConfiguration['display']['cache_repos_list'] = 'yes';
+        } else {
+            $displayConfiguration['display']['cache_repos_list'] = 'no';
+            clearCache();
+            if (is_link($WWW_CACHE)) { unlink($WWW_CACHE); }
+            if (is_dir($WWW_CACHE)) { rmdir($WWW_CACHE); }
+        }
+    }
 
-    clearCache($WWW_CACHE);
+    // On écrit les modifications dans le fichier display.ini
+    write_ini_file($DISPLAY_CONF, $displayConfiguration);
+
+    clearCache();
 
     // Puis rechargement de la page pour appliquer les modifications d'affichage
     header("Location: $actual_url");
@@ -118,8 +131,6 @@ if ($OS_FAMILY == "Debian") {
         exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
         // Affichage d'un message et rechargement de la div
         printAlert("La clé GPG a été supprimée");
-        refreshdiv_class('divManageReposSources');
-        showdiv_byclass('divManageReposSources');
     }
 }
 ?>

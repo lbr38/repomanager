@@ -6,14 +6,18 @@ if (empty($argv)) {
 
 $WWW_DIR = dirname(__FILE__, 2);
 
-// Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
+/**
+ *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
+ */
 require_once("${WWW_DIR}/functions/load_common_variables.php");
 require_once("${WWW_DIR}/functions/common-functions.php");
 require_once("${WWW_DIR}/class/Planification.php");
 
-// Date et heure actuelle (à laquelle est exécuté ce script)
-$todayDate = exec("date +%Y-%m-%d");
-$todayTime = exec("date +%H:%M");
+/**
+ *  Date et heure actuelle (à laquelle est exécuté ce script)
+ */
+$todayDate = date('Y-m-d');
+$todayTime = date('H:i');
 
 /**
  *  1. On vérifie la présence d'une ou plusieurs planification dans le pool
@@ -28,19 +32,20 @@ if(!empty($plansQueued)) {
      *  On traite chaque planification
      *  On récupère son id, sa date et son heure d'exécution ainsi que les rappels
      */
-
     foreach($plansQueued as $planQueued) {
-        $planId       = $planQueued['Plan_id'];
-        $planDate     = $planQueued['Plan_date'];
-        $planTime     = $planQueued['Plan_time'];
-        $planReminder = $planQueued['Plan_reminder'];
+        $planId       = $planQueued['Id'];
+        $planDate     = $planQueued['Date'];
+        $planTime     = $planQueued['Time'];
+        $planReminder = $planQueued['Reminder'];
 
         /**
          *  Exécution
          *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($todayDate et $todayTime) alors on exécute la planification
          */
         if (($argv[1] == "exec-plans") AND ($planDate == $todayDate) AND ($planTime == $todayTime)) {
-            // On indique à $plan quel est l'id de la planification et on l'exécute
+            /**
+             *  On indique à $plan quel est l'id de la planification et on l'exécute
+             */
             $plan->id = $planId;
             $plan->exec();
         }
@@ -59,7 +64,9 @@ if(!empty($plansQueued)) {
                 $reminderDate = date_create($planDate)->modify("-${reminder} days")->format('Y-m-d');
 
                 if ($reminderDate == $todayDate) {
-                    // On indique à $plan quel est l'id de la planification et on génère le message de rappel
+                    /**
+                     *  On indique à $plan quel est l'id de la planification et on génère le message de rappel
+                     */
                     $plan->id = $planId;
                     $msg = $plan->generateReminders();
                     $message_rappel = "${message_rappel}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
@@ -73,8 +80,9 @@ if(!empty($plansQueued)) {
      */
     if (!empty($message_rappel)) {
         include_once("${WWW_DIR}/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $message_rappel
-        $plan->sendMail("[RAPPEL] Planification(s) à venir sur $WWW_HOSTNAME", $template);
+        $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur $WWW_HOSTNAME", $template);
     }
 }
+
 exit();
 ?>

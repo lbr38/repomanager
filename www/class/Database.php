@@ -5,7 +5,7 @@
  * __construct, puis, utilise la méthode de connexion pour initialiser la
  * base de données.
  */
-class databaseConnection extends SQLite3 {
+class Database extends SQLite3 {
 
     public function __construct() {
         $WWW_DIR = dirname(__FILE__, 2);
@@ -31,7 +31,8 @@ class databaseConnection extends SQLite3 {
             Time TIME NOT NULL,
             Description VARCHAR(255),
             Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL);");
+            Type CHAR(6) NOT NULL,
+            Status CHAR(8) NOT NULL);");
         }
         if ($OS_FAMILY == "Debian") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos (
@@ -45,7 +46,8 @@ class databaseConnection extends SQLite3 {
             Time TIME NOT NULL,
             Description VARCHAR(255),
             Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL);");
+            Type CHAR(6) NOT NULL,
+            Status CHAR(8) NOT NULL);");
         }
 
         /**
@@ -60,7 +62,8 @@ class databaseConnection extends SQLite3 {
             Time TIME NOT NULL,
             Description VARCHAR(255),
             Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL);");
+            Type CHAR(6) NOT NULL,
+            Status CHAR(8) NOT NULL);");
         }
 
         if ($OS_FAMILY == "Debian") {
@@ -74,7 +77,8 @@ class databaseConnection extends SQLite3 {
             Time TIME NOT NULL,
             Description VARCHAR(255),
             Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL);");
+            Type CHAR(6) NOT NULL,
+            Status CHAR(8) NOT NULL);");
         }
 
         /** 
@@ -93,26 +97,44 @@ class databaseConnection extends SQLite3 {
         Id_group INTEGER NOT NULL);");
 
         /**
+         *  Crée la table operations si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS operations (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Action VARCHAR(255) NOT NULL,  /* update, env->env */
+        Type CHAR(6) NOT NULL,         /* manual, auto */
+        Id_repo_source VARCHAR(255),
+        Id_repo_target VARCHAR(255),
+        Id_group INTEGER,
+        Id_plan INTEGER,               /* si type = auto */
+        GpgCheck CHAR(3),
+        GpgResign CHAR(3),
+        Pid INTEGER NOT NULL,
+        Logfile VARCHAR(255) NOT NULL,
+        Duration INTEGER,
+        Status CHAR(7) NOT NULL)");    /* running, done, stopped */
+
+        /**
          *  Crée la table planifications si n'existe pas
          *  SQLite ne permet pas la création d'une colonne Group car il s'agit d'un mot clé SQL, 
          *  c'est la raison pour laquelle toutes les colonnes de cette table commencent par Plan_
          *  
          */
         $this->exec("CREATE TABLE IF NOT EXISTS planifications (
-        Plan_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Plan_date DATE NOT NULL,
-        Plan_time TIME NOT NULL,
-        Plan_action VARCHAR(255) NOT NULL,
-        Plan_repo VARCHAR(255),
-        Plan_dist VARCHAR(255),
-        Plan_section VARCHAR(255),
-        Plan_group VARCHAR(255),
-        Plan_gpgCheck CHAR(3),
-        Plan_gpgResign CHAR(3),
-        Plan_reminder VARCHAR(255),
-        Plan_status CHAR(7),
-        Plan_error VARCHAR(255),
-        Plan_logfile VARCHAR(255))");
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Action VARCHAR(255) NOT NULL,
+        Id_repo INTEGER,
+        Id_group INTEGER,
+        Gpgcheck CHAR(3),
+        Gpgresign CHAR(3),
+        Reminder VARCHAR(255),
+        Status CHAR(7),
+        Error VARCHAR(255),
+        Logfile VARCHAR(255))");
 
         /**
          *  Crée la table sources si n'existe pas
@@ -129,6 +151,7 @@ class databaseConnection extends SQLite3 {
      */
     public function countRows(string $query) {
         $result = $this->query($query);
+
         /**
          *  Compte le nombre de lignes retournées par la requête
          */
@@ -136,6 +159,7 @@ class databaseConnection extends SQLite3 {
         while ($row = $result->fetchArray()) {
             $count++;
         }
+
         /**
          *  Retourne le nombre de lignes
          */

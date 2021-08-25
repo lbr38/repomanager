@@ -9,6 +9,7 @@ class Log {
     public $action;
     public $pid;
     public $steplog;
+    public $title;
 
     public function __construct(string $type) {
         global $MAIN_LOGS_DIR;
@@ -39,8 +40,8 @@ class Log {
             throw new Error('Erreur : le type de fichier de log est invalide');
         }
 
-        $this->date = exec("date +%Y-%m-%d");
-        $this->time = exec("date +%H-%M-%S");
+        $this->date = date("Y-m-d");
+        $this->time = date("H-i-s");
 
         $this->name = "{$this->type}_{$this->pid}_{$this->date}_{$this->time}.log";
         $this->location = "$MAIN_LOGS_DIR/{$this->name}";

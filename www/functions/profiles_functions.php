@@ -1,4 +1,8 @@
 <?php
+/**
+ *  Fichier à convertir en fichier de class 'Profile'
+ */
+
 // Création d'un nouveau profil
 function newProfile($newProfile) {
   global $PROFILES_MAIN_DIR;

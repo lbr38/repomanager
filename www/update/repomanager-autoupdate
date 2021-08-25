@@ -8,7 +8,7 @@ WWW_DIR=$(echo "$CURRENT" | sed 's|/update||g')
 GITHUB_VERSION=$(cat ${WWW_DIR}/cron/github.version)
 
 if [ -z "$GITHUB_VERSION" ];then
-    echo -e "[ ERREUR ] Numéro de version github inconu"
+    echo -e "[ ERREUR ] Numéro de version github inconnu"
     exit 1
 fi
 

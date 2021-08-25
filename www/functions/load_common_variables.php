@@ -1,27 +1,32 @@
 <?php
-// Chargement des variables //
-
 date_default_timezone_set('Europe/Paris');
+
+/**
+ *  CHARGEMENT DES CONSTANTES
+ */
 
 $WWW_DIR = dirname(__FILE__, 2);
 
+$EMPTY_CONFIGURATION_VARIABLES = 0;
+$GENERAL_ERROR_MESSAGES = [];
+
 // Si le fichier repomanager.conf n'existe pas, on redirige vers la page d'install
 if (!file_exists("${WWW_DIR}/configurations/repomanager.conf")) {
-    header("Location: installation.php");
+    //header("Location: installation.php");
+    echo "Erreur : fichier de configuration introuvable. Relancez l'installation de repomanager.";
+    die();
 }
 
 // Récupération de tous les paramètres définis dans le fichier repomanager.conf
 $repomanager_conf_array = parse_ini_file("${WWW_DIR}/configurations/repomanager.conf");
 
 // Si certains paramètres sont vides alors on incrémente EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alerte
-$EMPTY_CONFIGURATION_VARIABLES = 0;
 foreach($repomanager_conf_array as $key => $value) {
     if(empty($value)) {
         ++$EMPTY_CONFIGURATION_VARIABLES;
     }
 }
 
-$BASE_DIR = $WWW_DIR;
 $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 
 // Emplacements des fichiers de conf
@@ -118,7 +123,7 @@ $OS_NAME = $OS_INFO['name'];
 $OS_VERSION = $OS_INFO['version_id'];
 
 // pour Redhat : emplacement de la conf yum
-if ($OS_FAMILY === "Redhat") {
+if ($OS_FAMILY == "Redhat") {
     $REPOMANAGER_YUM_DIR = "/etc/yum.repos.d/repomanager";
     $REPOMANAGER_YUM_CONF = "/etc/yum.repos.d/repomanager/repomanager.conf";
     // emplacement des clés gpg importées par repomanager
@@ -158,9 +163,23 @@ $GPG_KEYID = $repomanager_conf_array['GPG_KEYID'];
 $EMAIL_DEST = $repomanager_conf_array['EMAIL_DEST'];
 $UPDATE_AUTO = $repomanager_conf_array['UPDATE_AUTO'];
 $UPDATE_BACKUP_ENABLED = $repomanager_conf_array['UPDATE_BACKUP_ENABLED'];
-$UPDATE_BACKUP_DIR = $repomanager_conf_array['UPDATE_BACKUP_DIR'];
 $UPDATE_BRANCH = $repomanager_conf_array['UPDATE_BRANCH'];
+$BACKUP_DIR = $repomanager_conf_array['BACKUP_DIR'];
 $DEBUG_MODE = $repomanager_conf_array['DEBUG_MODE'];
+
+// Création du répertoire de backup si n'existe pas
+if (!is_dir($BACKUP_DIR)) {
+    if (!mkdir($BACKUP_DIR, 0770, true)) {
+        $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de sauvegarde : $BACKUP_DIR";
+    }
+}
+
+// Création du répertoire de mise à jour si n'existe pas
+if (!is_dir("$WWW_DIR/update")) {
+    if (!mkdir("$WWW_DIR/update", 0770, true)) {
+        $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de mise à jour : $WWW_DIR/update";
+    }
+}
 
 // Config web :
 $WWW_HOSTNAME = $repomanager_conf_array['WWW_HOSTNAME'];
@@ -172,6 +191,7 @@ $WWW_USER = $repomanager_conf_array['WWW_USER'];
 $CRON_DAILY_ENABLED = $repomanager_conf_array['CRON_DAILY_ENABLED'];
 $CRON_GENERATE_REPOS_CONF = $repomanager_conf_array['CRON_GENERATE_REPOS_CONF'];
 $CRON_APPLY_PERMS = $repomanager_conf_array['CRON_APPLY_PERMS'];
+$CRON_SAVE_CONF = $repomanager_conf_array['CRON_SAVE_CONF'];
 $CRON_PLAN_REMINDERS_ENABLED = $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'];
 
 // Version actuelle et version disponible sur github
@@ -194,10 +214,10 @@ if (!empty($_SERVER['SERVER_ADDR'])) {
     $serverIP = $_SERVER['SERVER_ADDR'];
 }
 
-// Date du jour
-$DATE_JMA = exec("date +%d-%m-%Y");
-$DATE_AMJ = exec("date +%Y-%m-%d");
-$HEURE = exec("date +%H-%M");
+// Date et heure du jour
+$DATE_DMY = date("d-m-Y");
+$DATE_YMD = date("Y-m-d");
+$TIME = date("H-i");
 
 unset($repomanager_conf_array);
 ?>

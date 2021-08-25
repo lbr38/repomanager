@@ -27,6 +27,11 @@ PROFILES_MAIN_DIR=""
 REPOMANAGER_YUM_DIR="/etc/yum.repos.d/repomanager"
 RPM_GPG_DIR="/etc/pki/rpm-gpg/repomanager"
 
+# Détection de l'utilisateur
+if [ "$(id -u)" -ne "0" ];then
+	echo -e "\n${JAUNE}Doit être exécuté avec sudo ${RESET}\n"
+	exit
+fi
 
 ## ↓ FONCTIONS ↓ ##
 
@@ -141,7 +146,7 @@ permissions() {
 	if [ ! -d "/var/www/repomanager" ];then
 		if [ -z "$WWW_DIR" ];then
 			echo -ne "➤ Emplacement des fichiers de repomanager (défaut /var/www/repomanager) : "; read -p "" WWW_DIR
-			if [ -z "$WWW_DIR" ];then 
+			if [ -z "$WWW_DIR" ];then
 				WWW_DIR="/var/www/repomanager"
 			fi
 		fi
@@ -149,7 +154,7 @@ permissions() {
 		WWW_DIR="/var/www/repomanager"
 	fi
 
-	echo -e "${JAUNE}Application de permissions${RESET}"
+	echo -ne "${JAUNE} Application de permissions... ${RESET}"
 
     if [ ! -d "$WWW_DIR" ];then
         echo "Erreur : le répertoire $WWW_DIR n'existe pas"
@@ -244,6 +249,7 @@ permissions() {
             fi
         fi
     fi
+	echo -e "${VERT}OK${RESET}\n"
 }
 
 # Assistant de première installation de repomanager
@@ -315,6 +321,13 @@ firstInstall() {
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 
+		CHECK_DEP=$(rpm -qa git)
+		if [ -z "$CHECK_DEP" ];then
+			echo -ne "Installation de git\t" &&
+			yum install git -y > /dev/null &&
+			echo -e "[${VERT} OK ${RESET}]"
+		fi
+
 		if [ ! -f "/usr/bin/rpmresign" ];then
 			echo -ne "Installation du module perl CPAN RPM4 (rpmresign)\t" &&
 			yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
@@ -366,6 +379,13 @@ firstInstall() {
 		if [ -z "$CHECK_DEP" ];then
 			echo -ne "Installation de wget\t" &&
 			apt-get -qq install wget -y > /dev/null &&
+			echo -e "[${VERT} OK ${RESET}]"
+		fi
+
+		CHECK_DEP=$(dpkg --list | grep "^ii  git ")
+		if [ -z "$CHECK_DEP" ];then
+			echo -ne "Installation de git\t" &&
+			apt-get -qq install git -y > /dev/null &&
 			echo -e "[${VERT} OK ${RESET}]"
 		fi
 
@@ -536,6 +556,12 @@ firstInstall() {
 			echo "$key_passphrase" > "$PASSPHRASE_FILE"
 			echo "Génération terminée"
 		fi
+		# Pour Debian, ajout de conf supplémentaire dans un fichier gpg.conf :
+		if [ "$OS_FAMILY" == "Debian" ];then
+			echo -e "pinentry-mode loopback\npassphrase-file ${GPGHOME}/passphrase" > ${GPGHOME}/gpg.conf
+		fi
+		mkdir -p ${REPOS_DIR}/gpgkeys/
+		gpg2 --no-permission-warning --homedir "$GPGHOME" --export -a "$GPG_KEYID" > ${REPOS_DIR}/gpgkeys/${WWW_HOSTNAME}.pub 2>/dev/null # on redirige les warnings vers /dev/null pour ne pas polluer l'affichage
 	else
 		GPG_SIGN_PACKAGES="no"
 	fi
@@ -555,6 +581,7 @@ firstInstall() {
 	echo "EMAIL_DEST = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "MANAGE_PROFILES = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> ${WWW_DIR}/configurations/repomanager.conf
+	echo "BACKUP_DIR = \"${WWW_DIR}/backups\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "DEBUG_MODE = \"disabled\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	
 	echo -e "\n[GPG]" >> ${WWW_DIR}/configurations/repomanager.conf
@@ -564,7 +591,6 @@ firstInstall() {
 	echo -e "\n[UPDATE]" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "UPDATE_AUTO = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
-	echo "UPDATE_BACKUP_DIR = \"${WWW_DIR}/backups\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "UPDATE_BRANCH = \"beta\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
 	echo -e "\n[WWW]" >> ${WWW_DIR}/configurations/repomanager.conf
@@ -583,6 +609,7 @@ firstInstall() {
 	echo "CRON_DAILY_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "CRON_GENERATE_REPOS_CONF = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "CRON_APPLY_PERMS = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
+	echo "CRON_SAVE_CONF = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "CRON_PLAN_REMINDERS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
 	# Création d'un groupe repomanager
