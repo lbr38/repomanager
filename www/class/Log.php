@@ -83,37 +83,6 @@ class Log {
         file_put_contents("${PID_DIR}/{$this->pid}.pid", "SUBPID=\"${pid}\"".PHP_EOL, FILE_APPEND);
     }
 
-    /**
-     *  Ajout de l'action en cours de traitement au fichier de PID principal
-     */
-    public function addaction(string $action) {
-        global $PID_DIR;
-        file_put_contents("${PID_DIR}/{$this->pid}.pid", "ACTION=\"${action}\"".PHP_EOL, FILE_APPEND);
-    }
-
-    /**
-     *  Ajout de la cible en cours de traitement au fichier de PID principal
-     */
-    public function addtarget(array $variables = []) {
-        global $PID_DIR;
-        global $OS_FAMILY;
-        extract($variables);
-        
-        // Si la cible en cours de traitement est un groupe
-        if (!empty($group)) {
-            file_put_contents("${PID_DIR}/{$this->pid}.pid", "GROUP=\"${group}\"".PHP_EOL, FILE_APPEND);
-        }
-        // Si la cible en cours de traitement est un repo
-        if (!empty($name)) {
-            if ($OS_FAMILY == "Redhat") {
-                file_put_contents("${PID_DIR}/{$this->pid}.pid", "NAME=\"${name}\"".PHP_EOL, FILE_APPEND);
-            }
-            if ($OS_FAMILY == "Debian") {
-                file_put_contents("${PID_DIR}/{$this->pid}.pid", "NAME=\"${name}\"\nDIST=\"${dist}\"\nSECTION=\"${section}\"".PHP_EOL, FILE_APPEND);
-            }
-        }
-    }
-
     public function write(string $content) {
         file_put_contents($this->location, $content);
     }

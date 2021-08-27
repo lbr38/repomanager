@@ -282,7 +282,7 @@ class Planification {
 
                 $content = ob_get_clean(); echo $content;
 
-                include_once('templates/operation_log.inc.php');
+                include_once("${WWW_DIR}/templates/operation_log.inc.php");
                 $this->op->log->write($logContent);
 
                 /**
@@ -388,7 +388,7 @@ class Planification {
 
                     $content = ob_get_clean(); echo $content;
 
-                    include_once('templates/operation_log.inc.php');
+                    include_once("${WWW_DIR}/templates/operation_log.inc.php");
                     $this->op->log->write($logContent);
 
                     /**
@@ -859,15 +859,20 @@ class Planification {
         $this->op->action    = $result['Action'];
         $this->op->repo->id  = $result['Id_repo'];
         $this->op->group->id = $result['Id_group'];
+
         /**
          *  On récupère les infos concernant ce groupe (son nom)
          */
         $this->op->group->db_getName(); 
+
         /**
          *  On récupère les infos concernant ce repo (son nom, sa distribution...)
          */
         $this->op->repo->db_getAllById();  
-        // Mais on écrase certaines données récupérées précédemment par celles définies par la planification, notamment GPG Check et GPG Resign
+
+        /**
+         *  Mais on écrase certaines données récupérées précédemment par celles définies par la planification, notamment GPG Check et GPG Resign
+         */
         $this->op->repo->gpgCheck  = $result['Gpgcheck'];
         $this->op->repo->gpgResign = $result['Gpgresign'];
         $this->op->repo->signed = $this->op->repo->gpgResign;

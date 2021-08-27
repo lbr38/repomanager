@@ -1,7 +1,7 @@
 <?php
 
 if (empty($argv)) {
-  exit('Erreur : aucun argument passé');
+    exit('Erreur : aucun argument passé');
 }
 
 $WWW_DIR = dirname(__FILE__, 2);

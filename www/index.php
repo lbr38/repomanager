@@ -12,6 +12,7 @@
   require_once('functions/common-functions.php');
   require_once('common.php');
   require_once('class/Repo.php');
+  require_once('class/Group.php');
   require_once('class/Planification.php');
   $repo = new Repo();
   $plan = new Planification();
@@ -92,27 +93,34 @@
         echo '</div>';
     }
 
-    if ($display_serverInfo_rootSpace == "yes") {
+    /**
+     *  Graphique affichant l'espace utilisé sur le serveur ($path)
+     */
+    function printSpace(string $path, string $name) {
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=rootSpace" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
-        // graphique affichant l'espace utilisé sur le serveur (racine)
-        echo '<p>/</p>';
+        echo "<a href=\"index.php?serverInfoSlideDivClose=${name}\" title=\"Fermer\"><img class=\"icon-invisible float-right\" src=\"icons/close.png\" /></a>";
+        
+        echo "<p>$path</p>";
     
-        $diskTotalSpace = disk_total_space("/");
-        $diskFreeSpace = disk_free_space("/");
+        $diskTotalSpace = disk_total_space($path);
+        $diskFreeSpace = disk_free_space($path);
         $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
         $diskTotalSpace = $diskTotalSpace / 1073741824;
         $diskUsedSpace = $diskUsedSpace / 1073741824;
-        // Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
+        /**
+         *  Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
+         */
         $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
         $diskFreeSpacePercent = $diskFreeSpace . '%';
         $diskUsedSpace = round(100 - ($diskFreeSpace));
         $diskUsedSpacePercent = round(100 - ($diskFreeSpace)) . '%';
+
+        unset($diskTotalSpace);
     
-        echo '<canvas id="diskSpaceChart" class="chart"></canvas>';
+        echo "<canvas id=\"diskSpaceChart-${name}\" class=\"chart\"></canvas>";
         echo '<script>';
         echo "
-            var ctx = document.getElementById('diskSpaceChart').getContext('2d');
+            var ctx = document.getElementById('diskSpaceChart-${name}').getContext('2d');
             var myDoughnutChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -121,7 +129,9 @@
                         label: 'Espace disque utilisé',
                         data: [$diskUsedSpace, $diskFreeSpace],
                         backgroundColor: [";
-                            // affichage de différentes couleurs suivant l'espace utilisé
+                            /**
+                             *  affichage de différentes couleurs suivant l'espace utilisé
+                             */
                             if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
                                 // vert
                                 echo "'rgb(92, 184, 92, 0.80)',";
@@ -176,94 +186,17 @@
             });";
         echo '</script>';
         echo '</div>';
-    }?>
+
+        unset($diskUsedSpace, $diskUsedSpacePercent, $diskFreeSpace, $diskFreeSpacePercent);
+    }
+
+    if ($display_serverInfo_rootSpace == "yes") {
+        printSpace('/', 'rootSpace');
+    } ?>
 
     <?php
     if ($display_serverInfo_reposDirSpace == "yes") {
-        echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=reposDirSpace" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
-        // graphique affichant l'espace utilisé par le répertoire des repos
-        echo "<p>${REPOS_DIR}</p>";
-        $diskTotalSpace = disk_total_space("${REPOS_DIR}");
-        $diskFreeSpace = disk_free_space("${REPOS_DIR}");
-        $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
-        $diskTotalSpace = $diskTotalSpace / 1073741824;
-        $diskUsedSpace = $diskUsedSpace / 1073741824;
-        // Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
-        $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
-        $diskFreeSpacePercent = $diskFreeSpace . '%';
-        $diskUsedSpace = round(100 - ($diskFreeSpace));
-        $diskUsedSpacePercent = round(100 - ($diskFreeSpace)) . '%';
-
-        echo '<canvas id="diskSpaceChart2" class="chart"></canvas>';
-        echo '<script>';
-        echo "
-            var ctx = document.getElementById('diskSpaceChart2').getContext('2d');
-            var myDoughnutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Espace utilisé', 'Espace libre'],
-                    datasets: [{
-                        label: 'Espace disque utilisé',
-                        data: [$diskUsedSpace, $diskFreeSpace],
-                        backgroundColor: [";
-                            // affichage de différentes couleurs suivant l'espace utilisé
-                            if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
-                                // vert
-                                echo "'rgb(92, 184, 92, 0.80)',";
-                            }
-                            if ($diskUsedSpace > 30 && $diskUsedSpace <= 50) {
-                                // jaune
-                                echo "'rgb(240, 173, 78, 0.80)',";
-                            }
-                            if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
-                                // orange
-                                echo "'rgb(240, 116, 78, 0.80)',";
-                            }
-                            if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
-                                // rouge
-                                echo "'rgb(217, 83, 79, 0.80)',";
-                            }
-                            echo "
-                            'rgb(247, 247, 247, 0)' // transparent (opacité 0) (espace libre)
-                        ],
-                        borderColor: [
-                            'gray',
-                            'gray'
-                        ],
-                        borderWidth: 0.4
-                    }]
-                },
-                options: {
-                    aspectRatio: 1,
-                    responsive: false,
-                    legend: { // masquer les labels
-                        display: false
-                    },
-                }
-            });
-            // Afficher le pourcentage utilisé à l'intérieur du graph :
-            Chart.pluginService.register({
-                beforeDraw: function(chart) {
-                    var width = chart.chart.width,
-                    height = chart.chart.height,
-                    ctx = chart.chart.ctx;
-
-                    ctx.restore();
-                    var fontSize = (height / 114).toFixed(2);
-                    ctx.font = fontSize + \"em sans-serif\";
-                    ctx.fillStyle = \"white\";
-                    ctx.textBaseline = \"middle\";
-
-                    var text = \"${diskUsedSpacePercent}\",
-                    textX = Math.round((width - ctx.measureText(text).width) / 2),
-                    textY = height / 2;
-                    ctx.fillText(text, textX, textY);
-                    ctx.save();
-                }
-            });";
-        echo '</script>';
-        echo '</div>';
+        printSpace($REPOS_DIR, 'reposDirSpace');
     } ?>
         
     <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {

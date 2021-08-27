@@ -216,23 +216,6 @@ function printOp($myop, $optype = '') {
 	<section class="left">
 		<h3>JOURNAL</h3>
 		<div id="log">
-		<?php
-			if ($logfile == 'none') {
-				$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
-				$logfile = $logfiles[0];
-			}
-
-			/**
-			 * 	Récupération du contenu du fichier de log
-			 */
-			$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
-
-			/**
-			 * 	Suppression des codes ANSI (couleurs) dans le fichier
-			 */
-			$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
-			echo $output;
-		?>
 			<!-- Boutons haut/bas de page - doivent être placées à l'intérieur du div #log -->
 			<div id="scrollButtons-container">
 				<div id="scrollButtons">
@@ -256,6 +239,25 @@ function printOp($myop, $optype = '') {
 					<a href="#bottom" class="button-top-down" title="Atteindre le bas de page"><img src="icons/arrow-circle-down.png" /></a>
 				</div>
 			</div>
+
+			<?php
+			if ($logfile == 'none') {
+				$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
+				$logfile = $logfiles[0];
+			}
+
+			/**
+			 * 	Récupération du contenu du fichier de log
+			 */
+			$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
+
+			/**
+			 * 	Suppression des codes ANSI (couleurs) dans le fichier
+			 */
+			$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
+			echo $output;
+			?>
+			
 		</div>
 	</section>
 </section>
@@ -304,7 +306,7 @@ function printOp($myop, $optype = '') {
 			/**
 			 * 	Recupère toutes les planifications terminées
 			 */
-			$stmt = $db->prepare("SELECT * FROM planifications WHERE Status NOT IN ('running') ORDER BY Date DESC, Time DESC");
+			$stmt = $db->prepare("SELECT * FROM planifications WHERE Status NOT IN ('running', 'queued') ORDER BY Date DESC, Time DESC");
 			$stmt->bindValue(':status', 'running');
 			$result = $stmt->execute();
 			while ($datas = $result->fetchArray()) { $plansDone[] = $datas; }

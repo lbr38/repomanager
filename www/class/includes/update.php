@@ -41,6 +41,7 @@ trait update {
             $this->log->steplog(0);
             if ($OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UN REPO</h3>"); }
             if ($OS_FAMILY == "Debian") { file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UNE SECTION DE REPO</h3>"); }
+            
             /**
              *  Récupère la source du repo si celle-ci est vide 
              *  ça peut être le cas lorsque l'opération est lancée par une planification

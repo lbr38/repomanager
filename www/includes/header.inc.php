@@ -19,37 +19,52 @@ if ($DEBUG_MODE == "enabled") {
 <header id="refresh-me-container">
 <nav id="refresh-me">
       <ul class="menu">
-        <li><span id="title"><a href="index.php">Repomanager</a></span><span id="version">BETA</span></li>
-        
-        <li><a href="index.php">Opérations</a></li>
+        <li><a href="index.php"><span id="title">Repomanager</span></a><span id="version">BETA</span></li>
         <?php
+        if ($actual_uri == '/index.php') {
+            echo '<li><a href="index.php"><span class="underline">Opérations</span></a></li>';
+        } else {
+            echo '<li><a href="index.php"><span>Opérations</span></a></li>';
+        }
+
         if ($AUTOMATISATION_ENABLED == "yes") {
-            echo '<li><a href="planifications.php">Planifications</a></li>';
+            if ($actual_uri == '/planifications.php') {
+                echo '<li><a href="planifications.php"><span class="underline">Planifications</span></a></li>';
+            } else {
+                echo '<li><a href="planifications.php"><span>Planifications</span></a></li>';
+            }
         }
         if ($MANAGE_PROFILES == "yes") {
-            echo '<li><a href="profiles.php">Gestion des profils</a></li>';
-        } ?>
-        <li><a href="configuration.php">Configuration</a></li>
-        <?php
+            if ($actual_uri == '/profiles.php') {
+                echo '<li><a href="profiles.php"><span class="underline">Gestion des profils</span></a></li>';
+            } else {
+                echo '<li><a href="profiles.php"><span>Gestion des profils</span></a></li>';
+            }
+        }
+        
+        if ($actual_uri == '/configuration.php') {
+            echo '<li><a href="configuration.php"><span class="underline">Configuration</span></a></li>';
+        } else {
+            echo '<li><a href="configuration.php"><span>Configuration</span></a></li>';
+        }
 
         require_once("$WWW_DIR/class/Operation.php");
         $op = new Operation();
         $opsRunning = $op->listRunning('manual');
         $plansRunning = $op->listRunning('plan');
 
-        //$planRunning = planificationRunning();
-
         /**
          *   Cas où il n'y a aucune opération en cours (manuelle ou planifiée)
          */
         if ($opsRunning === false AND $plansRunning === false) {
-            echo '<li><span class="li-operation-not-running"><a href="run.php">Aucune opération en cours</a></span></li>';
+            echo '<li><a href="run.php"><span class="li-operation-not-running">Aucune opération en cours</span></a></li>';
         }
+
         /**
          *  Cas où il y a une ou plusieurs opérations en cours
          */
         if ($opsRunning !== false) {
-            echo '<li><span class="li-operation-running"><a href="run.php">Opération en cours</a></span>';
+            echo '<li><a href="run.php"><span class="li-operation-running">Opération en cours</span></a>';
             echo '<ul class="sub-menu">';
             /**
              *  Pour chaque opération, on récupère son PID et son fichier de LOG
@@ -58,25 +73,54 @@ if ($DEBUG_MODE == "enabled") {
                 $opPid = $opRunning['Pid'];
                 $opLogfile = $opRunning['Logfile'];
                 if (!empty($opRunning['Action'])) { $opAction = $opRunning['Action']; }
+
+                /**
+                 *  Si un repo source est renseigné, on récupère son nom
+                 */
                 if (!empty($opRunning['Id_repo_source'])) {
                     $opRepoSource = $opRunning['Id_repo_source'];
 
                     /**
-                     *  A compléter (comme pour opRepoTarget)
+                     *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                      */
+                    if (is_numeric($opRepoSource)) {
+                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                        $stmt->bindValue(':id', $opRepoSource);
+                        $result = $stmt->execute();
 
+                        while ($datas = $result->fetchArray()) {
+                            $name = $datas['Name'];
+                            if ($OS_FAMILY == "Debian") {
+                                $dist = $datas['Dist'];
+                                $section = $datas['Section'];
+                            }
+                        }
 
-
+                    /**
+                     *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                     */
+                    } else {
+                        $opRepoSource = explode('|', $opRepoSource);
+                        $name = $opRepoSource[0];
+                        if ($OS_FAMILY == "Debian") {
+                            $dist = $opRepoSource[1];
+                            $section = $opRepoSource[2];
+                        }
+                    }
                 }
+
+                /**
+                 *  Si un repo cible est renseigné, on récupère son nom
+                 */
                 if (!empty($opRunning['Id_repo_target'])) { 
                     $opRepoTarget = $opRunning['Id_repo_target'];
+
                     /**
                      *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                      */
                     if (is_numeric($opRepoTarget)) {
-                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status=:status");
+                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
                         $stmt->bindValue(':id', $opRepoTarget);
-                        $stmt->bindValue(':status', 'active');
                         $result = $stmt->execute();
 
                         while ($datas = $result->fetchArray()) {
@@ -116,6 +160,15 @@ if ($DEBUG_MODE == "enabled") {
                         echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                 }
+
+                if ($opAction == "duplicate") {
+                    if ($OS_FAMILY == "Redhat") {
+                        echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($OS_FAMILY == "Debian") {
+                        echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                }
             }
             echo '</ul>';
             echo '</li>';
@@ -134,8 +187,48 @@ if ($DEBUG_MODE == "enabled") {
                 if (!empty($planRunning['Id_repo_source'])) {
                     $opRepoSource = $planRunning['Id_repo_source'];
                 }
+
+                /**
+                 *  Si un repo source est renseigné, on récupère son nom
+                 */
+                if (!empty($planRunning['Id_repo_source'])) {
+                    $opRepoSource = $planRunning['Id_repo_source'];
+
+                    /**
+                     *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                     */
+                    if (is_numeric($opRepoSource)) {
+                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                        $stmt->bindValue(':id', $opRepoSource);
+                        $result = $stmt->execute();
+
+                        while ($datas = $result->fetchArray()) {
+                            $name = $datas['Name'];
+                            if ($OS_FAMILY == "Debian") {
+                                $dist = $datas['Dist'];
+                                $section = $datas['Section'];
+                            }
+                        }
+
+                    /**
+                     *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                     */
+                    } else {
+                        $opRepoSource = explode('|', $opRepoSource);
+                        $name = $opRepoSource[0];
+                        if ($OS_FAMILY == "Debian") {
+                            $dist = $opRepoSource[1];
+                            $section = $opRepoSource[2];
+                        }
+                    }
+                }
+
+                /**
+                 *  Si un repo cible est renseigné, on récupère son nom
+                 */
                 if (!empty($planRunning['Id_repo_target'])) { 
                     $opRepoTarget = $planRunning['Id_repo_target'];
+                    
                     /**
                      *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                      */
@@ -195,6 +288,7 @@ if ($DEBUG_MODE == "enabled") {
         } 
         
         unset($opsRunning, $plansRunning);
+
         ?>
       </ul>
     </nav>
@@ -210,15 +304,15 @@ echo '<section class="main">';
      *  Concerne des erreurs de constantes essentielles qui sont vides :
      */
     if ($EMPTY_CONFIGURATION_VARIABLES > 0) {
-        echo '<section class="center">
-            <span class="yellowtext">Certains paramètres de configuration de l\'onglet <a href="configuration.php">Configuration</a> sont vides, ce qui pourrait engendrer un dysfonctionnement de Repomanager. Il est recommandé de terminer la configuration avant d\'exécuter quelconque opération.</span>
-        </section>';
+        echo '<section class="missing-param-alert">';
+        echo '<span class="yellowtext">Certains paramètres de configuration de l\'onglet <a href="configuration.php">Configuration</a> sont vides, ce qui pourrait engendrer un dysfonctionnement de Repomanager. Il est recommandé de terminer la configuration avant d\'exécuter quelconque opération.</span>';
+        echo '</section>';
     }
     /**
      *  Concerne des configurations générales qui sont en erreur, ici on affiche directement le(s) message(s) d'erreur(s) placé(s) dans $GENERAL_ERROR
      */
     if (!empty($GENERAL_ERROR)) {
-        echo '<section class="center">';
+        echo '<section class="missing-param-alert">';
             foreach($GENERAL_ERROR as $message) {
                 echo "<span class=\"yellowtext\">$message</span>";
             }

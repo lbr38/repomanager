@@ -26,7 +26,6 @@ if (!file_exists($REPOSERVER_PROFILES_CONF_DIR)) { mkdir($REPOSERVER_PROFILES_CO
 // Créer le fichier de conf du serveur n'existe pas on le crée
 if (!file_exists($PROFILE_SERVER_CONF)) { touch($PROFILE_SERVER_CONF); }
 
-
 /**
  *  Cas où on souhaite modifier la conf serveur
  */
@@ -75,6 +74,7 @@ if (!empty($_POST['profileName']) AND !empty($_POST['actualProfileName'])) {
  */
 if (!empty($_POST['action']) AND (validateData($_POST['action']) == "manageProfileConfiguration") AND !empty($_POST['profileName'])) {
     $profileName = validateData($_POST['profileName']);
+    $error = 0;
 
     // Gestion des repos/sections du profil //
     // Les repos peuvent être vides (si on a décidé de supprimer tous les repos d'un profil par exemple). 
@@ -84,7 +84,11 @@ if (!empty($_POST['action']) AND (validateData($_POST['action']) == "manageProfi
     } else {
         $profileRepos = $_POST['profileRepos'];
     }
-    manageProfileRepos($profileName, $profileRepos); //$profileRepos => validateData fait par la fonction manageProfileConfiguration
+
+    //$profileRepos => validateData fait par la fonction manageProfileRepos ci-dessous
+    if (!manageProfileRepos($profileName, $profileRepos)) {
+        $error++;
+    }
 
     // Gestion des exclusions, tâche cron... //
     // Si non-vide alors on implode l'array en string en séparant chaque valeurs par une virgule (car c'est comme ça qu'elles seront renseignées dans le fichier de conf)
@@ -97,7 +101,9 @@ if (!empty($_POST['action']) AND (validateData($_POST['action']) == "manageProfi
     if (!empty($_POST['profileConf_allowOverwrite']) AND validateData($_POST['profileConf_allowOverwrite']) === "yes") { $profileConf_allowOverwrite = 'yes'; } else { $profileConf_allowOverwrite = 'no'; }
     if (!empty($_POST['profileConf_allowReposFilesOverwrite']) AND validateData($_POST['profileConf_allowReposFilesOverwrite']) === "yes") { $profileConf_allowReposFilesOverwrite = 'yes'; } else { $profileConf_allowReposFilesOverwrite = 'no'; }
 
-    // On écrit dans le fichier de conf ce qui a été envoyé en POST :
+    /**
+     *  On écrit dans le fichier de conf ce qui a été envoyé en POST
+     */
     $profileConfiguration = "EXCLUDE_MAJOR=\"${profileConf_excludeMajor}\"";
     $profileConfiguration = "${profileConfiguration}\nEXCLUDE=\"${profileConf_exclude}\"";
     $profileConfiguration = "${profileConfiguration}\nNEED_RESTART=\"${profileConf_needRestart}\"";
@@ -106,8 +112,17 @@ if (!empty($_POST['action']) AND (validateData($_POST['action']) == "manageProfi
     $profileConfiguration = "${profileConfiguration}\nALLOW_REPOSFILES_OVERWRITE=\"${profileConf_allowReposFilesOverwrite}\"";
     file_put_contents("${PROFILES_MAIN_DIR}/${profileName}/config", $profileConfiguration);
 
-    // Affichage d'un message
-    printAlert("Configuration du profil $profileName enregistrée");
+    /**
+     *  Affichage d'un message, si tout s'est bien passé
+     */
+    if ($error == 0) {
+        printAlert("Configuration du profil <b>$profileName</b> enregistrée");
+    }
+
+    /**
+     *  Ré-affichage de la configuration du profil
+     */
+    showdiv_byid("profileConfigurationDiv-${profileName}");
 
     unset($profileName, $profileConfiguration, $profileConf_excludeMajor, $profileConf_exclude, $profileConf_needRestart, $profileConf_keepCron, $profileConf_allowOverwrite, $profileConf_allowReposFilesOverwrite);
 }
@@ -191,17 +206,17 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                     echo "<input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"invisibleInput-green\" />";
                     echo '</td>';
                     echo '<td class="td-fit">';
-                    echo "<img id=\"profileConfigurationToggleButton${i}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"icons/cog.png\" />";
+                    echo "<img id=\"profileConfigurationToggleButton-${profileName}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"icons/cog.png\" />";
                     echo "<a href=\"?action=duplicateprofile&profileName=${profileName}\" title=\"Créer un nouveau profil en dupliquant la configuration de $profileName\"><img class=\"icon-mediumopacity\" src=\"icons/duplicate.png\" /></a>";         
                     // Bouton supprimer le profil
-                    echo "<img class=\"profileDeleteToggleButton${i} icon-mediumopacity\" title=\"Supprimer le profil ${profileName}\" src=\"icons/bin.png\" />";
-                    deleteConfirm("Etes-vous sûr de vouloir supprimer le profil $profileName", "?action=deleteprofile&profileName=${profileName}", "profileDeleteDiv${i}", "profileDeleteToggleButton${i}");
+                    echo "<img class=\"profileDeleteToggleButton-${profileName} icon-mediumopacity\" title=\"Supprimer le profil ${profileName}\" src=\"icons/bin.png\" />";
+                    deleteConfirm("Etes-vous sûr de vouloir supprimer le profil <b>$profileName</b>", "?action=deleteprofile&profileName=${profileName}", "profileDeleteDiv-${profileName}", "profileDeleteToggleButton-${profileName}");
                     echo '</td>';
                     echo '</tr>';
                     echo '</table>';
                     echo '</form>';
                     // Configuration de ce profil dans un div caché, affichable en cliquant sur la roue crantée //
-                    echo "<div id=\"profileConfigurationDiv${i}\" class=\"hide profileDivConf\">";
+                    echo "<div id=\"profileConfigurationDiv-${profileName}\" class=\"hide profileDivConf\">";
                     echo '<form action="profiles.php" method="post" autocomplete="off">';
                     // Il faut transmettre le nom du profil dans le formulaire, donc on ajoute un input caché avec le nom du profil
                     echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
@@ -361,8 +376,8 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                     // Afficher ou masquer la div 'profileConfigurationDiv' :
                     echo "<script>";
                     echo "$(document).ready(function(){";
-                    echo "$(\"#profileConfigurationToggleButton${i}\").click(function(){";
-                    echo "$(\"div#profileConfigurationDiv${i}\").slideToggle(150);";
+                    echo "$(\"#profileConfigurationToggleButton-${profileName}\").click(function(){";
+                    echo "$(\"div#profileConfigurationDiv-${profileName}\").slideToggle(150);";
                     echo '$(this).toggleClass("open");';
                     echo "});";
                     echo "});";

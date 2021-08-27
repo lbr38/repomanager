@@ -14,8 +14,10 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroup")
 
 // Cas où on souhaite modifier la liste des repos d'un groupe
 if (!empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
-  	$group->name = validateData($_POST['actualGroupName']);
-  	$group->addRepo($_POST['groupAddRepoName']);
+	$mygroup = new Group(array('groupName' => validateData($_POST['actualGroupName'])));
+  	// Pas de validateData sur $_POST['groupAddRepoName'], il est opéré dans la fonction addRepo directement :
+	$mygroup->addRepo($_POST['groupAddRepoName']);
+	unset($mygroup);
 }
 
 // Cas où on souhaite renommer un groupe :

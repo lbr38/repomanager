@@ -157,7 +157,7 @@ $(document).ready(function(){
         } ?>
 
         <p><b>Cache</b></p>
-        <p>Mettre en cache la liste des repos actifs dans /dev/shm/ (expérimental)</p>
+        <p>Mettre en cache la liste des repos actifs dans <b>/dev/shm/</b> (expérimental)</p>
         <?php
         // mettre en cache ou non la liste des repos
         echo '<label class="onoff-switch-label">';
@@ -187,45 +187,22 @@ $(document).ready(function(){
 
 <!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">
-
-<?php
-$i = 0; // initialise un compteur qui sera incrémenté pour chaque conftoggX (affichage d'une div cachée contenant la conf des repo, bouton Conf)
-// Filtre par noms de groupes
-if ($filterByGroups == "yes") {
-    // Méthode génération de la page en html et stockage en ram (experimental) :
-    if ($cache_repos_list == "yes") {
-         if (!file_exists("${WWW_CACHE}/repos-list-filter-group.html")) {
-            touch("${WWW_CACHE}/repos-list-filter-group.html");
-            ob_start();
-            include(__DIR__.'/repos-list-filter-groups.inc.php');
-            $content = ob_get_clean();
-            file_put_contents("${WWW_CACHE}/repos-list-filter-group.html", $content);
-        }
-        // Enfin on affiche le fichier html généré
-        include("${WWW_CACHE}/repos-list-filter-group.html");
-    } else {
-        include(__DIR__.'/repos-list-filter-groups.inc.php');
+<?php 
+// Méthode génération de la page en html et stockage en ram (experimental)
+if ($cache_repos_list == "yes") {
+     if (!file_exists("${WWW_CACHE}/repomanager-repos-list.html")) {
+        touch("${WWW_CACHE}/repomanager-repos-list.html");
+        ob_start();
+        include(__DIR__.'/repos-active-list.inc.php');
+        $content = ob_get_clean();
+        file_put_contents("${WWW_CACHE}/repomanager-repos-list.html", $content);
     }
+    // Enfin on affiche le fichier html généré
+    include("${WWW_CACHE}/repomanager-repos-list.html");
+} else {
+    include(__DIR__.'/repos-active-list.inc.php');
 }
 
-// Liste des repos sans filtre par groupe
-if ($filterByGroups == "no") {
-    // Méthode génération de la page en html et stockage en ram (experimental) :
-    if ($cache_repos_list == "yes") {
-        if (!file_exists("${WWW_CACHE}/repos-list-no-filter.html")) {
-            touch("${WWW_CACHE}/repos-list-no-filter.html");
-            ob_start();
-            include(__DIR__.'/repos-list-no-filter.inc.php');
-            $content = ob_get_clean();
-            file_put_contents("${WWW_CACHE}/repos-list-no-filter.html", $content);
-        }
-        // Enfin on affiche le fichier html généré
-        include("${WWW_CACHE}/repos-list-no-filter.html");
-    } else {
-        include(__DIR__.'/repos-list-no-filter.inc.php');
-    }
-}
-
-unset($i, $j, $repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv);  
+unset($repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv);
 ?>
 </table>
