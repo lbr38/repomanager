@@ -315,8 +315,8 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
 
 /**
  *  Section CRON
+ *  Si un des formulaires de la page a été validé alors on entre dans cette condition
  */
-// Si un des formulaires de la page a été validé alors on entre dans cette condition
 if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyCronConfiguration") {
 
     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
@@ -414,42 +414,71 @@ function save($array) {
 /**
  * Deploiement des tâches cron
  */
-
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "enableCron") {
     enableCron();
 }
 
 /**
- * Gestion des environnements
+ *  Gestion des environnements
+ *  Récupère la liste des environnements envoyés sous forme de tableau actualEnv[]
+ *  Valeurs retournées dans le cas du renommage d'un environnement par exemple
  */
+if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv") {
+    /**
+     *  Ajout d'un nouvel environnement
+     */
+    if (!empty($_POST['newEnv'])) {
+        $newEnv = validateData($_POST['newEnv']);
 
-// Récupère la liste des environnements envoyés sous forme de tableau actualEnv[]
-// Valeurs retournées dans le cas du renommage d'un environnement par exemple
-if (!empty($_POST['actualEnv'])) {
-    $actualEnvTotal = '';
-    foreach ($_POST['actualEnv'] as $actualEnvName) {
-        $actualEnvName = validateData($actualEnvName);
-        $actualEnvTotal = "${actualEnvTotal}\n${actualEnvName}";
+        /**
+         *  On écrit le nouvel env dans le fichier envs.conf
+         */
+        file_put_contents("$ENV_CONF", "$newEnv".PHP_EOL, FILE_APPEND);
+
+        /**
+         *  Puis rechargement de la page pour voir les modifications de configuration
+         */
+        header('Location: configuration.php');
     }
-    // On ré-écrit le tout dans le fichier envs.conf
-    file_put_contents($ENV_CONF, "[ENVIRONNEMENTS]${actualEnvTotal}".PHP_EOL);   
 }
 
-// Ajout d'un nouvel environnement
-if (!empty($_POST['newEnv'])) {
-    $newEnv = validateData($_POST['newEnv']);
-    // On écrit le nouvel env dans le fichier envs.conf, avant 'prod'
-    file_put_contents($ENV_CONF, "${newEnv}".PHP_EOL,FILE_APPEND);
-    // Puis rechargement de la page pour appliquer les modifications de configuration
-    header('Location: configuration.php');
-}
+/**
+ *  Renommage d'un environnement / changement de sens des environnements
+ */
+if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvConfiguration") {
+    if (!empty($_POST['actualEnv'])) {
+        $actualEnvTotal = '';
+        foreach ($_POST['actualEnv'] as $actualEnvName) {
+            $actualEnvName = validateData($actualEnvName);
+            $actualEnvTotal = "${actualEnvTotal}\n${actualEnvName}";
+        }
 
-// Suppression d'un environnement
+        /**
+         *  On ré-écrit le tout dans le fichier envs.conf
+         */
+        file_put_contents($ENV_CONF, trim($actualEnvTotal).PHP_EOL);   
+
+        /**
+         *  Puis rechargement de la page pour voir les modifications de configuration
+         */
+        header('Location: configuration.php');
+    }
+} 
+
+/**
+ *  Suppression d'un environnement
+ */
 if (!empty($_GET['deleteEnv'])) {
     $deleteEnv = validateData($_GET['deleteEnv']);
-    // On supprime l'env dans le fichier envs.conf
+
+    /**
+     *  On supprime l'env dans le fichier envs.conf
+     */
     exec("sed -i '/^${deleteEnv}/d' $ENV_CONF");
-    // Puis rechargement de la page pour appliquer les modifications de configuration
+
+    /**
+     *  Puis rechargement de la page pour voir les modifications de configuration
+     */
     header('Location: configuration.php');
 }
 ?>
@@ -743,9 +772,9 @@ if (!empty($_GET['deleteEnv'])) {
 <section class="mainSectionRight">
     <section class="right">
         <h3>ENVIRONNEMENTS</h3>
+        <table class="table-medium">
         <form action="configuration.php" method="post" autocomplete="off">
-            <input type="hidden" name="action" value="applyConfiguration" />
-            <table class="table-medium">
+            <input type="hidden" name="action" value="applyEnvConfiguration" />
                 <?php // Affichage des envs actuels
                 $i=0;
                 foreach ($ENVS as $env) {
@@ -765,19 +794,18 @@ if (!empty($_GET['deleteEnv'])) {
                     echo '</tr>';
                     ++$i;
                 } ?>
-                <tr>
-                    <td><input type="text" name="newEnv" placeholder="Ajouter un nouvel environnement" /></td>
-                    <td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue">+</button></td>
-                    <td class="td-fit">
-                    <?php if (empty($ENVS)) { echo '<img src="icons/warning.png" class="icon" title="Au moins un environnement doit être configuré" />'; } ?>
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
-                </tr>
-            </table>
+            <input type="submit" class="hide" value="Valider" /> <!-- bouton caché, afin de taper Entrée pour appliquer les modifications -->
         </form>
+        <form action="configuration.php" method="post" autocomplete="off">
+            <input type="hidden" name="action" value="addNewEnv" />
+            <tr>
+                <td><input type="text" name="newEnv" placeholder="Ajouter un nouvel environnement" /></td>
+                <td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue">+</button></td>
+                <td class="td-fit"><?php if (empty($ENVS)) { echo '<img src="icons/warning.png" class="icon" title="Au moins un environnement doit être configuré" />'; } ?></td>
+                <td></td>
+            </tr>
+        </form>
+        </table>
 
         <br><h3>CRONS</h3>
         <form action="configuration.php" method="post">

@@ -55,7 +55,7 @@ body {
 .loader-wrapper {
     width: 100%;
     height: 100%;
-    float: left;
+    /*float: left;*/
     margin-top: 50px;
     position: absolute;
     top: 50;
@@ -70,7 +70,7 @@ body {
     height: 30px;
     position: relative;
     border: 4px solid #fff;
-    animation: loader 2s infinite ease;
+    /*animation: loader 2s infinite ease;*/
   }
 
   /*
@@ -170,12 +170,13 @@ hr {
     border-radius: 1px;
 }
 
-header { width: 100%; margin-bottom: 70px; }
-header a { 
-    font-size: 18px;
-    opacity: 0.85; 
+header {
+    width: 100%;
+    margin-bottom: 70px;
 }
-
+header li span:not(#title, #version, .underline, .li-operation-not-running, .li-operation-running) {
+    opacity: 0.55;
+}
 nav {
     width: 100%;
     box-sizing: border-box;
@@ -183,7 +184,7 @@ nav {
     -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
 }
-.menu{
+.menu {
     display: inline-block;
     list-style-type: none;
     margin: 0;
@@ -191,16 +192,22 @@ nav {
     padding-bottom: 10px;
     padding-left: 0;
 }
-.menu > li{
+.menu > li {
     float: left;
-    font-size: 18px;
     margin-right: 70px;
     height: 40px;
     line-height: 40px;
     cursor: pointer;
     text-align: left;
 }
-.sub-menu{
+.menu > li span:not(.li-operation-not-running, .li-operation-running) {
+    font-size: 18px;
+}
+.menu > li span.underline {
+    border-bottom: 2px solid #006699;
+    padding-bottom: 21px;
+}
+.sub-menu {
     transform: scale(0);
     transform-origin: top center;
     transition: all 100ms ease-in-out;
@@ -208,7 +215,7 @@ nav {
     padding-left: 0;
     margin-top: 8px;
 }
-.sub-menu li{
+.sub-menu li {
     width: 100%;
     color: white;
     transform: scale(0);
@@ -217,13 +224,13 @@ nav {
     line-height: 1px;
     height: 29px;
 }
-.sub-menu li:last-child{
+.sub-menu li:last-child {
     border-bottom: 0;
 }
-.menu > li:hover .sub-menu li{
+.menu > li:hover .sub-menu li {
     transform: scale(1);
 }
-.menu > li:hover .sub-menu{
+.menu > li:hover .sub-menu {
     transform: scale(1);
 }
 .li-operation-running {
@@ -307,7 +314,7 @@ section.mainSectionRight {
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
-section.left, section.right, section.center, #newRepoSlideDiv {
+section.left, section.right, section.center, section.missing-param-alert, #newRepoSlideDiv {
     width: 98%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionLeft' */
     margin-bottom: 10px;
     padding: 10px;
@@ -323,6 +330,13 @@ section.left, section.right, section.center, #newRepoSlideDiv {
 section.center { width: 99%; margin: auto; }
 section.left { min-height: 300px; display: inline-block; }
 section.right, #newRepoSlideDiv { float: right; }
+section.missing-param-alert {
+    width: 99%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 30px;
+}
+
 /* on écrase certaines des valeurs ci-dessus afin que la section soit masquée au chargement de la page */
 #newRepoSlideDiv, #groupsDiv, #sourcesDiv {
     width: 0px; /* longueur de 0 par défaut, pour que cette section soit complètement masqué. */
@@ -384,9 +398,11 @@ table {
 table.actiontable { width: 100%; }
 table thead, .reposListHead { font-weight: bold; }
 
-table.list-repos, table.list-repos-archived {
+table.list-repos {
     width: 100%;
     font-size: 14px;
+    table-layout: auto !important;
+    white-space: nowrap;
     /* optimisation pour l'affichage des tableaux sur Chrome */
     /*-webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);*/
@@ -408,14 +424,58 @@ table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
     padding-right: 0px;
 }
 
+table.list-repos tr .rl-fit {
+    width: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+table.list-repos tr .rl-30 {
+    width: 0px;
+    margin: 0px;
+    padding-right: 30px;
+}
+
+table.list-repos tr .rl-desc {
+    margin: 0px;
+    padding-right: 30px;
+    white-space: normal;
+}
+
+.rl-white-bckg span, .rl-red-bckg span {
+    width: 100%;
+    display: block; /* pour que le width s'applique correctement */
+    font-size: 12px;
+    text-align: center;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 2px;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+}
+
+.rl-white-bckg span {
+    background-color: #f7f7f7;
+    color: black;
+}
+
+.rl-red-bckg span {
+    background-color: #d9534f;
+    color: whitesmoke;
+}
+
+
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
 td.td-redbackground span, td.td-greenbackground span, td.td-bluebackground span, td.td-whitebackground span {
-    font-size: 11px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    border-radius: 3px;
+    font-size: 12px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 2px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
@@ -537,12 +597,9 @@ td {
 
 input[type=text], input[type=date], input[type=time], input[type=number], input[type=color], select {
     width: 100%;
-    /*height: 22px;*/
-    /* Nouvelle conf */
     height: 30px;
     margin-top: 1px;
     margin-bottom: 1px;
-    /* ** */
     display: inline-block;
     border: none;
     border-radius: 2px;
@@ -552,7 +609,7 @@ input[type=text], input[type=date], input[type=time], input[type=number], input[
     background-color:#474747;
 }
 
-input[type=color].color-xsmall { width: 50px; }
+input[type=color].color-xsmall { width: 50px; vertical-align: middle; }
 input[type=text].input-small, .select-small, input[type=color].color-small { width: 100px; }
 input[type=text].input-medium, .select-medium, input[type=color].color-medium { width: 150px; }
 input[type=text].input-large, .select-large, input[type=color].color-large { width: 250px; }
@@ -630,7 +687,6 @@ input[type=text].input-large, .select-large, input[type=color].color-large { wid
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
 input[type=text].invisibleInput, input[type=text].invisibleInput2, input[type=text].invisibleInput-green, input[type=text].invisibleInput-blue {
     border: none;
-    /*font-weight: bold;*/
 }
 
 input[type=text].invisibleInput {
@@ -825,12 +881,9 @@ footer p { color: gray; }
 }
 
 #newRepoSlideButton {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-left: 5px;
-}
-
-#newRepoSlideButton {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 7px;
     background-color:#006699;
     border-radius: 5px;
 }

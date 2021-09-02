@@ -60,13 +60,13 @@ trait changeEnv {
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
-                echo '<p><span class="redtext">Erreur :</span> ce repo n\'existe pas</p>';
+                echo '<p><span class="redtext">Erreur :</span> ce repo n\'existe pas en '.envtag($this->repo->env).'</p>';
                 return false;
             }
         }
         if ($OS_FAMILY == "Debian") {
             if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
-                echo '<p><span class="redtext">Erreur :</span> cette section n\'existe pas</p>';
+                echo '<p><span class="redtext">Erreur :</span> cette section n\'existe pas en '.envtag($this->repo->env).'</p>';
                 return false;
             }
         }
@@ -120,13 +120,13 @@ trait changeEnv {
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
-                echo "<p><span class=\"redtext\">Erreur :</span> ce repo est déjà en {$this->repo->newEnv} au {$this->repo->date}</p>";
+                echo "<p><span class=\"redtext\">Erreur :</span> ce repo est déjà en {$this->repo->newEnv} au <b>{$this->repo->dateFormatted}</b></p>";
                 return false;
             }
         }
         if ($OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
-                echo "<p><span class=\"redtext\">Erreur :</span> cette section est déjà en {$this->repo->newEnv} au {$this->repo->date}</p>";
+                echo "<p><span class=\"redtext\">Erreur :</span> cette section est déjà en {$this->repo->newEnv} au <b>{$this->repo->dateFormatted}</b></p>";
                 return false;
             }
         }

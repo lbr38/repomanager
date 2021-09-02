@@ -177,10 +177,10 @@ if (!empty($reposList)) {
         }
         // Affichage de l'icone "explorer"
         if ($OS_FAMILY == "Redhat") {
-            echo "<a href=\"explore.php?repo=${repoName}&date=${repoDate}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
+            echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
         }
         if ($OS_FAMILY == "Debian") {
-            echo "<a href=\"explore.php?repo=${repoName}&dist=${repoDist}&section=${repoSection}&date=${repoDate}&env=${repoEnv}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
+            echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
         }
         // Affichage de l'icone "warning" si le répertoire du repo n'existe plus sur le serveur
         if ($OS_FAMILY == "Redhat") {

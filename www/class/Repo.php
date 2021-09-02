@@ -427,10 +427,18 @@ class Repo {
 /**
  *  Recupère toutes les information du repo/de la section en BDD à partie de son ID
  */
-    public function db_getAllById() {
+    public function db_getAllById(string $type = '') {
         global $OS_FAMILY;
 
-        $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
+        /**
+         *  Si on a précisé un type en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
+         *  Sinon dans tous les autres cas on interroge la table par défaut càd les repos actifs
+         */
+        if (!empty($type) AND $type == 'archived') {
+            $stmt = $this->db->prepare("SELECT * from repos_archived WHERE Id=:id");
+        } else {
+            $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
+        }
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();
 
@@ -446,13 +454,13 @@ class Repo {
             }
             $this->date = $row['Date'];
             $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $row['Date'])->format('d-m-Y');
-            $this->env = $row['Env'];
+            if (!empty($row['Env'])) $this->env = $row['Env']; // Dans le cas où on a précisé $type == 'archived' il n'y a pas d'env pour les repo archivés, d'où la condition
             $this->type = $row['Type'];
             $this->signed = $row['Signed']; $this->gpgResign = $this->signed;
             $this->description = $row['Description'];
         }
 
-        unset($stmt);
+        unset($stmt, $result);
     }
 
 /**

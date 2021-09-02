@@ -472,9 +472,9 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
             $(function() {
             $("#planSelect").change(function() {
                 if ($("#updateRepoSelect").is(":selected")) {
-                $(".hiddenGpgInput").show();
+                    $(".hiddenGpgInput").show();
                 } else {
-                $(".hiddenGpgInput").hide();
+                    $(".hiddenGpgInput").hide();
                 }
             }).trigger('change');
             });

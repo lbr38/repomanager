@@ -34,12 +34,12 @@ trait op_getPackages {
         if ($op_type == "new") {        
             if ($OS_FAMILY == "Redhat") {
                 if ($this->repo->existsEnv($this->repo->name, $DEFAULT_ENV) === true) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>{$this->repo->name}</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>{$this->repo->name}</b> existe déjà en ".entag($DEFAULT_ENV)."</p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $DEFAULT_ENV) === true) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en <b>${DEFAULT_ENV}</b></p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en ".entag($DEFAULT_ENV)."</p>");
                 }
             }
         }
@@ -50,27 +50,25 @@ trait op_getPackages {
              */
             if ($OS_FAMILY == "Redhat") {
                 if ($this->repo->existsEnv($this->repo->name, $DEFAULT_ENV) === false) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>{$this->repo->name}</b> n'existe pas</p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>le repo <b>{$this->repo->name}</b> ".entag($DEFAULT_ENV)." n'existe pas</p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
                 if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $DEFAULT_ENV) === false) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> n'existe pas</p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> ".entag($DEFAULT_ENV)." du repo <b>{$this->repo->name}</b> n'existe pas</p>");
                 }
             }
             /**
              *  Vérifie si le repo à mettre à jour n'existe pas déjà à la date du jour
              */
             if ($OS_FAMILY == "Redhat") {
-                //if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $DEFAULT_ENV) === true) {
                 if ($this->repo->existsDateEnv($this->repo->name, $DATE_YMD, $DEFAULT_ENV) === true) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la repo <b>{$this->repo->name}</b> existe déjà en <b>${DEFAULT_ENV}</b> au <b>{$this->repo->dateFormatted}</b></p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la repo <b>{$this->repo->name}</b> existe déjà en ".entag($DEFAULT_ENV)." au <b>{$this->repo->dateFormatted}</b></p>");
                 }
             }
             if ($OS_FAMILY == "Debian") {
-                //if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $DEFAULT_ENV) === true) {
                 if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $DATE_YMD, $DEFAULT_ENV) === true) {
-                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en <b>${DEFAULT_ENV}</b> au <b>{$this->repo->dateFormatted}</b></p>");
+                    throw new Exception("<p><span class=\"redtext\">Erreur : </span>la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en ".entag($DEFAULT_ENV)." au <b>{$this->repo->dateFormatted}</b></p>");
                 }
             }
         }
@@ -134,20 +132,16 @@ trait op_getPackages {
              */
             if ($this->repo->gpgCheck == "no") {
                 if ($OS_VERSION == "7") {
-                    //exec("reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf -l --repoid={$this->source} --norepopath --download_path='${REPOS_DIR}/${DATE_DMY}_{$this->name}/' >> {$this->log->steplog}", $output, $result);
                     $process = proc_open("exec reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf -l --repoid={$this->repo->source} --norepopath --download_path='${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/' 1>&2", $descriptors, $pipes);
                 }
                 if ($OS_VERSION == "8") {
-                    //exec("reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --nogpgcheck --repoid={$this->source} --download-path '${REPOS_DIR}/${DATE_DMY}_{$this->name}/' >> {$this->log->steplog}", $output, $result);
                     $process = proc_open("exec reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --nogpgcheck --repoid={$this->repo->source} --download-path '${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/' 1>&2", $descriptors, $pipes);
                 }
             } else { // Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
                 if ($OS_VERSION == "7") {
-                    //exec("reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --gpgcheck -l --repoid={$this->source} --norepopath --download_path='${REPOS_DIR}/${DATE_DMY}_{$this->name}/' >> {$this->log->steplog}", $output, $result);
                     $process = proc_open("exec reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --gpgcheck -l --repoid={$this->repo->source} --norepopath --download_path='${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/' 1>&2", $descriptors, $pipes);
                 }
                 if ($OS_VERSION == "8") {
-                    //exec("reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --repoid={$this->source} --download-path '${REPOS_DIR}/${DATE_DMY}_{$this->name}/' >> {$this->log->steplog}", $output, $result);
                     $process = proc_open("exec reposync --config=${REPOMANAGER_YUM_DIR}/repomanager.conf --repoid={$this->repo->source} --download-path '${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/' 1>&2", $descriptors, $pipes);
                 }
             }
