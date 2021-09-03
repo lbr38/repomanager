@@ -233,6 +233,11 @@ class Operation {
             return false;
         } else {
             $this->repo->source = validateData($_GET['repoSource']);
+            if (!is_alphanum($this->repo->source, array('-', '.'))) { // on autorise les points dans le nom de la source
+                echo '<p>Erreur : la source du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoSource" value="'.$this->repo->source.'" />';
         }
         return true;
@@ -244,6 +249,11 @@ class Operation {
             return false;
         } else {
             $this->repo->type = validateData($_GET['repoType']);
+            if (!is_alphanum($this->repo->type)) {
+                echo '<p>Erreur : le type du repo ne peut pas contenir de caractères spéciaux.</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoType" value="'.$this->repo->type.'" />';
         }
         return true;
@@ -252,9 +262,13 @@ class Operation {
     private function chk_param_alias() {
         if (empty($_GET['repoAlias'])) {
             echo '<input type="hidden" name="repoAlias" value="noalias" />';
-        }
-        if (!empty($_GET['repoAlias'])) {
+        } else {
             $this->repo->alias = validateData($_GET['repoAlias']);
+            if (!is_alphanum($this->repo->alias, array('-'))) {
+                echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoAlias" value="'.$this->repo->alias.'" />';
         }
         return true;
@@ -262,10 +276,15 @@ class Operation {
 
     private function chk_param_name() {
         if (empty($_GET['repoName'])) {
-            echo "<p>Erreur : le nom du repo ne peut pas être vide</p>";
+            echo '<p>Erreur : le nom du repo ne peut pas être vide</p>';
             return false;
         } else {
             $this->repo->name = validateData($_GET['repoName']);
+            if (!is_alphanum($this->repo->name, array('-'))) {
+                echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoName" value="'.$this->repo->name.'" />';
         }
         return true;
@@ -277,6 +296,11 @@ class Operation {
             return false;
         } else {
             $this->repo->newName = validateData($_GET['repoNewName']);
+            if (!is_alphanum($this->repo->newName, array('-'))) {
+                echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoNewName" value="'.$this->repo->newName.'" />';
         }
         return true;
@@ -288,6 +312,11 @@ class Operation {
             return false;
         } else {
             $this->repo->dist = validateData($_GET['repoDist']);
+            if (!is_alphanum($this->repo->dist, array('-'))) {
+                echo '<p>Erreur : le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+            
             echo '<input type="hidden" name="repoDist" value="'.$this->repo->dist.'" />';
         }
         return true;
@@ -299,6 +328,11 @@ class Operation {
             return false;
         } else {
             $this->repo->section = validateData($_GET['repoSection']);
+            if (!is_alphanum($this->repo->section, array('-'))) {
+                echo '<p>Erreur : le nom de la section ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+                return false;
+            }
+
             echo '<input type="hidden" name="repoSection" value="'.$this->repo->section.'" />';
         }
         return true;
@@ -391,6 +425,12 @@ class Operation {
                 echo '<span>Description (fac.) :</span><input type="text" name="repoDescription" />';
             } else {
                 $this->repo->description = validateData($_GET['repoDescription']);
+                if (!is_alphanumdash($this->repo->description, array('.', '(', ')', '@', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
+                    echo '<p>Erreur : la description comporte des caractères invalides</p>';
+                    return false;
+                }
+
+                
                 echo '<input type="hidden" name="repoDescription" value="'.$this->repo->description.'" />';
             }
         }
@@ -611,17 +651,17 @@ class Operation {
 
         if ($OS_FAMILY === "Redhat") { echo '<h3>CRÉER UN NOUVEAU REPO</h3>';    }
         if ($OS_FAMILY === "Debian") { echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; }
-        if ($this->chk_param_type() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
+        if ($this->chk_param_type() === false) ++$this->validate;
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
 
-        $this->chk_param_alias();
+        if ($this->chk_param_alias() === false) ++$this->validate;
         $this->chk_param_group();
-        $this->chk_param_description();
+        if ($this->chk_param_description() === false) ++$this->validate;
         if ($this->repo->type === "mirror") {
-            if ($this->chk_param_source() === false)    { ++$this->validate; }
-            if ($this->chk_param_gpgCheck() === false)  { ++$this->validate; }
-            if ($this->chk_param_gpgResign() === false) { ++$this->validate; }
+            if ($this->chk_param_source() === false)    ++$this->validate; 
+            if ($this->chk_param_gpgCheck() === false)  ++$this->validate;
+            if ($this->chk_param_gpgResign() === false) ++$this->validate;
         }
 
         if ($this->repo->alias === "noalias") {
@@ -826,12 +866,12 @@ class Operation {
 
         if ($OS_FAMILY === "Redhat") { echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';    }
         if ($OS_FAMILY === "Debian") { echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>'; }
-        if ($this->chk_param_name() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
-        if ($this->chk_param_env() === false)      { ++$this->validate; }
-        if ($this->chk_param_newEnv() === false)   { ++$this->validate; }
-        $this->chk_param_description();
+        if ($this->chk_param_name() === false) ++$this->validate;
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if ($this->chk_param_env() === false)         ++$this->validate;
+        if ($this->chk_param_newEnv() === false)      ++$this->validate;
+        if ($this->chk_param_description() === false) ++$this->validate;
 
         if ($this->validate() === true) {
             /**
@@ -919,13 +959,14 @@ class Operation {
 
         echo '<h3>DUPLIQUER UN REPO</h3>';
 
-        if ($this->chk_param_name() === false)    { ++$this->validate; }
-        if ($this->chk_param_newName() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
-        if ($this->chk_param_env() === false)     { ++$this->validate; }
+        if ($this->chk_param_name() === false)    ++$this->validate;
+        if ($this->chk_param_newName() === false) ++$this->validate;
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if ($this->chk_param_env() === false)         ++$this->validate;
+        if ($this->chk_param_description() === false) ++$this->validate;
         $this->chk_param_group();
-        $this->chk_param_description();
+        
 
         if ($this->validate() === true) {
             /**
@@ -993,8 +1034,8 @@ class Operation {
 
         echo '<h3>SUPPRIMER UN REPO</h3>';
 
-        if ($this->chk_param_name() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Redhat" AND $this->chk_param_env() === false) { ++$this->validate; } // Pour Redhat on a besoin de l'environnement
+        if ($this->chk_param_name() === false) ++$this->validate;
+        if ($OS_FAMILY == "Redhat" AND $this->chk_param_env() === false) ++$this->validate; // Pour Redhat on a besoin de l'environnement
 
         if ($this->validate() === true) {
             /**
@@ -1007,10 +1048,10 @@ class Operation {
             }
 
             /**
-             *  Ok le repo existe mais peut être que celui-ci contient plusieurs distrib et sections qui seront supprimées, on récupère les distrib et les sections concernées
+             *  Debian : Ok le repo existe mais peut être que celui-ci contient plusieurs distrib et sections qui seront supprimées, on récupère les distrib et les sections concernées
              *  et on les affichera dans la demande de confirmation
              */
-            $distAndSectionsToBeDeleted = $this->db->query("SELECT Dist, Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Status = 'active'");
+            if ($OS_FAMILY == "Debian") $distAndSectionsToBeDeleted = $this->db->query("SELECT Dist, Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Status = 'active'");
 
             /**
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
@@ -1034,7 +1075,7 @@ class Operation {
                     } else {
                         echo '<p>Attention, impossible de récupérer le nom des distributions et des sections impactées.<br>L\'opération supprimera tout le contenu du repo et donc les distributions et les sections qu\'il contient (tout environnement confondu)</p>';
                     }
-                    echo '<p><br>Cela inclu également les sections archivées si il y en a</p>';
+                    echo '<p><br>Cela inclu également les sections archivées si il y en a.</p>';
                 }
             }
 
@@ -1081,8 +1122,8 @@ class Operation {
 
         echo '<h3>SUPPRIMER UNE DISTRIBUTION</h3>';
 
-        if ($this->chk_param_name() === false) { ++$this->validate; }
-        if ($this->chk_param_dist() === false) { ++$this->validate; }
+        if ($this->chk_param_name() === false) ++$this->validate;
+        if ($this->chk_param_dist() === false) ++$this->validate;
 
         if ($this->validate() === true) {
             /**
@@ -1120,7 +1161,7 @@ class Operation {
                 } else {
                     echo '<p>Erreur : impossible de récupérer le nom des sections impactées.<br>L\'opération supprimera tout le contenu de la distribution et donc les sections qu\'elle contient (tout environnement confondu)</p>';
                 }
-                echo '<p><br>Cela inclu également les sections archivées si il y en a</p>';
+                echo '<p><br>Cela inclu également les sections archivées si il y en a.</p>';
             }
 
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
@@ -1157,10 +1198,10 @@ class Operation {
     public function deleteSection() {
         echo '<h3>SUPPRIMER UNE SECTION</h3>';
 
-        if ($this->chk_param_name() === false)    { ++$this->validate; }
-        if ($this->chk_param_dist() === false)    { ++$this->validate; }
-        if ($this->chk_param_section() === false) { ++$this->validate; }
-        if ($this->chk_param_env() === false)     { ++$this->validate; }
+        if ($this->chk_param_name() === false)    ++$this->validate;
+        if ($this->chk_param_dist() === false)    ++$this->validate;
+        if ($this->chk_param_section() === false) ++$this->validate;
+        if ($this->chk_param_env() === false)     ++$this->validate;
 
         if ($this->validate() === true) {
             /**
@@ -1214,10 +1255,10 @@ class Operation {
         if ($OS_FAMILY == "Redhat") { echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>'; }
         if ($OS_FAMILY == "Debian") { echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>'; }
 
-        if ($this->chk_param_name() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
-        if ($this->chk_param_date() === false) { ++$this->validate; }
+        if ($this->chk_param_name() === false) ++$this->validate;
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if ($this->chk_param_date() === false) ++$this->validate;
 
         if ($this->validate() === true) {
             /**
@@ -1280,13 +1321,13 @@ class Operation {
         if ($OS_FAMILY == "Redhat") { echo '<h3>RESTAURER UN REPO ARCHIVÉ</h3>'; }
         if ($OS_FAMILY == "Debian") { echo '<h3>RESTAURER UNE SECTION ARCHIVÉE</h3>'; }
 
-        if ($this->chk_param_name() === false) { ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
+        if ($this->chk_param_name() === false) ++$this->validate;
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_date() === false) { ++$this->validate; }
         $this->repo->env = ''; // On réinitialise cette variable car elle a été set à $DEFAULT_ENV lors de l'instanciation de l'objet $this->repo. Cela pose un pb pour la fonction qui suit.
-        if ($this->chk_param_newEnv() === false) { ++$this->validate; }
-        $this->chk_param_description();
+        if ($this->chk_param_newEnv() === false)      ++$this->validate;
+        if ($this->chk_param_description() === false) ++$this->validate;
 
         if ($this->validate() === true) {
             /**

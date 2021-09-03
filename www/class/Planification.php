@@ -77,12 +77,32 @@ class Planification {
              *  Cas où l'action est "update", on ajoute également les valeurs de gpgcheck et gpgresign
              */
             if ($this->action == "update") {
-                $this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') 
-                VALUES ('$this->date', '$this->time', '$this->action', '{$this->repo->id}', '{$this->gpgCheck}', '{$this->gpgResign}', '$this->reminder', 'queued')"); 
+                /*$this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') 
+                VALUES ('$this->date', '$this->time', '$this->action', '{$this->repo->id}', '{$this->gpgCheck}', '{$this->gpgResign}', '$this->reminder', 'queued')");*/
+                $stmt = $this->db->prepare("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') VALUES (:date, :time, :action, :id, :gpgcheck, :gpgresign, :reminder, 'queued')");
+                $stmt->bindValue(':date', $this->date);
+                $stmt->bindValue(':time', $this->time);
+                $stmt->bindValue(':action', $this->action);
+                $stmt->bindValue(':id', $this->repo->id);
+                $stmt->bindValue(':gpgcheck', $this->gpgCheck);
+                $stmt->bindValue(':gpgresign', $this->gpgResign);
+                $stmt->bindValue(':reminder', $this->reminder);
+                $stmt->execute();
+
             } else {
-                $this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Reminder', 'Status') 
-                VALUES ('$this->date', '$this->time', '$this->action', '{$this->repo->id}', '$this->reminder', 'queued')");    
+                /*$this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Reminder', 'Status') 
+                VALUES ('$this->date', '$this->time', '$this->action', '{$this->repo->id}', '$this->reminder', 'queued')");*/
+                
+                $stmt = $this->db->prepare("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_repo', 'Reminder', 'Status') VALUES (:date, :time, :action, :id, :reminder, 'queued')");
+                $stmt->bindValue(':date', $this->date);
+                $stmt->bindValue(':time', $this->time);
+                $stmt->bindValue(':action', $this->action);
+                $stmt->bindValue(':id', $this->repo->id);
+                $stmt->bindValue(':reminder', $this->reminder);
+                $stmt->execute();
             }
+
+            unset($stmt);
         }
 
         /**
@@ -93,12 +113,32 @@ class Planification {
              *  Cas où l'action est "update", on ajoute également les valeurs de gpgcheck et gpgresign
              */
             if ($this->action == "update") {
-                $this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') 
-                VALUES ('$this->date', '$this->time', '$this->action', '{$this->group->id}', '{$this->gpgCheck}', '{$this->gpgResign}', '$this->reminder', 'queued')"); 
+                /*$this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') 
+                VALUES ('$this->date', '$this->time', '$this->action', '{$this->group->id}', '{$this->gpgCheck}', '{$this->gpgResign}', '$this->reminder', 'queued')"); */
+                
+                $stmt = $this->db->prepare("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Status') VALUES (:date, :time, :action, :idgroup, :gpgcheck, :gpgresign, :reminder, 'queued')");
+                $stmt->bindValue(':date', $this->date);
+                $stmt->bindValue(':time', $this->time);
+                $stmt->bindValue(':action', $this->action);
+                $stmt->bindValue(':idgroup', $this->group->id);
+                $stmt->bindValue(':gpgcheck', $this->gpgCheck);
+                $stmt->bindValue(':gpgresign', $this->gpgResign);
+                $stmt->bindValue(':reminder', $this->reminder);
+                $stmt->execute();
             } else {
-                $this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Reminder', 'Status') 
-                VALUES ('$this->date', '$this->time', '$this->action', '{$this->group->id}', '$this->reminder', 'queued')");
+                /*$this->db->exec("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Reminder', 'Status') 
+                VALUES ('$this->date', '$this->time', '$this->action', '{$this->group->id}', '$this->reminder', 'queued')");*/
+
+                $stmt = $this->db->prepare("INSERT INTO Planifications ('Date', 'Time', 'Action', 'Id_group', 'Reminder', 'Status') VALUES (:date, :time, :action, :idgroup, :reminder, 'queued')");
+                $stmt->bindValue(':date', $this->date);
+                $stmt->bindValue(':time', $this->time);
+                $stmt->bindValue(':action', $this->action);
+                $stmt->bindValue(':idgroup', $this->group->id);
+                $stmt->bindValue(':reminder', $this->reminder);
+                $stmt->execute();
             }
+
+            unset($stmt);
         }
         
         printAlert("Planification créée");
@@ -113,7 +153,11 @@ class Planification {
             return;
         }
 
-        $this->db->exec("DELETE FROM planifications WHERE Id = '$this->id'");
+        //$this->db->exec("DELETE FROM planifications WHERE Id = '$this->id'");
+        $stmt = $this->db->prepare("DELETE FROM planifications WHERE Id=:id");
+        $stmt->bindValue(':id', $this->id);
+        $stmt->execute();
+
         printAlert('Planification supprimée');
     }
 
@@ -137,7 +181,12 @@ class Planification {
         /**
          *  Passe le status de la planification à "Running", jusqu'à maintenant le status était "queued"
          */
-        $this->db->exec("UPDATE planifications SET Status = 'running' WHERE Id = '$this->id'");
+        //$this->db->exec("UPDATE planifications SET Status = 'running' WHERE Id = '$this->id'");
+        $stmt = $this->db->prepare("UPDATE planifications SET Status = 'running' WHERE Id=:id");
+        $stmt->bindValue(':id', $this->id);
+        $stmt->execute();
+        unset($stmt);
+        
 
         /**
          *  0. Démarre l'enregistrement de la planification
@@ -664,7 +713,7 @@ class Planification {
         if ($planError != 0) {
             // template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg_error
             include("${WWW_DIR}/templates/plan_error_mail.inc.php");
-            $this->sendMail("[ERREUR] Planification Plan-{$this->id} sur $WWW_HOSTNAME", $template);
+            $this->sendMail("[ERREUR] Planification n°{$this->id} sur $WWW_HOSTNAME", $template);
         }
         exit();
     }

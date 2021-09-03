@@ -138,9 +138,9 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
 
         /**
          *  Le nom du paquet ne doit pas contenir de caractère spéciaux, sinon on passe au suivant
-         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanum), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
+         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          */
-        if (!is_alphanum($packageName, array('.'))) { 
+        if (!is_alphanumdash($packageName, array('.'))) { 
             $uploadError++;
             $packageInvalid .= "$packageName, ";
             continue;
@@ -219,10 +219,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
 
         /**
          *  Le nom du paquet ne doit pas contenir de caractères spéciaux
-         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanum), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
+         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
          */
-        if (!is_alphanum($packageName, array('.', '/'))) {
+        if (!is_alphanumdash($packageName, array('.', '/'))) {
             continue;
         }
 
@@ -271,21 +271,13 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
 
                 if ($pathError === 0) {
                     if ($OS_FAMILY == "Redhat" AND !empty($myrepo->name)) {
-                        if ($state == "active") {
-                            echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
-                        }
-                        if ($state == "archived") {
-                            echo "<p>Explorer le contenu du repo archivé <b>$myrepo->name</b>.</p>";
-                        }
+                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
+                        if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>$myrepo->name</b>.</p>";
                     }
 
                     if ($OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) {
-                        if ($state == "active") {
-                            echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
-                        }
-                        if ($state == "archived") {
-                            echo "<p>Explorer le contenu de la section archivée <b>$myrepo->section</b> du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
-                        }
+                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
+                        if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>$myrepo->section</b> du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                     }
 
                     if (is_dir("$repoPath/my_uploaded_packages")) {
@@ -333,6 +325,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                  *  Affichage de tous les fichiers d'un répertoire
                  */
                 function printQueue($queue) {
+                    /**
+                     *  D'abord on trie la liste par ordre alphabétique
+                     */
+                    ksort($queue);
                     foreach ($queue as $file => $path) {
                         printFile($file, $path);
                     }

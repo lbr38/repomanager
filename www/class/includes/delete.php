@@ -56,11 +56,28 @@ trait delete {
          *  4. Mise à jour de la BDD
          */
         if ($OS_FAMILY == "Redhat") {
-            $this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->env}' AND Date = '{$this->repo->date}' AND Status = 'active'");
+            //$this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->env}' AND Date = '{$this->repo->date}' AND Status = 'active'");
+            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Env=:env AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':env', $this->repo->env);
+            $stmt->bindValue(':date', $this->repo->date);
+            $stmt->execute();
         }
         if ($OS_FAMILY == "Debian") {
-            $this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Status = 'active'");
+            /**
+             *  Sur Debian, la suppression d'un repo entier entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
+             */
+            //$this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Status = 'active'");
+            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->execute();
+
+            $stmt = $this->repo->db->prepare("UPDATE repos_archived SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->execute();
         }
+        
+        unset($stmt);
 
         /**
          *  5. Redhat : Si il n'y a plus de trace du repo en BDD alors on peut supprimer son miroir définitivement

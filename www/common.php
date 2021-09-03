@@ -4,12 +4,16 @@
 // la récupération de leur valeur en POST et leur traitement est donc placé ici, pour éviter le code en doublon
 
 // MODIFICATION DES INFORMATIONS DANS LA LISTE DES REPOS //
-if (!empty($_POST['action']) AND validateData($_POST['action']) == "repoListEditRepo") {
+if (!empty($_POST['action']) AND validateData($_POST['action']) == "repoListEditRepo" AND !empty($_POST['repoListEditRepo_repoId']) AND !empty($_POST['repoListEditRepo_repoStatus'])) {
     require_once("${WWW_DIR}/class/Repo.php");
-    $repoId = validateData($_POST['repoId']);
+    $repoId = validateData($_POST['repoListEditRepo_repoId']);
     $repoDescription = validateData($_POST['repoDescription']);
-    $myRepo = new Repo(compact('repoId', 'repoDescription'));
+    $repoStatus = validateData($_POST['repoListEditRepo_repoStatus']);
+
+    $myRepo = new Repo(compact('repoId', 'repoDescription', 'repoStatus'));
     $myRepo->edit();
+
+    unset($repoId, $repoDescription, $repoStatus);
 }
 
 

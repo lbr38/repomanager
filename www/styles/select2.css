@@ -307,7 +307,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   -webkit-appearance: textfield; }
 
 .select2-container--default .select2-results > .select2-results__options {
-  max-height: 200px;
+  /*max-height: 200px;*/
+  max-height: 500px;
   overflow-y: auto; }
 
 .select2-container--default .select2-results__option .select2-results__option {
@@ -525,7 +526,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   border-top: none; }
 
 .select2-container--classic .select2-results > .select2-results__options {
-  max-height: 200px;
+  /*max-height: 200px;*/
+  max-height: 500px;
   overflow-y: auto; }
 
 .select2-container--classic .select2-results__option--group {

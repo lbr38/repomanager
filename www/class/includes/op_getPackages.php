@@ -107,7 +107,7 @@ trait op_getPackages {
          *  3. Récupération des paquets
          */
         echo '<br>Récupération des paquets ';
-        echo "<span class=\"getPackagesLoading_{$this->log->pid}\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"getPackagesOK_{$this->log->pid} greentext hide\">✔</span><span class=\"getPackagesKO_{$this->log->pid} redtext hide\">✕</span>";
+        echo "<span class=\"getPackagesLoading_{$this->log->pid} baseline\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"getPackagesOK_{$this->log->pid} greentext baseline hide\">✔</span><span class=\"getPackagesKO_{$this->log->pid} redtext baseline hide\">✕</span>";
         echo '<div class="hide getPackagesDiv"><pre>';
         $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
 

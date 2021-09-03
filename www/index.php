@@ -205,7 +205,7 @@
         echo '<p>Dernière planification</p>';
         $lastPlan = $plan->last();
         if (empty($lastPlan)) {
-            echo '<b>N/A</b>';
+            echo '<b>-</b>';
         } else {
             $lastPlanDate = DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y');
             $lastPlanTime = $lastPlan['Time'];
@@ -214,7 +214,7 @@
         echo '<p>Prochaine planification</p>';
         $nextPlan = $plan->next();
         if (empty($nextPlan)) {
-            echo '<b>N/A</b>';
+            echo '<b>-</b>';
         } else {
             $nextPlanDate = DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y');
             $nextPlanTime = $nextPlan['Time'];

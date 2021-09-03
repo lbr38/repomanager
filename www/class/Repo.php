@@ -19,6 +19,7 @@ class Repo {
     public $description;
     public $signed; // yes ou no
     public $type; // miroir ou local
+    public $status;
 
     // Variable supplémentaires utilisées lors d'opérations sur le repo
     public $newName;
@@ -112,14 +113,16 @@ class Repo {
             }
         }
         /* Signed */
-        if (!empty($repoSigned)) { $this->signed = $repoSigned; }
+        if (!empty($repoSigned)) $this->signed = $repoSigned;
         /* Gpg resign */
         if (!empty($repoGpgResign)) {
             $this->signed    = $repoGpgResign;
             $this->gpgResign = $repoGpgResign;
         }
         /* gpg check */
-        if (!empty($repoGpgCheck)) { $this->gpgCheck = $repoGpgCheck; }
+        if (!empty($repoGpgCheck)) $this->gpgCheck = $repoGpgCheck;
+        /* status */
+        if (!empty($repoStatus)) $this->status = $repoStatus;
     }
 
 
@@ -536,19 +539,38 @@ class Repo {
         /**
          *  Récupère l'url complète
          */
-        $result = $this->db->querySingleRow("SELECT Url FROM sources WHERE Name = '$this->source'");
-        $this->sourceFullUrl = $result['Url'];
+        //$result = $this->db->querySingleRow("SELECT Url FROM sources WHERE Name = '$this->source'");
+        //$this->sourceFullUrl = $result['Url'];
+        $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name=:name");
+        $stmt->bindValue(':name', $this->source);
+        $result = $stmt->execute();
+        while ($row = $result->fetchArray()) {
+            $this->sourceFullUrl = $row['Url'];
+        }
+        unset($stmt);
+
+        /**
+         *  On retire http:// ou https:// du début de l'URL
+         */
+        $this->sourceFullUrl = str_replace(array("http://", "https://"), '', $this->sourceFullUrl);
+
+        if (empty($this->sourceFullUrl)) {
+            throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer l\'URL du repo source');
+        }
+
         $this->hostUrl = exec("echo '$this->sourceFullUrl' | cut -d'/' -f1");
         
         /**
          *  Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian)
          */
-        $this->rootUrl = exec("echo '$this->sourceFullUrl' | sed 's/$this->hostUrl//g'");
+        //$this->rootUrl = exec("echo '$this->sourceFullUrl' | sed 's/$this->hostUrl//g'");
+        $this->rootUrl = str_replace($this->hostUrl, '', $this->sourceFullUrl);
+
         if (empty($this->hostUrl)) {
-            throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer l\'adresse de l\'hôte source');
+            throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer l\'adresse du repo source');
         }
         if (empty($this->rootUrl)) {
-            throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer la racine de l\'URL hôte');
+            throw new Exception('<br><span class="redtext">Erreur : </span>impossible de déterminer la racine de l\'URL du repo source');
         }
     }
 
@@ -556,8 +578,21 @@ class Repo {
  *  MODIFICATION DES INFORMATIONS DU REPO
  */
     public function edit() {
-        $this->db->exec("UPDATE repos SET Description = '$this->description' WHERE Id = '$this->id'");
-        printAlert('Modifications prises en compte');
+        /**
+         *  On accepte de modifier la description à certaines conditions
+         *  Il faut avoir transmis si le repo est actif ou archivé
+         *  Il faut que la description ne comporte pas de caractères interdits
+         */
+        if ($this->status != 'active' AND $this->status != 'archived') return;
+        if (!is_alphanumdash($this->description, array(' ', '(', ')', '@', ',', '\'', '"'))) return;
+
+        if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description=:description WHERE Id=:id");
+        if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description=:description WHERE Id=:id");
+        $stmt->bindValue(':description', $this->description);
+        $stmt->bindValue(':id', $this->id);
+        $stmt->execute();
+
+        printAlert('La description a bien été modifiée <span class="greentext">✔</span>');
     }
 
 /**

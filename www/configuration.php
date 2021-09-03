@@ -14,7 +14,6 @@ require_once('common.php');
 /**
  *  Mise à jour de Repomanager
  */
-
 if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     $error = 0;
 
@@ -48,7 +47,7 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     }
 
     if ($error == 0) {
-        $updateStatus = 'OK';
+        $updateStatus = 'Mise à jour effectuée avec succès!';
     } else {
         $updateStatus = $errorMsg;   
     }
@@ -67,7 +66,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Chemin du répertoire des repos sur le serveur
      */
-
     if (!empty($_POST['reposDir'])) {
         $reposDir = validateData($_POST['reposDir']);
         $repomanager_conf_array['PATHS']['REPOS_DIR'] = "$reposDir";
@@ -80,7 +78,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Adresse mail destinatrice des alertes
      */
-
     if (!empty($_POST['emailDest'])) {
         $emailDest = validateData($_POST['emailDest']);
         $repomanager_conf_array['CONFIGURATION']['EMAIL_DEST'] = "$emailDest";
@@ -89,7 +86,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Si on souhaite activer ou non la gestion des profils
      */
-
     if (!empty($_POST['manageProfiles']) AND validateData($_POST['manageProfiles']) === "yes") {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_PROFILES'] = 'yes';
     } else {
@@ -99,7 +95,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Modification du préfix des fichiers de conf repos
      */
-
     // On conserve le préfix actuel car on va s'en servir pour renommer les fichiers de conf ci dessous
     $oldRepoFilesPrefix = $REPO_CONF_FILES_PREFIX;
 
@@ -154,7 +149,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Activer/désactiver la signature des paquets/des repos avec GPG
      */
-
     if (!empty($_POST['gpgSignPackages']) AND validateData($_POST['gpgSignPackages']) === "yes") {
         $repomanager_conf_array['GPG']['GPG_SIGN_PACKAGES'] = 'yes';
     } else {
@@ -164,7 +158,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     /**
      *  Email lié à la clé GPG qui signe les paquets/les repos
      */
-
     if (!empty($_POST['gpgKeyID'])) {
         $gpgKeyID = validateData($_POST['gpgKeyID']);
         $repomanager_conf_array['GPG']['GPG_KEYID'] = "$gpgKeyID";
@@ -782,7 +775,7 @@ if (!empty($_GET['deleteEnv'])) {
                     echo '<td>';
                     echo "<input type=\"text\" name=\"actualEnv[]\" value=\"${env}\" />";
                     echo '</td>';
-                    echo '<td class="td-fit">';
+                    echo '<td class="td-fit center">';
                     echo "<img src=\"icons/bin.png\" class=\"envDeleteToggle${i} icon-lowopacity\" title=\"Supprimer l'environnement ${env}\"/>";
                     deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $env", "?deleteEnv=${env}", "envDeleteDiv${i}", "envDeleteToggle${i}");
                     echo '</td>';

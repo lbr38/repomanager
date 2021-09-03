@@ -21,7 +21,7 @@ if ($DEBUG_MODE == "enabled") {
       <ul class="menu">
         <li><a href="index.php"><span id="title">Repomanager</span></a><span id="version">BETA</span></li>
         <?php
-        if ($actual_uri == '/index.php') {
+        if ($actual_uri == '/index.php' OR $actual_uri == '/operation.php' OR $actual_uri == '/explore.php') {
             echo '<li><a href="index.php"><span class="underline">Opérations</span></a></li>';
         } else {
             echo '<li><a href="index.php"><span>Opérations</span></a></li>';
@@ -103,8 +103,8 @@ if ($DEBUG_MODE == "enabled") {
                         $opRepoSource = explode('|', $opRepoSource);
                         $name = $opRepoSource[0];
                         if ($OS_FAMILY == "Debian") {
-                            $dist = $opRepoSource[1];
-                            $section = $opRepoSource[2];
+                            if (!empty($opRepoSource[1])) $dist = $opRepoSource[1];
+                            if (!empty($opRepoSource[2])) $section = $opRepoSource[2];
                         }
                     }
                 }
@@ -138,8 +138,8 @@ if ($DEBUG_MODE == "enabled") {
                         $opRepoTarget = explode('|', $opRepoTarget);
                         $name = $opRepoTarget[0];
                         if ($OS_FAMILY == "Debian") {
-                            $dist = $opRepoTarget[1];
-                            $section = $opRepoTarget[2];
+                            if (!empty($opRepoTarget[1])) $dist = $opRepoTarget[1];
+                            if (!empty($opRepoTarget[2])) $section = $opRepoTarget[2];
                         }
                     }
                 }
@@ -168,6 +168,18 @@ if ($DEBUG_MODE == "enabled") {
                     if ($OS_FAMILY == "Debian") {
                         echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
+                }
+
+                if ($opAction == "delete") {
+                    echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                }
+
+                if ($opAction == "deleteDist") {
+                    echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                }
+
+                if ($opAction == "deleteSection") {
+                    echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                 }
             }
             echo '</ul>';
