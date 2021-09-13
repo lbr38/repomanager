@@ -12,7 +12,7 @@ function newProfile($newProfile) {
 	/**
 	 *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
 	 */
-	if (!is_alphanum($newProfile)) {
+	if (!is_alphanumdash($newProfile)) {
 		return;
 	}
 
@@ -73,7 +73,7 @@ function manageProfileRepos($profileName, $profileRepos) {
 	/**
 	 *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
 	 */
-	if (!is_alphanum($profileName)) {
+	if (!is_alphanumdash($profileName)) {
 		return false;
 	}
 
@@ -115,11 +115,11 @@ function manageProfileRepos($profileName, $profileRepos) {
 		/**
 		 *  5. On vérifie que le nom du repo ne contient pas des caractères interdits
 		 */
-		if (!is_alphanum($addProfileRepo)) {
+		if (!is_alphanumdash($addProfileRepo)) {
 			return false;
 		}
 		if ($OS_FAMILY == "Debian") {
-			if (!is_alphanum($addProfileRepoDist) OR !is_alphanum($addProfileRepoSection)) {
+			if (!is_alphanumdash($addProfileRepoDist) OR !is_alphanumdash($addProfileRepoSection)) {
 				return false;
 			}
 		}
@@ -172,7 +172,7 @@ function deleteProfile($profileName) {
 	/**
 	 *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
 	 */
-	if (!is_alphanum($profileName)) {
+	if (!is_alphanumdash($profileName)) {
 		return;
 	}
 
@@ -198,7 +198,7 @@ function renameProfile($actualProfileName, $newProfileName) {
 	/**
 	 *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
 	 */
-	if (!is_alphanum($actualProfileName) OR !is_alphanum($newProfileName)) {
+	if (!is_alphanumdash($actualProfileName) OR !is_alphanumdash($newProfileName)) {
 		return;
 	}
 

@@ -32,7 +32,7 @@ trait newMirror {
 
         try {
             /**
-             *  Etape 0 : Afficher le tritre de l'opération
+             *  Etape 0 : Afficher le titre de l'opération
              */
             $this->log->steplog(0);
             if ($OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h3>CREATION D'UN NOUVEAU REPO</h3>"); }

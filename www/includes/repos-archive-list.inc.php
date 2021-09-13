@@ -2,6 +2,8 @@
 <table class="list-repos">
 
 <?php
+    $listColor = 'color1'; // initialise des variables permettant de changer la couleur dans l'affichage de la liste des repos
+    
     $repoListType = 'archived';
 
     /**

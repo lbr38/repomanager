@@ -325,7 +325,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                     echo "<script>
                     $(function() {
                         $('#planDetailsToggle${i}').click(function() {
-                            $('#planDetailsDiv${i}').toggle();
+                            $('#planDetailsDiv${i}').toggle(100);
                         });
                     });
                     </script>";
@@ -609,7 +609,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                     echo "<script>
                     $(function() {
                         $('#planStatusToggle${i}').click(function() {
-                        $('#planStatusDiv${i}').toggle();
+                        $('#planStatusDiv${i}').toggle(100);
                         });
                     });
                     </script>";

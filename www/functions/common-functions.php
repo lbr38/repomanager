@@ -11,10 +11,37 @@ function validateData($data) {
 }
 
 /**
+ *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres
+ */
+function is_alphanum(string $data, array $additionnalValidCaracters = []) {
+    /**
+     *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ignore dans le test en les remplacant temporairement par du vide
+     */
+    if (!empty($additionnalValidCaracters)) {
+        if (!ctype_alnum(str_replace($additionnalValidCaracters, '', $data))) {
+            printAlert('Vous ne pouvez renseigner que des chiffres, des lettres');
+            return false;
+        }
+
+    /**
+     *  Si on n'a pas passé de caractères supplémentaires alors on teste simplement la chaine avec ctype_alnum
+     */
+    } else {
+        if (!ctype_alnum($data)) {
+            printAlert('Vous ne pouvez renseigner que des chiffres, des lettres');
+            return false;
+        }
+    }
+
+    return true;    
+}
+
+
+/**
  *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
  *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
  */
-function is_alphanum(string $data, array $additionnalValidCaracters = []) {
+function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
     /**
      *  array contenant quelques exceptions de caractères valides
      */
@@ -520,7 +547,9 @@ function printRepoLine($variables = []) {
      */
     echo '<form action="" method="post" autocomplete="off">';
     echo '<input type="hidden" name="action" value="repoListEditRepo" />';
-    echo "<input type=\"hidden\" name=\"repoId\" value=\"$repoId\" />";
+    echo "<input type=\"hidden\" name=\"repoListEditRepo_repoId\" value=\"$repoId\" />";
+    if ($repoListType == 'active')   echo '<input type="hidden" name="repoListEditRepo_repoStatus" value="active" />';
+    if ($repoListType == 'archived') echo '<input type="hidden" name="repoListEditRepo_repoStatus" value="archived" />';
     echo "<tr class=\"$listColor\">";
         /**
          *  Affichage des icones d'opérations
@@ -589,7 +618,7 @@ function printRepoLine($variables = []) {
     if ($OS_FAMILY == "Debian") {
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
         if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
-            echo '<td class="rl-fit"></td>';
+            if ($repoListType == 'active') echo '<td class="rl-fit"></td>';
             echo '<td class="rl-30"></td>';
         } else {
             if ($repoListType == 'active') echo "<td class=\"rl-fit\"><a href=\"operation.php?action=deleteDist&repoName=${repoName}&repoDist=${repoDist}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution

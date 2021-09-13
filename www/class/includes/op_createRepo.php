@@ -14,7 +14,7 @@ trait op_createRepo {
         // Création des metadata du repo (Redhat/centos uniquement)
         if ($OS_FAMILY == "Redhat") {
             echo '<br>Création du dépôt (metadata) ';
-            echo "<span class=\"createRepoLoading_{$this->log->pid}\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"createRepoOK_{$this->log->pid} greentext hide\">✔</span><span class=\"createRepoKO_{$this->log->pid} redtext hide\">✕</span>";
+            echo "<span class=\"createRepoLoading_{$this->log->pid} baseline\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"createRepoOK_{$this->log->pid} greentext baseline hide\">✔</span><span class=\"createRepoKO_{$this->log->pid} redtext baseline hide\">✕</span>";
             echo '<div class="hide createRepoDiv"><pre>';
 
             $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();

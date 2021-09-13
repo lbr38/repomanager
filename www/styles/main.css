@@ -142,6 +142,7 @@ hr {
 .redtext { color: #d9534f; }
 .yellowtext { color: #f0ad4e; }
 .center { text-align: center; }
+.baseline { vertical-align: baseline; }
 
 /* Classes génériques permettant de créer des div ou autres block avec un fond défini et des bords arrondis */
 .background-gray {
@@ -321,8 +322,8 @@ section.left, section.right, section.center, section.missing-param-alert, #newRe
     vertical-align:top;
     border-radius: 5px;
     box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
     background-color:#2b2b2b;
     overflow: hidden;
 }
@@ -413,16 +414,16 @@ table.list-repos {
    transform: translateZ(0);*/
 }
 
-table.list-repos td, table.list-repos-archived td {
+/*table.list-repos td, table.list-repos-archived td {
     padding-left: 10px;
     padding-right: 10px;
-}
+}*/
 
-table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
+/*table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
     max-width: 8px;
     padding-left: 0px;
     padding-right: 0px;
-}
+}*/
 
 table.list-repos tr .rl-fit {
     width: 0px;
@@ -543,7 +544,7 @@ td {
 
 /* conf commune à toutes les icones */
 .icon, .icon-small, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green, .icon-invisible, .icon-mediumopacity {
-    height: 12px;
+    height: 12.5px;
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
@@ -819,10 +820,11 @@ input[type=text].invisibleInput-blue {
 
 .env, .last-env {
     font-size: 11px;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    vertical-align: middle;
     border-radius: 3px;
     box-shadow:
     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
@@ -839,10 +841,15 @@ input[type=text].invisibleInput-blue {
 
 textarea {
     width: 100%;
+    resize: none;
     font-size: 14px;
     color: whitesmoke;
     background-color:#3b3b3b;
     border-radius: 3px;
+}
+
+.textarea-100 {
+    min-height: 100px;
 }
 
 .div-flex {
@@ -960,6 +967,15 @@ footer p { color: gray; }
     font-size: 14px;
     padding: 10px;
     position: relative;
+    max-width: 100% !important;
+}
+
+#log pre { /* empecher le contenu des <pre> de dépasser */
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 /* Boutons Top et Down pour atteindre le haut ou le bas de page */
@@ -1060,18 +1076,18 @@ footer p { color: gray; }
 /* rubans de couleurs */
 .header-green, .header-blue, .header-red, .header-white {
     border-radius: 2px;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    padding-bottom: 2px;
+    padding-top: 2px;
 }
 .header-green { background-color: #4CAF50; }
 .header-red   { background-color: #d9534f; }
 .header-blue  { background-color: #006699 }
 .header-white { background-color: whitesmoke; }
 .header-white td { color: black; }
-.header-green table, .header-red table, .header-white table, .header-blue table {
+/*.header-green table, .header-red table, .header-white table, .header-blue table {
     padding-top: 2px;
     padding-bottom: 2px;
-}
+}*/
 
 /* un autre type de container pour les rubans */
 .op-header-container {

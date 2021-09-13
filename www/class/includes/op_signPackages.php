@@ -12,6 +12,8 @@ trait op_signPackages {
         global $GPG_KEYID;
         global $PASSPHRASE_FILE;
         global $PID_DIR;
+        
+        $warning = 0;
 
         ob_start();
 
@@ -27,7 +29,7 @@ trait op_signPackages {
 
             if ($OS_FAMILY == "Redhat") {
                 echo '<br>Signature des paquets (GPG) ';
-                echo "<span class=\"signPackagesLoading_{$this->log->pid}\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"signPackagesOK_{$this->log->pid} greentext hide\">✔</span><span class=\"signPackagesKO_{$this->log->pid} redtext hide\">✕</span>";
+                echo "<span class=\"signPackagesLoading_{$this->log->pid} baseline\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"signPackagesOK_{$this->log->pid} greentext baseline hide\">✔</span><span class=\"signPackagesWARNING_{$this->log->pid} yellowtext baseline hide\">⚠</span><span class=\"signPackagesKO_{$this->log->pid} redtext baseline hide\">✕</span>";
                 echo '<div class="hide signRepoDiv"><pre>';
                 
                 $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
@@ -46,7 +48,7 @@ trait op_signPackages {
                 $TMP_DIR = "/tmp/{$this->log->pid}_deb_packages";
                 mkdir($TMP_DIR, 0770, true);
                 echo '<br>Signature du repo (GPG) ';
-                echo "<span class=\"signPackagesLoading_{$this->log->pid}\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"signPackagesOK_{$this->log->pid} greentext hide\">✔</span><span class=\"signPackagesKO_{$this->log->pid} redtext hide\">✕</span>";
+                echo "<span class=\"signPackagesLoading_{$this->log->pid} baseline\">en cours<img src=\"images/loading.gif\" class=\"icon\" /></span><span class=\"signPackagesOK_{$this->log->pid} greentext baseline hide\">✔</span><span class=\"signPackagesWARNING_{$this->log->pid} yellowtext baseline hide\">⚠</span><span class=\"signPackagesKO_{$this->log->pid} redtext baseline hide\">✕</span>";
                 echo '<div class="hide signRepoDiv"><pre>';
 
                 $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
@@ -104,14 +106,35 @@ trait op_signPackages {
             /**
              *  Suppression du répertoire temporaire
              */
-            if ($OS_FAMILY == "Debian") {
-                exec("rm -rf '$TMP_DIR'");
-            }
+            if ($OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) exec("rm -rf '$TMP_DIR'");
 
             /**
-             *  Récupération du code d'erreur de reposync/debmirror
+             *  Récupération du code d'erreur de rpmresign/reprepro
              */
             $return = $status['exitcode'];
+
+            /**
+             *  Il y a un pb avec rpmresign, celui-ci renvoie systématiquement le code 0 même si il est en erreur. 
+             *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente $return
+             */
+            if ($OS_FAMILY == "Redhat") {
+                if (preg_match('/gpg: signing failed/', file_get_contents($this->log->steplog))) ++$return;
+                if (preg_match('/No secret key/', file_get_contents($this->log->steplog))) ++$return;
+                if (preg_match('/error: gpg/', file_get_contents($this->log->steplog))) ++$return;
+                if (preg_match("/Can't resign/", file_get_contents($this->log->steplog))) ++$return;
+
+                /**
+                 *  Cas particulier, on affichera un warning si le message suivant a été détecté dans les logs
+                 */
+                if (preg_match("/gpg: WARNING:/", file_get_contents($this->log->steplog))) ++$warning;
+            }
+
+            if ($warning != 0) {
+                echo '<style>';
+                echo ".signPackagesLoading_{$this->log->pid} { display: none; }";
+                echo ".signPackagesWARNING_{$this->log->pid} { display: inline-block; }";
+                echo '</style>';
+            }
 
             if ($return == 0) {
                 echo '<style>';
@@ -134,8 +157,8 @@ trait op_signPackages {
             }
 
             $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND); ob_start();
-
         }
+
         return true;
     }
 }

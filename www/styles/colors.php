@@ -10,10 +10,10 @@ $alternativeColor1 = $ini_array['alternativeColor1'];
 $alternativeColor2 = $ini_array['alternativeColor2'];
 ?>
 
-.list-repos tr.color1 td, table.list-repos-archived tr.color1 td { 
-    color: <?php echo $alternativeColor1; ?>;
+table.list-repos tr.color1 td, table.list-repos tr.color1 .rl-desc input[type=text] { 
+    color: <?php echo $alternativeColor1; ?> !important;
 }
 
-.list-repos tr.color2 td, table.list-repos-archived tr.color2 td { 
-    color: <?php echo $alternativeColor2; ?>;
+table.list-repos tr.color2 td, table.list-repos tr.color2 .rl-desc input[type=text] { 
+    color: <?php echo $alternativeColor2; ?> !important;
 }

@@ -16,18 +16,22 @@ trait restore {
             <td><b>{$this->repo->name}</b></td>
         </tr>";
         if ($OS_FAMILY == "Debian") {
-        echo "<tr>
-            <td>Distribution :</td>
-            <td><b>{$this->repo->dist}</b></td>
-        </tr>
-        <tr>
-            <td>Section :</td>
-            <td><b>{$this->repo->section}</b></td>
-        </tr>";
+            echo "<tr>
+                <td>Distribution :</td>
+                <td><b>{$this->repo->dist}</b></td>
+            </tr>
+            <tr>
+                <td>Section :</td>
+                <td><b>{$this->repo->section}</b></td>
+            </tr>";
         }
         echo "<tr>
+        <td>Date :</td>
+        <td><b>{$this->repo->dateFormatted}</b></td>
+        </tr>
+        <tr>
         <td>Environnement cible :</td>
-        <td><b>{$this->repo->newEnv}</b></td>
+        <td>".envtag($this->repo->newEnv)."</td>
         </tr>";
         if (!empty($this->repo->description)) {
             echo "<tr>
@@ -246,7 +250,7 @@ trait restore {
                 $this->repo->db->exec("DELETE FROM repos_archived WHERE Name = '{$this->repo->name}' AND Source = '{$this->repo->source}' AND Date = '{$this->repo->date}' AND Status = 'active'");
                 // Ajoute dans la table repos_archived le repo qui s'est fait remplacer :
                 $this->repo->db->exec("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '$repoActualSource', '$repoActualDate', '$repoActualTime', '$repoActualDescription', '$repoActualSigned', '$repoActualType', 'active')");
-                echo "<p>Le miroir en date du <b>$repoActualDateFormatted</b> a été archivé car il n'est plus utilisé par quelconque environnement</p>";
+                echo "<p>Le miroir en date du <b>$repoActualDateFormatted</b> a été archivé car il n'est plus utilisé par quelconque environnement.</p>";
             }
             if ($OS_FAMILY == "Debian") {
                 // Maj de la table repos
@@ -259,14 +263,14 @@ trait restore {
                 $this->repo->db->exec("DELETE FROM repos_archived WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Source = '{$this->repo->source}' AND Date = '{$this->repo->date}' AND Status = 'active'");
                 // Ajoute dans la table repos_archived le repo qui s'est fait remplacer :
                 $this->repo->db->exec("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '$repoActualSource', '{$this->repo->dist}', '{$this->repo->section}', '$repoActualDate', '$repoActualTime', '$repoActualDescription', '$repoActualSigned', '$repoActualType', 'active')");
-                echo "<p>Le miroir en date du <b>$repoActualDateFormatted</b> a été archivé car il n'est plus utilisé par quelconque environnement</p>";
+                echo "<p>Le miroir en date du <b>$repoActualDateFormatted</b> a été archivé car il n'est plus utilisé par quelconque environnement.</p>";
             }
             /**
              *  Dans la table group_members on remplace l'id du repo qui vient d'etre remplacé par l'id du repo remplacant, afin que le repo remplacant apparaisse bien dans le même groupe
              */
             $this->repo->db->exec("UPDATE group_members SET Id_repo = '{$this->repo->id}' WHERE Id_repo = '$repoActualId'");
         }
-        echo "<p>Restauré en <b>{$this->repo->newEnv}</b> <span class=\"greentext\">✔</span></p>";
+        echo "<p>Restauré en ".envtag($this->repo->newEnv)." <span class=\"greentext\">✔</span></p>";
     }
 }
 ?>

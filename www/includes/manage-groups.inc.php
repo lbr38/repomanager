@@ -61,67 +61,64 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 			echo '<div class="header-container">';
         		echo '<div class="header-blue">';
 
-				/**
-				 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
-				 */
+					/**
+					 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
+					 */
+					echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
 
-				echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+					// On veut pouvoir renommer le groupe, ou ajouter des repos à ce groupe, donc il faut transmettre le nom de groupe actuel (actualGroupName) :
+					echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
 
-				// On veut pouvoir renommer le groupe, ou ajouter des repos à ce groupe, donc il faut transmettre le nom de groupe actuel (actualGroupName) :
-				echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
-
-				echo '<table class="table-large">';
-				echo '<tr>';
-				// On affiche le nom actuel du groupe dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newGroupeName) :
-				echo "<td><input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"input-medium invisibleInput-blue\" /></td>";
-			
-				// Boutons configuration et suppression du groupe
-				echo '<td class="td-fit">';
-				echo "<img id=\"groupConfigurationToggleButton${i}\" class=\"icon-mediumopacity\" title=\"Configuration de $groupName\" src=\"icons/cog.png\" />";
-				echo "<img src=\"icons/bin.png\" class=\"groupDeleteToggleButton${i} icon-lowopacity\" title=\"Supprimer le groupe ${groupName}\" />";
-				deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv${i}", "groupDeleteToggleButton${i}");
-				echo '</td>';
-				echo '</tr>';
-				echo '</table>';
-				echo '</form>';
+					echo '<table class="table-large">';
+					echo '<tr>';
+					// On affiche le nom actuel du groupe dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newGroupeName) :
+					echo "<td><input type=\"text\" value=\"${groupName}\" name=\"newGroupName\" class=\"input-medium invisibleInput-blue\" /></td>";
+				
+					// Boutons configuration et suppression du groupe
+					echo '<td class="td-fit">';
+					echo "<img id=\"groupConfigurationToggleButton-${groupName}\" class=\"icon-mediumopacity\" title=\"Configuration de $groupName\" src=\"icons/cog.png\" />";
+					echo "<img src=\"icons/bin.png\" class=\"groupDeleteToggleButton-${groupName} icon-lowopacity\" title=\"Supprimer le groupe ${groupName}\" />";
+					deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv-${groupName}", "groupDeleteToggleButton-${groupName}");
+					echo '</td>';
+					echo '</tr>';
+					echo '</table>';
+					echo '</form>';
+				echo '</div>'; // cloture de header-blue
 
 				/**
 				 *  4. La liste des repos du groupe est placée dans un div caché
 				 */
+				echo "<div id=\"groupConfigurationDiv-${groupName}\" class=\"hide detailsDiv\">";
+					// On va récupérer la liste des repos du groupe et les afficher si il y en a (résultat non vide)           
+					echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+					
+					// Il faut transmettre le nom du groupe dans le formulaire, donc on ajoute un input caché avec le nom du groupe
+					echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
 
-				echo "<div id=\"groupConfigurationTbody${i}\" class=\"hide detailsDiv\">";
-			
-				// On va récupérer la liste des repos du groupe et les afficher si il y en a (résultat non vide)           
-				echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-				
-				// Il faut transmettre le nom du groupe dans le formulaire, donc on ajoute un input caché avec le nom du groupe
-				echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
+					if ($OS_FAMILY == "Redhat") { echo '<p><b>Repos</b></p>'; }
+					if ($OS_FAMILY == "Debian") { echo '<p><b>Sections de repos</b></p>'; }
 
-				if ($OS_FAMILY == "Redhat") { echo '<p><b>Repos</b></p>'; }
-				if ($OS_FAMILY == "Debian") { echo '<p><b>Sections de repos</b></p>'; }
+					echo '<table class="table-large">';
+					echo '<tr>';
+					echo '<td>';
+					$group->selectRepos($groupName);
+					echo '</td>';
+					echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Enregistrer">💾</button></td>';
+					echo '</tr>';
+					echo '</table>';
+					echo '</form>';
+				echo '</div>'; // cloture de groupConfigurationDiv${i}
 
-				echo '<table class="table-large">';
-				echo '<tr>';
-				echo '<td>';
-				$group->selectRepos($groupName);
-				echo '</td>';
-				echo '<td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue" title="Enregistrer">💾</button></td>';
-				echo '</tr>';
-				echo '</table>';
-				echo '</form>';
-				echo '</div>'; // cloture de groupConfigurationTbody${i}
-
-				// Afficher ou masquer la div 'groupConfigurationTbody' :
+				// Afficher ou masquer la div 'groupConfigurationDiv' :
 				echo "<script>";
 				echo "$(document).ready(function(){";
-				echo "$(\"#groupConfigurationToggleButton${i}\").click(function(){";
-					echo "$(\"div#groupConfigurationTbody${i}\").slideToggle(150);";
+				echo "$(\"#groupConfigurationToggleButton-${groupName}\").click(function(){";
+					echo "$(\"div#groupConfigurationDiv-${groupName}\").slideToggle(150);";
 					echo '$(this).toggleClass("open");';
 				echo "});";
 				echo "});";
 				echo "</script>";
 				++$i;
-				echo '</div>'; // cloture de header-blue
 			echo '</div>'; // cloture de header-container
       	}
     }

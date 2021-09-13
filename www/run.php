@@ -166,20 +166,20 @@ function printOp($myop, $optype = '') {
 			/**
 			 * 	Dans le cas de Debian, on affiche aussi la distribution et la section
 			 */
-			if ($OS_FAMILY == "Debian" AND !empty($opRepoSourceDist) AND !empty($opRepoSourceSection)) {
+			if ($OS_FAMILY == "Debian") {
 				// Affichage de la distribution
-				echo " - $opRepoSourceDist";
+				if (!empty($opRepoSourceDist)) echo " - $opRepoSourceDist";
 				// Affichage de la section
-				echo " - $opRepoSourceSection";
+				if (!empty($opRepoSourceSection)) echo " - $opRepoSourceSection";
 			}
 		}
 
 		if (!empty($opRepoTargetName)) { echo $opRepoTargetName; }
-		if ($OS_FAMILY == "Debian" AND !empty($opRepoTargetDist) AND !empty($opRepoTargetSection)) {
+		if ($OS_FAMILY == "Debian") {
 			// Affichage de la distribution
-			echo " - $opRepoTargetDist";
+			if (!empty($opRepoTargetDist)) echo " - $opRepoTargetDist";
 			// Affichage de la section
-			echo " - $opRepoTargetSection";
+			if (!empty($opRepoTargetSection)) echo " - $opRepoTargetSection";
 		}
 		echo '</td>';
 
@@ -222,7 +222,7 @@ function printOp($myop, $optype = '') {
 					<?php 
 						if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) == "yes") {
 						if ($logfile == "none") {
-							echo '<a href="run.php" class="button-top-down" title="Afficher les détails"><img src="icons/search.png" /></a>';
+							echo '<a href="run.php" class="button-top-down" title="Masquer les détails"><img src="icons/search.png" /></a>';
 						} else {
 							echo "<a href=\"run.php?logfile=${logfile}\" class=\"button-top-down\" title=\"Masquer les détails\"><img src=\"icons/search.png\" /></a>";
 						}
@@ -296,7 +296,7 @@ function printOp($myop, $optype = '') {
 			 */
 			if (!empty($plansRunning) AND !empty($opsRunning)) {
 				$totalRunning = array_merge($plansRunning, $opsRunning);
-				array_multisort(array_column($totalRunning, 'Date'), SORT_DESC, $totalRunning); // On tri par date pour avoir le + récent en haut
+				array_multisort(array_column($totalRunning, 'Date'), SORT_DESC, array_column($totalRunning, 'Time'), SORT_DESC, $totalRunning); // On tri par date pour avoir le + récent en haut
 			} elseif (!empty($plansRunning)) {
 				$totalRunning = $plansRunning;
 			} elseif (!empty($opsRunning)) {
@@ -326,7 +326,7 @@ function printOp($myop, $optype = '') {
 			 */
 			if (!empty($plansDone) AND !empty($opsDone)) {
 				$totalDone = array_merge($plansDone, $opsDone);
-				array_multisort(array_column($totalDone, 'Date'), SORT_DESC, $totalDone); // On tri par date pour avoir le + récent en haut
+				array_multisort(array_column($totalDone, 'Date'), SORT_DESC, array_column($totalDone, 'Time'), SORT_DESC, $totalDone); // On tri par date pour avoir le + récent en haut
 			} else if (!empty($plansDone)) {
 				$totalDone = $plansDone;
 			} else if (!empty($opsDone)) {
@@ -498,11 +498,11 @@ function printOp($myop, $optype = '') {
 /**
  *	script jQuery d'autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
  */
-/*$(document).ready(function(){
+$(document).ready(function(){
 	setInterval(function(){
 		$(".mainSectionLeft").load(window.location.href + " .left" );
 		$(".mainSectionRight").load(window.location.href + " .right" );
 	}, 3000);
-});*/
+});
 </script>
 </html>

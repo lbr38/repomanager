@@ -32,7 +32,7 @@ class Group {
         /**
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
-        if (!is_alphanum($name)) {
+        if (!is_alphanumdash($name)) {
             animatediv_byid('groupsDiv');
             return;
         }
@@ -54,7 +54,8 @@ class Group {
         $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été créé");
-        animatediv_byid('groupsDiv');
+        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        showdiv_byid("groupConfigurationDiv-${name}"); // puis affichage de la configuration du nouveau groupe créé
 
         unset($stmt, $result);
     }
@@ -66,7 +67,7 @@ class Group {
         /**
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
-        if (!is_alphanum($actualName) OR !is_alphanum($newName)) {
+        if (!is_alphanumdash($actualName) OR !is_alphanumdash($newName)) {
             animatediv_byid('groupsDiv');
             return;
         }
@@ -105,10 +106,11 @@ class Group {
         $stmt = $this->db->prepare("UPDATE groups SET Name=:newname WHERE Name=:actualname");
         $stmt->bindValue(':newname', $newName);
         $stmt->bindValue(':actualname', $actualName);
-        $result = $stmt->execute();
+        $stmt->execute();
 
         printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>");
-        animatediv_byid('groupsDiv');
+        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        showdiv_byid("groupConfigurationDiv-${newName}"); // puis affichage de la configuration du groupe renommé
 
         unset($stmt, $result);
     }
@@ -150,7 +152,7 @@ class Group {
          */
         $stmt = $this->db->prepare("DELETE FROM groups WHERE Name=:name");
         $stmt->bindValue(':name', $name);
-        $result = $stmt->execute();
+        $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été supprimé");
         animatediv_byid('groupsDiv');
@@ -404,12 +406,12 @@ class Group {
             /**
              *  On vérifie que le nom du repo ne contient pas des caractères interdits, sinon on passe au repo suivant
              */
-            if (!is_alphanum($repoName)) {
+            if (!is_alphanumdash($repoName)) {
                 animatediv_byid('groupsDiv');
                 continue;
             }
             if ($OS_FAMILY == "Debian") {
-                if (!is_alphanum($repoDist) OR !is_alphanum($repoSection)) {
+                if (!is_alphanumdash($repoDist) OR !is_alphanumdash($repoSection)) {
                     animatediv_byid('groupsDiv');
                     continue;
                 }
@@ -474,7 +476,8 @@ class Group {
         }
 
         printAlert('Modifications prises en compte');
-        animatediv_byid('groupsDiv');
+        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        showdiv_byid("groupConfigurationDiv-{$this->name}"); // puis affichage de la configuration du nouveau groupe créé
 
         unset($stmt, $result);
     }
