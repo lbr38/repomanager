@@ -204,7 +204,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                                 // ainsi qu'afficher ce même profil actuel dans un input type=text qui permettra d'en renseigner un nouveau (profileName) :
                                 echo '<tr>';
                                 echo '<td>';
-                                echo "<input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"invisibleInput-green\" />";
+                                echo "<input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"invisibleInput-blue\" />";
                                 echo '</td>';
                                 echo '<td class="td-fit">';
                                 echo "<img id=\"profileConfigurationToggleButton-${profileName}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"icons/cog.png\" />";

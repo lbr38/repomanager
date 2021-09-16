@@ -12,12 +12,8 @@ trait newMirror {
          *  l'ID en BDD de ce repo/section créé.
          *  On indique également si on a activé ou non gpgCheck et gpgResign.
          */
-        if ($OS_FAMILY == "Redhat") {
-            $this->startOperation(array('id_repo_target' => $this->repo->name, 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
-        }
-        if ($OS_FAMILY == "Debian") {
-            $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}", 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
-        }
+        if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => $this->repo->name, 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
+        if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}", 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
 
         /**
          *  Ajout du PID de ce processus dans le fichier PID
@@ -28,7 +24,7 @@ trait newMirror {
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 5;
-        exec("php ${WWW_DIR}/operations/check_running.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ${WWW_DIR}/operations/logbuilder.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
@@ -43,17 +39,17 @@ trait newMirror {
             $this->log->steplog(1);
             $this->op_printDetails();
             /**
-            *   Etape 2 => en commun avec updateRepo sauf la partie // On vérifie quand même que le repo n'existe pas déjà 
+            *   Etape 2 : récupération des paquets
             */
             $this->log->steplog(2);
             $this->op_getPackages('new');
             /**
-            *   Etape 3 => en commun avec updateRepo
+            *   Etape 3 : signature des paquets/du repo
             */
             $this->log->steplog(3);
             $this->op_signPackages();
             /**
-            *   Etape 4 : Création du repo et liens symboliques => commun avec updateRepo
+            *   Etape 4 : Création du repo et liens symboliques
             */
             $this->log->steplog(4);
             $this->op_createRepo();
@@ -69,7 +65,7 @@ trait newMirror {
             $this->status = 'done';
 
         } catch(Exception $e) {
-            file_put_contents($this->log->steplog, $e->getMessage(), FILE_APPEND);
+            $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
 
             /**
              *  Passage du status de l'opération en erreur

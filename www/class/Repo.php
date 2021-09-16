@@ -54,30 +54,31 @@ class Repo {
         }
         
         /* Id */
-        if (!empty($repoId)) { $this->id = $repoId; }
+        if (!empty($repoId)) $this->id = $repoId;
         /* Type */
-        if (!empty($repoType)) { $this->type = $repoType; }
+        if (!empty($repoType)) $this->type = $repoType;
         /* Nom */
-        if (!empty($repoName)) { $this->name = $repoName; }
+        if (!empty($repoName)) $this->name = $repoName;
         /* Nouveau nom */
-        if (!empty($repoNewName)) { $this->newName = $repoNewName; }
+        if (!empty($repoNewName)) $this->newName = $repoNewName;
         /* Distribution (Debian) */
-        if (!empty($repoDist)) { $this->dist = $repoDist; }
+        if (!empty($repoDist)) $this->dist = $repoDist;
         /* Section (Debian) */
-        if (!empty($repoSection)) { $this->section = $repoSection; }
+        if (!empty($repoSection)) $this->section = $repoSection;
         /* Env */
         if (empty($repoEnv)) { $this->env = $DEFAULT_ENV; } else { $this->env = $repoEnv; }
         /* New env */
-        if (!empty($repoNewEnv)) { $this->newEnv = $repoNewEnv; }
+        if (!empty($repoNewEnv)) $this->newEnv = $repoNewEnv;
         /* Groupe */
         if (!empty($repoGroup)) { 
             if ($repoGroup == 'nogroup') {
                 $this->group = ''; 
-            } else { 
-                $this->group = $repoGroup; }
-            } else { 
-                $this->group = '';
+            } else {
+                $this->group = $repoGroup;
             }
+        } else { 
+            $this->group = '';
+        }
         /* Description */
         if (!empty($repoDescription)) {
             if ($repoDescription == 'nodescription') {
@@ -93,11 +94,36 @@ class Repo {
             // Si aucune date n'a été transmise alors on prend la date du jour
             $this->date = $DATE_YMD;
             $this->dateFormatted = $DATE_DMY;
-        } else { 
+        } else {
             // $repoDate est généralement au format d-m-Y, on le convertit en format DATETIME pour qu'il puisse être facilement inséré en BDD
-            $this->date = DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d');
-            $this->dateFormatted = $repoDate;
+            /*$this->date = DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d');
+            $this->dateFormatted = $repoDate;*/
+
+            /**
+             *  A TESTER : nouvelle façon d'initialiser la date si elle a été transmise
+             *  Pas encore eu l'occasion de tester ce cas
+             */
+            /**
+             *  Si la date transmise est au format Y-m-d
+             */
+            $d = DateTime::createFromFormat('Y-m-d', $repoDate);
+            if ($d === $repoDate) {
+                $this->date = $repoDate;
+                $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $repoDate)->format('d-m-Y');
+            }
+
+            /**
+             *  Si la date transmise est au format d-m-Y
+             */
+            $d = DateTime::createFromFormat('d-m-Y', $repoDate);
+            if ($d === $repoDate) {
+                $this->date = DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d');
+                $this->dateFormatted = $repoDate;
+            }
+
+            unset($d);
         }
+
         /* Time */
         if (empty($repoTime)) { $this->time = exec("date +%H:%M"); } else { $this->time = $repoTime; }
 
@@ -108,9 +134,7 @@ class Repo {
             /**
              *  On récupère au passage l'url source complète
              */
-            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") {
-                $this->getFullSource();
-            }
+            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") $this->getFullSource();
         }
         /* Signed */
         if (!empty($repoSigned)) $this->signed = $repoSigned;
@@ -222,12 +246,36 @@ class Repo {
      *  Retourne true si existe
      *  Retourne false si n'existe pas
      */
-    public function existsId() {
+    public function existsId(string $state = '') {
+        /**
+         *  Si on a renseigné $state (active ou archived) alors on interroge soit la table repos soit la table repos_archived
+         */
+        if (!empty($state)) {
+            if ($state == "active") {
+                if ($this->db->countRows("SELECT * FROM repos WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } elseif ($state == "archived") {
+                if ($this->db->countRows("SELECT * FROM repos_archived WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        /**
+         *  Si on n'a pas renseigné $state alors on interroge par défaut la table repos
+         */
         if ($this->db->countRows("SELECT * FROM repos WHERE Id = '$this->id' AND Status = 'active'") == 0) {
             return false;
         } else {
             return true;
-        }
+        }        
     }
 
 /**
@@ -370,6 +418,10 @@ class Repo {
     }
 
 /**
+ *  RECUPERATION D'INFOS EN BDD
+ */
+
+/**
  *  Récupère l'ID du repo/de la section en BDD
  */
     public function db_getId() {
@@ -428,16 +480,16 @@ class Repo {
     }
 
 /**
- *  Recupère toutes les information du repo/de la section en BDD à partie de son ID
+ *  Recupère toutes les information du repo/de la section en BDD à partir de son ID
  */
-    public function db_getAllById(string $type = '') {
+    public function db_getAllById(string $state = '') {
         global $OS_FAMILY;
 
         /**
-         *  Si on a précisé un type en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
+         *  Si on a précisé un state en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
          *  Sinon dans tous les autres cas on interroge la table par défaut càd les repos actifs
          */
-        if (!empty($type) AND $type == 'archived') {
+        if (!empty($state) AND $state == 'archived') {
             $stmt = $this->db->prepare("SELECT * from repos_archived WHERE Id=:id");
         } else {
             $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
@@ -457,7 +509,7 @@ class Repo {
             }
             $this->date = $row['Date'];
             $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $row['Date'])->format('d-m-Y');
-            if (!empty($row['Env'])) $this->env = $row['Env']; // Dans le cas où on a précisé $type == 'archived' il n'y a pas d'env pour les repo archivés, d'où la condition
+            if (!empty($row['Env'])) $this->env = $row['Env']; // Dans le cas où on a précisé $state == 'archived' il n'y a pas d'env pour les repo archivés, d'où la condition
             $this->type = $row['Type'];
             $this->signed = $row['Signed']; $this->gpgResign = $this->signed;
             $this->description = $row['Description'];
@@ -495,15 +547,23 @@ class Repo {
     public function db_getDate() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
-        }
+        if ($OS_FAMILY == "Redhat") $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
 
-        if ($OS_FAMILY == "Debian") {
-            $result = $this->db->querySingleRow("SELECT Date from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
-        }
         $this->date = $result['Date'];
         $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $result['Date'])->format('d-m-Y');
+    }
+
+/**
+ *  Récupère le type du repo/section en BDD
+ */
+    public function db_getType() {
+        $stmt = $this->db->prepare("SELECT Type FROM repos WHERE Id=:id AND Status = 'active'");
+        $stmt->bindValue(':id', $this->id);
+        $result = $stmt->execute();
+        while ($row = $result->fetchArray()) $this->type = $row['Type'];
+        
+        unset($stmt, $result);
     }
 
 /**
@@ -512,35 +572,29 @@ class Repo {
     public function db_getSource() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Status = 'active'");
-        }
+        /*if ($OS_FAMILY == "Redhat") $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Status = 'active'");*/
+        //$result = $this->db->querySingleRow("SELECT Source FROM repos WHERE Id = '$this->id' AND Status = 'active'");
+        $stmt = $this->db->prepare("SELECT Source FROM repos WHERE Id=:id AND Status = 'active'");
+        $stmt->bindValue(':id', $this->id);
+        $result = $stmt->execute();
+        while ($row = $result->fetchArray()) $this->source = $row['Source'];
 
-        if ($OS_FAMILY == "Debian") {
-            $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Status = 'active'");
-        }
-        if (empty($result['Source'])) {
-            throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la source de du repo <b>$this->name</b>");
-        }
-        $this->source = $result['Source'];
+        if (empty($this->source)) throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la source de du repo <b>$this->name</b>");
 
         /**
          *  On récupère au passage l'url source complète
          */
-        if ($OS_FAMILY == "Debian") {
-            $this->getFullSource();
-        }
+        // $this->getFullSource();
     }
 
 /**
  *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
  */
-    private function getFullSource() {
+    public function getFullSource() {
         /**
          *  Récupère l'url complète
          */
-        //$result = $this->db->querySingleRow("SELECT Url FROM sources WHERE Name = '$this->source'");
-        //$this->sourceFullUrl = $result['Url'];
         $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name=:name");
         $stmt->bindValue(':name', $this->source);
         $result = $stmt->execute();
@@ -575,9 +629,13 @@ class Repo {
     }
 
 /**
- *  MODIFICATION DES INFORMATIONS DU REPO
+ *  ECRITURE EN BDD
  */
-    public function edit() {
+
+ /**
+  * Modification de la description
+  */
+    public function db_setdescription() {
         /**
          *  On accepte de modifier la description à certaines conditions
          *  Il faut avoir transmis si le repo est actif ou archivé
@@ -591,9 +649,27 @@ class Repo {
         $stmt->bindValue(':description', $this->description);
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
+        unset($stmt);
 
         printAlert('La description a bien été modifiée <span class="greentext">✔</span>');
     }
+
+/**
+ *  Modification de l'état de signature GPG
+ */
+    public function db_setsigned() {
+        /**
+         *  $this->signed ne peut que être 'yes' ou 'no'
+         */
+        if ($this->signed != "yes" AND $this->signed != "no") return;
+
+        $stmt = $this->db->prepare("UPDATE repos SET Signed=:signed WHERE Id=:id");
+        $stmt->bindValue(':signed', $this->signed);
+        $stmt->bindValue(':id', $this->id);
+        $stmt->execute();
+        unset($stmt);
+    }
+
 
 /**
  *  GENERATION DE CONF

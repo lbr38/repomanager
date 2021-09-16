@@ -12,6 +12,40 @@ require_once('functions/common-functions.php');
 require_once('common.php');
 require_once('class/Repo.php');
 
+/**
+ *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
+ */
+if (!empty($_POST['action']) AND validateData($_POST['action']) === 'reconstruct' AND !empty($_POST['repoId'])) {
+    $repoId = validateData($_POST['repoId']);
+
+    /**
+     *  Récupération de la valeur de GPG Resign
+     *  Si on n'a rien transmis alors on set la valeur à 'no'
+     *  Si on a transmis quelque chose alors on set la valeur à 'yes'
+     */
+    if (empty($_POST['repoGpgResign']))
+        $repoGpgResign = 'no';
+    else
+        $repoGpgResign = 'yes';
+
+    /**
+     *  On instancie un nouvel objet Repo avec les infos transmises, on va ensuite pouvoir vérifier que ce repo existe bien
+     */
+    $myrepo = new Repo(array('repoId' => $repoId, 'repoGpgResign' => $repoGpgResign));
+
+    /**
+     *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan
+     */
+    if ($myrepo->existsId() === true) exec("php ${WWW_DIR}/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
+
+    /**
+     *  Rafraichissement de la page
+     */
+    sleep(1);
+    header("Location: $actual_url");
+    exit;
+}
+
 $pathError = 0;
 
 /**
@@ -29,19 +63,17 @@ if (empty($_GET['id'])) {
  */
 if (empty($_GET['state'])) {
     $pathError++;
+
 } else {
     $state = validateData($_GET['state']);
-    if ($state != "active" AND $state != "archived") {
-        $pathError++;
-    }
+
+    if ($state != "active" AND $state != "archived") $pathError++;
 }
 
 /**
  *  Le repo transmis doit être un numéro car il s'agit de l'ID en BDD
  */
-if (!is_numeric($repoId)) {
-    $pathError++;
-}
+if (!is_numeric($repoId)) $pathError++;
 
 /**
  *  A partir de l'ID fourni, on récupère les infos du repo
@@ -50,12 +82,8 @@ if ($pathError == 0) {
     $myrepo = new Repo();
     $myrepo->id = $repoId;
 
-    if ($state == 'active') {
-        $myrepo->db_getAllById();
-    }
-    if ($state == 'archived') {
-        $myrepo->db_getAllById('archived');
-    }
+    if ($state == 'active')   $myrepo->db_getAllById();
+    if ($state == 'archived') $myrepo->db_getAllById('archived');
 
     /**
      *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
@@ -72,9 +100,7 @@ if ($pathError == 0) {
     /**
      *  Si le chemin construit n'existe pas sur le serveur alors on incrémente pathError qui affichera une erreur et empêchera toute action
      */
-    if (!is_dir($repoPath)) {
-        $pathError++;
-    }
+    if (!is_dir($repoPath)) $pathError++;
 }
 
 /**
@@ -193,9 +219,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
         /**
          *  Si on n'a pas eu d'erreur jusque là, alors on peut déplacer le fichier dans son emplacement définitif
          */
-        if ($uploadError === 0 AND file_exists($packageTmpName)) {
-            move_uploaded_file($packageTmpName, $targetDir ."/$packageName");
-        }
+        if ($uploadError === 0 AND file_exists($packageTmpName)) move_uploaded_file($packageTmpName, $targetDir ."/$packageName");
     }
 
     if ($uploadError === 0) {
@@ -315,12 +339,12 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                                 $queue[$file] = str_replace("$repoPath/", '', "$path/$file");
                             }
                         }
-                
+
                         printQueue($queue);
                         echo "</ul>";
                     }
                 }
-                
+
                 /**
                  *  Affichage de tous les fichiers d'un répertoire
                  */
@@ -333,7 +357,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                         printFile($file, $path);
                     }
                 }
-                
+
                 /**
                  *  Affichage d'un fichier
                  */
@@ -347,7 +371,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                         echo "<li><span class=\"explorer-file\"> $file</span></li>";
                     }
                 }
-                
+
                 /**
                  *  Affichage d'un sous-dossier
                  */
@@ -360,7 +384,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                     tree("$path/$dir"); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier
                     echo "</li>";
                 }
-                
+
                 /**
                  *  On appelle la fonction tree permettant de construire l'arbisrescence de fichiers si on a bien reçu toutes les infos
                  */
@@ -403,49 +427,76 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
             <h3>ACTIONS</h3>
             <?php
                 if ($pathError === 0 AND $state == 'active') {
-                    echo '<p>Uploader des packages :</p>';
-                    echo '<form action="" method="post" enctype="multipart/form-data">';
-                    echo '<input type="hidden" name="action" value="uploadPackage" />';
-                    echo '<input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />';
-                    echo '<button type="submit" class="button-submit-medium-blue">Ajouter</button>';
-                    echo '</form>';
+                    /**
+                     *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
+                     */
+                    $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'update' AND Id_repo_target=:id AND Status = 'running'");
+                    $stmt->bindValue(':id', $myrepo->id);
+                    $result = $stmt->execute();
+                    while ($datas = $result->fetchArray()) { $opRunning_update[] = $datas; }
+
+                    $stmt2 = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'reconstruct' AND Id_repo_target=:id AND Status = 'running'");
+                    $stmt2->bindValue(':id', $myrepo->id);
+                    $result2 = $stmt2->execute();
+                    while ($datas = $result2->fetchArray()) { $opRunning_reconstruct[] = $datas; }
+
+                    if (!empty($opRunning_update)) {
+                        echo '<p>';
+                        echo '<img src="images/loading.gif" class="icon" /> ';
+                        if ($OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
+                        if ($OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
+                        echo '</p>';
+                    }
+
+                    if (!empty($opRunning_reconstruct)) {
+                        echo '<p>';
+                        echo '<img src="images/loading.gif" class="icon" /> ';
+                        if ($OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
+                        if ($OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
+                        echo '</p>';
+                    }
 
                     /**
-                     *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                     *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                      */
-                    if (!empty($packageExists)) {
-                        echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
-                    }
-                    if (!empty($packagesError)) {
-                        echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
-                    }
-                    if (!empty($packageEmpty)) {
-                        echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
-                    }
-                    if (!empty($packageInvalid)) {
-                        echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
-                    }
+                    if (empty($opRunning_update) AND empty($opRunning_reconstruct)) {
+                        echo '<p>Uploader des packages :</p>';
+                        echo '<form action="" method="post" enctype="multipart/form-data">';
+                        echo '<input type="hidden" name="action" value="uploadPackage" />';
+                        echo '<input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />';
+                        echo '<button type="submit" class="button-submit-medium-blue">Ajouter</button>';
+                        echo '</form>';
 
-                    echo '<hr>';
-            
-                    echo '<p><span id="rebuild-button" class="pointer"><img src="icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>';
-                    echo '<form id="hidden-form" class="hide" action="" method="post">';
-                    echo '<span>La signature avec GPG peut rallonger le temps de l\'opération</span>';
-                    echo '<br>';
-                    echo '<span>Signer avec GPG </span>';
-                    echo '<label class="onoff-switch-label">';
-                    echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
-                    echo '<span class="onoff-switch-slider"></span>';
-                    echo '</label>';
-                    echo '<br>';
-                    echo '<button type="submit" class="button-submit-medium-red">Valider</button>';
-                    echo '</form>';
+                        /**
+                         *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                         */
+                        if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
+                        if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
+                        if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
+                        if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
+
+                        echo '<hr>';
+                
+                        echo '<p><span id="rebuild-button" class="pointer"><img src="icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>';
+                        echo '<form id="hidden-form" class="hide" action="" method="post">';
+                        echo '<input type="hidden" name="action" value="reconstruct">';
+                        echo '<input type="hidden" name="repoId" value="'.$repoId.'">';
+                        echo '<span>Signer avec GPG </span>';
+                        echo '<label class="onoff-switch-label">';
+                        echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
+                        echo '<span class="onoff-switch-slider"></span>';
+                        echo '</label>';
+                        echo '<span class="graytext">  (La signature avec GPG peut rallonger le temps de l\'opération)</span>';
+                        echo '<br>';
+                        echo '<button type="submit" class="button-submit-medium-red"><img src="icons/rocket.png" class="icon" />Exécuter</button>';
+                        echo '</form>';
+                    }
                 
                 } else {
 
-                echo '<p>Aucune action possible.</p>';
+                    echo '<p>Aucune action possible.</p>';
 
-            }
+                }
 
             unset($myrepo);
 

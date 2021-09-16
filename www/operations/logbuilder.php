@@ -2,10 +2,10 @@
 /**
  *  1. Récupération des arguments passés à ce script
  */
-if (!empty($argv[1])) { $PIDFILE = $argv[1]; }              // Emplacement du fichier PID principal
-if (!empty($argv[2])) { $LOGFILE = $argv[2]; }              // Chemin du fichier de log principal (logs/main/repomanager...)
-if (!empty($argv[3])) { $OPERATION_TEMP_DIR = $argv[3]; }   // Chemin du répertoire temporaire de l'opération en cours (.temp/PID/)
-if (!empty($argv[4])) { $steps = $argv[4]; }                // Nombre d'étapes totales
+if (!empty($argv[1])) $PIDFILE = $argv[1];              // Emplacement du fichier PID principal
+if (!empty($argv[2])) $LOGFILE = $argv[2];              // Chemin du fichier de log principal (logs/main/repomanager...)
+if (!empty($argv[3])) $OPERATION_TEMP_DIR = $argv[3];   // Chemin du répertoire temporaire de l'opération en cours (.temp/PID/)
+if (!empty($argv[4])) $steps = $argv[4];                // Nombre d'étapes totales
 
 /**
  *  2. Ajout du PID de ce script dans le fichier PID principal
@@ -23,11 +23,11 @@ function writeStepLog($LOGFILE, $OPERATION_TEMP_DIR, $steps) {
 
     /**
      *  On ajoute chaque log d'étape au fichier de log principal
-     *  Exemple : ./temp/PID/1/1.log
+     *  Exemple : ./temp/$PID/1/1.log est ajouté au fichier de log principal
      */
     while ($j != ($steps + 1)) { // On boucle sur tous les petits fichiers de log d'étapes jusqu'à atteindre le nombre d'étapes totales
         $stepLog = "$OPERATION_TEMP_DIR/${j}/${j}.log";
-        if (file_exists($stepLog)) { file_put_contents($LOGFILE, file_get_contents($stepLog), FILE_APPEND); }
+        if (file_exists($stepLog)) file_put_contents($LOGFILE, file_get_contents($stepLog), FILE_APPEND);
         ++$j;
     }
 }

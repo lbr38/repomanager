@@ -22,6 +22,7 @@ include_once("${WWW_DIR}/class/includes/duplicate.php");
 include_once("${WWW_DIR}/class/includes/deleteArchive.php");
 include_once("${WWW_DIR}/class/includes/restore.php");
 include_once("${WWW_DIR}/class/includes/cleanArchives.php");
+include_once("${WWW_DIR}/class/includes/reconstruct.php");
 
 class Operation {
     public $db;
@@ -45,6 +46,7 @@ class Operation {
      */
     use newMirror, newLocalRepo, update, changeEnv, duplicate, delete, deleteDist, deleteSection, deleteArchive, restore, cleanArchives;
     use op_printDetails, op_getPackages, op_signPackages, op_createRepo, op_archive, op_finalize;
+    use reconstruct;
 
     public function __construct(array $variables = []) {
         extract($variables);
@@ -227,6 +229,45 @@ class Operation {
         return true;
     }
 
+    /**
+     *  Vérifie que l'ID passé correspond bien à un repo en BDD
+     */
+    private function chk_param_id() {
+        if (empty($_GET['repoId'])) {
+            echo "<p>Erreur : l'ID du repo ne peut pas être vide.</p>";
+            return false;
+        }
+
+        /**
+         *  Récupération de l'ID en GET
+         */
+        $this->repo->id = validateData($_GET['repoId']);
+
+        if (!is_numeric($this->repo->id)) {
+            echo "<p>Erreur : l'ID du repo doit être un nombre.</p>";
+            return false;
+        }
+
+        /**
+         *  On a besoin de connaitre l'état du repo pour l'étape suivante, celui-ci a normalement été transmis en GET par state=
+         */
+        if (empty($_GET(['state']))) {
+            echo "<p>Erreur : l'état du repo n'est pas renseigné.</p>";
+            return false;
+        }
+        if (validateData($_GET(['state'])) != "active" AND validateData($_GET(['state']) != "archived")) {
+            echo "<p>Erreur : l'état du repo est invalide.</p>";
+            return false;
+        }
+
+        /**
+         *  On vérifie que l'ID spécifié existe en BDD
+         */
+        if ($this->repo->existsId(validateData($_GET(['state']))) === false) return false;
+
+        return true;
+    }
+
     private function chk_param_source() {
         if (empty($_GET['repoSource'])) {
             echo "<p>Erreur : la source ne peut pas être vide</p>";
@@ -261,6 +302,7 @@ class Operation {
 
     private function chk_param_alias() {
         if (empty($_GET['repoAlias'])) {
+            $this->repo->alias = "noalias";
             echo '<input type="hidden" name="repoAlias" value="noalias" />';
         } else {
             $this->repo->alias = validateData($_GET['repoAlias']);
@@ -386,7 +428,7 @@ class Operation {
      */
     private function chk_param_group() {
         if (empty($_GET['repoGroup'])) {
-            echo '<input type="hidden" name="repoGroup" value="">';
+            echo '<input type="hidden" name="repoGroup" value="nogroup">';
         }
         if (!empty($_GET['repoGroup'])) {
             if (validateData($_GET['repoGroup']) === "ask") {
@@ -403,7 +445,7 @@ class Operation {
                     echo '</select>';
 
                 } else { // Si on n'a aucun groupe sur ce serveur, alors aucune liste ne s'affichera. Dans ce cas on définit repoGroup à 'nogroup'
-                    echo '<input type="hidden" name="repoGroup" value="">';
+                    echo '<input type="hidden" name="repoGroup" value="nogroup">';
                 }
 
             } else {
@@ -419,7 +461,7 @@ class Operation {
      */
     private function chk_param_description() {
         if (empty($_GET['repoDescription'])) {
-            echo '<input type="hidden" name="repoDescription" value="" />';
+            echo '<input type="hidden" name="repoDescription" value="nodescription" />';
         } else {
             if (validateData($_GET['repoDescription']) === "ask") {
                 echo '<span>Description (fac.) :</span><input type="text" name="repoDescription" />';
@@ -430,7 +472,6 @@ class Operation {
                     return false;
                 }
 
-                
                 echo '<input type="hidden" name="repoDescription" value="'.$this->repo->description.'" />';
             }
         }
@@ -529,42 +570,48 @@ class Operation {
          *  Si un ID de planification a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($id_plan)) {
-            $this->db_update_idplan($id_plan); unset($id_plan);
+            $this->db_update_idplan($id_plan);
+            unset($id_plan);
         }
 
         /**
          *  Si un ID de repo source a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($id_repo_source)) {
-            $this->db_update_idrepo_source($id_repo_source); unset($id_repo_source);
+            $this->db_update_idrepo_source($id_repo_source);
+            unset($id_repo_source);
         }
 
         /**
          *  Si un ID de repo cible a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($id_repo_target)) {
-            $this->db_update_idrepo_target($id_repo_target); unset($id_repo_target);
+            $this->db_update_idrepo_target($id_repo_target);
+            unset($id_repo_target);
         }
 
         /**
          *  Si un ID de groupe a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($id_group)) {
-            $this->db_update_idgroup($id_group); unset($id_group);
+            $this->db_update_idgroup($id_group);
+            unset($id_group);
         }
 
         /**
          *  Si gpgCheck a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($gpgCheck)) {
-            $this->db_update_gpgCheck($gpgCheck); unset($gpgCheck);
+            $this->db_update_gpgCheck($gpgCheck);
+            unset($gpgCheck);
         }
 
         /**
          *  Si gpgResign a été renseigné en appelant startOperation alors on l'ajoute directement en BDD
          */
         if (!empty($gpgResign)) {
-            $this->db_update_gpgResign($gpgResign); unset($gpgResign);
+            $this->db_update_gpgResign($gpgResign);
+            unset($gpgResign);
         }
     }
 
@@ -649,8 +696,8 @@ class Operation {
         global $REPOMANAGER_YUM_DIR;
         global $DEFAULT_ENV;
 
-        if ($OS_FAMILY === "Redhat") { echo '<h3>CRÉER UN NOUVEAU REPO</h3>';    }
-        if ($OS_FAMILY === "Debian") { echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; }
+        if ($OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
+        if ($OS_FAMILY === "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
         if ($this->chk_param_type() === false) ++$this->validate;
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
@@ -705,9 +752,9 @@ class Operation {
              */
             if ($this->repo->type == 'mirror') {
                 if (empty($_GET['confirm'])) {
-                    if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va créer un nouveau repo :</p>'; }
-                    if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va créer une nouvelle section :</p>'; }
-                    if ($OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>"; }
+                    if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
+                    if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section :</p>';
+                    if ($OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>";
                     if ($OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ({$this->repo->source})</span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
@@ -718,17 +765,19 @@ class Operation {
                 echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
                 if ($this->confirm() === true) {
-                    if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/newMirror.php '{$this->repo->name}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' '{$this->repo->group}' '{$this->repo->description}' '{$this->repo->type}' >/dev/null 2>/dev/null &"); }
-                    if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/newMirror.php '{$this->repo->name}' '{$this->repo->dist}' '{$this->repo->section}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' '{$this->repo->group}' '{$this->repo->description}' '{$this->repo->type}' >/dev/null 2>/dev/null &"); }
+                    /*if ($OS_FAMILY == "Redhat") exec("php ${WWW_DIR}/operations/newMirror.php '{$this->repo->name}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' '{$this->repo->group}' '{$this->repo->description}' '{$this->repo->type}' >/dev/null 2>/dev/null &");
+                    if ($OS_FAMILY == "Debian") exec("php ${WWW_DIR}/operations/newMirror.php '{$this->repo->name}' '{$this->repo->dist}' '{$this->repo->section}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' '{$this->repo->group}' '{$this->repo->description}' '{$this->repo->type}' >/dev/null 2>/dev/null &");*/
+                    if ($OS_FAMILY == "Redhat") exec("php ${WWW_DIR}/operations/execute.php --action='new' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");
+                    if ($OS_FAMILY == "Debian") exec("php ${WWW_DIR}/operations/execute.php --action='new' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");                    
                     echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
                 }
             }
 
             if ($this->repo->type == 'local') {
                 if (empty($_GET['confirm'])) {
-                    if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va créer un nouveau repo local :</p>'; }
-                    if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va créer une nouvelle section de repo local :</p>'; }
-                    if ($OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>"; }
+                    if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo local :</p>';
+                    if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo local :</p>';
+                    if ($OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
                     if ($OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
@@ -739,22 +788,21 @@ class Operation {
                 echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
                 if ($this->confirm() === true) {
-                    $this->startOperation();
+                    if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
+                    if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
         
-                    if ($OS_FAMILY == "Redhat") { $title = 'CREER UN NOUVEAU REPO LOCAL'; }
-                    if ($OS_FAMILY == "Debian") { $title = 'CREER UNE NOUVELLE SECTION DE REPO LOCAL'; }
-                    ob_start();
-    
-                    if ($this->exec_newLocalRepo() === false) {
-                        $this->status = 'error';
-                    } else {
+                    try {
+                        $this->exec_newLocalRepo();
+                        echo '<p>Terminé <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                         $this->status = 'done';
+    
+                    } catch(Exception $e) {
+                        $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                        echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                        $this->status = 'error';
                     }
-    
-                    $content = ob_get_clean(); echo $content;
-    
-                    include_once('templates/operation_log.inc.php');
-                    $this->log->write($logContent);
+
+                    $this->log->steplogBuild(2);
                     $this->closeOperation();
                 }
             }
@@ -774,14 +822,14 @@ class Operation {
         require_once("${WWW_DIR}/class/Source.php");
 
         if ($this->type == 'manual') {
-            if ($OS_FAMILY === "Redhat") { echo '<h3>METTRE A JOUR UN REPO</h3>';    }
-            if ($OS_FAMILY === "Debian") { echo '<h3>METTRE A JOUR UNE SECTION DE REPO</h3>'; }
+            if ($OS_FAMILY === "Redhat") echo '<h3>METTRE A JOUR UN REPO</h3>';
+            if ($OS_FAMILY === "Debian") echo '<h3>METTRE A JOUR UNE SECTION DE REPO</h3>';
 
-            if ($this->chk_param_name() === false) { ++$this->validate; }
-            if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    { ++$this->validate; } }
-            if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) { ++$this->validate; } }
-            if ($this->chk_param_gpgCheck() === false)  { ++$this->validate; }
-            if ($this->chk_param_gpgResign() === false) { ++$this->validate; }
+            if ($this->chk_param_name() === false) ++$this->validate;
+            if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+            if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+            if ($this->chk_param_gpgCheck() === false)  ++$this->validate;
+            if ($this->chk_param_gpgResign() === false) ++$this->validate;
         }
 
         $this->repo->env = $DEFAULT_ENV;
@@ -850,8 +898,10 @@ class Operation {
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
-                if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
-                if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->dist}' '{$this->repo->section}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                /*if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->dist}' '{$this->repo->section}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }*/
+                if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
                 echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
         }
@@ -864,8 +914,8 @@ class Operation {
     public function changeEnv() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY === "Redhat") { echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';    }
-        if ($OS_FAMILY === "Debian") { echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>'; }
+        if ($OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';
+        if ($OS_FAMILY === "Debian") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>';
         if ($this->chk_param_name() === false) ++$this->validate;
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
@@ -923,8 +973,7 @@ class Operation {
                 if ($OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
                 if ($OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
                 echo "<span>Env. :</span><span>".envtag($this->repo->env)."</span>";
-                if ($OS_FAMILY == "Redhat" AND $repoArchive == "yes") { echo "<p>Le repo actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivé</p>"; }
-                if ($OS_FAMILY == "Debian" AND $repoArchive == "yes") { echo "<p>La section actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivée</p>"; }
+                if ($repoArchive == "yes") echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivé</p>";
                 echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
             }
 
@@ -932,20 +981,18 @@ class Operation {
                 $this->repo->db_getId(); // Récupération dans $this->repo->id de l'ID en BDD du repo afin de l'inclure à l'opération
                 $this->startOperation(array('id_repo_source' => $this->repo->id));
 
-                $title = 'NOUVEL ENVIRONNEMENT DE REPO';
-                ob_start();
-
-                if ($this->exec_changeEnv() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_changeEnv();
+                    echo '<p>Terminé <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-                $this->log->write($logContent);
-
+                $this->log->steplogBuild(2);
                 $this->closeOperation();
             }
         }
@@ -956,6 +1003,7 @@ class Operation {
      */
     public function duplicate() {
         global $OS_FAMILY;
+        global $WWW_DIR;
 
         echo '<h3>DUPLIQUER UN REPO</h3>';
 
@@ -965,8 +1013,8 @@ class Operation {
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_env() === false)         ++$this->validate;
         if ($this->chk_param_description() === false) ++$this->validate;
+        if ($this->chk_param_type() === false)        ++$this->validate;
         $this->chk_param_group();
-        
 
         if ($this->validate() === true) {
             /**
@@ -982,46 +1030,20 @@ class Operation {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va créer un nouveau repo :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va créer une nouvelle section de repo :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
+                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
+                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo :</p>';
+                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
                 echo "<span>Repo :</span><span><b>{$this->repo->newName}</b></span>";
-                if ($OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
-                if ($OS_FAMILY == "Redhat") { echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>"; }
+                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if ($OS_FAMILY == "Redhat") echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
+                if ($OS_FAMILY == "Debian") echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>";
                 echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
             }
 
             if ($this->confirm() === true) {
-                /**
-                 *  On indique à startOperation quel est le nom du repo concerné par cette tâche. Comme il n'existe pas encore en BDD (la tâche n'est pas terminée) alors on lui indique le nom complet plutôt que son ID.
-                 */
-                $this->repo->db_getId(); // Récupération dans $this->repo-id de l'ID en BDD du repo source (celui qui va être dupliqué)
-                if ($OS_FAMILY == "Redhat") { $this->startOperation(array('id_repo_source' => $this->repo->id, 'id_repo_target' => "{$this->repo->newName}")); }
-                if ($OS_FAMILY == "Debian") { $this->startOperation(array('id_repo_source' => $this->repo->id, 'id_repo_target' => "{$this->repo->newName}|{$this->repo->dist}|{$this->repo->section}")); }
-
-                $title = 'DUPLIQUER UN REPO';
-
-                ob_start();
-
-                if ($this->exec_duplicate() === false) {
-                    $this->status = 'error';
-                } else {
-                    $this->status = 'done';
-                }
-
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                /**
-                 *  Mise à jour de la tâche d'opération en BDD : on indique l'ID du repo qui vient d'être ajouté en BDD, à la place de son nom complet.
-                 *  Ici $this->repo-id correspond désormais à l'ID en BDD du nouveau repo, la variable a été changée au cours de l'exécution de exec_duplicate()
-                 */
-                $this->db_update_idrepo_target($this->repo->id);
-
-                $this->log->write($logContent);
-                $this->closeOperation();
+                if ($OS_FAMILY == "Redhat") exec("php ${WWW_DIR}/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
+                if ($OS_FAMILY == "Debian") exec("php ${WWW_DIR}/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
+                echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
         }
     }
@@ -1057,10 +1079,10 @@ class Operation {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va supprimer le repo suivant :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va supprimer tout le contenu du repo suivant :</p>'; }
+                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo suivant :</p>';
+                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer tout le contenu du repo suivant :</p>';
                 echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Redhat") { echo "<span>Env :</span><span>".envtag($this->repo->env)."</span>"; }
+                if ($OS_FAMILY == "Redhat") echo "<span>Env :</span><span>".envtag($this->repo->env)."</span>";
                 if ($OS_FAMILY == "Debian") {
                     if (!empty($distAndSectionsToBeDeleted)) {
                         echo '<p>Attention, cela supprimera les distributions et sections suivantes :</p>';
@@ -1091,25 +1113,20 @@ class Operation {
                     $this->repo->db_getId();
                     $this->startOperation(array('id_repo_target' => $this->repo->id));
                 }
-                if ($OS_FAMILY == "Debian") {
-                    $this->startOperation(array('id_repo_target' => $this->repo->name));
-                }
+                if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => $this->repo->name));
 
-                $title = 'SUPPRIMER UN REPO';
-
-                ob_start();
-
-                if ($this->exec_delete() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_delete();
+                    echo '<p>Supprimé <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                $this->log->write($logContent);
+                $this->log->steplogBuild(1);
                 $this->closeOperation();
             }
         }
@@ -1172,21 +1189,18 @@ class Operation {
                  */
                 $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}"));
 
-                $title = 'SUPPRIMER UNE DISTRIBUTION';
-
-                ob_start();
-
-                if ($this->exec_deleteDist() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_deleteDist();
+                    echo '<p>Supprimée <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                $this->log->write($logContent);
+                $this->log->steplogBuild(1);
                 $this->closeOperation();
             }
         }
@@ -1226,24 +1240,23 @@ class Operation {
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
-                $this->repo->db_getId();
-                $this->startOperation(array('id_repo_target' => $this->repo->id));
+                /**
+                 *  On indique à startOperation quel est le nom du repo et la distribution concerné par cette tâche.
+                 */
+                $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
 
-                $title = 'SUPPRIMER UNE SECTION';
-
-                ob_start();
-
-                if ($this->exec_deleteSection() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_deleteSection();
+                    echo '<p>Supprimée <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                $this->log->write($logContent);
+                $this->log->steplogBuild(1);
                 $this->closeOperation();
             }
         }
@@ -1252,8 +1265,8 @@ class Operation {
     public function deleteArchive() {
         global $OS_FAMILY;
         
-        if ($OS_FAMILY == "Redhat") { echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>'; }
-        if ($OS_FAMILY == "Debian") { echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>'; }
+        if ($OS_FAMILY == "Redhat") echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>';
+        if ($OS_FAMILY == "Debian") echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>';
 
         if ($this->chk_param_name() === false) ++$this->validate;
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
@@ -1279,13 +1292,13 @@ class Operation {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va supprimer le repo archivé suivant :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va supprimer la section de repo archivée suivante :</p>'; }
+                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo archivé suivant :</p>';
+                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer la section de repo archivée suivante :</p>';
                 echo "<span>Repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
-                if ($OS_FAMILY == "Redhat") { echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>"; }
+                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
+                if ($OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if ($OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
             }
 
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
@@ -1294,22 +1307,18 @@ class Operation {
                 $this->repo->db_getId_archived();
                 $this->startOperation(array('id_repo_target' => $this->repo->id));
 
-                if ($OS_FAMILY == "Redhat") { $title = 'SUPPRIMER UN REPO ARCHIVÉ'; }
-                if ($OS_FAMILY == "Debian") { $title = 'SUPPRIMER UNE SECTION ARCHIVÉE'; }
-
-                ob_start();
-
-                if ($this->exec_deleteArchive() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_deleteArchive();
+                    echo '<p>Supprimé <span class="greentext">✔</span></p>'; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                $this->log->write($logContent);
+                $this->log->steplogBuild(1);
                 $this->closeOperation();
             }
         }
@@ -1375,47 +1384,37 @@ class Operation {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va restaurer le repo archivé suivant :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va restaurer la section de repo archivée suivante :</p>'; }
+                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va restaurer le repo archivé suivant :</p>';
+                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va restaurer la section de repo archivée suivante :</p>';
                 echo "<span>Repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
-                if ($OS_FAMILY == "Redhat") { echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>"; }
-                if ($OS_FAMILY == "Redhat") { echo "<p>La restauration placera le repo sur l'environnement ".envtag($this->repo->newEnv)."</p>"; }
-                if ($OS_FAMILY == "Debian") { echo "<p>La restauration placera la section sur l'environnement ".envtag($this->repo->newEnv)."</p>"; }
-                if ($repoArchive == "yes") {
-                    if ($OS_FAMILY == "Redhat") {
-                        echo "<p>Le repo actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivé.</p>";
-                    }
-                    if ($OS_FAMILY == "Debian") {
-                        echo "<p>La section actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivée.</p>";
-                    }
-                }
+                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
+                if ($OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if ($OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if ($OS_FAMILY == "Redhat") echo "<p>La restauration placera le repo sur l'environnement ".envtag($this->repo->newEnv)."</p>";
+                if ($OS_FAMILY == "Debian") echo "<p>La restauration placera la section sur l'environnement ".envtag($this->repo->newEnv)."</p>";
+                if ($repoArchive == "yes")  echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivée.</p>";
             }
 
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 $this->repo->db_getId_archived();
-                $this->startOperation(array('id_repo_target' => $this->repo->id));
+                if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
+                if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
 
-                if ($OS_FAMILY == "Redhat") { $title = 'RESTAURER UN REPO ARCHIVÉ'; }
-                if ($OS_FAMILY == "Debian") { $title = 'RESTAURER UNE SECTION ARCHIVÉE'; }
-
-                ob_start();
-
-                if ($this->exec_restore() === false) {
-                    $this->status = 'error';
-                } else {
+                try {
+                    $this->exec_restore();
+                    echo "<p>Restauré en ".envtag($this->repo->newEnv)."</p>"; // Affichage du message à l'utilisateur
                     $this->status = 'done';
+
+                } catch(Exception $e) {
+                    $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+                    echo "<p>Erreur : ".$e->getMessage()."</p>"; // Affichage du message à l'utilisateur
+                    $this->status = 'error';
                 }
 
-                $content = ob_get_clean(); echo $content;
-
-                include_once('templates/operation_log.inc.php');
-
-                $this->log->write($logContent);
+                $this->log->steplogBuild(2);
                 $this->closeOperation();
             }
         }

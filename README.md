@@ -30,18 +30,19 @@ Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 
 <p>Fonctionnalités actuelles et futures de la version Beta</p>
 
-| **Fonctions basiques et avancées** | **Disponible en version Beta** |
+| **Fonctions** | **Beta** |
 |----------|---------------|
-| Créer un miroir à partir d'un repo public | ✅ |
-| Mettre à jour un miroir précédemment créé (récupérer les dernières versions de paquets) | ✅ |
+| Créer des miroirs à partir de repos publics | ✅ |
+| Créer des repos locaux | ✅ |
+| Mettre à jour des miroirs | ✅ |
 | Signer ses repos avec GPG | ✅ |
-| Dupliquer un repo | ✅ |
-| Archiver / restaurer un repo | ✅ |
-| Créer des groupes de repos | ✅ |
-| Planifier la mise à jour d'un repo | ✅ |
+| Archiver / restaurer des repos | ✅ |
+| Charger des patchs zero-day | ✅ |
+| **Automatisation** | **Beta** |
+| Planifier la mise à jour de miroirs | ✅ |
 | Rappels de planifications (mail) | ✅ |
-| Mise à jour automatique de repomanager | ✅ |
-| Créer des patchs zero-day (uploader un ou plusieurs paquet(s) patché dans ses repos) | à venir |
+| **Organisation** | **Beta** |
+| Créer des groupes de repos | ✅ |
 
 
 <b>Dépendances</b>
@@ -124,13 +125,15 @@ server {
 
 	# Custom error pages
         error_page 404 /custom_404.html;
+        
         error_page 500 502 503 504 /custom_50x.html;
+
         location = /custom_404.html {
-                root WWW_DIR/www/custom_errors;
+                root WWW_DIR/custom_errors;
                 internal;
         }
         location = /custom_50x.html {
-                root WWW_DIR/www/custom_errors;
+                root WWW_DIR/custom_errors;
                 internal;
         }
 

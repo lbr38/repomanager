@@ -9,10 +9,22 @@
  */
 
 $logContent = "
-<span>Planification exécutée le : <b>".DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y')."</b> à <b>".DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s')."</b></span><br>
-<span>PID : <b>{$this->log->pid}.pid</b></span><br><br>
+<h3>PLANIFICATION</h3>
 
-<h3>{$this->log->title}</h3>
+<table class=\"op-table\">
+    <tr>
+        <th>Exécutée le</td>
+        <td><b>".DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y')."</b> à <b>".DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s')."</b></td>
+    </tr>
+    <tr>
+        <th>PID</td>
+        <td><b>{$this->log->pid}</b></td>
+    </tr>
+</table>
+
+<br>
+<hr>
+<br>
 
 $content";
 ?>

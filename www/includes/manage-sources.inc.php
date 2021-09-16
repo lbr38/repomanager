@@ -222,7 +222,7 @@ if (!empty($gpgKeys)) {
                                 echo "<img id=\"sourceConfigurationToggleButton-${sourceName}\" class=\"icon-mediumopacity\" title=\"Configuration de $sourceName\" src=\"icons/cog.png\" />";
                             }
                             echo "<img src=\"icons/bin.png\" class=\"sourceDeleteToggleButton-${sourceName} icon-lowopacity\" title=\"Supprimer le repo source ${sourceName}\" />";
-                            deleteConfirm("Etes-vous sûr de vouloir supprimer le repo source $sourceName", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv-${sourceName}", "sourceDeleteToggleButton-${sourceName}");
+                            deleteConfirm("Êtes-vous sûr de vouloir supprimer le repo source <b>$sourceName</b> ?", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv-${sourceName}", "sourceDeleteToggleButton-${sourceName}");
                             echo '</td>';
                             echo '</tr>';
                         echo '</table>';

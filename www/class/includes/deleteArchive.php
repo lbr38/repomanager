@@ -7,46 +7,48 @@ trait deleteArchive {
         global $OS_FAMILY;
         global $REPOS_DIR;
 
+        ob_start();
+
         /**
          *  1. Génération du tableau récapitulatif de l'opération
          */
-        echo '<table>';
-        if ($OS_FAMILY == "Debian") {
-        echo "<tr>
-            <td>Section :</td>
-            <td><b>{$this->repo->section}</b></td>
-        </tr>";
-        }
-        echo "<tr>
-            <td>Nom du repo :</td>
+        if ($OS_FAMILY == "Redhat") echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>';
+        if ($OS_FAMILY == "Debian") echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>';
+
+        echo "<table class=\"op-table\">
+        <tr>
+            <th>Nom du repo :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>";
         if ($OS_FAMILY == "Debian") {
-        echo "<tr>
-            <td>Distribution :</td>
-            <td><b>{$this->repo->dist}</b></td>
-        </tr>";
+            echo "<tr>
+                <th>Distribution :</th>
+                <td><b>{$this->repo->dist}</b></td>
+            </tr>
+            <tr>
+                <th>Section :</th>
+                <td><b>{$this->repo->section}</b></td>
+            </tr>";
         }
         echo "<tr>
-            <td>Date :</td>
+            <th>Date :</th>
             <td><b>{$this->repo->dateFormatted}</b></td>
         </tr>";
         echo '</table>';
+
+        $this->log->steplog(1);
+        $this->log->steplogInitialize('deleteArchive');
+        $this->log->steplogTitle('SUPPRESSION');
+        $this->log->steplogLoading();
 
         /**
          *  2. On vérifie que le repo/section archivé(e) existe bien
          */
         if ($OS_FAMILY == "Redhat") {
-            if ($this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) {
-                echo "<p><span class=\"redtext\">Erreur : </span>le repo {$this->repo->name} archivé à la date du {$this->repo->date} n'existe pas</p>";
-                return false;
-            }
+            if ($this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) throw new Exception("le repo {$this->repo->name} archivé à la date du {$this->repo->date} n'existe pas");
         }
         if ($OS_FAMILY == "Debian") {
-            if ($this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) {
-                echo "<p><span class=\"redtext\">Erreur : </span>la section de repo {$this->repo->section} archivée à la date du {$this->repo->date} n'existe pas</p>";
-                return false;
-            }
+            if ($this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) throw new Exception("la section de repo {$this->repo->section} archivée à la date du {$this->repo->date} n'existe pas");
         }
 
         /**
@@ -62,27 +64,23 @@ trait deleteArchive {
                 exec("rm ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_{$this->repo->dateFormatted}_{$this->repo->section} -rf", $output, $result);
             }
         }
-        if (!empty($result) AND $result != 0) {
-            echo '<p><span class="redtext">Erreur : </span>lors de la suppression du miroir</p>';
-            return false;
-        }
+        
+        if (!empty($result) AND $result != 0) throw new Exception('impossible de supprimer le miroir');
 
         /**
          *  4. Mise à jour de la BDD
          */
-        if ($OS_FAMILY == "Redhat") {
-            $this->repo->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '{$this->repo->name}' AND Date = '{$this->repo->date}' AND Status = 'active'");
-        }
+        if ($OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+        $stmt->bindValue(':name', $this->repo->name);
         if ($OS_FAMILY == "Debian") {
-            $this->repo->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Date = '{$this->repo->date}' AND Status = 'active'");
+            $stmt->bindValue(':dist', $this->repo->dist);
+            $stmt->bindValue(':section', $this->repo->section);
         }
+        $stmt->bindValue(':date', $this->repo->date);
+        $stmt->execute();
 
-        if ($OS_FAMILY == "Redhat") {
-            echo '<p>Supprimé <span class="greentext">✔</span></p>';
-        }
-        if ($OS_FAMILY == "Debian") {
-            echo '<p>Supprimée <span class="greentext">✔</span></p>';
-        }
+        $this->log->steplogOK();
     }
 }
 ?>

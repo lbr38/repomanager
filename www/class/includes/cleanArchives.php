@@ -15,23 +15,14 @@ trait cleanArchives {
         /**
          *  2. Si la suppression automatique des repos archivés n'est pas autorisée alors on quitte la fonction
          */
-        if ($ALLOW_AUTODELETE_ARCHIVED_REPOS != "yes") {
-            return;
-        }
+        if ($ALLOW_AUTODELETE_ARCHIVED_REPOS != "yes") return;
 
         /**
-         *  3. Si le paramètre retention est vide, alors on quitte la fonction
+         *  3. Si le paramètre retention est vide ou est invalide, alors on quitte la fonction
          */
-        if (empty($RETENTION)) {
-            return;
-        }
-
-        if (!is_int($RETENTION)) {
-            return;
-        }
-        if ($RETENTION < 0) {
-            return;
-        }
+        if (empty($RETENTION)) return;
+        if (!is_int($RETENTION)) return;
+        if ($RETENTION < 0) return;
 
         // TRAITEMENT //
         
@@ -95,22 +86,24 @@ trait cleanArchives {
                     $repoDate = $date['Date'];
                     $repoDateFormatted = DateTime::createFromFormat('Y-m-d', $date['Date'])->format('d-m-Y');
                     if (!empty($repoDateFormatted)) {
-                        if ($OS_FAMILY == "Redhat") { echo "<p>Suppression du repo archivé <b>$repoName</b> en date du <b>$repoDateFormatted</b></p>"; }
-                        if ($OS_FAMILY == "Debian") { echo "<p>Suppression de la section archivée <b>$repoSection</b> du repo <b>$repoName</b> (distribution <b>$repoDist</b>) en date du <b>$repoDateFormatted</b></p>"; }
+                        if ($OS_FAMILY == "Redhat") echo "<p>Suppression du repo archivé <b>$repoName</b> en date du <b>$repoDateFormatted</b>.</p>";
+                        if ($OS_FAMILY == "Debian") echo "<p>Suppression de la section archivée <b>$repoSection</b> du repo <b>$repoName</b> (distribution <b>$repoDist</b>) en date du <b>$repoDateFormatted</b>.</p>";
+                        
                         /**
                          *  8. Suppression du miroir
                          */
-                        if ($OS_FAMILY == "Redhat") { exec("rm '${REPOS_DIR}/archived_${repoDateFormatted}_${repoName}' -rf", $output, $return); }
-                        if ($OS_FAMILY == "Debian") { exec("rm '${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDateFormatted}_${repoSection}' -rf", $output, $return); }
+                        if ($OS_FAMILY == "Redhat") exec("rm '${REPOS_DIR}/archived_${repoDateFormatted}_${repoName}' -rf", $output, $return);
+                        if ($OS_FAMILY == "Debian") exec("rm '${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDateFormatted}_${repoSection}' -rf", $output, $return);
                         if ($return != 0) {
-                            echo "<p><span class=\"redtext\">Erreur lors de la suppression du repo <b>$repoName</b> en date du <b>$repoDateFormatted</b></span></p>";
+                            echo "<p><span class=\"redtext\">Erreur lors de la suppression du repo <b>$repoName</b> en date du <b>$repoDateFormatted</b>.</span></p>";
                             continue; // On traite la date suivante
                         }
+
                         /**
                          *   9. Nettoyage de la BDD
                          */
-                        if ($OS_FAMILY == "Redhat") { $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Date = '$repoDate'"); }
-                        if ($OS_FAMILY == "Debian") { $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Date = '$repoDate'"); }
+                        if ($OS_FAMILY == "Redhat") $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Date = '$repoDate'");
+                        if ($OS_FAMILY == "Debian") $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Date = '$repoDate'");
                     }
                 }
             }

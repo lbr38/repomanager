@@ -8,14 +8,17 @@ trait op_finalize {
         global $DATE_DMY;
         global $REPOS_DIR;
 
-        if (empty($op_type)) {
-            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération inconnu (vide)</p>');
-        }
-        if ($op_type != "new" AND $op_type != "update") {
-            throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération invalide</p>');
-        }
-
         ob_start();
+
+        $this->log->steplogInitialize('finalizeRepo');
+        $this->log->steplogTitle('FINALISATION');
+        $this->log->steplogLoading();
+
+        /**
+         *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
+         */
+        if (empty($op_type)) throw new Exception("type d'opération inconnu (vide)");
+        if ($op_type != "new" AND $op_type != "update") throw new Exception("type d'opération invalide");
 
         /**
          *  1. Mise à jour de la BDD 
@@ -23,12 +26,8 @@ trait op_finalize {
          *  - Si il s'agit d'une mise à jour de repo, on ne fait rien (les informations ont été mises à jour à l'étape op_archive)
          */
         if ($op_type == "new") {
-            if ($OS_FAMILY == "Redhat") {
-                $this->db->exec("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
-            }
-            if ($OS_FAMILY == "Debian") {
-                $this->db->exec("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->dist}', '{$this->repo->section}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
-            }
+            if ($OS_FAMILY == "Redhat") $this->db->exec("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
+            if ($OS_FAMILY == "Debian") $this->db->exec("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->dist}', '{$this->repo->section}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
         }
 
         /**
@@ -36,12 +35,8 @@ trait op_finalize {
          */
         if ($op_type == "new") {
             if (!empty($this->repo->group)) {
-                if ($OS_FAMILY == "Redhat") {
-                    $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-                }
-                if ($OS_FAMILY == "Debian") {
-                    $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-                }
+                if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
+                if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
 
                 while ($data = $result->fetchArray()) {
                     $repoId = $data['repoId'];
@@ -49,12 +44,14 @@ trait op_finalize {
                 }
 
                 if (empty($repoId)){
-                    echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du repo {$this->repo->name}</p>";
+                    // echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du repo {$this->repo->name}</p>";
+                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du repo {$this->repo->name}");
                     return;
                 }
 
                 if (empty($groupId)) {
-                    echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du groupe {$this->repo->group}</p>";
+                    //echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du groupe {$this->repo->group}</p>";
+                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du groupe {$this->repo->group}");
                     return;
                 }
                 $this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");
@@ -84,11 +81,12 @@ trait op_finalize {
          */
         $this->repo->generateConf('default');
 
-        echo '<p>Terminé <span class="greentext">✔</span></p>';
+        //echo '<div class="op-step-title"><span>TERMINÉ </span></div>';
+        //echo '<p>Terminé <span class="greentext">✔</span></p>';
+        $this->log->steplogOK();
 
         $this->repo->cleanArchives();
-
-        $this->logcontent = ob_get_clean(); file_put_contents($this->log->steplog, $this->logcontent, FILE_APPEND);
+        $this->log->steplogWrite();
 
         return true;
     }

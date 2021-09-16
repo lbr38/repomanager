@@ -216,7 +216,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     right: 0;
     padding: 1px; }
   .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: #006699; /* modifié */
+    background-color: #263859; /* modifié */
     border-radius: 2px;
     box-sizing: border-box;
     display: inline-block;
