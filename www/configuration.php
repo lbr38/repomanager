@@ -47,9 +47,9 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     }
 
     if ($error == 0) {
-        $updateStatus = 'Mise à jour effectuée avec succès!';
+        $updateStatus = '<span class="greentext">Mise à jour effectuée avec succès!</span>';
     } else {
-        $updateStatus = $errorMsg;   
+        $updateStatus = '<span class="redtext">'.$errorMsg.'</span>';   
     }
 }
 
@@ -402,6 +402,7 @@ function save($array) {
      *  Puis rechargement de la page pour appliquer les modifications de configuration
      */
     header('Location: configuration.php');
+    exit;
 }
 
 /**
@@ -432,6 +433,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv")
          *  Puis rechargement de la page pour voir les modifications de configuration
          */
         header('Location: configuration.php');
+        exit;
     }
 }
 
@@ -455,6 +457,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvCon
          *  Puis rechargement de la page pour voir les modifications de configuration
          */
         header('Location: configuration.php');
+        exit;
     }
 } 
 
@@ -473,6 +476,7 @@ if (!empty($_GET['deleteEnv'])) {
      *  Puis rechargement de la page pour voir les modifications de configuration
      */
     header('Location: configuration.php');
+    exit;
 }
 ?>
 

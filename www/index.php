@@ -23,27 +23,18 @@
     $divToClose = validateData($_GET['serverInfoSlideDivClose']);
     // On récupère le contenu actuel de display.ini
     $displayConfiguration = parse_ini_file($DISPLAY_CONF, true);
-    if ($divToClose === "reposInfo") {
-      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
-    }
-    if ($divToClose === "rootSpace") {
-      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
-    }
-    if ($divToClose === "reposDirSpace") {
-      $displayConfiguration['serverinfo']['display_serverInfo_reposDirSpace'] = 'no';
-    }
-    if ($divToClose === "planInfo") {
-      $displayConfiguration['serverinfo']['display_serverInfo_planInfo'] = 'no';
-    }
-    if ($divToClose === "connectionInfo") {
-      $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
-    }
+    if ($divToClose === "reposInfo")      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
+    if ($divToClose === "rootSpace")      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
+    if ($divToClose === "reposDirSpace")  $displayConfiguration['serverinfo']['display_serverInfo_reposDirSpace'] = 'no';
+    if ($divToClose === "planInfo")       $displayConfiguration['serverinfo']['display_serverInfo_planInfo'] = 'no';
+    if ($divToClose === "connectionInfo") $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
 
     // On écrit les modifications dans le fichier display.ini
     write_ini_file($DISPLAY_CONF, $displayConfiguration);
 
     // rechargement de la page pour appliquer les modifications d'affichage
     header('Location: index.php');
+    exit;
   }
 ?>
 
@@ -82,13 +73,13 @@
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         // nombre de repos/sections sur le serveur
-        if ($OS_FAMILY == "Redhat") { echo '<p>Repos</p>'; }
-        if ($OS_FAMILY == "Debian") { echo '<p>Sections</p>'; }
+        if ($OS_FAMILY == "Redhat") echo '<p>Repos</p>';
+        if ($OS_FAMILY == "Debian") echo '<p>Sections</p>';
         echo "<b>${totalRepos}</b>";
 
         // nombre de repos/sections archivés sur le serveur
-        if ($OS_FAMILY == "Redhat") { echo '<p>Repos archivés</p>'; }
-        if ($OS_FAMILY == "Debian") { echo '<p>Sections archivées</p>'; }
+        if ($OS_FAMILY == "Redhat") echo '<p>Repos archivés</p>';
+        if ($OS_FAMILY == "Debian") echo '<p>Sections archivées</p>';
         echo "<b>${totalReposArchived}</b>";
         echo '</div>';
     }

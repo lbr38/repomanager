@@ -1,0 +1,24 @@
+/**
+*   Explorateur de fichiers
+*/
+#explorer {
+    font-size: 14px;
+}
+
+#explorer ul {
+	list-style-type: none;
+}
+
+#explorer a, #explorer li {
+	text-decoration: none;
+    padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+#explorer ul {
+	padding-left: 15px;
+}
+
+#explorer span.explorer-file {
+    color:gray;
+}

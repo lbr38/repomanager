@@ -6,36 +6,39 @@ trait deleteDist {
     public function exec_deleteDist() {
         global $REPOS_DIR;
 
+        ob_start();
+
         /**
          *  1. Génération du tableau récapitulatif de l'opération
          */
-        echo "<table>
+        echo "<h3>SUPPRESSION D'UNE DISTRIBUTION</h3>";
+
+        echo "<table class=\"op-table\">
         <tr>
-            <td>Nom du repo :</td>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>
         <tr>
-            <td>Distribution :</td>
+            <th>DISTRIBUTION :</th>
             <td><b>{$this->repo->dist}</b></td>
         </tr>
         </table>";
 
+        $this->log->steplog(1);
+        $this->log->steplogInitialize('deleteDist');
+        $this->log->steplogTitle('SUPPRESSION');
+        $this->log->steplogLoading();
+
         /**
          *  2. On vérifie que la distribution renseignée existe bien
          */
-        if ($this->repo->dist_exists($this->repo->name, $this->repo->dist) === false) {
-            echo "<p><span class=\"redtext\">Erreur : </span>la distribution <b>{$this->repo->dist}</b> du repo <b>{$this->repo->name}</b> n'existe pas</p>";
-            return false;
-        }
+        if ($this->repo->dist_exists($this->repo->name, $this->repo->dist) === false) throw new Exception("la distribution <b>{$this->repo->dist}</b> du repo <b>{$this->repo->name}</b> n'existe pas");
 
         /**
          *  3. Suppression du répertoire de la distribution
          */
         exec("rm ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist} -rf", $output, $result);
-        if ($result != 0) {
-            echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le répertoire de la distribution</p>';
-            return false;
-        }
+        if ($result != 0) throw new Exception('impossible de supprimer le répertoire de la distribution');
 
         /**
          *  4. On supprime le répertoire parent (repo) si celui-ci est vide après la suppression de la distribution
@@ -49,7 +52,6 @@ trait deleteDist {
          *  5. Mise à jour en BDD
          *  La suppression d'une distribution entière entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
          */
-        //$this->repo->db->exec("UPDATE repos SET Status = 'deleted' WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Status = 'active'");
         $stmt =  $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
         $stmt2 = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
         $stmt->bindValue(':name', $this->repo->name);
@@ -66,7 +68,7 @@ trait deleteDist {
         $group = new Group();
         $group->clean();
 
-        echo '<p>Supprimée <span class="greentext">✔</span></p>';
+        $this->log->steplogOK();
     }
 }
 ?>

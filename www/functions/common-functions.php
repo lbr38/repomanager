@@ -472,25 +472,17 @@ function processList(array $reposList) {
          *  On transmets ces infos à la fonction printRepo qui va se charger d'afficher la ligne du repo
          */
         if ($repoListType == 'active') {
-            if ($OS_FAMILY == "Redhat") {
-                printRepoLine(compact('repoId', 'repoName', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName'));
-            }
-            if ($OS_FAMILY == "Debian") {
-                printRepoLine(compact('repoId', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection'));
-            }
+            if ($OS_FAMILY == "Redhat") printRepoLine(compact('repoId', 'repoName', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName'));
+            if ($OS_FAMILY == "Debian") printRepoLine(compact('repoId', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection'));
         }
         if ($repoListType == 'archived') {
-            if ($OS_FAMILY == "Redhat") {
-                printRepoLine(compact('repoId', 'repoName', 'repoSource', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName'));
-            }
-            if ($OS_FAMILY == "Debian") {
-                printRepoLine(compact('repoId', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection'));
-            }
+            if ($OS_FAMILY == "Redhat") printRepoLine(compact('repoId', 'repoName', 'repoSource', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName'));
+            if ($OS_FAMILY == "Debian") printRepoLine(compact('repoId', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoDate', 'repoTime', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection'));
         }
         if (!empty($repoName)) { $repoLastName = $repoName; }
         if ($OS_FAMILY == "Debian") {
-            if (!empty($repoDist)) { $repoLastDist = $repoDist; }
-            if (!empty($repoSection)) { $repoLastSection = $repoSection; }
+            if (!empty($repoDist)) $repoLastDist = $repoDist;
+            if (!empty($repoSection)) $repoLastSection = $repoSection;
         }
     }
 }
@@ -559,51 +551,37 @@ function printRepoLine($variables = []) {
                 /**
                  *  Affichage de l'icone "corbeille" pour supprimer le repo
                  */
-                if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
-                    echo "<a href=\"operation.php?action=delete&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
-                }
-                if ($OS_FAMILY == "Debian") {
-                    echo "<a href=\"operation.php?action=delete&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
-                }
+                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=delete&repoName=${repoName}&repoEnv=${repoEnv}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
+                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=delete&repoName=${repoName}\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+
                 /**
                  *  Affichage de l'icone "dupliquer" pour dupliquer le repo
                  */
-                if ($OS_FAMILY == "Redhat") {
-                    echo "<a href=\"operation.php?action=duplicate&repoName=${repoName}&repoEnv=${repoEnv}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
-                }
-                if ($OS_FAMILY == "Debian") {
-                    echo "<a href=\"operation.php?action=duplicate&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
-                }
+                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=duplicate&repoName=${repoName}&repoEnv=${repoEnv}&repoType=${repoType}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=duplicate&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}&repoType=${repoType}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+
                 /**
                  *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
                  */
                 echo "<img id=\"clientConfToggle${repoId}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" />";
+                
                 /**
                  *  Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV et si il s'agit d'un miroir
                  */
                 if ($repoType === "mirror" AND $repoEnv === $DEFAULT_ENV) {
-                    if ($OS_FAMILY == "Redhat") {
-                        echo "<a href=\"operation.php?action=update&repoName=${repoName}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
-                    }
-                    if ($OS_FAMILY == "Debian") {
-                        echo "<a href=\"operation.php?action=update&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoSection} (${repoEnv})\" /></a>";
-                    }
+                    if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=update&repoName=${repoName}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
+                    if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=update&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"icons/update.png\" title=\"Mettre à jour la section ${repoSection} (${repoEnv})\" /></a>";
                 }
             }
             if ($repoListType == 'archived') {
-                if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
-                    echo "<a href=\"operation.php?action=deleteArchive&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
-                }
-                if ($OS_FAMILY == "Debian") {
-                    echo "<a href=\"operation.php?action=deleteArchive&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
-                }
-                // Affichage de l'icone "remise en production du repo"
-                if ($OS_FAMILY == "Redhat") { // si rpm on doit présicer repoEnv dans l'url
-                    echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
-                }
-                if ($OS_FAMILY == "Debian") {
-                    echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
-                }
+                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=deleteArchive&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
+                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=deleteArchive&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."\"><img class=\"icon-lowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
+                
+                /**
+                 *  Affichage de l'icone "remise en production du repo"
+                 */
+                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
+                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
             }
         echo '</td>';
 
@@ -649,13 +627,11 @@ function printRepoLine($variables = []) {
             echo "<td class=\"rl-white-bckg rl-30\"><span>$repoEnv</span></td>";
         }
         if ($ENVS_TOTAL > 1) {
-            // Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
-            if ($OS_FAMILY == "Redhat") {
-                echo "<td class=\"rl-fit\"><a href=\"operation.php?action=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
-            }
-            if ($OS_FAMILY == "Debian") {
-                echo "<td class=\"rl-fit\"><a href=\"operation.php?action=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur la section $repoSection du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
-            }
+            /**
+             *  Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
+             */
+            if ($OS_FAMILY == "Redhat") echo "<td class=\"rl-fit\"><a href=\"operation.php?action=changeEnv&repoName=${repoName}&repoEnv=${repoEnv}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            if ($OS_FAMILY == "Debian") echo "<td class=\"rl-fit\"><a href=\"operation.php?action=changeEnv&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoEnv=${repoEnv}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur la section $repoSection du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
         }
     }
 
@@ -669,21 +645,13 @@ function printRepoLine($variables = []) {
      */
     if ($printRepoSize == "yes") {
         if ($repoListType == 'active') {
-            if ($OS_FAMILY == "Redhat") {
-                $repoSize = exec("du -hs ${REPOS_DIR}/${repoDate}_${repoName} | awk '{print $1}'");
-            }
-            if ($OS_FAMILY == "Debian") {
-                $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
-            }
+            if ($OS_FAMILY == "Redhat") $repoSize = exec("du -hs ${REPOS_DIR}/${repoDate}_${repoName} | awk '{print $1}'");
+            if ($OS_FAMILY == "Debian") $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
         }
 
         if ($repoListType == 'archived') {
-            if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") {
-                $repoSize = exec("du -hs ${REPOS_DIR}/archived_${repoDate}_${repoName} | awk '{print $1}'");
-            }
-            if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") {
-                $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
-            }
+            if ($OS_FAMILY == "Redhat" AND $printRepoSize == "yes") $repoSize = exec("du -hs ${REPOS_DIR}/archived_${repoDate}_${repoName} | awk '{print $1}'");
+            if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
         }
 
         echo "<td class=\"rl-30\">$repoSize</td>";
@@ -724,20 +692,12 @@ function printRepoLine($variables = []) {
          *  Affichage de l'icone "explorer"
          */
         if ($repoListType == 'active') {
-            if ($OS_FAMILY == "Redhat") {
-                echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
-            }
-            if ($OS_FAMILY == "Debian") {
-                echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
-            }
+            if ($OS_FAMILY == "Redhat") echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName (${repoEnv})\" /></a>";
+            if ($OS_FAMILY == "Debian") echo "<a href=\"explore.php?id=${repoId}&state=active\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section ${repoSection} (${repoEnv})\" /></a>";
         }
         if ($repoListType == 'archived') {
-            if ($OS_FAMILY == "Redhat") {
-                echo "<a href=\"explore.php?id=${repoId}&state=archived\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName archivé (${repoDate})\" /></a>";
-            }
-            if ($OS_FAMILY == "Debian") {
-                echo "<a href=\"explore.php?id=${repoId}&state=archived\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section archivée ${repoSection} (${repoDate})\" /></a>";
-            }
+            if ($OS_FAMILY == "Redhat") echo "<a href=\"explore.php?id=${repoId}&state=archived\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer le repo $repoName archivé (${repoDate})\" /></a>";
+            if ($OS_FAMILY == "Debian") echo "<a href=\"explore.php?id=${repoId}&state=archived\"><img class=\"icon-lowopacity\" src=\"icons/search.png\" title=\"Explorer la section archivée ${repoSection} (${repoDate})\" /></a>";
         }
         /**
          *  Affichage de l'icone "warning" si le répertoire du repo n'existe plus sur le serveur
@@ -745,7 +705,7 @@ function printRepoLine($variables = []) {
         if ($repoListType == 'active') {
             if ($OS_FAMILY == "Redhat") {
                 if (!is_dir("$REPOS_DIR/${repoDate}_${repoName}")) {
-                    echo '<img class="icon-lowopacity" src="icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
                 }
             }
             if ($OS_FAMILY == "Debian") {
@@ -757,7 +717,7 @@ function printRepoLine($variables = []) {
         if ($repoListType == 'archived') {
             if ($OS_FAMILY == "Redhat") {
                 if (!is_dir("$REPOS_DIR/archived_${repoDate}_${repoName}")) {
-                    echo '<img class="icon-lowopacity" src="icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
                 }
             }
             if ($OS_FAMILY == "Debian") {
@@ -780,12 +740,8 @@ function printRepoLine($variables = []) {
                 echo '<h3>INSTALLATION</h3>';
                 echo '<p>Exécuter ces commandes directement dans le terminal de la machine cliente :</p>';
                 echo '<pre>';
-                if ($OS_FAMILY == "Redhat") {
-                    echo "echo -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
-                }
-                if ($OS_FAMILY == "Debian") {
-                    echo "wget -qO ${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub | sudo apt-key add -\n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
-                }
+                if ($OS_FAMILY == "Redhat") echo "echo -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
+                if ($OS_FAMILY == "Debian") echo "wget -qO ${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub | sudo apt-key add -\n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
                 echo '</pre>';
                 echo '</div>';
                 /**

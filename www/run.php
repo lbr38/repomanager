@@ -24,7 +24,7 @@ if(!empty($_GET['stop'])) {
 /**
  * 	Récupération du fichier de log à visualiser si passé en GET
  */
-$logfile = 'none'; if (!empty($_GET['logfile'])) { $logfile = validateData($_GET['logfile']); }
+$logfile = 'none'; if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 
 /**
  * 	Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
@@ -115,8 +115,8 @@ function printOp($myop, $optype = '') {
 			$opRepoTarget = explode('|', $opRepoTarget);
 			$opRepoTargetName = $opRepoTarget[0];
 			if ($OS_FAMILY == "Debian") {
-				if (!empty($opRepoTarget[1])) {	$opRepoTargetDist = $opRepoTarget[1]; }
-				if (!empty($opRepoTarget[2])) { $opRepoTargetSection = $opRepoTarget[2]; }
+				if (!empty($opRepoTarget[1])) $opRepoTargetDist = $opRepoTarget[1];
+				if (!empty($opRepoTarget[2])) $opRepoTargetSection = $opRepoTarget[2];
 			}
 		}
 	}
@@ -125,8 +125,8 @@ function printOp($myop, $optype = '') {
 	 * 	Récupération des informations de la planification à partir de son ID (si renseigné)
 	 */
 
-	if (!empty($myop['GpgCheck']))  { $opGpgCheck = $myop['GpgCheck'];   }
-	if (!empty($myop['GpgResign'])) { $opGpgResign = $myop['GpgResign']; }
+	if (!empty($myop['GpgCheck']))  $opGpgCheck = $myop['GpgCheck'];
+	if (!empty($myop['GpgResign'])) $opGpgResign = $myop['GpgResign'];
 	$opPid = $myop['Pid'];
 	$opLogfile = $myop['Logfile'];
 	$opStatus = $myop['Status'];
@@ -140,13 +140,14 @@ function printOp($myop, $optype = '') {
 		echo '<table>';
 		echo '<tr>';
 		echo '<td class="td-fit">';
-		if ($opAction == "new") { echo '<img class="icon" src="icons/plus.png" title="Nouveau" />';	}
-		if ($opAction == "update") { echo '<img class="icon" src="icons/update.png" title="Mise à jour" />'; } 
-		if ($opAction == "changeEnv" OR strpos($opAction, '->') !== false) { echo '<img class="icon" src="icons/link.png" title="Créat. d\'environnement" />'; }
-		if ($opAction == "duplicate") { echo '<img class="icon" src="icons/duplicate.png" title="Duplication" />'; }
-		if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") { echo '<img class="icon" src="icons/bin.png" title="Suppression" />'; }
-		if ($opAction == "deleteArchive") { echo '<img class="icon" src="icons/bin.png" title="Suppression d\'une archive" />'; }
-		if ($opAction == "restore") { echo '<img class="icon" src="icons/arrow-up.png" title="Restauration d\'une archive" />'; }
+		if ($opAction == "new") echo '<img class="icon" src="icons/plus.png" title="Nouveau" />';
+		if ($opAction == "update") echo '<img class="icon" src="icons/update.png" title="Mise à jour" />';
+		if ($opAction == "reconstruct") echo '<img class="icon" src="icons/update.png" title="Reconstruction des métadonnées" />';
+		if ($opAction == "changeEnv" OR strpos($opAction, '->') !== false) echo '<img class="icon" src="icons/link.png" title="Créat. d\'environnement" />';
+		if ($opAction == "duplicate") echo '<img class="icon" src="icons/duplicate.png" title="Duplication" />';
+		if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") echo '<img class="icon" src="icons/bin.png" title="Suppression" />';
+		if ($opAction == "deleteArchive") echo '<img class="icon" src="icons/bin.png" title="Suppression d\'une archive" />';
+		if ($opAction == "restore") echo '<img class="icon" src="icons/arrow-up.png" title="Restauration d\'une archive" />';
 
 		echo '</td>';
 		echo "<td class=\"td-small\"><a href=\"run.php?logfile=${opLogfile}\">Le <b>$opDate</b> à <b>$opTime</b></a></td>";
@@ -156,13 +157,13 @@ function printOp($myop, $optype = '') {
 		 * 	Il s'agit soit du repo source, soit du repo cible
 		 */
 		echo '<td>';
-		if (!empty($opGroup)) { echo "Groupe $opGroup"; }
+		if (!empty($opGroup)) echo "Groupe $opGroup";
 
 		/**
 		 * 	On affiche le repo source uniquement si il n'y a pas de repo cible renseigné. Sinon on se contentera d'afficher uniquement le repo cible.
 		 */
 		if (empty($opRepoTargetName)) {
-			if (!empty($opRepoSourceName)) { echo $opRepoSourceName; }
+			if (!empty($opRepoSourceName)) echo $opRepoSourceName;
 			/**
 			 * 	Dans le cas de Debian, on affiche aussi la distribution et la section
 			 */
@@ -187,18 +188,10 @@ function printOp($myop, $optype = '') {
 		 * 	Affichage de l'icone en cours ou terminée ou en erreur
 		 */
 		echo '<td class="td-fit">';
-		if ($opStatus == "running") {
-			echo 'en cours <img src="images/loading.gif" class="icon" title="en cours d\'exécution" />';
-		}
-		if ($opStatus == "done") {
-			echo '<img class="icon-small" src="icons/greencircle.png" title="Opération terminée" />';
-		}
-		if ($opStatus == "error") {
-			echo '<img class="icon-small" src="icons/redcircle.png" title="Opération en erreur" />';
-		}
-		if ($opStatus == "stopped") {
-			echo '<img class="icon-small" src="icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
-		}
+		if ($opStatus == "running") echo 'en cours <img src="images/loading.gif" class="icon" title="en cours d\'exécution" />';
+		if ($opStatus == "done")    echo '<img class="icon-small" src="icons/greencircle.png" title="Opération terminée" />';
+		if ($opStatus == "error")   echo '<img class="icon-small" src="icons/redcircle.png" title="Opération en erreur" />';
+		if ($opStatus == "stopped") echo '<img class="icon-small" src="icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
 		echo '</td>';
 		echo '</tr>';
 		echo '</table>';
@@ -215,24 +208,24 @@ function printOp($myop, $optype = '') {
 <section class="mainSectionLeft">
 	<section class="left">
 		<h3>JOURNAL</h3>
-		<div id="log">
-			<!-- Boutons haut/bas de page - doivent être placées à l'intérieur du div #log -->
+		<div id="log-container">
 			<div id="scrollButtons-container">
 				<div id="scrollButtons">
 					<?php 
 						if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) == "yes") {
-						if ($logfile == "none") {
-							echo '<a href="run.php" class="button-top-down" title="Masquer les détails"><img src="icons/search.png" /></a>';
+							if ($logfile == "none") {
+								echo '<a href="run.php" class="button-top-down-details" title="Masquer les détails"><img src="icons/search.png" /></a>';
+							} else {
+								echo "<a href=\"run.php?logfile=${logfile}\" class=\"button-top-down-details\" title=\"Masquer les détails\"><img src=\"icons/search.png\" /></a>";
+							}
 						} else {
-							echo "<a href=\"run.php?logfile=${logfile}\" class=\"button-top-down\" title=\"Masquer les détails\"><img src=\"icons/search.png\" /></a>";
+							if ($logfile == "none") {
+								echo '<a href="run.php?displayFullLogs=yes" class="button-top-down-details" title="Afficher les détails"><img src="icons/search.png" /></a>';
+							} else {
+								echo "<a href=\"run.php?logfile=${logfile}&displayFullLogs=yes\" class=\"button-top-down-details\" title=\"Afficher les détails\"><img src=\"icons/search.png\" /></a>";
+							}
 						}
-					} else {
-						if ($logfile == "none") {
-							echo '<a href="run.php?displayFullLogs=yes" class="button-top-down" title="Afficher les détails"><img src="icons/search.png" /></a>';
-						} else {
-							echo "<a href=\"run.php?logfile=${logfile}&displayFullLogs=yes\" class=\"button-top-down\" title=\"Afficher les détails\"><img src=\"icons/search.png\" /></a>";
-						}
-					} ?>
+					?>
 					<br>
 					<br>
 					<a href="#top" class="button-top-down" title="Atteindre le haut de page"><img src="icons/arrow-circle-up.png" /></a>
@@ -240,24 +233,27 @@ function printOp($myop, $optype = '') {
 				</div>
 			</div>
 
-			<?php
-			if ($logfile == 'none') {
-				$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
-				$logfile = $logfiles[0];
-			}
+			<div id="log-refresh-container">
+			<div id="log">
+				<?php
+				if ($logfile == 'none') {
+					$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
+					$logfile = $logfiles[0];
+				}
 
-			/**
-			 * 	Récupération du contenu du fichier de log
-			 */
-			$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
+				/**
+				 * 	Récupération du contenu du fichier de log
+				 */
+				$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
 
-			/**
-			 * 	Suppression des codes ANSI (couleurs) dans le fichier
-			 */
-			$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
-			echo $output;
-			?>
-			
+				/**
+				 * 	Suppression des codes ANSI (couleurs) dans le fichier
+				 */
+				$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
+				echo $output;
+				?>
+			</div>
+			</div>
 		</div>
 	</section>
 </section>
@@ -380,9 +376,7 @@ function printOp($myop, $optype = '') {
 								} else {
 									echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
 								}
-								if ($planStatus == 'running') {
-									echo '<td class="td-fit">en cours <img class="icon" src="images/loading.gif" title="En cours d\'exécution" /></td>';
-								}
+								if ($planStatus == 'running') echo '<td class="td-fit">en cours <img class="icon" src="images/loading.gif" title="En cours d\'exécution" /></td>';
 								echo '</tr>';
 							echo '</table>';
 							echo '</div>';
@@ -407,6 +401,7 @@ function printOp($myop, $optype = '') {
 						}
 
 					} else {
+
 						printOp($itemRunning);
 						
 					}
@@ -455,15 +450,9 @@ function printOp($myop, $optype = '') {
 								} else {
 									echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
 								}
-								if ($planStatus == "done") {
-									echo '<td class="td-fit"><img class="icon-small" src="icons/greencircle.png" title="Opération terminée" /></td>';
-								}
-								if ($planStatus == "error") {
-									echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération en erreur" /></td>';
-								}
-								if ($planStatus == "stopped") {
-									echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
-								}
+								if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="icons/greencircle.png" title="Opération terminée" /></td>';
+								if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération en erreur" /></td>';
+								if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
 								echo '</tr>';
 							echo '</table>';
 							echo '</div>';
@@ -485,7 +474,7 @@ function printOp($myop, $optype = '') {
 					unset($plan_opsDone);
 				}
 			}
- ?>
+ 		?>
 	</section>
 </section>
 </article>
@@ -500,9 +489,16 @@ function printOp($myop, $optype = '') {
  */
 $(document).ready(function(){
 	setInterval(function(){
-		$(".mainSectionLeft").load(window.location.href + " .left" );
 		$(".mainSectionRight").load(window.location.href + " .right" );
+		$("#log-refresh-container").load(" #log-refresh-container > *");
 	}, 3000);
 });
+
+/**
+ *	Affiche des boutons de défilement si la page de log fait +700px de haut
+ */
+if ($('#log').height() < 700) {
+	$(".button-top-down").hide();
+}
 </script>
 </html>

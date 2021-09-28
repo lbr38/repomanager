@@ -1,0 +1,103 @@
+/* div qui affiche les journaux d'opérations */
+#log-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#log-refresh-container {
+    flex: 0 0 94%;
+}
+
+#log {
+    order: 1;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    display: inline-block;
+}
+#log h3 {
+    border: 1px solid gray;
+    border-radius: 2px;
+    padding: 20px;
+    opacity: 1;
+}
+#log pre { /* empecher le contenu des <pre> de dépasser */
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    background-color: #2b2b2b;
+    padding: 20px;
+    margin: 0;
+}
+
+/* Boutons Top et Down pour atteindre le haut ou le bas de page */
+#scrollButtons-container {
+    flex: 0 4%;
+    order: 2;
+}
+/* Les boutons scroll sont fixes à l'intérieur du container */
+#scrollButtons {
+    position: sticky;
+    top: 570px;
+}
+
+.button-top-down, .button-top-down-details {
+    display: block;
+    margin-right: 0;
+    align-self: right;
+    margin: 5px;
+    opacity: 0.50;
+    border-radius: 5px;
+    background-color: #555555;
+}
+
+.button-top-down img, .button-top-down-details img {
+    display: block;
+    padding: 8px;
+    margin: auto;
+}
+
+.button-top-down:hover, .button-top-down-details:hover {
+    opacity: 1;
+}
+
+/* Tableau des détails de l'opération, dans chaque fichier de log */
+.op-table {
+    width: 100%;
+    border: 1px solid gray;
+    border-radius: 2px;
+    padding: 20px;
+    margin-bottom: 20px;
+    opacity: 0.80;
+}
+.op-table tr {
+    height: 30px; /* hauteur des lignes du tableau des détails */
+}
+
+.op-table th {
+    text-align: left;
+    width: 30%;
+    height: 22px;
+    font-weight: normal;
+}
+.op-table td {
+    opacity: 1;
+}
+.op-step-div {
+    margin-bottom: 5px;
+    border-radius: 2px;
+    border: 1px solid gray;
+}
+.op-step-title, .op-step-title-error, .op-step-title-ok, .op-step-title-warning, .op-step-loading {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.op-step-title { width: 30%; }
+.op-step-title-warning { width: 1%; }
+.op-step-title-error, .op-step-title-ok, .op-step-loading { width: 60%; }

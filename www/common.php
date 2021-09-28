@@ -11,7 +11,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "repoListEdit
     $repoStatus = validateData($_POST['repoListEditRepo_repoStatus']);
 
     $myRepo = new Repo(compact('repoId', 'repoDescription', 'repoStatus'));
-    $myRepo->edit();
+    $myRepo->db_setdescription();
 
     unset($repoId, $repoDescription, $repoStatus);
 }
@@ -124,6 +124,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Puis rechargement de la page pour appliquer les modifications d'affichage
     header("Location: $actual_url");
+    exit;
 }
 
 

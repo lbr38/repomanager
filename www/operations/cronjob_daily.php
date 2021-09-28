@@ -139,11 +139,9 @@ if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
 // SUPPRESSION DES FICHIERS TEMPORAIRES //
 
 /**
- *  Supprime les fichiers dans .temp + vieux de 2 jours
+ *  Supprime les fichiers temporaires dans .temp + vieux de 2 jours
  */
-if (is_dir($TEMP_DIR)) {
-    exec("find ${TEMP_DIR}/ -mindepth 1 -mtime +2 -delete");
-}
+if (is_dir($TEMP_DIR)) exec("find ${TEMP_DIR}/ -mindepth 1 -mtime +2 -delete");
 
 
 // APPLICATION DES PERMISSIONS //
@@ -173,19 +171,8 @@ if ($checkVersionError != 0 OR $generateConfError != 0 OR $permissionsError != 0
 	file_put_contents($CRON_LOG, 'Status="OK"'.PHP_EOL);
 }
 
-if ($backupError != 0) {
-    file_put_contents($CRON_LOG, "Problème lors de la sauvegarde des fichiers de configuration/db", FILE_APPEND);
-}
-
-if ($checkVersionError != 0) {
-	file_put_contents($CRON_LOG, "Problème lors de la vérification d'une nouvelle version", FILE_APPEND);
-}
-
-if ($generateConfError != 0) {
-	file_put_contents($CRON_LOG, "Problème lors de regénération des fichiers de conf repo des profils", FILE_APPEND);
-}
-
-if ($permissionsError != 0) {
-	file_put_contents($CRON_LOG, "Problème lors de l'application des permissions", FILE_APPEND);
-}
+if ($backupError != 0) file_put_contents($CRON_LOG, "Problème lors de la sauvegarde des fichiers de configuration/db", FILE_APPEND);
+if ($checkVersionError != 0) file_put_contents($CRON_LOG, "Problème lors de la vérification d'une nouvelle version", FILE_APPEND);
+if ($generateConfError != 0) file_put_contents($CRON_LOG, "Problème lors de regénération des fichiers de conf repo des profils", FILE_APPEND);
+if ($permissionsError != 0) file_put_contents($CRON_LOG, "Problème lors de l'application des permissions", FILE_APPEND);
 ?>

@@ -6,32 +6,34 @@ trait delete {
     public function exec_delete() {
         global $OS_FAMILY;
         global $REPOS_DIR;
-        global $WWW_DIR;
+
+        ob_start();
 
         /**
          *  0. Si Redhat on aura besoin de la date du repo à supprimer
          */
-        if ($OS_FAMILY == "Redhat") {
-            $this->repo->db_getDate();
-        }
+        if ($OS_FAMILY == "Redhat") $this->repo->db_getDate();
 
         /**
          *  1. Génération du tableau récapitulatif de l'opération
          */
-        echo "<table>
+        echo "<h3>SUPPRESSION D'UN REPO</h3>";
+        echo "<table class=\"op-table\">
         <tr>
-            <td>Nom du repo :</td>
+            <th>Nom du repo :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>
         </table>";
 
+        $this->log->steplog(1);
+        $this->log->steplogInitialize('deleteRepo');
+        $this->log->steplogTitle('SUPPRESSION');
+        $this->log->steplogLoading();
+
         /**
          *  2. On vérifie que le repo renseigné existe bien
          */
-
-        if ($this->repo->exists($this->repo->name) == false) {
-            echo "<p><span class=\"redtext\">Erreur : </span>le repo <b>{$this->repo->name}</b> n'existe pas</p>";
-        }
+        if ($this->repo->exists($this->repo->name) == false) throw new Exception ("le repo <b>{$this->repo->name}</b> n'existe pas");
 
         /**
          *  3. Suppression du repo
@@ -39,16 +41,12 @@ trait delete {
          *   Si Debian : Suppression du répertoire du repo
          */
         if ($OS_FAMILY == "Redhat") {
-            if (!unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->env}"))  {
-                echo '<p><span class="redtext">Erreur : </span>problème lors de la suppression du repo</p>';
-                return false;
-            }
+            if (!unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->env}")) throw new Exception ('impossible de supprimer le repo');
         }
         if ($OS_FAMILY == "Debian") {
             exec("rm ${REPOS_DIR}/{$this->repo->name} -rf", $output, $result);
             if ($result != 0) {
-                echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le répertoire du repo</p>';
-                return false;
+                throw new Exception ('impossible de supprimer le repo');
             }
         }
 
@@ -85,11 +83,7 @@ trait delete {
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->repo->exists($this->repo->name) === false) {
-                exec("rm ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/ -rf", $output, $result);
-                if ($result != 0) {
-                    echo '<p><span class="redtext">Erreur : </span>impossible de supprimer le répertoire du repo</p>';
-                    return false;
-                }
+                exec("rm ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/ -rf");
 
                 // Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
                 $this->repo->deleteConf();
@@ -102,7 +96,7 @@ trait delete {
         $group = new Group();
         $group->clean();
 
-        echo '<p>Supprimé <span class="greentext">✔</span></p>';
+        $this->log->steplogOK();
     }
 }
 ?>
