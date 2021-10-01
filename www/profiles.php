@@ -52,7 +52,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyServer
     file_put_contents("$PROFILE_SERVER_CONF", $conf);
 
     // Affichage d'un message
-    printAlert("La configuration du serveur a été enregistrée");
+    printAlert("La configuration du serveur a été enregistrée", 'success');
 }
 
 /**
@@ -116,7 +116,7 @@ if (!empty($_POST['action']) AND (validateData($_POST['action']) == "manageProfi
      *  Affichage d'un message, si tout s'est bien passé
      */
     if ($error == 0) {
-        printAlert("Configuration du profil <b>$profileName</b> enregistrée");
+        printAlert("Configuration du profil <b>$profileName</b> enregistrée", 'success');
     }
 
     /**
@@ -144,7 +144,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "duplicateprof
     // On vérifie que le nouveau nom n'existe pas déjà (on sait jamais!)
     $error = 0;
     if (file_exists("${PROFILES_MAIN_DIR}/${newProfile}")) {
-        printAlert("Erreur : un profil du même nom ($newProfile) existe déjà");
+        printAlert("Erreur : un profil du même nom (<b>$newProfile</b>) existe déjà", 'error');
         $error++;
     }
     // Si pas d'erreur alors on peut renommer le répertoire de profil
@@ -157,7 +157,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "duplicateprof
         exec("cp -rP ${PROFILES_MAIN_DIR}/${profileName}/* ${PROFILES_MAIN_DIR}/${newProfile}/");
 
         // Affichage d'un message
-        printAlert("Le profil $newProfile a été créé");
+        printAlert("Le profil <b>$newProfile</b> a été créé", 'success');
     }
 }
 

@@ -22,6 +22,7 @@ class Repo {
     public $status;
 
     // Variable supplémentaires utilisées lors d'opérations sur le repo
+    public $group;
     public $newName;
     public $newEnv;
     public $sourceFullUrl;
@@ -81,7 +82,7 @@ class Repo {
         }
         /* Description */
         if (!empty($repoDescription)) {
-            if ($repoDescription == 'nodescription') {
+            if ($repoDescription == "nodescription") {
                 $this->description = '';
             } else {
                 $this->description = $repoDescription;
@@ -633,7 +634,7 @@ class Repo {
  */
 
  /**
-  * Modification de la description
+  *  Modification de la description
   */
     public function db_setdescription() {
         /**
@@ -642,7 +643,7 @@ class Repo {
          *  Il faut que la description ne comporte pas de caractères interdits
          */
         if ($this->status != 'active' AND $this->status != 'archived') return;
-        if (!is_alphanumdash($this->description, array(' ', '(', ')', '@', ',', '\'', '"'))) return;
+        if (!is_alphanumdash($this->description, array(' ', '(', ')', '@', ',', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"'))) return;
 
         if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description=:description WHERE Id=:id");
         if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description=:description WHERE Id=:id");
@@ -651,7 +652,7 @@ class Repo {
         $stmt->execute();
         unset($stmt);
 
-        printAlert('La description a bien été modifiée <span class="greentext">✔</span>');
+        printAlert('La description a bien été modifiée', 'success');
     }
 
 /**

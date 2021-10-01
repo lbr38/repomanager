@@ -135,7 +135,7 @@ if ($OS_FAMILY == "Debian") {
         $gpgKeyID = validateData($_GET['gpgKeyID']);
         exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
         // Affichage d'un message et rechargement de la div
-        printAlert("La clé GPG a été supprimée");
+        printAlert('La clé GPG a été supprimée', 'success');
     }
 }
 ?>

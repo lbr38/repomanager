@@ -119,12 +119,8 @@ trait newLocalRepo {
          *  7. Ajout de la section à un groupe si un groupe a été renseigné
          */
         if (!empty($this->repo->group)) {
-            if ($OS_FAMILY == "Redhat") {
-                $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-            }
-            if ($OS_FAMILY == "Debian") {
-                $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-            }
+            if ($OS_FAMILY == "Redhat") $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
+            if ($OS_FAMILY == "Debian") $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
 
             while ($data = $result->fetchArray()) {
                 $repoId = $data['repoId'];

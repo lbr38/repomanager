@@ -14,6 +14,9 @@ trait duplicate {
         global $PID_DIR;
         global $TEMP_DIR;
 
+        if ($this->repo->description == "nodescription") $this->repo->description = '';
+        if ($this->repo->group == "nogroup") $this->repo->group = '';
+
         /**
          *  Démarrage de l'opération
          *  On récupère en BDD l'ID du repo/section qu'on met à jour, afin de l'indiquer à startOperation
@@ -113,20 +116,18 @@ trait duplicate {
              */
             $this->repo->db_getDate();
 
-            if ($OS_FAMILY == "Redhat") {
-                // Source
-                $resultSource = $this->db->querySingleRow("SELECT Source FROM repos WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->env}' AND Status = 'active'");
-                // Signature 
-                $resultSigned = $this->db->querySingleRow("SELECT Signed FROM repos WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->env}' AND Status = 'active'");
-            }
+            if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':env', $this->repo->env);
             if ($OS_FAMILY == "Debian") {
-                // Source
-                $resultSource = $this->db->querySingleRow("SELECT Source FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Env = '{$this->repo->env}' AND Status = 'active'");
-                // Signature
-                $resultSigned = $this->db->querySingleRow("SELECT Signed FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Env = '{$this->repo->env}' AND Status = 'active'");
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
             }
-            $this->repo->source = $resultSource['Source'];
-            $this->repo->signed = $resultSigned['Signed'];
+            $result = $stmt->execute();
+            $result = $this->repo->db->fetch($result);
+            $this->repo->source = $result['Source'];
+            $this->repo->signed = $result['Signed'];
 
             /**
              *  4. Création du nouveau répertoire avec le nouveau nom du repo :
@@ -186,16 +187,29 @@ trait duplicate {
             /**
              *  8. Insertion en BDD du nouveau repo
              */
-            if ($OS_FAMILY == "Redhat") $this->db->exec("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->newName}', '{$this->repo->source}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
-            if ($OS_FAMILY == "Debian") $this->db->exec("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->newName}', '{$this->repo->source}', '{$this->repo->dist}', '{$this->repo->section}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
+            if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :env, :date, :time, :description, :signed, 'mirror', 'active')");
+            if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :dist, :section, :env, :date, :time, :description, :signed, 'mirror', 'active')");
+            $stmt->bindValue(':newname', $this->repo->newName);
+            $stmt->bindValue(':source', $this->repo->source);
+            $stmt->bindValue(':env', $this->repo->env);
+            $stmt->bindValue(':date', $this->repo->date);
+            $stmt->bindValue(':time', $this->repo->time);
+            $stmt->bindValue(':description', $this->repo->description);
+            $stmt->bindValue(':signed', $this->repo->signed);
+            if ($OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $stmt->execute();
+            unset($stmt);
 
             $this->repo->id = $this->db->lastInsertRowID();
 
             /**
              *  9. Application des droits sur le nouveau repo créé
              */
-            exec("find ${REPOS_DIR}/{$this->repo->newName}/ -type f -exec chmod 0660 {} \;");
-            exec("find ${REPOS_DIR}/{$this->repo->newName}/ -type d -exec chmod 0770 {} \;");
+            if ($OS_FAMILY == "Redhat") exec("find ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->newName}/ -type f -exec chmod 0660 {} \;");
+            if ($OS_FAMILY == "Debian") exec("find ${REPOS_DIR}/{$this->repo->newName}/ -type d -exec chmod 0770 {} \;");
             exec("chown -R ${WWW_USER}:repomanager ${REPOS_DIR}/{$this->repo->newName}/");
 
             $this->log->steplogOK();
@@ -220,7 +234,12 @@ trait duplicate {
                 if (empty($this->repo->id)) throw new Exception("impossible de récupérer l'id du repo <b>{$this->repo->newName}</b>");
                 if (empty($groupId)) throw new Exception("impossible de récupérer l'id du groupe <b>{$this->repo->group}</b>");
 
-                $this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");
+                //$this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");
+                $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
+                $stmt->bindValue(':repoid', $repoId);
+                $stmt->bindValue(':groupid', $groupId);
+                $stmt->execute();
+                unset($stmt);
 
                 $this->log->steplogOK();
             }

@@ -19,7 +19,7 @@ function is_alphanum(string $data, array $additionnalValidCaracters = []) {
      */
     if (!empty($additionnalValidCaracters)) {
         if (!ctype_alnum(str_replace($additionnalValidCaracters, '', $data))) {
-            printAlert('Vous ne pouvez renseigner que des chiffres, des lettres');
+            printAlert('Vous ne pouvez renseigner que des chiffres ou des lettres', 'error');
             return false;
         }
 
@@ -28,7 +28,7 @@ function is_alphanum(string $data, array $additionnalValidCaracters = []) {
      */
     } else {
         if (!ctype_alnum($data)) {
-            printAlert('Vous ne pouvez renseigner que des chiffres, des lettres');
+            printAlert('Vous ne pouvez renseigner que des chiffres ou des lettres', 'error');
             return false;
         }
     }
@@ -55,7 +55,7 @@ function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
     }
 
     if(!ctype_alnum(str_replace($validCaracters, '', $data))) {
-        printAlert('Vous ne pouvez renseigner que des chiffres, des lettres ou des tirets');
+        printAlert('Vous ne pouvez renseigner que des chiffres, des lettres ou des tirets', 'error');
         return false;
     }
 
@@ -71,20 +71,27 @@ function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
 function clearCache() {
     global $WWW_CACHE;
 
-    if (file_exists("${WWW_CACHE}/repomanager-repos-list.html")) { unlink("${WWW_CACHE}/repomanager-repos-list.html"); }
+    if (file_exists("${WWW_CACHE}/repomanager-repos-list.html")) unlink("${WWW_CACHE}/repomanager-repos-list.html");
 }
 
 /**
- *  Fonction permettant d'afficher une bulle d'alerte au milieu de la page
+ *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
  */
-function printAlert($message) {
-    echo '<div class="alert">';
-    echo "<p>${message}</p>";
+function printAlert(string $message, string $alertType = '') {
+    if ($alertType == "error")   echo '<div class="alert-error">';
+    if ($alertType == "success") echo '<div class="alert-success">';
+    if (empty($alertType))       echo '<div class="alert">';
+    echo "<span>$message</span>";
     echo '</div>';
+
     echo '<script type="text/javascript">';
     echo '$(document).ready(function () {';
     echo 'window.setTimeout(function() {';
-    echo '$(".alert").fadeTo(1000, 0).slideUp(1000, function(){';
+    if ($alertType == "error" OR $alertType == "success") {
+        echo "$('.alert-${alertType}').fadeTo(1000, 0).slideUp(1000, function(){";
+    } else {
+        echo "$('.alert').fadeTo(1000, 0).slideUp(1000, function(){";
+    }
     echo '$(this).remove();';
     echo '});';
     echo '}, 2500);';
@@ -99,16 +106,18 @@ function printAlert($message) {
  *  $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
  *  $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
  */
-function deleteConfirm($message, $url, $divID, $aID) {
-    echo "<div id=\"${divID}\" class=\"hide deleteAlert\">";
-    echo "<p>${message}</p>";
-    echo '<br>';
-    echo "<a href=\"${url}\" class=\"deleteButton\">Supprimer</a>";
-    echo "<span class=\"$aID pointer\">Annuler</span>";
+function deleteConfirm(string $message, string $url, $divID, $aID) {
+    echo "<div id=\"$divID\" class=\"hide deleteAlert\">";
+        echo "<span class=\"deleteAlert-message\">$message</span>";
+        echo '<div class="deleteAlert-buttons-container">';
+            echo "<a href=\"$url\"><span class=\"deleteAlert-delete\">Supprimer</span></a>";
+            echo "<span class=\"$aID deleteAlert-cancel pointer\">Annuler</span>";
+        echo '</div>';
+
     echo "<script>";
     echo "$(document).ready(function(){";
     echo "$(\".$aID\").click(function(){";
-    echo "$(\"div#${divID}\").slideToggle(150);";
+    echo "$(\"div#$divID\").slideToggle(150);";
     echo '$(this).toggleClass("open");';
     echo "});";
     echo "});";
@@ -388,7 +397,7 @@ function enableCron() {
     exec("crontab ${TEMP_DIR}/${WWW_USER}_crontab.tmp");   // on importe le fichier dans la crontab de $WWW_USER
     unlink("${TEMP_DIR}/${WWW_USER}_crontab.tmp");         // puis on supprime le fichier temporaire
 
-    printAlert('Tâches cron redéployées');
+    printAlert('Tâches cron redéployées', 'success');
 }
 
 /**
@@ -423,7 +432,8 @@ function printHead() {
      *  Affichage de l'entête (Repo, Distrib, Section, Env, Date...)
      */
     echo '<tr class="reposListHead">';
-        echo '<td class="rl-30"></td>';
+        //echo '<td class="rl-30"></td>';
+        echo '<td class="rl-10"></td>';
         echo '<td class="rl-30">Repo</td>';
         if ($OS_FAMILY == "Debian") {
             if ($repoListType == 'active') echo '<td class="rl-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
@@ -546,7 +556,8 @@ function printRepoLine($variables = []) {
         /**
          *  Affichage des icones d'opérations
          */
-        echo '<td class="rl-30">';
+        //echo '<td class="rl-30">';
+        echo '<td class="rl-10">';
             if ($repoListType == 'active') {
                 /**
                  *  Affichage de l'icone "corbeille" pour supprimer le repo
@@ -580,8 +591,8 @@ function printRepoLine($variables = []) {
                 /**
                  *  Affichage de l'icone "remise en production du repo"
                  */
-                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
-                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
+                if ($OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-circle-up.png\" title=\"Remettre en production le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
+                if ($OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=restore&repoName=${repoName}&repoDist=${repoDist}&repoSection=${repoSection}&repoDate=".DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d')."&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"icons/arrow-circle-up.png\" title=\"Remettre en production la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
             }
         echo '</td>';
 

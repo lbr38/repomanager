@@ -64,6 +64,12 @@ trait newMirror {
              */
             $this->status = 'done';
 
+            /**
+             *  On récupère l'ID en BDD du repo/section qu'on vient de créer, ceci afin de mettre à jour les infos de l'opération en BDD avant de la clore
+             */
+            $this->repo->db_getId();
+            $this->db_update_idrepo_target($this->repo->id);
+
         } catch(Exception $e) {
             $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
 
@@ -72,15 +78,12 @@ trait newMirror {
              */
             $this->status = 'error';
         }
+
         /**
          *  Cloture de l'opération
          */
         $this->log->closeStepOperation();
-        /**
-         *  On récupère l'ID en BDD du repo/section qu'on vient de créer, ceci afin de mettre à jour les infos de l'opération en BDD avant de la clore
-         */
-        $this->repo->db_getId();
-        $this->db_update_idrepo_target($this->repo->id);
+        
         $this->closeOperation();
     }
 }

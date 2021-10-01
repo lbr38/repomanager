@@ -73,8 +73,8 @@ trait restore {
         if ($OS_FAMILY == "Redhat") $result = $this->repo->db->countRows("SELECT * FROM repos_archived WHERE Name = '{$this->repo->name}' AND Date = '{$this->repo->date}' AND Status = 'active'");
         if ($OS_FAMILY == "Debian") $result = $this->repo->db->countRows("SELECT * FROM repos_archived WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Date = '{$this->repo->date}' AND Status = 'active'");
         if ($result == 0) {
-            if ($OS_FAMILY == "Redhat") throw new Exception ("il n'existe aucun repo archivé <b>{$this->repo->name}</b>");
-            if ($OS_FAMILY == "Debian") throw new Exception ("il n'existe aucune section de repo archivée <b>{$this->repo->name}</b>");
+            if ($OS_FAMILY == "Redhat") throw new Exception("il n'existe aucun repo archivé <b>{$this->repo->name}</b>");
+            if ($OS_FAMILY == "Debian") throw new Exception("il n'existe aucune section de repo archivée <b>{$this->repo->name}</b>");
         }
 
         /**

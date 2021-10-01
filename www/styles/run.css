@@ -55,6 +55,7 @@
 }
 
 .button-top-down img, .button-top-down-details img {
+    height: 22px;
     display: block;
     padding: 8px;
     margin: auto;
@@ -76,7 +77,6 @@
 .op-table tr {
     height: 30px; /* hauteur des lignes du tableau des détails */
 }
-
 .op-table th {
     text-align: left;
     width: 30%;

@@ -36,7 +36,7 @@ class Source {
          *  On vérifie que le nom du repo source ne contient pas de caractères interdits
          */
         if (!is_alphanumdash($name)) {
-            printAlert('Erreur : le nom du repo source ne peut pas contenir de caractères spéciaux hormis le tiret - et l\'underscore _');
+            printAlert('Erreur : le nom du repo source ne peut pas contenir de caractères spéciaux hormis le tiret - et l\'underscore _', 'error');
             animatediv_byid('sourcesDiv');
             return;
         }
@@ -52,18 +52,18 @@ class Source {
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
         if (!is_alphanumdash($url, array('=', ':', '/', '.', '?', '$', '&'))) {
-            printAlert('Erreur : l\'URL du repo source est invalide');
+            printAlert('Erreur : l\'URL du repo source est invalide', 'error');
             animatediv_byid('sourcesDiv');
             return;
         }
         if (!preg_match('#^https?://#', $url)) {
-            printAlert('Erreur : l\'URL du repo source est invalide');
+            printAlert('Erreur : l\'URL du repo source est invalide', 'error');
             animatediv_byid('sourcesDiv');
             return;
         }
 
         /*if (!is_alphanumdash($url, array(':', '/', '.', '?', '$', '&', '=')) OR !preg_match('#^https?://#', $url)) {
-            printAlert('Erreur : l\'URL du repo source est invalide');
+            printAlert('Erreur : l\'URL du repo source est invalide', 'error');
             animatediv_byid('sourcesDiv');
             return;
         }*/
@@ -73,7 +73,7 @@ class Source {
          */
         if ($OS_FAMILY == "Redhat") {
             if (file_exists("${REPOMANAGER_YUM_DIR}/${name}.repo")) {
-                printAlert("Un repo source <b>$name</b> existe déjà");
+                printAlert("Un repo source <b>$name</b> existe déjà", 'error');
                 animatediv_byid('sourcesDiv');
                 return;
             }
@@ -82,7 +82,7 @@ class Source {
              *  On récupère la clé GPG, il s'agit soit une clé existante, soit au format url, soit au format texte à importer. Si les deux sont renseignés on affiche une erreur (c'est l'un ou l'autre)
              */
             if (!empty($_POST['existingGpgKey']) AND !empty($_POST['gpgKeyURL']) AND !empty($_POST['gpgKeyText'])) {
-                printAlert("Erreur : Vous ne pouvez pas renseigner plusieurs types de clé GPG à la fois");
+                printAlert("Erreur : Vous ne pouvez pas renseigner plusieurs types de clé GPG à la fois", 'error');
                 animatediv_byid('sourcesDiv');
                 return;
 
@@ -96,7 +96,7 @@ class Source {
                  *  Si la clé renseignée n'existe pas, on quitte
                  */
                 if (!file_exists("$RPM_GPG_DIR/$existingGpgKey")) {
-                    printAlert('Erreur : la clé GPG renseignée n\'existe pas');
+                    printAlert('Erreur : la clé GPG renseignée n\'existe pas', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -117,7 +117,7 @@ class Source {
                  *  Si l'URL contient des caractères invalide alors on quitte 
                  */
                 if (!is_alphanumdash($gpgKeyURL, array(':', '/', '.'))) {
-                    printAlert('Erreur : l\'URL de la clé GPG contient des caractères invalides');
+                    printAlert('Erreur : l\'URL de la clé GPG contient des caractères invalides', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -126,7 +126,7 @@ class Source {
                  *  Si l'URL ne commence pas par http(s) ou par file:// (pour désigner un fichier sur le serveur) alors elle est invalide
                  */
                 if (!preg_match('#^https?://#', $gpgKeyURL) AND !preg_match('/^file:\/\/\//', $gpgKeyURL)) {
-                    printAlert('Erreur : l\'URL de la clé GPG est invalide');
+                    printAlert('Erreur : l\'URL de la clé GPG est invalide', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -141,7 +141,7 @@ class Source {
                  *  Si le 'pavé' de texte contient des caractères invalide alors on quitte 
                  */
                 if (!is_alphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')'))) { // on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
-                    printAlert('Erreur : l\'URL de la clé GPG contient des caractères invalides');
+                    printAlert('Erreur : l\'URL de la clé GPG contient des caractères invalides', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -150,7 +150,7 @@ class Source {
                  *  Si le contenu qu'on tente d'importer est un fichier sur le disque alors on quitte
                  */
                 if (file_exists($gpgKeyText)) {
-                    printAlert('Erreur : la clé GPG contient des caractères invalides');
+                    printAlert('Erreur : la clé GPG contient des caractères invalides', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -161,7 +161,7 @@ class Source {
                 $newGpgFile = "REPOMANAGER-RPM-GPG-KEY-${name}";
                 if (file_exists("${RPM_GPG_DIR}/${newGpgFile}")) {
                     // Affichage d'un message et rechargement de la div
-                    printAlert("Erreur : un fichier GPG du même nom existe déjà dans le trousseau de repomanager"); // on n'incrémente pas error ici car l'import de la clé peut se refaire à part ensuite
+                    printAlert("Erreur : un fichier GPG du même nom existe déjà dans le trousseau de repomanager", 'error'); // on n'incrémente pas error ici car l'import de la clé peut se refaire à part ensuite
                     animatediv_byid('sourcesDiv');
                     return;
                 } else {
@@ -174,7 +174,7 @@ class Source {
              */
             $addSourceUrlType = validateData($_POST['addSourceUrlType']);
             if ($addSourceUrlType != 'baseurl' AND $addSourceUrlType != 'mirrorlist' AND $addSourceUrlType != 'metalink') {
-                printAlert('Erreur : le type d\'URL renseigné est invalide');
+                printAlert('Erreur : le type d\'URL renseigné est invalide', 'error');
                 return;
             }
 
@@ -246,7 +246,7 @@ class Source {
             $count = 0;
             while ($row = $result->fetchArray()) $count++;
             if ($count != 0) {
-                printAlert("Erreur : un repo source <b>$name</b> existe déja");
+                printAlert("Erreur : un repo source <b>$name</b> existe déja", 'error');
                 animatediv_byid('sourcesDiv');
                 return;
             }
@@ -262,7 +262,7 @@ class Source {
                  *  Si le 'pavé' de texte contient des caractères invalide alors on quitte 
                  */
                 if (!is_alphanum($addSourceGpgKey, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) { // on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
-                    printAlert('Erreur : la clé GPG contient des caractères invalides');
+                    printAlert('Erreur : la clé GPG contient des caractères invalides', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -271,7 +271,7 @@ class Source {
                  *  Si le contenu qu'on tente d'importer est un fichier sur le disque alors on quitte
                  */
                 if (file_exists($addSourceGpgKey)) {
-                    printAlert('Erreur : la clé GPG contient des caractères invalides');
+                    printAlert('Erreur : la clé GPG contient des caractères invalides', 'error');
                     animatediv_byid('sourcesDiv');
                     return;
                 }
@@ -291,7 +291,7 @@ class Source {
                  *  Si erreur lors de l'import, on affiche un message d'erreur
                  */
                 if ($result != 0) {
-                    printAlert("Erreur lors de l'import de la clé GPG");
+                    printAlert("Erreur lors de l'import de la clé GPG", 'error');
                     if ($DEBUG_MODE == "yes") print_r($output); // affichage du retour de la commande exec si DEBUG_MODE est activé
                     unlink($gpgTempFile); // suppression du fichier temporaire
                     return;
@@ -301,15 +301,19 @@ class Source {
             }
 
             /*if (!empty($addSourceGpgKey)) {
-                $this->db->exec("INSERT INTO sources ('Name', 'Url', 'Gpgkey') VALUES ('$name', '$url', '')");
+                $this->db->prepare("INSERT INTO sources ('Name', 'Url', 'Gpgkey') VALUES ('$name', '$url', '')");
             } else {
-                $this->db->exec("INSERT INTO sources ('Name', 'Url') VALUES ('$name', '$url')");
+                $this->db->prepare("INSERT INTO sources ('Name', 'Url') VALUES ('$name', '$url')");
             }*/
 
-            $this->db->exec("INSERT INTO sources ('Name', 'Url') VALUES ('$name', '$url')");
+            $stmt = $this->db->prepare("INSERT INTO sources ('Name', 'Url') VALUES (:name, :url)");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':url', $url);
+            $stmt->execute();
+            unset($stmt);
         }
 
-        printAlert("Le repo source <b>$name</b> a été ajouté");
+        printAlert("Le repo source <b>$name</b> a été ajouté", 'success');
         animatediv_byid('sourcesDiv');
         showdiv_byid("sourceConfigurationDiv-${name}");
     }
@@ -324,7 +328,7 @@ class Source {
         if ($OS_FAMILY == "Redhat") {
             if (file_exists("$REPOMANAGER_YUM_DIR/${name}.repo")) {
                 if (!unlink("$REPOMANAGER_YUM_DIR/${name}.repo")) {
-                    printAlert("Erreur lors de la suppression du repo source <b>$name</b>");
+                    printAlert("Erreur lors de la suppression du repo source <b>$name</b>", 'error');
                     return;
                 }
             }
@@ -336,7 +340,7 @@ class Source {
             unset($stmt);
         }
 
-        printAlert("Le repo source <b>$name</b> a été supprimé");
+        printAlert("Le repo source <b>$name</b> a été supprimé", 'success');
         animatediv_byid('sourcesDiv');
     }
 
@@ -351,7 +355,7 @@ class Source {
          *  On vérifie que le nouveau nom ne contient pas de caractères invalides
          */
         if (!is_alphanumdash($newName)) {
-            printAlert('Erreur : le nom contient des caractères invalides');
+            printAlert('Erreur : le nom contient des caractères invalides', 'error');
             animatediv_byid('sourcesDiv');
             return;
         }
@@ -364,7 +368,7 @@ class Source {
              *  Si un fichier portant le même nom que $newName existe déjà alors on ne peut pas renommer le fichier
              */
             if (file_exists("$REPOMANAGER_YUM_DIR/${newName}.repo")) {
-                printAlert("Erreur : un repo source <b>$newName<b> existe déjà");
+                printAlert("Erreur : un repo source <b>$newName<b> existe déjà", 'error');
                 animatediv_byid('sourcesDiv');
                 return;
             }
@@ -397,7 +401,7 @@ class Source {
              *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
              */
             if (!is_alphanumdash($newUrl, array(':', '/', '.')) OR !preg_match('#^https?://#', $newUrl)) {
-                printAlert('Erreur : l\'URL saisie est invalide');
+                printAlert('Erreur : l\'URL saisie est invalide', 'error');
                 animatediv_byid('sourcesDiv');
                 return;
             }
@@ -410,7 +414,7 @@ class Source {
             unset($stmt);
         }
         
-        printAlert('Modifications prises en compte <span class="greentext">✔</span>');
+        printAlert('Modifications prises en compte', 'success');
 
         animatediv_byid('sourcesDiv');
         showdiv_byid("sourceConfigurationDiv-${newName}");
@@ -520,8 +524,8 @@ class Source {
 
         file_put_contents("$REPOMANAGER_YUM_DIR/${sourceName}.repo", $content);
 
-        if ($generalError == 0) printAlert('Modifications prises en compte <span class="greentext">✔</span>');
-        if ($generalError != 0) printAlert('Erreur : des caractères invalides ont été saisis');
+        if ($generalError == 0) printAlert('Modifications prises en compte', 'success');
+        if ($generalError != 0) printAlert('Erreur : des caractères invalides ont été saisis', 'error');
 
         animatediv_byid('sourcesDiv');
         showdiv_byid("sourceConfigurationDiv-${sourceName}");

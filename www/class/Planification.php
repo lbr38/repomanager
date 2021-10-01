@@ -61,11 +61,11 @@ class Planification {
         global $OS_FAMILY;
 
         if (empty($this->date) OR empty($this->time) OR empty($this->action)) {
-            printAlert("Erreur : paramètres de planification incomplets");
+            printAlert("Erreur : paramètres de planification incomplets", 'error');
             return;
         }
         if (empty($this->repo->id) AND empty($this->group->id)) {
-            printAlert("Erreur : paramètres de planification incomplets");
+            printAlert("Erreur : paramètres de planification incomplets", 'error');
             return;
         }
 
@@ -130,7 +130,7 @@ class Planification {
             unset($stmt);
         }
         
-        printAlert("Planification créée");
+        printAlert("Planification créée", 'success');
     }
 
 /**
@@ -138,16 +138,15 @@ class Planification {
  */
     public function delete() {
         if (empty($this->id)) {
-            printAlert('<span class="redtext">Erreur : ID de planification non renseigné</span>');
+            printAlert('Erreur : ID de planification non renseigné', 'error');
             return;
         }
 
-        //$this->db->exec("DELETE FROM planifications WHERE Id = '$this->id'");
         $stmt = $this->db->prepare("DELETE FROM planifications WHERE Id=:id");
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
 
-        printAlert('Planification supprimée');
+        printAlert('La planification a été supprimée', 'success');
     }
 
     

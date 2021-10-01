@@ -18,7 +18,7 @@ require_once('class/Operation.php');
 
 // On vérifie qu'une action a été demandée
 if (empty($_GET['action'])) {
-    printAlert("Aucune action n'a été demandée");
+    printAlert("Aucune action n'a été demandée", 'error');
 } else { 
     // et on la récupère si c'est le cas
     $op_action = validateData($_GET['action']);

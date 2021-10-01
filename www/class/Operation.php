@@ -207,7 +207,7 @@ class Operation {
         }
 
         unset($stmt, $datas, $result);
-        printAlert("L'opération a été arrêtée");
+        printAlert("L'opération a été arrêtée", 'success');
 
         clearCache();
     }
@@ -467,7 +467,7 @@ class Operation {
                 echo '<span>Description (fac.) :</span><input type="text" name="repoDescription" />';
             } else {
                 $this->repo->description = validateData($_GET['repoDescription']);
-                if (!is_alphanumdash($this->repo->description, array('.', '(', ')', '@', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
+                if (!is_alphanumdash($this->repo->description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
                     echo '<p>Erreur : la description comporte des caractères invalides</p>';
                     return false;
                 }

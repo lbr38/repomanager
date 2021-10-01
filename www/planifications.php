@@ -89,7 +89,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addnewplan"
          */
         if ($planToAdd->repo->existsId() === false) {
             $error++;
-            printAlert("Le repo renseigné n'existe pas");
+            printAlert("Le repo renseigné n'existe pas", 'error');
         }
     }
 
@@ -105,7 +105,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addnewplan"
          */
         if (!empty($planToAdd->group->id)) {
             if ($planToAdd->group->existsId() === false) {
-                printAlert("Le groupe renseigné n'existe pas");
+                printAlert("Le groupe renseigné n'existe pas", 'error');
                 $error++;
             }
         }
@@ -115,7 +115,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addnewplan"
      *  Si les deux on été renseignés (repo et groupe), alors on affiche une erreur
      */
     if (!empty($planToAdd->repo->id) AND !empty($planToAdd->group->id)) {
-        printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux");
+        printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux", 'error');
         $error++;
     }
 
