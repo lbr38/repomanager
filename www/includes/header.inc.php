@@ -304,8 +304,8 @@ echo '</section>';
 <script>
 // script jQuery d'autorechargement du menu dans le header. Permet de recharger le bouton opération en cours automatiquement :
 $(document).ready(function(){
-setInterval(function(){
-    $("#refresh-me-container").load("run.php #refresh-me" );
-}, 10000);
+    setInterval(function(){
+        $("#refresh-me-container").load("run.php #refresh-me" );
+    }, 3000);
 });
 </script>

@@ -5,8 +5,8 @@
 /* Codes couleurs  
 
 // boutons //
-    boutons bleu :              #263859
-    boutons bleu (hover) :      #2b426e
+    boutons bleu :              #2b426e
+    boutons bleu (hover) :      #263859
 
     boutons vert :              #4CAF50 
     boutons vert (hover) :      #3e8e41 
@@ -27,7 +27,7 @@ body {
     animation: fadeInAnimation ease 0.00001s;
     animation-iteration-count: 1; 
     animation-fill-mode: forwards;
-    min-height: 100%;
+    /*min-height: 100%;*/
     font-family: 'Roboto', sans-serif;
     margin: 0px;
     padding: 0px;
@@ -35,11 +35,11 @@ body {
     color: whitesmoke; /* couleur par défaut */
     overflow-x: hidden;
 
-   -webkit-transform: translateZ(0);
+  /* -webkit-transform: translateZ(0);
    -moz-transform: translateZ(0);
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
-   transform: translateZ(0);
+   transform: translateZ(0);*/
 }
 
 @keyframes fadeInAnimation { 
@@ -207,7 +207,7 @@ nav {
     font-size: 18px;
 }
 .menu > li span.underline {
-    border-bottom: 2px solid #263859;
+    border-bottom: 2px solid #2b426e;
     padding-bottom: 21px;
 }
 .sub-menu {
@@ -433,6 +433,12 @@ table.list-repos tr .rl-fit {
     margin: 0px;
 }
 
+table.list-repos tr .rl-10 {
+    width: 0px;
+    margin: 0px;
+    padding-right: 10px;
+}
+
 table.list-repos tr .rl-30 {
     width: 0px;
     margin: 0px;
@@ -470,7 +476,6 @@ table.list-repos tr .rl-desc {
     color: whitesmoke;
 }
 
-
 /* couleur de fond sur les envs, on applique ça un span plutot que le td entier */
 td.td-redbackground span, td.td-greenbackground span, td.td-bluebackground span, td.td-whitebackground span {
     font-size: 12px;
@@ -495,7 +500,7 @@ td.td-greenbackground span {
 }
 
 td.td-bluebackground span {
-    background-color: #263859;
+    background-color: #2b426e;
     color: whitesmoke;
 }
 
@@ -516,7 +521,7 @@ td.td-redbackground span:hover {
 
 td.td-bluebackground span:hover {
     transition-duration: 0.4s;
-    background-color: #2b426e;
+    background-color: #263859;
 }
 
 .hide, .tr-hide, .td-hide {
@@ -546,7 +551,7 @@ td {
 
 /* conf commune à toutes les icones */
 .icon, .icon-small, .icon-lowopacity, .icon-lowopacity-red, .icon-lowopacity-blue, .icon-lowopacity-green, .icon-verylowopacity, .icon-verylowopacity-red, .icon-verylowopacity-blue, .icon-verylowopacity-green, .icon-invisible, .icon-mediumopacity {
-    height: 12.5px;
+    height: 13px;
     margin-left: 5px;
     margin-right: 5px;
     vertical-align: middle;
@@ -638,7 +643,7 @@ input[type=text].input-large, .select-large, input[type=color].color-large { wid
 }
 /* Tous les boutons bleus */
 .button-submit-large-blue, .button-submit-medium-blue, .button-submit-small-blue, .button-submit-xsmall-blue, .button-submit-xxsmall-blue {
-    background-color: #263859;
+    background-color: #2b426e;
 }
 /* Tous les boutons verts */
 .button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green {
@@ -673,8 +678,7 @@ input[type=text].input-large, .select-large, input[type=color].color-large { wid
 /* Tous les boutons bleus :hover */
 .button-submit-large-blue:hover, .button-submit-medium-blue:hover, .button-submit-small-blue:hover, .button-submit-xsmall-blue:hover, .button-submit-xxsmall-blue:hover {
     transition-duration: 0.4s;
-    /*background-color: #2b426e;*/
-    background-color: #2b426e;
+    background-color: #263859;
 }
 /* Tous les boutons verts :hover */
 .button-submit-large-green:hover, .button-submit-medium-green:hover, .button-submit-small-green:hover, .button-submit-xsmall-green:hover, .button-submit-xxsmall-green:hover {
@@ -706,7 +710,7 @@ input[type=text].invisibleInput-green {
 }
 
 input[type=text].invisibleInput-blue {
-    background-color: #263859;
+    background-color: #2b426e;
     width: 100%;
 }
 
@@ -745,7 +749,7 @@ input[type=text].invisibleInput-blue {
 }
 
 .switch-field input:checked + label {
-    background-color: #263859;
+    background-color: #2b426e;
 	box-shadow: none;
     color: whitesmoke;
 }
@@ -791,7 +795,6 @@ input[type=text].invisibleInput-blue {
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 34px;
-    border: 1px solid darkslategray;
 }
 
 .onoff-switch-slider:before {
@@ -808,11 +811,11 @@ input[type=text].invisibleInput-blue {
 }
   
 .onoff-switch-input:checked + .onoff-switch-slider {
-    background-color: #263859;
+    background-color: #2b426e;
 }
 
 .onoff-switch-input:focus + .onoff-switch-slider {
-    box-shadow: 0 0 1px #263859;
+    box-shadow: 0 0 1px #2b426e;
 }
 
 .onoff-switch-input:checked + .onoff-switch-slider:before {
@@ -894,12 +897,12 @@ footer p { color: gray; }
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 7px;
-    background-color:#263859;
+    background-color:#2b426e;
     border-radius: 5px;
 }
 
 #newRepoSlideButton:hover {
-    background-color: #2b426e;
+    background-color: #263859;
 }
 
 #ReposListDisplayToggleButton:hover, #ReposSourcesSlideUpButton:hover, #GroupsListSlideUpButton:hover {
@@ -933,37 +936,54 @@ footer p { color: gray; }
     vertical-align: middle;
 }*/
 
-.alert, .deleteAlert { /* div affichant une alerte au milieu de la page */
-    width: 600px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    border-radius: 5px;
+.alert, .alert-success, .alert-error, .deleteAlert { /* div affichant une alerte au milieu de la page */
+    width: 100%;
+    padding-top: 30px;
+    padding-bottom: 30px;
     position: fixed; /* on positionne le div au centre de la page */
-    top: 400px;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    bottom: 0;
+    left: 0;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#252525;
     color: whitesmoke;
-    font-size: 14px;
     text-align: center;
     vertical-align: middle;
 }
-.deleteAlert a, .deleteAlert span {
-    margin-left: 5px;
-    margin-right: 5px;
-    padding: 5px;
+.alert-success {
+    background-color: #4CAF50;
+}
+.alert-error {
+    background-color: firebrick;
+}
+.alert span, .alert-success span, .alert-error span, .deleteAlert span {
+    font-size: 18px;
+}
+.deleteAlert-message, .alert-message {
+    display: inline-block;
+    font-size: 18px;
+}
+.deleteAlert-buttons-container {
+    float: right;
+}
+
+.deleteAlert-delete, .deleteAlert-cancel {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 20px;
     border-radius: 4px;
     border: 1px solid black;
 }
-.deleteButton {
+.deleteAlert-delete {
     background-color: #d9534f;
 }
-.deleteButton:hover {
+.deleteAlert-delete:hover {
     background-color: #b14440;
 }
+
+
+
 
 .chart { /* largeur des graphiques chartjs */
     width: 110px;
@@ -987,7 +1007,7 @@ footer p { color: gray; }
     width: 49.3%;
     margin: 4px;
     display: inline;
-    background-color: #263859;
+    background-color: #2b426e;
     float: left;
 }
 
@@ -1022,7 +1042,7 @@ footer p { color: gray; }
 /* Compatible Chrome uniquement */
 /* width */
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 
 /* Track */
@@ -1034,7 +1054,7 @@ footer p { color: gray; }
 ::-webkit-scrollbar-thumb {
     background: #596EB5;
     border-radius: 5px;
-    /*border: 1px solid #263859;*/
+    /*border: 1px solid #2b426e;*/
 }
 
 /* divs avec rubans de couleurs */
@@ -1045,20 +1065,19 @@ footer p { color: gray; }
     margin-bottom: 4px;
 }
 /* rubans de couleurs */
-.header-green, .header-blue, .header-red, .header-white {
+.header-green, .header-blue, .header-red {
     border-radius: 2px;
-    padding-bottom: 2px;
-    padding-top: 2px;
+    padding-bottom: 8px;
+    padding-top: 8px;
 }
-.header-green { background-color: #4CAF50; }
-.header-red   { background-color: #d9534f; }
-.header-blue  { background-color: #263859 }
-.header-white { background-color: whitesmoke; }
-.header-white td { color: black; }
-/*.header-green table, .header-red table, .header-white table, .header-blue table {
-    padding-top: 2px;
-    padding-bottom: 2px;
-}*/
+.header-green-min, .header-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
+    border-radius: 2px;
+    padding-bottom: 0px; /* pas de padding lorsqu'il y a un <input> */
+    padding-top: 0px;
+}
+.header-green, .header-green-min { background-color: #4CAF50; }
+.header-red, .header-red-min     { background-color: #d9534f; }
+.header-blue, .header-blue-min   { background-color: #2b426e; }
 
 /* un autre type de container pour les rubans */
 .op-header-container {

@@ -147,7 +147,7 @@ function printOp($myop, $optype = '') {
 		if ($opAction == "duplicate") echo '<img class="icon" src="icons/duplicate.png" title="Duplication" />';
 		if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") echo '<img class="icon" src="icons/bin.png" title="Suppression" />';
 		if ($opAction == "deleteArchive") echo '<img class="icon" src="icons/bin.png" title="Suppression d\'une archive" />';
-		if ($opAction == "restore") echo '<img class="icon" src="icons/arrow-up.png" title="Restauration d\'une archive" />';
+		if ($opAction == "restore") echo '<img class="icon" src="icons/arrow-circle-up.png" title="Restauration d\'une archive" />';
 
 		echo '</td>';
 		echo "<td class=\"td-small\"><a href=\"run.php?logfile=${opLogfile}\">Le <b>$opDate</b> à <b>$opTime</b></a></td>";
@@ -234,25 +234,25 @@ function printOp($myop, $optype = '') {
 			</div>
 
 			<div id="log-refresh-container">
-			<div id="log">
-				<?php
-				if ($logfile == 'none') {
-					$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
-					$logfile = $logfiles[0];
-				}
+				<div id="log">
+					<?php
+					if ($logfile == 'none') {
+						$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
+						$logfile = $logfiles[0];
+					}
 
-				/**
-				 * 	Récupération du contenu du fichier de log
-				 */
-				$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
+					/**
+					 * 	Récupération du contenu du fichier de log
+					 */
+					$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
 
-				/**
-				 * 	Suppression des codes ANSI (couleurs) dans le fichier
-				 */
-				$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
-				echo $output;
-				?>
-			</div>
+					/**
+					 * 	Suppression des codes ANSI (couleurs) dans le fichier
+					 */
+					$output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$output);
+					echo $output;
+					?>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -415,7 +415,26 @@ function printOp($myop, $optype = '') {
 			 */
 			if (!empty($totalDone)) {
 				echo '<p>Terminé :</p>';
+				/**
+				 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
+				 * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
+				 */
+				$i = 0;
+				$printMaxItems = 12;
+
+				/**
+				 * 	Traitement de toutes les opérations terminées
+				 */
 				foreach ($totalDone as $itemDone) {
+					/**
+					 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
+					 */
+					//if ($i > $printMaxItems) echo '<div class="hide hidden-op">';
+
+					/**
+					 * 	Si l'élément comporte une colonne 'Reminder' alors l'élément est une planification.
+					 * 	On va donc récupérer toutes les opérations liées à cette planification
+					 */
 					if (array_key_exists('Reminder', $itemDone)) {
 
 						/**
@@ -468,11 +487,21 @@ function printOp($myop, $optype = '') {
 						}
 
 					} else {
+
 						printOp($itemDone);
+
 					}
 
 					unset($plan_opsDone);
+
+					/*if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hide hidden-op">
+					++$i;*/
 				}
+
+				/*if ($i > $printMaxItems) {
+					echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
+				}*/
+
 			}
  		?>
 	</section>
@@ -500,5 +529,37 @@ $(document).ready(function(){
 if ($('#log').height() < 700) {
 	$(".button-top-down").hide();
 }
+
+/**
+ *	Afficher les opérations masquées
+ */
+/*$("#print-all-op").click(function(){
+    $(".hidden-op").show();		// On affiche les opérations masquées
+	$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
+
+	document.cookie = "printAllOp=yes";
+});
+
+function getCookie(cname) {
+let name = cname + "=";
+let decodedCookie = decodeURIComponent(document.cookie);
+let ca = decodedCookie.split(';');
+for(let i = 0; i <ca.length; i++) {
+	let c = ca[i];
+	while (c.charAt(0) == ' ') {
+	c = c.substring(1);
+	}
+	if (c.indexOf(name) == 0) {
+	return c.substring(name.length, c.length);
+	}
+}
+	return "";
+}
+
+let printAllOp = getCookie("printAllOp");
+if (printAllOp == "yes") {
+	$(".hidden-op").show();		// On affiche les opérations masquées
+	$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
+}*/
 </script>
 </html>

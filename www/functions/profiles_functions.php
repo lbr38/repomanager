@@ -20,7 +20,7 @@ function newProfile($newProfile) {
 	 * 	2. On vérifie qu'un profil du même nom n'existe pas déjà
 	 */
 	if (file_exists("${PROFILES_MAIN_DIR}/${newProfile}")) {
-		printAlert("Erreur : un profil du même nom (<b>$newProfile</b>) existe déjà");
+		printAlert("Erreur : un profil du même nom (<b>$newProfile</b>) existe déjà", 'error');
 		return;
 	}
 
@@ -29,7 +29,7 @@ function newProfile($newProfile) {
 	 */
 	if (!is_dir("${PROFILES_MAIN_DIR}/${newProfile}")) { 
 		if (!mkdir("${PROFILES_MAIN_DIR}/${newProfile}", 0775, true)) {
-			printAlert("Erreur lors de la création du profil <b>$newProfile</b>");
+			printAlert("Erreur lors de la création du profil <b>$newProfile</b>", 'error');
 			return;
 		}
 	}
@@ -39,7 +39,7 @@ function newProfile($newProfile) {
 	 */
 	if (!file_exists("${PROFILES_MAIN_DIR}/${newProfile}/config")) {
 		if (!touch("${PROFILES_MAIN_DIR}/${newProfile}/config")) {
-			printAlert("Erreur lors de l'initialisation du profil <b>$newProfile</b>");
+			printAlert("Erreur lors de l'initialisation du profil <b>$newProfile</b>", 'error');
 			return;
 		}
 	}
@@ -48,14 +48,14 @@ function newProfile($newProfile) {
 	 * 	5. Créer le fichier de config du profil avec des valeurs vides ou par défaut
 	 */
 	if (!file_put_contents("${PROFILES_MAIN_DIR}/${newProfile}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
-		printAlert("Erreur lors de l'initialisation du profil <b>$newProfile</b>");
+		printAlert("Erreur lors de l'initialisation du profil <b>$newProfile</b>", 'error');
 		return;
 	}
 	
 	/**
 	 * 	Affichage d'un message
 	 */
-	printAlert("Le profil <b>${newProfile}</b> a été créé");
+	printAlert("Le profil <b>${newProfile}</b> a été créé", 'success');
 }
 
 
@@ -129,7 +129,7 @@ function manageProfileRepos($profileName, $profileRepos) {
 			 * 	 On vérifie que le repo existe, sinon on passe au suivant
 			 */
 			if ($repo->exists($addProfileRepo) === false) {
-				printAlert("Le repo $addProfileRepo n'existe pas");
+				printAlert("Le repo <b>$addProfileRepo</b> n'existe pas", 'error');
 				continue;
 			}
 
@@ -141,7 +141,7 @@ function manageProfileRepos($profileName, $profileRepos) {
 			 * 	On vérifie que la section repo existe, sinon on passe au suivant
 			 */
 			if ($repo->section_exists($addProfileRepo, $addProfileRepoDist, $addProfileRepoSection) === false) {
-				printAlert("La section $addProfileRepoSection du repo $addProfileRepo n'existe pas");
+				printAlert("La section <b>$addProfileRepoSection</b> du repo <b>$addProfileRepo</b> n'existe pas", 'error');
 				continue;
 			}
 
@@ -182,10 +182,10 @@ function deleteProfile($profileName) {
 	exec("rm -fr ${PROFILES_MAIN_DIR}/${profileName}/", $output, $return);
 	if ($return == 0) {
 		// Affichage d'un message
-		printAlert("Le profil <b>$profileName</b> a été supprimé");
+		printAlert("Le profil <b>$profileName</b> a été supprimé", 'success');
 	} else {
 		// Si la suppression s'est mal passée
-		printAlert("<span class=\"yellowtext\">Erreur lors de la suppression du profil <b>$profileName</b></span>");
+		printAlert("<span class=\"yellowtext\">Erreur lors de la suppression du profil <b>$profileName</b></span>", 'error');
 	}
 }
 
@@ -206,7 +206,7 @@ function renameProfile($actualProfileName, $newProfileName) {
 	 * 	2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
 	 */
 	if (is_dir("${PROFILES_MAIN_DIR}/${newProfileName}")) {
-		printAlert("Erreur : un profil du même nom (<b>$newProfileName</b>) existe déjà");
+		printAlert("Erreur : un profil du même nom (<b>$newProfileName</b>) existe déjà", 'error');
 		return false;
 	}
 
@@ -214,14 +214,14 @@ function renameProfile($actualProfileName, $newProfileName) {
 	 * 	3. Si pas d'erreur alors on peut renommer le répertoire de profil
 	 */
 	if (!rename("${PROFILES_MAIN_DIR}/${actualProfileName}", "${PROFILES_MAIN_DIR}/${newProfileName}")) {
-		printAlert("Erreur lors du renommage du profil <b>$actualProfileName</b>");
+		printAlert("Erreur lors du renommage du profil <b>$actualProfileName</b>", 'error');
 		return;
 	}
 
 	/**
 	 * 	Affichage d'un message
 	 */
-	printAlert("Le profil <b>$actualProfileName</b> a été renommé en <b>$newProfileName</b>");
+	printAlert("Le profil <b>$actualProfileName</b> a été renommé en <b>$newProfileName</b>", 'success');
 
 	unset($actualProfileName, $newProfileName);
 }

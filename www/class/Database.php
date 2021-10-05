@@ -186,6 +186,54 @@ class Database extends SQLite3 {
     }
 
     /**
+     *  Même fonction que ci-dessus mais retourne true si le résultat est vide et false si il est non-vide.
+     */
+    public function isempty($result) {
+        /**
+         *  Compte le nombre de lignes retournées par la requête
+         */
+        $count = 0;
+        while ($row = $result->fetchArray()) $count++;
+
+        /**
+         *  Si le résultat est vide alors on retourne true
+         */
+        if ($count == 0) return true;
+
+        /**
+         *  Sinon on retourne false
+         */
+        return false;
+    }
+
+    /**
+     *  Transforme un résultat de requête ($result = $stmt->execute()) en un array
+     */
+    public function fetch(object $result, string $option = '') {
+        global $DEBUG_MODE;
+
+        /**
+         *  On vérifie d'abord que $result n'est pas vide, sauf si on a précisé l'option "ignore-null"
+         */
+        if ($option != "ignore-null") if ($this->isempty($result)) throw new Exception('Erreur : le résultat les données à traiter est vide');
+
+        /**
+         *  Fetch le résultat puis retourne l'array créé
+         */
+        while ($row = $result->fetchArray()) $datas = $row;
+
+        if (!empty($datas)) return $datas;
+    }
+
+
+
+
+
+
+
+
+
+    /**
      *  Execute une requête retournant 1 seule ligne (LIMIT 1)
      */
     public function querySingleRow(string $query) {
@@ -203,7 +251,7 @@ class Database extends SQLite3 {
      *  Execute une requête et renvoi un array contenant les résultats
      */
     public function queryArray(string $query) {
-        $result = $this->query("$query");
+        $result = $this->query($query);
         while ($row = $result->fetchArray()) {
             $datas = $row;
         }

@@ -41,7 +41,7 @@ class Group {
          *  2. On vérifie que le groupe n'existe pas déjà
          */
         if ($this->exists($name) === true) {
-            printAlert("Le groupe <b>${name}</b> existe déjà");
+            printAlert("Le groupe <b>${name}</b> existe déjà", 'error');
             animatediv_byid('groupsDiv');
             return;
         }
@@ -53,7 +53,7 @@ class Group {
         $stmt->bindValue(':name', $name);
         $stmt->execute();
 
-        printAlert("Le groupe <b>${name}</b> a été créé");
+        printAlert("Le groupe <b>${name}</b> a été créé", 'success');
         animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${name}"); // puis affichage de la configuration du nouveau groupe créé
 
@@ -95,7 +95,7 @@ class Group {
         }
     
         if ($count > 0) {
-            printAlert("Le groupe <b>$newName</b> existe déjà");
+            printAlert("Le groupe <b>$newName</b> existe déjà", 'error');
             animatediv_byid('groupsDiv');
             return;
         }
@@ -108,7 +108,7 @@ class Group {
         $stmt->bindValue(':actualname', $actualName);
         $stmt->execute();
 
-        printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>");
+        printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>", 'success');
         animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${newName}"); // puis affichage de la configuration du groupe renommé
 
@@ -135,7 +135,7 @@ class Group {
         }
     
         if ($count == 0) {
-            printAlert("Le groupe <b>$name</b> n'existe pas");
+            printAlert("Le groupe <b>$name</b> n'existe pas", 'error');
             animatediv_byid('groupsDiv');
             return;
         }
@@ -154,7 +154,7 @@ class Group {
         $stmt->bindValue(':name', $name);
         $stmt->execute();
 
-        printAlert("Le groupe <b>${name}</b> a été supprimé");
+        printAlert("Le groupe <b>${name}</b> a été supprimé", 'success');
         animatediv_byid('groupsDiv');
     }
 
@@ -475,7 +475,7 @@ class Group {
             }
         }
 
-        printAlert('Modifications prises en compte');
+        printAlert('Modifications prises en compte', 'success');
         animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-{$this->name}"); // puis affichage de la configuration du nouveau groupe créé
 

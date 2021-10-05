@@ -2,17 +2,23 @@
 require_once('class/Group.php');
 $group = new Group();
 
-// Cas où on souhaite ajouter un nouveau groupe : 
+/**
+ * 	Cas où on souhaite ajouter un nouveau groupe
+ */
 if (!empty($_POST['addGroupName'])) {
   	$group->new(validateData($_POST['addGroupName']));
 }
 
-// Cas où on souhaite supprimer un groupe :
+/**
+ * 	Cas où on souhaite supprimer un groupe
+ */
 if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroup") AND !empty($_GET['groupName'])) {
   	$group->delete(validateData($_GET['groupName']));
 }
 
-// Cas où on souhaite modifier la liste des repos d'un groupe
+/**
+ * 	Cas où on souhaite modifier la liste des repos d'un groupe
+ */
 if (!empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
 	$mygroup = new Group(array('groupName' => validateData($_POST['actualGroupName'])));
   	// Pas de validateData sur $_POST['groupAddRepoName'], il est opéré dans la fonction addRepo directement :
@@ -20,7 +26,9 @@ if (!empty($_POST['actualGroupName']) AND !empty($_POST['groupAddRepoName'])) {
 	unset($mygroup);
 }
 
-// Cas où on souhaite renommer un groupe :
+/**
+ * 	Cas où on souhaite renommer un groupe
+ */
 if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
   	$group->rename(validateData($_POST['actualGroupName']), validateData($_POST['newGroupName']));
 }
@@ -46,7 +54,6 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
     /**
      *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
      */
-
     $groupsList = $group->listAllName();
 
     /**
@@ -59,7 +66,7 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 
       	foreach($groupsList as $groupName) {
 			echo '<div class="header-container">';
-        		echo '<div class="header-blue">';
+        		echo '<div class="header-blue-min">';
 
 					/**
 					 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
@@ -83,7 +90,7 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 					echo '</tr>';
 					echo '</table>';
 					echo '</form>';
-				echo '</div>'; // cloture de header-blue
+				echo '</div>'; // cloture de header-blue-min
 
 				/**
 				 *  4. La liste des repos du groupe est placée dans un div caché
@@ -95,8 +102,8 @@ if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
 					// Il faut transmettre le nom du groupe dans le formulaire, donc on ajoute un input caché avec le nom du groupe
 					echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
 
-					if ($OS_FAMILY == "Redhat") { echo '<p><b>Repos</b></p>'; }
-					if ($OS_FAMILY == "Debian") { echo '<p><b>Sections de repos</b></p>'; }
+					if ($OS_FAMILY == "Redhat") echo '<p><b>Repos</b></p>';
+					if ($OS_FAMILY == "Debian") echo '<p><b>Sections de repos</b></p>';
 
 					echo '<table class="table-large">';
 					echo '<tr>';

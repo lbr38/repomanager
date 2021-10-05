@@ -191,7 +191,7 @@ if (!empty($gpgKeys)) {
             }
 
             echo '<div class="header-container sourceDivs">';
-                echo '<div class="header-blue">';
+                echo '<div class="header-blue-min">';
 
                     /**
                      *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
@@ -228,7 +228,7 @@ if (!empty($gpgKeys)) {
                         echo '</table>';
                         echo '<input type="submit" class="hide" />';
                     echo '</form>';
-                echo '</div>'; // cloture de header-blue
+                echo '</div>'; // cloture de header-blue-min
 
                 /**
                  *  4. La liste des repos sources est placée dans un div caché

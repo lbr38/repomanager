@@ -157,7 +157,7 @@ $(document).ready(function(){
         } ?>
 
         <p><b>Cache</b></p>
-        <p>Mettre en cache la liste des repos actifs dans <b>/dev/shm/</b> (expérimental)</p>
+        <p>Mettre en ram la liste des repos actifs dans <b>/dev/shm/</b> (expérimental)</p>
         <?php
         // mettre en cache ou non la liste des repos
         echo '<label class="onoff-switch-label">';

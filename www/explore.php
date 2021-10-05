@@ -117,7 +117,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
      */
     if (!is_dir($targetDir)) {
         if (!mkdir($targetDir, 0770, true)) {
-            printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>");
+            printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
             return;
         }
     }
@@ -223,9 +223,9 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
     }
 
     if ($uploadError === 0) {
-        printAlert("Les fichiers ont été chargés");
+        printAlert('Les fichiers ont été chargés', 'success');
     } else {
-        printAlert("Certains fichiers n'ont pas pu être chargé");
+        printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
     }
 }
 

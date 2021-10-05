@@ -33,7 +33,7 @@ trait delete {
         /**
          *  2. On vérifie que le repo renseigné existe bien
          */
-        if ($this->repo->exists($this->repo->name) == false) throw new Exception ("le repo <b>{$this->repo->name}</b> n'existe pas");
+        if ($this->repo->exists($this->repo->name) == false) throw new Exception("le repo <b>{$this->repo->name}</b> n'existe pas");
 
         /**
          *  3. Suppression du repo
@@ -41,12 +41,14 @@ trait delete {
          *   Si Debian : Suppression du répertoire du repo
          */
         if ($OS_FAMILY == "Redhat") {
-            if (!unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->env}")) throw new Exception ('impossible de supprimer le repo');
+            if (file_exists("${REPOS_DIR}/{$this->repo->name}_{$this->repo->env}")) {
+                if (!unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->env}")) throw new Exception('impossible de supprimer le repo');
+            }
         }
         if ($OS_FAMILY == "Debian") {
-            exec("rm ${REPOS_DIR}/{$this->repo->name} -rf", $output, $result);
-            if ($result != 0) {
-                throw new Exception ('impossible de supprimer le repo');
+            if (file_exists("${REPOS_DIR}/{$this->repo->name}")) {
+                exec("rm ${REPOS_DIR}/{$this->repo->name} -rf", $output, $result);
+                if ($result != 0) throw new Exception('impossible de supprimer le repo');
             }
         }
 
@@ -54,7 +56,6 @@ trait delete {
          *  4. Mise à jour de la BDD
          */
         if ($OS_FAMILY == "Redhat") {
-            //$this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->env}' AND Date = '{$this->repo->date}' AND Status = 'active'");
             $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Env=:env AND Date=:date AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':env', $this->repo->env);
@@ -65,7 +66,6 @@ trait delete {
             /**
              *  Sur Debian, la suppression d'un repo entier entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
              */
-            //$this->repo->db->exec("UPDATE repos SET status = 'deleted' WHERE Name = '{$this->repo->name}' AND Status = 'active'");
             $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->execute();
