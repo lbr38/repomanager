@@ -110,8 +110,7 @@
     
         echo "<canvas id=\"diskSpaceChart-${name}\" class=\"chart\"></canvas>";
         echo '<script>';
-        echo "
-            var ctx = document.getElementById('diskSpaceChart-${name}').getContext('2d');
+        echo "var ctx = document.getElementById('diskSpaceChart-${name}').getContext('2d');
             var myDoughnutChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -181,14 +180,9 @@
         unset($diskUsedSpace, $diskUsedSpacePercent, $diskFreeSpace, $diskFreeSpacePercent);
     }
 
-    if ($display_serverInfo_rootSpace == "yes") {
-        printSpace('/', 'rootSpace');
-    } ?>
-
-    <?php
-    if ($display_serverInfo_reposDirSpace == "yes") {
-        printSpace($REPOS_DIR, 'reposDirSpace');
-    } ?>
+    if ($display_serverInfo_rootSpace == "yes") printSpace('/', 'rootSpace');
+    if ($display_serverInfo_reposDirSpace == "yes") printSpace($REPOS_DIR, 'reposDirSpace');
+    ?>
         
     <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {
         echo '<div class="serverInfo">';

@@ -303,6 +303,15 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
         $repomanager_conf_array['CRON']['CRON_PLAN_REMINDERS_ENABLED'] = 'no';
     }
 
+    /**
+     *  Activer / désactiver les statistiques
+     */
+    if (!empty($_POST['cronStatsEnable']) AND validateData($_POST['cronStatsEnable']) === "yes") {
+        $repomanager_conf_array['CRON']['CRON_STATS_ENABLED'] = 'yes';
+    } else {
+        $repomanager_conf_array['CRON']['CRON_STATS_ENABLED'] = 'no';
+    }
+
     save($repomanager_conf_array);
 }
 
@@ -633,6 +642,19 @@ if (!empty($_GET['deleteEnv'])) {
                 <?php if (empty($REPOS_DIR)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
                 </td>
             </tr>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Activer la collecte de statistiques d'accès au repo, sa taille, son nombre de paquets. Ce paramètre nécessite de la configuration supplémentaire dans le vhost de ce serveur, ainsi qu'un accès aux logs d'accès de ce serveur à <?php echo $WWW_USER; ?>." />Activer les statistiques</td>
+                <td>
+                    <label class="onoff-switch-label">
+                    <input name="cronStatsEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_STATS_ENABLED == "yes") { echo 'checked'; }?> />
+                    <span class="onoff-switch-slider"></span>
+                    </label>
+
+                </td>
+                <td class="td-fit">
+                <?php if (empty($CRON_STATS_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
         </table>
 
         <br><h3>CONFIGURATION WEB</h3>
@@ -828,7 +850,7 @@ if (!empty($_GET['deleteEnv'])) {
                         if (file_exists($CRON_LOG)) {
                             $cronStatus = exec("grep 'Status=' $CRON_LOG | cut -d'=' -f2 | sed 's/\"//g'");
                             if ($cronStatus === "OK") {
-                                echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon" /></span>';
+                                echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
                             }
                             if ($cronStatus === "KO") {
                                 echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon" /></span>';
@@ -930,7 +952,7 @@ if (!empty($_GET['deleteEnv'])) {
                 // On vérifie la présence d'une ligne contenant 'planifications/plan.php' dans la crontab
                 $cronStatus = checkCronReminder();
                 if ($cronStatus == 'On') {
-                    echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon" /></span>';
+                    echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
                 }
                 if ($cronStatus == 'Off') {
                     echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon" /></span>';

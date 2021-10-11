@@ -184,7 +184,8 @@ if (!is_dir("$WWW_DIR/update")) {
 // Config web :
 $WWW_HOSTNAME = $repomanager_conf_array['WWW_HOSTNAME'];
 $WWW_REPOS_DIR_URL = $repomanager_conf_array['WWW_REPOS_DIR_URL'];
-$WWW_PROFILES_DIR_URL = "$WWW_REPOS_DIR_URL/profiles";
+//$WWW_PROFILES_DIR_URL = "$WWW_REPOS_DIR_URL/profiles";
+$WWW_PROFILES_DIR_URL = "http://${WWW_HOSTNAME}/profiles";
 $WWW_USER = $repomanager_conf_array['WWW_USER'];
 
 // Config cron
@@ -193,6 +194,7 @@ $CRON_GENERATE_REPOS_CONF = $repomanager_conf_array['CRON_GENERATE_REPOS_CONF'];
 $CRON_APPLY_PERMS = $repomanager_conf_array['CRON_APPLY_PERMS'];
 $CRON_SAVE_CONF = $repomanager_conf_array['CRON_SAVE_CONF'];
 $CRON_PLAN_REMINDERS_ENABLED = $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'];
+$CRON_STATS_ENABLED = $repomanager_conf_array['CRON_STATS_ENABLED'];
 
 // Version actuelle et version disponible sur github
 $VERSION = file_get_contents("${WWW_DIR}/version");

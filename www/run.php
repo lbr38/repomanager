@@ -274,7 +274,7 @@ function printOp($myop, $optype = '') {
 			$stmt = $db->prepare("SELECT * FROM planifications WHERE Status=:status ORDER BY Date DESC, Time DESC");
 			$stmt->bindValue(':status', 'running');
 			$result = $stmt->execute();
-			while ($datas = $result->fetchArray()) { $plansRunning[] = $datas; }
+			while ($datas = $result->fetchArray()) $plansRunning[] = $datas;
 			unset($stmt, $datas, $result);
 
 			/**
@@ -284,7 +284,7 @@ function printOp($myop, $optype = '') {
 			$stmt->bindValue(':status', 'running');
 			$stmt->bindValue(':type', 'manual');
 			$result = $stmt->execute();
-			while ($datas = $result->fetchArray()) { $opsRunning[] = $datas; }
+			while ($datas = $result->fetchArray()) $opsRunning[] = $datas;
 			unset($stmt, $datas, $result);
 
 			/**
@@ -305,7 +305,7 @@ function printOp($myop, $optype = '') {
 			$stmt = $db->prepare("SELECT * FROM planifications WHERE Status NOT IN ('running', 'queued') ORDER BY Date DESC, Time DESC");
 			$stmt->bindValue(':status', 'running');
 			$result = $stmt->execute();
-			while ($datas = $result->fetchArray()) { $plansDone[] = $datas; }
+			while ($datas = $result->fetchArray()) $plansDone[] = $datas;
 			unset($stmt, $datas, $result);
 
 			/**
@@ -314,7 +314,7 @@ function printOp($myop, $optype = '') {
 			$stmt = $db->prepare("SELECT * FROM operations WHERE Type=:type AND Status NOT IN ('running') ORDER BY Date DESC, Time DESC");
 			$stmt->bindValue(':type', 'manual');
 			$result = $stmt->execute();
-			while ($datas = $result->fetchArray()) { $opsDone[] = $datas; }
+			while ($datas = $result->fetchArray()) $opsDone[] = $datas;
 			unset($stmt, $datas, $result);
 
 			/**
@@ -354,13 +354,13 @@ function printOp($myop, $optype = '') {
 						$stmt->bindValue(':id_plan', $planId);
 						$stmt->bindValue(':status', 'running');
 						$result = $stmt->execute();
-						while ($datas = $result->fetchArray()) { $plan_opsRunning[] = $datas; }
+						while ($datas = $result->fetchArray()) $plan_opsRunning[] = $datas;
 						unset($stmt, $datas, $result);
 
 						$stmt = $db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
 						$stmt->bindValue(':id_plan', $planId);
 						$result = $stmt->execute();
-						while ($datas = $result->fetchArray()) { $plan_opsDone[] = $datas; }
+						while ($datas = $result->fetchArray()) $plan_opsDone[] = $datas;
 						unset($stmt, $datas, $result);
 
 						/**
@@ -428,8 +428,14 @@ function printOp($myop, $optype = '') {
 				foreach ($totalDone as $itemDone) {
 					/**
 					 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
+					 * 	Sauf si le cookie printAllOp = yes, dans ce cas on affiche tout
 					 */
-					//if ($i > $printMaxItems) echo '<div class="hide hidden-op">';
+					if ($i > $printMaxItems) {
+						if (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] == "yes")
+							echo '<div class="hidden-op">';
+						else
+							echo '<div class="hidden-op hide">';
+					}
 
 					/**
 					 * 	Si l'élément comporte une colonne 'Reminder' alors l'élément est une planification.
@@ -453,7 +459,7 @@ function printOp($myop, $optype = '') {
 						$stmt = $db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
 						$stmt->bindValue(':id_plan', $planId);
 						$result = $stmt->execute();
-						while ($datas = $result->fetchArray()) { $plan_opsDone[] = $datas; }
+						while ($datas = $result->fetchArray()) $plan_opsDone[] = $datas;
 						unset($stmt, $datas);
 					
 						/**
@@ -494,14 +500,19 @@ function printOp($myop, $optype = '') {
 
 					unset($plan_opsDone);
 
-					/*if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hide hidden-op">
-					++$i;*/
+					if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hidden-op hide">
+
+					++$i;
 				}
 
-				/*if ($i > $printMaxItems) {
-					echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
-				}*/
-
+				if ($i > $printMaxItems) {
+					/**
+					 * 	On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
+					 */
+					if (!isset($_COOKIE['printAllOp']) OR (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] != "yes")) {
+						echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
+					}
+				}
 			}
  		?>
 	</section>
@@ -513,53 +524,32 @@ function printOp($myop, $optype = '') {
 </body>
 
 <script>
-/**
- *	script jQuery d'autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
- */
 $(document).ready(function(){
+	/**
+	 *	Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
+	 */
 	setInterval(function(){
-		$(".mainSectionRight").load(window.location.href + " .right" );
+	//	$(".mainSectionRight").load(window.location.href + " .right" );
+		$(".mainSectionRight").load(" .mainSectionRight > *");
 		$("#log-refresh-container").load(" #log-refresh-container > *");
 	}, 3000);
-});
 
-/**
- *	Affiche des boutons de défilement si la page de log fait +700px de haut
- */
-if ($('#log').height() < 700) {
-	$(".button-top-down").hide();
-}
-
-/**
- *	Afficher les opérations masquées
- */
-/*$("#print-all-op").click(function(){
-    $(".hidden-op").show();		// On affiche les opérations masquées
-	$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
-
-	document.cookie = "printAllOp=yes";
-});
-
-function getCookie(cname) {
-let name = cname + "=";
-let decodedCookie = decodeURIComponent(document.cookie);
-let ca = decodedCookie.split(';');
-for(let i = 0; i <ca.length; i++) {
-	let c = ca[i];
-	while (c.charAt(0) == ' ') {
-	c = c.substring(1);
+	/**
+	*	Affiche des boutons de défilement si la page de log fait +700px de haut
+	*/
+	if ($('#log').height() < 700) {
+		$(".button-top-down").hide();
 	}
-	if (c.indexOf(name) == 0) {
-	return c.substring(name.length, c.length);
-	}
-}
-	return "";
-}
 
-let printAllOp = getCookie("printAllOp");
-if (printAllOp == "yes") {
-	$(".hidden-op").show();		// On affiche les opérations masquées
-	$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
-}*/
+	/**
+	*	Afficher les opérations masquées
+	*/
+	$(document).on('click','#print-all-op',function(){
+		$(".hidden-op").show();		// On affiche les opérations masquées
+		$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
+
+		document.cookie = "printAllOp=yes";
+	});
+});
 </script>
 </html>

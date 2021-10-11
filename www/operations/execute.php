@@ -197,25 +197,6 @@ if ($opAction == "duplicate") {
     $op->exec_duplicate();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if ($opAction == "reconstruct") {
     
     $options = getopt(null, ["id:", "gpgResign:"]);

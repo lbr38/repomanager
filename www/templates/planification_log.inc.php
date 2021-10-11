@@ -13,7 +13,7 @@ $logContent = "
 
 <table class=\"op-table\">
     <tr>
-        <th>Exécutée le</td>
+        <th>EXECUTÉE LE</td>
         <td><b>".DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y')."</b> à <b>".DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s')."</b></td>
     </tr>
     <tr>

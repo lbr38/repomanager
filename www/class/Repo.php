@@ -167,10 +167,9 @@ class Repo {
         if ($OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
         }
-        while ($datas = $result->fetchArray()) { $repos[] = $datas; }
-        if (!empty($repos)) {
-            return $repos;
-        }
+        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        
+        if (!empty($repos)) return $repos;
     }
 
 /**
@@ -185,10 +184,9 @@ class Repo {
         if ($OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
         }
-        while ($datas = $result->fetchArray()) { $repos[] = $datas; }
-        if (!empty($repos)) {
-            return $repos;
-        }
+        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        
+        if (!empty($repos)) return $repos;
     }
 
 /**
@@ -198,10 +196,9 @@ class Repo {
         global $OS_FAMILY;
         if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC"); }
         if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
-        while ($datas = $result->fetchArray()) { $repos[] = $datas; }
-        if (!empty($repos)) {
-            return $repos;
-        }
+        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        
+        if (!empty($repos)) return $repos;
     }
 
 /**
@@ -211,10 +208,9 @@ class Repo {
         global $OS_FAMILY;
         if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Id, Name FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC"); }
         if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
-        while ($datas = $result->fetchArray()) { $repos[] = $datas; }
-        if (!empty($repos)) {
-            return $repos;
-        }
+        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        
+        if (!empty($repos)) return $repos;
     }
 
 /**
@@ -222,8 +218,8 @@ class Repo {
  */
     public function countActive() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos WHERE Status = 'active'"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'"); }
+        if ($OS_FAMILY == "Redhat") $result = $this->db->countRows("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
         return $result;
     }
 
@@ -232,8 +228,8 @@ class Repo {
  */
     public function countArchived() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->countRows("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'"); }
+        if ($OS_FAMILY == "Redhat") $result = $this->db->countRows("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
         return $result;
     }
 
