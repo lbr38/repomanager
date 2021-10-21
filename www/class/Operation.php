@@ -939,6 +939,17 @@ class Operation {
             }
 
             /**
+             *  Ici : vérifier qu'un repo n'est pas déjà en place au même env cible et à la même date, pour éviter de lancer une opération 
+             *  qui aboutira sur le message suivant : "ce repo est déjà en prod au 05-10-2021"
+             */
+
+
+
+
+             
+
+
+            /**
              *  Ensuite on vérifie si un repo existe déjà dans le nouvel env indiqué. Si c'est le cas, alors son miroir sera archivé si il n'est pas utilisé par un autre environnement
              */
             $repoArchive = 'no';
@@ -992,7 +1003,7 @@ class Operation {
                     $this->status = 'error';
                 }
 
-                $this->log->steplogBuild(2);
+                $this->log->steplogBuild(3);
                 $this->closeOperation();
             }
         }

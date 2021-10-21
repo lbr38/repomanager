@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Exemple simple qui étend la classe SQLite3 et change les paramètres
  * __construct, puis, utilise la méthode de connexion pour initialiser la
@@ -81,6 +80,15 @@ class Database extends SQLite3 {
             Status CHAR(8) NOT NULL);");
         }
 
+        /**
+         *  Crée la table sources si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS sources (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Url VARCHAR(255) NOT NULL,
+        Gpgkey VARCHAR(255))");
+            
         /** 
          *  Crée la table groups si n'existe pas
          */
@@ -118,9 +126,6 @@ class Database extends SQLite3 {
 
         /**
          *  Crée la table planifications si n'existe pas
-         *  SQLite ne permet pas la création d'une colonne Group car il s'agit d'un mot clé SQL, 
-         *  c'est la raison pour laquelle toutes les colonnes de cette table commencent par Plan_
-         *  
          */
         $this->exec("CREATE TABLE IF NOT EXISTS planifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -137,13 +142,28 @@ class Database extends SQLite3 {
         Logfile VARCHAR(255))");
 
         /**
-         *  Crée la table sources si n'existe pas
+         *  Crée la table profile_package si n'existe pas
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS sources (
+        $this->exec("CREATE TABLE IF NOT EXISTS profile_package (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Name VARCHAR(255) NOT NULL,
-        Url VARCHAR(255) NOT NULL,
-        Gpgkey VARCHAR(255))");
+        Name VARCHAR(255) UNIQUE NOT NULL)");
+        /**
+         *  Si la table profile_package est vide (vient d'être créée) alors on la peuple
+         */
+        $result = $this->query("SELECT * FROM profile_package");
+        if ($this->isempty($result)) $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
+
+        /**
+         *  Crée la table profile_service si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS profile_service (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) UNIQUE NOT NULL)");
+        /**
+         *  Si la table profile_service est vide (vient d'être créée) alors on la peuple
+         */
+        $result = $this->query("SELECT * FROM profile_service");
+        if ($this->isempty($result)) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
     }
 
     /**
@@ -208,6 +228,7 @@ class Database extends SQLite3 {
 
     /**
      *  Transforme un résultat de requête ($result = $stmt->execute()) en un array
+     *  Valable pour les requêtes en bases renvoyant une seule ligne de résultat
      */
     public function fetch(object $result, string $option = '') {
         global $DEBUG_MODE;
@@ -224,14 +245,6 @@ class Database extends SQLite3 {
 
         if (!empty($datas)) return $datas;
     }
-
-
-
-
-
-
-
-
 
     /**
      *  Execute une requête retournant 1 seule ligne (LIMIT 1)
@@ -258,6 +271,32 @@ class Database extends SQLite3 {
         if (!empty($datas)) {
             return $datas;
         }
+    }
+}
+
+class Database_stats extends SQLite3 {
+
+    public function __construct() {
+        $WWW_DIR = dirname(__FILE__, 2);
+        global $OS_FAMILY;
+
+        /**
+         *  Ouvre la base de données repomanager
+         *  Si celle-ci n'existe pas elle est créée automatiquement
+         */
+        $this->open("${WWW_DIR}/db/repomanager-stats.db");
+        $this->busyTimeout(60000);
+
+        /**
+         *  Crée la table size si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS stats (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Id_repo INTEGER NOT NULL,
+        Size INTEGER NOT NULL,
+        Packages_count INTEGER NOT NULL)");
     }
 }
 ?>

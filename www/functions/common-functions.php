@@ -140,85 +140,6 @@ function envtag($env) {
 }
 
 /**
- *  Récupère les fichiers de logs d'opérations passées ou en cours et les affiche dans un select
- */
-function selectlogs() {
-    global $MAIN_LOGS_DIR;
-
-    // Si un fichier de log est actuellement sélectionné (en GET) alors on récupère son nom afin qu'il soit sélectionné dans la liste déroulante (s'il apparait)
-    if (!empty($_GET['logfile'])) {
-        $currentLogfile = validateData($_GET['logfile']);
-    } else {
-        $currentLogfile = '';
-    }
-
-    // On récupère la liste des fichiers de logs en les triant sur la date
-    $logfiles = explode("\n", shell_exec("cd $MAIN_LOGS_DIR && ls -A1 'repomanager_'* | sort -t _ -k3 -r"));
-    echo '<form action="run.php" method="get" class="is-inline-block">';
-    echo '<select name="logfile" class="select-xxlarge">';
-    echo "<option value=\"\">Historique de traitements</option>";
-    foreach($logfiles as $logfile) {
-        // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
-        if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^repomanager_/',$logfile)) {
-            // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
-            $logfileDate = exec("echo $logfile | awk -F '_' '{print $3}'");
-            $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
-            $logfileTime = exec("echo $logfile | awk -F '_' '{print $4}' | sed 's/.log//g'");
-            $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
-            if ($logfile === $currentLogfile) {
-                echo "<option value=\"${logfile}\" selected>Repomanager : traitement du $logfileDate à $logfileTime</option>";
-            } else {
-                echo "<option value=\"${logfile}\">Repomanager : traitement du $logfileDate à $logfileTime</option>";
-            }
-        }
-    }
-    echo '</select>';
-    echo '<button type="submit" class="button-submit-xsmall-blue">Afficher</button>';
-    echo '</form>';
-    unset($logfiles, $logfile, $logfileDate, $logfileTime);
-}
-
-/**
- *  Récupère les fichiers de logs de planifications passées ou en cours et les affiche dans un select
- */
-function selectPlanlogs() {
-    global $MAIN_LOGS_DIR;
-
-    // Si un fichier de log est actuellement sélectionné (en GET) alors on récupère son nom afin qu'il soit sélectionné dans la liste déroulante (s'il apparait)
-    if (!empty($_GET['logfile'])) {
-        $currentLogfile = validateData($_GET['logfile']);
-    } else {
-        $currentLogfile = '';
-    }
-
-    // On récupère la liste des fichiers de logs en les triant 
-    $logfiles = explode("\n", shell_exec("cd $MAIN_LOGS_DIR && ls -A1 'plan_'* | sort -t _ -k3 -r"));
-    echo '<form action="run.php" method="get" class="is-inline-block">';
-    echo '<select name="logfile" class="select-xxlarge">';
-    echo "<option value=\"\">Historique de planifications</option>";
-	foreach($logfiles as $logfile) {
-        // on ne souhaite pas afficher les répertoires '..' '.' ni le fichier lastlog.log (déjà affiché en premier ci-dessus) et on souhaite uniquement afficher les fichier commencant par repomanager_
-        if (($logfile != "..") AND ($logfile != ".") AND ($logfile != "lastlog.log") AND preg_match('/^plan_/', $logfile)) {
-            // Formatage du nom du fichier afin d'afficher quelque chose de plus propre dans la liste
-            $logfileDate = exec("echo $logfile | awk -F '_' '{print $3}'");
-            $logfileDate = DateTime::createFromFormat('Y-m-d', $logfileDate)->format('d-m-Y');
-            $logfileTime = exec("echo $logfile | awk -F '_' '{print $4}' | sed 's/.log//g'");
-            $logfileTime = DateTime::createFromFormat('H-i-s', $logfileTime)->format('H:i:s');
-            if ($logfile === $currentLogfile) {
-                echo "<option value=\"${logfile}\" selected>Planification : traitement du $logfileDate à $logfileTime</option>";
-            } else {
-                echo "<option value=\"${logfile}\">Planification : traitement du $logfileDate à $logfileTime</option>";
-            }
-        }
-	}
-	echo '</select>';
-	echo '<button type="submit" class="button-submit-xsmall-blue">Afficher</button>';
-    echo '</form>';
-    unset($logfiles, $logfile, $logfileDate, $logfileTime);
-}
-
-
-/**
  *  Rechargement d'une div en fournissant sa class css
  */
 function refreshdiv_class($divclass) {
@@ -368,19 +289,26 @@ function enableCron() {
     global $CRON_DAILY_ENABLED;
     global $AUTOMATISATION_ENABLED;
     global $CRON_PLAN_REMINDERS_ENABLED;
+    global $CRON_STATS_ENABLED;
 
     // Récupération du contenu de la crontab actuelle dans un fichier temporaire
     shell_exec("crontab -l > ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
 
     // On supprime toutes les lignes concernant repomanager dans ce fichier pour refaire propre
-    exec("sed -i '/cronjob_daily.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
+    exec("sed -i '/cronjob.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
     exec("sed -i '/plan.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
+    exec("sed -i '/stats.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
 
     // Puis on ajoute les tâches cron suivantes au fichier temporaire
 
     // Tâche cron journalière
     if ($CRON_DAILY_ENABLED == "yes") {
-        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "*/5 * * * * php ${WWW_DIR}/operations/cronjob_daily.php".PHP_EOL, FILE_APPEND);
+        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "*/5 * * * * php ${WWW_DIR}/operations/cronjob.php".PHP_EOL, FILE_APPEND);
+    }
+
+    // Statistiques
+    if ($CRON_STATS_ENABLED == "yes") {
+        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "0 0 * * * php ${WWW_DIR}/operations/stats.php".PHP_EOL, FILE_APPEND);
     }
 
     // si on a activé l'automatisation alors on ajoute la tâche cron d'exécution des planifications
@@ -509,6 +437,7 @@ function printRepoLine($variables = []) {
     global $WWW_REPOS_DIR_URL;
     global $WWW_HOSTNAME;
     global $REPO_CONF_FILES_PREFIX;
+    global $CRON_STATS_ENABLED;
     global $alternateColors;
     global $listColor;
     global $dividingLine;
@@ -698,6 +627,13 @@ function printRepoLine($variables = []) {
             } else {
                 echo '<img class="icon-lowopacity" src="icons/unknow.png" title="Signature GPG : inconnue" />';
             }
+        }
+        /**
+         *  Affichage de l'icone "statistiques"
+         */
+        if ($CRON_STATS_ENABLED == "yes" AND $repoListType == 'active') {
+            if ($OS_FAMILY == "Redhat") echo "<a href=\"stats.php?id=${repoId}\"><img class=\"icon-lowopacity\" src=\"icons/stats.png\" title=\"Voir les stats du repo $repoName (${repoEnv})\" /></a>";
+            if ($OS_FAMILY == "Debian") echo "<a href=\"stats.php?id=${repoId}\"><img class=\"icon-lowopacity\" src=\"icons/stats.png\" title=\"Voir les stats de la section $repoSection (${repoEnv})\" /></a>";
         }
         /**
          *  Affichage de l'icone "explorer"

@@ -611,6 +611,7 @@ firstInstall() {
 	echo "CRON_APPLY_PERMS = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "CRON_SAVE_CONF = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "CRON_PLAN_REMINDERS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+	echo "CRON_STATS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
 	# Création d'un groupe repomanager
 	if ! grep -q "repomanager" /etc/group;then

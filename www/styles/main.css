@@ -317,7 +317,7 @@ section.mainSectionRight {
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
-section.left, section.right, section.center, section.missing-param-alert, #newRepoSlideDiv {
+section.left, section.right, .section-center, section.missing-param-alert, #newRepoSlideDiv {
     width: 98%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionLeft' */
     margin-bottom: 10px;
     padding: 10px;
@@ -330,7 +330,7 @@ section.left, section.right, section.center, section.missing-param-alert, #newRe
     /*overflow: hidden; Désactivé car empêche le bon fonctionnement de "position: sticky" sur run.php */
 }
 /* Paramètres supplémentaires pour les class ci-dessus */
-section.center { width: 99%; margin: auto; }
+.section-center { width: 99%; margin: auto; }
 section.left { min-height: 300px; display: inline-block; }
 section.right, #newRepoSlideDiv { float: right; }
 section.missing-param-alert {
@@ -982,14 +982,111 @@ footer p { color: gray; }
     background-color: #b14440;
 }
 
-
-
-
 .chart { /* largeur des graphiques chartjs */
     width: 110px;
     margin: auto; /* centrer les graphiques */
     padding: 15px;
 }
+
+#stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stats-div-50 {
+    flex: 0 0 49%;
+}
+
+.stats-div-100 {
+    flex: 0 0 99%;
+}
+
+.stats-div-80 {
+    flex: 0 0 79%;
+}
+
+.stats-div-20 {
+    flex: 0 0 19%;
+}
+
+.stats-round-counter {
+    width: 150px;
+    height: 150px;
+    margin: auto;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    border: 8px solid #2b426e;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.stats-div-50, .stats-div-80, .stats-div-100, .stats-div-30 {
+    margin: 5px;
+    border: 1px solid gray;
+    border-radius: 2px;
+}
+
+.stats-info-counter {
+    font-size: 35px;
+}
+
+.stats-info-container:hover span.stats-info-requests {
+    display: inline-block;
+}
+
+.stats-info-requests {
+    display: none;
+    width: 1300px;
+    margin-top: 10px;
+    background-color: #252525;
+    padding:5px;
+    text-align: left;
+    font-size: 12px;
+    border: 1px solid gray;
+    border-radius: 2px;
+}
+
+.stats-access-table {
+    width: 99%;
+    margin: auto;
+    margin-bottom: 15px;
+    /* supprimer les espaces entres les cellules */
+    border-spacing : 0 4px;
+}
+
+.stats-access-table head {
+    font-weight: bold;
+}
+
+.stats-access-table tbody tr {
+    background-color: #2b426e;
+    border-radius: 2px;
+    /*opacity: 0.4;*/
+}
+
+.stats-access-table tbody tr:hover {
+    opacity: 1;
+}
+
+.stats-access-table td {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 11px;
+    padding-bottom: 11px;   
+}
+
+.stats-access-table tr td:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.stats-access-table tr td:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+
 
 #newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton, #DisplayCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;

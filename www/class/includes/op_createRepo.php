@@ -23,6 +23,28 @@ trait op_createRepo {
         $this->log->steplogWrite();
 
         if ($OS_FAMILY == "Redhat") {
+            /**
+             *  Si un répertoire my_uploaded_packages existe, alors on déplace ses éventuels packages
+             */
+            if (is_dir("${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
+                /**
+                 *  Création du répertoire my_integrated_packages qui intègrera les paquets intégrés au repo
+                 */
+                if (!is_dir("${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages/")) mkdir("${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages", 0770, true);
+
+                /**
+                 *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
+                 */
+                if (!dir_is_empty("${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
+                    exec("mv -f ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/*.rpm ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages/");
+                }
+
+                /**
+                 *  Suppression de my_uploaded_packages
+                 */
+                rmdir("${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/");
+            }
+
             exec("createrepo -v ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/ 1>&2 >> {$this->log->steplog}", $output, $return);
             echo '</pre></div>';
 

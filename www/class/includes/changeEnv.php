@@ -352,6 +352,11 @@ trait changeEnv {
                  *  Récupération de l'ID du repos précédemment inséré car on va en avoir besoin pour l'ajouter au même groupe que le repo sur $this->repo->env
                  */
                 $this->repo->id = $this->db->lastInsertRowID();
+
+                /**
+                 *  Clôture de l'étape en cours
+                 */
+                $this->log->steplogOK();
             
             /**
              *  Cas 2 : Il y a déjà une version en $this->repo->newEnv qui va donc passer en archive. Modif du lien symbo + passage de la version précédente en archive :
@@ -451,8 +456,18 @@ trait changeEnv {
                  */
                 exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
                 exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
+
+                /**
+                 *  Clôture de l'étape en cours
+                 */
+                $this->log->steplogOK();
             }
         }
+
+        $this->log->steplog(3);
+        $this->log->steplogInitialize('finalizeRepo');
+        $this->log->steplogTitle("FINALISATION");
+        $this->log->steplogLoading();
 
         /**
          *  7. On ajoute le nouvel environnement de repo au même groupe que le repo sur $this->repo->env 
