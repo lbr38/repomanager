@@ -187,6 +187,7 @@ $WWW_REPOS_DIR_URL = $repomanager_conf_array['WWW_REPOS_DIR_URL'];
 //$WWW_PROFILES_DIR_URL = "$WWW_REPOS_DIR_URL/profiles";
 $WWW_PROFILES_DIR_URL = "http://${WWW_HOSTNAME}/profiles";
 $WWW_USER = $repomanager_conf_array['WWW_USER'];
+$WWW_STATS_LOG_PATH = $repomanager_conf_array['WWW_STATS_LOG_PATH'];
 
 // Config cron
 $CRON_DAILY_ENABLED = $repomanager_conf_array['CRON_DAILY_ENABLED'];

@@ -416,17 +416,6 @@ table.list-repos {
    transform: translateZ(0);*/
 }
 
-/*table.list-repos td, table.list-repos-archived td {
-    padding-left: 10px;
-    padding-right: 10px;
-}*/
-
-/*table.list-repos td.td-xsmall, table.list-repos-archived td.td-xsmall {
-    max-width: 8px;
-    padding-left: 0px;
-    padding-right: 0px;
-}*/
-
 table.list-repos tr .rl-fit {
     width: 0px;
     padding: 0px;
@@ -770,8 +759,6 @@ input[type=text].invisibleInput-blue {
     display: inline-block;
     width: 35px;
     height: 20px;
-    /*margin-top: 2px;
-    margin-bottom: 2px;*/
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -916,26 +903,6 @@ footer p { color: gray; }
     border-radius: 5px;
 }
 
-/*.alert, .deleteAlert {
-    width: 100%;
-    max-width: 600px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    border-radius: 5px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-    background-color:#252525;
-    color: whitesmoke;
-    font-size: 14px;
-    text-align: center;
-    vertical-align: middle;
-}*/
-
 .alert, .alert-success, .alert-error, .deleteAlert { /* div affichant une alerte au milieu de la page */
     width: 100%;
     padding-top: 30px;
@@ -987,106 +954,6 @@ footer p { color: gray; }
     margin: auto; /* centrer les graphiques */
     padding: 15px;
 }
-
-#stats-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.stats-div-50 {
-    flex: 0 0 49%;
-}
-
-.stats-div-100 {
-    flex: 0 0 99%;
-}
-
-.stats-div-80 {
-    flex: 0 0 79%;
-}
-
-.stats-div-20 {
-    flex: 0 0 19%;
-}
-
-.stats-round-counter {
-    width: 150px;
-    height: 150px;
-    margin: auto;
-    margin-top: 60px;
-    margin-bottom: 60px;
-    border: 8px solid #2b426e;
-    border-radius: 50%;
-    text-align: center;
-}
-
-.stats-div-50, .stats-div-80, .stats-div-100, .stats-div-30 {
-    margin: 5px;
-    border: 1px solid gray;
-    border-radius: 2px;
-}
-
-.stats-info-counter {
-    font-size: 35px;
-}
-
-.stats-info-container:hover span.stats-info-requests {
-    display: inline-block;
-}
-
-.stats-info-requests {
-    display: none;
-    width: 1300px;
-    margin-top: 10px;
-    background-color: #252525;
-    padding:5px;
-    text-align: left;
-    font-size: 12px;
-    border: 1px solid gray;
-    border-radius: 2px;
-}
-
-.stats-access-table {
-    width: 99%;
-    margin: auto;
-    margin-bottom: 15px;
-    /* supprimer les espaces entres les cellules */
-    border-spacing : 0 4px;
-}
-
-.stats-access-table head {
-    font-weight: bold;
-}
-
-.stats-access-table tbody tr {
-    background-color: #2b426e;
-    border-radius: 2px;
-    /*opacity: 0.4;*/
-}
-
-.stats-access-table tbody tr:hover {
-    opacity: 1;
-}
-
-.stats-access-table td {
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 11px;
-    padding-bottom: 11px;   
-}
-
-.stats-access-table tr td:first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-}
-
-.stats-access-table tr td:last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-
-
 
 #newRepoCloseButton, #GroupsListCloseButton, #ReposSourcesCloseButton, #DisplayCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
     float: right;
@@ -1175,13 +1042,6 @@ footer p { color: gray; }
 .header-green, .header-green-min { background-color: #4CAF50; }
 .header-red, .header-red-min     { background-color: #d9534f; }
 .header-blue, .header-blue-min   { background-color: #2b426e; }
-
-/* un autre type de container pour les rubans */
-.op-header-container {
-    padding-left: 30px;
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
 
 #op_input_container {
     display: flex;
