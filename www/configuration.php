@@ -245,6 +245,14 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
         $wwwReposDirUrl = validateData($_POST['wwwReposDirUrl']);
         $repomanager_conf_array['WWW']['WWW_REPOS_DIR_URL'] = "$wwwReposDirUrl";
     }
+
+    /**
+     *  Chemin vers le fichier de log d'accès à analyser pour statistiques
+     */
+    if(!empty($_POST['statsLogPath'])) {
+        $statsLogPath = validateData($_POST['statsLogPath']);
+        $repomanager_conf_array['WWW']['WWW_STATS_LOG_PATH'] = "$statsLogPath";
+    }
     
 /**
  *  Section AUTOMATISATION
@@ -652,9 +660,20 @@ if (!empty($_GET['deleteEnv'])) {
 
                 </td>
                 <td class="td-fit">
-                <?php if (empty($CRON_STATS_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                <?php if (empty($CRON_STATS_ENABLED)) echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; ?>
                 </td>
             </tr>
+            <?php
+                if ($CRON_STATS_ENABLED == "yes") {
+                    echo '<tr>';
+                    echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Chemin vers le fichier de log du serveur web contenant des requêtes d\'accès aux repos. Ce fichier est parsé pour générer des statistiques." />Fichier de log à analyser pour les statistiques</td>';
+                    echo "<td><input type=\"text\" autocomplete=\"off\" name=\"statsLogPath\" value=\"${WWW_STATS_LOG_PATH}\" /></td>";
+                    echo '<td class="td-fit">';
+                    if (empty($WWW_STATS_LOG_PATH)) echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                    echo '</td>';
+                    echo '</tr>';
+                }
+            ?>
         </table>
 
         <br><h3>CONFIGURATION WEB</h3>
