@@ -65,6 +65,12 @@
     opacity: 1;
 }
 
+.op-header-container {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 15px;
+}
+
 /* Tableau des détails de l'opération, dans chaque fichier de log */
 .op-table {
     width: 100%;

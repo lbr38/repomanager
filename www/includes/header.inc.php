@@ -16,8 +16,8 @@ if ($DEBUG_MODE == "enabled") {
     }
 }
 ?>
-<header id="refresh-me-container">
-<nav id="refresh-me">
+<header>
+<nav>
       <ul class="menu">
         <li><a href="index.php"><span id="title">Repomanager</span></a><span id="version">BETA</span></li>
         <?php
@@ -48,6 +48,8 @@ if ($DEBUG_MODE == "enabled") {
             echo '<li><a href="configuration.php"><span>Configuration</span></a></li>';
         }
 
+        echo '<li id="refresh-me-container">';
+
         require_once("$WWW_DIR/class/Operation.php");
         $op = new Operation();
         $opsRunning = $op->listRunning('manual');
@@ -57,14 +59,14 @@ if ($DEBUG_MODE == "enabled") {
          *   Cas où il n'y a aucune opération en cours (manuelle ou planifiée)
          */
         if ($opsRunning === false AND $plansRunning === false) {
-            echo '<li><a href="run.php"><span class="li-operation-not-running">Aucune opération en cours</span></a></li>';
+            echo '<a href="run.php"><span class="li-operation-not-running">Aucune opération en cours</span></a>';
         }
 
         /**
          *  Cas où il y a une ou plusieurs opérations en cours
          */
         if ($opsRunning !== false) {
-            echo '<li><a href="run.php"><span class="li-operation-running">Opération en cours</span></a>';
+            echo '<a href="run.php"><span class="li-operation-running">Opération en cours</span></a>';
             echo '<ul class="sub-menu">';
             /**
              *  Pour chaque opération, on récupère son PID et son fichier de LOG
@@ -267,7 +269,9 @@ if ($DEBUG_MODE == "enabled") {
             }
             echo '</ul>';
             echo '</li>';
-        } 
+        }
+
+        echo '</li>'; // Fermeture du li id="refresh-me-header-container"
         
         unset($opsRunning, $plansRunning); ?>
       </ul>
@@ -301,11 +305,13 @@ echo '<section class="main">';
 echo '</section>';
 } ?>
 
+<?php include('maintenance.inc.php'); ?>
+
 <script>
 // script jQuery d'autorechargement du menu dans le header. Permet de recharger le bouton opération en cours automatiquement :
 $(document).ready(function(){
     setInterval(function(){
-        $("#refresh-me-container").load("run.php #refresh-me" );
-    }, 3000);
+        $("#refresh-me-container").load("run.php #refresh-me-container > *");
+    }, 5000);
 });
 </script>

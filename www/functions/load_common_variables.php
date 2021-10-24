@@ -10,10 +10,9 @@ $WWW_DIR = dirname(__FILE__, 2);
 $EMPTY_CONFIGURATION_VARIABLES = 0;
 $GENERAL_ERROR_MESSAGES = [];
 
-// Si le fichier repomanager.conf n'existe pas, on redirige vers la page d'install
+// Vérification de la présence de repomanager.conf
 if (!file_exists("${WWW_DIR}/configurations/repomanager.conf")) {
-    //header("Location: installation.php");
-    echo "Erreur : fichier de configuration introuvable. Relancez l'installation de repomanager.";
+    echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.";
     die();
 }
 
@@ -34,35 +33,28 @@ $REPOMANAGER_CONF = "${WWW_DIR}/configurations/repomanager.conf";
 $DISPLAY_CONF = "${WWW_DIR}/configurations/display.ini";
 $ENV_CONF = "${WWW_DIR}/configurations/envs.conf";
 
-// Emplacement de la DB :
+// Emplacement de la DB
 $DB_DIR = "${WWW_DIR}/db";
 $DB = "${WWW_DIR}/db/repomanager.db";
-
 // Emplacement des groupes
 $GROUPS_DIR = "${WWW_DIR}/configurations/groups";
-
 // Emplacement du répertoire de cache
 $WWW_CACHE = "${WWW_DIR}/cache";
-
 // Emplacement du répertoire de clé GPG
 $GPGHOME = "${WWW_DIR}/.gnupg";
-
 // Répertoire des résultats de tâches cron
 $CRON_DIR = "${WWW_DIR}/cron";
-
 // Répertoire principal des logs
 $LOGS_DIR = "${WWW_DIR}/logs";
-
     // Logs du programme
     $MAIN_LOGS_DIR = "${LOGS_DIR}/main";
-
     // Logs des cron
     $CRON_LOGS_DIR = "${LOGS_DIR}/cron";
     $CRON_LOG = "${CRON_LOGS_DIR}/cronjob-daily.log";
+    $CRON_STATS_LOG = "${CRON_LOGS_DIR}/cronjob-stats.log";
 
 // PIDs
 $PID_DIR = "${WWW_DIR}/operations/pid";
-
 // Répertoire contenant des fichiers temporaires
 $TEMP_DIR = "${WWW_DIR}/.temp";
 
@@ -181,14 +173,12 @@ if (!is_dir("$WWW_DIR/update")) {
     }
 }
 
-// Config web :
+// Config web
 $WWW_HOSTNAME = $repomanager_conf_array['WWW_HOSTNAME'];
 $WWW_REPOS_DIR_URL = $repomanager_conf_array['WWW_REPOS_DIR_URL'];
-//$WWW_PROFILES_DIR_URL = "$WWW_REPOS_DIR_URL/profiles";
 $WWW_PROFILES_DIR_URL = "http://${WWW_HOSTNAME}/profiles";
 $WWW_USER = $repomanager_conf_array['WWW_USER'];
-$WWW_STATS_LOG_PATH = $repomanager_conf_array['WWW_STATS_LOG_PATH'];
-
+if ($repomanager_conf_array['CRON_STATS_ENABLED'] == "yes") $WWW_STATS_LOG_PATH = $repomanager_conf_array['WWW_STATS_LOG_PATH'];
 // Config cron
 $CRON_DAILY_ENABLED = $repomanager_conf_array['CRON_DAILY_ENABLED'];
 $CRON_GENERATE_REPOS_CONF = $repomanager_conf_array['CRON_GENERATE_REPOS_CONF'];
@@ -196,26 +186,24 @@ $CRON_APPLY_PERMS = $repomanager_conf_array['CRON_APPLY_PERMS'];
 $CRON_SAVE_CONF = $repomanager_conf_array['CRON_SAVE_CONF'];
 $CRON_PLAN_REMINDERS_ENABLED = $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'];
 $CRON_STATS_ENABLED = $repomanager_conf_array['CRON_STATS_ENABLED'];
-
 // Version actuelle et version disponible sur github
 $VERSION = file_get_contents("${WWW_DIR}/version");
 $GIT_VERSION = file_get_contents("${WWW_DIR}/cron/github.version");
-if (!empty($VERSION) AND !empty($GIT_VERSION) AND $VERSION !== $GIT_VERSION) {
+if (!empty($VERSION) AND !empty($GIT_VERSION) AND $VERSION !== $GIT_VERSION)
     $UPDATE_AVAILABLE = "yes";
-} else {
+else
     $UPDATE_AVAILABLE = "no";
-}
 
-// Autres :
-if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) {
-    $actual_url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-}
-if (!empty($_SERVER['REQUEST_URI'])) {
-    $actual_uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-}
-if (!empty($_SERVER['SERVER_ADDR'])) {
-    $serverIP = $_SERVER['SERVER_ADDR'];
-}
+// Vérification si une mise à jour de repomanager est en cours
+if (file_exists("${WWW_DIR}/update-running"))
+    $UPDATE_RUNNING = "yes";
+else
+    $UPDATE_RUNNING = "no";
+
+// Autres
+if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) $actual_url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+if (!empty($_SERVER['REQUEST_URI'])) $actual_uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+if (!empty($_SERVER['SERVER_ADDR'])) $serverIP = $_SERVER['SERVER_ADDR'];
 
 // Date et heure du jour
 $DATE_DMY = date("d-m-Y");
@@ -223,4 +211,24 @@ $DATE_YMD = date("Y-m-d");
 $TIME = date("H-i");
 
 unset($repomanager_conf_array);
+
+/**
+ *  Si la mise à jour automatique est activé et qu'une mise à jour est disponible alors on l'installe en arrière-plan.
+ *  L'action est effectuée uniquement si une mise à jour n'est pas déjà en cours (présence du fichier update-running)
+ *  La mise à jour mettra en place une page de maintenance automatiquement
+ */
+if ($UPDATE_AUTO == "yes" AND $UPDATE_AVAILABLE == "yes") {
+    if (!file_exists("${WWW_DIR}/update-running")) {
+        exec('curl '.$_SERVER['HTTP_HOST'].'configuration.php?action=update &');
+        sleep(1);
+    }
+}
+
+/**
+ *  Si les stats sont activées mais que le parser de log ne tourne pas, alors on le lance en arrière-plan
+ *  Note : cette condition est vérifiée à chaque chargement de load_common_variables.php, et donc à chaque fois que cronjob.php ou que plan.php exec-plans se lance, ce qui largement suffisant.
+ */
+if ($CRON_STATS_ENABLED == "yes" AND empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {  
+    exec("bash ${WWW_DIR}/tools/stats-log-parser '$WWW_STATS_LOG_PATH' >/dev/null 2>/dev/null &");
+}
 ?>

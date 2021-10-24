@@ -1,7 +1,7 @@
 <?php
 /**
  *  Génération des données de statistiques des repos
- *  Les actions sont exécutées par l'utilisateur $WWW_USER
+ *  Les actions sont exécutées par cron avec l'utilisateur $WWW_USER
  */
 
 $WWW_DIR = dirname(__FILE__, 2);
@@ -15,14 +15,7 @@ require_once("${WWW_DIR}/class/Database.php");
 
 $repo = new Repo();
 
-$permissionsError = 0;
-$checkVersionError = 0;
-$generateConfError = 0;
-$backupError = 0;
-$return = '';
-
-$STATS_ENABLED = "yes"; // forcé pour le moment
-if ($STATS_ENABLED == "yes") {
+if ($CRON_STATS_ENABLED == "yes") {
     /**
      *  On récupère toute la liste des repos actifs
      */
@@ -86,16 +79,6 @@ if ($STATS_ENABLED == "yes") {
     }
 }
 
-
 // Vérification des erreurs et ajout dans le fichier de log si c'est le cas
-// Si une erreur a eu lieu sur l'une des opérations alors on affiche un status KO
-if ($checkVersionError != 0 OR $generateConfError != 0 OR $permissionsError != 0 OR $backupError != 0)
-	file_put_contents($CRON_LOG, 'Status="KO"'.PHP_EOL);
-else // Si aucune erreur n'a eu lieu, on affiche un status OK
-	file_put_contents($CRON_LOG, 'Status="OK"'.PHP_EOL);
-
-if ($backupError != 0) file_put_contents($CRON_LOG, "Problème lors de la sauvegarde des fichiers de configuration/db", FILE_APPEND);
-if ($checkVersionError != 0) file_put_contents($CRON_LOG, "Problème lors de la vérification d'une nouvelle version", FILE_APPEND);
-if ($generateConfError != 0) file_put_contents($CRON_LOG, "Problème lors de regénération des fichiers de conf repo des profils", FILE_APPEND);
-if ($permissionsError != 0) file_put_contents($CRON_LOG, "Problème lors de l'application des permissions", FILE_APPEND);
+file_put_contents($CRON_STATS_LOG, 'Status="OK"'.PHP_EOL);
 ?>

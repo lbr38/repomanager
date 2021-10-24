@@ -27,7 +27,6 @@ body {
     animation: fadeInAnimation ease 0.00001s;
     animation-iteration-count: 1; 
     animation-fill-mode: forwards;
-    /*min-height: 100%;*/
     font-family: 'Roboto', sans-serif;
     margin: 0px;
     padding: 0px;
@@ -521,12 +520,6 @@ td {
     color: whitesmoke;
 }
 
-.td-auto {
-    width: auto !important;
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
 .td-fit { /* cellule qui s'adapte à la taille du contenu, avec léger padding sur les côté pour ne pas finir collé au reste */
     width: 1%;
     white-space: nowrap;
@@ -577,7 +570,7 @@ td {
     opacity: 0.55;
 }
 
-.divReposListDisplay, .divReposConf {
+.divReposListDisplay {
     display: none;
     color: whitesmoke;
     padding: 10px;
@@ -588,7 +581,25 @@ td {
      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
      background-color: #252525;
 }
-.divReposConf { font-size: 12px; }
+.divReposConf { 
+    width: 100%;
+    padding-top: 15px;
+    padding-left: 30px;
+    padding-bottom: 30px;
+    position: fixed; /* on positionne le div au centre de la page */
+    bottom: 0;
+    left: 0;
+    box-shadow:
+     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
+     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    background-color:#252525;
+    color: whitesmoke;
+    vertical-align: middle;
+}
+.divReposConf-close {
+    position: fixed;
+    right: 8px;
+}
 
 /* form, button, input, textarea */
 
@@ -1060,4 +1071,23 @@ footer p { color: gray; }
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
 #op_input_container p, #op_input_container h3 {
     flex: 0 0 100%;
+}
+
+#maintenance {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    background: #252525;
+    opacity: 0.7;
+}
+
+#maintenance p {
+    height: 100px;
+    line-height: 40;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
 }

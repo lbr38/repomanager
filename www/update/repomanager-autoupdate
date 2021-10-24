@@ -6,9 +6,9 @@ set -u
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 WWW_DIR=$(echo "$CURRENT" | sed 's|/update||g')
 GITHUB_VERSION=$(cat ${WWW_DIR}/cron/github.version)
+UPDATE_ERROR=0
 
 if [ -z "$GITHUB_VERSION" ];then
-    echo -e "[ ERREUR ] Numéro de version github inconnu"
     exit 1
 fi
 
@@ -20,34 +20,40 @@ cd /tmp/repomanager-update_${GITHUB_VERSION}/
 # Téléchargement de la nouvelle version :
 wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
 if [ $? -ne "0" ];then
-    echo -e "[ ERREUR ] lors du téléchargement (https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz)"
-    exit 1
+    exit 2
 fi
 
 tar xzf repomanager_${GITHUB_VERSION}.tar.gz
 if [ $? -ne "0" ];then
-    echo -e "[ ERREUR ] lors de l'extraction"
-    exit 1
+    exit 3
 fi
 
 # Copie des fichiers au bon endroit
-cd /tmp/repomanager-update_${GITHUB_VERSION}/repomanager &&
+cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
 # .php
-rsync -a --quiet --include '*/' --include '*.php' --exclude '*' www/ ${WWW_DIR}/ &&
+rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' www/ ${WWW_DIR}/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # Css
-rsync -a --quiet --delete-after --exclude 'www/styles/colors.php' www/styles/ ${WWW_DIR}/styles/ &&
+rsync -a --quiet --delete-after --exclude 'www/styles/colors.php' www/styles/ ${WWW_DIR}/styles/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # JS
-rsync -a --quiet --delete-after www/js/ ${WWW_DIR}/js/ &&
+rsync -a --quiet --delete-after www/js/ ${WWW_DIR}/js/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # images
-rsync -a --quiet --delete-after www/images/ ${WWW_DIR}/images/ &&
+rsync -a --quiet --delete-after www/images/ ${WWW_DIR}/images/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # icons
-rsync -a --quiet --delete-after www/icons/ ${WWW_DIR}/icons/ &&
+rsync -a --quiet --delete-after www/icons/ ${WWW_DIR}/icons/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # fonts
-rsync -a --quiet --delete-after www/fonts/ ${WWW_DIR}/fonts/ &&
+rsync -a --quiet --delete-after www/fonts/ ${WWW_DIR}/fonts/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # version
 rsync -a --quiet version ${WWW_DIR}/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # favicon
 rsync -a --quiet www/favicon.ico ${WWW_DIR}/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # display.ini
 # Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/www/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
 cp www/configurations/display.ini www/configurations/display.ini.tmp
@@ -59,30 +65,29 @@ for PARAM in $PARAMETERS;do
     sed -i "s/${PARAM}.*/${PARAM} = ${ACTUAL_VALUE}/g" www/configurations/display.ini.tmp
 done &&
 \cp www/configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
-if [ $? -ne "0" ];then
-    echo -e "[ ERREUR ] lors de la mise à jour du répertoire '${WWW_DIR}'"
-    exit 1
+
+if [ $UPDATE_ERROR -ne "0" ];then
+    exit 4
 fi
 
 # Nettoyage
 cd "$WWW_DIR" &&
-# Suppression de certains vieux répertoires ou fichiers inutilisés si existe dans la cible
+# Nettoyage de certains vieux répertoires ou fichiers inutilisés si existe dans la cible
 rm -rf "${WWW_DIR}/archives"
+rm -rf "${WWW_DIR}/_archives"
 rm -rf "${WWW_DIR}/vars"
 rm -rf "${WWW_DIR}/jquery"
 rm -rf "${WWW_DIR}/chartjs"
 rm -rf "${WWW_DIR}/logs/plans"
+rm -rf "${WWW_DIR}/operations_prechecks"
+rm -rf "${WWW_DIR}/customs_errors"
 rm -f "${WWW_DIR}/configurations/groups.conf"
 rm -f "${WWW_DIR}/configurations/hosts.conf"
 rm -f "${WWW_DIR}/configurations/repos.list"
 rm -f "${WWW_DIR}/configurations/repos-archive.list"
-
+rm -f "${WWW_DIR}/operations/cronjob_daily.php"
 
 # Suppression du répertoire de mise à jour
-rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
-if [ $? -ne "0" ];then
-    echo -e "[ ERREUR ] lors de la suppression de /tmp/repomanager-update_${GITHUB_VERSION}/"
-    exit 1
-fi
+rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf
 
 exit 0
