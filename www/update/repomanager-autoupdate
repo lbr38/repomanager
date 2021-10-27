@@ -15,7 +15,22 @@ fi
 # On supprime le répertoire de travail si existe déjà, puis on le recrée vide
 rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
 mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/ &&
+mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/backup-conf &&
 cd /tmp/repomanager-update_${GITHUB_VERSION}/
+
+# Répertoire qui contiendra les sauvegardes de configuration actuelles
+BACKUP_CONF_DIR="/tmp/repomanager-update_${GITHUB_VERSION}/backup-conf"
+
+# Sauvegarde des configurations actuelles
+cp ${WWW_DIR}/styles/colors.php ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/configurations/repomanager.conf ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/configurations/display.ini ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/configurations/envs.conf ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/operations/pid ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/.temp ${BACKUP_CONF_DIR}/
 
 # Téléchargement de la nouvelle version :
 wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
@@ -23,49 +38,71 @@ if [ $? -ne "0" ];then
     exit 2
 fi
 
+# Extraction de l'archive
 tar xzf repomanager_${GITHUB_VERSION}.tar.gz
 if [ $? -ne "0" ];then
     exit 3
 fi
 
-# Copie des fichiers au bon endroit
+# Entre dans les fichiers décompréssés
 cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
+
+# Copie des fichiers au bon endroit
+# Copie de tous les fichiers
+rsync -a --quiet ./ ${WWW_DIR}/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+# Seconde copie des fichiers .php uniquement en supprimant ceux inutilisés
+rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
+if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+
 # .php
-rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' www/ ${WWW_DIR}/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# Css
-rsync -a --quiet --delete-after --exclude 'www/styles/colors.php' www/styles/ ${WWW_DIR}/styles/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# JS
-rsync -a --quiet --delete-after www/js/ ${WWW_DIR}/js/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# images
-rsync -a --quiet --delete-after www/images/ ${WWW_DIR}/images/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# icons
-rsync -a --quiet --delete-after www/icons/ ${WWW_DIR}/icons/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# fonts
-rsync -a --quiet --delete-after www/fonts/ ${WWW_DIR}/fonts/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# version
-rsync -a --quiet version ${WWW_DIR}/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-# favicon
-rsync -a --quiet www/favicon.ico ${WWW_DIR}/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+#rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## Css
+#rsync -a --quiet --delete-after --exclude './styles/colors.php' ./styles/ ${WWW_DIR}/styles/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## JS
+#rsync -a --quiet --delete-after ./js/ ${WWW_DIR}/js/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## images
+#rsync -a --quiet --delete-after ./images/ ${WWW_DIR}/images/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## icons
+#rsync -a --quiet --delete-after ./icons/ ${WWW_DIR}/icons/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## fonts
+#rsync -a --quiet --delete-after ./fonts/ ${WWW_DIR}/fonts/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## version
+#rsync -a --quiet version ${WWW_DIR}/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+## favicon
+#rsync -a --quiet ./favicon.ico ${WWW_DIR}/
+#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # display.ini
-# Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/www/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
-cp www/configurations/display.ini www/configurations/display.ini.tmp
+# Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
+cp configurations/display.ini configurations/display.ini.tmp
 # On récupère tous les paramètres du nouveau fichier display.ini
 # Puis pour chaque paramètres, on récupère sa valeur côté display.ini actuellement en place, ceci afin de ne pas écraser la conf actuelle de l'utilisateur
-PARAMETERS=$(egrep "^.*=" www/configurations/display.ini | awk '{print $1}')
+PARAMETERS=$(egrep "^.*=" configurations/display.ini | awk '{print $1}')
 for PARAM in $PARAMETERS;do
     ACTUAL_VALUE=$(egrep "^$PARAM" ${WWW_DIR}/configurations/display.ini | awk '{print $3}')
-    sed -i "s/${PARAM}.*/${PARAM} = ${ACTUAL_VALUE}/g" www/configurations/display.ini.tmp
+    sed -i "s/${PARAM}.*/${PARAM} = ${ACTUAL_VALUE}/g" configurations/display.ini.tmp
 done &&
-\cp www/configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
+\cp configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
 
+# Remise en place des configurations sauvegardées
+\cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/styles/colors.php
+\cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf
+\cp ${BACKUP_CONF_DIR}/display.ini ${WWW_DIR}/configurations/display.ini
+\cp ${BACKUP_CONF_DIR}/envs.conf ${WWW_DIR}/configurations/envs.conf
+\cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db
+\cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db
+\cp -r ${BACKUP_CONF_DIR}/logs ${WWW_DIR}/
+\cp -r ${BACKUP_CONF_DIR}/pid ${WWW_DIR}/operations/
+\cp -r ${BACKUP_CONF_DIR}/.temp ${WWW_DIR}/
+
+# Si il y a eu des erreurs alors on quitte
 if [ $UPDATE_ERROR -ne "0" ];then
     exit 4
 fi
