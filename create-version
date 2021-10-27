@@ -48,7 +48,8 @@ else
     exit
 fi
 
-cp -r ${DEV_DIR} /tmp/repomanager && # on copie le contenu de $DEV_DIR dedans
+cp -r ${DEV_DIR}/www /tmp/repomanager && # on copie le contenu de $DEV_DIR dedans
+cp ${DEV_DIR}/version /tmp/repomanager &&
 cd /tmp # On se place sur tmp afin de faire une archive repomanager/
 if [ $? -eq "0" ];then
     echo "[ OK ]"
