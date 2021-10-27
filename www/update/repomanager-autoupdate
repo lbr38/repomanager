@@ -28,9 +28,9 @@ cp ${WWW_DIR}/configurations/display.ini ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/configurations/envs.conf ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
-cp ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
-cp ${WWW_DIR}/operations/pid ${BACKUP_CONF_DIR}/
-cp ${WWW_DIR}/.temp ${BACKUP_CONF_DIR}/
+cp -r ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
+cp -r ${WWW_DIR}/operations/pid ${BACKUP_CONF_DIR}/
+cp -r ${WWW_DIR}/.temp ${BACKUP_CONF_DIR}/
 
 # Téléchargement de la nouvelle version :
 wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
