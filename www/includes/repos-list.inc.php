@@ -188,7 +188,7 @@ $(document).ready(function(){
 <!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">
 <?php 
-// Méthode génération de la page en html et stockage en ram (experimental)
+// Génération de la page en html et stockage en ram (experimental)
 if ($cache_repos_list == "yes") {
      if (!file_exists("${WWW_CACHE}/repomanager-repos-list.html")) {
         touch("${WWW_CACHE}/repomanager-repos-list.html");
@@ -206,3 +206,47 @@ if ($cache_repos_list == "yes") {
 unset($repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv);
 ?>
 </table>
+
+<script>
+$(document).ready(function(){
+    /**
+     *  Génération de la configuration du repo à installer sur la machine cliente
+     */
+    $(".client-configuration-button").click(function(){
+        /**
+         *  Récupération des infos du repo
+         */
+        var os_family = $(this).attr('os_family');
+        var repoName = $(this).attr('repo');
+        var repoEnv = $(this).attr('env');
+        if (os_family == "Debian") {
+            var repoDist = $(this).attr('dist');
+            var repoSection = $(this).attr('section');
+        }
+        var repo_dir_url = $(this).attr('repo_dir_url');
+        var repo_conf_files_prefix = $(this).attr('repo_conf_files_prefix');
+        var www_hostname = $(this).attr('www_hostname');
+
+        if (os_family == "Redhat") {
+            $('footer').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="icons/close.png" /></span><h3>INSTALLATION</h3><p>Exécuter ces commandes directement dans le terminal de la machine cliente :</p><pre>echo -e "# Repo '+repoName+' ('+repoEnv+') sur '+www_hostname+'\n['+repo_conf_files_prefix+''+repoName+'_'+repoEnv+']\nname=Repo '+repoName+' sur '+www_hostname+'\ncomment=Repo '+repoName+' sur '+www_hostname+'\nbaseurl='+repo_dir_url+'/'+repoName+'_'+repoEnv+'\nenabled=1\ngpgkey='+repo_dir_url+'/gpgkeys/'+www_hostname+'.pub\ngpgcheck=1" > /etc/yum.repos.d/'+repo_conf_files_prefix+''+repoName+'.repo</pre></div>');
+        }
+        if (os_family == "Debian") {
+            $('footer').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="icons/close.png" /></span><h3>INSTALLATION</h3><p>Exécuter ces commandes directement dans le terminal de la machine cliente :</p><pre>wget -qO '+repo_dir_url+'/gpgkeys/'+www_hostname+'.pub | sudo apt-key add -\n\necho -e "# Repo '+repoName+' ('+repoEnv+') sur '+www_hostname+'\ndeb '+repo_dir_url+'/'+repoName+'/'+repoDist+'/'+repoSection+'_'+repoEnv+' '+repoDist+' '+repoSection+'" > /etc/apt/sources.list.d/'+repo_conf_files_prefix+''+repoName+'_'+repoDist+'_'+repoSection+'.list</pre></div>');
+        }
+
+        /**
+         *  Le div est créé mais il est masqué par défaut (hide), ceci afin de pouvoir l'afficher avec une animation show
+         */
+        $('.divReposConf').show(200);
+
+        /**
+         *  Fermeture de la configuration du repo générée par la fonction ci-dessus
+         *  D'abord on masque le div avec une animation, puis on détruit le div
+         */
+        $(".divReposConf-close").click(function(){
+            $(".divReposConf").hide(200);
+            $(".divReposConf").remove();
+        }); 
+    });
+});
+</script>

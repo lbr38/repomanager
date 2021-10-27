@@ -191,11 +191,10 @@ function animatediv_byid($divid) {
  */
 function checkCronReminder() {
     $cronStatus = shell_exec("crontab -l | grep 'send-reminders' | grep -v '#'");
-    if (empty($cronStatus)) {
+    if (empty($cronStatus))
         return 'Off';
-    } else {
+    else
         return 'On';
-    }
 }
 
 /**
@@ -343,6 +342,13 @@ function dir_is_empty($dir) {
     return true;
 }
 
+function kill_stats_log_parser() {
+    global $WWW_DIR;
+    global $WWW_USER;
+    global $WWW_STATS_LOG_PATH;
+
+    exec("/usr/bin/pkill -9 -u $WWW_USER -f 'tail -n0 -F $WWW_STATS_LOG_PATH'");
+}
 
 /**
  * 	Fonctions liées à l'affichage des listes de repos
@@ -503,7 +509,8 @@ function printRepoLine($variables = []) {
                 /**
                  *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
                  */
-                echo "<img id=\"clientConfToggle${repoId}\" class=\"icon-lowopacity\" src=\"icons/code.png\" title=\"Afficher la configuration client\" />";
+                if ($OS_FAMILY == "Redhat") echo "<img class=\"client-configuration-button icon-lowopacity\" os_family=\"Redhat\" repo=\"$repoName\" env=\"$repoEnv\" repo_dir_url=\"$WWW_REPOS_DIR_URL\" repo_conf_files_prefix=\"$REPO_CONF_FILES_PREFIX\" www_hostname=\"$WWW_HOSTNAME\" src=\"icons/code.png\" title=\"Afficher la configuration client\" />";
+                if ($OS_FAMILY == "Debian") echo "<img class=\"client-configuration-button icon-lowopacity\" os_family=\"Debian\" repo=\"$repoName\" dist=\"$repoDist\" section=\"$repoSection\" env=\"$repoEnv\" repo_dir_url=\"$WWW_REPOS_DIR_URL\" repo_conf_files_prefix=\"$REPO_CONF_FILES_PREFIX\" www_hostname=\"$WWW_HOSTNAME\" src=\"icons/code.png\" title=\"Afficher la configuration client\" />";
                 
                 /**
                  *  Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = $DEFAULT_ENV et si il s'agit d'un miroir
@@ -676,34 +683,5 @@ function printRepoLine($variables = []) {
         echo '</td>';
     echo '</tr>';
     echo '</form>';
-
-    /**
-     *  Affichage de la configuration installable sur les serveurs clients, placée dans une div cachée
-     */
-    if ($repoListType == 'active') {
-        echo '<tr>';
-            echo '<td colspan="100%">';
-                echo "<div id=\"clientConfDiv${repoId}\" class=\"divReposConf\">";
-                echo '<h3>INSTALLATION</h3>';
-                echo '<p>Exécuter ces commandes directement dans le terminal de la machine cliente :</p>';
-                echo '<pre>';
-                if ($OS_FAMILY == "Redhat") echo "echo -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\n[${REPO_CONF_FILES_PREFIX}${repoName}_${repoEnv}]\nname=Repo ${repoName} sur ${WWW_HOSTNAME}\ncomment=Repo ${repoName} sur ${WWW_HOSTNAME}\nbaseurl=${WWW_REPOS_DIR_URL}/${repoName}_${repoEnv}\nenabled=1\ngpgkey=${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub\ngpgcheck=1' > /etc/yum.repos.d/${REPO_CONF_FILES_PREFIX}${repoName}.repo";
-                if ($OS_FAMILY == "Debian") echo "wget -qO ${WWW_REPOS_DIR_URL}/gpgkeys/${WWW_HOSTNAME}.pub | sudo apt-key add -\n\necho -e '# Repo ${repoName} (${repoEnv}) sur ${WWW_HOSTNAME}\ndeb ${WWW_REPOS_DIR_URL}/${repoName}/${repoDist}/${repoSection}_${repoEnv} ${repoDist} ${repoSection}' > /etc/apt/sources.list.d/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list";
-                echo '</pre>';
-                echo '</div>';
-                /**
-                 *  Script JS pour afficher ou masquer la div
-                 */
-                echo '<script>';
-                echo '$(document).ready(function(){';
-                echo "$(\"#clientConfToggle${repoId}\").click(function(){";
-                echo "$(\"#clientConfDiv${repoId}\").slideToggle(250);";
-                echo '$(this).toggleClass("open");';
-                echo '});';
-                echo '});';
-                echo '</script>';
-            echo '</td>';
-        echo '</tr>';
-    }
 }
 ?>

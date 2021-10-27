@@ -63,7 +63,7 @@ echo '</tr>';
 echo '<tr>';
 echo '<td class="type_mirror_input hide">Nom personnalisé (fac.)</td>'; // Si type = mirror alors on affiche
 echo '<td class="type_local_input hide">Nom du repo</td>';              // Si type = local alors on affiche
-echo '<td><input type="text" name="repoAlias" placeholder="Ne pas utiliser d\'underscore \'_\'" /></td>';
+echo '<td><input type="text" name="repoAlias" /></td>';
 echo '</tr>';
 if ($OS_FAMILY == "Debian") {
     echo '<tr>';

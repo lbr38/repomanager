@@ -18,11 +18,6 @@ require_once('class/Repo.php');
  */
 $db_stats = new Database_stats();
 
-/**
- *  A partir du nom du fichier de log principal, on en déduit le répertoire
- */
-$WWW_STATS_LOGDIR_PATH = dirname($WWW_STATS_LOG_PATH, 1);
-
 $repoError = 0;
 
 /**
@@ -72,39 +67,21 @@ if ($repoError == 0) {
 
                 if (!file_exists($WWW_STATS_LOG_PATH)) echo "<p><span class=\"yellowtext\">Le fichier de log à analyser ($WWW_STATS_LOG_PATH) n'existe pas ou n'est pas correctement configuré.</span></p>";
                 if (!is_readable($WWW_STATS_LOG_PATH)) echo "<p><span class=\"yellowtext\">Le fichier de log à analyser ($WWW_STATS_LOG_PATH) n'est pas accessible en lecture.</span></p>";
-                if (!is_dir($WWW_STATS_LOGDIR_PATH)) echo "<p><span class=\"yellowtext\">Impossible de récupérer le chemin du répertoire des logs de ce serveur.</span></p>";
 
                 /**
-                 *  Récupération de la liste des fichiers de log à analyser
+                 *  Récupération de la liste des derniers logs d'accès au repo, à partir de la BDD
                  */
-                $logFiles = explode("\n", shell_exec("ls -tr1 '${WWW_STATS_LOGDIR_PATH}'/"));
-                $logFiles = array_reverse($logFiles);
-                /**
-                 *  Si la liste de fichiers est longue, on la limite à 5 fichiers maximum pour ne pas plomber la perf lors du parsage
-                 */
-                if (count($logFiles) > 5) $logFiles = array_slice($logFiles, 0, 5);
+                if ($OS_FAMILY == "Redhat") $lastAccess = $db_stats->get_lastAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                if ($OS_FAMILY == "Debian") $lastAccess = $db_stats->get_lastAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                /*$lastMinuteAccess = $db_stats->get_lastMinuteAccess();
+                $lastMinuteAccessCount = $db_stats->get_lastMinuteAccess_count();
+                $realTimeAccessCount = $db_stats->get_realTimeAccess_count();*/
 
                 /**
-                 *  Récupération de la liste des derniers logs d'accès au repo, à partir de la liste de fichiers de logs précédemment récupérée
+                 *  Tri des valeurs par date et heure
                  */
-                $lastAccess[] = '';
-
-                if (!empty($logFiles)) {
-                    /**
-                     *  Pour chaque fichier de log analysé, on ajoute les résultats obtenus dans l'array $lastAccess
-                     */
-                    foreach ($logFiles as $logFile) {
-                        /**
-                         *  Récupération des lignes de logs sous forme de tableau, qu'on injecte à la suite du tableau $lastAccess
-                         */
-                        if ($OS_FAMILY == "Redhat") $lastAccess = array_merge($lastAccess, explode("\n", shell_exec("zgrep -h 'urlgrabber' ${WWW_STATS_LOGDIR_PATH}/${logFile} | grep '/{$myrepo->name}_{$myrepo->env}/'")));
-                        if ($OS_FAMILY == "Debian") $lastAccess = array_merge($lastAccess, explode("\n", shell_exec("zgrep -h 'Debian APT-CURL' ${WWW_STATS_LOGDIR_PATH}/${logFile} | grep '/{$myrepo->name}/{$myrepo->dist}/{$myrepo->section}_{$myrepo->env}/'")));
-                    }
-                }
-                /**
-                 *  Retrait des valeurs vides dans $lastAccess
-                 */
-                $lastAccess = array_filter($lastAccess);
+                if (!empty($lastAccess)) array_multisort(array_column($lastAccess, 'Date'), SORT_DESC, array_column($lastAccess, 'Time'), SORT_DESC, $lastAccess);
+                //if (!empty($lastMinuteAccess)) array_multisort(array_column($lastMinuteAccess, 'Date'), SORT_DESC, array_column($lastMinuteAccess, 'Time'), SORT_DESC, $lastMinuteAccess);
             ?>
 
             <div id="stats-container">
@@ -113,35 +90,6 @@ if ($repoError == 0) {
                  *  Affichage des graphiques uniquement si l'Id du repo est valide
                  */
                 if ($repoError === 0) {
-
-                    $currentDate = date('d/M/Y');
-
-                    /**
-                     *  Compteur en temps réel des accès au repo/section
-                     */
-                    $currentHourMinuteSecond = date('H:i:s');
-                    $currentHourMinute = date('H:i');
-                    $countLastMinuteLogOccurences_details = '';
-
-                    /**
-                     *  Comptage du nombre d'accès au repo (temps réel et dernière minute)
-                     */
-                    if ($OS_FAMILY == "Redhat") {
-                        $countCurrentLogOccurences = exec("zgrep -h '\[${currentDate}:${currentHourMinuteSecond}.*\]' $WWW_STATS_LOG_PATH | grep 'urlgrabber' | grep '/{$myrepo->name}_{$myrepo->env}/' | wc -l");
-                        $countLastMinuteLogOccurences = exec("zgrep -h '\[${currentDate}:${currentHourMinute}.*\]' $WWW_STATS_LOG_PATH | grep 'urlgrabber' | grep '/{$myrepo->name}_{$myrepo->env}/' | wc -l");
-                    }
-                    if ($OS_FAMILY == "Debian") {
-                        $countCurrentLogOccurences = exec("zgrep -h '\[${currentDate}:${currentHourMinuteSecond}.*\]' $WWW_STATS_LOG_PATH | grep 'Debian APT-CURL' | grep '/{$myrepo->name}/{$myrepo->dist}/{$myrepo->section}_{$myrepo->env}/' | wc -l");
-                        $countLastMinuteLogOccurences = exec("zgrep -h '\[${currentDate}:${currentHourMinute}.*\]' $WWW_STATS_LOG_PATH | grep 'Debian APT-CURL' | grep '/{$myrepo->name}/{$myrepo->dist}/{$myrepo->section}_{$myrepo->env}/' | wc -l");
-                    }
-                    /**
-                     *  Si le comptage de la dernière minute n'est pas vide, alors on récupère aussi les détails des requêtes (date, source, cible...)
-                     */
-                    if ($countLastMinuteLogOccurences > 0) {
-                        if ($OS_FAMILY == "Redhat") $countLastMinuteLogOccurences_details = explode("\n", trim(shell_exec("zgrep -h '\[${currentDate}:${currentHourMinute}.*\]' $WWW_STATS_LOG_PATH | grep 'urlgrabber' | grep '/{$myrepo->name}_{$myrepo->env}/'")));
-                        if ($OS_FAMILY == "Debian") $countLastMinuteLogOccurences_details = explode("\n", trim(shell_exec("zgrep -h '\[${currentDate}:${currentHourMinute}.*\]' $WWW_STATS_LOG_PATH | grep 'Debian APT-CURL' | grep '/{$myrepo->name}/{$myrepo->dist}/{$myrepo->section}_{$myrepo->env}/'")));
-                    }
-
                     /**
                      *  Comptage de la taille du repo et du nombre de paquets actuel
                      */
@@ -150,8 +98,8 @@ if ($repoError == 0) {
                         $packagesCount = exec("find ${REPOS_DIR}/{$myrepo->dateFormatted}_{$myrepo->name}/ -type f -name '*.rpm' | wc -l");
                     }
                     if ($OS_FAMILY == "Debian") {
-                        $repoSize = exec("du -hs ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->date}_{$myrepo->section} | awk '{print $1}'");
-                        $packagesCount = exec("find ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->date}_{$myrepo->section}/ -type f -name '*.deb' | wc -l");
+                        $repoSize = exec("du -hs ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section} | awk '{print $1}'");
+                        $packagesCount = exec("find ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section}/ -type f -name '*.deb' | wc -l");
                     }
 
                     /**
@@ -161,7 +109,7 @@ if ($repoError == 0) {
                         echo '<p class="center">Propriétés</p>';
                         echo '<div class="stats-round-counter">';
                             echo '<br><p class="lowopacity">Taille du repo</p><br>';
-                            echo '<span class="stats-info-container pointer">';
+                            echo '<span class="stats-info-container">';
                                 echo "<span class=\"stats-info-counter\">$repoSize</span>";
                             echo '</span>';
                         echo '</div>';
@@ -169,7 +117,7 @@ if ($repoError == 0) {
                         echo '<div class="stats-round-counter">';
                             echo '<br><p class="lowopacity">Nombre de paquets</p><br>';
                             echo '<span class="stats-info-container">';
-                                echo "<span class=\"stats-info-counter pointer\">$packagesCount</span>";
+                                echo "<span class=\"stats-info-counter\">$packagesCount</span>";
                             echo '</span>';
                         echo '</div>';
                     echo '</div>';
@@ -177,48 +125,59 @@ if ($repoError == 0) {
                     /**
                      *  Affichage du nombre d'accès au repo en temps réel et de la dernière minute
                      */
-                    echo '<div class="stats-div-15">';
+                    echo '<div id="refresh-me" class="stats-div-15">';
+                        /**
+                         *  Nb de requêtes de la dernière minute
+                         */
+                        if ($OS_FAMILY == "Redhat") $lastMinuteAccessCount = $db_stats->get_lastMinuteAccess_count(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                        if ($OS_FAMILY == "Debian") $lastMinuteAccessCount = $db_stats->get_lastMinuteAccess_count(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                        /**
+                         *  Détails des requêtes de la dernière minute
+                         */
+                        if ($lastMinuteAccessCount > 0) {
+                            if ($OS_FAMILY == "Redhat") $lastMinuteAccess = $db_stats->get_lastMinuteAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                            if ($OS_FAMILY == "Debian") $lastMinuteAccess = $db_stats->get_lastMinuteAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                        }
+                        /**
+                         *  Nb de requêtes temps réel
+                         */
+                        if ($OS_FAMILY == "Redhat") $realTimeAccessCount = $db_stats->get_realTimeAccess_count(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                        if ($OS_FAMILY == "Debian") $realTimeAccessCount = $db_stats->get_realTimeAccess_count(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+
+                        if (!empty($lastMinuteAccess)) array_multisort(array_column($lastMinuteAccess, 'Date'), SORT_DESC, array_column($lastMinuteAccess, 'Time'), SORT_DESC, $lastMinuteAccess);
+
+                        /**
+                         *  Temps réel
+                         */
                         echo '<p class="center">Nombre d\'accès au repo</p>';
                         echo '<div class="stats-round-counter">';
                             echo '<br><p class="lowopacity">Temps réel</p><br>';
                             echo '<span class="stats-info-container pointer">';
-                                echo "<span class=\"stats-info-counter\">$countCurrentLogOccurences</span>";
-                                if (!empty($countCurrentLogOccurences_details)) {
-                                    echo '<span class="stats-info-requests">';
-                                        foreach ($countCurrentLogOccurences_details as $logline) {
-                                            $logSource = exec("echo '$logline'");
-                                            echo $logSource . '<br>';
-                                        }
-                                    echo '</span>';
-                                }
+                                echo "<span class=\"stats-info-counter\">$realTimeAccessCount</span>";
                             echo '</span>';
                         echo '</div>';
 
+                        /**
+                         *  Dernière minute
+                         */
                         echo '<div class="stats-round-counter">';
                             echo '<br><p class="lowopacity">Dernière minute</p><br>';
                             echo '<span class="stats-info-container">';
-                                echo "<span class=\"stats-info-counter pointer\">$countLastMinuteLogOccurences</span>";
-                                if (!empty($countLastMinuteLogOccurences_details)) {
-                                    $countLastMinuteLogOccurences_details = array_filter($countLastMinuteLogOccurences_details);
+                                echo "<span class=\"stats-info-counter pointer\">$lastMinuteAccessCount</span>";
+                                if (!empty($lastMinuteAccess)) {
                                     echo '<span class="stats-info-requests">';
-                                        foreach ($countLastMinuteLogOccurences_details as $logline) {
-                                            $logSourceIP = exec("echo '$logline' | awk '{print $1}'");
-                                            $logSourceHost = rtrim(exec("dig -x $logSourceIP +short"), '.'); // rtrim : Suppression du point après le nom d'hôte
-                                            $logDate = exec("echo '$logline' | awk '{print $4}' | sed 's/\[//g'");
-                                            $logRequest = exec("echo '$logline' | awk '{print $6,$7,$8}'");
-                                            $logRequestResult = exec("echo '$logline' | awk '{print $9}'");
-
+                                        foreach ($lastMinuteAccess as $line) {
                                             /**
                                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                              */
-                                            if ($logRequestResult == "200")
+                                            if ($line['Request_result'] == "200")
                                                 echo "<img src=\"icons/greencircle.png\" class=\"icon-small\" /> ";
                                             else
                                                 echo "<img src=\"icons/redcircle.png\" class=\"icon-small\" /> ";
                                             /**
                                              *  Affichage des détails de la/les requête(s)
                                              */
-                                            echo "$logDate - $logSourceHost ($logSourceIP) - $logRequest";
+                                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y').' à '.$line['Time'].' - '.$line['Source']. '('.$line['IP'].') - '.$line['Request'];
                                             echo '<br>';
                                         }
                                     echo '</span>';
@@ -233,29 +192,40 @@ if ($repoError == 0) {
                     $lastHourLabels = '';
                     $lastHourDatas = '';
 
-                    $hourCounter = date('H:i',strtotime('-1 hour',strtotime($currentHourMinute))); // le début du compteur commence à (heure actuelle - 1h) car ce graphique affichera des valeurs sur 1h
+                    $dateCounter = date('Y-m-d',strtotime('-3 month',strtotime($DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois  car ce graphique affichera des valeurs sur 3 mois
+                    $lastMonth_labels = '';
+                    $lastMonth_datas = '';
 
-                    while ($hourCounter != $currentHourMinute) {
-                        if ($OS_FAMILY == "Redhat") $countLogOccurences = exec("zgrep -h '\[${currentDate}:${hourCounter}.*\]' $WWW_STATS_LOG_PATH | grep 'urlgrabber' | grep '/{$myrepo->name}_{$myrepo->env}/' | wc -l");
-                        if ($OS_FAMILY == "Debian") $countLogOccurences = exec("zgrep -h '\[${currentDate}:${hourCounter}.*\]' $WWW_STATS_LOG_PATH | grep 'Debian APT-CURL' | grep '/{$myrepo->name}/{$myrepo->dist}/{$myrepo->section}_{$myrepo->env}/' | wc -l");
+                    /**
+                     *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
+                     */
+                    while ($dateCounter != date('Y-m-d',strtotime('+1 day',strtotime($DATE_YMD)))) {
+                        if ($OS_FAMILY == "Redhat") $dateAccessCount = $db_stats->get_dailyAccess_count(array('repo' => $myrepo->name, 'env' => $myrepo->env, 'date' => $dateCounter));
+                        if ($OS_FAMILY == "Debian") $dateAccessCount = $db_stats->get_dailyAccess_count(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env, 'date' => $dateCounter));
 
-                        if (!empty($countLogOccurences))
-                            $lastHourDatas .= trim($countLogOccurences).', ';
+                        if (!empty($dateAccessCount))
+                            $lastMonth_datas .= $dateAccessCount.', ';
                         else
-                            $lastHourDatas .= "0, ";
+                            $lastMonth_datas .= '0, ';
 
-                        $lastHourLabels .= "'$hourCounter', ";
+                        /**
+                         *  Ajout de la date en cours aux labels
+                         */
+                        $lastMonth_labels .= "'$dateCounter', ";
 
-                        $hourCounter = date('H:i',strtotime('+1 minute',strtotime($hourCounter)));
+                        /**
+                         *  On incrémente de 1 jour pour pouvori traiter la date suivante
+                         */
+                        $dateCounter = date('Y-m-d',strtotime('+1 day',strtotime($dateCounter)));
                     }
 
                     /**
                      *  Suppression de la dernière virgule
                      */
-                    $lastHourLabels = rtrim($lastHourLabels, ', ');
-                    $lastHourDatas  = rtrim($lastHourDatas, ', ');
+                    $lastMonth_labels = rtrim($lastMonth_labels, ', ');
+                    $lastMonth_datas  = rtrim($lastMonth_datas, ', ');
 
-                    if (!empty($lastHourLabels) AND !empty($lastHourDatas)) {
+                    if (!empty($lastMonth_labels) AND !empty($lastMonth_datas)) {
                         echo '<div class="stats-div-68">';
                         echo "<canvas id=\"repoAccessChart-$myrepo->name\" class=\"repo-stats-chart\"></canvas>";
                         echo '<script>';
@@ -263,9 +233,9 @@ if ($repoError == 0) {
                             var myRepoAccessChart = new Chart(ctx, {
                                 type: 'line',
                                 data: {
-                                    labels: [$lastHourLabels],    
+                                    labels: [$lastMonth_labels],    
                                     datasets: [{
-                                        data: [$lastHourDatas],
+                                        data: [$lastMonth_datas],
                                         label: 'Nombre de requêtes',
                                         borderColor: '#3e95cd',
                                         fill: false
@@ -277,7 +247,7 @@ if ($repoError == 0) {
                                                 display: true,
                                                 scaleLabel: {
                                                     display: true,
-                                                    labelString: 'Valeurs sur 1 heure'
+                                                    labelString: 'Valeurs sur 3 mois'
                                                 }
                                             }],
                                         yAxes: [{
@@ -291,7 +261,7 @@ if ($repoError == 0) {
                                     },
                                     title: {
                                         display: true,
-                                        text: \"Nombre d'accès sur 1 heure\"
+                                        text: \"Nombre d'accès sur 3 mois\"
                                     }
                                 }
                             });";
@@ -315,21 +285,15 @@ if ($repoError == 0) {
                                     echo '</tr>';
                                 echo '</thead>';
                                 echo '<tbody>';
-                                    foreach ($lastAccess as $logline) {
-                                        $logSourceIP = exec("echo '$logline' | awk '{print $1}'");
-                                        $logSourceHost = rtrim(exec("dig -x $logSourceIP +short"), '.'); // rtrim : Suppression du point après le nom d'hôte
-                                        $logDate = exec("echo '$logline' | awk '{print $4}' | sed 's/\[//g'");
-                                        $logRequest = exec("echo '$logline' | awk '{print $6,$7,$8}'");
-                                        $logRequestResult = exec("echo '$logline' | awk '{print $9}'");
-
+                                    foreach ($lastAccess as $access) {
                                         echo '<tr>';
-                                        if ($logRequestResult == "200")
-                                            echo "<td><img src=\"icons/greencircle.png\" class=\"icon-small\" title=\"$logRequestResult\" /></td>";
-                                        else
-                                            echo "<td><img src=\"icons/redcircle.png\" class=\"icon-small\" title=\"$logRequestResult\" /></td>";
-                                        echo "<td>$logDate</td>";
-                                        echo "<td>$logSourceHost ($logSourceIP)</td>";
-                                        echo "<td>$logRequest</td>";
+                                            if ($access['Request_result'] == "200")
+                                                echo '<td><img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
+                                            else
+                                                echo '<td><img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
+                                            echo '<td>'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
+                                            echo '<td>'.$access['Source'].' ('.$access['IP'].')</td>';
+                                            echo '<td>'.$access['Request'].'</td>';
                                         echo '</tr>';
                                     }
                                 echo '</tbody>';
@@ -476,7 +440,16 @@ if ($repoError == 0) {
         </section>
     </section>
 </article>
-
 <?php include('includes/footer.inc.php'); ?>
 </body>
+<script>
+$(document).ready(function(){
+	/**
+	 *	Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
+	 */
+	setInterval(function(){
+		$("#refresh-me").load(" #refresh-me > *");
+	}, 1000);
+});
+</script>
 </html>

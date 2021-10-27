@@ -522,14 +522,12 @@ function printOp($myop, $optype = '') {
 <?php include('includes/footer.inc.php'); ?>
 <div id="bottom"></div> <!-- pour atteindre le bas de page -->
 </body>
-
 <script>
 $(document).ready(function(){
 	/**
 	 *	Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
 	 */
 	setInterval(function(){
-	//	$(".mainSectionRight").load(window.location.href + " .right" );
 		$(".mainSectionRight").load(" .mainSectionRight > *");
 		$("#log-refresh-container").load(" #log-refresh-container > *");
 	}, 3000);

@@ -18,11 +18,16 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
     $error = 0;
 
     /**
+     *  Création d'un fichier 'update-running' afin de mettre une maintenance sur le site
+     */
+    if (!file_exists("$WWW_DIR/update-running")) touch("$WWW_DIR/update-running");
+
+    /**
      *  Backup avant mise à jour
      */
     if ($UPDATE_BACKUP_ENABLED == "yes") {
         $backupName = "${DATE_YMD}_${TIME}_repomanager_full_backup.tar.gz";
-        exec("tar czf /tmp/${backupName} $WWW_DIR" ,$output, $result);
+        exec("tar --exclude='${BACKUP_DIR}' -czf /tmp/${backupName} $WWW_DIR" ,$output, $result);
         if ($result != 0) {
             $error++;
             $errorMsg = 'Erreur lors de la sauvegarde de la configuration actuelle de repomanager';
@@ -31,26 +36,52 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
         }
     }
 
+    /**
+     *  Création du répertoire du script de mise à jour si n'existe pas
+     */
     if ($error == 0) {
-        // On récupère la dernière version du script de mise à jour avant de l'exécuter
+        if (!is_dir("${WWW_DIR}/update")) {
+            if (!mkdir("${WWW_DIR}/update", 0770, true)) {
+                $error++;
+                $errorMsg = "Erreur : impossible de créer le répertoire ${WWW_DIR}/update";
+            }
+        }
+    }
+
+    /**
+     *  On récupère la dernière version du script de mise à jour avant de l'exécuter
+     */
+    if ($error == 0) {
         exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
         if ($result != 0) {
             $error++;
             $errorMsg = 'Erreur pendant le téléchargement de la mise à jour';
         }
+    }
 
+    /**
+     *  Exécution de la mise à jour
+     */
+    if ($error == 0) {    
         exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
         if ($result != 0) {
             $error++;
-            $errorMsg = 'Erreur pendant l\'exécution de la mise à jour';
+            if ($result == 1) $errorMsg = "Erreur : numéro de version disponible sur github inconnu";
+            if ($result == 2) $errorMsg = "Erreur lors du téléchargement de la mise à jour $GIT_VERSION (https://github.com/lbr38/repomanager/releases/download/${GIT_VERSION}/repomanager_${GIT_VERSION}.tar.gz)";
+            if ($result == 3) $errorMsg = "Erreur lors de l'extraction de la mise à jour";
+            if ($result == 4) $errorMsg = "Erreur lors de l'application de la mise à jour";
         }
     }
 
-    if ($error == 0) {
+    if ($error == 0)
         $updateStatus = '<span class="greentext">Mise à jour effectuée avec succès!</span>';
-    } else {
+    else
         $updateStatus = '<span class="redtext">'.$errorMsg.'</span>';   
-    }
+
+    /**
+     *  Suppression du fichier 'update-running' pour lever la maintenance
+     */
+    if (file_exists("$WWW_DIR/update-running")) unlink("$WWW_DIR/update-running");
 }
 
 // Si un des formulaires de la page a été validé alors on entre dans cette condition
@@ -62,7 +93,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
 /**
  *  Section PATHS
  */
-
     /**
      *  Chemin du répertoire des repos sur le serveur
      */
@@ -252,8 +282,12 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     if(!empty($_POST['statsLogPath'])) {
         $statsLogPath = validateData($_POST['statsLogPath']);
         $repomanager_conf_array['WWW']['WWW_STATS_LOG_PATH'] = "$statsLogPath";
+
+        /**
+         *  On stoppe le process stats-log-parser.sh actuel, il sera relancé au rechargement de la page
+         */
+        kill_stats_log_parser();
     }
-    
 /**
  *  Section AUTOMATISATION
  */
@@ -392,8 +426,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyDebugC
     save($repomanager_conf_array);
 }
 
-
-
 /**
  *  Enregistrement
  */
@@ -529,7 +561,7 @@ if (!empty($_GET['deleteEnv'])) {
                 </td>
             </tr>
             <tr>
-                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour lors de sa prochaine exécution si une mise à jour est disponible" />Mise à jour automatique</td>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour lors automatiquement si une mise à jour est disponible" />Mise à jour automatique</td>
                 <td>
                     <label class="onoff-switch-label">
                     <input name="updateAuto" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($UPDATE_AUTO == "yes") { echo 'checked'; }?> />
@@ -872,12 +904,12 @@ if (!empty($_GET['deleteEnv'])) {
                                 echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
                             }
                             if ($cronStatus === "KO") {
-                                echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon" /></span>';
+                                echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon-small" /></span>';
                                 echo '<img id="cronjobStatusButton" src="icons/search.png" class="icon-lowopacity pointer" title="Afficher les détails" />';
                             }
                         }
                         if (!file_exists($CRON_LOG)) {
-                            echo "Status : inconnu";
+                            echo "<span>Status : inconnu</span>";
                         }
                     }
                     echo '</td>';
@@ -970,11 +1002,33 @@ if (!empty($_GET['deleteEnv'])) {
                 echo '<td>';
                 // On vérifie la présence d'une ligne contenant 'planifications/plan.php' dans la crontab
                 $cronStatus = checkCronReminder();
-                if ($cronStatus == 'On') {
-                    echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
+                if ($cronStatus == 'On')  echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
+                if ($cronStatus == 'Off') echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon-small" /></span>';
+                echo '</td>';
+                echo '</tr>';
+            } 
+            
+            if ($CRON_STATS_ENABLED == "yes") {
+                echo '<tr>';
+                echo '<td class="td-fit">';
+                echo '<img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron générant des statistiques pour chaque repo" />';
+                echo '</td>';
+                echo '<td class="td-medium">Génération de statistiques</td>';
+                echo '<td></td>'; // comble les td affichant des boutons radio de la précédente ligne
+                echo '<td>';
+                // si un fichier de log existe, on récupère l'état
+                if (file_exists($CRON_STATS_LOG)) {
+                    $cronStatus = exec("grep 'Status=' $CRON_STATS_LOG | cut -d'=' -f2 | sed 's/\"//g'");
+                    if ($cronStatus === "OK") {
+                        echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
+                    }
+                    if ($cronStatus === "KO") {
+                        echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon-small" /></span>';
+                       // echo '<img id="cronjobStatusButton" src="icons/search.png" class="icon-lowopacity pointer" title="Afficher les détails" />';
+                    }
                 }
-                if ($cronStatus == 'Off') {
-                    echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon" /></span>';
+                if (!file_exists($CRON_STATS_LOG)) {
+                    echo "<span>Status : inconnu</span>";
                 }
                 echo '</td>';
                 echo '</tr>';
