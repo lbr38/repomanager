@@ -281,11 +281,13 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function exists(string $name) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+
+        return true;
     }
 
 /**
@@ -294,11 +296,14 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function existsEnv(string $name, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Env = '$env' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':env', $env);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+        
+        return true;
     }
 
 /**
@@ -307,21 +312,31 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function existsDate(string $name, string $date, string $status) {
-        // Recherche dans la table repos
+        /**
+         *  Recherche dans la table repos
+         */
         if ($status == 'active') {
-            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date' AND Status = 'active'") == 0) {
-                return false;
-            } else {
-                return true;
-            }
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+
+            if ($this->db->isempty($result) === true) return false;
+            
+            return true;
         }
-        // Recherche dans la table repos_archived
+        /**
+         *  Recherche dans la table repos_archived
+         */
         if ($status == 'archived') {
-            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date' AND Status = 'active'") == 0) {
-                return false;
-            } else {
-                return true;
-            }
+            $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date' AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+
+            if ($this->db->isempty($result) === true) return false;
+
+            return true;
         }
     }
 
@@ -331,11 +346,15 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function existsDateEnv(string $name, string $date, string $env) {
-    if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Date = '$date' AND Env = '$env' AND Status = 'active'") == 0) {
-        return false;
-    } else {
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':date', $date);
+        $stmt->bindValue(':env', $env);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+
         return true;
-    }
 }
 
 /**
@@ -344,11 +363,14 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function dist_exists(string $name, string $dist) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':dist', $dist);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+        
+        return true;
     }
 
 /**
@@ -357,11 +379,15 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_exists(string $name, string $dist, string $section) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':dist', $dist);
+        $stmt->bindValue(':section', $section);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+
+        return true;
     }
 
 /**
@@ -370,11 +396,16 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_existsEnv(string $name, string $dist, string $section, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Env = '$env' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':dist', $dist);
+        $stmt->bindValue(':section', $section);
+        $stmt->bindValue(':env', $env);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+
+        return true;
     }
 
 /**
@@ -383,21 +414,35 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_existsDate(string $name, string $dist, string $section, string $date, string $status) {
-        // Recherche dans la table repos
+        /**
+         *  Recherche dans la table repos
+         */
         if ($status == 'active') {
-            if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Status = 'active'") == 0) {
-                return false;
-            } else {
-                return true;
-            }
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+
+            if ($this->db->isempty($result) === true) return false;
+            
+            return true;
         }
-        // Recherche dans la table repos_archived
+        /**
+         *  Recherche dans la table repos_archived
+         */
         if ($status == 'archived') {
-            if ($this->db->countRows("SELECT * FROM repos_archived WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Status = 'active'") == 0) {
-                return false;
-            } else {
-                return true;
-            }
+            $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+
+            if ($this->db->isempty($result) === true) return false;
+
+            return true;
         }        
     }
 
@@ -407,11 +452,17 @@ class Repo {
  *  Retourne false si n'existe pas
  */
     public function section_existsDateEnv(string $name, string $dist, string $section, string $date, string $env) {
-        if ($this->db->countRows("SELECT * FROM repos WHERE Name = '$name' AND Dist = '$dist' AND Section = '$section' AND Date = '$date' AND Env = '$env' AND Status = 'active'") == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':dist', $dist);
+        $stmt->bindValue(':section', $section);
+        $stmt->bindValue(':date', $date);
+        $stmt->bindValue(':env', $env);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true) return false;
+
+        return true;
     }
 
 /**
@@ -424,14 +475,8 @@ class Repo {
     public function db_getId() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
-        }
-
-        if ($OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-        }
-
+        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
         if ($OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
@@ -453,14 +498,8 @@ class Repo {
     public function db_getId_archived() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
-        }
-
-        if ($OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        }
-
+        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
         if ($OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
@@ -569,9 +608,6 @@ class Repo {
     public function db_getSource() {
         global $OS_FAMILY;
 
-        /*if ($OS_FAMILY == "Redhat") $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->querySingleRow("SELECT Source from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Status = 'active'");*/
-        //$result = $this->db->querySingleRow("SELECT Source FROM repos WHERE Id = '$this->id' AND Status = 'active'");
         $stmt = $this->db->prepare("SELECT Source FROM repos WHERE Id=:id AND Status = 'active'");
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();

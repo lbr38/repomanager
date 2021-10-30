@@ -24,18 +24,8 @@ if(!empty($_GET['stop'])) {
 /**
  * 	Récupération du fichier de log à visualiser si passé en GET
  */
-$logfile = 'none'; if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
-
-/**
- * 	Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
- */
-if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) == "yes") {
-	echo '<style>';
-	echo '.getPackagesDiv { display: block; }';
-	echo '.signRepoDiv { display: block; }';
-	echo '.createRepoDiv { display: block; }';
-	echo '</style>';
-} 
+$logfile = 'none';
+if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 
 /**
  * 	Afficher l'en-tête d'une opération
@@ -96,7 +86,6 @@ function printOp($myop, $optype = '') {
 			} else {
 				$stmt = $db->prepare("SELECT * FROM repos WHERE Id=:id");
 			}
-			//$stmt = $db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
 			
 			$stmt->bindValue(':id', $opRepoTarget);
 			$result = $stmt->execute();
@@ -124,7 +113,6 @@ function printOp($myop, $optype = '') {
 	/**
 	 * 	Récupération des informations de la planification à partir de son ID (si renseigné)
 	 */
-
 	if (!empty($myop['GpgCheck']))  $opGpgCheck = $myop['GpgCheck'];
 	if (!empty($myop['GpgResign'])) $opGpgResign = $myop['GpgResign'];
 	$opPid = $myop['Pid'];
@@ -212,18 +200,18 @@ function printOp($myop, $optype = '') {
 			<div id="scrollButtons-container">
 				<div id="scrollButtons">
 					<?php 
-						if (!empty($_GET['displayFullLogs']) AND validateData($_GET['displayFullLogs']) == "yes") {
-							if ($logfile == "none") {
-								echo '<a href="run.php" class="button-top-down-details" title="Masquer les détails"><img src="icons/search.png" /></a>';
-							} else {
-								echo "<a href=\"run.php?logfile=${logfile}\" class=\"button-top-down-details\" title=\"Masquer les détails\"><img src=\"icons/search.png\" /></a>";
-							}
+						/**
+						 * 	Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
+						 */
+						if (!empty($_COOKIE['displayFullLogs']) AND $_COOKIE['displayFullLogs'] == "yes") {
+							echo '<button id="displayFullLogs-no" class="button-top-down-details pointer" title="Masquer les détails"><img src="icons/search.png" /></button>';
+							echo '<style>';
+							echo '.getPackagesDiv { display: block; }';
+							echo '.signRepoDiv { display: block; }';
+							echo '.createRepoDiv { display: block; }';
+							echo '</style>';
 						} else {
-							if ($logfile == "none") {
-								echo '<a href="run.php?displayFullLogs=yes" class="button-top-down-details" title="Afficher les détails"><img src="icons/search.png" /></a>';
-							} else {
-								echo "<a href=\"run.php?logfile=${logfile}&displayFullLogs=yes\" class=\"button-top-down-details\" title=\"Afficher les détails\"><img src=\"icons/search.png\" /></a>";
-							}
+							echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Afficher les détails"><img src="icons/search.png" /></button>';
 						}
 					?>
 					<br>
@@ -528,16 +516,16 @@ $(document).ready(function(){
 	 *	Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
 	 */
 	setInterval(function(){
-		$(".mainSectionRight").load(" .mainSectionRight > *");
-		$("#log-refresh-container").load(" #log-refresh-container > *");
+		$(".mainSectionRight").load("run.php?reload .mainSectionRight > *");
+		$(".mainSectionLeft").load(" .mainSectionLeft > *");
 	}, 3000);
 
 	/**
 	*	Affiche des boutons de défilement si la page de log fait +700px de haut
 	*/
-	if ($('#log').height() < 700) {
+	/*if ($('#log').height() < 700) {
 		$(".button-top-down").hide();
-	}
+	}*/
 
 	/**
 	*	Afficher les opérations masquées
@@ -547,6 +535,19 @@ $(document).ready(function(){
 		$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
 
 		document.cookie = "printAllOp=yes";
+	});
+
+	/**
+	 *	Afficher ou non tout le détail d'une opération
+	 */
+	$(document).on('click','#displayFullLogs-yes',function(){
+		document.cookie = "displayFullLogs=yes";
+		$(".mainSectionLeft").load(" .mainSectionLeft > *");
+	});
+
+	$(document).on('click','#displayFullLogs-no',function(){
+		document.cookie = "displayFullLogs=no";
+		$(".mainSectionLeft").load(" .mainSectionLeft > *");
 	});
 });
 </script>

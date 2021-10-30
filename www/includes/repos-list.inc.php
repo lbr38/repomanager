@@ -37,15 +37,13 @@ $(document).ready(function(){
             padding: '0px'
         });
     });
-});
 
-$(document).ready(function(){
     $("#ReposSourcesSlideUpButton").click(function(){            
         // affichage du div permettant de gérer les sources
         $("#sourcesDiv").animate({
+            opacity: 1,
             width: '98%',
-            padding: '10px',
-            opacity: 1
+            padding: '10px'
         });
     });
     
@@ -57,15 +55,13 @@ $(document).ready(function(){
             padding: '0px'
         });
     });
-});
 
-$(document).ready(function(){
     $("#newRepoSlideButton").click(function(){
-        // affichage du div permettant de créer un nouveau repo/section à la place
+        // affichage du div permettant de créer un nouveau repo/section
         $("#newRepoSlideDiv").animate({
             opacity: 1,
             width: '98%',
-            padding: '10px' // lorsqu'on affiche la section cachée, on ajoute un padding de 10 intérieur, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+            padding: '10px'
         });
     });
     
@@ -74,7 +70,7 @@ $(document).ready(function(){
         $("#newRepoSlideDiv").animate({
             opacity: 0,
             width: 0,
-            padding: '0px' // lorsqu'on masque la section, on retire le padding, afin que la section soit complètement masquée, voir la suite dans le fichier css pour '#newRepoSlideDiv'
+            padding: '0px'
         });
     });
 });

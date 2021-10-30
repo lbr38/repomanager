@@ -55,6 +55,7 @@
     margin-bottom: 15px;
     /* supprimer les espaces entres les cellules */
     border-spacing : 0 4px;
+    white-space: nowrap;
 }
 
 .stats-access-table head {
@@ -86,4 +87,8 @@
 .stats-access-table tr td:last-child {
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
+}
+
+.stats-access-table-request {
+    white-space: normal;
 }
