@@ -30,7 +30,8 @@ body {
     font-family: 'Roboto', sans-serif;
     margin: 0px;
     padding: 0px;
-    background-color: #333333;
+    /*background-color: #333333;*/
+    background-color: #262525;
     color: whitesmoke; /* couleur par défaut */
     overflow-x: hidden;
 
@@ -318,15 +319,13 @@ section.mainSectionRight {
 
 section.left, section.right, .section-center, section.missing-param-alert, #newRepoSlideDiv {
     width: 98%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'mainSectionLeft' */
-    margin-bottom: 10px;
+    margin-bottom: 30px;
     padding: 10px;
-    vertical-align:top;
-    border-radius: 5px;
-    box-shadow:
-      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+    vertical-align: top;
+    border-radius: 2px;
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
-    /*overflow: hidden; Désactivé car empêche le bon fonctionnement de "position: sticky" sur run.php */
 }
 /* Paramètres supplémentaires pour les class ci-dessus */
 .section-center { width: 99%; margin: auto; }
@@ -344,6 +343,7 @@ section.missing-param-alert {
     width: 0px; /* longueur de 0 par défaut, pour que cette section soit complètement masqué. */
     padding: 0px; /* padding forcé à 0 par défaut, pour que cette section soit complètement masqué. C'est le script Jquery qui remets le padding à 10 une fois la section affichée */
     overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
+    opacity: 0;
 }
 
 #serverInfoContainer {
@@ -353,21 +353,19 @@ section.missing-param-alert {
     margin-bottom: 10px;
     vertical-align:top;
     border-radius: 5px;
+    justify-content: space-between;
 }
 
 .serverInfo {
-    flex: 0 0 32.3%;
+    flex: 0 0 32%;
     height: 200px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 2px 0px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 2px 0px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
-    border-radius: 6px;
+    border-radius: 2px;
     padding-top: 5px;
     padding-bottom: 5px;
-    display: inline-block;
-    margin-right: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     text-align: center;
     vertical-align: top;
 }
@@ -405,14 +403,6 @@ table.list-repos {
     font-size: 14px;
     table-layout: auto !important;
     white-space: nowrap;
-    /* optimisation pour l'affichage des tableaux sur Chrome */
-    /*-webkit-transform: translate3d(0, 0, 0);
-        transform: translate3d(0, 0, 0);*/
-        /* -webkit-transform: translateZ(0);
-   -moz-transform: translateZ(0);
-   -ms-transform: translateZ(0);
-   -o-transform: translateZ(0);
-   transform: translateZ(0);*/
 }
 
 table.list-repos tr .rl-fit {
@@ -589,9 +579,8 @@ td {
     position: fixed; /* on positionne le div au centre de la page */
     bottom: 0;
     left: 0;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    -webkit-box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#252525;
     color: whitesmoke;
     vertical-align: middle;
@@ -905,11 +894,8 @@ footer p { color: gray; }
 
 #ReposListDisplayToggleButton:hover, #ReposSourcesSlideUpButton:hover, #GroupsListSlideUpButton:hover {
     padding-left: 8px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
+    padding-top: 5px;
+    padding-bottom: 5px;
     background-color:#252525;
     border-radius: 5px;
 }

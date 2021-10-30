@@ -28,7 +28,7 @@ Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 - Debian 10, Ubuntu bionic
 - CentOS 7, 8, Fedora 33
 
-<p>Fonctionnalités actuelles et futures de la version Beta</p>
+<p>Fonctionnalités actuelles de la version Beta</p>
 
 | **Fonctions** | **Beta** |
 |----------|---------------|
@@ -41,8 +41,8 @@ Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 | **Automatisation** | **Beta** |
 | Planifier la mise à jour de miroirs | ✅ |
 | Rappels de planifications (mail) | ✅ |
-| **Organisation** | **Beta** |
-| Créer des groupes de repos | ✅ |
+| **Statistiques** | **Beta** |
+| Graphiques sur l'utilisation et l'évolution des repos | ✅ |
 
 
 <b>Dépendances</b>
@@ -70,7 +70,7 @@ Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et f
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Dans sa version beta, repomanager n'a été testé qu'avec nginx+php-fpm (PHP 7.4). Une compatibilité avec apache n'est pas exclue puisque le vhost à mettre en place n'a rien d'extraordinaire.
+Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.4) mais une compatibilité avec apache n'est pas exclue.
 
 <pre>
 yum install nginx php-fpm php-cli php-pdo sqlite
@@ -90,13 +90,21 @@ extension=sqlite3.so
 
 <b>Vhost</b>
 
+Pour nginx :
+
 <pre>
 #### Repomanager vhost ####
+
+# Disable logging of automatics refreshes
+map $request_uri $loggable {
+        /run.php?reload 0;
+        default 1;
+}
 
 server {
         listen SERVER-IP:80 default_server;
         server_name SERVERNAME.MYDOMAIN.COM;
-        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log;
+        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log combined if=$loggable;
         error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_error.log;
         return 301 https://$server_name$request_uri;
 }
@@ -111,7 +119,7 @@ server {
         ssl_certificate_key  PATH-TO-PRIVATE-KEY.key;
 
 	# Log files
-        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log;
+        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log combined if=$loggable;
         error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_error.log;
 
         # Security headers
@@ -129,32 +137,22 @@ server {
         error_page 500 502 503 504 /custom_50x.html;
 
         location = /custom_404.html {
-                root WWW_DIR/custom_errors;
+                root path_to_WWW_DIR/custom_errors;
                 internal;
         }
         location = /custom_50x.html {
-                root WWW_DIR/custom_errors;
+                root path_to_WWW_DIR/custom_errors;
                 internal;
         }
 
-        # Enable gzip but do not remove ETag headers
-        gzip on;
-        gzip_vary on;
-        gzip_comp_level 4;
-        gzip_min_length 256;
-        gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
-        gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
-
-
 	location / {
-		root WWW_DIR; # default is /var/www/repomanager
+		root path_to_WWW_DIR; # default is /var/www/repomanager
 	        try_files $actual_uri $actual_uri/ =404;
 	        index index.php;
 	}
 
-
 	location ~ [^/]\.php(/|$) {
-		root WWW_DIR; # default is /var/www/repomanager
+		root path_to_WWW_DIR; # default is /var/www/repomanager
 	        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
 	        if (!-f $document_root$fastcgi_script_name) {
 	                return 404;
@@ -165,10 +163,23 @@ server {
 	}
 
 	location /repo {
-	        root REPOS_DIR; # default is /home
-	        autoindex off;
+	        root path_to_REPOS_DIR-1; # default is /home
+                allow all;
+	}
+
+        location /profiles {
+	        root path_to_REPOS_DIR; # default is /home/repo
+	        autoindex on;
 	        allow all;
 	}
+
+        # Enable gzip
+        gzip on;
+        gzip_vary on;
+        gzip_comp_level 4;
+        gzip_min_length 256;
+        gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
+        gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
 }
 </pre>
 
@@ -193,10 +204,8 @@ tar xzf repomanager_RELEASE.tar.gz
 cd /tmp/repomanager/www/
 </pre>
 
-Utilisez le script repomanager qui se chargera de vous demander les chemins des 2 répertoires d'installation et d'y copier les bons fichiers.
+Lancer l'installation de repomanager :
 <pre>
 chmod 700 repomanager
 ./repomanager --install
 </pre>
-
-Enfin, répondre aux questions posées par repomanager afin de mettre en place sa configuration. Il est possible d'interrompre la configuration à tout moment par Ctrl+C.

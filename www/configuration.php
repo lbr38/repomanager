@@ -429,7 +429,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyDebugC
 /**
  *  Enregistrement
  */
-function save($array) {
+function save(array $array) {
     global $REPOMANAGER_CONF;
 
     /**
@@ -441,11 +441,6 @@ function save($array) {
      *  On appelle enableCron pour qu'il ré-écrive / supprime les lignes de la crontab
      */
     enableCron();
-
-    /**
-     *  Vidage du cache navigateur
-     */
-    echo "<script>Clear-Site-Data: \"*\";</script>";
 
     /**
      *  Puis rechargement de la page pour appliquer les modifications de configuration
@@ -476,7 +471,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv")
         /**
          *  On écrit le nouvel env dans le fichier envs.conf
          */
-        file_put_contents("$ENV_CONF", "$newEnv".PHP_EOL, FILE_APPEND);
+        file_put_contents($ENV_CONF, $newEnv.PHP_EOL, FILE_APPEND);
 
         /**
          *  Puis rechargement de la page pour voir les modifications de configuration

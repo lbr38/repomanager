@@ -73,15 +73,11 @@ if ($repoError == 0) {
                  */
                 if ($OS_FAMILY == "Redhat") $lastAccess = $db_stats->get_lastAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
                 if ($OS_FAMILY == "Debian") $lastAccess = $db_stats->get_lastAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
-                /*$lastMinuteAccess = $db_stats->get_lastMinuteAccess();
-                $lastMinuteAccessCount = $db_stats->get_lastMinuteAccess_count();
-                $realTimeAccessCount = $db_stats->get_realTimeAccess_count();*/
 
                 /**
                  *  Tri des valeurs par date et heure
                  */
                 if (!empty($lastAccess)) array_multisort(array_column($lastAccess, 'Date'), SORT_DESC, array_column($lastAccess, 'Time'), SORT_DESC, $lastAccess);
-                //if (!empty($lastMinuteAccess)) array_multisort(array_column($lastMinuteAccess, 'Date'), SORT_DESC, array_column($lastMinuteAccess, 'Time'), SORT_DESC, $lastMinuteAccess);
             ?>
 
             <div id="stats-container">
@@ -281,11 +277,17 @@ if ($repoError == 0) {
                                     echo '<td></td>';
                                     echo '<td>Date</td>';
                                     echo '<td>Source</td>';
-                                    echo '<td>Requête</td>';
+                                    echo '<td>Cible</td>';
                                     echo '</tr>';
                                 echo '</thead>';
                                 echo '<tbody>';
                                     foreach ($lastAccess as $access) {
+                                        /**
+                                         *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
+                                         */
+                                        //preg_match('# /[a-zA-Z0-9/_]+#i', $access['Request'], $accessTarget);
+                                        preg_match('#/[a-zA-Z0-9_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
+                                        $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
                                         echo '<tr>';
                                             if ($access['Request_result'] == "200")
                                                 echo '<td><img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
@@ -293,7 +295,8 @@ if ($repoError == 0) {
                                                 echo '<td><img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
                                             echo '<td>'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
                                             echo '<td>'.$access['Source'].' ('.$access['IP'].')</td>';
-                                            echo '<td>'.$access['Request'].'</td>';
+                                            // retrait des " dans la requête complète :
+                                            echo '<td><span title="'.str_replace('"', '', $access['Request']).'">'.$accessTarget[0].'</span></td>';
                                         echo '</tr>';
                                     }
                                 echo '</tbody>';

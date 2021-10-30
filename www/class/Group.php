@@ -212,7 +212,7 @@ class Group {
             unset($stmt);
         }
 
-        while ($datas = $reposInGroup->fetchArray()) { $reposIn[] = $datas; }
+        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) $reposIn[] = $datas;
 
         if (!empty($reposIn)) {
             return $reposIn;
@@ -271,7 +271,7 @@ class Group {
             unset($stmt);
         }
 
-        while ($datas = $reposInGroup->fetchArray()) { $reposIn[] = $datas; }
+        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) $reposIn[] = $datas;
 
         if (!empty($reposIn)) {
             return $reposIn;
@@ -337,9 +337,8 @@ class Group {
 
         unset($stmt);
 
-        while ($datas = $reposInGroup->fetchArray()) { $reposIn[] = $datas; }
-        //while ($datas = $reposNotInGroup->fetchArray()) { $reposNotIn[] = $datas; }
-        while ($datas = $reposNotInAnyGroup->fetchArray()) { $reposNotIn[] = $datas; }
+        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) $reposIn[] = $datas;
+        while ($datas = $reposNotInAnyGroup->fetchArray(SQLITE3_ASSOC)) $reposNotIn[] = $datas;
         
         echo '<select class="reposSelectList" name="groupAddRepoName[]" multiple>';
         if (!empty($reposIn)) {
@@ -349,8 +348,8 @@ class Group {
                     $repoDist = $repo['Dist'];
                     $repoSection = $repo['Section'];
                 }
-                if ($OS_FAMILY == "Redhat") { echo "<option value=\"$repoName\" selected>$repoName</option>"; }
-                if ($OS_FAMILY == "Debian") { echo "<option value=\"$repoName|$repoDist|$repoSection\" selected>$repoName - $repoDist - $repoSection</option>"; }
+                if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoName\" selected>$repoName</option>";
+                if ($OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\" selected>$repoName - $repoDist - $repoSection</option>";
             }
         }
         if (!empty($reposNotIn)) {
@@ -360,8 +359,8 @@ class Group {
                     $repoDist = $repo['Dist'];
                     $repoSection = $repo['Section'];
                 }
-                if ($OS_FAMILY == "Redhat") { echo "<option value=\"$repoName\">$repoName</option>"; }
-                if ($OS_FAMILY == "Debian") { echo "<option value=\"$repoName|$repoDist|$repoSection\">$repoName - $repoDist - $repoSection</option>"; }
+                if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoName\">$repoName</option>";
+                if ($OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\">$repoName - $repoDist - $repoSection</option>";
             }
         }
         echo '</select>';  
@@ -387,7 +386,7 @@ class Group {
         $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name=:name");
         $stmt->bindValue(':name', $this->name);
         $result = $stmt->execute();
-        while ($row = $result->fetchArray()) {
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $groupId = $row['Id'];
         }
 
@@ -432,7 +431,7 @@ class Group {
                 $stmt->bindValue(':reposection', $repoSection);
                 $result = $stmt->execute();
             }
-            while ($row = $result->fetchArray()) {
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $repoId = $row['Id'];
 
                 /**
@@ -459,7 +458,7 @@ class Group {
         $stmt = $this->db->prepare("SELECT Id_repo FROM group_members WHERE Id_group=:idgroup");
         $stmt->bindValue(':idgroup', $groupId);
         $result = $stmt->execute();
-        while ($row = $result->fetchArray()) {
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $actualReposId[] = $row['Id_repo'];
         }
     
@@ -497,7 +496,7 @@ class Group {
         $stmt = $this->db->prepare("SELECT Name from groups WHERE Id=:id");
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();
-        while ($row = $result->fetchArray()) {
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->name = $row['Name'];
         }
 
@@ -510,7 +509,7 @@ class Group {
  */
     public function listAll() {
         $result = $this->db->query("SELECT * FROM groups");
-        while ($datas = $result->fetchArray()) { $group[] = $datas; }
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $group[] = $datas;
         if (!empty($group)) {
             return $group;
         }
@@ -522,7 +521,7 @@ class Group {
  */
     public function listAllName() {
         $query = $this->db->query("SELECT * FROM groups");
-        while ($datas = $query->fetchArray()) { 
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) { 
             $group[] = $datas['Name'];
         }
         /**
@@ -538,7 +537,7 @@ class Group {
  */
     public function listAllWithDefault() {
         $query = $this->db->query("SELECT * FROM groups");
-        while ($datas = $query->fetchArray()) {
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
             $group[] = $datas['Name'];
         }
 
@@ -552,10 +551,11 @@ class Group {
             return $group;
         }
     }
+
+
 /**
  *  VERIFICATIONS
  */
-
     /**
      *  Vérifie que l'Id du groupe existe en BDD
      *  Retourne true si existe

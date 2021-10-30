@@ -354,7 +354,7 @@ class Operation {
             return false;
         } else {
             $this->repo->dist = validateData($_GET['repoDist']);
-            if (!is_alphanum($this->repo->dist, array('-'))) {
+            if (!is_alphanum($this->repo->dist, array('-', '/'))) {
                 echo '<p>Erreur : le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -898,8 +898,6 @@ class Operation {
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
-                /*if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
-                if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/updateMirror.php '{$this->repo->name}' '{$this->repo->dist}' '{$this->repo->section}' '{$this->repo->source}' '{$this->repo->gpgCheck}' '{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }*/
                 if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
                 if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
                 echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution

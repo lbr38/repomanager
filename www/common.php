@@ -112,8 +112,8 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
         } else {
             $displayConfiguration['display']['cache_repos_list'] = 'no';
             clearCache();
-            if (is_link($WWW_CACHE)) { unlink($WWW_CACHE); }
-            if (is_dir($WWW_CACHE)) { rmdir($WWW_CACHE); }
+            if (is_link($WWW_CACHE)) unlink($WWW_CACHE);
+            if (is_dir($WWW_CACHE))  rmdir($WWW_CACHE);
         }
     }
 

@@ -69,7 +69,7 @@ trait changeEnv {
         $this->log->steplogLoading();
 
         /**
-         *  2. On vérifie si le repo existe
+         *  2. On vérifie si le repo (source) existe
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
@@ -83,12 +83,26 @@ trait changeEnv {
         }
 
         /**
-         *  3. Récupère la date vers laquelle on va faire pointer le nouvel env, la source du repo, son heure, son type et si il est signé ou non et son groupe
+         *  3. On vérifie qu'un repo cible de même env et de même date n'existe pas déjà
+         */
+        if ($OS_FAMILY == "Redhat") {
+            if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
+                throw new Exception("un repo ".envtag($this->repo->newEnv)." existe déjà au <b>{$this->repo->date}</b>");
+            }
+        }
+        if ($OS_FAMILY == "Debian") {
+            if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
+                throw new Exception("une section ".envtag($this->repo->newEnv)." existe déjà au <b>{$this->repo->date}</b>");
+            }
+        }
+
+        /**
+         *  4. Récupère la date vers laquelle on va faire pointer le nouvel env, la source du repo, son heure, son type et si il est signé ou non et son groupe (si il en a un)
          */
         $this->repo->db_getDate();
 
         if ($OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':env', $this->repo->env);
             $result1 = $stmt->execute();
@@ -99,7 +113,7 @@ trait changeEnv {
             $result2 = $stmt2->execute();
         }
         if ($OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':dist', $this->repo->dist);
             $stmt->bindValue(':section', $this->repo->section);
@@ -118,16 +132,27 @@ trait changeEnv {
          *  Vérifie que les deux résultats récupérés par les requêtes précédentes ne sont pas vides et fetch les données
          */
         $result1 = $this->repo->db->fetch($result1);
-        $result2 = $this->repo->db->fetch($result2);
+        $result2 = $this->repo->db->fetch($result2, 'ignore-null'); // Si le repo source n'est pas dans un groupe alors $result2 sera vide, on ignore si c'est le cas
 
         /**
          *  Récupération des données des résultats précédents
          */
-        $this->repo->source = $result1['Source'];
-        $this->repo->time   = $result1['Time'];
-        $this->repo->signed = $result1['Signed'];
-        $this->repo->type   = $result1['Type'];
-        $this->repo->group  = $result2['Id_group'];
+        if (!empty($result1['Source']) AND !empty($result1['Time']) AND !empty($result1['Signed']) AND !empty($result1['Type'])) {
+            $this->repo->source = $result1['Source'];
+            $this->repo->time   = $result1['Time'];
+            $this->repo->signed = $result1['Signed'];
+            $this->repo->type   = $result1['Type'];
+        } else {
+            throw new Exception("certaines données concernant le repo source n'ont pas pu être récupérées");
+        }
+
+        /**
+         *  Si le repo source appartient à un groupe alors le nouvel env. sera intégré au même groupe, sinon il ne sera intégré à aucun groupe
+         */
+        if (!empty($result2['Id_group']))
+            $this->repo->group = $result2['Id_group'];
+        else
+            $this->repo->group = '';
 
         /**
          *  4. Si on n'a pas transmis de description, on va conserver celle actuellement en place sur $this->repo->newEnv si existe. Cependant si il n'y a pas de description ou qu'aucun repo n'existe actuellement dans l'env $this->repo->newEnv alors celle-ci restera vide

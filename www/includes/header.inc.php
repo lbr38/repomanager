@@ -48,228 +48,228 @@ if ($DEBUG_MODE == "enabled") {
             echo '<li><a href="configuration.php"><span>Configuration</span></a></li>';
         }
 
-        echo '<li id="refresh-me-container">';
+        echo '<li id="header-refresh-container">';
 
-        require_once("$WWW_DIR/class/Operation.php");
-        $op = new Operation();
-        $opsRunning = $op->listRunning('manual');
-        $plansRunning = $op->listRunning('plan');
+            require_once("$WWW_DIR/class/Operation.php");
+            $op = new Operation();
+            $opsRunning = $op->listRunning('manual');
+            $plansRunning = $op->listRunning('plan');
 
-        /**
-         *   Cas où il n'y a aucune opération en cours (manuelle ou planifiée)
-         */
-        if ($opsRunning === false AND $plansRunning === false) {
-            echo '<a href="run.php"><span class="li-operation-not-running">Aucune opération en cours</span></a>';
-        }
-
-        /**
-         *  Cas où il y a une ou plusieurs opérations en cours
-         */
-        if ($opsRunning !== false) {
-            echo '<a href="run.php"><span class="li-operation-running">Opération en cours</span></a>';
-            echo '<ul class="sub-menu">';
             /**
-             *  Pour chaque opération, on récupère son PID et son fichier de LOG
+             *   Cas où il n'y a aucune opération en cours (manuelle ou planifiée)
              */
-            foreach ($opsRunning as $opRunning) {
-                $opPid = $opRunning['Pid'];
-                $opLogfile = $opRunning['Logfile'];
-                if (!empty($opRunning['Action'])) { $opAction = $opRunning['Action']; }
-
-                /**
-                 *  Si un repo source est renseigné, on récupère son nom
-                 */
-                if (!empty($opRunning['Id_repo_source'])) {
-                    $opRepoSource = $opRunning['Id_repo_source'];
-
-                    /**
-                     *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
-                     */
-                    if (is_numeric($opRepoSource)) {
-                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                        $stmt->bindValue(':id', $opRepoSource);
-                        $result = $stmt->execute();
-
-                        while ($datas = $result->fetchArray()) {
-                            $name = $datas['Name'];
-                            if ($OS_FAMILY == "Debian") {
-                                $dist = $datas['Dist'];
-                                $section = $datas['Section'];
-                            }
-                        }
-
-                    /**
-                     *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
-                     */
-                    } else {
-                        $opRepoSource = explode('|', $opRepoSource);
-                        $name = $opRepoSource[0];
-                        if ($OS_FAMILY == "Debian") {
-                            if (!empty($opRepoSource[1])) $dist = $opRepoSource[1];
-                            if (!empty($opRepoSource[2])) $section = $opRepoSource[2];
-                        }
-                    }
-                }
-
-                /**
-                 *  Si un repo cible est renseigné, on récupère son nom
-                 */
-                if (!empty($opRunning['Id_repo_target'])) { 
-                    $opRepoTarget = $opRunning['Id_repo_target'];
-
-                    /**
-                     *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
-                     */
-                    if (is_numeric($opRepoTarget)) {
-                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                        $stmt->bindValue(':id', $opRepoTarget);
-                        $result = $stmt->execute();
-
-                        while ($datas = $result->fetchArray()) {
-                            $name = $datas['Name'];
-                            if ($OS_FAMILY == "Debian") {
-                                $dist = $datas['Dist'];
-                                $section = $datas['Section'];
-                            }
-                        }
-
-                    /**
-                     *  Si le repo cible retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
-                     */
-                    } else {
-                        $opRepoTarget = explode('|', $opRepoTarget);
-                        $name = $opRepoTarget[0];
-                        if ($OS_FAMILY == "Debian") {
-                            if (!empty($opRepoTarget[1])) $dist = $opRepoTarget[1];
-                            if (!empty($opRepoTarget[2])) $section = $opRepoTarget[2];
-                        }
-                    }
-                }
-
-                if ($opAction == "new") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                } 
-                if ($opAction == "update") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
-                if ($opAction == "reconstruct") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des metadonnées ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des métadonnées ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
-                if ($opAction == "duplicate") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
-                if ($opAction == "delete") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                if ($opAction == "deleteDist") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                if ($opAction == "deleteSection") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+            if ($opsRunning === false AND $plansRunning === false) {
+                echo '<a href="run.php"><span class="li-operation-not-running">Aucune opération en cours</span></a>';
             }
-            echo '</ul>';
-            echo '</li>';
-        }
-       
-        if ($plansRunning !== false) {
-            echo '<li><span class="li-operation-running"><a href="run.php">Planification en cours</a></span>';
-            echo '<ul class="sub-menu">';
-            /**
-             *  Pour chaque planification, on récupère son PID et son fichier de LOG
-             */
-            foreach ($plansRunning as $planRunning) {
-                $opPid = $planRunning['Pid'];
-                $opLogfile = $planRunning['Logfile'];
-                if (!empty($planRunning['Action'])) { $planAction = $planRunning['Action']; }
-                if (!empty($planRunning['Id_repo_source'])) {
-                    $opRepoSource = $planRunning['Id_repo_source'];
-                }
 
+            /**
+             *  Cas où il y a une ou plusieurs opérations en cours
+             */
+            if ($opsRunning !== false) {
+                echo '<a href="run.php"><span class="li-operation-running">Opération en cours</span></a>';
+                echo '<ul class="sub-menu">';
                 /**
-                 *  Si un repo source est renseigné, on récupère son nom
+                 *  Pour chaque opération, on récupère son PID et son fichier de LOG
                  */
-                if (!empty($planRunning['Id_repo_source'])) {
-                    $opRepoSource = $planRunning['Id_repo_source'];
+                foreach ($opsRunning as $opRunning) {
+                    $opPid = $opRunning['Pid'];
+                    $opLogfile = $opRunning['Logfile'];
+                    if (!empty($opRunning['Action'])) { $opAction = $opRunning['Action']; }
 
                     /**
-                     *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                     *  Si un repo source est renseigné, on récupère son nom
                      */
-                    if (is_numeric($opRepoSource)) {
-                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                        $stmt->bindValue(':id', $opRepoSource);
-                        $result = $stmt->execute();
+                    if (!empty($opRunning['Id_repo_source'])) {
+                        $opRepoSource = $opRunning['Id_repo_source'];
 
-                        while ($datas = $result->fetchArray()) {
-                            $name = $datas['Name'];
+                        /**
+                         *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                         */
+                        if (is_numeric($opRepoSource)) {
+                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                            $stmt->bindValue(':id', $opRepoSource);
+                            $result = $stmt->execute();
+
+                            while ($datas = $result->fetchArray()) {
+                                $name = $datas['Name'];
+                                if ($OS_FAMILY == "Debian") {
+                                    $dist = $datas['Dist'];
+                                    $section = $datas['Section'];
+                                }
+                            }
+
+                        /**
+                         *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                         */
+                        } else {
+                            $opRepoSource = explode('|', $opRepoSource);
+                            $name = $opRepoSource[0];
                             if ($OS_FAMILY == "Debian") {
-                                $dist = $datas['Dist'];
-                                $section = $datas['Section'];
+                                if (!empty($opRepoSource[1])) $dist = $opRepoSource[1];
+                                if (!empty($opRepoSource[2])) $section = $opRepoSource[2];
                             }
                         }
+                    }
 
                     /**
-                     *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                     *  Si un repo cible est renseigné, on récupère son nom
                      */
-                    } else {
-                        $opRepoSource = explode('|', $opRepoSource);
-                        $name = $opRepoSource[0];
-                        if ($OS_FAMILY == "Debian") {
-                            $dist = $opRepoSource[1];
-                            $section = $opRepoSource[2];
+                    if (!empty($opRunning['Id_repo_target'])) { 
+                        $opRepoTarget = $opRunning['Id_repo_target'];
+
+                        /**
+                         *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                         */
+                        if (is_numeric($opRepoTarget)) {
+                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                            $stmt->bindValue(':id', $opRepoTarget);
+                            $result = $stmt->execute();
+
+                            while ($datas = $result->fetchArray()) {
+                                $name = $datas['Name'];
+                                if ($OS_FAMILY == "Debian") {
+                                    $dist = $datas['Dist'];
+                                    $section = $datas['Section'];
+                                }
+                            }
+
+                        /**
+                         *  Si le repo cible retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                         */
+                        } else {
+                            $opRepoTarget = explode('|', $opRepoTarget);
+                            $name = $opRepoTarget[0];
+                            if ($OS_FAMILY == "Debian") {
+                                if (!empty($opRepoTarget[1])) $dist = $opRepoTarget[1];
+                                if (!empty($opRepoTarget[2])) $section = $opRepoTarget[2];
+                            }
                         }
                     }
-                }
 
+                    if ($opAction == "new") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    } 
+                    if ($opAction == "update") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($opAction == "reconstruct") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des metadonnées ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des métadonnées ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($opAction == "duplicate") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($opAction == "delete") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($opAction == "deleteDist") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($opAction == "deleteSection") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                }
+                echo '</ul>';
+                echo '</li>';
+            }
+
+            if ($plansRunning !== false) {
+                echo '<a href="run.php"><span class="li-operation-running">Planification en cours</span></a>';
+                echo '<ul class="sub-menu">';
                 /**
-                 *  Si un repo cible est renseigné, on récupère son nom
+                 *  Pour chaque planification, on récupère son PID et son fichier de LOG
                  */
-                if (!empty($planRunning['Id_repo_target'])) { 
-                    $opRepoTarget = $planRunning['Id_repo_target'];
+                foreach ($plansRunning as $planRunning) {
+                    $opPid = $planRunning['Pid'];
+                    $opLogfile = $planRunning['Logfile'];
+                    if (!empty($planRunning['Action'])) { $planAction = $planRunning['Action']; }
+                    if (!empty($planRunning['Id_repo_source'])) {
+                        $opRepoSource = $planRunning['Id_repo_source'];
+                    }
+
+                    /**
+                     *  Si un repo source est renseigné, on récupère son nom
+                     */
+                    if (!empty($planRunning['Id_repo_source'])) {
+                        $opRepoSource = $planRunning['Id_repo_source'];
+
+                        /**
+                         *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                         */
+                        if (is_numeric($opRepoSource)) {
+                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                            $stmt->bindValue(':id', $opRepoSource);
+                            $result = $stmt->execute();
+
+                            while ($datas = $result->fetchArray()) {
+                                $name = $datas['Name'];
+                                if ($OS_FAMILY == "Debian") {
+                                    $dist = $datas['Dist'];
+                                    $section = $datas['Section'];
+                                }
+                            }
+
+                        /**
+                         *  Si le repo source retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                         */
+                        } else {
+                            $opRepoSource = explode('|', $opRepoSource);
+                            $name = $opRepoSource[0];
+                            if ($OS_FAMILY == "Debian") {
+                                $dist = $opRepoSource[1];
+                                $section = $opRepoSource[2];
+                            }
+                        }
+                    }
+
+                    /**
+                     *  Si un repo cible est renseigné, on récupère son nom
+                     */
+                    if (!empty($planRunning['Id_repo_target'])) { 
+                        $opRepoTarget = $planRunning['Id_repo_target'];
+                        
+                        /**
+                         *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
+                         */
+                        if (is_numeric($opRepoTarget)) {
+                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE id=:id AND Status = 'active'");
+                            $stmt->bindValue(':id', $opRepoTarget);
+                            $result = $stmt->execute();
+
+                            while ($datas = $result->fetchArray()) {
+                                $name = $datas['Name'];
+                                if ($OS_FAMILY == "Debian") {
+                                    $dist = $datas['Dist'];
+                                    $section = $datas['Section'];
+                                }
+                            }
+
+                        /**
+                         *  Si le repo cible retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
+                         */
+                        } else {
+                            $opRepoTarget = explode('|', $opRepoTarget);
+                            $name = $opRepoTarget[0];
+                            if ($OS_FAMILY == "Debian") {
+                                $dist = $opRepoTarget[1];
+                                $section = $opRepoTarget[2];
+                            }
+                        }
+                    }
                     
-                    /**
-                     *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
-                     */
-                    if (is_numeric($opRepoTarget)) {
-                        $stmt = $op->db->prepare("SELECT * FROM repos WHERE id=:id AND Status = 'active'");
-                        $stmt->bindValue(':id', $opRepoTarget);
-                        $result = $stmt->execute();
-
-                        while ($datas = $result->fetchArray()) {
-                            $name = $datas['Name'];
-                            if ($OS_FAMILY == "Debian") {
-                                $dist = $datas['Dist'];
-                                $section = $datas['Section'];
-                            }
-                        }
-
-                    /**
-                     *  Si le repo cible retourné n'est pas un entier, c'est qu'il n'a pas encore été intégré en BDD et qu'il ne possède donc pas d'ID, on récupère alors directement son nom
-                     */
-                    } else {
-                        $opRepoTarget = explode('|', $opRepoTarget);
-                        $name = $opRepoTarget[0];
-                        if ($OS_FAMILY == "Debian") {
-                            $dist = $opRepoTarget[1];
-                            $section = $opRepoTarget[2];
-                        }
+                    if ($planAction == "new") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($planAction == "update") {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($planAction == "changeEnv" OR strpos($planAction, '->') !== false) {
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                 }
-                
-                if ($planAction == "new") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
-                if ($planAction == "update") {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
-                if ($planAction == "changeEnv" OR strpos($planAction, '->') !== false) {
-                    if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                }
+                echo '</ul>';
+                echo '</li>';
             }
-            echo '</ul>';
-            echo '</li>';
-        }
 
         echo '</li>'; // Fermeture du li id="refresh-me-header-container"
         
@@ -311,7 +311,7 @@ echo '</section>';
 // script jQuery d'autorechargement du menu dans le header. Permet de recharger le bouton opération en cours automatiquement :
 $(document).ready(function(){
     setInterval(function(){
-        $("#refresh-me-container").load("run.php #refresh-me-container > *");
+        $("#header-refresh-container").load("run.php?reload #header-refresh-container > *");
     }, 5000);
 });
 </script>

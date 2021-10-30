@@ -180,15 +180,15 @@ permissions() {
     # On re-applique les permissions uniquement si on est root, sinon ça risque de renvoyer des erreurs "Permission denied"
     if [ "$ACTUAL_USER" == "root" ];then
         # Droits sur le répertoire web
-        find ${WWW_DIR} -type f -exec chmod 0660 {} \;
-        find ${WWW_DIR} -type d -exec chmod 0770 {} \;
-        chmod 775 ${WWW_DIR}
-        chown -R ${WWW_USER}:repomanager ${WWW_DIR}
+        find "$WWW_DIR" -type f -exec chmod 0660 {} \;
+        find "$WWW_DIR" -type d -exec chmod 0770 {} \;
+        chmod 750 "$WWW_DIR"
+        chown -R ${WWW_USER}:repomanager "$WWW_DIR"
         chmod 550 ${WWW_DIR}/repomanager
 
         # Droits sur le répertoire stockant les repos
         # Ici on ne réapplique pas les droits sur les fichiers avec find car le répertoire peut être très volumineux, on laisse la tâche cron régulière s'en charger en tâche de fond
-        chown -R ${WWW_USER}:repomanager ${REPOS_DIR}
+        chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
 
         # permissions sur le répertoire de .gnupg
         if [ -d "${WWW_DIR}/.gnupg" ];then

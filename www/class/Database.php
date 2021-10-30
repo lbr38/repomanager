@@ -83,6 +83,13 @@ class Database extends SQLite3 {
         /**
          *  Crée la table sources si n'existe pas
          */
+        $this->exec("CREATE TABLE IF NOT EXISTS env (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL)");
+
+        /**
+         *  Crée la table sources si n'existe pas
+         */
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL,
@@ -151,7 +158,7 @@ class Database extends SQLite3 {
          *  Si la table profile_package est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT * FROM profile_package");
-        if ($this->isempty($result)) $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
+        if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
 
         /**
          *  Crée la table profile_service si n'existe pas
@@ -163,7 +170,7 @@ class Database extends SQLite3 {
          *  Si la table profile_service est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT * FROM profile_service");
-        if ($this->isempty($result)) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
+        if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
     }
 
     /**
@@ -176,9 +183,7 @@ class Database extends SQLite3 {
          *  Compte le nombre de lignes retournées par la requête
          */
         $count = 0;
-        while ($row = $result->fetchArray()) {
-            $count++;
-        }
+        while ($row = $result->fetchArray()) $count++;
 
         /**
          *  Retourne le nombre de lignes
@@ -195,9 +200,7 @@ class Database extends SQLite3 {
          *  Compte le nombre de lignes retournées par la requête
          */
         $count = 0;
-        while ($row = $result->fetchArray()) {
-            $count++;
-        }
+        while ($row = $result->fetchArray()) $count++;
 
         /**
          *  Retourne le nombre de lignes
@@ -206,44 +209,44 @@ class Database extends SQLite3 {
     }
 
     /**
-     *  Même fonction que ci-dessus mais retourne true si le résultat est vide et false si il est non-vide.
+     *  Retourne true si le résultat est vide et false si il est non-vide.
      */
     public function isempty($result) {
         /**
          *  Compte le nombre de lignes retournées par la requête
          */
         $count = 0;
+
         while ($row = $result->fetchArray()) $count++;
 
-        /**
-         *  Si le résultat est vide alors on retourne true
-         */
         if ($count == 0) return true;
 
-        /**
-         *  Sinon on retourne false
-         */
         return false;
     }
 
     /**
      *  Transforme un résultat de requête ($result = $stmt->execute()) en un array
-     *  Valable pour les requêtes en bases renvoyant une seule ligne de résultat
      */
     public function fetch(object $result, string $option = '') {
-        global $DEBUG_MODE;
-
         /**
          *  On vérifie d'abord que $result n'est pas vide, sauf si on a précisé l'option "ignore-null"
          */
-        if ($option != "ignore-null") if ($this->isempty($result)) throw new Exception('Erreur : le résultat les données à traiter est vide');
+        if ($option != "ignore-null") {
+            if ($this->isempty($result) === true) {
+                throw new Exception('Erreur : le résultat les données à traiter est vide');
+            }
+        }
+
+        $datas = array();
 
         /**
          *  Fetch le résultat puis retourne l'array créé
          */
-        while ($row = $result->fetchArray()) $datas = $row;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas = $row;
+        }
 
-        if (!empty($datas)) return $datas;
+        return $datas;
     }
 
     /**
@@ -251,12 +254,11 @@ class Database extends SQLite3 {
      */
     public function querySingleRow(string $query) {
         $result = $this->query("$query LIMIT 1");
-        while ($row = $result->fetchArray()) {
-            $data = $row;
-        }
-        if (!empty($data)) {
-            return $data;
-        }
+
+        while ($row = $result->fetchArray()) $data = $row;
+
+        if (!empty($data)) return $data;
+
         return; // Retourne une valeur vide sinon
     }
 
@@ -265,12 +267,10 @@ class Database extends SQLite3 {
      */
     public function queryArray(string $query) {
         $result = $this->query($query);
-        while ($row = $result->fetchArray()) {
-            $datas = $row;
-        }
-        if (!empty($datas)) {
-            return $datas;
-        }
+
+        while ($row = $result->fetchArray()) $datas = $row;
+
+        if (!empty($datas)) return $datas;
     }
 }
 
@@ -302,13 +302,13 @@ class Database_stats extends SQLite3 {
          *  Crée la table access si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS access (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            Date DATE NOT NULL,
-            Time TIME NOT NULL,
-            Source VARCHAR(255) NOT NULL,
-            IP VARCHAR(16) NOT NULL,
-            Request VARCHAR(255) NOT NULL,
-            Request_result VARCHAR(8) NOT NULL)");
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Source VARCHAR(255) NOT NULL,
+        IP VARCHAR(16) NOT NULL,
+        Request VARCHAR(255) NOT NULL,
+        Request_result VARCHAR(8) NOT NULL)");
     }
 
     /**
