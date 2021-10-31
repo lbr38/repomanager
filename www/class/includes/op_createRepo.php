@@ -103,9 +103,9 @@ trait op_createRepo {
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
             if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")
-                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Miroir du repo {$this->repo->name}, distribution {$this->repo->dist}, section {$this->repo->section}\nSignWith: ${GPG_KEYID}\nPull: {$this->repo->section}";
+                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Repo {$this->repo->name}, miroir du repo {$this->repo->source}, distribution {$this->repo->dist}, section {$this->repo->section}\nSignWith: ${GPG_KEYID}\nPull: {$this->repo->section}";
             else
-                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Miroir du repo {$this->repo->name}, distribution {$this->repo->dist}, section {$this->repo->section}\nPull: {$this->repo->section}";
+                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ${WWW_HOSTNAME}\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Repo {$this->repo->name}, miroir du repo {$this->repo->source}, distribution {$this->repo->dist}, section {$this->repo->section}\nPull: {$this->repo->section}";
 
             if (!file_put_contents("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/conf/distributions", "$file_distributions_content".PHP_EOL)) {
                 throw new Exception('impossible de créer le fichier de configuration du repo (distributions)');
@@ -127,8 +127,6 @@ trait op_createRepo {
             /**
              *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
              */
-            //exec("cd ${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->repo->dateFormatted}_{$this->section}/ && /usr/bin/reprepro --gnupghome ${GPGHOME} includedeb {$this->dist} ${TMP_DIR}/*.deb >> {$this->log->steplog} 2>&1", $output, $result);
-            //$process = proc_open("exec /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->name}/{$this->dist}/{$this->repo->dateFormatted}_{$this->section}/ --gnupghome ${GPGHOME} includedeb {$this->dist} ${TMP_DIR}/*.deb 1>&2", $descriptors, $pipes);
             if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") {
                 $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ --gnupghome ${GPGHOME} includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
             } else {

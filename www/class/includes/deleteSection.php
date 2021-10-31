@@ -15,15 +15,15 @@ trait deleteSection {
 
         echo "<table class=\"op-table\">
         <tr>
-            <th>Nom du repo :</th>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>
         <tr>
-            <th>Distribution :</th>
+            <th>DISTRIBUTION :</th>
             <td><b>{$this->repo->dist}</b></td>
         </tr>
         <tr>
-            <th>Section :</th>
+            <th>SECTION :</th>
             <td><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</td>
         </tr>
         </table>";
@@ -53,13 +53,21 @@ trait deleteSection {
         /**
          *  5. On met à jour la BDD
          */
-        $this->repo->db->exec("UPDATE repos SET Status = 'deleted' WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Env = '{$this->repo->env}' AND Date = '{$this->repo->date}' AND Status = 'active'");
+        $stmt = $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
+        $stmt->bindValue(':id', $this->repo->id);
+        $stmt->execute();
 
         /**
          *  6. Vérifications avant suppression définitive du miroir
          */
-        $result = $this->repo->db->countRows("SELECT * from repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Date = '{$this->repo->date}' AND Status = 'active'");
-        if ($result != 0) {
+        $stmt = $this->repo->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+        $stmt->bindValue(':name', $this->repo->name);
+        $stmt->bindValue(':dist', $this->repo->dist);
+        $stmt->bindValue(':section', $this->repo->section);
+        $stmt->bindValue(':date', $this->repo->date);
+        $result = $stmt->execute();
+        
+        if ($this->repo->db->isempty($result) === false) {
             $this->log->steplogOK("La version du miroir de cette section est toujours utilisée pour d'autres environnements. Le miroir du <b>{$this->repo->dateFormatted}</b> n'est donc pas supprimé");
             
         } else {

@@ -39,10 +39,8 @@ trait op_signPackages {
              *  Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
              */
             if (file_exists("/usr/bin/rpmresign")) {
-                //exec("shopt -s globstar && cd '${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->name}' && /usr/bin/rpmresign --path '${GPGHOME}' --name '${GPG_KEYID}' --passwordfile '${PASSPHRASE_FILE}' **/*.rpm >> {$this->log->steplog} 2>&1", $output, $result);
                 $process = proc_open("shopt -s globstar && cd '${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}' && /usr/bin/rpmresign --path '${GPGHOME}' --name '${GPG_KEYID}' --passwordfile '${PASSPHRASE_FILE}' **/*.rpm 1>&2", $descriptors, $pipes);
-            } //else { utilisation de rpm-sign (ne fonctionne pas car affiche un prompt pour demander la passphrase)
-            //exec("shopt -s globstar && cd '${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->name}' && rpmsign --addsign **/*.rpm >> {$this->log->steplog} 2>&1", $output, $result);	// Sinon on utilise rpmsign et on demande le mdp à l'utilisateur (pas possible d'utiliser un fichier passphrase)
+            }
 
             /**
              *  Récupération du pid et du status du process lancé

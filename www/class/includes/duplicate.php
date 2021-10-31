@@ -50,39 +50,39 @@ trait duplicate {
             echo '<table class="op-table">';
             if ($OS_FAMILY == "Redhat") {
                 echo "<tr>
-                    <th>Nom du repo source :</th>
+                    <th>NOM DU REPO SOURCE :</th>
                     <td><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</td>
                 </tr>";
             }
             if ($OS_FAMILY == "Debian") {
                 echo "<tr>
-                    <th>Nom du repo source :</th>
+                    <th>NOM DU REPO SOURCE :</th>
                     <td><b>{$this->repo->name}</b></td>
                 </tr>
                 <tr>
-                    <th>Distribution :</th>
+                    <th>DISTRIBUTION :</th>
                     <td><b>{$this->repo->dist}</b></td>
                 </tr>
                 <tr>
-                    <th>Section de repo :</th>
+                    <th>SECTION :</th>
                     <td><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</td>
                 </tr>";
             }
             if (!empty($this->repo->newName)) {
                 echo "<tr>
-                    <th>Nom du nouveau repo :</th>
+                    <th>NOM DU NOUVEAU REPO :</th>
                     <td><b>{$this->repo->newName}</b></td>
                 </tr>";
             }
             if (!empty($this->repo->description)) {
                 echo "<tr>
-                    <th>Description :</th>
+                    <th>DESCRIPTION :</th>
                     <td><b>{$this->repo->description}</b></td>
                 </tr>";
             }
             if (!empty($this->repo->group)) {
                 echo "<tr>
-                    <th>Ajout à un groupe :</th>
+                    <th>AJOUT À UN GROUPE :</th>
                     <td><b>{$this->repo->group}</b></td>
                 </tr>";
             }
@@ -223,10 +223,17 @@ trait duplicate {
                 $this->log->steplogTitle('AJOUT A UN GROUPE');
                 $this->log->steplogLoading();
 
-                if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->newName}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-                if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->newName}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
+                if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Status = 'active' AND groups.Name=:groupname");
+                if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+                $stmt->bindValue(':newname', $this->repo->newName);
+                if ($OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $stmt->bindValue(':groupname', $this->repo->group);
+                $result = $stmt->execute();
 
-                while ($data = $result->fetchArray()) {
+                while ($data = $result->fetchArray(SQLITE3_ASSOC)) {
                     $repoId = $data['repoId'];
                     $groupId = $data['groupId'];
                 }
@@ -234,7 +241,6 @@ trait duplicate {
                 if (empty($this->repo->id)) throw new Exception("impossible de récupérer l'id du repo <b>{$this->repo->newName}</b>");
                 if (empty($groupId)) throw new Exception("impossible de récupérer l'id du groupe <b>{$this->repo->group}</b>");
 
-                //$this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");
                 $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
                 $stmt->bindValue(':repoid', $repoId);
                 $stmt->bindValue(':groupid', $groupId);

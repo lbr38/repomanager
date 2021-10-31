@@ -18,21 +18,21 @@ trait changeEnv {
         echo "<h3>NOUVEL ENVIRONNEMENT</h3>";
         echo "<table class=\"op-table\">
         <tr>
-            <th>Nom du repo :</th>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>";
         if ($OS_FAMILY == "Debian") {
             echo "<tr>
-                <th>Distribution :</th>
+                <th>DISTRIBUTION :</th>
                 <td><b>{$this->repo->dist}</b></td>
             </tr>
             <tr>
-                <th>Section :</th>
+                <th>SECTION :</th>
 	            <td><b>{$this->repo->section}</b></td>
 	        </tr>";
         }
         echo '<tr>
-            <th>Environnement source :</th>';
+            <th>ENVIRONNEMENT SOURCE :</th>';
             if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
                 echo "<td class=\"td-redbackground\"><span>{$this->repo->env}</span></td>";
             } elseif ($this->repo->env === $DEFAULT_ENV) { 
@@ -44,7 +44,7 @@ trait changeEnv {
             }
         echo '</tr>';
         echo "<tr>
-            <th>Nouvel environnement :</th>";
+            <th>NOUVEL ENVIRONNEMENT :</th>";
             if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
                 echo "<td class=\"td-redbackground\"><span>{$this->repo->newEnv}</span></td>";
             } elseif ($this->repo->newEnv === $DEFAULT_ENV) { 
@@ -57,7 +57,7 @@ trait changeEnv {
         echo '</tr>';
         if (!empty($this->repo->description)) {
             echo "<tr>
-                <th>Description :</th>
+                <th>DESCRIPTION :</th>
                 <td><b>{$this->repo->description}</b></td>
             </tr>";
         }

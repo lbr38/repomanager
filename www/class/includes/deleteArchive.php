@@ -17,21 +17,21 @@ trait deleteArchive {
 
         echo "<table class=\"op-table\">
         <tr>
-            <th>Nom du repo :</th>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>";
         if ($OS_FAMILY == "Debian") {
             echo "<tr>
-                <th>Distribution :</th>
+                <th>DISTRIBUTION :</th>
                 <td><b>{$this->repo->dist}</b></td>
             </tr>
             <tr>
-                <th>Section :</th>
+                <th>SECTION :</th>
                 <td><b>{$this->repo->section}</b></td>
             </tr>";
         }
         echo "<tr>
-            <th>Date :</th>
+            <th>DATE :</th>
             <td><b>{$this->repo->dateFormatted}</b></td>
         </tr>";
         echo '</table>';
@@ -70,9 +70,8 @@ trait deleteArchive {
         /**
          *  4. Mise à jour de la BDD
          */
-        if ($OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
+        $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
+        $stmt->bindValue(':id', $this->repo->id);
         if ($OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->repo->dist);
             $stmt->bindValue(':section', $this->repo->section);

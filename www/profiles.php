@@ -196,11 +196,25 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                                                     }
                                                 }
                                                 if ($OS_FAMILY == "Debian") {
-                                                    // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                                                    if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
-                                                        echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                    /**
+                                                     *  Si le nom de la distribution comporte un slash, alors on remplace '/' par '--slash--' car c'est comme cela qu'il sera écrit dans le nom du fichier
+                                                     */
+                                                    if (preg_match('#/#', $repoDist)) {
+                                                        $repoDistFormatted = str_replace('/', '--slash--', $repoDist);
+
+                                                        // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
+                                                        if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDistFormatted}_${repoSection}.list")) {
+                                                            echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                        } else {
+                                                            echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                        }
                                                     } else {
-                                                        echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                        // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
+                                                        if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
+                                                            echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                        } else {
+                                                            echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
+                                                        }
                                                     }
                                                 }
                                             }

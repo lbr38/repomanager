@@ -95,7 +95,7 @@ class Profile {
         if (!is_alphanumdash($this->name) OR !is_alphanumdash($this->newName)) return;
 
         /**
-         * 	2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
+         *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
          */
         if (is_dir("${PROFILES_MAIN_DIR}/{$this->newName}")) {
             printAlert("Erreur : un profil du même nom (<b>{$this->newName}</b>) existe déjà", 'error');
@@ -103,7 +103,7 @@ class Profile {
         }
 
         /**
-         * 	3. Si pas d'erreur alors on peut renommer le répertoire de profil
+         *  3. Si pas d'erreur alors on peut renommer le répertoire de profil
          */
         if (!rename("${PROFILES_MAIN_DIR}/{$this->name}", "${PROFILES_MAIN_DIR}/{$this->newName}")) {
             printAlert("Erreur lors du renommage du profil <b>{$this->name}</b>", 'error');
@@ -111,7 +111,7 @@ class Profile {
         }
 
         /**
-         * 	Affichage d'un message
+         *  4. Affichage d'un message
          */
         printAlert("Le profil <b>{$this->name}</b> a été renommé en <b>{$this->newName}</b>", 'success');
     }
@@ -261,11 +261,12 @@ class Profile {
                     }
         
                     /**
-                     * 	Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par [slash] dans le nom du fichier .list
+                     * 	Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list
                      */
-                    $checkIfDistContainsSlash = exec("echo $myRepo->dist | grep '/'");
-                    if (!empty($checkIfDistContainsSlash)) {
-                        $myRepo->dist = str_replace("/", "[slash]","$myRepo->dist");
+                    //$checkIfDistContainsSlash = exec("echo $myRepo->dist | grep '/'");
+                    //if (!empty($checkIfDistContainsSlash)) {
+                    if (preg_match('#/#', $myRepo->dist)) {
+                        $myRepo->dist = str_replace("/", "--slash--","$myRepo->dist");
                     }
                 
                     exec("cd ${PROFILES_MAIN_DIR}/{$this->name}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$myRepo->name}_{$myRepo->dist}_{$myRepo->section}.list");
@@ -481,7 +482,7 @@ class Profile {
     public function db_getPackages() {
         $result = $this->db->query("SELECT Name FROM profile_package");
         
-        while ($datas = $result->fetchArray()) $packages[] = $datas['Name'];
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $packages[] = $datas['Name'];
 
         if (!empty($packages))
             return $packages;
@@ -527,7 +528,7 @@ class Profile {
     public function db_getServices() {
         $result = $this->db->query("SELECT Name FROM profile_service");
         
-        while ($datas = $result->fetchArray()) $services[] = $datas['Name'];
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $services[] = $datas['Name'];
 
         if (!empty($services)) return $services;
         

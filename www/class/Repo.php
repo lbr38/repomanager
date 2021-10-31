@@ -167,7 +167,7 @@ class Repo {
         if ($OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
         }
-        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
         if (!empty($repos)) return $repos;
     }
@@ -184,7 +184,7 @@ class Repo {
         if ($OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
         }
-        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
         if (!empty($repos)) return $repos;
     }
@@ -196,7 +196,7 @@ class Repo {
         global $OS_FAMILY;
         if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC"); }
         if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
-        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
         if (!empty($repos)) return $repos;
     }
@@ -206,9 +206,12 @@ class Repo {
  */
     public function listAll_distinct_byEnv(string $env) {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Id, Name FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env = '$env' AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
-        while ($datas = $result->fetchArray()) $repos[] = $datas;
+        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
+        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
+        $stmt->bindValue(':env', $env);
+        $result = $stmt->execute();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
         if (!empty($repos)) return $repos;
     }
@@ -218,9 +221,13 @@ class Repo {
  */
     public function countActive() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") $result = $this->db->countRows("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
-        return $result;
+
+        if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
+
+        $count = $this->db->count($result);
+
+        return $count;
     }
 
 /**
@@ -228,9 +235,13 @@ class Repo {
  */
     public function countArchived() {
         global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") $result = $this->db->countRows("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
-        return $result;
+
+        if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
+        if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
+
+        $count = $this->db->count($result);
+
+        return $count;
     }
 
 
@@ -249,17 +260,25 @@ class Repo {
          */
         if (!empty($state)) {
             if ($state == "active") {
-                if ($this->db->countRows("SELECT * FROM repos WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+                $stmt = $this->db-prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                $stmt->bindValue(':id', $this->id);
+                $result = $stmt->execute();
+
+                if ($this->db->isempty($result) === true)
                     return false;
-                } else {
+                else
                     return true;
-                }
+
             } elseif ($state == "archived") {
-                if ($this->db->countRows("SELECT * FROM repos_archived WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+                $stmt = $this->db-prepare("SELECT * FROM repos_archived WHERE Id=:id AND Status = 'active'");
+                $stmt->bindValue(':id', $this->id);
+                $result = $stmt->execute();
+
+                if ($this->db->isempty($result) === true)
                     return false;
-                } else {
+                else
                     return true;
-                }
+
             } else {
                 return false;
             }
@@ -268,11 +287,14 @@ class Repo {
         /**
          *  Si on n'a pas renseigné $state alors on interroge par défaut la table repos
          */
-        if ($this->db->countRows("SELECT * FROM repos WHERE Id = '$this->id' AND Status = 'active'") == 0) {
+        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+        $stmt->bindValue(':id', $this->id);
+        $result = $stmt->execute();
+
+        if ($this->db->isempty($result) === true)
             return false;
-        } else {
-            return true;
-        }        
+        else
+            return true;        
     }
 
 /**
@@ -533,7 +555,12 @@ class Repo {
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();
 
-        while ($row = $result->fetchArray()) {
+        /**
+         *  Si rien n'a été trouvé en BDD avec l'ID fourni alors on quitte
+         */
+        if ($this->db->isempty($result) === true) throw new Exception("Erreur : aucun repo portant l'ID $this->id n'a été trouvé en BDD");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->name = $row['Name'];
             if ($OS_FAMILY == 'Debian') {
                 $this->dist = $row['Dist'];
@@ -560,14 +587,17 @@ class Repo {
     public function db_getAll() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") {
-            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
-        }
-
+        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $this->name);
         if ($OS_FAMILY == "Debian") {
-            $result = $this->db->query("SELECT * from repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
+            $stmt->bindValue(':dist', $this->dist);
+            $stmt->bindValue(':section', $this->section);
         }
-        while ($row = $result->fetchArray()) {
+        $stmt->bindValue(':env', $this->env);
+        $result = $stmt->execute();        
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->id = $row['Id'];
             $this->source = $row['Source'];
             $this->date = $row['Date'];
@@ -583,11 +613,19 @@ class Repo {
     public function db_getDate() {
         global $OS_FAMILY;
 
-        if ($OS_FAMILY == "Redhat") $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '$this->name' AND Env = '$this->env' AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '$this->name' AND Dist = '$this->dist' AND Section = '$this->section' AND Env = '$this->env' AND Status = 'active'");
+        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        $stmt->bindValue(':name', $this->name);
+        $stmt->bindValue(':env', $this->env);
+        if ($OS_FAMILY == "Debian") {
+            $stmt->bindValue(':dist', $this->dist);
+            $stmt->bindValue(':section', $this->section);
+        }
+        $result = $stmt->execute();
 
-        $this->date = $result['Date'];
-        $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $result['Date'])->format('d-m-Y');
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+        $this->date = $datas['Date'];
+        $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $this->date)->format('d-m-Y');
     }
 
 /**
@@ -745,16 +783,17 @@ class Repo {
             $content = "# Repo {$this->name}, distribution {$this->dist}, section {$this->section} sur ${WWW_HOSTNAME}";
             $content = "${content}\ndeb https://${WWW_HOSTNAME}/repo/{$this->name}/{$this->dist}/{$this->section}___ENV__ {$this->dist} {$this->section}";
             
-            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par [slash] dans le nom du fichier .list 
-            $checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
-            if (!empty($checkIfDistContainsSlash)) {
-            $repoDistFormatted = str_replace("/", "[slash]","$this->dist");
+            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
+            //$checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
+            //if (!empty($checkIfDistContainsSlash)) {
+            if (preg_match('#/#', $this->dist)) {
+                $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
             } else {
-            $repoDistFormatted = $this->dist;
+                $repoDistFormatted = $this->dist;
             }
             // Création du fichier si n'existe pas déjà
             if (!file_exists("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-            touch("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list");
+                touch("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list");
             }
             // Ecriture du contenu dans le fichier
             file_put_contents("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list", $content);
@@ -792,10 +831,10 @@ class Repo {
         }
 
         if ($OS_FAMILY == "Debian") {
-            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par [slash] dans le nom du fichier .list 
+            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
             $checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
             if (!empty($checkIfDistContainsSlash)) {
-                $repoDistFormatted = str_replace("/", "[slash]", $this->dist);
+                $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
             } else {
                 $repoDistFormatted = $this->dist;
             }

@@ -12,7 +12,7 @@ trait delete {
         /**
          *  0. Si Redhat on aura besoin de la date du repo à supprimer
          */
-        if ($OS_FAMILY == "Redhat") $this->repo->db_getDate();
+        //if ($OS_FAMILY == "Redhat") $this->repo->db_getDate();
 
         /**
          *  1. Génération du tableau récapitulatif de l'opération
@@ -20,7 +20,7 @@ trait delete {
         echo "<h3>SUPPRESSION D'UN REPO</h3>";
         echo "<table class=\"op-table\">
         <tr>
-            <th>Nom du repo :</th>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>
         </table>";
@@ -56,10 +56,9 @@ trait delete {
          *  4. Mise à jour de la BDD
          */
         if ($OS_FAMILY == "Redhat") {
-            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Env=:env AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':env', $this->repo->env);
-            $stmt->bindValue(':date', $this->repo->date);
+            //$stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Env=:env AND Date=:date AND Status = 'active'");
+            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->repo->id);
             $stmt->execute();
         }
         if ($OS_FAMILY == "Debian") {

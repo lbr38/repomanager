@@ -40,6 +40,8 @@ class Operation {
     public $repo;    // pour instancier un objet Repo
     public $log;     // pour instancier un objet Log
     public $id_plan; // Si une opération est lancée par une planification alors on peut stocker l'ID de cette planification dans cette variable
+    public $gpgCheck;
+    public $gpgResign;
 
     /**
      *  Import des traits nécessaires pour les opérations sur les repos/sections
@@ -62,9 +64,7 @@ class Operation {
 
         if (!empty($op_action)) {
             $this->action = $op_action;
-        } /*else {
-            throw new Error("Erreur : aucune action n'a été renseignée");
-        }*/
+        }
 
         if (!empty($op_type) AND $op_type == "plan") {
             $this->type = 'plan';
@@ -285,10 +285,7 @@ class Operation {
     }
 
     private function chk_param_type() {
-        if (empty($_GET['repoType'])) {
-            echo "<p>Erreur : le type de repo ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoType'])) {
             $this->repo->type = validateData($_GET['repoType']);
             if (!is_alphanum($this->repo->type)) {
                 echo '<p>Erreur : le type du repo ne peut pas contenir de caractères spéciaux.</p>';
@@ -297,6 +294,12 @@ class Operation {
 
             echo '<input type="hidden" name="repoType" value="'.$this->repo->type.'" />';
         }
+
+        if (empty($this->repo->type)) {
+            echo "<p>Erreur : le type de repo ne peut pas être vide</p>";
+            return false;
+        }
+
         return true;
     }
 
@@ -317,10 +320,7 @@ class Operation {
     }
 
     private function chk_param_name() {
-        if (empty($_GET['repoName'])) {
-            echo '<p>Erreur : le nom du repo ne peut pas être vide</p>';
-            return false;
-        } else {
+        if (!empty($_GET['repoName'])) {
             $this->repo->name = validateData($_GET['repoName']);
             if (!is_alphanum($this->repo->name, array('-'))) {
                 echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
@@ -329,6 +329,12 @@ class Operation {
 
             echo '<input type="hidden" name="repoName" value="'.$this->repo->name.'" />';
         }
+
+        if (empty($this->repo->name)) {
+            echo '<p>Erreur : le nom du repo ne peut pas être vide</p>';
+            return false;
+        }
+
         return true;
     }
 
@@ -349,26 +355,26 @@ class Operation {
     }
 
     private function chk_param_dist() {
-        if (empty($_GET['repoDist'])) {
-            echo "<p>Erreur : le nom de la distribution ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoDist'])) {
             $this->repo->dist = validateData($_GET['repoDist']);
             if (!is_alphanum($this->repo->dist, array('-', '/'))) {
                 echo '<p>Erreur : le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
-            
+
             echo '<input type="hidden" name="repoDist" value="'.$this->repo->dist.'" />';
         }
+
+        if (empty($this->repo->dist)) {
+            echo "<p>Erreur : le nom de la distribution ne peut pas être vide</p>";
+            return false;
+        }
+
         return true;
     }
 
     private function chk_param_section() {
-        if (empty($_GET['repoSection'])) {
-            echo "<p>Erreur : le nom de la section ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoSection'])) {
             $this->repo->section = validateData($_GET['repoSection']);
             if (!is_alphanum($this->repo->section, array('-'))) {
                 echo '<p>Erreur : le nom de la section ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
@@ -377,14 +383,19 @@ class Operation {
 
             echo '<input type="hidden" name="repoSection" value="'.$this->repo->section.'" />';
         }
+
+        if (empty($this->repo->section)) {
+            echo "<p>Erreur : le nom de la section ne peut pas être vide</p>";
+            return false;
+        }
+
         return true;
     }
 
     private function chk_param_gpgCheck() {
         if (empty($_GET['repoGpgCheck'])) {
             echo '<td><input type="hidden" name="repoGpgCheck" value="no"></td>';
-        }
-        if (!empty($_GET['repoGpgCheck'])) {
+        } else {
             if (validateData($_GET['repoGpgCheck']) === "ask") {
                 echo '<span class="op_span">GPG check</span>';
                 echo '<label class="onoff-switch-label">';
@@ -392,12 +403,21 @@ class Operation {
                 echo '<span class="onoff-switch-slider"></span>';
                 echo '</label><br>';
                 return false;
+
             } else {
                 $this->repo->gpgCheck = validateData($_GET['repoGpgCheck']);
+                /**
+                 *  GPG Check ne peut qu'être égal à no ou à yes
+                 */
+                if ($this->repo->gpgCheck != "yes" AND $this->repo->gpgCheck != "no") {
+                    echo '<p>Erreur : valeur invalide pour GPG Check</p>';
+                    return false;
+                }
                 echo '<input type="hidden" name="repoGpgCheck" value="'.$this->repo->gpgCheck.'" />';
             }
+
+            return true;
         }
-        return true;
     }
 
     private function chk_param_gpgResign() {
@@ -405,8 +425,7 @@ class Operation {
 
         if (empty($_GET['repoGpgResign'])) {
             echo '<td><input type="hidden" name="repoGpgResign" value="no"></td>';
-        }
-        if (!empty($_GET['repoGpgResign'])) {
+        } else {
             if (validateData($_GET['repoGpgResign']) === "ask") {
                 echo '<span class="op_span">Signer avec GPG</span>';
                 echo '<label class="onoff-switch-label">';
@@ -417,10 +436,18 @@ class Operation {
 
             } else {
                 $this->repo->gpgResign = validateData($_GET['repoGpgResign']);
+                /**
+                 *  GPG Resign ne peut qu'être égal à no ou à yes
+                 */
+                if ($this->repo->gpgResign != "yes" AND $this->repo->gpgResign != "no") {
+                    echo '<p>Erreur : valeur invalide pour GPG Resign</p>';
+                    return false;
+                }
                 echo '<input type="hidden" name="repoGpgResign" value="'.$this->repo->gpgResign.'" />';
             }
+
+            return true;
         }
-        return true;
     }
 
     /**
@@ -429,8 +456,7 @@ class Operation {
     private function chk_param_group() {
         if (empty($_GET['repoGroup'])) {
             echo '<input type="hidden" name="repoGroup" value="nogroup">';
-        }
-        if (!empty($_GET['repoGroup'])) {
+        } else {
             if (validateData($_GET['repoGroup']) === "ask") {
                 $group = new Group();
                 $groupList = $group->listAllName();
@@ -450,10 +476,15 @@ class Operation {
 
             } else {
                 $this->repo->group = validateData($_GET['repoGroup']);
+                if (!is_alphanumdash($this->repo->group, array('-'))) {
+                    echo '<p>Erreur : le groupe comporte des caractères invalides</p>';
+                    return false;
+                }
                 echo '<input type="hidden" name="repoGroup" value="'.$this->repo->group.'" />';
             }
+
+            return true;
         }
-        return true;
     }
 
     /**
@@ -474,17 +505,15 @@ class Operation {
 
                 echo '<input type="hidden" name="repoDescription" value="'.$this->repo->description.'" />';
             }
+
+            return true;
         }
-        return true;
     }
 
     private function chk_param_env() {
         global $ENVS;
 
-        if (empty($_GET['repoEnv'])) {
-            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoEnv'])) {
             if (validateData($_GET['repoEnv']) === "ask") {
                 echo '<span>Env. actuel :</span>';
                 echo '<select name="repoEnv" required>';
@@ -492,24 +521,28 @@ class Operation {
                     echo "<option value=\"${env}\">${env}</option>";
                 }
                 echo '</select>';
+
                 return false;
-            } else {
-                $this->repo->env = validateData($_GET['repoEnv']);
-                echo '<input type="hidden" name="repoEnv" value="'.$this->repo->env.'" />';
             }
+
+            $this->repo->env = validateData($_GET['repoEnv']);
+            echo '<input type="hidden" name="repoEnv" value="'.$this->repo->env.'" />';
+
+            return true;
+        } 
+
+        if (empty($this->repo->env)) {
+            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide</p>";
+            return false;
         }
-        return true;
     }
 
     private function chk_param_newEnv() {
         global $ENVS;
 
-        if (empty($_GET['repoNewEnv'])) {
-            echo "<p>Erreur : le nouveau nom de l'environnement ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoNewEnv'])) {
             if (validateData($_GET['repoNewEnv']) === "ask") {
-                echo '<span>Env cible :</span>';
+                echo '<span>Env. cible :</span>';
                 echo '<select name="repoNewEnv" required>';
                 foreach($ENVS as $env) {
                     if ($env !== $this->repo->env) { // on ne réaffiche pas l'env en cours
@@ -517,24 +550,36 @@ class Operation {
                     }
                 }
                 echo '</select>';
+
                 return false;
-            } else {
-                $this->repo->newEnv = validateData($_GET['repoNewEnv']);
-                echo '<input type="hidden" name="repoNewEnv" value="'.$this->repo->newEnv.'" />';
             }
+
+            $this->repo->newEnv = validateData($_GET['repoNewEnv']);
+            echo '<input type="hidden" name="repoNewEnv" value="'.$this->repo->newEnv.'" />';
+
+            return true;
+        } 
+
+        if (empty($this->repo->newEnv)) {
+            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide</p>";
+            return false;
         }
-        return true;
+
     }
 
     private function chk_param_date() {
-        if (empty($_GET['repoDate'])) {
-            echo "<p>Erreur : la date ne peut pas être vide</p>";
-            return false;
-        } else {
+        if (!empty($_GET['repoDate'])) {
             $this->repo->date = validateData($_GET['repoDate']);
             $this->repo->dateFormatted = DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y');
+
             echo '<input type="hidden" name="repoDate" value="'.$this->repo->date.'" />';
         }
+
+        if (empty($this->repo->date)) {
+            echo "<p>Erreur : la date ne peut pas être vide</p>";
+            return false;
+        }
+
         return true;
     }
 
@@ -860,7 +905,11 @@ class Operation {
                 }
             }
             if ($OS_FAMILY == "Debian") {
-                if ($this->db->countRows("SELECT * FROM sources WHERE Name = '{$this->repo->source}'") == 0) {
+                $stmt = $this->db->prepare("SELECT * FROM sources WHERE Name=:name");
+                $stmt->bindValue(':name', $this->repo->source);
+                $result = $stmt->execute();
+
+                if ($this->db->isempty($result) === true) {
                     echo "<p>Erreur : L'hôte source {$this->repo->source} du repo {$this->repo->name} n'existe pas/plus</p>";
                     echo '<a href="index.php" class="button-submit-large-red">Retour</a>';
                     return false;
@@ -898,8 +947,9 @@ class Operation {
             echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
-                if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
-                if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                //if ($OS_FAMILY == "Redhat") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                //if ($OS_FAMILY == "Debian") { exec("php ${WWW_DIR}/operations/execute.php --action='update' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &"); }
+                exec("php ${WWW_DIR}/operations/execute.php --action='update' --id='{$this->repo->id}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
         }
@@ -912,6 +962,15 @@ class Operation {
     public function changeEnv() {
         global $OS_FAMILY;
 
+        /**
+         *  Réinitialisation de la description.
+         *  db_getAllById() a récupéré la description de l'env source. Or on cherche à demander une description pour l'env cible donc on réinitialise $this->repo->description
+         */
+        $this->repo->description = '';
+
+        /**
+         *  Vérification des paramètres
+         */
         if ($OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';
         if ($OS_FAMILY === "Debian") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>';
         if ($this->chk_param_name() === false) ++$this->validate;
@@ -937,38 +996,52 @@ class Operation {
             }
 
             /**
-             *  Ici : vérifier qu'un repo n'est pas déjà en place au même env cible et à la même date, pour éviter de lancer une opération 
-             *  qui aboutira sur le message suivant : "ce repo est déjà en prod au 05-10-2021"
-             */
-
-
-
-
-             
-
-
-            /**
              *  Ensuite on vérifie si un repo existe déjà dans le nouvel env indiqué. Si c'est le cas, alors son miroir sera archivé si il n'est pas utilisé par un autre environnement
              */
             $repoArchive = 'no';
             if ($OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir du repo à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->newEnv}' AND Status = 'active'");
-                $repoArchiveDate = $result['Date'];
-                $repoToArchive = $this->db->countRows("SELECT Name, Env FROM repos WHERE Name = '{$this->repo->name}' AND Date = '$repoArchiveDate' AND Env != '{$this->repo->newEnv}' AND Status = 'active'");
-                if ($repoToArchive == 0) {
-                    $repoArchive = "yes"; // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
+                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+                $repoArchiveDate = $datas['Date'];
+                unset($datas);
+
+                $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':date', $repoArchiveDate);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+
+                if ($this->db->isempty($result) === true) {
+                    $repoArchive = "yes"; // si le miroir n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                 }
             }
             if ($OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir de la section à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Env = '{$this->repo->newEnv}' AND Status = 'active'");
-                $repoArchiveDate = $result['Date'];
-                $repoToArchive = $this->db->countRows("SELECT Name, Env FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Date = '$repoArchiveDate' AND Env != '{$this->repo->newEnv}' AND Status = 'active'");
-                if ($repoToArchive == 0) {
-                    $repoArchive = "yes"; // si le repo n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
+                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+                $repoArchiveDate = $datas['Date'];
+                unset($datas);
+
+                $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':date', $repoArchiveDate);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+                if ($this->db->isempty($result) === true) {
+                    $repoArchive = "yes"; // si le miroir n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                 }
             }
 
@@ -1082,7 +1155,12 @@ class Operation {
              *  Debian : Ok le repo existe mais peut être que celui-ci contient plusieurs distrib et sections qui seront supprimées, on récupère les distrib et les sections concernées
              *  et on les affichera dans la demande de confirmation
              */
-            if ($OS_FAMILY == "Debian") $distAndSectionsToBeDeleted = $this->db->query("SELECT Dist, Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Status = 'active'");
+            if ($OS_FAMILY == "Debian") {
+                //$distAndSectionsToBeDeleted = $this->db->query("SELECT Dist, Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Status = 'active'");
+                $stmt = $this->db->prepare("SELECT Dist, Section, Env FROM repos WHERE Name=:name AND Status = 'active' ORDER BY Dist ASC, Section ASC");
+                $stmt->bindValue(':name', $this->repo->name);
+                $distAndSectionsToBeDeleted = $stmt->execute();
+            }
 
             /**
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
@@ -1096,11 +1174,11 @@ class Operation {
                     if (!empty($distAndSectionsToBeDeleted)) {
                         echo '<p>Attention, cela supprimera les distributions et sections suivantes :</p>';
                         echo '<span>';
-                        while ($distAndSection = $distAndSectionsToBeDeleted->fetchArray()) {
+                        while ($distAndSection = $distAndSectionsToBeDeleted->fetchArray(SQLITE3_ASSOC)) {
                             $dist = $distAndSection['Dist'];
                             $section = $distAndSection['Section'];
                             $env = $distAndSection['Env'];
-                            echo "<b>$dist</b> -> <b>$section</b> ".envtag($env)."<br>";
+                            echo "<b>$dist</b> -> <b>$section</b> ".envtag($env)."<br><br>";
                         }
                         echo '</span>';
                     } else {
@@ -1165,7 +1243,11 @@ class Operation {
              *  Ok la distribution existe mais peut être que celle-ci contient plusieurs sections qui seront supprimées, on récupère les sections concernées
              *  et on les affichera dans la demande de confirmation
              */
-            $sectionsToBeDeleted = $this->db->query("SELECT Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Status = 'active'");
+            //$sectionsToBeDeleted = $this->db->query("SELECT Section, Env FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Section, Env FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active' ORDER BY Section ASC");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':dist', $this->repo->dist);
+            $sectionsToBeDeleted = $stmt->execute();
 
             /**
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
@@ -1178,10 +1260,10 @@ class Operation {
                 if (!empty($sectionsToBeDeleted)) {
                     echo '<p><br>Attention, cela supprimera les sections suivantes :</p>';
                     echo '<span>';
-                    while ($sections = $sectionsToBeDeleted->fetchArray()) {
+                    while ($sections = $sectionsToBeDeleted->fetchArray(SQLITE3_ASSOC)) {
                         $section = $sections['Section'];
                         $env = $sections['Env'];
-                        echo "<b>$section</b> ".envtag($env)."<br>";
+                        echo "<b>$section</b> ".envtag($env)."<br><br>";
                     }
                     echo '</span>';
                 } else {
@@ -1342,7 +1424,7 @@ class Operation {
         if ($this->chk_param_name() === false) ++$this->validate;
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
         if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
-        if ($this->chk_param_date() === false) { ++$this->validate; }
+        if ($this->chk_param_date() === false) ++$this->validate;
         $this->repo->env = ''; // On réinitialise cette variable car elle a été set à $DEFAULT_ENV lors de l'instanciation de l'objet $this->repo. Cela pose un pb pour la fonction qui suit.
         if ($this->chk_param_newEnv() === false)      ++$this->validate;
         if ($this->chk_param_description() === false) ++$this->validate;
@@ -1369,22 +1451,46 @@ class Operation {
             if ($OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
-                $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '{$this->repo->name}' AND Env = '{$this->repo->newEnv}' AND Status = 'active'");
-                $repoToBeArchivedDate = $result['Date'];
-                $repoToBeArchived = $this->db->countRows("SELECT * FROM repos WHERE Name = '{$this->repo->name}' AND Date = '$repoToBeArchivedDate' AND Env != '{$this->repo->newEnv}' AND Status = 'active'");
+                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+                $repoToBeArchivedDate = $datas['Date'];
+
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':date', $repoToBeArchivedDate);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive :
-                if ($repoToBeArchived == 0) {
+                if ($this->db->isempty($result) === true) {
                     $repoArchive = 'yes';
                 }
             }
             if ($OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
-                $result = $this->db->querySingleRow("SELECT Date FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Env = '{$this->repo->newEnv}' AND Status = 'active'");
-                $repoToBeArchivedDate = $result['Date'];
-                $repoToBeArchived = $this->db->countRows("SELECT * FROM repos WHERE Name = '{$this->repo->name}' AND Dist = '{$this->repo->dist}' AND Section = '{$this->repo->section}' AND Date = '$repoToBeArchivedDate' AND Env != '{$this->repo->newEnv}' AND Status = 'active'");
+                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+                $repoToBeArchivedDate = $datas['Date'];
+
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':date', $repoToBeArchivedDate);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $result = $stmt->execute();
+
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive :
-                if ($repoToBeArchived == 0) {
+                if ($this->db->isempty($result) === true) {
                     $repoArchive = 'yes';
                 }
             }

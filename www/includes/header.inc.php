@@ -49,7 +49,7 @@ if ($DEBUG_MODE == "enabled") {
         }
 
         echo '<li id="header-refresh-container">';
-
+        echo '<div class="li-op-subdiv">';
             require_once("$WWW_DIR/class/Operation.php");
             $op = new Operation();
             $opsRunning = $op->listRunning('manual');
@@ -147,29 +147,31 @@ if ($DEBUG_MODE == "enabled") {
                     }
 
                     if ($opAction == "new") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     } 
                     if ($opAction == "update") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                     if ($opAction == "reconstruct") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des metadonnées ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Reconstruction des métadonnées ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Reconstruction des metadonnées ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Reconstruction des métadonnées ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                     if ($opAction == "duplicate") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Duplication ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Duplication ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
-                    if ($opAction == "delete") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($opAction == "deleteDist") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                    if ($opAction == "deleteSection") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($opAction == "delete") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Suppression ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($opAction == "deleteDist") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Suppression ($name - $dist)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($opAction == "deleteSection") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                 }
                 echo '</ul>';
-                echo '</li>';
+                //echo '</li>';
+                echo '</div>';
             }
 
+            echo '<div class="li-plan-subdiv">';
             if ($plansRunning !== false) {
                 echo '<a href="run.php"><span class="li-operation-running">Planification en cours</span></a>';
                 echo '<ul class="sub-menu">';
@@ -255,20 +257,21 @@ if ($DEBUG_MODE == "enabled") {
                     }
                     
                     if ($planAction == "new") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouveau repo ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvelle section ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                     if ($planAction == "update") {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                     if ($planAction == "changeEnv" OR strpos($planAction, '->') !== false) {
-                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?opLogfile=$opLogfile\">Créat. d'env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Créat. d'env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if ($OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Créat. d'env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                 }
                 echo '</ul>';
-                echo '</li>';
+                //echo '</li>';
+                echo '</div>';
             }
 
         echo '</li>'; // Fermeture du li id="refresh-me-header-container"

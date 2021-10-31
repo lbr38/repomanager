@@ -22,11 +22,14 @@ trait op_printDetails {
         if (!empty($this->repo->dist)) echo "<tr><th>DISTRIBUTION :</th><td><b>{$this->repo->dist}</b></td></tr>";
         if (!empty($this->repo->section)) echo "<tr><th>SECTION :</th><td><b>{$this->repo->section}</b></td></tr>";
         if (!empty($this->repo->description)) echo "<tr><th>DESCRIPTION :</th><td><b>{$this->repo->description}</b></td></tr>";
-        if (!empty($this->repo->gpgCheck)) echo "<tr><th>VERIF. DES SIGNATURES GPG :</th><td><b>{$this->repo->gpgCheck}</b></td></tr>";
+        if (!empty($this->repo->gpgCheck)) echo "<tr><th>VERIFICATION DES SIGNATURES GPG :</th><td><b>{$this->repo->gpgCheck}</b></td></tr>";
         if (!empty($this->repo->signed) OR !empty($this->repo->gpgResign)) {
-            echo "<tr><th>SIGN. DU REPO AVEC GPG :</th>";
-            if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") echo '<td><b>yes</b></td>';
-            else echo '<td><b>no</b></td>';
+            echo '<tr>';
+            echo '<th>SIGNATURE DU REPO AVEC GPG :</th>';
+            if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")
+                echo '<td><b>yes</b></td>';
+            else
+                echo '<td><b>no</b></td>';
             echo '</tr>';
         }
         if (!empty($this->repo->group)) echo "<tr><th>AJOUT AU GROUPE :</th><td><b>{$this->repo->group}</b></td></tr>";
