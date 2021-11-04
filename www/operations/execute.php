@@ -88,24 +88,14 @@ if ($opAction == "new") {
 }
 
 if ($opAction == "update") {
-    if ($OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "source:", "gpgCheck:", "gpgResign:"]);
-    if ($OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "source:", "gpgCheck:", "gpgResign:"]);
+    $options = getopt(null, ["id:", "gpgCheck:", "gpgResign:"]);
 
     /**
      *  Vérification que les paramètres obligatoires ne sont pas vides
      */
-    if (empty($options['name']))        throw new Exception("Erreur : nom du repo non défini");
-    if (empty($options['source']))      throw new Exception("Erreur : repo source non défini");
+    if (empty($options['id']))          throw new Exception("Erreur : id du repo non défini");
     if (empty($options['gpgCheck']))    throw new Exception("Erreur : gpg check non défini");
     if (empty($options['gpgResign']))   throw new Exception("Erreur : gpg resign non défini");
-
-    /**
-     *  Sur Debian on attends 2 paramètres supplémentaires
-     */
-    if ($OS_FAMILY == "Debian") {
-        if (empty($options['dist']))        throw new Exception("Erreur : nom de la distribution non défini");
-        if (empty($options['section']))     throw new Exception("Erreur : nom de la section non défini");
-    }
 
     /**
      * Création d'une nouvelle opération
@@ -113,29 +103,15 @@ if ($opAction == "update") {
     $op = new Operation(array('op_action' => 'update', 'op_type' => 'manual'));
 
     /**
-     *	Ici on met à jour un miroir forcément, donc on code en dur repoType = miroir
-    */
-    $repoType = 'mirror';
-
-    /**
      * 	Création d'un objet Repo avec les infos du repo à mettre à jour
      */
-    if ($OS_FAMILY == "Redhat") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoSource'        => $options['source'],
-        'repoGpgCheck'      => $options['gpgCheck'],
-        'repoGpgResign'     => $options['gpgResign'],
-        'repoType'          => $options['type']
-    ));
-    if ($OS_FAMILY == "Debian") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoSource'        => $options['source'],
-        'repoDist'          => $options['dist'],
-        'repoSection'       => $options['section'],
-        'repoGpgCheck'      => $options['gpgCheck'],
-        'repoGpgResign'     => $options['gpgResign'],
-        'repoType'          => $options['type']
-    ));
+    $op->repo = new Repo(array('repoId' => $options['id']));
+
+    /**
+     *  Les paramètres GPG Check et GPG Resign sont conservées de côté et seront pris en compte au début de l'exécution de exec_update()
+     */
+    $op->gpgCheck  = $options['gpgCheck'];
+    $op->gpgResign = $options['gpgResign'];
 
     /**
      * 	Exécution de l'opération "mise à jour du repo"
@@ -240,27 +216,6 @@ if ($opAction == "reconstruct") {
     $op->exec_reconstruct();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 exit(0);
+
 ?>

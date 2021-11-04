@@ -8,9 +8,22 @@ trait update {
 
         /**
          *  Démarrage de l'opération
-         *  On récupère en BDD l'ID du repo/section qu'on met à jour, afin de l'indiquer à startOperation
+         *  A partir de l'ID de repo fourni, on récupère toutes les infos du repo à mettre à jour
          */
-        $this->repo->db_getId();
+        $this->repo->db_getAllById();
+        
+        /**
+         *  On écrase les valeurs de GPG Check et GPG Resign précédemment récupérées par db_getAllById() par les valeurs que l'utilisateur aura choisi lors du lancement de l'opération ou lors de la création de la planification
+         */
+        if (!empty($this->gpgCheck))  $this->repo->gpgCheck  = $this->gpgCheck;  // $this->gpgCheck  = $op->gpgCheck  initié dans execute.php ou dans Planification.php par getInfo()
+        if (!empty($this->gpgResign)) $this->repo->gpgResign = $this->gpgResign; // $this->gpgResign = $op->gpgResign initié dans execute.php ou dans Planification.php par getInfo()
+        if (!empty($this->gpgResign)) $this->repo->signed    = $this->gpgResign; // $this->gpgResign = $op->gpgResign initié dans execute.php ou dans Planification.php par getInfo()
+        /**
+         *  On écrase également la date et le time précédemment récupérées par db_getAllById() par les valeurs actuelles, càd la date du jour et l'heure du moment
+         */
+        $this->repo->date          = date("Y-m-d");
+        $this->repo->dateFormatted = date("d-m-Y");
+        $this->repo->time          = date("H:i");
 
         /**
          *  Création d'une opération en BDD, on indique également si on a activé ou non gpgCheck et gpgResign

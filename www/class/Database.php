@@ -176,35 +176,11 @@ class Database extends SQLite3 {
     /**
      *  Fonction permettant de retourner le nombre de lignes résultant d'une requête
      */
-    public function countRows(string $query) {
-        $result = $this->query($query);
-
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
+    public function count(object $result) {
         $count = 0;
+
         while ($row = $result->fetchArray()) $count++;
 
-        /**
-         *  Retourne le nombre de lignes
-         */
-        return $count;
-    }
-
-    /**
-     *  Fonction permettant de compter le nombre de lignes résultant d'une requête.
-     *  Destinée à remplacer countRows() petit à petit
-     */
-    public function countRows2($result) {
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
-        $count = 0;
-        while ($row = $result->fetchArray()) $count++;
-
-        /**
-         *  Retourne le nombre de lignes
-         */
         return $count;
     }
 
@@ -247,19 +223,6 @@ class Database extends SQLite3 {
         }
 
         return $datas;
-    }
-
-    /**
-     *  Execute une requête retournant 1 seule ligne (LIMIT 1)
-     */
-    public function querySingleRow(string $query) {
-        $result = $this->query("$query LIMIT 1");
-
-        while ($row = $result->fetchArray()) $data = $row;
-
-        if (!empty($data)) return $data;
-
-        return; // Retourne une valeur vide sinon
     }
 
     /**

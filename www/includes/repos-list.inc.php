@@ -22,56 +22,32 @@
 $(document).ready(function(){
     $("#GroupsListSlideUpButton").click(function(){           
         // affichage du div permettant de gérer les groupes
-        $("#groupsDiv").animate({
-            opacity: 1,
-            width: '98%',
-            padding: '10px'
-        });
+        $("#groupsDiv").slideToggle().show("slow");
     });
     
     $("#GroupsListCloseButton").click(function(){
         // masquage du div permettant de gérer les groupes
-        $("#groupsDiv").animate({
-            opacity: 0,
-            width: 0,
-            padding: '0px'
-        });
+        $("#groupsDiv").hide("slow");
     });
 
     $("#ReposSourcesSlideUpButton").click(function(){            
         // affichage du div permettant de gérer les sources
-        $("#sourcesDiv").animate({
-            opacity: 1,
-            width: '98%',
-            padding: '10px'
-        });
+        $("#sourcesDiv").slideToggle().show("slow");
     });
     
     $("#ReposSourcesCloseButton").click(function(){
         // masquage du div permettant de gérer les sources
-        $("#sourcesDiv").delay(50).animate({
-            opacity: 0,
-            width: 0,
-            padding: '0px'
-        });
+        $("#sourcesDiv").hide("slow");
     });
 
     $("#newRepoSlideButton").click(function(){
         // affichage du div permettant de créer un nouveau repo/section
-        $("#newRepoSlideDiv").animate({
-            opacity: 1,
-            width: '98%',
-            padding: '10px'
-        });
+        $("#newRepoSlideDiv").slideToggle().show("slow");
     });
     
     $("#newRepoCloseButton").click(function(){
         // masquage du div permettant de créer un nouveau repo/section
-        $("#newRepoSlideDiv").animate({
-            opacity: 0,
-            width: 0,
-            padding: '0px'
-        });
+        $("#newRepoSlideDiv").hide("slow");
     });
 });
 </script>

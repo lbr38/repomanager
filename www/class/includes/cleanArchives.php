@@ -30,22 +30,22 @@ trait cleanArchives {
          *  4. On récupère la liste de tous les repos archivés dans le fichier (on récupère le champ Name uniquement)
          */
         if ($OS_FAMILY == "Redhat") {
-            if ($this->db->countRows("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'") == 0) {
+            $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
+            if ($this->db->isempty($result) === true) {
                 return;
             }
-            $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
         }
         if ($OS_FAMILY == "Debian") {
-            if ($this->db->countRows("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'") == 0) {
+            $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
+            if ($this->db->isempty($result) === true) {
                 return;
             }
-            $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
         }
 
         /**
          *  5. Sinon on récupère leur nom
          */
-        while ($data = $result->fetchArray()) {
+        while ($data = $result->fetchArray(SQLITE3_ASSOC)) {
             $reposArchived[] = $data;
         }
 
@@ -65,22 +65,32 @@ trait cleanArchives {
              */
             if (!empty($repoName)) {
                 if ($OS_FAMILY == "Redhat") {
-                    if ($this->db->countRows("SELECT Date FROM repos_archived WHERE Name = '$repoName' AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET $RETENTION") == 0) {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                    $stmt->bindValue(':name', $repoName);
+                    $stmt->bindValue(':retention', $RETENTION);
+                    $result = $stmt->execute();
+
+                    if ($this->db->isempty($result)) {
                         continue;
-                    } else {
-                        $result = $this->db->query("SELECT Date FROM repos_archived WHERE Name = '$repoName' AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET $RETENTION");        
                     }
                 }
                 if ($OS_FAMILY == "Debian") {
-                    if ($this->db->countRows("SELECT Date FROM repos_archived WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET $RETENTION") == 0) {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                    $stmt->bindValue(':name', $repoName);
+                    $stmt->bindValue(':dist', $repoDist);
+                    $stmt->bindValue(':section', $repoSection);
+                    $stmt->bindValue(':retention', $RETENTION);
+                    $result = $stmt->execute();
+
+                    if ($this->db->isempty($result)) {
                         continue;
-                    } else {
-                        $result = $this->db->query("SELECT Date FROM repos_archived WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET $RETENTION");        
                     }
                 }
-                while ($data = $result->fetchArray()) {
-                    $dates[] = $data;
-                }
+
+                /**
+                 *  Récupération des dates trouvées
+                 */
+                while ($data = $result->fetchArray(SQLITE3_ASSOC)) $dates[] = $data;
 
                 foreach($dates as $date) {
                     $repoDate = $date['Date'];
@@ -102,8 +112,15 @@ trait cleanArchives {
                         /**
                          *   9. Nettoyage de la BDD
                          */
-                        if ($OS_FAMILY == "Redhat") $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Date = '$repoDate'");
-                        if ($OS_FAMILY == "Debian") $this->db->exec("UPDATE repos_archived SET Status = 'deleted' WHERE Name = '$repoName' AND Dist = '$repoDist' AND Section = '$repoSection' AND Date = '$repoDate'");
+                        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date");
+                        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date");
+                        $stmt->bindValue(':name', $repoName);
+                        $stmt->bindValue(':date', $repoDate);
+                        if ($OS_FAMILY == "Debian") {
+                            $stmt->bindValue(':dist', $repoDist);
+                            $stmt->bindValue(':section', $repoSection);
+                        }
+                        $stmt->execute();
                     }
                 }
             }

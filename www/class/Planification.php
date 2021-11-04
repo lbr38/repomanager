@@ -173,7 +173,6 @@ class Planification {
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
         unset($stmt);
-        
 
         /**
          *  0. Démarre l'enregistrement de la planification
@@ -340,14 +339,13 @@ class Planification {
             foreach($this->groupList as $repo) {
 
                 /**
-                 *  Pour chaque ligne on récupère les infos du repo/section
+                 *  Pour chaque ligne on récupère les infos du repo/section grace à son Id
+                 *  Les paramètres GPG Check et GPG Resign récupérées seront écrasés par les paramètres fournis par l'utilisateur lors 
+                 *  de la création de la planification. Ces paramètres qui sont actuellement stockés dans $this->op->gpgCheck et $this->op->gpgResign/signed seront
+                 *  rappelés au début de l'éxécution de exec_update (update.php) afin justement d'écraser $this->op->repo->gpgCheck et $this->op->repo->Resign
                  */
-                $this->op->repo->name = $repo['Name'];
-                
-                if ($OS_FAMILY == "Debian") {
-                    $this->op->repo->dist = $repo['Dist'];
-                    $this->op->repo->section = $repo['Section'];
-                }
+                $this->op->repo->id = $repo['Id'];
+                $this->op->repo->db_getAllById();
                 
                 /**
                  *  Si $this->op->action = update alors on met à jour le repo
@@ -772,8 +770,13 @@ public function sendMail($title, $template) {
      *  Vérification que le groupe existe
      */
     private function checkIfGroupExists() {
+        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
+        $stmt->bindValue(':name', $this->op->group->name);
+        $result = $stmt->execute();
 
-        if ($this->db->countRows("SELECT * FROM groups WHERE Name = '{$this->op->group->name}'") == 0) throw new Exception("Erreur (CP14) : Le groupe <b>{$this->op->group->name}</b> n'existe pas");
+        if ($this->db->isempty($result) === true) {
+            throw new Exception("Erreur (CP14) : Le groupe <b>{$this->op->group->name}</b> n'existe pas");
+        } 
     }
   
     /**
@@ -797,6 +800,7 @@ public function sendMail($title, $template) {
          */
         $msg_error = '';
         foreach($this->groupList as $repo) {
+            $repoId   = $repo['Id'];
             $repoName = $repo['Name'];
             if ($OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
                 $repoDist = $repo['Dist'];
@@ -822,7 +826,7 @@ public function sendMail($title, $template) {
      */
     public function listQueue() {
         $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'queued' OR Status = 'running'");
-        while ($datas = $query->fetchArray()) { 
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) { 
             $plan[] = $datas;
         }
 
@@ -837,7 +841,7 @@ public function sendMail($title, $template) {
     */
     public function listDone() {
         $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'done' OR Status = 'error' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
-        while ($datas = $query->fetchArray()) { 
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) { 
             $plan[] = $datas;
         }
 
@@ -870,30 +874,47 @@ public function sendMail($title, $template) {
     private function getInfo() {
         if (empty($this->id)) throw new Exception("Erreur (EP02) Impossible de récupérer les informations de la planification car son ID est vide");
 
-        $result = $this->db->querySingleRow("SELECT * FROM planifications WHERE Id = '$this->id'");
+        $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id=:id");
+        $stmt->bindValue(':id', $this->id);
+        $result = $stmt->execute();
 
-        $this->op->action    = $result['Action'];
-        $this->op->repo->id  = $result['Id_repo'];
-        $this->op->group->id = $result['Id_group'];
-
-        /**
-         *  On récupère les infos concernant ce groupe (son nom)
-         */
-        $this->op->group->db_getName(); 
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+        $this->op->action    = $datas['Action'];
+        if (!empty($datas['Id_repo']))  $this->op->repo->id  = $datas['Id_repo'];
+        if (!empty($datas['Id_group'])) $this->op->group->id = $datas['Id_group'];
 
         /**
-         *  On récupère les infos concernant ce repo (son nom, sa distribution...)
+         *  On récupère les infos concernant le groupe à traiter (son nom)
          */
-        $this->op->repo->db_getAllById();  
+        if (!empty($this->op->group->id)) $this->op->group->db_getName();
 
         /**
-         *  Mais on écrase certaines données récupérées précédemment par celles définies par la planification, notamment GPG Check et GPG Resign
+         *  On récupère les infos concernant le repo à traiter (son nom, sa distribution...)
          */
-        $this->op->repo->gpgCheck  = $result['Gpgcheck'];
-        $this->op->repo->gpgResign = $result['Gpgresign'];
-        $this->op->repo->signed = $this->op->repo->gpgResign;
+        if (!empty($this->op->repo->id)) {
+            $this->op->repo->db_getAllById();
+        }
 
-        $this->reminder            = $result['Reminder'];
+        /**
+         *  Les paramètres GPG Check et GPG Resign sont conservées de côté et seront pris en compte au début de l'exécution de exec_update()
+         */
+        /*$this->op->repo->gpgCheck  = $datas['Gpgcheck'];
+        $this->op->repo->gpgResign = $datas['Gpgresign'];*/
+        if (!empty($datas['Gpgcheck'])) {
+            $this->op->gpgCheck   = $datas['Gpgcheck'];
+            $this->op->repo->gpgCheck = $datas['Gpgcheck'];
+        }
+        if (!empty($datas['Gpgresign'])) {
+            //$this->op->repo->signed    = $this->op->repo->gpgResign;
+            $this->op->gpgResign       = $datas['Gpgresign'];
+            $this->op->repo->gpgResign = $datas['Gpgcheck'];
+            $this->op->repo->signed    = $datas['Gpgcheck'];
+        }
+
+        /**
+         *  Rappels de planification
+         */
+        $this->reminder = $datas['Reminder'];
     }
 }
 ?>

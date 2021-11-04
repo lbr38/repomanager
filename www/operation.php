@@ -14,16 +14,73 @@ require_once('class/Operation.php');
 ?>
 
 <body>
-<?php include('includes/header.inc.php');
+<?php 
+include('includes/header.inc.php');
 
-// On vérifie qu'une action a été demandée
+$action_error = 0;
+$id_error = 0;
+
+/**
+ *  On vérifie qu'une action a été demandée
+ */
 if (empty($_GET['action'])) {
     printAlert("Aucune action n'a été demandée", 'error');
-} else { 
-    // et on la récupère si c'est le cas
+    $action_error++;
+}
+
+if ($action_error == 0) {
+    /**
+     *  On récupère le nom de l'action
+     */
     $op_action = validateData($_GET['action']);
+
+    /**
+     *  Ici on a lancé l'opération à la main (ce n'est pas une planification)
+     */
     $op_type = 'manual';
+
+    /**
+     *  Instanciation d'une nouvelle opération
+     */
     $op = new Operation(compact('op_action', 'op_type'));
+
+    /**
+     *  On vérifie qu'un ID de repo a été précisé
+     *  Seule l'opération 'new' ne précise pas d'ID puisque le repo à créer n'existe pas en BDD
+     */
+    if (empty($_GET['id']) AND $op->action != "new") {
+        printAlert("Aucun id de repo n'a été précisé", 'error');
+        $id_error++;
+    }
+
+    /**
+     *  A partir de l'ID fourni, on va pouvoir récupérer toutes les infos du repo à traiter
+     *  Ignoré si l'action est 'new'
+     */
+    if ($id_error == 0 AND $op->action != "new") {
+        /**
+         *  Récupération de l'ID
+         */
+        $op->repo->id = $_GET['id'];
+
+        if (!is_numeric($op->repo->id)) {
+            printAlert("L'id de repo doit être un nombre", 'error');
+            $id_error++;
+        }
+
+        /**
+         *  A partir de l'id, on récupère les infos du repo en BDD
+         *  Si l'action renseignée est 'restore' ou 'deleteArchive' alors db_getAllById() devra chercher dans la table des repos archivés
+         */
+        if ($id_error == 0) {
+            if ($op->action == "restore" OR $op->action == "deleteArchive") {
+                $op->repo->db_getAllById('archived');
+            } else {
+                $op->repo->db_getAllById();
+            }
+        }
+    }
+
     unset($op_action, $op_type);
 }
 ?>
@@ -31,30 +88,38 @@ if (empty($_GET['action'])) {
 <article>
 <!-- section 'conteneur' principal englobant toutes les sections de droite -->
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
-<section class="mainSectionRight">
-    <section class="right">
-        <form action="" method="get" autocomplete="off">
-            <input type="hidden" name="action" value="<?php echo $op->action;?>" />
-
-            <div id="op_input_container">
-            <?php
+<?php
+if ($action_error == 0 AND $id_error == 0) {
+    echo '<section class="mainSectionRight">';
+        echo '<section class="right">';
+            echo '<form action="" method="get" autocomplete="off">';
                 /**
-                 *  Titre de l'action dans le cadre de droite
+                 *  On retransmets l'action et l'ID du repo dans un champ caché du formulaire
                  */
-                if ($op->action === "new")           { $op->new(); }
-                if ($op->action === "update")        { $op->update(); }               
-                if ($op->action === "changeEnv")     { $op->changeEnv(); }
-                if ($op->action === "duplicate")     { $op->duplicate(); }
-                if ($op->action === "delete")        { $op->delete(); }
-                if ($op->action === "deleteDist")    { $op->deleteDist(); }    // uniquement pour Debian
-                if ($op->action === "deleteSection") { $op->deleteSection(); } // uniquement pour Debian
-                if ($op->action === "deleteArchive") { $op->deleteArchive(); }
-                if ($op->action === "restore")       { $op->restore(); }
-            ?>
-            </div>
-        </form>
-    </section>
-</section>
+                echo '<input type="hidden" name="action" value="'.$op->action.'" />';
+                if ($op->action != "new") {
+                    echo '<input type="hidden" name="id" value="'.$op->repo->id.'" />';
+                }
+
+                echo '<div id="op_input_container">';
+                    /**
+                     *  Exécution de l'action souhaitée
+                     */
+                    if ($op->action === "new")           $op->new();
+                    if ($op->action === "update")        $op->update();
+                    if ($op->action === "changeEnv")     $op->changeEnv();
+                    if ($op->action === "duplicate")     $op->duplicate();
+                    if ($op->action === "delete")        $op->delete();
+                    if ($op->action === "deleteDist")    $op->deleteDist();
+                    if ($op->action === "deleteSection") $op->deleteSection();
+                    if ($op->action === "deleteArchive") $op->deleteArchive();
+                    if ($op->action === "restore")       $op->restore();
+                echo '</div>';
+            echo '</form>';
+        echo '</section>';
+    echo '</section>';
+}
+?>
 
 <!-- section 'conteneur' principal englobant toutes les sections de gauche -->
 <!-- On charge la section de gauche après celle de droite car elle peut mettre plus de temps à charger (si bcp de repos) -->

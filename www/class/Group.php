@@ -33,7 +33,7 @@ class Group {
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
         if (!is_alphanumdash($name)) {
-            animatediv_byid('groupsDiv');
+            slidediv_byid('groupsDiv');
             return;
         }
 
@@ -42,7 +42,7 @@ class Group {
          */
         if ($this->exists($name) === true) {
             printAlert("Le groupe <b>${name}</b> existe déjà", 'error');
-            animatediv_byid('groupsDiv');
+            slidediv_byid('groupsDiv');
             return;
         }
 
@@ -54,7 +54,7 @@ class Group {
         $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été créé", 'success');
-        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${name}"); // puis affichage de la configuration du nouveau groupe créé
 
         unset($stmt, $result);
@@ -68,7 +68,7 @@ class Group {
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
         if (!is_alphanumdash($actualName) OR !is_alphanumdash($newName)) {
-            animatediv_byid('groupsDiv');
+            slidediv_byid('groupsDiv');
             return;
         }
 
@@ -96,7 +96,7 @@ class Group {
     
         if ($count > 0) {
             printAlert("Le groupe <b>$newName</b> existe déjà", 'error');
-            animatediv_byid('groupsDiv');
+            slidediv_byid('groupsDiv');
             return;
         }
 
@@ -109,7 +109,7 @@ class Group {
         $stmt->execute();
 
         printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>", 'success');
-        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${newName}"); // puis affichage de la configuration du groupe renommé
 
         unset($stmt, $result);
@@ -136,7 +136,7 @@ class Group {
     
         if ($count == 0) {
             printAlert("Le groupe <b>$name</b> n'existe pas", 'error');
-            animatediv_byid('groupsDiv');
+            slidediv_byid('groupsDiv');
             return;
         }
 
@@ -155,7 +155,7 @@ class Group {
         $stmt->execute();
 
         printAlert("Le groupe <b>${name}</b> a été supprimé", 'success');
-        animatediv_byid('groupsDiv');
+        slidediv_byid('groupsDiv');
     }
 
 /**
@@ -231,18 +231,18 @@ class Group {
          */
         if ($groupName == 'Default') {
             if ($OS_FAMILY == "Redhat") {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name FROM repos
+                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id, repos.Name FROM repos
                 WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC");
             }
             if ($OS_FAMILY == "Debian") {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section FROM repos
+                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section FROM repos
                 WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Dist ASC");
             }            
         } else {
             if ($OS_FAMILY == "Redhat") {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Name
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
                 FROM repos
                 INNER JOIN group_members
                     ON repos.Id = group_members.Id_repo
@@ -255,7 +255,7 @@ class Group {
                 $reposInGroup = $stmt->execute();
             }
                 if ($OS_FAMILY == "Debian") {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
                 FROM repos
                 INNER JOIN group_members
                     ON repos.Id = group_members.Id_repo
@@ -406,12 +406,16 @@ class Group {
              *  On vérifie que le nom du repo ne contient pas des caractères interdits, sinon on passe au repo suivant
              */
             if (!is_alphanumdash($repoName)) {
-                animatediv_byid('groupsDiv');
+                slidediv_byid('groupsDiv');
                 continue;
             }
+            /**
+             *  Sur Debian on vérifie aussi que le nom de la dist et de la section ne contiennent pas de caractères interdits
+             *  On autorise le slash '/' dans le nom de la distribution
+             */
             if ($OS_FAMILY == "Debian") {
-                if (!is_alphanumdash($repoDist) OR !is_alphanumdash($repoSection)) {
-                    animatediv_byid('groupsDiv');
+                if (!is_alphanumdash($repoDist, array('/')) OR !is_alphanumdash($repoSection)) {
+                    slidediv_byid('groupsDiv');
                     continue;
                 }
             }
@@ -475,7 +479,7 @@ class Group {
         }
 
         printAlert('Modifications prises en compte', 'success');
-        animatediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
+        slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-{$this->name}"); // puis affichage de la configuration du nouveau groupe créé
 
         unset($stmt, $result);
@@ -566,11 +570,10 @@ class Group {
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();
 
-        if ($this->db->countRows2($result) == 0) {
+        if ($this->db->isempty($result) === true)
             return false;
-        } else {
+        else
             return true;
-        }
     }
 
     /**
@@ -586,11 +589,10 @@ class Group {
         }
         $result = $stmt->execute();
 
-        if ($this->db->countRows2($result) == 0) {
+        if ($this->db->isempty($result) === true)
             return false;
-        } else {
+        else
             return true;
-        }
     }
 }
 ?>

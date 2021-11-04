@@ -26,8 +26,21 @@ trait op_finalize {
          *  - Si il s'agit d'une mise à jour de repo, on ne fait rien (les informations ont été mises à jour à l'étape op_archive)
          */
         if ($op_type == "new") {
-            if ($OS_FAMILY == "Redhat") $this->db->exec("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
-            if ($OS_FAMILY == "Debian") $this->db->exec("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES ('{$this->repo->name}', '{$this->repo->source}', '{$this->repo->dist}', '{$this->repo->section}', '{$this->repo->env}', '{$this->repo->date}', '{$this->repo->time}', '{$this->repo->description}', '{$this->repo->signed}', '{$this->repo->type}', 'active')");
+            if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :env, :date, :time, :description, :signed, :type, 'active')");
+            if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :env, :date, :time, :description, :signed, :type, 'active')");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':source', $this->repo->source);
+            $stmt->bindValue(':env', $this->repo->env);
+            $stmt->bindValue(':date', $this->repo->date);
+            $stmt->bindValue(':time', $this->repo->time);
+            $stmt->bindValue(':description', $this->repo->description);
+            $stmt->bindValue(':signed', $this->repo->signed);
+            $stmt->bindValue(':type', $this->repo->type);
+            if ($OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $stmt->execute();
         }
 
         /**
@@ -35,26 +48,34 @@ trait op_finalize {
          */
         if ($op_type == "new") {
             if (!empty($this->repo->group)) {
-                if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-                if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
+                if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
+                if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':groupname', $this->repo->group);
+                if ($OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
 
-                while ($data = $result->fetchArray()) {
+                while ($data = $result->fetchArray(SQLITE3_ASSOC)) {
                     $repoId = $data['repoId'];
                     $groupId = $data['groupId'];
                 }
 
                 if (empty($repoId)){
-                    // echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du repo {$this->repo->name}</p>";
                     $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du repo {$this->repo->name}");
                     return;
                 }
 
                 if (empty($groupId)) {
-                    //echo "<p><span class=\"redtext\">Erreur : </span>impossible de récupérer l'Id du groupe {$this->repo->group}</p>";
                     $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du groupe {$this->repo->group}");
                     return;
                 }
-                $this->db->exec("INSERT INTO group_members (Id_repo, Id_group) VALUES ('$repoId', '$groupId')");
+                $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:idrepo, :idgroup)");
+                $stmt->bindValue(':idrepo', $repoId);
+                $stmt->bindValue(':idgroup', $groupId);
+                $stmt->execute();
             }
         }
 
@@ -81,8 +102,6 @@ trait op_finalize {
          */
         $this->repo->generateConf('default');
 
-        //echo '<div class="op-step-title"><span>TERMINÉ </span></div>';
-        //echo '<p>Terminé <span class="greentext">✔</span></p>';
         $this->log->steplogOK();
 
         $this->repo->cleanArchives();

@@ -18,34 +18,34 @@ trait newLocalRepo {
 
         echo "<table class=\"op-table\">
         <tr>
-            <th>Nom du repo :</th>
+            <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>";
         if ($OS_FAMILY == "Debian") {
             echo "<tr>
-                <th>Distribution :</th>
+                <th>DISTRIBUTION :</th>
                 <td><b>{$this->repo->dist}</b></td>
             </tr>
             <tr>
-                <th>Section :</th>
+                <th>SECTION :</th>
                 <td><b>{$this->repo->section}</b></td>
             </tr>";
         }
         if (!empty($this->repo->gpgResign)) {
             echo "<tr>
-                <th>Signature du repo avec GPG :</th>
+                <th>SIGNATURE DU REPO AVEC GPG :</th>
                 <td><b>{$this->repo->gpgResign}</b></td>
             </tr>";
         }
         if (!empty($this->repo->description)) {
             echo "<tr>
-                <th>Description :</th>
+                <th>DESCRIPTION :</th>
                 <td><b>{$this->repo->description}</b></td>
             </tr>";
         }
         if (!empty($this->repo->group)) {
             echo "<tr>
-                <th>Ajout à un groupe :</th>
+                <th>AJOUT À UN GROUPE :</th>
                 <td><b>{$this->repo->group}</b></td>
             </tr>";
         }
@@ -119,10 +119,17 @@ trait newLocalRepo {
          *  7. Ajout de la section à un groupe si un groupe a été renseigné
          */
         if (!empty($this->repo->group)) {
-            if ($OS_FAMILY == "Redhat") $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
-            if ($OS_FAMILY == "Debian") $result = $this->repo->db->query("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = '{$this->repo->name}' AND repos.Dist = '{$this->repo->dist}' AND repos.Section = '{$this->repo->section}' AND repos.Status = 'active' AND groups.Name = '{$this->repo->group}'");
+            if ($OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
+            if ($OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+            $stmt->bindValue(':name', $this->repo->name);
+            if ($OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $stmt->bindValue(':groupname', $this->repo->group);
+            $result = $stmt->execute();
 
-            while ($data = $result->fetchArray()) {
+            while ($data = $result->fetchArray(SQLITE3_ASSOC)) {
                 $repoId = $data['repoId'];
                 $groupId = $data['groupId'];
             }
