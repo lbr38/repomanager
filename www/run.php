@@ -534,7 +534,8 @@ $(document).ready(function(){
 		$(".hidden-op").show();		// On affiche les opérations masquées
 		$("#print-all-op").hide();	// On masque le bouton "Afficher tout"
 
-		document.cookie = "printAllOp=yes";
+		// Création d'un cookie (expiration 15min)
+		document.cookie = "printAllOp=yes;max-age=900;";
 	});
 
 	/**

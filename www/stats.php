@@ -10,7 +10,7 @@ require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
 require_once('common.php');
-require_once('class/Database.php');
+require_once('class/Database-stats.php');
 require_once('class/Repo.php');
 
 /**
@@ -222,7 +222,7 @@ if ($repoError == 0) {
                     $lastMonth_datas  = rtrim($lastMonth_datas, ', ');
 
                     if (!empty($lastMonth_labels) AND !empty($lastMonth_datas)) {
-                        echo '<div class="stats-div-68">';
+                        echo '<div class="stats-div-65">';
                         echo "<canvas id=\"repoAccessChart-$myrepo->name\" class=\"repo-stats-chart\"></canvas>";
                         echo '<script>';
                         echo "var ctx = document.getElementById('repoAccessChart-$myrepo->name').getContext('2d');
@@ -274,9 +274,9 @@ if ($repoError == 0) {
                             if (!empty($lastAccess)) {
                                 echo '<thead>';
                                     echo '<tr>';
-                                    echo '<td></td>';
-                                    echo '<td>Date</td>';
-                                    echo '<td>Source</td>';
+                                    echo '<td class="td-10"></td>';
+                                    echo '<td class="td-100">Date</td>';
+                                    echo '<td class="td-100">Source</td>';
                                     echo '<td>Cible</td>';
                                     echo '</tr>';
                                 echo '</thead>';
@@ -284,17 +284,28 @@ if ($repoError == 0) {
                                     foreach ($lastAccess as $access) {
                                         /**
                                          *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
+                                         *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
+                                         *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
+                                         * 
+                                         *  Par exemple : 
+                                         *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
+                                         *                                                                      |                                                   |
+                                         *                                                                      |_                                                  |_
+                                         *                                                                        |                                                   |
+                                         *                                                                preg_match récupère l'occurence située entre un slash et un espace
+                                         *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
                                          */
-                                        //preg_match('# /[a-zA-Z0-9/_]+#i', $access['Request'], $accessTarget);
-                                        preg_match('#/[a-zA-Z0-9_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
+                                        preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
                                         $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
                                         echo '<tr>';
+                                            echo '<td class="td-10">';
                                             if ($access['Request_result'] == "200")
-                                                echo '<td><img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
+                                                echo '<img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             else
-                                                echo '<td><img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" /></td>';
-                                            echo '<td>'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
-                                            echo '<td>'.$access['Source'].' ('.$access['IP'].')</td>';
+                                                echo '<img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
+                                            echo '</td>';
+                                            echo '<td class="td-100">'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
+                                            echo '<td class="td-100">'.$access['Source'].' ('.$access['IP'].')</td>';
                                             // retrait des " dans la requête complète :
                                             echo '<td><span title="'.str_replace('"', '', $access['Request']).'">'.$accessTarget[0].'</span></td>';
                                         echo '</tr>';
@@ -315,9 +326,9 @@ if ($repoError == 0) {
                     $result = $stmt->execute();                
                     
                     /**
-                     *  La fonction isempty est dans la class Database, donc on passe par l'objet $myrepo
+                     *  Si le résultat n'est pas vide alors on traite
                      */
-                    if ($myrepo->db->isempty($result) === false) {
+                    if ($db_stats->isempty($result) === false) {
                         while ($row = $result->fetchArray()) $results[] = $row;
 
                         $dateLabels = '';
@@ -344,7 +355,7 @@ if ($repoError == 0) {
                          */
                         $dateLabels = rtrim($dateLabels, ', ');
                         $sizeData   = rtrim($sizeData, ', ');
-                        $countData   = rtrim($countData, ', ');
+                        $countData  = rtrim($countData, ', ');
 
                         /**
                          *  Affichage du graphique taille du repo/section

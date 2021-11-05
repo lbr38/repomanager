@@ -433,12 +433,12 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                     $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'update' AND Id_repo_target=:id AND Status = 'running'");
                     $stmt->bindValue(':id', $myrepo->id);
                     $result = $stmt->execute();
-                    while ($datas = $result->fetchArray()) { $opRunning_update[] = $datas; }
+                    while ($datas = $result->fetchArray()) $opRunning_update[] = $datas;
 
                     $stmt2 = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'reconstruct' AND Id_repo_target=:id AND Status = 'running'");
                     $stmt2->bindValue(':id', $myrepo->id);
                     $result2 = $stmt2->execute();
-                    while ($datas = $result2->fetchArray()) { $opRunning_reconstruct[] = $datas; }
+                    while ($datas = $result2->fetchArray()) $opRunning_reconstruct[] = $datas;
 
                     if (!empty($opRunning_update)) {
                         echo '<p>';

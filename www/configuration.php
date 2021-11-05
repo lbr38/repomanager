@@ -10,6 +10,7 @@ require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
 require_once('common.php');
+require_once('class/Environnement.php');
 
 /**
  *  Mise à jour de Repomanager
@@ -35,7 +36,6 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
             exec("mv /tmp/${backupName} ${BACKUP_DIR}/");
         }
     }
-
     /**
      *  Création du répertoire du script de mise à jour si n'existe pas
      */
@@ -47,7 +47,6 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
             }
         }
     }
-
     /**
      *  On récupère la dernière version du script de mise à jour avant de l'exécuter
      */
@@ -58,7 +57,6 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
             $errorMsg = 'Erreur pendant le téléchargement de la mise à jour';
         }
     }
-
     /**
      *  Exécution de la mise à jour
      */
@@ -72,12 +70,13 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
             if ($result == 4) $errorMsg = "Erreur lors de l'application de la mise à jour";
         }
     }
-
+    /**
+     *  Création du message à afficher à l'utilisateur
+     */
     if ($error == 0)
         $updateStatus = '<span class="greentext">Mise à jour effectuée avec succès!</span>';
     else
         $updateStatus = '<span class="redtext">'.$errorMsg.'</span>';   
-
     /**
      *  Suppression du fichier 'update-running' pour lever la maintenance
      */
@@ -98,7 +97,15 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if (!empty($_POST['reposDir'])) {
         $reposDir = validateData($_POST['reposDir']);
-        $repomanager_conf_array['PATHS']['REPOS_DIR'] = "$reposDir";
+        /**
+         *  Le chemin ne doit comporter que des lettres, des chiffres, des tirets et des slashs
+         */
+        if (is_alphanumdash($reposDir, array('/'))) {
+            /**
+             *  Suppression du dernier slash si il y en a un
+             */
+            $repomanager_conf_array['PATHS']['REPOS_DIR'] = rtrim($reposDir, '/');
+        }
     }
 
 /**
@@ -110,7 +117,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if (!empty($_POST['emailDest'])) {
         $emailDest = validateData($_POST['emailDest']);
-        $repomanager_conf_array['CONFIGURATION']['EMAIL_DEST'] = "$emailDest";
+
+        if (is_alphanumdash($emailDest, array('@', '.'))) {
+            $repomanager_conf_array['CONFIGURATION']['EMAIL_DEST'] = trim($emailDest);
+        }
     }
 
     /**
@@ -190,7 +200,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if (!empty($_POST['gpgKeyID'])) {
         $gpgKeyID = validateData($_POST['gpgKeyID']);
-        $repomanager_conf_array['GPG']['GPG_KEYID'] = "$gpgKeyID";
+
+        if (is_alphanumdash($gpgKeyID, array('@', '.'))) {
+            $repomanager_conf_array['GPG']['GPG_KEYID'] = trim($gpgKeyID);
+        }
     }
 
 /**
@@ -221,7 +234,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['updateBackupDir'])) {
         $updateBackupDir = validateData($_POST['updateBackupDir']);
-        $repomanager_conf_array['UPDATE']['BACKUP_DIR'] = "$updateBackupDir";
+
+        if (is_alphanumdash($updateBackupDir, array('/'))) {
+            $repomanager_conf_array['UPDATE']['BACKUP_DIR'] = rtrim($updateBackupDir, '/');
+        }
     }
     
     /**
@@ -229,7 +245,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['updateBranch'])) {
         $updateBranch = validateData($_POST['updateBranch']);
-        $repomanager_conf_array['UPDATE']['UPDATE_BRANCH'] = "$updateBranch";
+
+        if (is_alphanum($updateBranch, array('/'))) {
+            $repomanager_conf_array['UPDATE']['UPDATE_BRANCH'] = $updateBranch;
+        }
     }
 
 /**
@@ -241,15 +260,19 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['wwwUser'])) {
         $wwwUser = validateData($_POST['wwwUser']);
-        $repomanager_conf_array['WWW']['WWW_USER'] = "$wwwUser";
+
+        if (is_alphanumdash($wwwUser)) {
+            $repomanager_conf_array['WWW']['WWW_USER'] = trim($wwwUser);
+        }
     }
 
     /**
      *  Adresse web hôte de repomanager (https://xxxx)
      */
     $OLD_WWW_HOSTNAME = $WWW_HOSTNAME; // On conserve le hostname actuel car on va s'en servir pour le remplacer dans les fichiers de conf ci dessous
-    if(!empty($_POST['wwwHostname']) AND ($OLD_WWW_HOSTNAME !== validateData($_POST['wwwHostname']))) {
-        $NEW_WWW_HOSTNAME = validateData($_POST['wwwHostname']);
+    if(!empty($_POST['wwwHostname']) AND $OLD_WWW_HOSTNAME !== validateData($_POST['wwwHostname']) AND is_alphanumdash(validateData($_POST['wwwHostname']), array('.'))) {
+
+        $NEW_WWW_HOSTNAME = trim(validateData($_POST['wwwHostname']));
         $repomanager_conf_array['WWW']['WWW_HOSTNAME'] = "$NEW_WWW_HOSTNAME";
 
         // Puis on remplace dans tous les fichier de conf de repo
@@ -273,7 +296,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['wwwReposDirUrl'])) {
         $wwwReposDirUrl = validateData($_POST['wwwReposDirUrl']);
-        $repomanager_conf_array['WWW']['WWW_REPOS_DIR_URL'] = "$wwwReposDirUrl";
+
+        if (is_alphanumdash($wwwReposDirUrl, array('.', '/', ':'))) {
+            $repomanager_conf_array['WWW']['WWW_REPOS_DIR_URL'] = rtrim($wwwReposDirUrl, '/');
+        }
     }
 
     /**
@@ -281,7 +307,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['statsLogPath'])) {
         $statsLogPath = validateData($_POST['statsLogPath']);
-        $repomanager_conf_array['WWW']['WWW_STATS_LOG_PATH'] = "$statsLogPath";
+        
+        if (is_alphanumdash($statsLogPath, array('.', '/'))) {
+            $repomanager_conf_array['WWW']['WWW_STATS_LOG_PATH'] = $statsLogPath;
+        }
 
         /**
          *  On stoppe le process stats-log-parser.sh actuel, il sera relancé au rechargement de la page
@@ -333,7 +362,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
      */
     if(!empty($_POST['retention'])) {
         $retention = validateData($_POST['retention']);
-        $repomanager_conf_array['AUTOMATISATION']['RETENTION'] = "$retention";
+
+        if (is_numeric($retention)) {
+            $repomanager_conf_array['AUTOMATISATION']['RETENTION'] = $retention;
+        }
     }
 
     /**
@@ -462,22 +494,13 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "enableCron") {
  *  Valeurs retournées dans le cas du renommage d'un environnement par exemple
  */
 if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv") {
+    
     /**
      *  Ajout d'un nouvel environnement
      */
     if (!empty($_POST['newEnv'])) {
-        $newEnv = validateData($_POST['newEnv']);
-
-        /**
-         *  On écrit le nouvel env dans le fichier envs.conf
-         */
-        file_put_contents($ENV_CONF, $newEnv.PHP_EOL, FILE_APPEND);
-
-        /**
-         *  Puis rechargement de la page pour voir les modifications de configuration
-         */
-        header('Location: configuration.php');
-        exit;
+        $myenv = new Environnement(array('envName' => validateData($_POST['newEnv'])));
+        $myenv->new();
     }
 }
 
@@ -485,23 +508,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv")
  *  Renommage d'un environnement / changement de sens des environnements
  */
 if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvConfiguration") {
+
     if (!empty($_POST['actualEnv'])) {
-        $actualEnvTotal = '';
-        foreach ($_POST['actualEnv'] as $actualEnvName) {
-            $actualEnvName = validateData($actualEnvName);
-            $actualEnvTotal = "${actualEnvTotal}\n${actualEnvName}";
-        }
-
-        /**
-         *  On ré-écrit le tout dans le fichier envs.conf
-         */
-        file_put_contents($ENV_CONF, trim($actualEnvTotal).PHP_EOL);   
-
-        /**
-         *  Puis rechargement de la page pour voir les modifications de configuration
-         */
-        header('Location: configuration.php');
-        exit;
+        $myenv = new Environnement();
+        $myenv->edit($_POST['actualEnv']);
     }
 } 
 
@@ -509,18 +519,8 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvCon
  *  Suppression d'un environnement
  */
 if (!empty($_GET['deleteEnv'])) {
-    $deleteEnv = validateData($_GET['deleteEnv']);
-
-    /**
-     *  On supprime l'env dans le fichier envs.conf
-     */
-    exec("sed -i '/^${deleteEnv}/d' $ENV_CONF");
-
-    /**
-     *  Puis rechargement de la page pour voir les modifications de configuration
-     */
-    header('Location: configuration.php');
-    exit;
+    $myenv = new Environnement(array('envName' => validateData($_GET['deleteEnv'])));
+    $myenv->delete();
 }
 ?>
 
@@ -840,24 +840,28 @@ if (!empty($_GET['deleteEnv'])) {
         <table class="table-medium">
         <form action="configuration.php" method="post" autocomplete="off">
             <input type="hidden" name="action" value="applyEnvConfiguration" />
-                <?php // Affichage des envs actuels
-                $i=0;
-                foreach ($ENVS as $env) {
+                <?php
+                /**
+                 *  Affichage des environnements actuels
+                 */
+                $myenvs = new Environnement();
+                $envs = $myenvs->listAll();
+                //foreach ($ENVS as $env) {
+                foreach ($envs as $envName) {
                     echo '<tr>';
                     echo '<td>';
-                    echo "<input type=\"text\" name=\"actualEnv[]\" value=\"${env}\" />";
+                    echo '<input type="text" name="actualEnv[]" value="'.$envName.'" />';
                     echo '</td>';
                     echo '<td class="td-fit center">';
-                    echo "<img src=\"icons/bin.png\" class=\"envDeleteToggle${i} icon-lowopacity\" title=\"Supprimer l'environnement ${env}\"/>";
-                    deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $env", "?deleteEnv=${env}", "envDeleteDiv${i}", "envDeleteToggle${i}");
+                    echo "<img src=\"icons/bin.png\" class=\"envDeleteToggle-${envName} icon-lowopacity\" title=\"Supprimer l'environnement ${envName}\"/>";
+                    deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}");
                     echo '</td>';
-                    if ($env === $DEFAULT_ENV) {
+                    if ($envName == $DEFAULT_ENV) {
                         echo '<td>Defaut</td>';
                     } else {
                         echo '<td></td>';
                     }
                     echo '</tr>';
-                    ++$i;
                 } ?>
             <input type="submit" class="hide" value="Valider" /> <!-- bouton caché, afin de taper Entrée pour appliquer les modifications -->
         </form>

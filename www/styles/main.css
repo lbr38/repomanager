@@ -8,7 +8,7 @@
     boutons bleu :              #2b426e
     boutons bleu (hover) :      #263859
 
-    boutons vert :              #4CAF50 
+    boutons vert :              #489f4d 
     boutons vert (hover) :      #3e8e41 
 
     boutons rouge :             #d9534f
@@ -137,7 +137,7 @@ hr {
 .text-align-center { text-align: center; }
 .pointer { cursor: pointer; }
 /* Quelques classes génériques permettant de créer des textes de couleurs */
-.greentext { color: #4CAF50; }
+.greentext { color: #489f4d; }
 .redtext { color: #d9534f; }
 .yellowtext { color: #f0ad4e; }
 .graytext { color : gray; }
@@ -157,7 +157,7 @@ hr {
 }
 
 /* Affichage de version alpha/beta sous le titre du produit */
-#version {
+/*#version {
     width: 35px;
     padding: 1px;
     padding-left: 5px;
@@ -169,9 +169,9 @@ hr {
     font-size: 9px;
     font-weight: bold;
     color: whitesmoke;
-    background-color:#4CAF50;
+    background-color:#489f4d;
     border-radius: 1px;
-}
+}*/
 
 header {
     width: 100%;
@@ -260,7 +260,7 @@ nav {
     text-decoration: none;
 }
 .li-operation-not-running {
-    background-color: #4CAF50;
+    background-color: #489f4d;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -411,31 +411,29 @@ table.list-repos {
     white-space: nowrap;
 }
 
-table.list-repos tr .rl-fit {
+.td-fit {
     width: 0px;
     padding: 0px;
     margin: 0px;
 }
 
-table.list-repos tr .rl-10 {
+.td-10, .td-30, .td-50, .td-100 {
     width: 0px;
     margin: 0px;
-    padding-right: 10px;
 }
 
-table.list-repos tr .rl-30 {
-    width: 0px;
-    margin: 0px;
-    padding-right: 30px;
-}
+.td-10 { padding-right: 10px; }
+.td-30 { padding-right: 30px; }
+.td-50 { padding-right: 50px; }
+.td-100 { padding-right: 100px; }
 
-table.list-repos tr .rl-desc {
+.td-desc {
     margin: 0px;
     padding-right: 30px;
     white-space: normal;
 }
 
-.rl-white-bckg span, .rl-red-bckg span {
+.td-white-bckg span, .td-red-bckg span {
     width: 100%;
     display: block; /* pour que le width s'applique correctement */
     font-size: 12px;
@@ -450,12 +448,12 @@ table.list-repos tr .rl-desc {
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
 }
 
-.rl-white-bckg span {
+.td-white-bckg span {
     background-color: lightgray;
     color: black;
 }
 
-.rl-red-bckg span {
+.td-red-bckg span {
     background-color: #d9534f;
     color: whitesmoke;
 }
@@ -479,7 +477,7 @@ td.td-redbackground span {
 }
 
 td.td-greenbackground span {
-    background-color:#4CAF50;
+    background-color:#489f4d;
     color: whitesmoke;
 }
 
@@ -642,7 +640,7 @@ input[type=text].input-large, .select-large, input[type=color].color-large { wid
 }
 /* Tous les boutons verts */
 .button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green {
-    background-color: #4CAF50;
+    background-color: #489f4d;
 }
 /* Tous les boutons rouges */
 .button-submit-large-red, .button-submit-medium-red, .button-submit-small-red, .button-submit-xsmall-red, .button-submit-xxsmall-red {
@@ -701,7 +699,7 @@ input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur diff
 }
 
 input[type=text].invisibleInput-green {
-    background-color: #4CAF50;
+    background-color: #489f4d;
 }
 
 input[type=text].invisibleInput-blue {
@@ -922,7 +920,7 @@ footer p { color: gray; }
     vertical-align: middle;
 }
 .alert-success {
-    background-color: #4CAF50;
+    background-color: #489f4d;
 }
 .alert-error {
     background-color: firebrick;
@@ -983,16 +981,36 @@ footer p { color: gray; }
     padding-bottom: 2px;
 }
 
-.profileDivConf, .detailsDiv {
+.profileDivConf {
     margin: 0px;
     padding: 4px;
     background-color: #252525;
     border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px
+    border-bottom-right-radius: 2px;
+    table-layout: auto !important;
+    white-space: nowrap;
+}
+
+.planDetailsDiv {
+    padding: 10px;
+    background-color: #262525;
+    border: 1px solid #1c1c1c;
+    border-top: none;
+    border-radius: 4px;
+}
+
+.planDetailsDiv div {
+    display: table-row;
+}
+
+.planDetailsDiv div span {
+    display: table-cell;
+    width: 60%;
+    padding: 5px;
 }
 
 .sourceDivs input[type=text].input-small {
-    background-color: #252525;
+    background-color: #2b2b2b;
     border: none;
     margin-right: 5px;
     margin-bottom: 2px;
@@ -1042,7 +1060,7 @@ footer p { color: gray; }
     padding-bottom: 0px; /* pas de padding lorsqu'il y a un <input> */
     padding-top: 0px;
 }
-.header-green, .header-green-min { background-color: #4CAF50; }
+.header-green, .header-green-min { background-color: #489f4d; }
 .header-red, .header-red-min     { background-color: #d9534f; }
 .header-blue, .header-blue-min   { background-color: #2b426e; }
 

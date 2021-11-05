@@ -97,35 +97,36 @@ if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
      */
     if (!file_exists($REPOS_PROFILES_CONF_DIR))     mkdir($REPOS_PROFILES_CONF_DIR, 0770, true);
     if (!is_dir("${TEMP_DIR}/cronjob_daily/files")) mkdir("${TEMP_DIR}/cronjob_daily/files", 0770, true);
-}
 
-/**
- *  On récupère toute la liste des repos actifs
- */
-$reposList = $repo->listAll();
+    /**
+     *  On récupère toute la liste des repos actifs
+     */
+    $reposList = $repo->listAll();
 
-if (!empty($reposList)) {
-    foreach($reposList as $repo) {
-        $repoName = $repo['Name'];
-        if ($OS_FAMILY == "Debian") {
-            $repoDist = $repo['Dist'];
-            $repoSection = $repo['Section'];
-        }
+    if (!empty($reposList)) {
+        foreach($reposList as $repo) {
+            $repoName = $repo['Name'];
+            if ($OS_FAMILY == "Debian") {
+                $repoDist = $repo['Dist'];
+                $repoSection = $repo['Section'];
+            }
 
-        if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
-            /**
-             *  On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
-             */
-            if ($OS_FAMILY == "Redhat") $repo = new Repo(compact('repoName'));
-            if ($OS_FAMILY == "Debian") $repo = new Repo(compact('repoName', 'repoDist', 'repoSection'));
+            if ($MANAGE_PROFILES == "yes" AND $CRON_GENERATE_REPOS_CONF == "yes") {
+                /**
+                 *  On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
+                 */
+                if ($OS_FAMILY == "Redhat") $repo = new Repo(compact('repoName'));
+                if ($OS_FAMILY == "Debian") $repo = new Repo(compact('repoName', 'repoDist', 'repoSection'));
 
-            $repo->generateConf("${TEMP_DIR}/cronjob_daily/files");
+                $repo->generateConf("${TEMP_DIR}/cronjob_daily/files");
 
-            /**
-             *  Enfin on copie les fichiers générés dans le répertoire temporaire dans le répertoire habituel des fichiers de conf, en copiant uniquement les différences et en supprimant les fichiers inutilisés
-             */
-            exec("rsync -a --delete-after ${TEMP_DIR}/cronjob_daily/files/ ${REPOS_PROFILES_CONF_DIR}/", $output, $return);
-            if ($return != 0) ++$generateConfError;
+                /**
+                 *  Enfin on copie les fichiers générés dans le répertoire temporaire dans le répertoire habituel des fichiers de conf, en copiant uniquement les différences et en supprimant les fichiers inutilisés
+                 *  On exclu main.conf afin qu'il ne soit pas supprimé
+                 */
+                exec("rsync -a --delete-after --exclude 'main.conf' ${TEMP_DIR}/cronjob_daily/files/ ${REPOS_PROFILES_CONF_DIR}/", $output, $return);
+                if ($return != 0) ++$generateConfError;
+            }
         }
     }
 }
@@ -144,7 +145,7 @@ if (is_dir("${TEMP_DIR}/cronjob_daily/files")) {
 /**
  *  Supprime les fichiers temporaires dans .temp + vieux de 2 jours
  */
-if (is_dir($TEMP_DIR)) exec("find ${TEMP_DIR}/ -mindepth 1 -mtime +2 -delete");
+if (is_dir($TEMP_DIR)) exec("find ${TEMP_DIR}/ -mtime +2 -exec rm -rv {} \;");
 
 
 // APPLICATION DES PERMISSIONS //

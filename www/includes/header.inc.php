@@ -19,7 +19,7 @@ if ($DEBUG_MODE == "enabled") {
 <header>
 <nav>
       <ul class="menu">
-        <li><a href="index.php"><span id="title">Repomanager</span></a><span id="version">BETA</span></li>
+        <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
         if ($actual_uri == '/index.php' OR $actual_uri == '/operation.php' OR $actual_uri == '/explore.php') {
             echo '<li><a href="index.php"><span class="underline">Opérations</span></a></li>';

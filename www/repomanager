@@ -402,14 +402,14 @@ firstInstall() {
 
 	## Répertoire d'installation de www
 	echo -e "\n➤ Répertoire d'installation de repomanager (par défaut /var/www/repomanager/)"
-	echo "Vous devrez créer un vhost qui publie ce répertoire"
-	echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" WWW_DIR
+	echo " Vous devrez créer un vhost qui publie ce répertoire."
+	echo -n " Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" WWW_DIR
 
 	if [ -z "$WWW_DIR" ];then
 		WWW_DIR="/var/www/repomanager"
 	fi
 	if [ -d "$WWW_DIR" ];then
-		echo -n "Le répertoire $WWW_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+		echo -n " Le répertoire $WWW_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
 		if [ "$CONFIRM" != "y" ];then
 			exit
 		fi
@@ -425,14 +425,14 @@ firstInstall() {
 
 	## Répertoire de stockage des repos
 	echo -e "\n➤ Répertoire de stockage des repos (par défaut /home/repo/)"
-	echo "La taille de ce répertoire peut devenir conséquente selon votre usage de repomanager. Pensez à allouer suffisamment d'espace disque à ce répertoire."
-	echo -n "Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" REPOS_DIR
+	echo " La taille de ce répertoire peut devenir conséquente selon votre usage de repomanager. Pensez à allouer suffisamment d'espace disque à ce répertoire."
+	echo -n " Laissez vide pour utiliser le répertoire par défaut, sinon précisez le nouvel emplacement : "; read -p "" REPOS_DIR
 
 	if [ -z "$REPOS_DIR" ];then
 		REPOS_DIR="/home/repo"
 	fi
 	if [ -d "$REPOS_DIR" ];then
-		echo -n "Le répertoire $REPOS_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
+		echo -n " Le répertoire $REPOS_DIR existe déjà, son contenu sera écrasé. Confirmez (y/n) : "; read -p "" CONFIRM
 		if [ "$CONFIRM" != "y" ];then
 			exit
 		fi
@@ -455,7 +455,7 @@ firstInstall() {
 	# Copie du fichier de version actuelle + copie dans github.version afin de ne pas laisser un fichier vide
 	cp ../version ${WWW_DIR}/
 	mkdir -p ${WWW_DIR}/cron/
-	cp ../version ${WWW_DIR}/cron/github.version
+	cp ${WWW_DIR}/version ${WWW_DIR}/cron/github.version
 
 	# Copie puis création d'un lien symbolique vers le programme principal
 	cp ${PWD}/repomanager ${WWW_DIR}/repomanager
@@ -479,7 +479,7 @@ firstInstall() {
 
 	if [ ! -z "$WWW_USER" ];then
 		echo -e "\n➤ Utilisateur exécutant le serveur web (détecté automatiquement : $WWW_USER)"
-		echo -ne "Laissez vide pour utiliser ${JAUNE}${WWW_USER}${RESET}, sinon précisez l'utilisateur : "; read -p "" PROMPT
+		echo -ne " Laissez vide pour utiliser ${JAUNE}${WWW_USER}${RESET}, sinon précisez l'utilisateur : "; read -p "" PROMPT
 		if [ ! -z "$PROMPT" ];then WWW_USER="$PROMPT";fi
 	else
 		echo -ne "\n➤ Utilisateur exécutant le serveur web : "; read -p "" WWW_USER
@@ -495,8 +495,8 @@ firstInstall() {
 	if [ "$OS_FAMILY" == "Debian" ];then
 		echo -e "\n➤ Avec Repomanager vous avez la possibilité de signer vos repositories avec GPG."
 	fi
-	echo "Cet assistant peut générer pour vous une clé dans le trousseau de repomanager prévu à cet effet."
-	echo -ne "Souhaitez-vous générer une clé maintenant (recommandé) (y/n) : "; read -p "" CONFIRM
+	echo " Cet assistant peut générer une clé pour vous, dans le trousseau de repomanager prévu à cet effet."
+	echo -ne " Souhaitez-vous générer une clé maintenant (recommandé) (y/n) : "; read -p "" CONFIRM
 	if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
 		GENERATE_A_KEY_FOR_ME="yes" # Pour demander à l'assistant de nous aider à générer une clé (ci-après)
 		GPG_SIGN_PACKAGES="yes"
@@ -511,10 +511,10 @@ firstInstall() {
 		# On vérifie qu'une clé GPG n'existe pas déjà dans le trousseau
 		# Cas où une clé est déjà présente dans le trousseau
 		if gpg2 --homedir $GPGHOME --no-permission-warning --list-key 2>/dev/null | egrep -q "^pub|^sub|";then
-			echo -ne "Une ou plusieurs clés GPG semblent déjà configurées dans le trousseau de repomanager à l'emplacement '${GPGHOME}'. Souhaitez-vous afficher les clés de ce trousseau (y/n) : " CONFIRM
+			echo -ne " Une ou plusieurs clés GPG semblent déjà configurées dans le trousseau de repomanager à l'emplacement '${GPGHOME}'. Souhaitez-vous afficher les clés de ce trousseau (y/n) : " CONFIRM
 			if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
 				gpg2 --homedir $GPGHOME --no-permission-warning --list-key 2>/dev/null
-				echo -ne "\nUtiliser une des clés présentes dans le trousseau ? (y/n) : " CONFIRM
+				echo -ne "\n Utiliser une des clés présentes dans le trousseau ? (y/n) : " CONFIRM
 				if [ "$CONFIRM" == "yes" ] || [ "$CONFIRM" == "y" ];then
 					GENERATE_A_KEY_FOR_ME="no" # On désactive la génération par l'assistant puisqu'on va utiliser une clé déjà générée
 					while [ -z "$GPG_KEYID" ];do
@@ -527,7 +527,7 @@ firstInstall() {
 			fi
 		fi
 		if [ "$GENERATE_A_KEY_FOR_ME" == "yes" ];then
-			echo -e "${JAUNE}Vous devez renseigner toutes les infos demandées${RESET}"
+			echo -e "$JAUNE Vous devez renseigner toutes les infos demandées $RESET"
 			# Initialisation de variables utilisées pour générer la clé GPG
 			key_length="";key_name="";key_description="";key_email="";key_passphrase=""
 			# On demande les informations pour la génération de la clé

@@ -1,13 +1,14 @@
-#stats-container {
+#stats-container, #servers-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 .stats-div-15 { flex: 0 0 15%; }
 .stats-div-20 { flex: 0 0 19%; }
 .stats-div-50 { flex: 0 0 49%; }
 .stats-div-60 { flex: 0 0 59%; }
+.stats-div-65 { flex: 0 0 65%; }
 .stats-div-68 { flex: 0 0 68%; }
 .stats-div-80 { flex: 0 0 79%; }
 .stats-div-100 { flex: 0 0 99%; }
@@ -23,10 +24,14 @@
     text-align: center;
 }
 
-.stats-div-50, .stats-div-60, .stats-div-80, .stats-div-100 {
+.stats-div-50, .stats-div-60, .stats-div-65, .stats-div-68, .stats-div-80, .stats-div-100 {
     margin: 5px;
-    border: 1px solid gray;
+    margin-bottom: 20px;
     border-radius: 2px;
+    border: 1px solid #403f3f;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
 .stats-info-counter {
@@ -41,12 +46,14 @@
     display: none;
     width: 1300px;
     margin-top: 10px;
-    background-color: #252525;
     padding:5px;
     text-align: left;
     font-size: 12px;
-    border: 1px solid gray;
     border-radius: 2px;
+    border: 1px solid #403f3f;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
 .stats-access-table {
@@ -65,7 +72,6 @@
 .stats-access-table tbody tr {
     background-color: #2b426e;
     border-radius: 2px;
-    /*opacity: 0.4;*/
 }
 
 .stats-access-table tbody tr:hover {
@@ -74,7 +80,6 @@
 
 .stats-access-table td {
     padding-left: 5px;
-    padding-right: 5px;
     padding-top: 11px;
     padding-bottom: 11px;   
 }
