@@ -1,6 +1,7 @@
 <?php
 global $WWW_DIR;
 require_once("${WWW_DIR}/class/Database.php");
+require_once("${WWW_DIR}/class/Database-servers.php");
 
 class Group {
     private $db;
@@ -11,12 +12,23 @@ class Group {
         extract($variables);
 
         /**
-         *  Instanciation d'une db car on peut avoir besoin de récupérer certaines infos en BDD
+         *  Cette class permet de manipuler des groupes de repos ou de serveurs. 
+         *  Selon ce qu'on souhaite traiter, la database à utiliser n'est pas la même.
+         *  Si on a renseigné une database au moment de l'instanciation d'un objet Group alors on utilise cette database
+         *  Sinon par défaut on utilise la database principale de repomanager (class Database)
          */
-        try {
-            $this->db = new Database();
-        } catch(Exception $e) {
-            die('Erreur : '.$e->getMessage());
+        if (!empty($useDB) AND $useDB == 'servers') {
+            try {
+                $this->db = new Database_servers();
+            } catch(Exception $e) {
+                die('Erreur : '.$e->getMessage());
+            }
+        } else {
+            try {
+                $this->db = new Database();
+            } catch(Exception $e) {
+                die('Erreur : '.$e->getMessage());
+            }
         }
 
         /* Id */

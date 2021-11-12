@@ -31,7 +31,7 @@ $REPOS_DIR = $repomanager_conf_array['REPOS_DIR'];
 // Emplacements des fichiers de conf
 $REPOMANAGER_CONF = "${WWW_DIR}/configurations/repomanager.conf";
 $DISPLAY_CONF = "${WWW_DIR}/configurations/display.ini";
-$ENV_CONF = "${WWW_DIR}/configurations/envs.conf";
+//$ENV_CONF = "${WWW_DIR}/configurations/envs.conf";
 
 // Emplacement de la DB
 $DB_DIR = "${WWW_DIR}/db";
@@ -58,16 +58,18 @@ $PID_DIR = "${WWW_DIR}/operations/pid";
 // Répertoire contenant des fichiers temporaires
 $TEMP_DIR = "${WWW_DIR}/.temp";
 
-// Création des fichiers et répertoires précédemment définis, si n'existent pas
-if (!file_exists($ENV_CONF)) { touch($ENV_CONF); }
-if (!is_dir($DB_DIR)) { mkdir($DB_DIR, 0770, true); }
-if (!is_dir($GPGHOME)) { mkdir($GPGHOME, 0770, true); }
-if (!is_dir($LOGS_DIR)) { mkdir($LOGS_DIR, 0770, true); }
-if (!is_dir($MAIN_LOGS_DIR)) { mkdir($MAIN_LOGS_DIR, 0770, true); }
-if (!is_dir($CRON_LOGS_DIR)) { mkdir($CRON_LOGS_DIR, 0770, true); }
-if (!is_dir($CRON_DIR)) { mkdir($CRON_DIR, 0770, true); }
-if (!is_dir($PID_DIR)) { mkdir($PID_DIR, 0770, true); }
-if (!is_dir($TEMP_DIR)) { mkdir($TEMP_DIR, 0770, true); }
+/**
+ *  Création des fichiers et répertoires précédemment définis, si n'existent pas
+ */
+//if (!file_exists($ENV_CONF)) touch($ENV_CONF);
+if (!is_dir($DB_DIR))        mkdir($DB_DIR, 0770, true);
+if (!is_dir($GPGHOME))       mkdir($GPGHOME, 0770, true);
+if (!is_dir($LOGS_DIR))      mkdir($LOGS_DIR, 0770, true);
+if (!is_dir($MAIN_LOGS_DIR)) mkdir($MAIN_LOGS_DIR, 0770, true);
+if (!is_dir($CRON_LOGS_DIR)) mkdir($CRON_LOGS_DIR, 0770, true);
+if (!is_dir($CRON_DIR))      mkdir($CRON_DIR, 0770, true);
+if (!is_dir($PID_DIR))       mkdir($PID_DIR, 0770, true);
+if (!is_dir($TEMP_DIR))      mkdir($TEMP_DIR, 0770, true);
 if (!file_exists($WWW_CACHE)) {
     // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
     if (file_exists("/dev/shm")) { 
@@ -77,7 +79,9 @@ if (!file_exists($WWW_CACHE)) {
     }
 }
 
-// Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
+/**
+ *  Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
+ */
 if (false == function_exists("shell_exec") || false == is_readable("/etc/os-release")) {
     echo "Erreur : impossible de détecter la version du système";
     exit;
@@ -142,14 +146,29 @@ if ($AUTOMATISATION_ENABLED == "yes") {
   $ALLOW_AUTODELETE_ARCHIVED_REPOS = $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS'];
   $RETENTION = $repomanager_conf_array['RETENTION'];
 }
-$ENVS = explode("\n", shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]'"));
+
+/**
+ *  Récupération des environnements
+ */
+require_once("${WWW_DIR}/class/Environnement.php");
+$myenv = new Environnement();
+$ENVS = $myenv->listAll();
+$ENVS_TOTAL = $myenv->total();
+$DEFAULT_ENV = $myenv->default();
+$LAST_ENV = $myenv->last();
+unset($myenv);
+if(empty($ENVS)) {
+    ++$EMPTY_CONFIGURATION_VARIABLES;
+}
+/*$ENVS = explode("\n", shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]'"));
 $ENVS = array_filter($ENVS); // on supprime les lignes vides du tableau si il y en a
 if(empty($ENVS)) {
     ++$EMPTY_CONFIGURATION_VARIABLES;
 }
 $ENVS_TOTAL = shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | wc -l");
 $DEFAULT_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1");
-$LAST_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | tail -n1");
+$LAST_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | tail -n1");*/
+
 $GPG_SIGN_PACKAGES = $repomanager_conf_array['GPG_SIGN_PACKAGES'];
 $GPG_KEYID = $repomanager_conf_array['GPG_KEYID'];
 $EMAIL_DEST = $repomanager_conf_array['EMAIL_DEST'];
@@ -159,27 +178,41 @@ $UPDATE_BRANCH = $repomanager_conf_array['UPDATE_BRANCH'];
 $BACKUP_DIR = $repomanager_conf_array['BACKUP_DIR'];
 $DEBUG_MODE = $repomanager_conf_array['DEBUG_MODE'];
 
-// Création du répertoire de backup si n'existe pas
+/**
+ *  Création du répertoire de backup si n'existe pas
+ */
 if (!is_dir($BACKUP_DIR)) {
     if (!mkdir($BACKUP_DIR, 0770, true)) {
         $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de sauvegarde : $BACKUP_DIR";
     }
 }
 
-// Création du répertoire de mise à jour si n'existe pas
+/**
+ *  Création du répertoire de mise à jour si n'existe pas
+ */
 if (!is_dir("$WWW_DIR/update")) {
     if (!mkdir("$WWW_DIR/update", 0770, true)) {
         $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de mise à jour : $WWW_DIR/update";
     }
 }
 
-// Config web
+/**
+ *  Config web
+ */
 $WWW_HOSTNAME = $repomanager_conf_array['WWW_HOSTNAME'];
 $WWW_REPOS_DIR_URL = $repomanager_conf_array['WWW_REPOS_DIR_URL'];
 $WWW_PROFILES_DIR_URL = "http://${WWW_HOSTNAME}/profiles";
 $WWW_USER = $repomanager_conf_array['WWW_USER'];
-if ($repomanager_conf_array['CRON_STATS_ENABLED'] == "yes") $WWW_STATS_LOG_PATH = $repomanager_conf_array['WWW_STATS_LOG_PATH'];
-// Config cron
+if ($repomanager_conf_array['CRON_STATS_ENABLED'] == "yes") {
+    if (!empty($repomanager_conf_array['WWW_STATS_LOG_PATH'])) {
+        $WWW_STATS_LOG_PATH = $repomanager_conf_array['WWW_STATS_LOG_PATH'];
+    } else {
+        ++$EMPTY_CONFIGURATION_VARIABLES;
+    }
+}
+/**
+ *  Config cron
+ */
 $CRON_DAILY_ENABLED = $repomanager_conf_array['CRON_DAILY_ENABLED'];
 $CRON_GENERATE_REPOS_CONF = $repomanager_conf_array['CRON_GENERATE_REPOS_CONF'];
 $CRON_APPLY_PERMS = $repomanager_conf_array['CRON_APPLY_PERMS'];
@@ -230,5 +263,15 @@ if ($UPDATE_AUTO == "yes" AND $UPDATE_AVAILABLE == "yes") {
  */
 if ($CRON_STATS_ENABLED == "yes" AND empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {  
     exec("bash ${WWW_DIR}/tools/stats-log-parser '$WWW_STATS_LOG_PATH' >/dev/null 2>/dev/null &");
+}
+
+/**
+ *  Si la clé de signature GPG n'existe pas alors on l'exporte
+ */
+if ($GPG_SIGN_PACKAGES == "yes" AND !file_exists("${REPOS_DIR}/gpgkeys/${WWW_HOSTNAME}.pub")) {
+    if (!is_dir("${REPOS_DIR}/gpgkeys")) {
+        mkdir("${REPOS_DIR}/gpgkeys", 0770, true);
+    }
+    exec("gpg2 --no-permission-warning --homedir '$GPGHOME' --export -a '$GPG_KEYID' > ${REPOS_DIR}/gpgkeys/${WWW_HOSTNAME}.pub 2>/dev/null");
 }
 ?>

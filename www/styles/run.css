@@ -17,10 +17,13 @@
     display: inline-block;
 }
 #log h3 {
-    border: 1px solid gray;
+    border: 1px solid #403f3f;
     border-radius: 2px;
     padding: 20px;
     opacity: 1;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 #log pre { /* empecher le contenu des <pre> de dépasser */
     white-space: pre-wrap;       /* css-3 */
@@ -75,11 +78,14 @@
 /* Tableau des détails de l'opération, dans chaque fichier de log */
 .op-table {
     width: 100%;
-    border: 1px solid gray;
+    border: 1px solid #403f3f;
     border-radius: 2px;
     padding: 20px;
     margin-bottom: 20px;
     opacity: 0.80;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 .op-table tr {
     height: 30px; /* hauteur des lignes du tableau des détails */
@@ -96,7 +102,10 @@
 .op-step-div {
     margin-bottom: 5px;
     border-radius: 2px;
-    border: 1px solid gray;
+    border: 1px solid #403f3f;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 .op-step-title, .op-step-title-error, .op-step-title-ok, .op-step-title-warning, .op-step-loading {
     padding-top: 20px;

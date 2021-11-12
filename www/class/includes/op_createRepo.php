@@ -74,7 +74,9 @@ trait op_createRepo {
             if (!is_dir($repoPath)) throw new Exception("le répertoire du repo n'existe pas");
             if (!is_dir($TMP_DIR)) throw new Exception("le répertoire temporaire n'existe pas");
             exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -name '*.deb' -exec mv '{}' ${TMP_DIR}/ \;");          
-
+            /**
+             *  Autre méthode de déplacement :
+             */
             /*$dir_it = new DirectoryIterator($repoPath);
             foreach($dir_it as $file) {
                 /**
@@ -125,53 +127,68 @@ trait op_createRepo {
             }
 
             /**
-             *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+             *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
-            if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") {
-                $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ --gnupghome ${GPGHOME} includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
+            if (dir_is_empty($TMP_DIR) === true) {
+                echo "Il n'y a aucun paquets dans ce repo";
+                echo '</pre></div>';
+
+                $return = 1;
+
+            /**
+             *  Sinon on peut traiter
+             */
             } else {
-                $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
-            }
-        
-            /**
-             *  Récupération du pid et du status du process lancé
-             *  Ecriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaites
-             */
-            $proc_details = proc_get_status($process);
-            file_put_contents("${PID_DIR}/{$this->log->pid}.pid", "SUBPID=\"".$proc_details['pid']."\"".PHP_EOL, FILE_APPEND);
 
-            /**
-             *  Tant que le process (lancé par proc_open) n'est pas terminé, on boucle afin de ne pas continuer les étapes suivantes
-             */
-            do {
-                $status = proc_get_status($process);
-
-                // If our stderr pipe has data, grab it for use later.
-                if (!feof($pipes[2])) {
-
-                    // We're acting like passthru would and displaying errors as they come in.
-                    $error_line = fgets($pipes[2]);
-                    file_put_contents($this->log->steplog, $error_line, FILE_APPEND);
+                /**
+                 *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+                 */
+                if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") {
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ --gnupghome ${GPGHOME} includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
+                } else {
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
                 }
-            } while ($status['running'] === true);
+            
+                /**
+                 *  Récupération du pid et du status du process lancé
+                 *  Ecriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaites
+                 */
+                $proc_details = proc_get_status($process);
+                file_put_contents("${PID_DIR}/{$this->log->pid}.pid", "SUBPID=\"".$proc_details['pid']."\"".PHP_EOL, FILE_APPEND);
 
-            /**
-             *  Clôture du process
-             */
-            proc_close($process);
-            echo '</pre></div>';
+                /**
+                 *  Tant que le process (lancé par proc_open) n'est pas terminé, on boucle afin de ne pas continuer les étapes suivantes
+                 */
+                do {
+                    $status = proc_get_status($process);
 
-            $this->log->steplogWrite();
+                    // If our stderr pipe has data, grab it for use later.
+                    if (!feof($pipes[2])) {
 
-            /**
-             *  Suppression du répertoire temporaire
-             */
-            if ($OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) exec("rm -rf '$TMP_DIR'");
+                        // We're acting like passthru would and displaying errors as they come in.
+                        $error_line = fgets($pipes[2]);
+                        file_put_contents($this->log->steplog, $error_line, FILE_APPEND);
+                    }
+                } while ($status['running'] === true);
 
-            /**
-             *  Récupération du code d'erreur de reprepro
-             */
-            $return = $status['exitcode'];
+                /**
+                 *  Clôture du process
+                 */
+                proc_close($process);
+                echo '</pre></div>';
+
+                $this->log->steplogWrite();
+
+                /**
+                 *  Suppression du répertoire temporaire
+                 */
+                if ($OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) exec("rm -rf '$TMP_DIR'");
+
+                /**
+                 *  Récupération du code d'erreur de reprepro
+                 */
+                $return = $status['exitcode'];
+            }
         }
 
         if ($return != 0) {
@@ -196,6 +213,8 @@ trait op_createRepo {
         if ($result != 0) throw new Exception('la finalisation du repo a échouée');
 
         $this->log->steplogOK();
+
+// 2
 
         return true;
     }

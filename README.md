@@ -133,9 +133,7 @@ server {
 
 	# Custom error pages
         error_page 404 /custom_404.html;
-        
         error_page 500 502 503 504 /custom_50x.html;
-
         location = /custom_404.html {
                 root path_to_WWW_DIR/custom_errors;
                 internal;
@@ -201,7 +199,7 @@ su -
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/RELEASE/repomanager_RELEASE.tar.gz
 tar xzf repomanager_RELEASE.tar.gz
-cd /tmp/repomanager/www/
+cd /tmp/repomanager/
 </pre>
 
 Lancer l'installation de repomanager :

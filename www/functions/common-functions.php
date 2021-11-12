@@ -362,25 +362,25 @@ function printHead() {
      *  Affichage de l'entête (Repo, Distrib, Section, Env, Date...)
      */
     echo '<tr class="reposListHead">';
-        //echo '<td class="rl-30"></td>';
-        echo '<td class="rl-10"></td>';
-        echo '<td class="rl-30">Repo</td>';
+        //echo '<td class="td-30"></td>';
+        echo '<td class="td-10"></td>';
+        echo '<td class="td-30">Repo</td>';
         if ($OS_FAMILY == "Debian") {
-            if ($repoListType == 'active') echo '<td class="rl-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
-            echo '<td class="rl-30">Distribution</td>';
-            if ($repoListType == 'active') echo '<td class="rl-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
-            echo '<td class="rl-30">Section</td>';
+            if ($repoListType == 'active') echo '<td class="td-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
+            echo '<td class="td-30">Distribution</td>';
+            if ($repoListType == 'active') echo '<td class="td-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
+            echo '<td class="td-30">Section</td>';
         }
         if ($repoListType == 'active') { 
-            echo '<td class="rl-30">Env</td>'; // On affiche l'env uniquement pour les repos actifs
-            echo '<td class="rl-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            echo '<td class="td-30">Env</td>'; // On affiche l'env uniquement pour les repos actifs
+            echo '<td class="td-fit"></td>'; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
         }
-        echo '<td class="rl-30">Date</td>';
+        echo '<td class="td-30">Date</td>';
         if ($printRepoSize == "yes") { // On affiche la taille des repos seulement si souhaité
-            echo '<td class="rl-30">Taille</td>';
+            echo '<td class="td-30">Taille</td>';
         }
-        echo '<td class="rl-desc">Description</td>';
-        echo '<td class="rl-fit"></td>';
+        echo '<td class="td-desc">Description</td>';
+        echo '<td class="td-fit"></td>';
     echo '</tr>';
 }
 
@@ -487,8 +487,7 @@ function printRepoLine($variables = []) {
         /**
          *  Affichage des icones d'opérations
          */
-        //echo '<td class="rl-30">';
-        echo '<td class="rl-10">';
+        echo '<td class="td-10">';
             if ($repoListType == 'active') {
                 /**
                  *  Affichage de l'icone "corbeille" pour supprimer le repo
@@ -534,26 +533,26 @@ function printRepoLine($variables = []) {
      *  Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent)
      */
     if ($concatenateReposName == "yes" AND $repoName === $repoLastName) {
-        echo '<td class="rl-30"></td>';
+        echo '<td class="td-30"></td>';
     } else {
-        echo "<td class=\"rl-30\">$repoName</td>";
+        echo "<td class=\"td-30\">$repoName</td>";
     }
     if ($OS_FAMILY == "Debian") {
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :
         if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist) {
-            if ($repoListType == 'active') echo '<td class="rl-fit"></td>';
-            echo '<td class="rl-30"></td>';
+            if ($repoListType == 'active') echo '<td class="td-fit"></td>';
+            echo '<td class="td-30"></td>';
         } else {
-            if ($repoListType == 'active') echo "<td class=\"rl-fit\"><a href=\"operation.php?action=deleteDist&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
-            echo "<td class=\"rl-30\">$repoDist</td>";
+            if ($repoListType == 'active') echo "<td class=\"td-fit\"><a href=\"operation.php?action=deleteDist&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
+            echo "<td class=\"td-30\">$repoDist</td>";
         }
 
-        if ($repoListType == 'active') echo "<td class=\"rl-fit\"><a href=\"operation.php?action=deleteSection&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
+        if ($repoListType == 'active') echo "<td class=\"td-fit\"><a href=\"operation.php?action=deleteSection&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :    
         if ($concatenateReposName == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
-            echo '<td class="rl-30"></td>';
+            echo '<td class="td-30"></td>';
         } else {
-            echo "<td class=\"rl-30\">$repoSection</td>";
+            echo "<td class=\"td-30\">$repoSection</td>";
         }
     }
 
@@ -563,26 +562,26 @@ function printRepoLine($variables = []) {
      */
     if ($repoListType == 'active') {
         if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
-            echo "<td class=\"rl-red-bckg rl-30\"><span>$repoEnv</span></td>";
+            echo "<td class=\"td-red-bckg td-30\"><span>$repoEnv</span></td>";
         } elseif ($repoEnv === $DEFAULT_ENV) {
-            echo "<td class=\"rl-white-bckg rl-30\"><span>$repoEnv</span></td>";
+            echo "<td class=\"td-white-bckg td-30\"><span>$repoEnv</span></td>";
         } elseif ($repoEnv === $LAST_ENV) {
-            echo "<td class=\"rl-red-bckg rl-30\"><span>$repoEnv</span></td>";
+            echo "<td class=\"td-red-bckg td-30\"><span>$repoEnv</span></td>";
         } else {
-            echo "<td class=\"rl-white-bckg rl-30\"><span>$repoEnv</span></td>";
+            echo "<td class=\"td-white-bckg td-30\"><span>$repoEnv</span></td>";
         }
         if ($ENVS_TOTAL > 1) {
             /**
              *  Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
              */           
-            echo "<td class=\"rl-fit\"><a href=\"operation.php?action=changeEnv&id=${repoId}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            echo "<td class=\"td-fit\"><a href=\"operation.php?action=changeEnv&id=${repoId}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
         }
     }
 
     /**
      *  Affichage de la date
      */
-    echo "<td class=\"rl-30\" title=\"$repoDate $repoTime\">$repoDate</td>";
+    echo "<td class=\"td-30\" title=\"$repoDate $repoTime\">$repoDate</td>";
 
     /**
      *  Affichage de la taille
@@ -598,16 +597,16 @@ function printRepoLine($variables = []) {
             if ($OS_FAMILY == "Debian" AND $printRepoSize == "yes") $repoSize = exec("du -hs ${REPOS_DIR}/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
         }
 
-        echo "<td class=\"rl-30\">$repoSize</td>";
+        echo "<td class=\"td-30\">$repoSize</td>";
     }
 
     /**
      *  Affichage de la description
      */
-    echo '<td class="rl-desc">';
+    echo '<td class="td-desc">';
     echo "<input type=\"text\" class=\"invisibleInput\" name=\"repoDescription\" value=\"$repoDescription\" />";
     echo '</td>';
-    echo '<td class="rl-fit">';
+    echo '<td class="td-fit">';
         /**
          *  Affichage de l'icone du type de repo (miroir ou local)
          */

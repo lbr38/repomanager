@@ -1,9 +1,9 @@
 <?php
 /**
- * Exemple simple qui étend la classe SQLite3 et change les paramètres
- * __construct, puis, utilise la méthode de connexion pour initialiser la
- * base de données.
+ *  Import des fonctions utiles
  */
+require_once('Database-tools.php');
+
 class Database extends SQLite3 {
 
     public function __construct() {
@@ -174,40 +174,45 @@ class Database extends SQLite3 {
     }
 
     /**
+     *  Import de fonctions utiles
+     */
+    use database_tools;
+
+    /**
      *  Fonction permettant de retourner le nombre de lignes résultant d'une requête
      */
-    public function count(object $result) {
+    /*public function count(object $result) {
         $count = 0;
 
         while ($row = $result->fetchArray()) $count++;
 
         return $count;
-    }
+    }*/
 
     /**
      *  Retourne true si le résultat est vide et false si il est non-vide.
      */
-    public function isempty($result) {
+    /*public function isempty($result) {
         /**
          *  Compte le nombre de lignes retournées par la requête
          */
-        $count = 0;
+    /*    $count = 0;
 
         while ($row = $result->fetchArray()) $count++;
 
         if ($count == 0) return true;
 
         return false;
-    }
+    }*/
 
     /**
      *  Transforme un résultat de requête ($result = $stmt->execute()) en un array
      */
-    public function fetch(object $result, string $option = '') {
+  /*  public function fetch(object $result, string $option = '') {
         /**
          *  On vérifie d'abord que $result n'est pas vide, sauf si on a précisé l'option "ignore-null"
          */
-        if ($option != "ignore-null") {
+    /*    if ($option != "ignore-null") {
             if ($this->isempty($result) === true) {
                 throw new Exception('Erreur : le résultat les données à traiter est vide');
             }
@@ -218,179 +223,22 @@ class Database extends SQLite3 {
         /**
          *  Fetch le résultat puis retourne l'array créé
          */
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+     /*   while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas = $row;
         }
 
         return $datas;
-    }
+    }*/
 
     /**
      *  Execute une requête et renvoi un array contenant les résultats
      */
-    public function queryArray(string $query) {
+    /*public function queryArray(string $query) {
         $result = $this->query($query);
 
         while ($row = $result->fetchArray()) $datas = $row;
 
         if (!empty($datas)) return $datas;
-    }
-}
-
-class Database_stats extends SQLite3 {
-
-    public function __construct() {
-        $WWW_DIR = dirname(__FILE__, 2);
-        global $OS_FAMILY;
-
-        /**
-         *  Ouvre la base de données repomanager
-         *  Si celle-ci n'existe pas elle est créée automatiquement
-         */
-        $this->open("${WWW_DIR}/db/repomanager-stats.db");
-        $this->busyTimeout(60000);
-
-        /**
-         *  Crée la table stats si n'existe pas
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS stats (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Id_repo INTEGER NOT NULL,
-        Size INTEGER NOT NULL,
-        Packages_count INTEGER NOT NULL)");
-
-        /**
-         *  Crée la table access si n'existe pas
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS access (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Source VARCHAR(255) NOT NULL,
-        IP VARCHAR(16) NOT NULL,
-        Request VARCHAR(255) NOT NULL,
-        Request_result VARCHAR(8) NOT NULL)");
-    }
-
-    /**
-     *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
-     */
-    public function get_lastAccess(array $parameters = []) {
-        global $OS_FAMILY;
-        extract($parameters);
-
-        $stmt = $this->prepare("SELECT * FROM access WHERE Request LIKE :likeRequest ORDER BY Date DESC LIMIT 50");
-
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-
-        $result = $stmt->execute();
-
-        $datas = array();
-
-        while ($row = $result->fetchArray()) $datas[] = $row;
-        
-        return $datas;
-    }
-
-    /**
-     *  Retourne le détail des requêtes sur le repo/section spécifié, de la dernière minute passée
-     */
-    public function get_lastMinuteAccess(array $parameters = []) {
-        global $OS_FAMILY;
-        global $DATE_YMD;
-        extract($parameters);
-        $currentTime = date("H:i");
-
-        $datas = array();
-
-        $stmt = $this->prepare("SELECT * FROM access WHERE Date = '$DATE_YMD' AND Time LIKE '$currentTime:%' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 50");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $result = $stmt->execute();
-
-        while ($row = $result->fetchArray()) $datas[] = $row;
-        
-        return $datas;
-    }
-
-    /**
-     *  Retourne le nombre de requêtes du repo/section spécifié, de la dernière minute passée
-     */
-    public function get_lastMinuteAccess_count(array $parameters = []) {
-        global $OS_FAMILY;
-        global $DATE_YMD;
-        extract($parameters);
-        $currentTime = date("H:i");
-
-        $stmt = $this->prepare("SELECT * FROM access WHERE Date = '$DATE_YMD' AND Time LIKE '$currentTime:%' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 50");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $result = $stmt->execute();
-
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
-        $count = 0;
-        while ($row = $result->fetchArray()) $count++;
-
-        /**
-         *  Retourne le nombre de lignes
-         */
-        return $count;
-    }
-
-    /**
-     *  Retourne le nombre de requêtes en temps réel (date et heure actuelles) sur le repo/section spécifié
-     */
-    public function get_realTimeAccess_count(array $parameters = []) {
-        global $OS_FAMILY;
-        global $DATE_YMD;
-        extract($parameters);
-        $currentTime = date("H:i:s");
-
-        $stmt = $this->prepare("SELECT * FROM access WHERE Date = '$DATE_YMD' AND Time = '$currentTime' AND Request LIKE :likeRequest ORDER BY Date DESC");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $result = $stmt->execute();
-
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
-        $count = 0;
-        while ($row = $result->fetchArray()) $count++;
-
-        /**
-         *  Retourne le nombre de lignes
-         */
-        return $count;
-    }
-
-    /**
-     *  Compte le nombre de requêtes d'accès au repo/section spécifié, sur une date donnée
-     */
-    public function get_dailyAccess_count(array $parameters = []) {
-        global $OS_FAMILY;
-        extract($parameters);
-
-        $stmt = $this->prepare("SELECT * FROM access WHERE Date=:date AND Request LIKE :likeRequest");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $stmt->bindValue(':date', $date);
-        $result = $stmt->execute();
-
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
-        $count = 0;
-        while ($row = $result->fetchArray()) $count++;
-
-        /**
-         *  Retourne le nombre de lignes
-         */
-        return $count;
-    }
+    }*/
 }
 ?>

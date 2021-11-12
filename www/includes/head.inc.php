@@ -9,7 +9,8 @@
          */
         if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="styles/run.css">';
         if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="styles/explore.css">';
-        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="styles/stats.css">';
+        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="styles/stats-servers.css">';
+        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/servers.php") echo '<link rel="stylesheet" type="text/css" href="styles/stats-servers.css">';
     ?>
 
     <!-- jQuery -->

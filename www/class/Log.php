@@ -145,7 +145,7 @@ class Log {
 
         echo '<style>';
         echo ".{$this->stepName}-loading-{$this->pid} { display: none; }";
-        echo ".{$this->stepName}-maindiv-{$this->pid} { background-color: #4CAF50; }";
+        echo ".{$this->stepName}-maindiv-{$this->pid} { background-color: #489f4d; }";
         echo '</style>';
 
         $this->steplogWrite();
