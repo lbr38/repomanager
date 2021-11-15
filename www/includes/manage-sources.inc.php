@@ -30,7 +30,7 @@ if (!empty($_POST['newSourceName']) AND !empty($_POST['actualSourceName'])) {
 
 // Cas où on souhaite modifier la conf d'un repo source
 if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validateData($_POST['action']) == "editRepoSourceConf" AND !empty($_POST['option'])) {
-    $source->configure(validateData($_POST['actualSourceName']), $_POST['option']);
+    $source->configure(validateData($_POST['actualSourceName']), $_POST['option'], $_POST['comments']);
 } ?>
 
 <img id="ReposSourcesCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
@@ -241,17 +241,29 @@ if (!empty($gpgKeys)) {
                         /**
                          *  On va récupérer la configuration du repo source et l'afficher
                          */      
-                        echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+                        echo "<form id=\"form-$sourceName\" action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
                             // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
                             echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
                             echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
                             $j = 0;
+                            $comments = '';
                             foreach ($content as $option) {
-                                if (empty($option)) { continue; }
+                                if (empty($option)) {
+                                    continue;
+                                }
                                 $optionName = exec("echo '$option' | awk -F'=' '{print $1}'");
                                 $optionValue = exec("echo '$option' | cut -d'=' -f 2-");
-                                if ($optionName == "[$sourceName]") { continue; }
-                                if (substr($optionName, 0, 1 ) === "#") { continue; }
+                                /**
+                                 *  Si la ligne commence par [$sourceName], on ne l'affiche pas
+                                 */
+                                if ($optionName == "[$sourceName]") {
+                                    continue;
+                                }
+
+                                if (substr($optionName, 0, 1) === "#") {
+                                    $comments .= str_replace('#', '', $optionName).PHP_EOL;
+                                    continue;
+                                }
 
                                 echo "<input type=\"text\" class=\"input-small\" name=\"option[$j][name]\" value=\"$optionName\" readonly />";
                                 if ($optionValue == "1" OR $optionValue == "0") {
@@ -274,9 +286,21 @@ if (!empty($gpgKeys)) {
                                 echo '<br>';
                                 ++$j;
                             }
-                            echo '<br>';
-                            //echo '<a class="pointer" id="add-new-param">Ajouter un paramètre</a>';
-                            //echo '<br>';
+                            /*echo '<br>';
+                            echo "<a class=\"pointer\" sourcename=\"$sourceName\" class=\"add-new-param-button\">Ajouter un paramètre</a>";
+                            echo "<div id=\"add-new-param-for-$sourceName\">";
+                            echo '</div>';
+                            echo '<br>';*/
+
+                            echo '<p>Notes :</p>';
+
+                            /**
+                             *  Si la ligne commence par un # c'est un commentaire, on l'affiche dans un textarea
+                             */
+                            echo '<textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire...">';
+                            if (!empty($comments)) echo trim($comments);
+                            echo '</textarea>';
+
                             echo '<button type="submit" class="button-submit-large-blue" title="Enregistrer">Enregistrer</button>';
                         echo '</form>';
                         echo '<br>';
@@ -291,13 +315,6 @@ if (!empty($gpgKeys)) {
                     echo "});";
                     echo "});";
                     echo "</script>";
-
-                    /*echo "
-                    <script>
-                    $( '#add-new-param' ).click(function() {
-                        $('#sourceConfigurationDiv-${sourceName}').append('<input type=\"button\" id=\"submit\" value=\"Submit\" />');
-                    });
-                    </script>";*/
                 }
 
             echo '</div>'; // cloture de header-container
@@ -308,13 +325,20 @@ if (!empty($gpgKeys)) {
 
 <script> 
 // Redhat : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
-$(function() {
-  $("#newRepoSourceSelect").change(function() {
-    if ($("#newRepoSourceSelect_yes").is(":selected")) {
-      $(".sourceGpgDiv").show();
-    } else {
-      $(".sourceGpgDiv").hide();
-    }
-  }).trigger('change');
+$(document).ready(function(){
+    $(function() {
+        $("#newRepoSourceSelect").change(function() {
+            if ($("#newRepoSourceSelect_yes").is(":selected")) {
+                $(".sourceGpgDiv").show();
+            } else {
+                $(".sourceGpgDiv").hide();
+            }
+        }).trigger('change');
+    });
+           
+    /*$('.add-new-param-button').click(function() {
+        var sourcename = $(this).attr('sourcename');
+        $('#form-'+sourcename+'').append('<span>test</span>');
+    });*/
 });
 </script>

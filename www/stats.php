@@ -166,7 +166,7 @@ if ($repoError == 0) {
                                             /**
                                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                              */
-                                            if ($line['Request_result'] == "200")
+                                            if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
                                                 echo "<img src=\"icons/greencircle.png\" class=\"icon-small\" /> ";
                                             else
                                                 echo "<img src=\"icons/redcircle.png\" class=\"icon-small\" /> ";
@@ -299,14 +299,14 @@ if ($repoError == 0) {
                                         $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
                                         echo '<tr>';
                                             echo '<td class="td-10">';
-                                            if ($access['Request_result'] == "200")
+                                            if ($access['Request_result'] == "200" OR $access['Request_result'] == "304")
                                                 echo '<img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             else
                                                 echo '<img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             echo '</td>';
                                             echo '<td class="td-100">'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
                                             echo '<td class="td-100">'.$access['Source'].' ('.$access['IP'].')</td>';
-                                            // retrait des " dans la requête complète :
+                                            // retrait des double quotes " dans la requête complète :
                                             echo '<td><span title="'.str_replace('"', '', $access['Request']).'">'.$accessTarget[0].'</span></td>';
                                         echo '</tr>';
                                     }

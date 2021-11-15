@@ -722,6 +722,8 @@ class Repo {
         $stmt->execute();
         unset($stmt);
 
+        clearCache();
+
         printAlert('La description a bien été modifiée', 'success');
     }
 
@@ -739,6 +741,8 @@ class Repo {
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
         unset($stmt);
+
+        clearCache();
     }
 
 

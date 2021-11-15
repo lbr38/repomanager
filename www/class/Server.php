@@ -1,6 +1,6 @@
 <?php
 global $WWW_DIR;
-require_once("${WWW_DIR}/class/Database.php");
+require_once("${WWW_DIR}/class/Database-servers.php");
 
 class Server {
     public $db;

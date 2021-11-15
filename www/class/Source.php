@@ -423,12 +423,12 @@ class Source {
     /**
      *  Modifier la configuration d'un repo source
      */
-    public function configure(string $sourceName, array $option) {
+    public function configure(string $sourceName, array $option, string $comments) {
         global $REPOMANAGER_YUM_DIR;
         $generalError = 0;
 
         $sourceFile = "$REPOMANAGER_YUM_DIR/${sourceName}.repo"; // Le fichier dans lequel on va écrire
-        $options = $_POST['option'];
+        $options = $_POST['option']; // Les options à inclure dans le fichier
 
         /**
          *  On initialise le contenu du fichier en mettant le nom du repo source en crochet (standard des fichiers .repo)
@@ -519,6 +519,16 @@ class Source {
             } else {
                 $content .= $optionName . "=" . '' . PHP_EOL;
                 ++$generalError;
+            }
+        }
+
+        /**
+         *  Si des commentaires ont été saisis dans le bloc de textarea 'Notes' alors on ajoute un dièse # avant chaque ligne afin de l'inclure en tant que commentaire dans le fichier
+         */
+        if (!empty($comments)) {
+            $comments = explode(PHP_EOL, validateData($comments));
+            foreach ($comments as $comment) {
+                $content .= "#".$comment;
             }
         }
 

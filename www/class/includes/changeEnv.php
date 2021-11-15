@@ -7,6 +7,8 @@ trait changeEnv {
         global $DEFAULT_ENV;
         global $LAST_ENV;
 
+        $case = 0;
+
         if ($this->repo->description == "nodescription") $this->repo->description = '';
         if ($this->repo->group == "nogroup") $this->repo->group = '';
 
@@ -32,29 +34,13 @@ trait changeEnv {
 	        </tr>";
         }
         echo '<tr>
-            <th>ENVIRONNEMENT SOURCE :</th>';
-            if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
-                echo "<td class=\"td-redbackground\"><span>{$this->repo->env}</span></td>";
-            } elseif ($this->repo->env === $DEFAULT_ENV) { 
-                echo "<td class=\"td-whitebackground\"><span>{$this->repo->env}</span></td>";
-            } elseif ($this->repo->env === $LAST_ENV) {
-                echo "<td class=\"td-redbackground\"><span>{$this->repo->env}</span></td>";
-            } else {
-                echo "<td class=\"td-whitebackground\"><span>{$this->repo->env}</span></td>";
-            }
-        echo '</tr>';
-        echo "<tr>
-            <th>NOUVEL ENVIRONNEMENT :</th>";
-            if ($DEFAULT_ENV === $LAST_ENV) { // Cas où il n'y a qu'un seul env
-                echo "<td class=\"td-redbackground\"><span>{$this->repo->newEnv}</span></td>";
-            } elseif ($this->repo->newEnv === $DEFAULT_ENV) { 
-                echo "<td class=\"td-whitebackground\"><span>{$this->repo->newEnv}</span></td>";
-            } elseif ($this->repo->newEnv === $LAST_ENV) {
-                echo "<td class=\"td-redbackground\"><span>{$this->repo->newEnv}</span></td>";
-            } else {
-                echo "<td class=\"td-whitebackground\"><span>{$this->repo->newEnv}</span></td>";
-            }
-        echo '</tr>';
+            <th>ENVIRONNEMENT SOURCE :</th>
+            <td><span>'.envtag($this->repo->env).'</span></td>
+        </tr>';
+        echo '<tr>
+            <th>NOUVEL ENVIRONNEMENT :</th>
+            <td><span>'.envtag($this->repo->newEnv).'</span></td>
+        </tr>';
         if (!empty($this->repo->description)) {
             echo "<tr>
                 <th>DESCRIPTION :</th>
@@ -207,6 +193,10 @@ trait changeEnv {
              *  Cas 1 : pas de version déjà en $this->repo->newEnv
              */
             if ($this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === false) {
+                /**
+                 *  On indique ne cas dans lequel on se trouve (sera utile plus bas pour l'ajout du repo à un groupe)
+                 */
+                $case = 1;
 
                 /**
                  *  Suppression du lien symbolique (on sait jamais si il existe)
@@ -297,7 +287,7 @@ trait changeEnv {
                 /**
                  *  Mise à jour de la BDD
                  */
-                $stmt = $this->db->prepare("DELETE FROM repos WHERE Name=:name AND Env=:newenv AND Date=:olddate AND Status = 'active'");
+                /*$stmt = $this->db->prepare("DELETE FROM repos WHERE Name=:name AND Env=:newenv AND Date=:olddate AND Status = 'active'");
                 $stmt->bindValue(':name', $this->repo->name);
                 $stmt->bindValue(':newenv', $this->repo->newEnv);
                 $stmt->bindValue(':olddate', $old_repoDate);
@@ -312,12 +302,25 @@ trait changeEnv {
                 $stmt->bindValue(':description', $this->repo->description);
                 $stmt->bindValue(':signed', $this->repo->signed);
                 $stmt->bindValue(':type', $this->repo->type);
+                $stmt->execute();*/
+                $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Env=:newenv AND Date=:old_date AND Status='active'");
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':old_date', $old_repoDate);
                 $stmt->execute();
 
                 /**
                  *  Récupération de l'ID du repos précédemment inséré car on va en avoir besoin pour l'ajouter au même groupe que le repo sur $this->repo->env
                  */
-                $this->repo->id = $this->db->lastInsertRowID();
+                //$this->repo->id = $this->db->lastInsertRowID();
+
+                /**
+                 *  Insertion du repo archivé dans repos_archived
+                 */
                 $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :date, :time, :description, :signed, :type, 'active')");
                 $stmt->bindValue(':name', $this->repo->name);
                 $stmt->bindValue(':source', $this->repo->source);
@@ -346,6 +349,10 @@ trait changeEnv {
              *  Cas 1 : pas de version déjà en $this->repo->newEnv
              */
             if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === false) {
+                /**
+                 *  On indique ne cas dans lequel on se trouve (sera utile plus bas pour l'ajout du repo à un groupe)
+                 */
+                $case = 1;
                 
                 /**
                  *  Suppression du lien symbolique (on ne sait jamais si il existe)
@@ -439,7 +446,7 @@ trait changeEnv {
                 /**
                  *  Mise à jour de la BDD
                  */
-                $stmt = $this->db->prepare("DELETE FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
+                /*$stmt = $this->db->prepare("DELETE FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
                 $stmt->bindValue(':name', $this->repo->name);
                 $stmt->bindValue(':dist', $this->repo->dist);
                 $stmt->bindValue(':section', $this->repo->section);
@@ -458,12 +465,27 @@ trait changeEnv {
                 $stmt->bindValue(':description', $this->repo->description);
                 $stmt->bindValue(':signed', $this->repo->signed);
                 $stmt->bindValue(':type', $this->repo->type);
+                $stmt->execute();*/
+                $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:old_date AND Status='active'");
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':old_date', $old_repoDate);
                 $stmt->execute();
 
                 /**
                  *  Récupération de l'ID du repos précédemment inséré car on va en avoir besoin pour l'ajouter au même groupe que le repo sur $this->repo->env
                  */
-                $this->repo->id = $this->db->lastInsertRowID();
+//                $this->repo->id = $this->db->lastInsertRowID();
+
+                /**
+                 *  Insertion du repo archivé dans repos_archived
+                 */
                 $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :olddate, :time, :description, :signed, :type, 'active')");
                 $stmt->bindValue(':name', $this->repo->name);
                 $stmt->bindValue(':source', $this->repo->source);
@@ -496,8 +518,9 @@ trait changeEnv {
 
         /**
          *  7. On ajoute le nouvel environnement de repo au même groupe que le repo sur $this->repo->env 
+         *  On traite ce cas uniquement si on est passé par le Cas n°1
          */
-        if (!empty($this->repo->group)) {
+        if (!empty($this->repo->group) AND $case == 1) {
             $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
             $stmt->bindValue(':repoid', $this->repo->id);
             $stmt->bindValue(':groupid', $this->repo->group);

@@ -291,6 +291,10 @@ class Operation {
                 echo '<p>Erreur : le type du repo ne peut pas contenir de caractères spéciaux.</p>';
                 return false;
             }
+            if ($this->repo->type != "mirror" AND $this->repo->type != "local") {
+                echo '<p>Erreur : le type du repo est invalide.</p>';
+                return false;
+            }
 
             echo '<input type="hidden" name="repoType" value="'.$this->repo->type.'" />';
         }
@@ -351,6 +355,7 @@ class Operation {
 
             echo '<input type="hidden" name="repoNewName" value="'.$this->repo->newName.'" />';
         }
+
         return true;
     }
 
@@ -477,7 +482,7 @@ class Operation {
             } else {
                 $this->repo->group = validateData($_GET['repoGroup']);
                 if (!is_alphanumdash($this->repo->group, array('-'))) {
-                    echo '<p>Erreur : le groupe comporte des caractères invalides</p>';
+                    echo '<p>Erreur : le groupe comporte des caractères invalides.</p>';
                     return false;
                 }
                 echo '<input type="hidden" name="repoGroup" value="'.$this->repo->group.'" />';
@@ -499,7 +504,7 @@ class Operation {
             } else {
                 $this->repo->description = validateData($_GET['repoDescription']);
                 if (!is_alphanumdash($this->repo->description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
-                    echo '<p>Erreur : la description comporte des caractères invalides</p>';
+                    echo '<p>Erreur : la description comporte des caractères invalides.</p>';
                     return false;
                 }
 
@@ -532,7 +537,11 @@ class Operation {
         } 
 
         if (empty($this->repo->env)) {
-            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide</p>";
+            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide.</p>";
+            return false;
+        }
+        if (!is_alphanum($this->repo->env, array('-'))) {
+            echo '<p>Erreur : l\'environnement comporte des caractères invalides.</p>';
             return false;
         }
     }
@@ -561,10 +570,13 @@ class Operation {
         } 
 
         if (empty($this->repo->newEnv)) {
-            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide</p>";
+            echo "<p>Erreur : le nom de l'environnement ne peut pas être vide.</p>";
             return false;
         }
-
+        if (!is_alphanum($this->repo->newEnv, array('-'))) {
+            echo '<p>Erreur : l\'environnement cible comporte des caractères invalides.</p>';
+            return false;
+        }
     }
 
     private function chk_param_date() {
@@ -576,7 +588,11 @@ class Operation {
         }
 
         if (empty($this->repo->date)) {
-            echo "<p>Erreur : la date ne peut pas être vide</p>";
+            echo "<p>Erreur : la date ne peut pas être vide.</p>";
+            return false;
+        }
+        if (preg_match('#^(\d\d\d\d)-(\d\d)-(\d\d)$#', $this->repo->date) == false) {
+            echo "<p>Erreur : le format de la date est invalide.</p>";
             return false;
         }
 
@@ -728,6 +744,9 @@ class Operation {
 
         unset($stmt);
 
+        /**
+         *  Nettoyage du cache de repos-list
+         */
         clearCache();
     }
 

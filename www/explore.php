@@ -144,11 +144,6 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
      */
     $packages = reArrayFiles($_FILES['packages']);
 
-    // Pour debug :
-    /*echo '<pre>';
-    print_r($packages);
-    echo '</pre>';*/
-
     $packageExists = ''; // contiendra la liste des paquets ignorés car existent déjà
     $packagesError = ''; // contiendra la liste des paquets uploadé avec une erreur
     $packageEmpty = ''; // contiendra la liste des paquets vides

@@ -988,7 +988,6 @@ footer p { color: gray; }
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     table-layout: auto !important;
-    white-space: nowrap;
 }
 
 .planDetailsDiv {

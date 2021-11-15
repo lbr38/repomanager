@@ -784,11 +784,12 @@ public function sendMail($title, $template) {
      */
     private function getGroupRepoList() {
         global $OS_FAMILY;
+        global $DEFAULT_ENV;
 
         /**
          *  On récupère tous les repos du groupe
          */
-        $this->groupList = $this->op->group->listReposNamesDistinct($this->op->group->name);
+        $this->groupList = $this->op->group->listReposMembers_byEnv($this->op->group->name, $DEFAULT_ENV);
     
         if (empty($this->groupList)) {
             if ($OS_FAMILY == "Redhat") throw new Exception("Erreur (CP13) : Il n'y a aucun repo renseigné dans le groupe <b>{$this->op->group->name}</b>");
@@ -808,11 +809,11 @@ public function sendMail($title, $template) {
             }
 
             if ($OS_FAMILY == "Redhat") {
-                if ($this->op->repo->exists($repoName) === false) $msg_error="${msg_error}\nErreur (CP15) : Le repo <b>$repoName</b> dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.";
+                if ($this->op->repo->exists($repoName) === false) $msg_error .= "Erreur (CP15) : Le repo <b>$repoName</b> dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.".PHP_EOL;
             }
             
             if ($OS_FAMILY == "Debian") {
-                if ($this->op->repo->section_exists($repoName, $repoDist, $repoSection) === false) $msg_error="${msg_error}\nErreur (CP16) : La section <b>$repoSection</b> du repo <b>$repoName</b> (distribution <b>$repoDist</b>) dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.";
+                if ($this->op->repo->section_exists($repoName, $repoDist, $repoSection) === false) $msg_error .= "Erreur (CP16) : La section <b>$repoSection</b> du repo <b>$repoName</b> (distribution <b>$repoDist</b>) dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.".PHP_EOL;
             }
         }
         /**
@@ -879,7 +880,7 @@ public function sendMail($title, $template) {
         $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
-        $this->op->action    = $datas['Action'];
+        $this->op->action = $datas['Action'];
         if (!empty($datas['Id_repo']))  $this->op->repo->id  = $datas['Id_repo'];
         if (!empty($datas['Id_group'])) $this->op->group->id = $datas['Id_group'];
 
@@ -898,14 +899,11 @@ public function sendMail($title, $template) {
         /**
          *  Les paramètres GPG Check et GPG Resign sont conservées de côté et seront pris en compte au début de l'exécution de exec_update()
          */
-        /*$this->op->repo->gpgCheck  = $datas['Gpgcheck'];
-        $this->op->repo->gpgResign = $datas['Gpgresign'];*/
         if (!empty($datas['Gpgcheck'])) {
             $this->op->gpgCheck   = $datas['Gpgcheck'];
             $this->op->repo->gpgCheck = $datas['Gpgcheck'];
         }
         if (!empty($datas['Gpgresign'])) {
-            //$this->op->repo->signed    = $this->op->repo->gpgResign;
             $this->op->gpgResign       = $datas['Gpgresign'];
             $this->op->repo->gpgResign = $datas['Gpgcheck'];
             $this->op->repo->signed    = $datas['Gpgcheck'];
