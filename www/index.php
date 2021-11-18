@@ -4,21 +4,20 @@
 <?php include('includes/head.inc.php'); ?>
 
 <?php
-  /**
-   *  Import des variables et fonctions nécessaires
-   */
-  require_once('functions/load_common_variables.php');
-  require_once('functions/load_display_variables.php');
-  require_once('functions/common-functions.php');
-  require_once('common.php');
-  require_once('class/Repo.php');
-  require_once('class/Group.php');
-  require_once('class/Planification.php');
-  $repo = new Repo();
-  $plan = new Planification();
+/**
+ *  Import des variables et fonctions nécessaires
+ */
+require_once('functions/load_common_variables.php');
+require_once('functions/load_display_variables.php');
+require_once('functions/common-functions.php');
+require_once('functions/repo.functions.php');
+require_once('models/Repo.php');
+require_once('models/Group.php');
+require_once('models/Planification.php');
+require_once('common.php');
 
-  // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
-  if (!empty($_GET['serverInfoSlideDivClose'])) {
+// Cas où on souhaite retirer une div ServerInfo de la page d'accueil
+if (!empty($_GET['serverInfoSlideDivClose'])) {
     // On récupère le nom de la div qu'on souhaite retirer
     $divToClose = validateData($_GET['serverInfoSlideDivClose']);
     // On récupère le contenu actuel de display.ini
@@ -35,14 +34,12 @@
     // rechargement de la page pour appliquer les modifications d'affichage
     header('Location: index.php');
     exit;
-  }
-?>
+} ?>
 
 <body>
 <?php include('includes/header.inc.php'); ?>
 
 <article>
-<!-- section 'conteneur' principal englobant toutes les sections de droite -->
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
 <section class="mainSectionRight">
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
@@ -51,13 +48,11 @@
         <?php include('includes/create-repo.inc.php'); ?> 
     </section>
 
-    <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
     <!-- GERER LES GROUPES -->
     <section class="right" id="groupsDiv">
         <?php include('includes/manage-groups.inc.php'); ?>
     </section>
 
-    <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
     <!-- GERER LES SOURCES -->
     <section class="right" id="sourcesDiv">
         <?php include('includes/manage-sources.inc.php'); ?>
@@ -66,18 +61,26 @@
     <section id="serverInfoContainer">
     <?php
     if ($display_serverInfo_reposInfo == "yes") {
-        // Récupération du total des repos actifs et repos archivés
+        /**
+         *  Récupération du total des repos actifs et repos archivés
+         */
+        $repo = new Repo();
         $totalRepos = $repo->countActive();
         $totalReposArchived = $repo->countArchived();
 
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
-        // nombre de repos/sections sur le serveur
+        
+        /**
+         *  Nombre de repos/sections sur le serveur
+         */
         if ($OS_FAMILY == "Redhat") echo '<p>Repos</p>';
         if ($OS_FAMILY == "Debian") echo '<p>Sections</p>';
         echo "<b>${totalRepos}</b>";
 
-        // nombre de repos/sections archivés sur le serveur
+        /**
+         *  Nombre de repos/sections archivés sur le serveur
+         */
         if ($OS_FAMILY == "Redhat") echo '<p>Repos archivés</p>';
         if ($OS_FAMILY == "Debian") echo '<p>Sections archivées</p>';
         echo "<b>${totalReposArchived}</b>";
@@ -89,10 +92,8 @@
      */
     function printSpace(string $path, string $name) {
         echo '<div class="serverInfo">';
-        echo "<a href=\"index.php?serverInfoSlideDivClose=${name}\" title=\"Fermer\"><img class=\"icon-invisible float-right\" src=\"icons/close.png\" /></a>";
-        
-        echo "<p>$path</p>";
-    
+        echo "<a href=\"index.php?serverInfoSlideDivClose=${name}\" title=\"Fermer\"><img class=\"icon-invisible float-right\" src=\"icons/close.png\" /></a>"; 
+        echo "<p>$path</p>";    
         $diskTotalSpace = disk_total_space($path);
         $diskFreeSpace = disk_free_space($path);
         $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
@@ -185,38 +186,29 @@
     ?>
         
     <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {
+        $plan = new Planification();
         echo '<div class="serverInfo">';
         echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
         echo '<p>Dernière planification</p>';
-        $lastPlan = $plan->last();
+        $lastPlan = $plan->listLast();
         if (empty($lastPlan)) {
             echo '<b>-</b>';
         } else {
             $lastPlanDate = DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y');
             $lastPlanTime = $lastPlan['Time'];
-            echo "<a href=\"planifications.php\"><b>${lastPlanDate} (${lastPlanTime})</b></a>";
+            echo "<a href=\"planifications.php\"><b>$lastPlanDate ($lastPlanTime)</b></a>";
         }
         echo '<p>Prochaine planification</p>';
-        $nextPlan = $plan->next();
+        $nextPlan = $plan->listNext();
         if (empty($nextPlan)) {
             echo '<b>-</b>';
         } else {
             $nextPlanDate = DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y');
             $nextPlanTime = $nextPlan['Time'];
-            echo "<a href=\"planifications.php\"><b>${nextPlanDate} (${nextPlanTime})</b></a>";
+            echo "<a href=\"planifications.php\"><b>$nextPlanDate ($nextPlanTime)</b></a>";
         }
         echo '</div>';
-    }
-    // Ne fonctionne pas correctement
-    /*if ($display_serverInfo_connectionInfo == "yes") {
-        echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=connectionInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
-        echo '<p>Connexions actives</p>';
-        $connections = exec("netstat -an | grep ${serverIP}:80 | grep ESTABLISHED | wc -l");
-        echo "<b>${connections}</b>";
-        echo '</div>';
-    }*/
-    ?>
+    } ?>
     </section>
 </section>
 

@@ -1,6 +1,5 @@
 @font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype'); }
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 /* Codes couleurs  
 
@@ -30,7 +29,6 @@ body {
     font-family: 'Roboto', sans-serif;
     margin: 0px;
     padding: 0px;
-    /*background-color: #333333;*/
     background-color: #262525;
     color: whitesmoke; /* couleur par défaut */
     overflow-x: hidden;
@@ -51,51 +49,6 @@ body {
      } 
 }
 
-.loader-wrapper {
-    width: 100%;
-    height: 100%;
-    /*float: left;*/
-    margin-top: 50px;
-    position: absolute;
-    top: 50;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .loader {
-    display: inline;
-    width: 30px;
-    height: 30px;
-    position: relative;
-    border: 4px solid #fff;
-    /*animation: loader 2s infinite ease;*/
-  }
-
-  /*
-  .loader-inner {
-    vertical-align: top;
-    display: inline-block;
-    width: 100%;
-    background-color: #fff;
-    animation: loader-inner 2s infinite ease-in;
-  }
-  
-  @keyframes loader {
-    0% { transform: rotate(0deg);}
-    25% { transform: rotate(180deg);}
-    50% { transform: rotate(180deg);}
-    75% { transform: rotate(360deg);}
-    100% { transform: rotate(360deg);}
-  }
-  @keyframes loader-inner {
-    0% { height: 0%;}
-    25% { height: 0%;}
-    50% { height: 100%;}
-    75% { height: 100%;}
-    100% { height: 0%;}
-  }*/
-
 a {
     text-decoration: none;
     /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
@@ -109,7 +62,7 @@ a:hover {
                   .25px .25px white;
 }
 
-p, label, a, span {
+p, label, a, i, span {
     font-size: 14px;
     color: whitesmoke;
     vertical-align: middle;
@@ -134,9 +87,9 @@ hr {
 .float-left { float: left; }
 .float-right { float: right; }
 .align-top { vertical-align: top; }
-.text-align-center { text-align: center; }
+.text-center { text-align: center; }
 .pointer { cursor: pointer; }
-/* Quelques classes génériques permettant de créer des textes de couleurs */
+/* Classes génériques permettant de créer des textes de couleurs */
 .greentext { color: #489f4d; }
 .redtext { color: #d9534f; }
 .yellowtext { color: #f0ad4e; }
@@ -145,6 +98,10 @@ hr {
 .baseline { vertical-align: baseline; }
 .lowopacity { opacity: 0.33; }
 .verylowopacity { opacity: 0.08; }
+/* Classes génériques permettant de créer des images de couleurs à partir d'images blanches https://codepen.io/sosuke/pen/Pjoqqp */
+.yellowimg { /* #f0ad4e */
+    filter: brightness(0) saturate(100%) invert(73%) sepia(30%) saturate(901%) hue-rotate(347deg) brightness(97%) contrast(93%);
+}
 
 /* Classes génériques permettant de créer des div ou autres block avec un fond défini et des bords arrondis */
 .background-gray {
@@ -155,23 +112,6 @@ hr {
      background-color: #252525;
      padding: 2px;
 }
-
-/* Affichage de version alpha/beta sous le titre du produit */
-/*#version {
-    width: 35px;
-    padding: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 6px;
-    vertical-align: middle;
-    text-align: center;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 9px;
-    font-weight: bold;
-    color: whitesmoke;
-    background-color:#489f4d;
-    border-radius: 1px;
-}*/
 
 header {
     width: 100%;
@@ -329,15 +269,26 @@ section.left, section.right, .section-center, section.missing-param-alert, #newR
     margin-bottom: 30px;
     padding: 10px;
     vertical-align: top;
-    border-radius: 2px;
+    border-radius: 4px;
     -webkit-box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
     box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
 }
 /* Paramètres supplémentaires pour les class ci-dessus */
-.section-center { width: 99%; margin: auto; }
-section.left { min-height: 300px; display: inline-block; }
-section.right, #newRepoSlideDiv { float: right; }
+.section-center {
+    width: 99%;
+    margin: auto;
+    margin-bottom: 30px;
+    min-height: 300px;
+    display: inline-block;
+}
+section.left { 
+    min-height: 300px; 
+    display: inline-block;
+}
+section.right, #newRepoSlideDiv {
+    float: right;
+}
 section.missing-param-alert {
     width: 99%;
     margin-left: auto;
@@ -349,7 +300,6 @@ section.missing-param-alert {
     width: 98%;
     padding: 10px;
     display: none;
-    /*overflow: hidden; /* cacher ce qui dépasse, pour que cette section soit complètement masqué par défaut */
 }
 
 #serverInfoContainer {
@@ -368,7 +318,7 @@ section.missing-param-alert {
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 2px 0px rgba(0,0,0,0.15); 
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 2px 0px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
-    border-radius: 2px;
+    border-radius: 4px;
     padding-top: 5px;
     padding-bottom: 5px;
     margin-bottom: 12px;
@@ -400,8 +350,6 @@ table {
 
 .table-large { width: 100%; }
 .table-medium { width: 65%; }
-/* réservé aux tableaux d'actions (opérations) sur la page d'index */
-table.actiontable { width: 100%; }
 table thead, .reposListHead { font-weight: bold; }
 
 table.list-repos {
@@ -596,7 +544,7 @@ td {
 
 /* form, button, input, textarea */
 
-input[type=text], input[type=date], input[type=time], input[type=number], input[type=color], select {
+input[type=text], input[type=date], input[type=time], input[type=number], input[type=email], input[type=color], select {
     width: 100%;
     height: 30px;
     margin-top: 1px;
@@ -614,19 +562,21 @@ input[type=color].color-xsmall { width: 50px; vertical-align: middle; }
 input[type=text].input-small, .select-small, input[type=color].color-small { width: 100px; }
 input[type=text].input-medium, .select-medium, input[type=color].color-medium { width: 150px; }
 input[type=text].input-large, .select-large, input[type=color].color-large { width: 250px; }
+input:checked { opacity: 1; }
 
 .select-xxlarge {
     width: 400px;
 }
 
 /* Tous les boutons */
-.button-submit-large-blue, .button-submit-medium-blue, .button-submit-small-blue, .button-submit-xsmall-blue, .button-submit-xxsmall-blue, .button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green, .button-submit-large-red, .button-submit-medium-red, .button-submit-small-red, .button-submit-xsmall-red, .button-submit-xxsmall-red
-{
-    height: 30px;
+.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red {
+    padding-top: 7px;
+    padding-bottom: 7px;
     border: none;
     border-radius: 2px;
     margin-top: 10px;
-    padding: 3px;
+    margin-left: 2px;
+    margin-right: 2px;
     color: whitesmoke;
     text-align: center;
     text-decoration: none;
@@ -635,51 +585,51 @@ input[type=text].input-large, .select-large, input[type=color].color-large { wid
     cursor: pointer;
 }
 /* Tous les boutons bleus */
-.button-submit-large-blue, .button-submit-medium-blue, .button-submit-small-blue, .button-submit-xsmall-blue, .button-submit-xxsmall-blue {
+.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue {
     background-color: #2b426e;
 }
 /* Tous les boutons verts */
-.button-submit-large-green, .button-submit-medium-green, .button-submit-small-green, .button-submit-xsmall-green, .button-submit-xxsmall-green {
+.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green {
     background-color: #489f4d;
 }
 /* Tous les boutons rouges */
-.button-submit-large-red, .button-submit-medium-red, .button-submit-small-red, .button-submit-xsmall-red, .button-submit-xxsmall-red {
+.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red {
     background-color: #d9534f;
 }
 /* Boutons taille large */
-.button-large, .button-submit-large-blue, .button-submit-large-green, .button-submit-large-red {
+.button-large, .btn-large-blue, .btn-large-green, .btn-large-red {
     width: 100%;
 }
 /* Boutons taille moyenne */
-.button-medium, .button-submit-medium-blue, .button-submit-medium-green, .button-submit-medium-red {
+.button-medium, .btn-medium-blue, .btn-medium-green, .btn-medium-red {
     width: 150px;
 }
 /* Boutons petite taille */
-.button-small, .button-submit-small-blue, .button-submit-small-green, .button-submit-small-red {
+.button-small, .btn-small-blue, .btn-small-green, .btn-small-red {
     width: 100px;
 }
 /* Boutons très petite taille */
-.button-xsmall, .button-submit-xsmall-blue, .button-submit-xsmall-green, .button-submit-xsmall-red {
+.button-xsmall, .btn-xsmall-blue, .btn-xsmall-green, .btn-xsmall-red {
     width: 50px;
 }
-/* Boutton carré */
-.button-xxsmall, .button-submit-xxsmall-blue, .button-submit-xxsmall-green, .button-submit-xxsmall-red {
-    padding: 2px;
+/* Boutons carré */
+.button-xxsmall, .btn-xxsmall-blue, .btn-xxsmall-green, .btn-xxsmall-red {
     margin: 2px;
     width: 30px;
 }
+
 /* Tous les boutons bleus :hover */
-.button-submit-large-blue:hover, .button-submit-medium-blue:hover, .button-submit-small-blue:hover, .button-submit-xsmall-blue:hover, .button-submit-xxsmall-blue:hover {
+.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover {
     transition-duration: 0.4s;
     background-color: #263859;
 }
 /* Tous les boutons verts :hover */
-.button-submit-large-green:hover, .button-submit-medium-green:hover, .button-submit-small-green:hover, .button-submit-xsmall-green:hover, .button-submit-xxsmall-green:hover {
+.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover {
     transition-duration: 0.4s;
     background-color: #3e8e41;
 }
 /* Tous les boutons rouges :hover */
-.button-submit-large-red:hover, .button-submit-medium-red:hover, .button-submit-small-red:hover, .button-submit-xsmall-red:hover, .button-submit-xxsmall-red:hover {
+.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover {
     transition-duration: 0.4s;
     background-color: #b14440;
 }
@@ -878,13 +828,13 @@ footer p { color: gray; }
 #planCronStatus img { width: 8px; }
 
 /* Boutons au sommet de la liste des repos permettant d'afficher les div cachées (groupes, repos sources) */
-#ReposListDisplayToggleButton, #ReposSourcesSlideUpButton, #GroupsListSlideUpButton {
+#ReposListDisplayToggleButton, #ReposSourcesToggleButton, #GroupsListToggleButton {
     padding-left: 8px;
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
-#newRepoSlideButton {
+#newRepoToggleButton {
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 7px;
@@ -892,11 +842,11 @@ footer p { color: gray; }
     border-radius: 5px;
 }
 
-#newRepoSlideButton:hover {
+#newRepoToggleButton:hover {
     background-color: #263859;
 }
 
-#ReposListDisplayToggleButton:hover, #ReposSourcesSlideUpButton:hover, #GroupsListSlideUpButton:hover {
+#ReposListDisplayToggleButton:hover, #ReposSourcesToggleButton:hover, #GroupsListToggleButton:hover {
     padding-left: 8px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -936,17 +886,17 @@ footer p { color: gray; }
     float: right;
 }
 
-.deleteAlert-delete, .deleteAlert-cancel {
+.btn-doDelete, .btn-cancelDelete {
     margin-left: 15px;
     margin-right: 15px;
     padding: 20px;
     border-radius: 4px;
     border: 1px solid black;
 }
-.deleteAlert-delete {
+.btn-doDelete {
     background-color: #d9534f;
 }
-.deleteAlert-delete:hover {
+.btn-doDelete:hover {
     background-color: #b14440;
 }
 
@@ -960,16 +910,16 @@ footer p { color: gray; }
     float: right;
 }
 
-#newRepoSlideButton:hover .hide {
+#newRepoToggleButton:hover .hide {
     display: inline-block;
     padding-left: 8px;
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
-.profileDiv {
+.profileDiv, .serverDiv {
     border-radius: 2px;
-    width: 49.3%;
+    width: 49.3% !important;
     margin: 4px;
     display: inline;
     background-color: #2b426e;
@@ -1053,15 +1003,18 @@ footer p { color: gray; }
     border-radius: 2px;
     padding-bottom: 8px;
     padding-top: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 .header-green-min, .header-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
     border-radius: 2px;
-    padding-bottom: 0px; /* pas de padding lorsqu'il y a un <input> */
+    /* pas de padding lorsqu'il y a un <input> */
+    padding-bottom: 0px;
     padding-top: 0px;
 }
 .header-green, .header-green-min { background-color: #489f4d; }
-.header-red, .header-red-min     { background-color: #d9534f; }
-.header-blue, .header-blue-min   { background-color: #2b426e; }
+.header-red,   .header-red-min   { background-color: #d9534f; }
+.header-blue,  .header-blue-min  { background-color: #2b426e; }
 
 #op_input_container {
     display: flex;

@@ -1,6 +1,6 @@
 <?php
-require_once('class/Group.php');
-require_once('class/Source.php');
+require_once('models/Group.php');
+require_once('models/Source.php');
 
 /**
  *  Récupération de la liste de tous les groupes
@@ -15,12 +15,12 @@ if ($OS_FAMILY == "Debian") {
     $source = new Source();
 }
 
-if ($OS_FAMILY == "Redhat") { echo '<h3>CRÉER UN NOUVEAU REPO</h3>'; }
-if ($OS_FAMILY == "Debian") { echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; }
+if ($OS_FAMILY == "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
+if ($OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
 
 echo '<form action="operation.php" method="get" class="actionform" autocomplete="off">';
 echo '<input name="action" type="hidden" value="new" />';
-echo '<table class="actiontable">';
+echo '<table class="table-large">';
 echo '<tr>';
 echo '<td>Type</td>';
 echo '<td class="td-medium">';
@@ -115,7 +115,7 @@ if (!empty($groupList)) {
     echo '</tr>';
 }
 echo '<tr>';
-echo '<td colspan="2"><button type="submit" class="button-submit-large-red">Valider</button></td>';
+echo '<td colspan="2"><button type="submit" class="btn-large-red">Valider</button></td>';
 echo '</tr>';
 echo '</table>';
 echo '</form>';
@@ -134,21 +134,13 @@ if ($("#repoType_mirror").is(":checked")) {
 /**
  *  Puis à chaque changement d'état, affiche ou masque les inputs supplémentaires en fonction de ce qui est coché
  */
-$('input:radio[name="repoType"]').change(
-    function(){
-        if ($("#repoType_mirror").is(":checked")) {
-            $(".type_mirror_input").show();
-            $(".type_local_input").hide();
-        } else {
-            $(".type_mirror_input").hide();
-            $(".type_local_input").show();
-        }
+$(document).on('change','input:radio[name="repoType"]',function(){
+    if ($("#repoType_mirror").is(":checked")) {
+        $(".type_mirror_input").show();
+        $(".type_local_input").hide();
+    } else {
+        $(".type_mirror_input").hide();
+        $(".type_local_input").show();
     }
-);
-
-/*
-$('#repoSourceSelect').select2({
-  closeOnSelect: false,
-  placeholder: 'Sélectionner un hôte source...'
-});*/
+});
 </script>

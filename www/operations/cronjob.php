@@ -10,7 +10,7 @@ $WWW_DIR = dirname(__FILE__, 2);
  *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
  */
 require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/class/Repo.php");
+require_once("${WWW_DIR}/models/Repo.php");
 
 $repo = new Repo();
 

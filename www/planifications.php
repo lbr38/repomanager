@@ -9,131 +9,80 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
+require_once('functions/repo.functions.php');
 require_once('common.php');
-require_once('class/Repo.php');
-require_once('class/Group.php');
-require_once('class/Planification.php');
-$repo  = new Repo();
-$group = new Group();
+require_once('models/Repo.php');
+require_once('models/Group.php');
+require_once('models/Planification.php');
 
 /**
  *  Cas où on ajoute une planification
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) === "addnewplan" AND !empty($_POST['addPlanDate']) AND !empty($_POST['addPlanTime']) AND !empty($_POST['addPlanAction'])) {
-    $error = 0; // un peu de gestion d'erreur
-    /**
-     *  On récupère les infos de la planification
-     */
-    $planDate = validateData($_POST['addPlanDate']);
-    $planTime = validateData($_POST['addPlanTime']);
-    $planAction = $_POST['addPlanAction']; // ne pas validateData() car ça transforme '->' en caractères échappés
-    /**
-     *  et les rappels si il y en a
-     */
-    if(!empty($_POST['addPlanReminder'])) {
-        $planReminder = '';
-        /**
-         *  On sépare chaque jour de rappel par une virgule
-         */
-        foreach ($_POST['addPlanReminder'] as $selectedOption) {
-            $selectedOption = validateData($selectedOption);
-            $planReminder = "${planReminder}${selectedOption},";
-        }
-        /**
-         *  Suppression de la dernière virgule
-         */
-        $planReminder = rtrim($planReminder, ",");
-    } 
+if (!empty($_POST['action']) AND validateData($_POST['action']) === "newPlan" AND !empty($_POST['addPlanAction'])) {
 
     /**
-     *  Si l'action sélectionnée dans le formulaire est 'update', alors on récupère les valeurs des boutons on/off GpgCheck et Gpgresign
+     *  On récupère les paramètres de la planification
      */
-    if ($planAction === "update") {
+    $myplan = new Planification();
+
+    $myplan->setAction($_POST['addPlanAction']);
+    if (!empty($_POST['addPlanDate'])) $myplan->setDate($_POST['addPlanDate']);
+    if (!empty($_POST['addPlanTime'])) $myplan->setTime($_POST['addPlanTime']);
+    if (!empty($_POST['addPlanType'])) $myplan->setType($_POST['addPlanType']);
+    if (!empty($_POST['addPlanFrequency'])) $myplan->setFrequency($_POST['addPlanFrequency']);
+    if (!empty($_POST['addPlanMailRecipient'])) $myplan->setMailRecipient($_POST['addPlanMailRecipient']);
+    if (!empty($_POST['addPlanReminder'])) $myplan->setReminder($_POST['addPlanReminder']);
+    if (!empty($_POST['addPlanNotificationOnError'])) {
+        $myplan->setNotification('on-error', 'yes');
+    } else {
+        $myplan->setNotification('on-error', 'no');
+    }
+    if (!empty($_POST['addPlanNotificationOnSuccess'])) {
+        $myplan->setNotification('on-success', 'yes');
+    } else {
+        $myplan->setNotification('on-success', 'no');
+    }
+
+    /**
+     *  Si l'action est 'update' alors on récupère les paramètres concernant GPG
+     */
+    if ($_POST['addPlanAction'] == 'update') {
         if (!empty($_POST['addPlanGpgCheck'])) {
-            $planGpgCheck = 'yes';
+            $myplan->setGpgCheck('yes');
         } else {
-            $planGpgCheck = 'no';
+            $myplan->setGpgCheck('no');
         }
 
         if (!empty($_POST['addPlanGpgResign'])) {
-            $planGpgResign = 'yes';
+            $myplan->setGpgResign('yes');
         } else {
-            $planGpgResign = 'no';
+            $myplan->setGpgResign('no');
         }
-
-        /**
-         *  On instancie un nouvel objet plan avec les infos qu'on a déjà
-         */
-        $planToAdd = new Planification(compact('planDate', 'planTime', 'planAction', 'planGpgCheck', 'planGpgResign', 'planReminder'));
-    } else {
-        $planToAdd = new Planification(compact('planDate', 'planTime', 'planAction', 'planReminder'));
     }
-
-    /**
-     *  On récupère soit un seul repo, soit un groupe, selon ce qui a été envoyé via le formulaire
-     */
-
+    
     /**
      *  Cas où c'est un repo seul
      */
-    if(!empty($_POST['addPlanRepoId'])) {
-        $repoId = validateData($_POST['addPlanRepoId']);
-
-        /**
-         *  Instancie un nouvel objet repo dans l'objet plan
-         */
-        $planToAdd->repo = new Repo(compact('repoId'));
-
-        /**
-         *  On vérifie que l'ID du repo ou de la section renseigné existe en BDD
-         */
-        if ($planToAdd->repo->existsId() === false) {
-            $error++;
-            printAlert("Le repo renseigné n'existe pas", 'error');
-        }
-    }
+    if(!empty($_POST['addPlanRepoId'])) $myplan->setRepoId($_POST['addPlanRepoId']);
 
     /**
      *  Cas où c'est un groupe
      */
-    if(!empty($_POST['addPlanGroupId'])) {
-        $groupId = validateData($_POST['addPlanGroupId']);
-        $planToAdd->group = new Group(compact('groupId'));
-
-        /**
-         *  On vérifie que l'ID du groupe renseigné existe en BDD
-         */
-        if (!empty($planToAdd->group->id)) {
-            if ($planToAdd->group->existsId() === false) {
-                printAlert("Le groupe renseigné n'existe pas", 'error');
-                $error++;
-            }
-        }
-    }
+    if(!empty($_POST['addPlanGroupId'])) $myplan->setGroupId($_POST['addPlanGroupId']);
 
     /**
-     *  Si les deux on été renseignés (repo et groupe), alors on affiche une erreur
+     *  Création de la planification
      */
-    if (!empty($planToAdd->repo->id) AND !empty($planToAdd->group->id)) {
-        printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux", 'error');
-        $error++;
-    }
-
-    /**
-     *  On traite uniquement si il n'y a pas eu d'erreur précédemment
-     */
-    if ($error === 0) {
-        $planToAdd->new();
-    }
+    $myplan->new();
 }
 
 /**
  *  Cas où on souhaite supprimer une planification
  */
 if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") AND !empty($_GET['planId'])) {
-    $planId = validateData($_GET['planId']);
-    $planToDelete = new Planification(compact('planId'));
-    $planToDelete->delete();
+    $myplan = new Planification();
+    $myplan->setId($_GET['planId']);
+    $myplan->remove();
 }
 ?>
 
@@ -175,12 +124,13 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
             </div>
 
             <?php
-            $i = 0;
             /**
              *  1. Récupération de la liste des planifications en liste d'attente ou en cours d'exécution
              */
             $plans = new Planification();
-            $planList = $plans->listQueue();
+            $planQueueList = $plans->listQueue();
+            $planRunningList = $plans->listRunning();
+            $planList = array_merge($planRunningList, $planQueueList);
 
             /**
              *  2. Affichage des planifications si il y en a
@@ -192,13 +142,27 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                 foreach($planList as $plan) {
                     $planGroup     = '';
                     $planId        = $plan['Id'];
-                    $planDate      = DateTime::createFromFormat('Y-m-d', $plan['Date'])->format('d-m-Y');
-                    $planTime      = $plan['Time'];
+                    $planType      = $plan['Type'];
+                    if (!empty($plan['Frequency'])) {
+                        $planFrequency = $plan['Frequency'];
+                    }
+                    if (!empty($plan['Date'])) {
+                        $planDate = DateTime::createFromFormat('Y-m-d', $plan['Date'])->format('d-m-Y');
+                    } else {
+                        $planDate = '';
+                    }
+                    if (!empty($plan['Time'])) {
+                        $planTime = $plan['Time'];
+                    } else {
+                        $planTime = '';
+                    }
                     $planAction    = $plan['Action'];
                     $planGroupId   = $plan['Id_group'];
                     $planRepoId    = $plan['Id_repo'];
                     $planGpgCheck  = $plan['Gpgcheck'];
                     $planGpgResign = $plan['Gpgresign'];
+                    $planNotificationOnError = $plan['Notification_error'];
+                    $planNotificationOnSuccess = $plan['Notification_success'];
                     $planStatus    = $plan['Status'];
                     $planLogfile   = $plan['Logfile'];
                     if (!empty($plan['Reminder']))
@@ -208,59 +172,72 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
 
                     /**
                      *  On définit si la planification traite un repo seul ou un groupe en fonction de si les variables sont vides ou non
-                     */
-                    echo '<div class="header-container">';
-                        echo '<div class="header-blue">';
-                            echo '<table>';
-                            echo '<tr>';
-                            echo '<td class="td-fit">';
-                            if ($planAction == "update") {
-                                echo "<img class=\"icon\" src=\"icons/update.png\" title=\"Type d'opération : $planAction\" />";
-                            } else {
-                                echo "<img class=\"icon\" src=\"icons/link.png\" title=\"Type d'opération : $planAction\" />";
-                            }
-                            echo '</td>';
-                            echo "<td class='td-small'>Prévue le <b>$planDate</b> à <b>$planTime</b></td>";
-                            /**
-                             *  Affichage du repo ou du groupe
-                             *  On possède l'ID du repo/groupe, il faut alors récupérer le nom en BDD
-                             */
-                            echo '<td>';
-                                if (!empty($planGroupId)) {
-                                    $group = new Group(array('groupId' => $planGroupId));
-                                    $group->db_getName();
-                                    $planGroup = $group->name;
-                                    echo "Groupe $planGroup";
-                                    unset($group);
-                                }
-                                if (!empty($planRepoId)) {
-                                    $repo  = new Repo(array('repoId' => $planRepoId));
-                                    $repo->db_getAllById();     // Récupération de toutes les infos concernant le repo
-                                    $planName = $repo->name;
-                                    echo $planName;
+                     */ ?>
+                    <div class="header-container">
+                        <div class="header-blue">
+                            <table>
+                            <tr>
+                                <td class="td-fit">
+                                <?php
+                                if ($planAction == "update") {
+                                    echo '<img class="icon" src="icons/update.png" title="Type d\'opération : '.$planAction.'" />';
+                                } else {
+                                    echo '<img class="icon" src="icons/link.png" title="Type d\'opération : '.$planAction.'" />';
+                                } ?>
+                                </td>
 
-                                    /**
-                                     *  Dans le cas de Debian, on affiche également la distribution et la section
-                                     */
-                                    if ($OS_FAMILY == "Debian") {
-                                        $planDist = $repo->dist;
-                                        $planSection = $repo->section;
-                                        echo " - $planDist";
-                                        echo " - $planSection";
+                                <?php
+                                if ($planType == "plan") {
+                                    echo '<td class="td-small">Prévue le <b>'.$planDate.'</b> à <b>'.$planTime.'</b></td>';
+                                }
+                                if ($planType == "regular") {
+                                    if ($planFrequency == "every-hour") {
+                                        echo '<td class="td-small">Toutes les heures</b></td>';
                                     }
-                                    unset($repo);
-                                }
-                            echo '</td>';
+                                    if ($planFrequency == "every-day") {
+                                        echo '<td class="td-small">Tous les jours à <b>'.$planTime.'</b></td>';
+                                    }
+                                } ?>
 
+                                <td>
+                                    <?php
+                                    if (!empty($planGroupId)) {
+                                        $group = new Group(array('groupId' => $planGroupId));
+                                        $group->db_getName();
+                                        $planGroup = $group->name;
+                                        echo "Groupe $planGroup";
+                                        unset($group);
+                                    }
+                                    if (!empty($planRepoId)) {
+                                        $repo = new Repo();
+                                        $repo->setId($planRepoId);
+                                        $repo->db_getAllById();     // Récupération de toutes les infos concernant le repo
+                                        $planName = $repo->name;
+                                        echo $planName;
+
+                                        /**
+                                         *  Dans le cas de Debian, on affiche également la distribution et la section
+                                         */
+                                        if ($OS_FAMILY == "Debian") {
+                                            $planDist = $repo->dist;
+                                            $planSection = $repo->section;
+                                            echo " - $planDist";
+                                            echo " - $planSection";
+                                        }
+                                        unset($repo);
+                                    } ?>
+                                </td>
+                            <?php
                             /**
                              *  Affichage de l'icone 'loupe' pour afficher les détails de la planification
                              */
                             echo '<td class="td-fit">';
-                            echo "<img id=\"planDetailsToggle${i}\" class=\"icon-lowopacity\" title=\"Afficher les détails\" src=\"icons/search.png\" />";
-                            if ($planStatus == "queued") echo "<img class=\"planDeleteToggle${i} icon-lowopacity\" title=\"Supprimer la planification\" src=\"icons/bin.png\" />";
+                            echo '<img class="planDetailsBtn icon-lowopacity" plan-id="'.$planId.'" title="Afficher les détails" src="icons/search.png" />';
+                            if ($planStatus == "queued") echo "<img class=\"planDeleteToggle-${planId} icon-lowopacity\" title=\"Supprimer la planification\" src=\"icons/bin.png\" />";
                             if ($planStatus == "running") echo 'en cours <img src="images/loading.gif" class="icon" title="en cours d\'exécution" />';
                             echo '</td>';
-                            deleteConfirm("Êtes-vous sûr de vouloir supprimer la planification du <b>$planDate</b> à <b>$planTime</b>", "?action=deletePlan&planId=${planId}", "planDeleteDiv${i}", "planDeleteToggle${i}");
+                            if ($planType == "plan")    deleteConfirm("Êtes-vous sûr de vouloir supprimer la planification du <b>$planDate</b> à <b>$planTime</b>", "?action=deletePlan&planId=${planId}", "planDeleteDiv-${planId}", "planDeleteToggle-${planId}");
+                            if ($planType == "regular") deleteConfirm("Êtes-vous sûr de vouloir supprimer la planification récurrente", "?action=deletePlan&planId=${planId}", "planDeleteDiv-${planId}", "planDeleteToggle-${planId}");
                             echo '</tr>';
                             echo '</table>';
                         echo '</div>';
@@ -268,205 +245,240 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                         /**
                          *  Div caché contenant les détails de la planification
                          */
-                        echo "<div id='planDetailsDiv${i}' class='hide planDetailsDiv'>";
-                                if ($planAction == "update") {
-                                    if (!empty($planGroup)) {
-                                        if ($OS_FAMILY == "Redhat") echo "<p>Mise à jour des repos ".envtag($DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
-                                        if ($OS_FAMILY == "Debian") echo "<p>Mise à jour des sections de repos ".envtag($DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
-                                    } else {
-                                        if ($OS_FAMILY == "Redhat") echo "<p>Mise à jour du repo <b>$planName</b> ".envtag($DEFAULT_ENV)."</p>";
-                                        if ($OS_FAMILY == "Debian") echo "<p>Mise à jour du repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b> ".envtag($DEFAULT_ENV)."</p>";
-                                    }
-                                    echo '<div>';
-                                        echo '<span>GPG Check</span>';
-                                        if ($planGpgCheck == "yes")
-                                            echo '<span><img src="icons/greencircle.png" class="icon-small" /> Activé</span>';
-                                        else 
-                                            echo '<span><img src="icons/redcircle.png" class="icon-small" /> Désactivé</span>';
-                                    echo '</div>';
-
-                                    echo '<div>';
-                                        echo '<span>GPG Resign</span>';
-                                        if ($planGpgResign == "yes") 
-                                            echo '<span><img src="icons/greencircle.png" class="icon-small" /> Activé</span>';
-                                        else 
-                                            echo '<span><img src="icons/redcircle.png" class="icon-small" /> Désactivé</span>';
-                                    echo '</div>';
+                        echo '<div class="hide planDetailsDiv" plan-id="'.$planId.'">';
+                            if ($planAction == "update") {
+                                if (!empty($planGroup)) {
+                                    if ($OS_FAMILY == "Redhat") echo "<p>Mise à jour des repos ".envtag($DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
+                                    if ($OS_FAMILY == "Debian") echo "<p>Mise à jour des sections de repos ".envtag($DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
                                 } else {
-                                    $envs = explode('->', $planAction);
-                                    $envTarget = $envs[0];
-                                    $envSource = $envs[1];
-                                    if (!empty($planGroup)) {
-                                        if ($OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les repos du groupe <b>$planGroup</b></p>";
-                                        if ($OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les sections de repos du groupe <b>$planGroup</b></p>";
-                                    } else {
-                                        if ($OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b></p>";
-                                        if ($OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b></p>";
-                                    }
+                                    if ($OS_FAMILY == "Redhat") echo "<p>Mise à jour du repo <b>$planName</b> ".envtag($DEFAULT_ENV)."</p>";
+                                    if ($OS_FAMILY == "Debian") echo "<p>Mise à jour du repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b> ".envtag($DEFAULT_ENV)."</p>";
                                 }
                                 echo '<div>';
-                                    echo '<span>Rappels</span>';
-                                    echo '<span>';
-                                    if ($planReminder == 'Aucun') {
-                                        echo 'Aucun';
-                                    } else {
-                                        $planReminder = explode(',', $planReminder);
-                                        foreach ($planReminder as $reminder) {
-                                            echo "$reminder jours avant<br>";
-                                        }
-                                    }
-                                    echo '</span>';
+                                    echo '<span>GPG Check</span>';
+                                    if ($planGpgCheck == "yes")
+                                        echo '<span><img src="icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    else 
+                                        echo '<span><img src="icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                 echo '</div>';
 
-
-                                if (!empty($planLogfile)) {
-                                    echo "<div><span>Log</span><span><a href=\"run.php?logfile=${planLogfile}\">Voir</a></span></div>";
+                                echo '<div>';
+                                    echo '<span>GPG Resign</span>';
+                                    if ($planGpgResign == "yes") 
+                                        echo '<span><img src="icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    else 
+                                        echo '<span><img src="icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                echo '</div>';
+                            } else {
+                                $envs = explode('->', $planAction);
+                                $envTarget = $envs[0];
+                                $envSource = $envs[1];
+                                if (!empty($planGroup)) {
+                                    if ($OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les repos du groupe <b>$planGroup</b></p>";
+                                    if ($OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les sections de repos du groupe <b>$planGroup</b></p>";
+                                } else {
+                                    if ($OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b></p>";
+                                    if ($OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b></p>";
                                 }
+                            }
+                            echo '<div>';
+                                echo '<span>Rappels</span>';
+                                echo '<span>';
+                                if ($planReminder == 'Aucun') {
+                                    echo 'Aucun';
+                                } else {
+                                    $planReminder = explode(',', $planReminder);
+                                    foreach ($planReminder as $reminder) {
+                                        echo "$reminder jours avant<br>";
+                                    }
+                                }
+                                echo '</span>';
+                            echo '</div>';
+
+                            if (!empty($planLogfile)) {
+                                echo "<div><span>Log</span><span><a href=\"run.php?logfile=${planLogfile}\">Voir</a></span></div>";
+                            }
                         echo '</div>';
                     echo '</div>';
-
-                    // Script JS pour afficher les détails cachés
-                    echo "<script>
-                    $(function() {
-                        $('#planDetailsToggle${i}').click(function() {
-                            $('#planDetailsDiv${i}').toggle(100);
-                        });
-                    });
-                    </script>";
-                    ++$i;
                 }
                 
                 echo '<br><hr><br>';
             } ?>
 
-            <form action="planifications.php" method="post" autocomplete="off">
-                <input type="hidden" name="action" value="addnewplan" />
+            <form action="planifications.php" class="actionform" method="post" autocomplete="off">
+                <input type="hidden" name="action" value="newPlan" />
                 <p><b><img src="icons/plus.png" class="icon" />Créer une planification</b></p>
                 <table class="table-large">
-                    <?php
-                    echo '<tr>';
-                    echo '<td class="td-fit">Date</td>';
-                    echo '<td colspan="100%"><input type="date" name="addPlanDate" required /></td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td class="td-fit">Heure</td>';
-                    echo '<td colspan="100%"><input type="time" name="addPlanTime" required /></td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td class="td-fit">Action</td>';
-                    echo '<td colspan="100%">';
-                    echo '<select name="addPlanAction" id="planSelect">';
-                    $lastEnv = '';
-                    foreach ($ENVS as $env) {
-                        if (!empty($lastEnv)) {
-                            //$nextEnv = exec("grep -A1 '$env' $ENV_CONF | grep -v '$env'");
-                            //if (!empty($nextEnv)) {
-                                //echo "<option value='${env}->${nextEnv}'>Faire pointer un environnement ${nextEnv} -> ${env}</option>";
-                            //}
-                            echo "<option value='${lastEnv}->${env}'>Faire pointer un environnement ${lastEnv} -> ${env}</option>";
-                        }
-
-                        $lastEnv = $env;
-                    }
-                    if ($ENVS_TOTAL >= 1) {
-                        echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${DEFAULT_ENV}</option>";
-                    }
-                    echo '</select>';
-                    echo '</td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td class="td-fit">Repo</td>';
-                    echo '<td>';
-                    echo '<select name="addPlanRepoId">';
-                    echo '<option value="">Sélectionnez un repo...</option>';
-
-                    /**
-                     *  Récupération de la liste des repos qui possèdent un environnement $DEFAULT_ENV
-                     */
-                    $repo = new Repo();
-                    $reposList = $repo->listAll_distinct_byEnv($DEFAULT_ENV);
-                    if (!empty($reposList)) {
-                        foreach($reposList as $myrepo) {
-                            $repoId = $myrepo['Id'];
-                            $repoName = $myrepo['Name'];
-                            if ($OS_FAMILY == "Debian") {
-                                $repoDist = $myrepo['Dist'];
-                                $repoSection = $myrepo['Section'];
-                            }
-
-                            /**
-                             *  On génère une <option> pour chaque repo
-                             */
-                            if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoId\">$repoName</option>";
-                            if ($OS_FAMILY == "Debian") echo "<option value=\"$repoId\">$repoName - $repoDist - $repoSection</option>";
-                        }
-                    }
-                    echo '</select>';
-                    echo '</td>';
-                    echo '<td class="td-fit">ou Groupe</td>';
-                    echo '<td>';
-                    echo '<select name="addPlanGroupId">';
-                    echo '<option value="">Sélectionnez un groupe...</option>';
-                    $group = new Group();
-                    $groupsList = $group->listAll();
-                    if (!empty($groupsList)) {
-                        foreach($groupsList as $group) {
-                            $groupId = $group['Id'];
-                            $groupName = $group['Name'];
-                            echo "<option value=\"${groupId}\">${groupName}</option>";
-                        }
-                    }
-                    echo '</select>';
-                    echo '</td>';
-                    echo '</tr>';
-                    echo '<tr class="hide hiddenGpgInput">';
-                    echo '<td class="td-fit">GPG check</td>';
-                    echo '<td>';
-                    echo '<label class="onoff-switch-label">';
-                    echo '<input name="addPlanGpgCheck" type="checkbox" class="onoff-switch-input" value="yes" checked />';
-                    echo '<span class="onoff-switch-slider"></span>';
-                    echo '</label>';
-                    echo '</td>';
-                    echo '</tr>';      
-                    echo '<tr class="hide hiddenGpgInput">';
-                    echo '<td class="td-fit">Signer avec GPG</td>';
-                    echo '<td>';
-                    echo '<label class="onoff-switch-label">';
-                    echo '<input name="addPlanGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
-                    echo '<span class="onoff-switch-slider"></span>';
-                    echo '</label>';
-                    echo '</td>';
-                    echo '</tr>';
-                    echo '<tr>';
-                    echo '<td class="td-fit">Rappels</td>';
-                    echo '<td colspan="100%">';
-                    echo '<select id="planReminderSelect" name="addPlanReminder[]" multiple>';
-                    echo '<option value="1">1 jour avant</option>';
-                    echo '<option value="2">2 jours avant</option>';
-                    echo '<option value="3" selected>3 jours avant</option>';
-                    echo '<option value="4">4 jours avant</option>';
-                    echo '<option value="5">5 jours avant</option>';
-                    echo '<option value="6">6 jours avant</option>';
-                    echo '<option value="7" selected>7 jours avant</option>';
-                    echo '<option value="8">8 jours avant</option>';
-                    echo '<option value="9">9 jours avant</option>';
-                    echo '<option value="10">10 jours avant</option>';
-                    echo '<option value="15">15 jours avant</option>';
-                    echo '<option value="20">20 jours avant</option>';
-                    echo '<option value="25">25 jours avant</option>';
-                    echo '<option value="30">30 jours avant</option>';
-                    echo '<option value="35">35 jours avant</option>';
-                    echo '<option value="40">40 jours avant</option>';
-                    echo '<option value="45">45 jours avant</option>';
-                    echo '<option value="50">50 jours avant</option>';
-                    echo '<option value="55">55 jours avant</option>';
-                    echo '<option value="60">60 jours avant</option>';
-                    echo '</select>';
-                    echo '</td>';
-                    echo "</tr>";
-                    ?>
                     <tr>
-                    <td colspan="100%"><button type="submit" class="button-submit-large-blue">Ajouter</button></td>
+                        <td>Type</td>
+                        <td class="td-medium">
+                            <div class="switch-field">
+                                <input type="radio" id="planType_plan" name="addPlanType" value="plan" checked />
+                                <label for="planType_plan">Tâche unique</label>
+                                <input type="radio" id="planType_regular" name="addPlanType" value="regular" />
+                                <label for="planType_regular">Tâche récurrente</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="__regular_plan_input hide">
+                        <td class="td-fit">Fréquence</td>
+                        <td>
+                            <select id="planFrequencySelect" name="addPlanFrequency">
+                                <option value="">Sélectionner...</option>
+                                <option id="planFrequency-every-hour" value="every-hour">toutes les heures</option>
+                                <option id="planFrequency-every-day" value="every-day">tous les jours</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="__plan_input">
+                        <td class="td-fit">Date</td>
+                        <td><input type="date" name="addPlanDate" /></td>
+                    </tr>
+                    <tr class="__plan_hour_input">
+                        <td class="td-fit">Heure</td>
+                        <td><input type="time" name="addPlanTime" /></td>
+                    </tr>
+                    <tr>
+                        <td class="td-fit">Action</td>
+                        <td>
+                            <select name="addPlanAction" id="planSelect">
+                            <?php
+                            $lastEnv = '';
+                            foreach ($ENVS as $env) {
+                                if (!empty($lastEnv)) {
+                                    echo "<option value='${lastEnv}->${env}'>Faire pointer un environnement ${lastEnv} -> ${env}</option>";
+                                }
+                                $lastEnv = $env;
+                            }
+                            if ($ENVS_TOTAL >= 1) {
+                                echo "<option value=\"update\" id=\"updateRepoSelect\">Mise à jour de l'environnement ${DEFAULT_ENV}</option>";
+                            } ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-fit">Repo</td>
+                        <td>
+                            <select name="addPlanRepoId">
+                                <option value="">Sélectionnez un repo...</option>
+                                <?php
+                                /**
+                                 *  Récupération de la liste des repos qui possèdent un environnement $DEFAULT_ENV
+                                 */
+                                $repo = new Repo();
+                                $reposList = $repo->listAll_distinct_byEnv($DEFAULT_ENV);
+                                if (!empty($reposList)) {
+                                    foreach($reposList as $myrepo) {
+                                        $repoId = $myrepo['Id'];
+                                        $repoName = $myrepo['Name'];
+                                        if ($OS_FAMILY == "Debian") {
+                                            $repoDist = $myrepo['Dist'];
+                                            $repoSection = $myrepo['Section'];
+                                        }
+
+                                        /**
+                                         *  On génère une <option> pour chaque repo
+                                         */
+                                        if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoId\">$repoName</option>";
+                                        if ($OS_FAMILY == "Debian") echo "<option value=\"$repoId\">$repoName - $repoDist - $repoSection</option>";
+                                    }
+                                } ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-fit">ou Groupe</td>
+                        <td>
+                            <select name="addPlanGroupId">
+                                <option value="">Sélectionnez un groupe...</option>
+                                <?php
+                                $group = new Group();
+                                $groupsList = $group->listAll();
+                                if (!empty($groupsList)) {
+                                    foreach($groupsList as $group) {
+                                        $groupId = $group['Id'];
+                                        $groupName = $group['Name'];
+                                        echo "<option value=\"${groupId}\">${groupName}</option>";
+                                    }
+                                } ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="__plan_gpg_input hide">
+                        <td colspan="100%"><hr><p><b>Paramètres GPG</b></p></td>
+                    </tr>
+                    <tr class="__plan_gpg_input hide">
+                        <td class="td-fit">Vérif. des sign. GPG</td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="addPlanGpgCheck" type="checkbox" class="onoff-switch-input" value="yes" checked />
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>      
+                    <tr class="__plan_gpg_input hide">
+                        <td class="td-fit">Signer avec GPG</td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="addPlanGpgResign" type="checkbox" class="onoff-switch-input" value="yes"<?php if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; }?> />
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%"><hr><p><b>Notifications mail</b></p></td>
+                    </tr>
+                    <tr>
+                        <td>Destinataire(s)</td>
+                        <td><input type="email" name="addPlanMailRecipient" placeholder="Adresses emails séparées par une virgule" value="<?php echo $EMAIL_DEST;?>" multiple /></td>
+                    </tr>
+                    <tr class="__plan_input">
+                        <td class="td-fit">Rappels de planification</td>
+                        <td>
+                            <select id="planReminderSelect" name="addPlanReminder[]" multiple>
+                                <option value="1">1 jour avant</option>
+                                <option value="2">2 jours avant</option>
+                                <option value="3" selected>3 jours avant</option>
+                                <option value="4">4 jours avant</option>
+                                <option value="5">5 jours avant</option>
+                                <option value="6">6 jours avant</option>
+                                <option value="7" selected>7 jours avant</option>
+                                <option value="8">8 jours avant</option>
+                                <option value="9">9 jours avant</option>
+                                <option value="10">10 jours avant</option>
+                                <option value="15">15 jours avant</option>
+                                <option value="20">20 jours avant</option>
+                                <option value="25">25 jours avant</option>
+                                <option value="30">30 jours avant</option>
+                                <option value="35">35 jours avant</option>
+                                <option value="40">40 jours avant</option>
+                                <option value="45">45 jours avant</option>
+                                <option value="50">50 jours avant</option>
+                                <option value="55">55 jours avant</option>
+                                <option value="60">60 jours avant</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-fit">Planification en erreur</td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="addPlanNotificationOnError" type="checkbox" class="onoff-switch-input" value="yes" checked />
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-fit">Planification terminée</td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="addPlanNotificationOnSuccess" type="checkbox" class="onoff-switch-input" value="yes" checked />
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%"><button type="submit" class="btn-large-blue">Ajouter</button></td>
                     </tr>
                 </table>
             </form>
@@ -477,9 +489,9 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
             $(function() {
             $("#planSelect").change(function() {
                 if ($("#updateRepoSelect").is(":selected")) {
-                    $(".hiddenGpgInput").show();
+                    $(".__plan_gpg_input").show();
                 } else {
-                    $(".hiddenGpgInput").hide();
+                    $(".__plan_gpg_input").hide();
                 }
             }).trigger('change');
             });
@@ -497,10 +509,11 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
          *  Affichage des planifications terminées si il y en a
          */
         $plansDone = $plans->listDone();
+
         if (!empty($plansDone)) {
             echo '<section class="right">';
                 echo '<p><img src="icons/history.png" class="icon" /><b>Historique des planifications</b></p>';
-                $i = 0; // Initialisation d'une variable qui servira pour chaque div d'erreur de planification caché, et affiché par js
+
                 foreach($plansDone as $plan) {
                     $planId        = $plan['Id'];
                     $planDate      = DateTime::createFromFormat('Y-m-d', $plan['Date'])->format('d-m-Y');
@@ -580,7 +593,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                             /**
                              *  Affichage de l'icone 'loupe' pour afficher les détails de la planification
                              */
-                            echo "<img id=\"planStatusToggle${i}\" class=\"icon-lowopacity\" title=\"Afficher les détails\" src=\"icons/search.png\" />";
+                            echo '<img class="planDetailsBtn icon-lowopacity" plan-id="'.$planId.'" title="Afficher les détails" src="icons/search.png" />';
                             echo '</td>';
                             echo '</tr>';
                             echo '</table>';
@@ -589,7 +602,7 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                         /**
                          *  Div caché contenant les détails de la planification
                          */
-                        echo "<div id=\"planStatusDiv${i}\" class=\"hide planDetailsDiv\">";
+                        echo '<div class="hide planDetailsDiv" plan-id="'.$planId.'">';
                             /**
                              *  Si la planification est en erreur alors on affiche le message d'erreur
                              */
@@ -639,41 +652,11 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
                                 echo '<div>';   
                                     if (!empty($planLogfile)) {
                                         echo '<span>Log</span>';
-                                        echo "<span><a href='run.php?logfile=$planLogfile'><button class='button-submit-xsmall-blue'><b>Voir</b></button></a></></span>";
+                                        echo "<span><a href='run.php?logfile=$planLogfile'><button class='btn-xsmall-blue'><b>Voir</b></button></a></></span>";
                                     }
                                 echo '</div>';
-
-                            /*echo '<table>';
-                                if ($planAction == "update") {
-                                    echo '<tr><td class="td-50"><b>GPG Check</b></td>';
-                                    if ($planGpgCheck == "yes")
-                                        echo '<td><img src="icons/greencircle.png" class="icon-small" /> Activé</td></tr>';
-                                    else
-                                        echo '<td><img src="icons/redcircle.png" class="icon-small" /> Désactivé</td></tr>';
-
-                                    echo '<tr><td class="td-50"><b>GPG Resign</b></td>';
-                                    if ($planGpgResign == "yes")
-                                        echo '<td><img src="icons/greencircle.png" class="icon-small" /> Activé</td></tr>';
-                                    else
-                                        echo '<td><img src="icons/redcircle.png" class="icon-small" /> Désactivé</td></tr>';
-                                }
-                                echo "<tr><td class=\"td-50\"><b>Rappels</b></td><td>$planReminder</td></tr>";
-                                if (!empty($planLogfile)) {
-                                    echo "<tr><td class=\"td-50\"><b>Log</b></td><td><a href=\"run.php?logfile=${planLogfile}\"><b>Voir</b></a></></td></tr>";
-                                }
-                            echo '</table>';*/
                         echo '</div>';
                     echo '</div>';
-
-                    // On injecte du code js pour pouvoir déployer le div contenant les détails de la planification
-                    echo "<script>
-                    $(function() {
-                        $('#planStatusToggle${i}').click(function() {
-                        $('#planStatusDiv${i}').toggle(100);
-                        });
-                    });
-                    </script>";
-                    ++$i;
                 }
             echo '</section>';
         } ?>

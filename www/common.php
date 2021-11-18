@@ -3,20 +3,6 @@
 // Des formulaires peuvent être communs à plusieurs pages (on retrouve le même formulaire sur plusieurs pages, par exemple pour les groupes), 
 // la récupération de leur valeur en POST et leur traitement est donc placé ici, pour éviter le code en doublon
 
-// MODIFICATION DES INFORMATIONS DANS LA LISTE DES REPOS //
-if (!empty($_POST['action']) AND validateData($_POST['action']) == "repoListEditRepo" AND !empty($_POST['repoListEditRepo_repoId']) AND !empty($_POST['repoListEditRepo_repoStatus'])) {
-    require_once("${WWW_DIR}/class/Repo.php");
-    $repoId = validateData($_POST['repoListEditRepo_repoId']);
-    $repoDescription = validateData($_POST['repoDescription']);
-    $repoStatus = validateData($_POST['repoListEditRepo_repoStatus']);
-
-    $myRepo = new Repo(compact('repoId', 'repoDescription', 'repoStatus'));
-    $myRepo->db_setdescription();
-
-    unset($repoId, $repoDescription, $repoStatus);
-}
-
-
 // AFFICHAGE DANS LISTE DES REPOS //
 
 if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDisplay") {
@@ -123,7 +109,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
     clearCache();
 
     // Puis rechargement de la page pour appliquer les modifications d'affichage
-    header("Location: $actual_url");
+    header("Location: $__ACTUAL_URL__");
     exit;
 }
 

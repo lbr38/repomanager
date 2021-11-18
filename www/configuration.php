@@ -9,8 +9,8 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
-require_once('common.php');
-require_once('class/Environnement.php');
+//require_once('common.php');
+require_once('models/Environnement.php');
 
 /**
  *  Mise à jour de Repomanager
@@ -51,7 +51,7 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
      *  On récupère la dernière version du script de mise à jour avant de l'exécuter
      */
     if ($error == 0) {
-        exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/update/repomanager-autoupdate -O ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        exec("wget https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/tools/repomanager-update -O ${WWW_DIR}/tools/repomanager-update", $output, $result);
         if ($result != 0) {
             $error++;
             $errorMsg = 'Erreur pendant le téléchargement de la mise à jour';
@@ -61,7 +61,7 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
      *  Exécution de la mise à jour
      */
     if ($error == 0) {    
-        exec("bash ${WWW_DIR}/update/repomanager-autoupdate", $output, $result);
+        exec("bash ${WWW_DIR}/tools/repomanager-update", $output, $result);
         if ($result != 0) {
             $error++;
             if ($result == 1) $errorMsg = "Erreur : numéro de version disponible sur github inconnu";
@@ -121,6 +121,15 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
         if (is_alphanumdash($emailDest, array('@', '.'))) {
             $repomanager_conf_array['CONFIGURATION']['EMAIL_DEST'] = trim($emailDest);
         }
+    }
+
+    /**
+     *  Si on souhaite activer ou non la gestion des hôtes
+     */
+    if (!empty($_POST['manageHosts']) AND validateData($_POST['manageHosts']) === "yes") {
+        $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'yes';
+    } else {
+        $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'no';
     }
 
     /**
@@ -576,7 +585,7 @@ if (!empty($_GET['deleteEnv'])) {
                 </td>
             </tr>
             <tr>
-                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour lors automatiquement si une mise à jour est disponible" />Mise à jour automatique</td>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour automatiquement si une mise à jour est disponible" />Mise à jour automatique</td>
                 <td>
                     <label class="onoff-switch-label">
                     <input name="updateAuto" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($UPDATE_AUTO == "yes") { echo 'checked'; }?> />
@@ -597,7 +606,7 @@ if (!empty($_GET['deleteEnv'])) {
                 <?php
                 if ($UPDATE_AVAILABLE == "yes") {
                     echo '<td class="td-fit">';
-                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="button-submit-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
+                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
                     echo '</td>';
                 }
                 if (empty($UPDATE_BRANCH)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
@@ -746,6 +755,24 @@ if (!empty($_GET['deleteEnv'])) {
                 <?php if (empty($WWW_REPOS_DIR_URL)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
                 </td>
             </tr>
+            
+        </table>
+
+        <br><h3>GESTION DU PARC</h3>
+        <table class="table-medium">
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Activer la gestion des hôtes utilisant yum-update-auto / apt-update-auto" />Activer la gestion des hôtes</td>
+                <td>
+                    <label class="onoff-switch-label">
+                    <input name="manageHosts" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($MANAGE_HOSTS == "yes") { echo 'checked'; }?> />
+                    <span class="onoff-switch-slider"></span>
+                    </label>
+
+                </td>
+                <td class="td-fit">
+                <?php if (empty($MANAGE_HOSTS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
             <tr>
                 <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Activer la gestion des profils pour les clients yum-update-auto / apt-update-auto (en cours de dev)" />Activer la gestion des profils</td>
                 <td>
@@ -847,7 +874,7 @@ if (!empty($_GET['deleteEnv'])) {
             echo '</tr>'; 
             } ?>
             <tr>
-                <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
+                <td><button type="submit" class="btn-medium-green">Enregistrer</button></td>
             </tr>
         </table>
         </form>
@@ -866,7 +893,7 @@ if (!empty($_GET['deleteEnv'])) {
                  */
                 $myenvs = new Environnement();
                 $envs = $myenvs->listAll();
-                //foreach ($ENVS as $env) {
+
                 foreach ($envs as $envName) {
                     echo '<tr>';
                     echo '<td>';
@@ -889,16 +916,91 @@ if (!empty($_GET['deleteEnv'])) {
             <input type="hidden" name="action" value="addNewEnv" />
             <tr>
                 <td><input type="text" name="newEnv" placeholder="Ajouter un nouvel environnement" /></td>
-                <td class="td-fit"><button type="submit" class="button-submit-xxsmall-blue">+</button></td>
+                <td class="td-fit"><button type="submit" class="btn-xxsmall-blue">+</button></td>
                 <td class="td-fit"><?php if (empty($ENVS)) { echo '<img src="icons/warning.png" class="icon" title="Au moins un environnement doit être configuré" />'; } ?></td>
                 <td></td>
             </tr>
         </form>
         </table>
 
+        <br><h3>BASES DE DONNÉES</h3>
+        <table class="table-large">
+            <tr>
+                <td class="td-fit">
+                    <img src="icons/info.png" class="icon-verylowopacity" title="Base de données principale de repomanager. L'application ne peut fonctionner si la base de données est en erreur." />
+                </td>
+                <td class="td-50">Principale</td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la présence du fichier de base de données
+                     */
+                    if (is_file("$WWW_DIR/db/repomanager.db")) {
+                        /**
+                         *  Vérification de la lisibilité du fichier
+                         */
+                        if (!is_readable("$WWW_DIR/db/repomanager.db")) {
+                            echo "Impossible de lire la base principale";
+                        } else {
+                            echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
+                        }
+
+                        /**
+                         *  Vérification de la présence des tables
+                         */
+                        
+
+
+                    } else {
+                        echo '<span>La base de données ne semble pas initialisée</span><img src="icons/redcircle.png" class="icon-small" />';
+                    }?>
+                </td>
+            </tr>
+
+            <?php
+            if ($CRON_STATS_ENABLED == "yes") { ?>
+            <tr>
+                <td class="td-fit">
+                    <img src="icons/info.png" class="icon-verylowopacity" title="Base de données des statistiques des repos." />
+                </td>
+                <td class="td-50">Stats</td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la présence du fichier de base de données
+                     */
+                    if (is_file("$WWW_DIR/db/repomanager-stats.db")) {
+                        /**
+                         *  Vérification de la lisibilité du fichier
+                         */
+                        if (!is_readable("$WWW_DIR/db/repomanager-stats.db")) {
+                            echo "Impossible de lire la base de données des statistiques";
+                        } else {
+                            echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
+                        }
+
+                        /**
+                         *  Vérification de la présence des tables
+                         */
+
+
+
+
+                    } else {
+                        echo '<span>La base de données ne semble pas initialisée</span><img src="icons/redcircle.png" class="icon-small" />';
+                    }?>
+                </td>
+            </tr>
+        <?php } ?>
+        </table>
+
+        <!--<form action="configuration.php" method="post">
+            <input type="hidden" name="action" value="deployDatabases" />
+        </form>-->
+
         <br><h3>CRONS</h3>
         <form action="configuration.php" method="post">
-        <input type="hidden" name="action" value="applyCronConfiguration" />
+            <input type="hidden" name="action" value="applyCronConfiguration" />
             <table class="table-large">
                 <tr>
                     <td class="td-fit">
@@ -1054,30 +1156,30 @@ if (!empty($_GET['deleteEnv'])) {
             } ?>
             <tr>
                 <td colspan="100%">
-                    <button type="submit" class="button-submit-medium-green">Enregistrer</button>
-                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="button-submit-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="↻">
+                    <button type="submit" class="btn-medium-green">Enregistrer</button>
+                    <input type="button" onclick="location.href='configuration.php?action=enableCron'" class="btn-xxsmall-green" title="Re-déployer les tâches dans la crontab" value="↻">
                 </td>
             </tr>
             </table>
         </form>
 
-        <br><h3>MODE DEBUG</h3>
+        <!--<br><h3>MODE DEBUG</h3>
         <form action="configuration.php" method="post">
         <input type="hidden" name="action" value="applyDebugConfiguration" />
             <table class="table-medium">
                 <tr>
                     <td>
                         <label class="onoff-switch-label">
-                        <input name="debugMode" type="checkbox" class="onoff-switch-input" value="enabled" <?php if ($DEBUG_MODE == "enabled") { echo 'checked'; }?> />
+                        <input name="debugMode" type="checkbox" class="onoff-switch-input" value="enabled" <?php //if ($DEBUG_MODE == "enabled") { echo 'checked'; }?> />
                         <span class="onoff-switch-slider"></span>
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <td><button type="submit" class="button-submit-medium-green">Enregistrer</button></td>
+                    <td><button type="submit" class="btn-medium-green">Enregistrer</button></td>
                 </tr>
             </table>
-        </form>
+        </form>-->
     </section>
 </section>
 </article>

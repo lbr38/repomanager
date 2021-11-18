@@ -9,8 +9,7 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
-require_once('common.php');
-require_once('class/Repo.php');
+require_once('models/Repo.php');
 
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
@@ -42,7 +41,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === 'reconstruct
      *  Rafraichissement de la page
      */
     sleep(1);
-    header("Location: $actual_url");
+    header("Location: $__ACTUAL_URL__");
     exit;
 }
 
@@ -241,14 +240,22 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
          *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
          */
-        if (!is_alphanumdash($packageName, array('.', '/'))) {
+        if (!is_alphanumdash($packageName, array('.', '/', '+', '~'))) {
             continue;
         }
 
         /**
          *  On vérifie que le chemin du fichier commence bien par $REPOS_DIR et on supprime
+         *  Empeche une personne mal intentionnée de fournir un chemin qui n'a aucun rapport avec le répertoire de repos (par exemple /etc/... )
          */
         if (preg_match("#^${REPOS_DIR}#", $packagePath)) {
+            /**
+             *  On vérifie que le fichier ciblé se termine par .deb ou .rpm sinon on passe au suivant
+             */
+            if (!preg_match("#.deb$#", $packagePath) AND !preg_match("#.rpm$#", $packagePath)) {
+                continue;
+            }
+
             /**
              *  Si le fichier n'existe pas, on l'ignore et on passe au suivant
              */
@@ -386,7 +393,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                 if ($pathError === 0) {
                     echo '<form action="" method="post" />';
                     echo '<input type="hidden" name="action" value="deletePackages" />';
-                    echo '<button type="submit" class="button-submit-medium-red">Supprimer la sélection</button>';
+                    echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
                     
                     /**
                      *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
@@ -454,14 +461,15 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                     /**
                      *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                      */
-                    if (empty($opRunning_update) AND empty($opRunning_reconstruct)) {
-                        echo '<p>Uploader des packages :</p>';
-                        echo '<form action="" method="post" enctype="multipart/form-data">';
-                        echo '<input type="hidden" name="action" value="uploadPackage" />';
-                        echo '<input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />';
-                        echo '<button type="submit" class="button-submit-medium-blue">Ajouter</button>';
-                        echo '</form>';
+                    if (empty($opRunning_update) AND empty($opRunning_reconstruct)) { ?>
+                        <p>Uploader des packages :</p>
+                        <form action="" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="action" value="uploadPackage" />
+                            <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
+                            <button type="submit" class="btn-medium-blue">Ajouter</button>
+                        </form>
 
+                        <?php
                         /**
                          *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
                          */
@@ -469,22 +477,23 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                         if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
                         if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
                         if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
-
-                        echo '<hr>';
+                        ?>
+                        <hr>
                 
-                        echo '<p><span id="rebuild-button" class="pointer"><img src="icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>';
-                        echo '<form id="hidden-form" class="hide" action="" method="post">';
-                        echo '<input type="hidden" name="action" value="reconstruct">';
-                        echo '<input type="hidden" name="repoId" value="'.$repoId.'">';
-                        echo '<span>Signer avec GPG </span>';
-                        echo '<label class="onoff-switch-label">';
-                        echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
-                        echo '<span class="onoff-switch-slider"></span>';
-                        echo '</label>';
-                        echo '<span class="graytext">  (La signature avec GPG peut rallonger le temps de l\'opération)</span>';
-                        echo '<br>';
-                        echo '<button type="submit" class="button-submit-medium-red"><img src="icons/rocket.png" class="icon" />Exécuter</button>';
-                        echo '</form>';
+                        <p><span id="rebuild-button" class="pointer"><img src="icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
+                        <form id="hidden-form" class="hide" action="" method="post">
+                            <input type="hidden" name="action" value="reconstruct">
+                            <input type="hidden" name="repoId" value="'.$repoId.'">
+                            <span>Signer avec GPG </span>
+                            <label class="onoff-switch-label">
+                            <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
+                            <span class="onoff-switch-slider"></span>
+                            </label>
+                            <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
+                            <br>
+                            <button type="submit" class="btn-medium-red"><img src="icons/rocket.png" class="icon" />Exécuter</button>
+                        </form>
+                    <?php
                     }
                 
                 } else {
@@ -502,50 +511,4 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
 
 <?php include('includes/footer.inc.php'); ?>
 </body>
-
-<script>
-    $(function() {
-	// hide all the sub-menus
-	$("span.explorer-toggle").next().hide();
-
-	// add a link nudging animation effect to each link
-    $("#explorer a, #explorer span.explorer-toggle").hover(
-        function() {
-            $(this).stop().animate( {
-                paddingLeft: '10px',
-            }, 200);
-        },
-        function() {
-            $(this).stop().animate( {
-                paddingLeft: '0',
-            }, 200);
-        }
-    );
-
-	// set the cursor of the toggling span elements
-	$("span.explorer-toggle").css("cursor", "pointer");
-
-	// prepend a plus sign to signify that the sub-menus aren't expanded
-	$("span.explorer-toggle").prepend("+ ");
-
-	// add a click function that toggles the sub-menu when the corresponding
-	// span element is clicked
-	$("span.explorer-toggle").click(function() {
-		$(this).next().toggle(200);
-
-		// switch the plus to a minus sign or vice-versa
-		var v = $(this).html().substring( 0, 1 );
-		if ( v == "+" )
-			$(this).html( "-" + $(this).html().substring( 1 ) );
-		else if ( v == "-" )
-			$(this).html( "+" + $(this).html().substring( 1 ) );
-	});
-});
-
-$(function() {
-    $('#rebuild-button').click(function() {
-        $('#hidden-form').toggle(200);
-    });
-});
-</script>
 </html>

@@ -9,8 +9,9 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
+require_once('functions/repo.functions.php');
 require_once('common.php');
-require_once('class/Operation.php');
+require_once('models/Operation.php');
 ?>
 
 <body>

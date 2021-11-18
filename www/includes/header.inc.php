@@ -21,28 +21,33 @@ if ($DEBUG_MODE == "enabled") {
       <ul class="menu">
         <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
-        if ($actual_uri == '/index.php' OR $actual_uri == '/operation.php' OR $actual_uri == '/explore.php') {
+        if ($__ACTUAL_URI__ == '/index.php' OR $__ACTUAL_URI__ == '/operation.php' OR $__ACTUAL_URI__ == '/explore.php') {
             echo '<li><a href="index.php"><span class="underline">Opérations</span></a></li>';
         } else {
             echo '<li><a href="index.php"><span>Opérations</span></a></li>';
         }
-
         if ($AUTOMATISATION_ENABLED == "yes") {
-            if ($actual_uri == '/planifications.php') {
+            if ($__ACTUAL_URI__ == '/planifications.php') {
                 echo '<li><a href="planifications.php"><span class="underline">Planifications</span></a></li>';
             } else {
                 echo '<li><a href="planifications.php"><span>Planifications</span></a></li>';
             }
         }
+        if ($MANAGE_HOSTS == "yes") {
+            if ($__ACTUAL_URI__ == '/hosts.php') {
+                echo '<li><a href="hosts.php"><span class="underline">Gestion des hôtes</span></a></li>';
+            } else {
+                echo '<li><a href="hosts.php"><span>Gestion des hôtes</span></a></li>';
+            }
+        }
         if ($MANAGE_PROFILES == "yes") {
-            if ($actual_uri == '/profiles.php') {
+            if ($__ACTUAL_URI__ == '/profiles.php') {
                 echo '<li><a href="profiles.php"><span class="underline">Gestion des profils</span></a></li>';
             } else {
                 echo '<li><a href="profiles.php"><span>Gestion des profils</span></a></li>';
             }
         }
-        
-        if ($actual_uri == '/configuration.php') {
+        if ($__ACTUAL_URI__ == '/configuration.php') {
             echo '<li><a href="configuration.php"><span class="underline">Configuration</span></a></li>';
         } else {
             echo '<li><a href="configuration.php"><span>Configuration</span></a></li>';
@@ -50,7 +55,7 @@ if ($DEBUG_MODE == "enabled") {
 
         echo '<li id="header-refresh-container">';
         echo '<div class="li-op-subdiv">';
-            require_once("$WWW_DIR/class/Operation.php");
+            require_once("$WWW_DIR/models/Operation.php");
             $op = new Operation();
             $opsRunning = $op->listRunning('manual');
             $plansRunning = $op->listRunning('plan');
@@ -167,7 +172,6 @@ if ($DEBUG_MODE == "enabled") {
                     if ($opAction == "deleteSection") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Suppression ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                 }
                 echo '</ul>';
-                //echo '</li>';
                 echo '</div>';
             }
 
@@ -270,7 +274,6 @@ if ($DEBUG_MODE == "enabled") {
                     }
                 }
                 echo '</ul>';
-                //echo '</li>';
                 echo '</div>';
             }
 

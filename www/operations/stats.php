@@ -10,9 +10,8 @@ $WWW_DIR = dirname(__FILE__, 2);
  *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
  */
 require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/class/Repo.php");
-//require_once("${WWW_DIR}/class/Database.php");
-require_once("${WWW_DIR}/class/Database-stats.php");
+require_once("${WWW_DIR}/models/Repo.php");
+require_once("${WWW_DIR}/models/Stat.php");
 
 $repo = new Repo();
 
@@ -31,11 +30,6 @@ if ($CRON_STATS_ENABLED == "yes") {
                 $repoSection = $repo['Section'];
             }
             $repoEnv = $repo['Env'];
-
-            /**
-             *  Ouverture de la BDD
-             */
-            $stats_db = new Database_stats();
 
             if ($OS_FAMILY == "Redhat") {
                 if (file_exists("${REPOS_DIR}/${repoName}_${repoEnv}")) {
@@ -68,13 +62,24 @@ if ($CRON_STATS_ENABLED == "yes") {
              *  Ajout de la taille dans la table size
              */
             if (!empty($repoSize)) {
-                $stmt = $stats_db->prepare("INSERT INTO stats (Date, Time, Id_repo, Size, Packages_count) VALUES (:date, :time, :id_repo, :size, :packages_count)");
+                /**
+                 *  Ouverture de la BDD
+                 */
+                $mystats = new Stat();
+                $mystats->getConnection('stats', 'rw');
+                
+                $stmt = $mystats->db->prepare("INSERT INTO stats (Date, Time, Id_repo, Size, Packages_count) VALUES (:date, :time, :id_repo, :size, :packages_count)");
                 $stmt->bindValue(':date', date('Y-m-d'));
                 $stmt->bindValue(':time', date('H:i:s'));
                 $stmt->bindValue(':id_repo', $repoId);
                 $stmt->bindValue(':size', $repoSize);
                 $stmt->bindValue(':packages_count', $packagesCount);
                 $stmt->execute();
+
+                /**
+                 *  Fermeture de la BDD
+                 */
+                $mystats->closeConnection();
             }
         }
     }
