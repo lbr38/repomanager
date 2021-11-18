@@ -11,7 +11,8 @@ $WWW_DIR = dirname(__FILE__, 2);
  */
 require_once("${WWW_DIR}/functions/load_common_variables.php");
 require_once("${WWW_DIR}/class/Repo.php");
-require_once("${WWW_DIR}/class/Database.php");
+//require_once("${WWW_DIR}/class/Database.php");
+require_once("${WWW_DIR}/class/Database-stats.php");
 
 $repo = new Repo();
 

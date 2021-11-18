@@ -65,6 +65,8 @@ class Group {
         $stmt->bindValue(':name', $name);
         $stmt->execute();
 
+        clearCache();
+
         printAlert("Le groupe <b>${name}</b> a été créé", 'success');
         slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${name}"); // puis affichage de la configuration du nouveau groupe créé
@@ -120,6 +122,8 @@ class Group {
         $stmt->bindValue(':actualname', $actualName);
         $stmt->execute();
 
+        clearCache();
+
         printAlert("Le groupe <b>$actualName</b> a été renommé en <b>$newName</b>", 'success');
         slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes
         showdiv_byid("groupConfigurationDiv-${newName}"); // puis affichage de la configuration du groupe renommé
@@ -165,6 +169,8 @@ class Group {
         $stmt = $this->db->prepare("DELETE FROM groups WHERE Name=:name");
         $stmt->bindValue(':name', $name);
         $stmt->execute();
+
+        clearCache();
 
         printAlert("Le groupe <b>${name}</b> a été supprimé", 'success');
         slidediv_byid('groupsDiv');
@@ -232,62 +238,45 @@ class Group {
     }
 
 /**
- *  LISTER TOUS LES REPOS D'UN GROUPE (DISTINCT)
- *  Liste les noms des repos uniquement avec un DISTINCT, car un repo peut avoir plusieurs environnements et donc apparaitre en double, ce qu'on ne veut pas
+ *  LISTER TOUS LES REPOS MEMBRES D'UN GROUPE EN FILTRANT PAR ENVIRONNEMENT
  */
-    public function listReposNamesDistinct(string $groupName) {
+    public function listReposMembers_byEnv(string $groupName, string $env) {
         global $OS_FAMILY;
 
-        /**
-         *  Si le groupe est 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe 
-         */
-        if ($groupName == 'Default') {
-            if ($OS_FAMILY == "Redhat") {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id, repos.Name FROM repos
-                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name ASC");
-            }
-            if ($OS_FAMILY == "Debian") {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section FROM repos
-                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name ASC, repos.Dist ASC");
-            }            
-        } else {
-            if ($OS_FAMILY == "Redhat") {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
-                FROM repos
-                INNER JOIN group_members
-                    ON repos.Id = group_members.Id_repo
-                INNER JOIN groups
-                    ON groups.Id = group_members.Id_group
-                WHERE groups.Name=:groupname
-                AND repos.Status = 'active'
-                ORDER BY repos.Name ASC");
-                $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
-            }
-                if ($OS_FAMILY == "Debian") {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
-                FROM repos
-                INNER JOIN group_members
-                    ON repos.Id = group_members.Id_repo
-                INNER JOIN groups
-                    ON groups.Id = group_members.Id_group
-                WHERE groups.Name=:groupname
-                AND repos.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Dist ASC");
-                $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
-            }
-
-            unset($stmt);
+        if ($OS_FAMILY == "Redhat") {
+            $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
+            FROM repos
+            INNER JOIN group_members
+                ON repos.Id = group_members.Id_repo
+            INNER JOIN groups
+                ON groups.Id = group_members.Id_group
+            WHERE groups.Name=:groupname
+            AND repos.Env=:env
+            AND repos.Status = 'active'
+            ORDER BY repos.Name ASC");
         }
+        if ($OS_FAMILY == "Debian") {
+            $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
+            FROM repos
+            INNER JOIN group_members
+                ON repos.Id = group_members.Id_repo
+            INNER JOIN groups
+                ON groups.Id = group_members.Id_group
+            WHERE groups.Name=:groupname
+            AND repos.Env=:env
+            AND repos.Status = 'active'
+            ORDER BY repos.Name ASC, repos.Dist ASC");
+        }
+        $stmt->bindValue(':env', $env);
+        $stmt->bindValue(':groupname', $groupName);
+        $reposInGroup = $stmt->execute();
+        unset($stmt);
+
+        $reposIn = array();
 
         while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) $reposIn[] = $datas;
 
-        if (!empty($reposIn)) {
-            return $reposIn;
-        }
+        return $reposIn;
     }
 
 
@@ -489,6 +478,8 @@ class Group {
                 $stmt->execute();
             }
         }
+
+        clearCache();
 
         printAlert('Modifications prises en compte', 'success');
         slidediv_byid('groupsDiv'); // ré-affichage du volet gestion des groupes

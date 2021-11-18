@@ -387,6 +387,11 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyConfig
     }
 
     save($repomanager_conf_array);
+
+    /**
+     *  Nettoyage du cache de repos-list
+     */
+    clearCache();
 }
 
 /**
@@ -502,6 +507,11 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "addNewEnv")
         $myenv = new Environnement(array('envName' => validateData($_POST['newEnv'])));
         $myenv->new();
     }
+
+    /**
+     *  Nettoyage du cache de repos-list
+     */
+    clearCache();
 }
 
 /**
@@ -513,6 +523,11 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvCon
         $myenv = new Environnement();
         $myenv->edit($_POST['actualEnv']);
     }
+
+    /**
+     *  Nettoyage du cache de repos-list
+     */
+    clearCache();
 } 
 
 /**
@@ -521,6 +536,11 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyEnvCon
 if (!empty($_GET['deleteEnv'])) {
     $myenv = new Environnement(array('envName' => validateData($_GET['deleteEnv'])));
     $myenv->delete();
+
+    /**
+     *  Nettoyage du cache de repos-list
+     */
+    clearCache();
 }
 ?>
 
