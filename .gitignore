@@ -11,6 +11,8 @@ hosts.conf
 planifications.conf
 repomanager.conf
 push.sh
+jsconfig.json
+WIP
 
 
 # Compiled source #

@@ -9,9 +9,9 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
-require_once('common.php');
-require_once('class/Repo.php');
-require_once('class/Profile.php');
+//require_once('common.php');
+require_once('models/Repo.php');
+require_once('models/Profile.php');
 
 // Créer le répertoire principal des profils si n'existe pas
 if (!file_exists($PROFILES_MAIN_DIR)) mkdir($PROFILES_MAIN_DIR, 0775, true);
@@ -33,23 +33,23 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyServer
     if (!empty($_POST['serverConf_manageClients_reposConf'])) { $serverConf_manageClients_reposConf = validateData($_POST['serverConf_manageClients_reposConf']); } else { $serverConf_manageClients_reposConf = 'no'; }
 
     // On forge le bloc de conf qu'on va écrire dans le fichier
-    $conf = "[REPOSERVER]\n";
-    //$conf = "${conf}URL=\"https://${WWW_HOSTNAME}\"\n";
-    $conf .= "URL=\"http://${WWW_HOSTNAME}\"\n";
-    $conf .= "PROFILES_URL=\"${WWW_PROFILES_DIR_URL}\"\n";
-    $conf .= "OS_FAMILY=\"${OS_FAMILY}\"\n";
-    $conf .= "OS_NAME=\"${OS_NAME}\"\n";
-    $conf .= "OS_VERSION=\"${OS_VERSION}\"\n";
+    $conf = '[REPOSERVER]'.PHP_EOL;
+    $conf .= "IP=\"$__SERVER_IP__\"".PHP_EOL;
+    $conf .= "URL=\"$__SERVER_URL__\"".PHP_EOL;
+    $conf .= "PROFILES_URL=\"${WWW_PROFILES_DIR_URL}\"".PHP_EOL;
+    $conf .= "OS_FAMILY=\"${OS_FAMILY}\"".PHP_EOL;
+    $conf .= "OS_NAME=\"${OS_NAME}\"".PHP_EOL;
+    $conf .= "OS_VERSION=\"${OS_VERSION}\"".PHP_EOL;
     // Sur les systèmes CentOS il est possible de modifier la variable releasever, permettant de faire des miroirs de version de paquets différent de l'OS
     // Si c'est le cas, ($RELEASEVER différent de la version d'OS_VERSION alors il faut indiquer aux serveurs clients que ce serveur gère des paquets de version $RELEASEVER)
     if (!empty($RELEASEVER) AND $RELEASEVER !== $OS_VERSION) {
-        $conf = "${conf}PACKAGES_OS_VERSION=\"${RELEASEVER}\"\n";
+        $conf .= "PACKAGES_OS_VERSION=\"${RELEASEVER}\"".PHP_EOL;
     }
-    $conf = "${conf}MANAGE_CLIENTS_CONF=\"${serverConf_manageClientsConf}\"\n";
-    $conf = "${conf}MANAGE_CLIENTS_REPOSCONF=\"${serverConf_manageClients_reposConf}\"\n";
+    $conf .= "MANAGE_CLIENTS_CONF=\"${serverConf_manageClientsConf}\"".PHP_EOL;
+    $conf .= "MANAGE_CLIENTS_REPOSCONF=\"${serverConf_manageClients_reposConf}\"".PHP_EOL;
 
     // Ajout de la conf au fichier de conf serveur
-    file_put_contents("$PROFILE_SERVER_CONF", $conf);
+    file_put_contents($PROFILE_SERVER_CONF, $conf);
 
     // Affichage d'un message
     printAlert("La configuration du serveur a été enregistrée", 'success');
@@ -115,7 +115,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
         <p>Créer un nouveau profil :</p>
         <form action="profiles.php" method="post" autocomplete="off">
             <input type="text" name="newProfile" class="input-medium" />
-            <button type="submit" class="button-submit-xxsmall-blue" title="Ajouter">+</button>
+            <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
         </form>
         <br>
         <?php
@@ -344,7 +344,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                         }
                         // On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no :
                         if ($serverConf_manageClients_reposConf == "yes" OR $serverConf_manageClientsConf == "yes") {
-                            echo '<button type="submit" class="button-submit-large-green">Enregistrer</button>';
+                            echo '<button type="submit" class="btn-large-green">Enregistrer</button>';
                         }
                         echo '</form>';
                         echo '</div>'; // Fermture de profileConfigurationDiv
@@ -370,9 +370,9 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
 <section class="mainSectionRight">
     <section class="right">
         <h3>CONFIGURATION DE CE SERVEUR</h3>
-        <form action="profiles.php" method="post" autocomplete="off">
+        <form action="profiles.php" method="post" class="actionform" autocomplete="off">
             <input type="hidden" name="action" value="applyServerConfiguration" />
-            <table class="table-large background-gray">
+            <table class="table-large">
             <tr>
                 <td><img src="icons/info.png" class="icon-verylowopacity" title="Permet aux serveurs clients de récupérer la configuration de leur profil avec http. Sous-répertoire du répertoire des repos. Non-modifiable." />URL d'accès aux profils</td>
                 <td><input type="text" class="td-medium" value="<?php echo $WWW_PROFILES_DIR_URL;?>" readonly /></td>
@@ -422,7 +422,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                 } ?>
             </tr>
             <tr>
-                <td colspan="100%"><button type="submit" class="button-submit-large-green">Enregistrer</button></td>
+                <td colspan="100%"><button type="submit" class="btn-large-green">Enregistrer</button></td>
             </tr>
             </table>
         </form>

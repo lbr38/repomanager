@@ -1,5 +1,5 @@
 <?php
-require_once('class/Source.php');
+require_once('models/Source.php');
 $source = new Source();
 
 // Cas où on souhaite ajouter un nouveau repo source : 
@@ -42,60 +42,65 @@ if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validate
 
 <p><b>Ajouter un nouveau repo source :</b></p>
 <?php 
-echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
-// Cas Redhat/Centos
-if ($OS_FAMILY == "Redhat") {
-    echo '<p>Nom :</p>';
-    echo '<input type="text" class="input-large" name="addSourceName" required /><br>';
-    echo '<p>Url :</p>';
+echo "<form action=\"${__ACTUAL_URI__}\" method=\"post\" autocomplete=\"off\">";
+/**
+ *  Cas Redhat
+ */
+if ($OS_FAMILY == "Redhat") { ?>
+    <p>Nom :</p>
+    <input type="text" class="input-large" name="addSourceName" required /><br>
+    <p>Url :</p>
 
-    echo '<span>';
-    echo '<select name="addSourceUrlType" class="select-small" required>';
-    echo '<option value="baseurl">baseurl</option>';
-    echo '<option value="mirrorlist">mirrorlist</option>';
-    echo '<option value="metalink">metalink</option>';
-    echo '</select> '; // laisser l'espace afin qu'il soit visible entre les deux inputs
-    echo '<input type="text" name="addSourceUrl" class="input-large">';
-    echo '</span><br>';
+    <span>
+    <select name="addSourceUrlType" class="select-small" required>
+    <option value="baseurl">baseurl</option>
+    <option value="mirrorlist">mirrorlist</option>
+    <option value="metalink">metalink</option>
+    </select> 
+    <input type="text" name="addSourceUrl" class="input-large">
+    </span><br>
     
-    echo '<p>Ce repo source dispose d\'une clé GPG : ';
-    echo '<select id="newRepoSourceSelect" class="select-small">';
-    echo '<option id="newRepoSourceSelect_no">Non</option>';
-    echo '<option id="newRepoSourceSelect_yes">Oui</option>';
-    echo '</select>';
-    echo '</p>';
+    <p>Ce repo source dispose d\'une clé GPG : 
+    <select id="newRepoSourceSelect" class="select-small">
+    <option id="newRepoSourceSelect_no">Non</option>
+    <option id="newRepoSourceSelect_yes">Oui</option>
+    </select>
+    </p>
 
-    echo '<div class="sourceGpgDiv hide">';
-    echo '<span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l\'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>';
-    echo '<p>Clé GPG du trousseau de repomanager :</p>';
-    echo '<select name="existingGpgKey">';
-    echo '<option value="">Choisir une clé GPG...</option>';
+    <div class="sourceGpgDiv hide">
+    <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
+    <p>Clé GPG du trousseau de repomanager :</p>
+    <select name="existingGpgKey">
+    <option value="">Choisir une clé GPG...</option>
+    <?php
     $gpgFiles = scandir($RPM_GPG_DIR);
     foreach($gpgFiles as $gpgFile) {
       if (($gpgFile != "..") AND ($gpgFile != ".")) {
-        echo "<option value=\"${gpgFile}\">${gpgFile}</option>";
+        echo "<option value=\"$gpgFile\">$gpgFile</option>";
       }
-    }
-    echo '</select>';
-    echo '<p>URL ou fichier vers une clé GPG :</p>';
-    echo '<input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc..."><br>';
-    echo '<p>Importer une nouvelle clé GPG :</p>';
-    echo '<textarea name="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>';
-    echo '</div>';
+    } ?>
+    </select>
+    <p>URL ou fichier vers une clé GPG :</p>
+    <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc..."><br>
+    <p>Importer une nouvelle clé GPG :</p>
+    <textarea name="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+    </div>
+<?php
 }
 
-// Cas Debian
-if ($OS_FAMILY == "Debian") {
-    echo '<p>Nom :</p>';
-    echo '<input type="text" class="input-large" name="addSourceName" required /><br>';
-    echo '<p>Url :</p>';
-    echo '<input type="text" class="input-large" name="addSourceUrl" required /><br>';
-    echo '<p>Clé GPG (fac.) :</p>';
-    echo '<textarea name="addSourceGpgKey" class="textarea-100" placeholder="Format ASCII" /></textarea>'; 
-}
-?>
+/**
+ *  Cas Debian
+ */
+if ($OS_FAMILY == "Debian") { ?>
+    <p>Nom :</p>
+    <input type="text" class="input-large" name="addSourceName" required /><br>
+    <p>Url :</p>
+    <input type="text" class="input-large" name="addSourceUrl" required /><br>
+    <p>Clé GPG (fac.) :</p>
+    <textarea name="addSourceGpgKey" class="textarea-100" placeholder="Format ASCII"></textarea>
+<?php } ?>
 <br>
-<button type="submit" class="button-submit-medium-blue" title="Ajouter">Ajouter</button>
+<button type="submit" class="btn-medium-blue" title="Ajouter">Ajouter</button>
 </form>
 <br>
 <?php
@@ -131,9 +136,7 @@ if (!empty($gpgKeys)) {
                 echo "<img class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKey}\" src=\"icons/bin.png\" />";
                 deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKey}", "?action=deleteGpgKey&gpgKeyFile=${gpgKey}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
                 echo '</td>';
-                echo '<td>';
-                echo $gpgKey;
-                echo '</td>';
+                echo "<td>$gpgKey</td>";
                 echo '</tr>';
             }
         }
@@ -147,9 +150,7 @@ if (!empty($gpgKeys)) {
                 echo "<img src=\"icons/bin.png\" class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKeyID}\" />";
                 deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKeyName}", "?action=deleteGpgKey&gpgKeyID=${gpgKeyID}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
                 echo '</td>';
-                echo '<td>';
-                echo "$gpgKeyName ($gpgKeyID)";
-                echo '</td>';
+                echo "<td>$gpgKeyName ($gpgKeyID)</td>";
                 echo '</tr>';
             }
         }
@@ -196,7 +197,7 @@ if (!empty($gpgKeys)) {
                     /**
                      *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
                      */
-                    echo "<form action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+                    echo "<form action=\"${__ACTUAL_URI__}\" method=\"post\" autocomplete=\"off\">";
 
                         /**
                          *  On veut pouvoir renommer le repo source, donc il faut transmettre le nom de repo source actuel (actualSourceName)
@@ -241,7 +242,7 @@ if (!empty($gpgKeys)) {
                         /**
                          *  On va récupérer la configuration du repo source et l'afficher
                          */      
-                        echo "<form id=\"form-$sourceName\" action=\"${actual_uri}\" method=\"post\" autocomplete=\"off\">";
+                        echo "<form id=\"form-$sourceName\" action=\"${__ACTUAL_URI__}\" method=\"post\" autocomplete=\"off\">";
                             // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
                             echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
                             echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
@@ -251,8 +252,23 @@ if (!empty($gpgKeys)) {
                                 if (empty($option)) {
                                     continue;
                                 }
-                                $optionName = exec("echo '$option' | awk -F'=' '{print $1}'");
-                                $optionValue = exec("echo '$option' | cut -d'=' -f 2-");
+
+                                /**
+                                 *  On sépare le nom du paramètre de sa valeur (ils sont séparés par un =)
+                                 *  On indique une limite de 2 afin de n'obtenir pas plus de 2 termes (la valeur et son paramètre)
+                                 */
+                                $option = explode('=', $option, 2);
+                                if (!empty($option[0])) {
+                                    $optionName = $option[0];
+                                } else {
+                                    $optionName = '';
+                                }
+                                if (isset($option[1]) AND $option[1] != "") {
+                                    $optionValue = $option[1];
+                                } else {
+                                    $optionValue = '';
+                                }
+                                
                                 /**
                                  *  Si la ligne commence par [$sourceName], on ne l'affiche pas
                                  */
@@ -301,7 +317,7 @@ if (!empty($gpgKeys)) {
                             if (!empty($comments)) echo trim($comments);
                             echo '</textarea>';
 
-                            echo '<button type="submit" class="button-submit-large-blue" title="Enregistrer">Enregistrer</button>';
+                            echo '<button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>';
                         echo '</form>';
                         echo '<br>';
                     echo '</div>'; // cloture de sourceConfigurationDiv${i}

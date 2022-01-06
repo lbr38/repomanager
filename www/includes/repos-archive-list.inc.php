@@ -4,7 +4,7 @@
 <?php
     $listColor = 'color1'; // initialise des variables permettant de changer la couleur dans l'affichage de la liste des repos
     
-    $repoListType = 'archived';
+    $repoStatus = 'archived';
 
     /**
      *  Affichage de l'en-tête du tableau

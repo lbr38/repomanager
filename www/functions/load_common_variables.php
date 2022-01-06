@@ -16,7 +16,38 @@ if (!file_exists("${WWW_DIR}/configurations/repomanager.conf")) {
     die();
 }
 
-// Récupération de tous les paramètres définis dans le fichier repomanager.conf
+/**
+ *  Paramètres du serveur
+ */
+
+/**
+ *  Protocol (http ou https)
+ */
+if (!empty($_SERVER['HTTPS'])) {
+    $__SERVER_PROTOCOL__ = 'https';
+} else {
+    $__SERVER_PROTOCOL__ = 'http';
+}
+/**
+ *  Url du serveur
+ */
+if (!empty($_SERVER['SERVER_NAME'])) $__SERVER_URL__ = "$__SERVER_PROTOCOL__://".$_SERVER['SERVER_NAME'];
+/**
+ *  Adresse IP du serveur
+ */
+if (!empty($_SERVER['SERVER_ADDR'])) $__SERVER_IP__ = $_SERVER['SERVER_ADDR'];
+/**
+ *  URL + URI complètes
+ */
+if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) $__ACTUAL_URL__ = "$__SERVER_PROTOCOL__://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+/**
+ *  URI
+ */
+if (!empty($_SERVER['REQUEST_URI'])) $__ACTUAL_URI__ = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+
+/**
+ *  Récupération de tous les paramètres définis dans le fichier repomanager.conf
+ */
 $repomanager_conf_array = parse_ini_file("${WWW_DIR}/configurations/repomanager.conf");
 
 // Si certains paramètres sont vides alors on incrémente EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alerte
@@ -82,11 +113,16 @@ if (!file_exists($WWW_CACHE)) {
 /**
  *  Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
  */
-if (false == function_exists("shell_exec") || false == is_readable("/etc/os-release")) {
+/*if (false == function_exists("shell_exec") || false == is_readable("/etc/os-release")) {
     echo "Erreur : impossible de détecter la version du système";
     exit;
+}*/
+if (!is_readable('/etc/os-release')) {
+    echo 'Erreur : impossible de détecter la version du système';
+    die;
 }
-$os      = shell_exec('cat /etc/os-release');
+//$os      = shell_exec('cat /etc/os-release');
+$os      = file_get_contents('/etc/os-release');
 $listIds = preg_match_all('/.*=/', $os, $matchListIds);
 $listIds = $matchListIds[0];
 $listVal = preg_match_all('/=.*/', $os, $matchListVal);
@@ -128,7 +164,8 @@ if ($OS_FAMILY == "Redhat") {
     $PASSPHRASE_FILE = "${GPGHOME}/passphrase";
 }
 
-// Profils
+// Hôtes et profils
+$MANAGE_HOSTS = $repomanager_conf_array['MANAGE_HOSTS'];
 $MANAGE_PROFILES = $repomanager_conf_array['MANAGE_PROFILES'];
 $PROFILES_MAIN_DIR = "${REPOS_DIR}/profiles";
 $REPOS_PROFILES_CONF_DIR = "${PROFILES_MAIN_DIR}/_configurations";
@@ -136,9 +173,12 @@ $REPOSERVER_PROFILES_CONF_DIR = "${PROFILES_MAIN_DIR}/_reposerver";
 $PROFILE_SERVER_CONF = "${REPOSERVER_PROFILES_CONF_DIR}/main.conf";
 $REPO_CONF_FILES_PREFIX = $repomanager_conf_array['REPO_CONF_FILES_PREFIX'];
 
+// Serveurs
+$HOSTS_DIR = "${WWW_DIR}/hosts";
+
 // Config générale pour repomanager
-if ($OS_FAMILY == "Redhat") { $PACKAGE_TYPE = 'rpm'; }
-if ($OS_FAMILY == "Debian") { $PACKAGE_TYPE = 'deb'; }
+if ($OS_FAMILY == "Redhat") $PACKAGE_TYPE = 'rpm';
+if ($OS_FAMILY == "Debian") $PACKAGE_TYPE = 'deb';
 $AUTOMATISATION_ENABLED = $repomanager_conf_array['AUTOMATISATION_ENABLED'];
 if ($AUTOMATISATION_ENABLED == "yes") {
   $ALLOW_AUTOUPDATE_REPOS = $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'];
@@ -150,7 +190,7 @@ if ($AUTOMATISATION_ENABLED == "yes") {
 /**
  *  Récupération des environnements
  */
-require_once("${WWW_DIR}/class/Environnement.php");
+require_once("${WWW_DIR}/models/Environnement.php");
 $myenv = new Environnement();
 $ENVS = $myenv->listAll();
 $ENVS_TOTAL = $myenv->total();
@@ -160,14 +200,6 @@ unset($myenv);
 if(empty($ENVS)) {
     ++$EMPTY_CONFIGURATION_VARIABLES;
 }
-/*$ENVS = explode("\n", shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]'"));
-$ENVS = array_filter($ENVS); // on supprime les lignes vides du tableau si il y en a
-if(empty($ENVS)) {
-    ++$EMPTY_CONFIGURATION_VARIABLES;
-}
-$ENVS_TOTAL = shell_exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | wc -l");
-$DEFAULT_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | head -n1");
-$LAST_ENV = exec("cat $ENV_CONF | grep -v '[ENVIRONNEMENTS]' | tail -n1");*/
 
 $GPG_SIGN_PACKAGES = $repomanager_conf_array['GPG_SIGN_PACKAGES'];
 $GPG_KEYID = $repomanager_conf_array['GPG_KEYID'];
@@ -186,7 +218,6 @@ if (!is_dir($BACKUP_DIR)) {
         $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de sauvegarde : $BACKUP_DIR";
     }
 }
-
 /**
  *  Création du répertoire de mise à jour si n'existe pas
  */
@@ -195,13 +226,21 @@ if (!is_dir("$WWW_DIR/update")) {
         $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire de mise à jour : $WWW_DIR/update";
     }
 }
+/**
+ *  Création du répertoire des serveurs si n'existe pas
+ */
+if (!is_dir($HOSTS_DIR)) {
+    if (!mkdir($HOSTS_DIR, 0770, true)) {
+        $GENERAL_ERROR_MESSAGES[] = "Impossible de créer le répertoire : $HOSTS_DIR";
+    }
+}
 
 /**
  *  Config web
  */
 $WWW_HOSTNAME = $repomanager_conf_array['WWW_HOSTNAME'];
 $WWW_REPOS_DIR_URL = $repomanager_conf_array['WWW_REPOS_DIR_URL'];
-$WWW_PROFILES_DIR_URL = "http://${WWW_HOSTNAME}/profiles";
+if (!empty($__SERVER_URL__)) $WWW_PROFILES_DIR_URL = "$__SERVER_URL__/profiles";
 $WWW_USER = $repomanager_conf_array['WWW_USER'];
 if ($repomanager_conf_array['CRON_STATS_ENABLED'] == "yes") {
     if (!empty($repomanager_conf_array['WWW_STATS_LOG_PATH'])) {
@@ -232,11 +271,6 @@ if (file_exists("${WWW_DIR}/update-running"))
     $UPDATE_RUNNING = "yes";
 else
     $UPDATE_RUNNING = "no";
-
-// Autres
-if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) $actual_url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-if (!empty($_SERVER['REQUEST_URI'])) $actual_uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-if (!empty($_SERVER['SERVER_ADDR'])) $serverIP = $_SERVER['SERVER_ADDR'];
 
 // Date et heure du jour
 $DATE_DMY = date("d-m-Y");

@@ -2,14 +2,19 @@
 SCRIPT_PATH=$(realpath $0)
 WWW_DIR=$(echo "$SCRIPT_PATH" | sed 's|/tools/stats-log-parser||g')
 DB="${WWW_DIR}/db/repomanager-stats.db"
-ACCESS_LOG_FILE="$1"
+ACCESS_LOG_FILE="$1"   # ex : /var/log/nginx/xxxx_access.log
 
+# Vérification que les paramètres passés au script ne sont pas vide et/ou que les fichiers existent
 if [ ! -f "$ACCESS_LOG_FILE" ];then exit;fi
 if [ ! -f "$DB" ];then exit;fi
 
+# Création du répertoire de log pour sqlite
+mkdir -p "${WWW_DIR}/logs/stats/"
+
+# Boucle qui écoute et récupère tout nouvel ajout dans le fichier ACCESS_LOG_FILE
+# Les nouvelles lignes sont ensuite parsées pour récupérer la date, l'ip, la requête d'accès et le nom du repo
 tail -n0 -F "$ACCESS_LOG_FILE" | \
 while read logline; do
-
     if echo "$logline" | grep -q -E 'urlgrabber|APT-CURL|APT-HTTP';then
         # Parsage de la ligne récupérée puis insertion en BDD
         if [ -f "/usr/bin/sqlite3" ];then
@@ -20,8 +25,8 @@ while read logline; do
             SOURCE_HOST=$(dig -x $SOURCE_IP +short)
             REQUEST=$(echo "$logline" | awk '{print $6,$7,$8}')
             REQUEST_RESULT=$(echo "$logline" | awk '{print $9}')
-
-            /usr/bin/sqlite3 -init <(echo .timeout 6000) "$DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
+            #/usr/bin/sqlite3 -init <(echo .timeout 5000) "$DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
+            /usr/bin/sqlite3 -cmd ".timeout 5000" -cmd ".log '${WWW_DIR}/logs/stats/stats-log-parser.log'" "$DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
         fi
     fi
 done

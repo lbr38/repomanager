@@ -11,13 +11,14 @@ $WWW_DIR = dirname(__FILE__, 2);
  */
 require_once("${WWW_DIR}/functions/load_common_variables.php");
 require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/class/Planification.php");
+require_once("${WWW_DIR}/models/Planification.php");
 
 /**
  *  Date et heure actuelle (à laquelle est exécuté ce script)
  */
-$todayDate = date('Y-m-d');
-$todayTime = date('H:i');
+$dateNow = date('Y-m-d');
+$timeNow = date('H:i');
+$minutesNow = date('i');
 
 /**
  *  1. On vérifie la présence d'une ou plusieurs planification dans le pool
@@ -25,6 +26,9 @@ $todayTime = date('H:i');
 $plan = new Planification();
 $plansQueued = $plan->listQueue();
 
+/**
+ *  Si il y a des planifications dans le pool (status = 'queued') alors on traite
+ */
 if(!empty($plansQueued)) {
     $message_rappel = '';
 
@@ -33,26 +37,63 @@ if(!empty($plansQueued)) {
      *  On récupère son id, sa date et son heure d'exécution ainsi que les rappels
      */
     foreach($plansQueued as $planQueued) {
-        $planId       = $planQueued['Id'];
-        $planDate     = $planQueued['Date'];
-        $planTime     = $planQueued['Time'];
-        $planReminder = $planQueued['Reminder'];
+        if (!empty($planQueued['Id']))        $planId        = $planQueued['Id'];
+        if (!empty($planQueued['Type']))      $planType      = $planQueued['Type'];
+        if (!empty($planQueued['Frequency'])) $planFrequency = $planQueued['Frequency'];
+        if (!empty($planQueued['Date']))      $planDate      = $planQueued['Date'];
+        if (!empty($planQueued['Time']))      $planTime      = $planQueued['Time'];
+        if (!empty($planQueued['Reminder']))  $planReminder  = $planQueued['Reminder'];
 
         /**
          *  Exécution
-         *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($todayDate et $todayTime) alors on exécute la planification
+         *  Si il s'agit d'une planification classique (planifiée avec une date et heure) ($planType == 'plan')
+         *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($dateNow et $timeNow) alors on exécute la planification
          */
-        if (($argv[1] == "exec-plans") AND ($planDate == $todayDate) AND ($planTime == $todayTime)) {
+        if ($argv[1] == "exec-plans") {
+            if ($planType == "plan" AND  $planDate == $dateNow AND $planTime == $timeNow) {
+                /**
+                 *  On indique à $plan quel est l'id de la planification et on l'exécute
+                 */
+                $plan->setId($planId);
+                $plan->exec();
+            }
+
             /**
-             *  On indique à $plan quel est l'id de la planification et on l'exécute
+             *  Exécution
+             *  Si il s'agit d'une planification récurrente (toutes les heures, tous les jours...) ($planType == 'regular')
+             *  
              */
-            $plan->id = $planId;
-            $plan->exec();
+            if ($planType == "regular") {
+                /**
+                 *  Cas où la fréquence est 'toutes les heures'
+                 *  Dans ce cas on exécute la tâche au tout début de l'heure en cours (xx:00 minutes)
+                 */
+                if ($planFrequency == "every-hour" AND $minutesNow == "00") {
+                    /**
+                     *  On indique à $plan quel est l'id de la planification et on l'exécute
+                     */
+                    $plan->setId($planId);
+                    $plan->exec();
+                }
+
+                /**
+                 *  Cas où la fréquence est 'tous les jours'
+                 *  Dans ce cas l'utilisateur a également précisé l'heure à laquelle il faut que la planification soit exécutée chaque jour.
+                 */
+                if ($planFrequency == "every-day" AND $timeNow == $planTime) {
+                    /**
+                     *  On indique à $plan quel est l'id de la planification et on l'exécute
+                     */
+                    $plan->setId($planId);
+                    $plan->exec();
+                }
+            }
         }
+
 
         /**
          *  Traitement des rappels
-         *  Si la date actuelle ($todayDate) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
+         *  Si la date actuelle ($dateNow) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
          */
         if ($argv[1] == "send-reminders" AND !empty($planReminder)) {
             $planReminder = explode(",", $planReminder);
@@ -63,7 +104,7 @@ if(!empty($plansQueued)) {
             foreach($planReminder as $reminder) {
                 $reminderDate = date_create($planDate)->modify("-${reminder} days")->format('Y-m-d');
 
-                if ($reminderDate == $todayDate) {
+                if ($reminderDate == $dateNow) {
                     /**
                      *  On indique à $plan quel est l'id de la planification et on génère le message de rappel
                      */

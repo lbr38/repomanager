@@ -7,10 +7,13 @@
         /**
          *  Chargement de CSS suplémentaires
          */
-        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="styles/run.css">';
-        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="styles/explore.css">';
-        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="styles/stats-servers.css">';
-        if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) == "/servers.php") echo '<link rel="stylesheet" type="text/css" href="styles/stats-servers.css">';
+        $__ACTUAL_URI__ = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+
+        if ($__ACTUAL_URI__ == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="styles/run.css">';
+        if ($__ACTUAL_URI__ == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="styles/explore.css">';
+        if ($__ACTUAL_URI__ == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="styles/stats-hosts.css">';
+        if ($__ACTUAL_URI__ == "/hosts.php")   echo '<link rel="stylesheet" type="text/css" href="styles/stats-hosts.css">';
+        if ($__ACTUAL_URI__ == "/host.php")    echo '<link rel="stylesheet" type="text/css" href="styles/stats-hosts.css">';
     ?>
 
     <!-- jQuery -->
@@ -24,9 +27,3 @@
     <link rel="icon" href="favicon.ico" />
     <title>Repomanager</title>
 </head>
-
-<!-- Affichage d'un logo chargement de la page -->
-<!--<div class="loader-wrapper">
-    <img src="images/loading.gif" />
-    <span class="loader"><span class="loader-inner"></span></span>
-</div>-->

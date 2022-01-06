@@ -11,7 +11,6 @@ GRIS=$(tput setaf 8)
 VERT=$(tput setaf 2)
 ROUGE=$(tput setaf 1)
 JAUNE=$(tput setaf 3)
-CYAN=$(tput setaf 6)
 RESET=$(tput sgr0)
 PWD=$(pwd)
 OS_FAMILY=""
@@ -39,8 +38,8 @@ fi
 print_help() { 
 	echo -e "\n ${JAUNE}Toutes les opérations s'effectuent depuis l'interface web.${RESET}\n"
 	echo -e "   Paramètres disponibles en ligne de commande :"
-	echo -e "   -i | --install         ➤   Lancer l'assistant d'installation de repomanager."
-	echo -e "   -p | --permissions     ➤   Remettre en place les bonnes permissions sur les différents répertoires utilisés par repomanager.\n\n\n"
+	echo -e "   -i | --install          ➤   Lancer l'assistant d'installation de repomanager."
+	echo -e "   -p | --set-permissions  ➤   Remettre en place les bonnes permissions sur les différents répertoires utilisés par repomanager.\n\n\n"
 }
 
 ## ↓ DETECTION DU SYSTEME ↓ ##
@@ -579,6 +578,7 @@ firstInstall() {
 		echo "RELEASEVER = \"$RELEASEVER\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	fi
 	echo "EMAIL_DEST = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+	echo "MANAGE_HOSTS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "MANAGE_PROFILES = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "BACKUP_DIR = \"${WWW_DIR}/backups\"" >> ${WWW_DIR}/configurations/repomanager.conf
@@ -687,7 +687,7 @@ while [ $# -ge 1 ];do
 			permissions
 			exit
 		;;
-		--droits|--permissions|-p)
+		--set-permissions|--permissions|-p)
 			permissions
 			exit
 		;;

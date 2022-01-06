@@ -5,8 +5,8 @@
 $WWW_DIR = dirname(__FILE__, 2);
 require_once("${WWW_DIR}/functions/load_common_variables.php");
 require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/class/Operation.php");
-require_once("${WWW_DIR}/class/Repo.php");
+require_once("${WWW_DIR}/models/Operation.php");
+require_once("${WWW_DIR}/models/Repo.php");
  
 /**
  *  1. Récupération de l'argument : type d'opération à exécuter

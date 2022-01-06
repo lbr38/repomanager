@@ -4,121 +4,85 @@
         <!-- Bouton "Affichage" -->
         <span id="ReposListDisplayToggleButton" class="pointer" title="Affichage">Affichage<img src="icons/cog.png" class="icon"/></span>
         <!-- Bouton "Gérer les groupes" -->
-        <span id="GroupsListSlideUpButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="icons/folder.png" class="icon"/></span>
+        <span id="GroupsListToggleButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="icons/folder.png" class="icon"/></span>
         <!-- Bouton "Gérer les repos/hôtes sources" -->
-        <span id="ReposSourcesSlideUpButton" class="pointer" title="Gérer les repos sources">Gérer les repos sources<img src="icons/world.png" class="icon"/></span>
+        <span id="ReposSourcesToggleButton" class="pointer" title="Gérer les repos sources">Gérer les repos sources<img src="icons/world.png" class="icon"/></span>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
-            if (($actual_uri == "/index.php") OR ($actual_uri == "/")) {
-                if ($OS_FAMILY == "Redhat") { echo '<span id="newRepoSlideButton" class="pointer">Créer un nouveau repo<img class="icon" src="icons/plus.png" title="Créer un nouveau repo" /></span>'; }
-                if ($OS_FAMILY == "Debian") { echo '<span id="newRepoSlideButton" class="pointer">Créer une nouvelle section<img class="icon" src="icons/plus.png" title="Créer une nouvelle section" /></span>'; }
+            if (($__ACTUAL_URI__ == "/index.php") OR ($__ACTUAL_URI__ == "/")) {
+                if ($OS_FAMILY == "Redhat") echo '<span id="newRepoToggleButton" class="pointer">Créer un nouveau repo<img class="icon" src="icons/plus.png" title="Créer un nouveau repo" /></span>';
+                if ($OS_FAMILY == "Debian") echo '<span id="newRepoToggleButton" class="pointer">Créer une nouvelle section<img class="icon" src="icons/plus.png" title="Créer une nouvelle section" /></span>';
             }
         ?>
     </div>
 </div>
 
-<script>
-/* AFFICHAGE DES DIVS CACHÉES : Gérer les groupes, Gérer les repos sources, Créer un nouveau repo */
-$(document).ready(function(){
-    $("#GroupsListSlideUpButton").click(function(){           
-        // affichage du div permettant de gérer les groupes
-        $("#groupsDiv").slideToggle().show("slow");
-    });
-    
-    $("#GroupsListCloseButton").click(function(){
-        // masquage du div permettant de gérer les groupes
-        $("#groupsDiv").hide("slow");
-    });
-
-    $("#ReposSourcesSlideUpButton").click(function(){            
-        // affichage du div permettant de gérer les sources
-        $("#sourcesDiv").slideToggle().show("slow");
-    });
-    
-    $("#ReposSourcesCloseButton").click(function(){
-        // masquage du div permettant de gérer les sources
-        $("#sourcesDiv").hide("slow");
-    });
-
-    $("#newRepoSlideButton").click(function(){
-        // affichage du div permettant de créer un nouveau repo/section
-        $("#newRepoSlideDiv").slideToggle().show("slow");
-    });
-    
-    $("#newRepoCloseButton").click(function(){
-        // masquage du div permettant de créer un nouveau repo/section
-        $("#newRepoSlideDiv").hide("slow");
-    });
-});
-</script>
-
 <!-- div cachée, affichée par le bouton "Affichage" -->
 <div id="divReposListDisplay" class="divReposListDisplay">
     <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" /> 
-    <form action="<?php echo "$actual_uri"; ?>" method="post">
+    <form action="<?php echo "$__ACTUAL_URI__"; ?>" method="post">
         <input type="hidden" name="action" value="configureDisplay" />
         <p><b>Informations</b></p>
-        <?php
-        // afficher ou non la taille des repos/sections
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="printRepoSize" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="printRepoSize" value="on"'; if ($printRepoSize == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Afficher la taille du repo</span><br>';
+        
+        <!-- afficher ou non la taille des repos/sections -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="printRepoSize" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="printRepoSize" value="on" <?php if ($printRepoSize == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Afficher la taille du repo</span><br>
 
-        // afficher ou non le type des repos (miroir ou local)
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="printRepoType" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="printRepoType" value="on"'; if ($printRepoType == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Afficher le type du repo</span><br>';
+        <!-- afficher ou non le type des repos (miroir ou local) -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="printRepoType" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="printRepoType" value="on" <?php if ($printRepoType == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Afficher le type du repo</span><br>
 
-        // afficher ou non la signature gpg des repos
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="printRepoSignature" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="printRepoSignature" value="on"'; if ($printRepoSignature == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Afficher la signature du repo</span><br>';
-        ?>
+        <!-- afficher ou non la signature gpg des repos -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="printRepoSignature" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="printRepoSignature" value="on" <?php if ($printRepoSignature == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Afficher la signature du repo</span><br>
 
         <p><b>Filtrage</b></p>
 
+        <!-- filtrer ou non par groupe -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="filterByGroups" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="filterByGroups" value="on" <?php if ($filterByGroups == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Filtrer par groupes</span><br>
+
+        <!-- concatener ou non les noms de repo/section -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="concatenateReposName" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="concatenateReposName" value="on" <?php if ($concatenateReposName == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Vue simplifiée</span><br>
+
+        <!-- Afficher ou non une ligne séparatrice entre chaque nom de repo/section -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="dividingLine" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="dividingLine" value="on" <?php if ($dividingLine == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Ligne séparatrice</span><br>
+
+        <!-- alterner ou non les couleurs dans la liste -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="alternateColors" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="alternateColors" value="on" <?php if ($alternateColors == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Couleurs alternées</span>
+
         <?php
-        // filtrer ou non par groupe
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="filterByGroups" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="filterByGroups" value="on"'; if ($filterByGroups == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Filtrer par groupes</span><br>';
-
-        // concatener ou non les noms de repo/section
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="concatenateReposName" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="concatenateReposName" value="on"'; if ($concatenateReposName == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Vue simplifiée</span><br>';
-
-        // Afficher ou non une ligne séparatrice entre chaque nom de repo/section
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="dividingLine" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="dividingLine" value="on"'; if ($dividingLine == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Ligne séparatrice</span><br>';
-
-        // alterner ou non les couleurs dans la liste
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="alternateColors" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="alternateColors" value="on"'; if ($alternateColors == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Couleurs alternées</span>';
-
         // choix des couleurs :
         if ($alternateColors == "yes") {
             echo ' | ';
@@ -130,32 +94,18 @@ $(document).ready(function(){
 
         <p><b>Cache</b></p>
         <p>Mettre en ram la liste des repos actifs dans <b>/dev/shm/</b> (expérimental)</p>
-        <?php
-        // mettre en cache ou non la liste des repos
-        echo '<label class="onoff-switch-label">';
-        echo '<input type="hidden" name="cache_repos_list" value="off" />'; // Valeur par défaut = "off" sauf si celle ci est overwritée par la checkbox cochée "on"
-        echo '<input class="onoff-switch-input" type="checkbox" name="cache_repos_list" value="on"'; if ($cache_repos_list == "yes") { echo ' checked'; } echo ' />';
-        echo '<span class="onoff-switch-slider"></span>';
-        echo '</label>';
-        echo '<span> Mise en cache</span><br>';
-        ?>
+        <!-- mettre en cache ou non la liste des repos -->
+        <label class="onoff-switch-label">
+            <input type="hidden" name="cache_repos_list" value="off" />
+            <input class="onoff-switch-input" type="checkbox" name="cache_repos_list" value="on" <?php if ($cache_repos_list == "yes") echo 'checked'; ?> />
+            <span class="onoff-switch-slider"></span>
+        </label>
+        <span> Mise en cache</span><br>
 
         <br><br>
-        <button type="submit" class="button-submit-medium-blue">Enregistrer</button>
+        <button type="submit" class="btn-medium-blue">Enregistrer</button>
     </form>
 </div>
-<script> // Afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
-$(document).ready(function(){
-   $("#ReposListDisplayToggleButton").click(function(){
-      $("#divReposListDisplay").slideToggle(150);
-      $(this).toggleClass("open");
-    });
-    // Le bouton down (petite croix) permet la même chose, il sera surtout utilisé pour fermer la div
-    $('#DisplayCloseButton').click(function() {
-      $('#divReposListDisplay').slideToggle(150);
-    });
-});
-</script>
 
 <!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">
@@ -175,8 +125,7 @@ if ($cache_repos_list == "yes") {
     include(__DIR__.'/repos-active-list.inc.php');
 }
 
-unset($repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv);
-?>
+unset($repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv); ?>
 </table>
 
 <script>
