@@ -4,7 +4,7 @@
 set -u
 
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-WWW_DIR=$(echo "$CURRENT" | sed 's|/update||g')
+WWW_DIR=$(echo "$CURRENT" | sed 's|/tools||g')
 GITHUB_VERSION=$(cat ${WWW_DIR}/cron/github.version)
 UPDATE_ERROR=0
 
