@@ -10,11 +10,16 @@ $WWW_DIR = dirname(__FILE__, 2);
 $EMPTY_CONFIGURATION_VARIABLES = 0;
 $GENERAL_ERROR_MESSAGES = [];
 
-// Vérification de la présence de repomanager.conf
+/**
+ *  Vérification de la présence de repomanager.conf
+ */
 if (!file_exists("${WWW_DIR}/configurations/repomanager.conf")) {
     echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.";
     die();
 }
+
+require_once("${WWW_DIR}/models/Environnement.php");
+require_once("${WWW_DIR}/models/Connection.php");
 
 /**
  *  Paramètres du serveur
@@ -113,15 +118,10 @@ if (!file_exists($WWW_CACHE)) {
 /**
  *  Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
  */
-/*if (false == function_exists("shell_exec") || false == is_readable("/etc/os-release")) {
-    echo "Erreur : impossible de détecter la version du système";
-    exit;
-}*/
 if (!is_readable('/etc/os-release')) {
     echo 'Erreur : impossible de détecter la version du système';
     die;
 }
-//$os      = shell_exec('cat /etc/os-release');
 $os      = file_get_contents('/etc/os-release');
 $listIds = preg_match_all('/.*=/', $os, $matchListIds);
 $listIds = $matchListIds[0];
@@ -187,10 +187,37 @@ if ($AUTOMATISATION_ENABLED == "yes") {
   $RETENTION = $repomanager_conf_array['RETENTION'];
 }
 
+$GPG_SIGN_PACKAGES = $repomanager_conf_array['GPG_SIGN_PACKAGES'];
+$GPG_KEYID = $repomanager_conf_array['GPG_KEYID'];
+$EMAIL_DEST = $repomanager_conf_array['EMAIL_DEST'];
+$UPDATE_AUTO = $repomanager_conf_array['UPDATE_AUTO'];
+$UPDATE_BACKUP_ENABLED = $repomanager_conf_array['UPDATE_BACKUP_ENABLED'];
+$UPDATE_BRANCH = $repomanager_conf_array['UPDATE_BRANCH'];
+$BACKUP_DIR = $repomanager_conf_array['BACKUP_DIR'];
+$DEBUG_MODE = $repomanager_conf_array['DEBUG_MODE'];
+
 /**
- *  Récupération des environnements
+ *  Vérification de la présence de la base de données
+ *  Si aucun fichier de base de données n'existe ou bien si on a précisé le paramètre ?initialize
  */
-require_once("${WWW_DIR}/models/Environnement.php");
+if (!file_exists("$WWW_DIR/db/repomanager.db") OR isset($_GET['initialize'])) {
+    /**
+     *  On va vérifier la présence des tables et les créer si nécessaire
+     */
+    $myconn = new Connection('main', 'rw');
+
+    if (!$myconn->checkMainTables()) {
+        /**
+         *  Si la vérification a échouée alors on quitte.
+         */
+        die();
+    }
+}
+
+/**
+ *  Récupération des environnements en base de données
+ */
+
 $myenv = new Environnement();
 $ENVS = $myenv->listAll();
 $ENVS_TOTAL = $myenv->total();
@@ -201,14 +228,7 @@ if(empty($ENVS)) {
     ++$EMPTY_CONFIGURATION_VARIABLES;
 }
 
-$GPG_SIGN_PACKAGES = $repomanager_conf_array['GPG_SIGN_PACKAGES'];
-$GPG_KEYID = $repomanager_conf_array['GPG_KEYID'];
-$EMAIL_DEST = $repomanager_conf_array['EMAIL_DEST'];
-$UPDATE_AUTO = $repomanager_conf_array['UPDATE_AUTO'];
-$UPDATE_BACKUP_ENABLED = $repomanager_conf_array['UPDATE_BACKUP_ENABLED'];
-$UPDATE_BRANCH = $repomanager_conf_array['UPDATE_BRANCH'];
-$BACKUP_DIR = $repomanager_conf_array['BACKUP_DIR'];
-$DEBUG_MODE = $repomanager_conf_array['DEBUG_MODE'];
+
 
 /**
  *  Création du répertoire de backup si n'existe pas

@@ -90,6 +90,7 @@ function clearCache() {
     global $WWW_CACHE;
 
     if (file_exists("${WWW_CACHE}/repomanager-repos-list.html")) unlink("${WWW_CACHE}/repomanager-repos-list.html");
+    if (file_exists("${WWW_CACHE}/repomanager-repos-archived-list.html")) unlink("${WWW_CACHE}/repomanager-repos-archived-list.html");
 }
 
 /**

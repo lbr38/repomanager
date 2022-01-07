@@ -127,11 +127,11 @@ if ($action_error == 0 AND $id_error == 0) {
 <section class="mainSectionLeft">
     <section class="left">
         <!-- REPOS ACTIFS -->
-        <?php include('includes/repos-list.inc.php'); ?>
+        <?php include('includes/repos-list-container.inc.php'); ?>
     </section>
     <section class="left">
         <!-- REPOS ARCHIVÉS-->
-        <?php include('includes/repos-archive-list.inc.php'); ?>
+        <?php include('includes/repos-archive-list-container.inc.php'); ?>
     </section>
 </section>
 </article>

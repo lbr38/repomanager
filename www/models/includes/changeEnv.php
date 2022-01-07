@@ -73,12 +73,12 @@ trait changeEnv {
          */
         if ($OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("un repo ".envtag($this->repo->newEnv)." existe déjà au <b>{$this->repo->date}</b>");
+                throw new Exception("un repo ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
         }
         if ($OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("une section ".envtag($this->repo->newEnv)." existe déjà au <b>{$this->repo->date}</b>");
+                throw new Exception("une section ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
         }
 
