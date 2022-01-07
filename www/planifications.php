@@ -667,11 +667,11 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deletePlan") 
     <section class="mainSectionLeft">
         <section class="left">
             <!-- REPOS ACTIFS -->
-            <?php include('includes/repos-list.inc.php'); ?>
+            <?php include('includes/repos-list-container.inc.php'); ?>
         </section>
         <section class="left">
             <!-- REPOS ARCHIVÉS-->
-            <?php include('includes/repos-archive-list.inc.php'); ?>
+            <?php include('includes/repos-archive-list-container.inc.php'); ?>
         </section>
     </section>
 </article>

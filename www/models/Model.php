@@ -16,7 +16,7 @@ abstract class Model {
             $this->host_db = new Connection($database, $mode, $hostId);
             
         } else {
-            $this->db = new Connection($database, $mode, $hostId);
+            $this->db = new Connection($database, $mode);
         }
 
         return;

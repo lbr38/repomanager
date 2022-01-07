@@ -353,7 +353,6 @@ class Planification extends Model {
         $stmt = $this->db->prepare("UPDATE planifications SET Status = 'running' WHERE Id = :id");
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
-        unset($stmt);
 
         /**
          *  0. Démarre l'enregistrement de la planification
@@ -418,9 +417,14 @@ class Planification extends Model {
              *  Puis on récupère toute la liste du groupe
              */
             if (!empty($this->op->group->name)) {
-                // On vérifie que le groupe existe
+                /**
+                 *  On vérifie que le groupe existe
+                 */
                 $this->checkIfGroupExists();
-                // On récupère la liste des repos dans ce groupe
+
+                /**
+                 *  On récupère la liste des repos dans ce groupe
+                 */
                 $this->getGroupRepoList();
             }
         /**
@@ -432,6 +436,11 @@ class Planification extends Model {
 
 
         // TRAITEMENT //
+
+        /**
+         *  On placera dans ce tableau les repos qui ont été traités par cette planification.
+         */
+        $processedRepos = array();
 
         /**
          *  1. Cas où on traite 1 repo seulement
@@ -448,8 +457,25 @@ class Planification extends Model {
                  *  Exécution de exec_update(), puis si cette opération s'est terminée avec une erreur, alors on clos la planification en erreur
                  */
                 $this->op->id_plan = $this->id;
+
                 if ($this->op->exec_update() === false) {
-                    $this->close(2, 'Une erreur est survenue pendant le traitement, voir les logs');
+                    /**
+                     *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
+                     */
+                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
+                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
+
+                    /**
+                     *  Puis on quitte la planification en erreur
+                     */
+                    $this->close(2, 'Une erreur est survenue pendant la mise à jour du repo, voir les logs', $processedRepos);
+
+                } else {
+                    /**
+                     *  On ajoute le repo traité à la liste des repo traités par cette planifications
+                     */
+                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'done');
+                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'done');
                 }
             }
 
@@ -463,7 +489,17 @@ class Planification extends Model {
                 $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
                 $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
                 if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
-                    $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)'); // On sort avec 1 car on considère que c'est une erreur de type vérification
+                    /**
+                     *  On quitte avec une erreur si au moins 1 environnement n'est pas défini
+                     */
+
+                    /**
+                     *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
+                     */
+                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
+                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
+
+                    $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)', $processedRepos); // On sort avec 1 car on considère que c'est une erreur de type vérification
                 }
 
                 /**
@@ -497,9 +533,19 @@ class Planification extends Model {
                 $this->op->closeOperation();
 
                 /**
+                 *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
+                 */
+                if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
+
+                /**
                  *  Si cette opération s'est terminée avec une erreur, alors on clos la planification en erreur
                  */
-                if ($this->op->status == 'error') $this->close(2, "Erreur : ".$e->getMessage());
+
+                /**
+                 *  Puis on quitte la planification en erreur
+                 */
+                if ($this->op->status == 'error') $this->close(2, "Erreur : ".$e->getMessage(), $processedRepos);
             }
         }
 
@@ -513,6 +559,11 @@ class Planification extends Model {
              *  A la fin si cette variable > 0 alors on pourra quitter ce script en erreur ($this->close 1)
              */
             $plan_error = 0;
+
+            /**
+             *  On placera dans ce tableau les repos qui ont été traités par cette planification.
+             */
+            $processedRepos = array();
 
             /**
              *  On traite chaque ligne de groupList
@@ -543,17 +594,28 @@ class Planification extends Model {
                     }
 
                     $this->logList[] = $this->op->log->location;
+
+                    /**
+                     *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
+                     */
+                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
                 }
 
                 /**
                  *  Si $this->op->action contient -> alors il s'agit d'un changement d'env
                  */
                 if (strpos($this->op->action, '->') !== false) {
-                    try {
+                    $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
+                    $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
+                    /*try {
                         $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
                         $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
                         if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
-                            if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
+                            /**
+                             *  On emet une exception si au moins 1 environnement n'est pas défini
+                             */
+                /*            if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
                                 throw new Exception('Erreur (EP04) : Environnement(s) non défini(s)');
                             }
                         }
@@ -561,8 +623,8 @@ class Planification extends Model {
                         /**
                          *  L'erreur est suffisamment importante pour quitter toute la planification (un ou plusieurs environnements ne sont pas définis alors on ne peut pas continuer)
                          */
-                        $this->close(2, $e->getMessage());
-                    }
+                /*        $this->close(2, $e->getMessage());
+                    }*/
         
                     $this->log->title = 'NOUVEL ENVIRONNEMENT';
 
@@ -593,19 +655,25 @@ class Planification extends Model {
                     $this->op->closeOperation();
 
                     $this->logList[] = $this->op->log->location;
+
+                    /**
+                     *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
+                     */
+                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
                 }
             }
 
             /**
              *  Si on a rencontré des erreurs dans la boucle, alors on quitte le script
              */
-            if ($plan_error > 0) $this->close(2, 'Une erreur est survenue pendant le traitement de ce groupe, voir les logs');
+            if ($plan_error > 0) $this->close(2, 'Une erreur est survenue pendant le traitement de ce groupe, voir les logs', $processedRepos);
         }
 
         /**
          *  Si on est arrivé jusqu'ici alors on peut quitter sans erreur
          */
-        $this->close(0, '');
+        $this->close(0, '', $processedRepos);
     }
 
     /**
@@ -734,9 +802,9 @@ class Planification extends Model {
 
 /**
  *  Clôture d'une planification exécutée
- *  Génère le récapitulatif, le fichier de log et envoi un mail d'erreur si il y a eu une erreur
+ *  Génère le récapitulatif, le fichier de log et envoi un mail d'erreur si il y a eu une erreur.
  */
-    public function close($planError, $plan_msg_error) {
+    public function close($planError, $plan_msg_error, $processedRepos = null) {
         global $PLAN_LOGS_DIR;
         global $EMAIL_DEST;
         global $WWW_DIR;
@@ -764,7 +832,6 @@ class Planification extends Model {
                 $stmt->bindValue(':plan_logfile', $this->log->name);
                 $stmt->bindValue(':plan_id', $this->id);
             }
-
             $stmt->execute(); unset($stmt);
         }
         if ($this->type == 'regular') {
@@ -780,16 +847,15 @@ class Planification extends Model {
                 $stmt->bindValue(':plan_logfile', $this->log->name);
                 $stmt->bindValue(':plan_id', $this->id);
             }
-
             $stmt->execute(); unset($stmt);
         }
 
         /**
-         *  Si l'erreur est de type 1 (erreur lors des vérifications de l'opération), on affiche les erreurs avec echo, elles seront capturées par ob_get_clean()
+         *  Si l'erreur est de type 1 (erreur lors des vérifications de l'opération), on affiche les erreurs avec echo, elles seront capturées par ob_get_clean() et affichées dans le fichier de log
          *  On ajoute également les données connues de la planification, le tableau récapitulatif n'ayant pas pu être généré par l'opération puisqu'on a rencontré une erreur avant qu'elle ne se lance.
          */
         if ($planError == 1) {
-            echo "<span class='redtext'>${plan_msg_error}</span>";
+            echo "<span class='redtext'>$plan_msg_error</span>";
             echo '<p><b>Détails de la planification :</b></p>';
             echo '<table>';
             echo "<tr><td><b>Action : </b></td><td>{$this->op->action}</td></tr>";
@@ -869,6 +935,45 @@ class Planification extends Model {
         $this->log->write($logContent);
         $this->log->close();
 
+// Contenu du mail de la planification //
+
+        /**
+         *  On génère la liste du repo, ou du groupe traité
+         */
+        if (!empty($processedRepos)) {
+            /**
+             *  Ajout de l'action effectuée
+             */
+            $msg_processed_repos = '<br><br><b>Action</b> : ';
+
+            if ($this->op->action == 'update') {
+                $msg_processed_repos .= 'mise à jour';
+            } else {
+                $msg_processed_repos .= "pointage de l'env {$this->op->action}";
+            }
+            
+            $msg_processed_repos .= '<br><br><b>Repo(s) traité(s) :</b><br>';
+
+            /**
+             *  On trie l'array par status des repos afin de regrouper tous les repos OK et tous les repos en erreur
+             */
+            array_multisort(array_column($processedRepos, 'Status'), SORT_DESC, $processedRepos);
+
+            /**
+             *  On parcourt la liste des repos traités
+             */
+            if (is_array($processedRepos)) {
+                foreach ($processedRepos as $processedRepo) {
+                    if ($processedRepo['Status'] == 'done') {
+                        $msg_processed_repos .= '[ OK ] ' . $processedRepo['Repo'] . '<br>';
+                    }
+                    if ($processedRepo['Status'] == 'error') {
+                        $msg_processed_repos .= '[ ERREUR ] ' . $processedRepo['Repo'] . '<br>';
+                    }
+                }
+            }
+        }
+
         /**
          *  Envoi d'un mail si les notifications sont activées
          */
@@ -890,7 +995,14 @@ class Planification extends Model {
                     $plan_title   = "[OK] - Planification récurrente n°{$this->id} sur $WWW_HOSTNAME";
                     $plan_pre_msg = "Une planification récurrente vient de se terminer.";   
                 }
-                $plan_msg = "La planification s'est terminée sans erreur.";
+                $plan_msg = "La planification s'est terminée sans erreur.".PHP_EOL;
+
+                /**
+                 *  On ajoute le repo ou le groupe traité à la suite du message
+                 */
+                if (!empty($msg_processed_repos)) {
+                    $plan_msg .= $msg_processed_repos . PHP_EOL;
+                }
 
                 /**
                  *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg
@@ -917,7 +1029,14 @@ class Planification extends Model {
                     $plan_title   = "[ERREUR] - Planification récurrente n°{$this->id} sur $WWW_HOSTNAME";
                     $plan_pre_msg = "Une planification récurrente s'est mal terminée.";
                 }
-                $plan_msg = 'Cette planification a rencontré une erreur';
+                $plan_msg = 'Cette planification a rencontré une erreur'.PHP_EOL;
+
+                /**
+                 *  On ajoute le repo ou le groupe traité à la suite du message
+                 */
+                if (!empty($msg_processed_repos)) {
+                    $plan_msg .= $msg_processed_repos . PHP_EOL;
+                }
 
                 /**
                  *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg

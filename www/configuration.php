@@ -9,7 +9,6 @@
 require_once('functions/load_common_variables.php');
 require_once('functions/load_display_variables.php');
 require_once('functions/common-functions.php');
-//require_once('common.php');
 require_once('models/Environnement.php');
 
 /**
@@ -458,19 +457,19 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyCronCo
 /**
  *  Activer ou désactiver le mode debug
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyDebugConfiguration") {
+// if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyDebugConfiguration") {
 
-    // Récupération de tous les paramètres définis dans le fichier repomanager.conf
-    $repomanager_conf_array = parse_ini_file($REPOMANAGER_CONF, true);
+//     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
+//     $repomanager_conf_array = parse_ini_file($REPOMANAGER_CONF, true);
 
-    if (!empty($_POST['debugMode']) AND validateData($_POST['debugMode']) === "enabled") {
-        $repomanager_conf_array['CONFIGURATION']['DEBUG_MODE'] = 'enabled';
-    } else {
-        $repomanager_conf_array['CONFIGURATION']['DEBUG_MODE'] = 'disabled';
-    }
+//     if (!empty($_POST['debugMode']) AND validateData($_POST['debugMode']) === "enabled") {
+//         $repomanager_conf_array['CONFIGURATION']['DEBUG_MODE'] = 'enabled';
+//     } else {
+//         $repomanager_conf_array['CONFIGURATION']['DEBUG_MODE'] = 'disabled';
+//     }
 
-    save($repomanager_conf_array);
-}
+//     save($repomanager_conf_array);
+// }
 
 /**
  *  Enregistrement
@@ -801,78 +800,78 @@ if (!empty($_GET['deleteEnv'])) {
         </table>
 
         <br><h3>PLANIFICATIONS</h3>
-        <table class="table-medium"> 
-            <?php
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>';
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="automatisationEnable" type="checkbox" class="onoff-switch-input" value="yes"'; if ($AUTOMATISATION_ENABLED == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty($AUTOMATISATION_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>';
-        
-            if ($AUTOMATISATION_ENABLED == "yes") { 
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié" />Autoriser la mise à jour automatique des repos</td>';
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="allowAutoUpdateRepos" type="checkbox" class="onoff-switch-input" value="yes"'; if ($ALLOW_AUTOUPDATE_REPOS == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty($ALLOW_AUTOUPDATE_REPOS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à modifier l\'environnement d\'un repo ou d\'un groupe de repos spécifié" />Autoriser la mise à jour automatique de l\'env des repos</td>';
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="allowAutoUpdateReposEnv" type="checkbox" class="onoff-switch-input" value="yes"'; if ($ALLOW_AUTOUPDATE_REPOS_ENV == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty($ALLOW_AUTOUPDATE_REPOS_ENV)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à supprimer les repos archivés (en fonction de la retention renseignée)" />Autoriser la suppression automatique des anciens repos archivés</td>';
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="allowAutoDeleteArchivedRepos" type="checkbox" class="onoff-switch-input" value="yes"'; if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty($ALLOW_AUTODELETE_ARCHIVED_REPOS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>'; 
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Nombre de repos archivés du même nom à conserver avant suppression" />Retention</td>';
-            echo "<td><input type=\"number\" name=\"retention\" autocomplete=\"off\" value=\"${RETENTION}\"></td>";
-            echo '<td class="td-fit">';
-            if (empty($RETENTION)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>';
-            echo '<tr>';
-            echo '<td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autorise repomanager à envoyer des rappels par mail des futures planifications. Un service d\'envoi de mail doit être configuré sur le serveur (sendmail)." />Recevoir des rappels de planifications</td>';
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="cronSendReminders" type="checkbox" class="onoff-switch-input" value="yes"'; if ($CRON_PLAN_REMINDERS_ENABLED == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty($CRON_PLAN_REMINDERS_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-            echo '</tr>'; 
-            } ?>
+        <table class="table-medium">
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à exécuter des opérations automatiquement à des dates et heures spécifiques" />Activer les planifications</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="automatisationEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($AUTOMATISATION_ENABLED == "yes") { echo 'checked'; }?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($AUTOMATISATION_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
+    <?php if ($AUTOMATISATION_ENABLED == "yes") { ?>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié" />Autoriser la mise à jour automatique des repos</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="allowAutoUpdateRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($ALLOW_AUTOUPDATE_REPOS == "yes") { echo 'checked'; } ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($ALLOW_AUTOUPDATE_REPOS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à modifier l\'environnement d\'un repo ou d\'un groupe de repos spécifié" />Autoriser la mise à jour automatique de l\'env des repos</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="allowAutoUpdateReposEnv" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($ALLOW_AUTOUPDATE_REPOS_ENV == "yes") { echo 'checked'; } ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($ALLOW_AUTOUPDATE_REPOS_ENV)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à supprimer les repos archivés (en fonction de la retention renseignée)" />Autoriser la suppression automatique des anciens repos archivés</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="allowAutoDeleteArchivedRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") { echo 'checked'; } ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($ALLOW_AUTODELETE_ARCHIVED_REPOS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr> 
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Nombre de repos archivés du même nom à conserver avant suppression" />Retention</td>
+                <td>
+                    <input type="number" name="retention" autocomplete="off" value="<?php echo $RETENTION;?>">
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($RETENTION)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="td-large"><img src="icons/info.png" class="icon-verylowopacity" title="Autorise repomanager à envoyer des rappels par mail des futures planifications. Un service d\'envoi de mail doit être configuré sur le serveur (sendmail)." />Recevoir des rappels de planifications</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="cronSendReminders" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_PLAN_REMINDERS_ENABLED == "yes") { echo 'checked'; } ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+                <td class="td-fit">
+                    <?php if (empty($CRON_PLAN_REMINDERS_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                </td>
+            </tr> 
+        <?php } ?>
             <tr>
                 <td><button type="submit" class="btn-medium-green">Enregistrer</button></td>
             </tr>
@@ -933,27 +932,26 @@ if (!empty($_GET['deleteEnv'])) {
                 <td>
                     <?php
                     /**
-                     *  Vérification de la présence du fichier de base de données
+                     *  Vérification de la lisibilité du fichier de base de données
                      */
-                    if (is_file("$WWW_DIR/db/repomanager.db")) {
-                        /**
-                         *  Vérification de la lisibilité du fichier
-                         */
-                        if (!is_readable("$WWW_DIR/db/repomanager.db")) {
-                            echo "Impossible de lire la base principale";
-                        } else {
-                            echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
-                        }
-
-                        /**
-                         *  Vérification de la présence des tables
-                         */
-                        
-
-
+                    if (!is_readable("$WWW_DIR/db/repomanager.db")) {
+                        echo "Impossible de lire la base principale";
                     } else {
-                        echo '<span>La base de données ne semble pas initialisée</span><img src="icons/redcircle.png" class="icon-small" />';
-                    }?>
+                        echo '<span title="OK">Accès</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
+                </td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la présence des tables
+                     */
+                    $myconn = new Connection('main', 'rw');
+
+                    if (!$myconn->checkMainTables()) {
+                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="icons/redcircle.png" class="icon-small" />';
+                    } else {
+                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
                 </td>
             </tr>
 
@@ -967,31 +965,63 @@ if (!empty($_GET['deleteEnv'])) {
                 <td>
                     <?php
                     /**
-                     *  Vérification de la présence du fichier de base de données
+                     *  Vérification de la lisibilité du fichier
                      */
-                    if (is_file("$WWW_DIR/db/repomanager-stats.db")) {
-                        /**
-                         *  Vérification de la lisibilité du fichier
-                         */
-                        if (!is_readable("$WWW_DIR/db/repomanager-stats.db")) {
-                            echo "Impossible de lire la base de données des statistiques";
-                        } else {
-                            echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
-                        }
-
-                        /**
-                         *  Vérification de la présence des tables
-                         */
-
-
-
-
+                    if (!is_readable("$WWW_DIR/db/repomanager-stats.db")) {
+                        echo "Impossible de lire la base de données des statistiques";
                     } else {
-                        echo '<span>La base de données ne semble pas initialisée</span><img src="icons/redcircle.png" class="icon-small" />';
-                    }?>
+                        echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
+                </td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la présence des tables
+                     */
+                    $myconn = new Connection('stats', 'rw');
+
+                    if (!$myconn->checkStatsTables()) {
+                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="icons/redcircle.png" class="icon-small" />';
+                    } else {
+                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
+                </td>
+            </tr>
+        <?php }
+            if ($MANAGE_HOSTS == "yes") { ?>
+            <tr>
+                <td class="td-fit">
+                    <img src="icons/info.png" class="icon-verylowopacity" title="Base de données des hôtes." />
+                </td>
+                <td class="td-50">Hosts</td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la lisibilité du fichier
+                     */
+                    if (!is_readable("$WWW_DIR/db/repomanager-hosts.db")) {
+                        echo "Impossible de lire la base de données des hôtes";
+                    } else {
+                        echo '<span title="OK">Status</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
+
+                </td>
+                <td>
+                    <?php
+                    /**
+                     *  Vérification de la présence des tables
+                     */
+                    $myconn = new Connection('hosts', 'rw');
+
+                    if (!$myconn->checkHostsTables()) {
+                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="icons/redcircle.png" class="icon-small" />';
+                    } else {
+                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="icons/greencircle.png" class="icon-small" />';
+                    } ?>
                 </td>
             </tr>
         <?php } ?>
+
         </table>
 
         <!--<form action="configuration.php" method="post">
@@ -1009,16 +1039,18 @@ if (!empty($_GET['deleteEnv'])) {
                     <td class="td-medium">
                         Activer la tâche cron journalière
                     </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="cronDailyEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_DAILY_ENABLED == "yes") { echo 'checked'; } ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td>
                     <?php
-                    echo '<td>';
-                    echo '<label class="onoff-switch-label">';
-                    echo '<input name="cronDailyEnable" type="checkbox" class="onoff-switch-input" value="yes"'; if ($CRON_DAILY_ENABLED == "yes") { echo 'checked'; } echo ' />';
-                    echo '<span class="onoff-switch-slider"></span>';
-                    echo '</label>';
-                    echo '</td>';
-                    echo '<td>';
                     if ($CRON_DAILY_ENABLED == "yes") {
-                        // si un fichier de log existe, on récupère l'état
+                        /**
+                         *  Si un fichier de log existe, on récupère l'état
+                         */
                         if (file_exists($CRON_LOG)) {
                             $cronStatus = exec("grep 'Status=' $CRON_LOG | cut -d'=' -f2 | sed 's/\"//g'");
                             if ($cronStatus === "OK") {
@@ -1032,13 +1064,13 @@ if (!empty($_GET['deleteEnv'])) {
                         if (!file_exists($CRON_LOG)) {
                             echo "<span>Status : inconnu</span>";
                         }
-                    }
-                    echo '</td>';
-                    echo '<td class="td-fit">';
-                        if (empty($CRON_DAILY_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-                    echo '</td>';
-                echo '</tr>';
-
+                    } ?>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty($CRON_DAILY_ENABLED)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                    </td>
+                </tr>
+            <?php
             if (!empty($cronStatus) AND $cronStatus === "KO") {
                 $cronError = shell_exec("cat $CRON_LOG | grep -v 'Status='");
                 echo '<tr>';
@@ -1056,62 +1088,62 @@ if (!empty($_GET['deleteEnv'])) {
                 echo '</tr>';
             }
 
-            if ($CRON_DAILY_ENABLED == "yes" AND $MANAGE_PROFILES == "yes") {
-                echo '<tr>';
-                echo '<td class="td-fit">';
-                echo '<img src="icons/info.png" class="icon-verylowopacity" title="Si la gestion des profils est activée. Regénère et nettoie les fichiers de configurations '; if ($OS_FAMILY == "Redhat") { echo '.repo'; } if ($OS_FAMILY == "Debian") { echo '.list'; } echo ' téléchargés par les serveurs clients." />';
-                echo '</td>';
-                echo '<td class="td-medium">Re-générer les fichiers de configurations de repos</td>';
-                echo '<td>';
-                echo '<label class="onoff-switch-label">';
-                echo '<input name="cronGenerateReposConf" type="checkbox" class="onoff-switch-input" value="yes"'; if ($CRON_GENERATE_REPOS_CONF == "yes") { echo 'checked'; } echo ' />';
-                echo '<span class="onoff-switch-slider"></span>';
-                echo '</label>';
-                echo '</td>';
-                echo '<td></td>'; // comble le td affichant le statut de la précédente ligne
-                echo '<td class="td-fit">';
-                if (empty($CRON_GENERATE_REPOS_CONF)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-                echo '</td>';
-                echo '</tr>';
-            }
+            if ($CRON_DAILY_ENABLED == "yes" AND $MANAGE_PROFILES == "yes") { ?>
+                <tr>
+                    <td class="td-fit">
+                        <img src="icons/info.png" class="icon-verylowopacity" title="Si la gestion des profils est activée. Regénère et nettoie les fichiers de configurations  if ($OS_FAMILY == "Redhat") { .repo } if ($OS_FAMILY == "Debian") { .list }  téléchargés par les serveurs clients." />
+                    </td>
+                    <td class="td-medium">Re-générer les fichiers de configurations de repos</td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="cronGenerateReposConf" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_GENERATE_REPOS_CONF == "yes") { echo 'checked'; } ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td></td>
+                    <td class="td-fit">
+                        <?php if (empty($CRON_GENERATE_REPOS_CONF)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                    </td>
+                </tr>
+    <?php   }
 
-            if ($CRON_DAILY_ENABLED == "yes") {
-                echo '<tr>';
-                echo '<td class="td-fit">';
-                echo '<img src="icons/info.png" class="icon-verylowopacity" title="Sauvegarder régulièrement la base de données et les fichiers de configuration de repomanager" />';
-                echo '</td>';
-                echo '<td class="td-medium">Sauvegarder régulièrement la base de données et les fichiers de configuration</td>';
-                echo '<td>';
-                echo '<label class="onoff-switch-label">';
-                echo '<input name="cronSaveConf" type="checkbox" class="onoff-switch-input" value="yes"'; if ($CRON_SAVE_CONF == "yes") { echo 'checked'; } echo ' />';
-                echo '<span class="onoff-switch-slider"></span>';
-                echo '</label>';
-                echo '</td>';
-                echo '<td></td>'; // comble le td affichant le statut de la précédente ligne
-                echo '<td class="td-fit">';
-                if (empty($CRON_SAVE_CONF)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-                echo '</td>';
-                echo '</tr>';
-            }
+            if ($CRON_DAILY_ENABLED == "yes") { ?>
+                <tr>
+                    <td class="td-fit">
+                        <img src="icons/info.png" class="icon-verylowopacity" title="Sauvegarder régulièrement la base de données et les fichiers de configuration de repomanager" />
+                    </td>
+                    <td class="td-medium">Sauvegarder régulièrement la base de données et les fichiers de configuration</td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="cronSaveConf" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_SAVE_CONF == "yes") { echo 'checked'; } ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td></td>
+                    <td class="td-fit">
+                        <?php if (empty($CRON_SAVE_CONF)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                    </td>
+                </tr>
+    <?php   }
 
-            if ($CRON_DAILY_ENABLED == "yes") {
-                echo '<tr>';
-                echo '<td class="td-fit">';
-                echo '<img src="icons/info.png" class="icon-verylowopacity" title="" />';
-                echo '</td>';
-                echo '<td class="td-medium">Re-appliquer les permissions sur les miroirs</td>';
-                echo '<td>';
-                echo '<label class="onoff-switch-label">';
-                echo '<input name="cronApplyPerms" type="checkbox" class="onoff-switch-input" value="yes"'; if ($CRON_APPLY_PERMS == "yes") { echo 'checked'; } echo ' />';
-                echo '<span class="onoff-switch-slider"></span>';
-                echo '</label>';
-                echo '</td>';
-                echo '<td></td>'; // comble le td affichant le statut de la précédente ligne
-                echo '<td class="td-fit">';
-                if (empty($CRON_APPLY_PERMS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-                echo '</td>';
-                echo '</tr>';
-            }
+            if ($CRON_DAILY_ENABLED == "yes") { ?>
+                <tr>
+                    <td class="td-fit">
+                        <img src="icons/info.png" class="icon-verylowopacity" title="" />
+                    </td>
+                    <td class="td-medium">Re-appliquer les permissions sur les miroirs</td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="cronApplyPerms" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($CRON_APPLY_PERMS == "yes") { echo 'checked'; } ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td></td>
+                    <td class="td-fit">
+                        <?php if (empty($CRON_APPLY_PERMS)) { echo '<img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>
+                    </td>
+                </tr>
+    <?php   }
             
             if ($AUTOMATISATION_ENABLED == "yes" AND $CRON_PLAN_REMINDERS_ENABLED == "yes") {
                 echo '<tr>';
@@ -1129,29 +1161,32 @@ if (!empty($_GET['deleteEnv'])) {
                 echo '</tr>';
             } 
             
-            if ($CRON_STATS_ENABLED == "yes") {
-                echo '<tr>';
-                echo '<td class="td-fit">';
-                echo '<img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron générant des statistiques pour chaque repo" />';
-                echo '</td>';
-                echo '<td class="td-medium">Génération de statistiques</td>';
-                echo '<td></td>'; // comble les td affichant des boutons radio de la précédente ligne
-                echo '<td>';
-                // si un fichier de log existe, on récupère l'état
-                if (file_exists($CRON_STATS_LOG)) {
-                    $cronStatus = exec("grep 'Status=' $CRON_STATS_LOG | cut -d'=' -f2 | sed 's/\"//g'");
-                    if ($cronStatus === "OK") {
-                        echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
+            if ($CRON_STATS_ENABLED == "yes") { ?>
+                <tr>
+                    <td class="td-fit">
+                        <img src="icons/info.png" class="icon-verylowopacity" title="Tâche cron générant des statistiques pour chaque repo" />
+                    </td>
+                    <td class="td-medium">Génération de statistiques</td>
+                    <td></td> 
+                    <td>
+
+                    <?php
+                    /**
+                     *  si un fichier de log existe, on récupère l'état
+                     */
+                    if (file_exists($CRON_STATS_LOG)) {
+                        $cronStatus = exec("grep 'Status=' $CRON_STATS_LOG | cut -d'=' -f2 | sed 's/\"//g'");
+                        if ($cronStatus === "OK") {
+                            echo '<span title="OK">Status <img src="icons/greencircle.png" class="icon-small" /></span>';
+                        }
+                        if ($cronStatus === "KO") {
+                            echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon-small" /></span>';
+                        }
                     }
-                    if ($cronStatus === "KO") {
-                        echo '<span title="Erreur">Status <img src="icons/redcircle.png" class="icon-small" /></span>';
-                       // echo '<img id="cronjobStatusButton" src="icons/search.png" class="icon-lowopacity pointer" title="Afficher les détails" />';
+                    if (!file_exists($CRON_STATS_LOG)) {
+                        echo "<span>Status : inconnu</span>";
                     }
-                }
-                if (!file_exists($CRON_STATS_LOG)) {
-                    echo "<span>Status : inconnu</span>";
-                }
-                echo '</td>';
+                    echo '</td>';
                 echo '</tr>';
             } ?>
             <tr>
@@ -1162,24 +1197,6 @@ if (!empty($_GET['deleteEnv'])) {
             </tr>
             </table>
         </form>
-
-        <!--<br><h3>MODE DEBUG</h3>
-        <form action="configuration.php" method="post">
-        <input type="hidden" name="action" value="applyDebugConfiguration" />
-            <table class="table-medium">
-                <tr>
-                    <td>
-                        <label class="onoff-switch-label">
-                        <input name="debugMode" type="checkbox" class="onoff-switch-input" value="enabled" <?php //if ($DEBUG_MODE == "enabled") { echo 'checked'; }?> />
-                        <span class="onoff-switch-slider"></span>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td><button type="submit" class="btn-medium-green">Enregistrer</button></td>
-                </tr>
-            </table>
-        </form>-->
     </section>
 </section>
 </article>

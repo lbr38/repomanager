@@ -2,7 +2,7 @@
 
 class Connection extends SQLite3 {
 
-    public function __construct(string $database, string $mode, ?string $hostId)
+    public function __construct(string $database, string $mode, string $hostId = null)
     {
         global $WWW_DIR;
 
@@ -38,7 +38,7 @@ class Connection extends SQLite3 {
                     /**
                      *  Génération des tables si n'existent pas
                      */
-                    $this->generateMainTables();
+                    //$this->generateMainTables();
                 }
 
             /**
@@ -59,7 +59,7 @@ class Connection extends SQLite3 {
                     /**
                      *  Génération des tables si n'existent pas
                      */
-                    $this->generateStatsTables();
+                    //$this->generateStatsTables();
                 }
                 
             /**
@@ -80,7 +80,7 @@ class Connection extends SQLite3 {
                     /**
                      *  Génération des tables si n'existent pas
                      */
-                    $this->generateHostsTables();
+                    //$this->generateHostsTables();
                 }
 
             /**
@@ -131,6 +131,128 @@ class Connection extends SQLite3 {
             die('Erreur lors de la configuration du timeout de la base de données : '.$e->getMessage());
         }        
     }
+
+
+    /**
+     *  
+     *  Fonctions de vérification des tables
+     * 
+     */
+
+    /**
+     *  Compte le nombre de tables dans la base de données principale
+     */
+    public function countMainTables()
+    {
+        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
+        AND name='repos'
+        OR name='repos_archived'
+        OR name='env'
+        OR name='sources'
+        OR name='groups' 
+        OR name='group_members' 
+        OR name='operations' 
+        OR name='planifications'
+        OR name='profile_package'
+        OR name='profile_service'");
+
+        /**
+         *  On retourne le nombre de tables
+         */
+        return $this->count($result);
+    }
+
+    /**
+     *  Compte le nombre de tables dans la base de données stats
+     */
+    public function countStatsTables()
+    {
+        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
+        AND name='stats'
+        OR name='access'");
+
+        /**
+         *  On retourne le nombre de tables
+         */
+        return $this->count($result);
+    }
+
+    /**
+     *  Compte le nombre de tables dans la base de données hosts
+     */
+    public function countHostsTables()
+    {
+        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
+        AND name='hosts'
+        OR name='groups'
+        OR name='group_members'");
+
+        /**
+         *  On retourne le nombre de tables
+         */
+        return $this->count($result);
+    }
+
+    /**
+     *  Vérification de la présence de toutes les tables dans la base de données principale
+     */
+    public function checkMainTables()
+    {
+        /**
+         *  Si le nombre de tables présentes != 10 alors on tente de regénérer les tables
+         */
+        if ($this->countMainTables() != 10) {
+            $this->generateMainTables();
+
+            /**
+             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             */
+            if ($this->countMainTables() != 10) return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérification de la présence de toutes les tables dans la base de données stats
+     */
+    public function checkStatsTables()
+    {
+        /**
+         *  Si le nombre de tables présentes != 2 alors on tente de regénérer les tables
+         */
+        if ($this->countStatsTables() != 2) {
+            $this->generateStatsTables();
+
+            /**
+             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             */
+            if ($this->countStatsTables() != 2) return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifications de la présence de toutes les tables dans la base de données hosts
+     */
+    public function checkHostsTables()
+    {
+        /**
+         *  Si le nombre de tables présentes != 3 alors on tente de regénérer les tables
+         */
+        if ($this->countHostsTables() != 3) {
+            $this->generateHostsTables();
+
+            /**
+             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             */
+            if ($this->countHostsTables() != 3) return false;
+        }
+
+        return true;
+    }
+
 
     /**
      *  

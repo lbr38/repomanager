@@ -36,8 +36,7 @@ fi
 
 # Afficher l'aide à l'écran
 print_help() { 
-	echo -e "\n ${JAUNE}Toutes les opérations s'effectuent depuis l'interface web.${RESET}\n"
-	echo -e "   Paramètres disponibles en ligne de commande :"
+	echo -e "\n   Paramètres disponibles en ligne de commande :"
 	echo -e "   -i | --install          ➤   Lancer l'assistant d'installation de repomanager."
 	echo -e "   -p | --set-permissions  ➤   Remettre en place les bonnes permissions sur les différents répertoires utilisés par repomanager.\n\n\n"
 }
