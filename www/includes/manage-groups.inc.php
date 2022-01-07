@@ -1,6 +1,4 @@
-<?php require_once('models/Group.php');?>
-
-<img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
+<img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
 <h3>GROUPES</h3>
 <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
 <br>
@@ -40,8 +38,8 @@
 									<input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
 								</td>
 								<td class="td-fit">
-									<img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="icons/cog.png" />
-									<img src="icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe ${groupName}" />
+									<img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="ressources/icons/cog.png" />
+									<img src="ressources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe ${groupName}" />
 								</td>
 							</tr>
 						</table>
@@ -52,8 +50,8 @@
 					<form class="groupReposForm" groupname="<?php echo $groupName;?>" autocomplete="off">
 						<input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
 						<?php
-						if ($OS_FAMILY == "Redhat") echo '<p><b>Repos</b></p>';
-						if ($OS_FAMILY == "Debian") echo '<p><b>Sections de repos</b></p>'; ?>
+						if (OS_FAMILY == "Redhat") echo '<p><b>Repos</b></p>';
+						if (OS_FAMILY == "Debian") echo '<p><b>Sections de repos</b></p>'; ?>
 						<table class="table-large">
 							<tr>
 								<td>

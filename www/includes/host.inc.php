@@ -1,8 +1,11 @@
 <?php
-$WWW_DIR = dirname(__FILE__, 2);
-require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/models/Host.php");
+
+if (!defined('ROOT')) {
+    define('ROOT', dirname(__FILE__, 2));
+}
+require_once(ROOT.'/models/Autoloader.php');
+Autoloader::loadAll();
+require_once(ROOT."/functions/common-functions.php");
 
 $idError = 0;
 
@@ -17,6 +20,7 @@ if (!empty($_GET['id'])) {
      *  Récupération de toutes les informations de base concernant cet hôte
      */
     $hostProperties = $myhost->db_getAll();
+
     if (!empty($hostProperties)) {
         $id           = $hostProperties['Id'];
         $hostname     = $hostProperties['Hostname'];
@@ -30,7 +34,8 @@ if (!empty($_GET['id'])) {
         /**
          *  Si on a pu récupérer les informations de l'hôte alors on ouvre sa base de données (lecture seule)
          */
-        $myhost->openHostDb($id, 'ro');
+        $myhost->openHostDb($id, 'rw');
+
     } else {
         $idError++;
     }
@@ -78,7 +83,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
             <div class="div-flex">
                 <div class="hosts-div-100">
                     
-                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
+                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
 
                     <table class="host-properties-table">
                         <tr>
@@ -90,11 +95,11 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             <td>
                                 <?php
                                 if ($onlineStatus == "online")
-                                    echo '<span><img src="icons/greencircle.png" class="icon-small" title="En ligne" />Online</span>';
+                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" />Online</span>';
                                 if ($onlineStatus == "unknown")
-                                    echo '<img src="icons/redcircle.png" class="icon-small" title="Inconnu" />';
+                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />';
                                 if ($onlineStatus == "unreachable")
-                                    echo '<img src="icons/redcircle.png" class="icon-small" title="Injoignable" />';
+                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" />';
                                 ?>
                             </td>
                         </tr>
@@ -104,13 +109,13 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             if (!empty($os) AND !empty($os_version)) {
                                 echo '<td>';
                                 if ($os == "Centos" OR $os == "centos" OR $os == "CentOS") {
-                                    echo '<img src="icons/centos.png" class="icon" />';
+                                    echo '<img src="ressources/icons/centos.png" class="icon" />';
                                 } elseif ($os == "Debian" OR $os == "debian") {
-                                    echo '<img src="icons/debian.png" class="icon" />';
+                                    echo '<img src="ressources/icons/debian.png" class="icon" />';
                                 } elseif ($os == "Ubuntu" OR $os == "ubuntu" OR $os == "linuxmint") {
-                                    echo '<img src="icons/ubuntu.png" class="icon" />';
+                                    echo '<img src="ressources/icons/ubuntu.png" class="icon" />';
                                 } else {
-                                    echo '<img src="icons/tux.png" class="icon" />';
+                                    echo '<img src="ressources/icons/tux.png" class="icon" />';
                                 }
                                 echo ucfirst($os).' '.$os_version;
                                 echo '</td>';
@@ -143,7 +148,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                 <div class="hosts-div-50">
                     <h4>ETATS DES PAQUETS</h4>
 
-                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
+                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
 
                     <table class="hosts-table">
                         <thead>
@@ -169,7 +174,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                  *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet disponible
                                  */
                                 if ($packagesAvailableCount > 0) {
-                                    echo ' <img src="icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
+                                    echo ' <img src="ressources/icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
                                 }
                                 ?>
                                 </td>
@@ -180,7 +185,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                      *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet installé
                                      */
                                     if ($packagesInstalledCount > 0) {
-                                        echo ' <img src="icons/search.png" id="packagesInstalledButton" class="icon-lowopacity" />';
+                                        echo ' <img src="ressources/icons/search.png" id="packagesInstalledButton" class="icon-lowopacity" />';
                                     }
                                     ?>
                                 </td>
@@ -190,7 +195,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
 
                     <div id="packagesContainer">
 
-                        <span id="packagesContainerLoader">Chargement <img src="../images/loading.gif" class="icon" /></span>
+                        <span id="packagesContainerLoader">Chargement <img src="../ressources/images/loading.gif" class="icon" /></span>
 
                         <div id="packagesAvailableDiv" class="hide">
                             <table class="packages-table">
@@ -207,33 +212,33 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                             echo '<tr>';
                                                 echo '<td>';
                                                 if (preg_match('/python/i', $package['Name'])) {
-                                                    echo '<img src="../icons/products/python.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/python.png" class="icon" />';
                                                 } elseif (preg_match('/^code$/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/vscode.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
                                                 } elseif (preg_match('/^firefox/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/firefox.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
                                                 } elseif (preg_match('/^chrome-$/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/chrome.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
                                                 } elseif (preg_match('/^chromium-$/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/chromium.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
                                                 } elseif (preg_match('/^brave-browser$/i', $package['Name'])) {
-                                                    echo '<img src="../icons/products/brave.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
                                                 } elseif (preg_match('/^filezilla/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/filezilla.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
                                                 } elseif (preg_match('/^java/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/java.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/java.png" class="icon" />';
                                                 } elseif (preg_match('/^fonts-/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/fonts.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/fonts.png" class="icon" />';
                                                 } elseif (preg_match('/^teams$/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/teams.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
                                                 } elseif (preg_match('/^teamviewer$/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/teamviewer.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
                                                 } elseif (preg_match('/^thunderbird/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/thunderbird.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
                                                 } elseif (preg_match('/^vlc/i', $package['Name'])) { 
-                                                    echo '<img src="../icons/products/vlc.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
                                                 } else {
-                                                    echo '<img src="../icons/products/package.png" class="icon" />';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" />';
                                                 }
                                                 echo $package['Name'];
                                                 echo '</td>';
@@ -264,31 +269,31 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                             echo '<tr class="pkg-row">';
                                             echo '<td>';
                                             if (preg_match('/python/i', $package['Name'])) {
-                                                echo '<img src="../icons/products/python.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/vscode.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
                                             } elseif (preg_match('/^firefox/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/firefox.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
                                             } elseif (preg_match('/^chrome-/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/chrome.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
                                             } elseif (preg_match('/^chromium-/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/chromium.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
                                             } elseif (preg_match('/^brave-/i', $package['Name'])) {
-                                                echo '<img src="../icons/products/brave.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
                                             } elseif (preg_match('/^filezilla/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/filezilla.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
                                             } elseif (preg_match('/^java/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/java.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/java.png" class="icon" />';
                                             } elseif (preg_match('/^teams$/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/teams.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
                                             } elseif (preg_match('/^teamviewer$/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/teamviewer.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
                                             } elseif (preg_match('/^thunderbird/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/thunderbird.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
                                             } elseif (preg_match('/^vlc/i', $package['Name'])) { 
-                                                echo '<img src="../icons/products/vlc.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
                                             } else {
-                                                echo '<img src="../icons/products/package.png" class="icon" />';
+                                                echo '<img src="../ressources/icons/products/package.png" class="icon" />';
                                             }
                                             if ($package['State'] == "inventored" OR $package['State'] == "installed" OR $package['State'] == "upgraded") {
                                                 echo $package['Name'];
@@ -311,7 +316,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                 <div class="hosts-div-50">
                     <h4>HISTORIQUE</h4>
                     
-                    <!--<span class="host-update-request-btn btn-medium-blue"><img src="../icons/update.png" class="icon" /><b>Mettre à jour</b></span>-->
+                    <!--<span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span>-->
 
                     <div id="eventsContainer">
                         
@@ -369,29 +374,29 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                                 $dependenciesInstalled_count = 0;
 
                                                 if ($packagesInstalled_count == 0) {
-                                                    echo '<img src="../icons/products/package.png" class="icon" /><i title="Paquets installés">'.$packagesInstalled_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets installés">'.$packagesInstalled_count.'</i>';
                                                 } else {
-                                                    echo '<img src="../icons/products/package.png" class="icon yellowimg" /><i class="yellowtext" title="Paquets installés">'.$packagesInstalled_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="installed">'.$packagesInstalled_count.'</i>';
                                                 }
                                                 if ($packagesUpdated_count == 0) {
-                                                    echo '<img src="../icons/update.png" class="icon" /><i title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
+                                                    echo '<img src="../ressources/icons/update.png" class="icon" /><i title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
                                                 } else {
-                                                    echo '<img src="../icons/update.png" class="icon yellowimg" /><i class="yellowtext" title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
+                                                    echo '<img src="../ressources/icons/update.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="upgraded">'.$packagesUpdated_count.'</i>';
                                                 }
                                                 if ($packagesDowngraded_count == 0) {
-                                                    echo '<img src="../icons/products/package.png" class="icon" /><i title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
                                                 } else {
-                                                    echo '<img src="../icons/products/package.png" class="icon yellowimg" /><i class="yellowtext" title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="downgraded">'.$packagesDowngraded_count.'</i>';
                                                 }
                                                 if ($dependenciesInstalled_count == 0) {
-                                                    echo '<img src="../icons/products/package.png" class="icon" /><i title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
                                                 } else {
-                                                    echo '<img src="../icons/products/package.png" class="icon yellowimg" /><i class="yellowtext" title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
+                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer">'.$dependenciesInstalled_count.'</i>';
                                                 }
                                                 if ($packagesRemoved_count == 0) {
-                                                    echo '<img src="../icons/bin.png" class="icon" /><i title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
+                                                    echo '<img src="../ressources/icons/bin.png" class="icon" /><i title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
                                                 } else {
-                                                    echo '<img src="../icons/bin.png" class="icon yellowimg" /><i class="yellowtext" title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
+                                                    echo '<img src="../ressources/icons/bin.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="removed">'.$packagesRemoved_count.'</i>';
                                                 }
                                             }
                                             ?>
@@ -405,7 +410,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                     /**
                                      * 	Affichage du bouton Afficher tout
                                      */
-                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
+                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
                                 }
                             } ?>
                     </div>

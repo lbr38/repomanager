@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Connection.php");
-
 abstract class Model {
 
     public $db;
@@ -14,7 +12,6 @@ abstract class Model {
     {
         if (!empty($hostId)) {
             $this->host_db = new Connection($database, $mode, $hostId);
-            
         } else {
             $this->db = new Connection($database, $mode);
         }

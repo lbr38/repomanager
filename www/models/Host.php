@@ -1,7 +1,4 @@
 <?php
-$WWW_DIR = "/var/www/repomanager";
-require_once("${WWW_DIR}/models/Model.php");
-require_once("${WWW_DIR}/functions/common-functions.php");
 
 class Host extends Model {
     protected $host_db; // BDD dédiée à l'hôte
@@ -660,12 +657,12 @@ class Host extends Model {
      */
     public function register()
     {
-        global $WWW_DIR;
-
         /**
-         *  Lorsque appelé par l'api, $HOSTS_DIR n'est pas setté, donc on le fait
+         *  Lorsque appelé par l'api, HOSTS_DIR n'est pas setté, donc on le fait
          */
-        $HOSTS_DIR = "${WWW_DIR}/hosts";
+        if (!defined('HOSTS_DIR')) {
+            define('HOSTS_DIR', ROOT.'/hosts');
+        }
 
         /**
          *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
@@ -766,7 +763,7 @@ class Host extends Model {
              *  Création d'un répertoire dédié pour cet hôte, à partir de son ID
              *  Sert à stocker des rapport de mise à jour et une BDD pour l'hôte
              */
-            if (!mkdir("${HOSTS_DIR}/{$this->id}", 0770, true)) {
+            if (!mkdir(HOSTS_DIR."/{$this->id}", 0770, true)) {
                 if ($this->callFromApi == 'no') printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 return 5;
             }
@@ -780,7 +777,7 @@ class Host extends Model {
             /**
              *  Création d'un répertoire 'reports' pour cet hôte
              */
-            if (!mkdir("${HOSTS_DIR}/{$this->id}/reports", 0770, true)) {
+            if (!mkdir(HOSTS_DIR."/{$this->id}/reports", 0770, true)) {
                 if ($this->callFromApi == 'no') printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 return 5;
             }
@@ -1547,6 +1544,51 @@ class Host extends Model {
     }
 
     /**
+     *  Récupère le détails d'un évènement sur un type de paquets en particulier (installés, mis à jour, etc...)
+     *  Cette fonction est notamment déclenchée au passage de la souris sur une ligne de l'historique des évènements
+     */
+    public function getEventDetails(string $eventId, string $packageState)
+    {
+        /**
+         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
+         */
+        if (empty($this->id)) return false;
+
+        /**
+         *  Ouverture de la BDD dédiée de l'hôte
+         */
+        $this->openHostDb($this->id, 'rw');
+
+        try {
+            //$stmt = $this->host_db->prepare("SELECT Name, Version FROM packages, packages_history WHERE Id_event = :id_event AND State = :state");
+            $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages
+            WHERE Id_event = :id_event AND State = :state
+            UNION
+            SELECT Name, Version FROM packages_history
+            WHERE Id_event = :id_event AND State = :state");
+            $stmt->bindValue(':id_event', validateData($eventId));
+            $stmt->bindValue(':state', validateData($packageState));
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            throw new Exception('');
+        }
+
+        $packageState = validateData($packageState);
+        if ($packageState == 'installed')  $content = '<span><b>Installé(s) :</b></span><br>';
+        if ($packageState == 'upgraded')   $content = '<span><b>Mis à jour :</b></span><br>';
+        if ($packageState == 'removed')    $content = '<span><b>Désinstallé(s) :</b></span><br>';
+        if ($packageState == 'downgraded') $content = '<span><b>Rétrogradé(s) :</b></span><br>';
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $content .= '<span>• <b>'.$row['Name']. '</b> ('.$row['Version'].')</span><br>';
+        } 
+
+        $this->host_db->close();
+
+        return $content;
+    }
+
+    /**
      *  Récupère l'historique complet d'un paquet (son installation, ses mises à jour, etc...)
      */
     public function getPackageTimeline($packageName)
@@ -1592,7 +1634,7 @@ class Host extends Model {
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'gray';
-                $content_text = '<img src="../icons/products/package.png" class="icon" /> Inventorié';
+                $content_text = '<img src="../ressources/icons/products/package.png" class="icon" /> Inventorié';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
@@ -1600,7 +1642,7 @@ class Host extends Model {
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'blue';
-                $content_text = '<img src="../icons/update.png" class="icon" /> Mis à jour';
+                $content_text = '<img src="../ressources/icons/update.png" class="icon" /> Mis à jour';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
@@ -1608,7 +1650,7 @@ class Host extends Model {
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../icons/arrow-back.png" class="icon" /> Rétrogradé';
+                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Rétrogradé';
             }
             $content_version = $event['Version'];
 

@@ -1,9 +1,5 @@
 <?php
-require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/models/Model.php");
-require_once("${WWW_DIR}/models/Log.php");
-require_once("${WWW_DIR}/models/Group.php");
-include_once("${WWW_DIR}/models/includes/cleanArchives.php");
+include_once(ROOT."/models/includes/cleanArchives.php");
 
 class Repo extends Model {
     public $id; // l'id en BDD du repo
@@ -37,10 +33,6 @@ class Repo extends Model {
     use cleanArchives;
 
     public function __construct(array $variables = []) {
-        global $OS_FAMILY;
-        global $DEFAULT_ENV;
-        global $DATE_YMD;
-        global $DATE_DMY;
 
         extract($variables);
 
@@ -62,7 +54,7 @@ class Repo extends Model {
         /* Section (Debian) */
         if (!empty($repoSection)) $this->section = $repoSection;
         /* Env */
-        if (empty($repoEnv)) { $this->env = $DEFAULT_ENV; } else { $this->env = $repoEnv; }
+        if (empty($repoEnv)) { $this->env = DEFAULT_ENV; } else { $this->env = $repoEnv; }
         /* New env */
         if (!empty($repoNewEnv)) $this->newEnv = $repoNewEnv;
         /* Groupe */
@@ -88,8 +80,8 @@ class Repo extends Model {
         /* Date */
         if (empty($repoDate)) {
             // Si aucune date n'a été transmise alors on prend la date du jour
-            $this->date = $DATE_YMD;
-            $this->dateFormatted = $DATE_DMY;
+            $this->date = DATE_YMD;
+            $this->dateFormatted = DATE_DMY;
         } else {
             /**
              *  A TESTER : nouvelle façon d'initialiser la date si elle a été transmise
@@ -131,7 +123,7 @@ class Repo extends Model {
             /**
              *  On récupère au passage l'url source complète
              */
-            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") $this->getFullSource();
+            if (OS_FAMILY == "Debian" AND $this->type == "mirror") $this->getFullSource();
         }
         /* Signed */
         if (!empty($repoSigned)) $this->signed = $repoSigned;
@@ -185,12 +177,10 @@ class Repo extends Model {
  *  Retourne un array de tous les repos/sections
  */
     public function listAll() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Env ASC");
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
         }
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
@@ -202,12 +192,10 @@ class Repo extends Model {
  *  Retourne un array de tous les repos/sections archivé(e)s
  */
     public function listAll_archived() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC");
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
         }
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
@@ -219,9 +207,8 @@ class Repo extends Model {
  *  Retourne un array de tous les repos/sections (nom seulement)
  */
     public function listAll_distinct() {
-        global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC"); }
-        if ($OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
+        if (OS_FAMILY == "Redhat") { $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC"); }
+        if (OS_FAMILY == "Debian") { $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC"); }
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
         if (!empty($repos)) return $repos;
@@ -231,9 +218,8 @@ class Repo extends Model {
  *  Retourne un array de tous les repos/sections (nom seulement), sur un environnement en particulier
  */
     public function listAll_distinct_byEnv(string $env) {
-        global $OS_FAMILY;
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
         $stmt->bindValue(':env', $env);
         $result = $stmt->execute();
 
@@ -246,10 +232,8 @@ class Repo extends Model {
  *  Compter le nombre total de repos/sections
  */
     public function countActive() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
+        if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
+        if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
 
         $count = $this->db->count($result);
 
@@ -260,10 +244,8 @@ class Repo extends Model {
  *  Compter le nombre total de repos/sections archivé(e)s
  */
     public function countArchived() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
-        if ($OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
+        if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
+        if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
 
         $count = $this->db->count($result);
 
@@ -403,7 +385,7 @@ class Repo extends Model {
         if ($this->db->isempty($result) === true) return false;
 
         return true;
-}
+    }
 
 /**
  *  Vérifie que la distribution existe
@@ -521,12 +503,10 @@ class Repo extends Model {
  *  Récupère l'ID du repo/de la section en BDD
  */
     public function db_getId() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
             $stmt->bindValue(':section', $this->section);
         }
@@ -544,12 +524,10 @@ class Repo extends Model {
      *  Comme au dessus mais pour un repo/section archivé
      */
     public function db_getId_archived() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
             $stmt->bindValue(':section', $this->section);
         }
@@ -567,8 +545,6 @@ class Repo extends Model {
  *  Recupère toutes les information du repo/de la section en BDD à partir de son ID et de son état (active ou archived)
  */
     public function db_getAllById(string $state = '') {
-        global $OS_FAMILY;
-
         /**
          *  Si on a précisé un state en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
          *  Sinon dans tous les autres cas on interroge la table par défaut càd les repos actifs
@@ -588,12 +564,12 @@ class Repo extends Model {
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->name = $row['Name'];
-            if ($OS_FAMILY == 'Debian') {
+            if (OS_FAMILY == 'Debian') {
                 $this->dist = $row['Dist'];
                 $this->section = $row['Section'];
             }
             $this->source = $row['Source'];
-            if ($OS_FAMILY == "Debian" AND $this->type == "mirror") {
+            if (OS_FAMILY == "Debian" AND $this->type == "mirror") {
                 $this->getFullSource();
             }
             $this->date = $row['Date'];
@@ -611,12 +587,10 @@ class Repo extends Model {
  *  Recupère toutes les information du repo/de la section en BDD à partir de son nom et son env
  */
     public function db_getAll() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
             $stmt->bindValue(':section', $this->section);
         }
@@ -637,13 +611,11 @@ class Repo extends Model {
  *  Récupère la date du repo/section en BDD
  */
     public function db_getDate() {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
         $stmt->bindValue(':name', $this->name);
         $stmt->bindValue(':env', $this->env);
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->dist);
             $stmt->bindValue(':section', $this->section);
         }
@@ -670,19 +642,12 @@ class Repo extends Model {
  *  Recupère la source du repo/section en BDD
  */
     public function db_getSource() {
-        global $OS_FAMILY;
-
         $stmt = $this->db->prepare("SELECT Source FROM repos WHERE Id=:id AND Status = 'active'");
         $stmt->bindValue(':id', $this->id);
         $result = $stmt->execute();
         while ($row = $result->fetchArray()) $this->source = $row['Source'];
 
         if (empty($this->source)) throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la source de du repo <b>$this->name</b>");
-
-        /**
-         *  On récupère au passage l'url source complète
-         */
-        // $this->getFullSource();
     }
 
 /**
@@ -781,42 +746,36 @@ class Repo extends Model {
  *  GENERATION DE CONF
  */
     public function generateConf(string $destination) {
-        global $REPOS_PROFILES_CONF_DIR;
-        global $REPO_CONF_FILES_PREFIX;
-        global $WWW_HOSTNAME;
-        global $GPG_SIGN_PACKAGES;
-        global $OS_FAMILY;
-
         // On peut préciser à la fonction le répertoire de destination des fichiers. Si on précise une valeur vide ou bien "default", alors les fichiers seront générés dans le répertoire par défaut
         if (empty($destination) OR $destination == "default") {
-            $destination = $REPOS_PROFILES_CONF_DIR;
+            $destination = REPOS_PROFILES_CONF_DIR;
         }
 
         // Génération du fichier pour Redhat/Centos
-        if ($OS_FAMILY == "Redhat") {
-            $content = "# Repo {$this->name} sur ${WWW_HOSTNAME}";
-            $content = "${content}\n[${REPO_CONF_FILES_PREFIX}{$this->name}___ENV__]";
-            $content = "${content}\nname=Repo {$this->name} sur ${WWW_HOSTNAME}";
-            $content = "${content}\ncomment=Repo {$this->name} sur ${WWW_HOSTNAME}";
-            $content = "${content}\nbaseurl=https://${WWW_HOSTNAME}/repo/{$this->name}___ENV__";
+        if (OS_FAMILY == "Redhat") {
+            $content = "# Repo {$this->name} sur ".WWW_HOSTNAME;
+            $content = "${content}\n[".REPO_CONF_FILES_PREFIX."{$this->name}___ENV__]";
+            $content = "${content}\nname=Repo {$this->name} sur ".WWW_HOSTNAME;
+            $content = "${content}\ncomment=Repo {$this->name} sur ".WWW_HOSTNAME;
+            $content = "${content}\nbaseurl=https://".WWW_HOSTNAME."/repo/{$this->name}___ENV__";
             $content = "${content}\nenabled=1";
-            if ($GPG_SIGN_PACKAGES == "yes") {
+            if (GPG_SIGN_PACKAGES == "yes") {
             $content = "${content}\ngpgcheck=1";
-            $content = "${content}\ngpgkey=https://${WWW_HOSTNAME}/repo/${WWW_HOSTNAME}.pub";
+            $content = "${content}\ngpgkey=https://".WWW_HOSTNAME."/repo/".WWW_HOSTNAME.".pub";
             } else {
             $content = "${content}\ngpgcheck=0";
             }
             // Création du fichier si n'existe pas déjà
-            if (!file_exists("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo")) {
-            touch("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo");
+            if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
+                touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
             }
             // Ecriture du contenu dans le fichier
-            file_put_contents("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo", $content);
+            file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo", $content);
         }
         // Génération du fichier pour Debian
-        if ($OS_FAMILY == "Debian") {
-            $content = "# Repo {$this->name}, distribution {$this->dist}, section {$this->section} sur ${WWW_HOSTNAME}";
-            $content = "${content}\ndeb https://${WWW_HOSTNAME}/repo/{$this->name}/{$this->dist}/{$this->section}___ENV__ {$this->dist} {$this->section}";
+        if (OS_FAMILY == "Debian") {
+            $content = "# Repo {$this->name}, distribution {$this->dist}, section {$this->section} sur ".WWW_HOSTNAME;
+            $content = "${content}\ndeb https://".WWW_HOSTNAME."/repo/{$this->name}/{$this->dist}/{$this->section}___ENV__ {$this->dist} {$this->section}";
             
             // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
             //$checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
@@ -827,11 +786,11 @@ class Repo extends Model {
                 $repoDistFormatted = $this->dist;
             }
             // Création du fichier si n'existe pas déjà
-            if (!file_exists("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                touch("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list");
+            if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
+                touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
             }
             // Ecriture du contenu dans le fichier
-            file_put_contents("${destination}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list", $content);
+            file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list", $content);
         }
 
         unset($content);
@@ -842,30 +801,24 @@ class Repo extends Model {
  *  SUPPRESSION DE CONF
  */
     public function deleteConf() {
-        global $REPOS_PROFILES_CONF_DIR;
-        global $REPO_CONF_FILES_PREFIX;
-        global $PROFILES_MAIN_DIR;
-        global $PROFILE_SERVER_CONF;
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             // Suppression du fichier si existe
-            if (file_exists("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo")) {
-                unlink("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo");
+            if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
+                unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
             }
 
             // Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils 
-            $profilesNames = scandir($PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
+            $profilesNames = scandir(PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
             foreach($profilesNames as $profileName) {
-                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != "${PROFILE_SERVER_CONF}")) {
-                    if (is_link("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo")) {
-                        unlink("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}{$this->name}.repo");
+                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
+                    if (is_link(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
+                        unlink(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
                     }
                 }
             }
         }
 
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
             $checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
             if (!empty($checkIfDistContainsSlash)) {
@@ -875,16 +828,16 @@ class Repo extends Model {
             }
 
             // Suppression du fichier si existe
-            if (file_exists("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                unlink("${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list");
+            if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
+                unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
             }
             
             // Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils 
-            $profilesNames = scandir($PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
+            $profilesNames = scandir(PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
             foreach($profilesNames as $profileName) {
-                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != "${PROFILE_SERVER_CONF}")) {
-                    if (is_link("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                        unlink("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}{$this->name}_${repoDistFormatted}_{$this->section}.list");
+                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
+                    if (is_link(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
+                        unlink(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
                     }
                 }
             }

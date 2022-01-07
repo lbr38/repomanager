@@ -1,31 +1,25 @@
 <?php
-//global $WWW_DIR;
-require_once("${WWW_DIR}/models/Model.php");
-require_once("${WWW_DIR}/models/Log.php");
-require_once("${WWW_DIR}/models/Repo.php");
-require_once("${WWW_DIR}/models/Group.php");
-require_once("${WWW_DIR}/functions/common-functions.php"); // pour avoir accès à la fonction clearCache
-include_once("${WWW_DIR}/models/includes/new.php");
-include_once("${WWW_DIR}/models/includes/update.php");
-include_once("${WWW_DIR}/models/includes/op_printDetails.php");
-include_once("${WWW_DIR}/models/includes/op_getPackages.php");
-include_once("${WWW_DIR}/models/includes/op_signPackages.php");
-include_once("${WWW_DIR}/models/includes/op_createRepo.php");
-include_once("${WWW_DIR}/models/includes/op_archive.php");
-include_once("${WWW_DIR}/models/includes/op_finalize.php");
-include_once("${WWW_DIR}/models/includes/newLocalRepo.php");
-include_once("${WWW_DIR}/models/includes/changeEnv.php");
-include_once("${WWW_DIR}/models/includes/delete.php");
-include_once("${WWW_DIR}/models/includes/deleteDist.php");
-include_once("${WWW_DIR}/models/includes/deleteSection.php");
-include_once("${WWW_DIR}/models/includes/duplicate.php");
-include_once("${WWW_DIR}/models/includes/deleteArchive.php");
-include_once("${WWW_DIR}/models/includes/restore.php");
-include_once("${WWW_DIR}/models/includes/cleanArchives.php");
-include_once("${WWW_DIR}/models/includes/reconstruct.php");
+require_once(ROOT."/functions/common-functions.php"); // pour avoir accès à la fonction clearCache
+include_once(ROOT."/models/includes/new.php");
+include_once(ROOT."/models/includes/update.php");
+include_once(ROOT."/models/includes/op_printDetails.php");
+include_once(ROOT."/models/includes/op_getPackages.php");
+include_once(ROOT."/models/includes/op_signPackages.php");
+include_once(ROOT."/models/includes/op_createRepo.php");
+include_once(ROOT."/models/includes/op_archive.php");
+include_once(ROOT."/models/includes/op_finalize.php");
+include_once(ROOT."/models/includes/newLocalRepo.php");
+include_once(ROOT."/models/includes/changeEnv.php");
+include_once(ROOT."/models/includes/delete.php");
+include_once(ROOT."/models/includes/deleteDist.php");
+include_once(ROOT."/models/includes/deleteSection.php");
+include_once(ROOT."/models/includes/duplicate.php");
+include_once(ROOT."/models/includes/deleteArchive.php");
+include_once(ROOT."/models/includes/restore.php");
+include_once(ROOT."/models/includes/cleanArchives.php");
+include_once(ROOT."/models/includes/reconstruct.php");
 
 class Operation extends Model {
-    //public $db;
     public $action; // Doit rester public car peut être modifié par operation.php
     public $status; // Doit rester public car peut être modifié par Planification.php (exec())
     private $id;    // Id de l'opération en BDD
@@ -47,8 +41,7 @@ class Operation extends Model {
      *  Import des traits nécessaires pour les opérations sur les repos/sections
      */
     use newMirror, newLocalRepo, update, changeEnv, duplicate, delete, deleteDist, deleteSection, deleteArchive, restore, cleanArchives;
-    use op_printDetails, op_getPackages, op_signPackages, op_createRepo, op_archive, op_finalize;
-    use reconstruct;
+    use op_printDetails, op_getPackages, op_signPackages, op_createRepo, op_archive, op_finalize, reconstruct;
 
     public function __construct(array $variables = []) {
         extract($variables);
@@ -198,19 +191,16 @@ class Operation extends Model {
     }
 
     public function kill($pid) {
-        global $PID_DIR;
-
-        if (file_exists("${PID_DIR}/${pid}.pid")) {
-
+        if (file_exists(PID_DIR."/${pid}.pid")) {
             /**
              * 	Récupération du nom de fichier de log car on va avoir besoin d'indiquer dedans que l'opération a été stoppée
              */
-            $logFile = exec("grep '^LOG=' ${PID_DIR}/${pid}.pid | sed 's/LOG=//g' | sed 's/\"//g'");
+            $logFile = exec("grep '^LOG=' ".PID_DIR."/${pid}.pid | sed 's/LOG=//g' | sed 's/\"//g'");
     
             /**
              * 	Récupération des subpid car il va falloir les tuer aussi
              */
-            $subpids = shell_exec("grep -h '^SUBPID=' ${PID_DIR}/${pid}.pid | sed 's/SUBPID=//g' | sed 's/\"//g'");
+            $subpids = shell_exec("grep -h '^SUBPID=' ".PID_DIR."/${pid}.pid | sed 's/SUBPID=//g' | sed 's/\"//g'");
             
             /**
              * 	Kill des subpids si il y en a
@@ -225,11 +215,11 @@ class Operation extends Model {
             /**
              * 	Suppression du fichier pid principal
              */
-            unlink("${PID_DIR}/${pid}.pid");
+            unlink(PID_DIR."/${pid}.pid");
         }
 
         /*  if (!empty($logFile)) {
-            file_put_contents("$MAIN_LOGS_DIR/$logFile", '<p>Opération stoppée par l\'utilisateur</p>'.PHP_EOL, FILE_APPEND);
+            file_put_contents(MAIN_LOGS_DIR."/$logFile", '<p>Opération stoppée par l\'utilisateur</p>'.PHP_EOL, FILE_APPEND);
         }*/
 
         /**
@@ -478,15 +468,13 @@ class Operation extends Model {
     }
 
     private function chk_param_gpgResign() {
-        global $GPG_SIGN_PACKAGES;
-
         if (empty($_GET['repoGpgResign'])) {
             echo '<td><input type="hidden" name="repoGpgResign" value="no"></td>';
         } else {
             if (validateData($_GET['repoGpgResign']) === "ask") {
                 echo '<span class="op_span">Signer avec GPG</span>';
                 echo '<label class="onoff-switch-label">';
-                echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
+                echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
                 echo '<span class="onoff-switch-slider"></span>';
                 echo '</label><br>';
                 return false;
@@ -568,13 +556,11 @@ class Operation extends Model {
     }
 
     private function chk_param_env() {
-        global $ENVS;
-
         if (!empty($_GET['repoEnv'])) {
             if (validateData($_GET['repoEnv']) === "ask") {
                 echo '<span>Env. actuel :</span>';
                 echo '<select name="repoEnv" required>';
-                foreach($ENVS as $env) {
+                foreach(ENVS as $env) {
                     echo "<option value=\"${env}\">${env}</option>";
                 }
                 echo '</select>';
@@ -599,13 +585,11 @@ class Operation extends Model {
     }
 
     private function chk_param_newEnv() {
-        global $ENVS;
-
         if (!empty($_GET['repoNewEnv'])) {
             if (validateData($_GET['repoNewEnv']) === "ask") {
                 echo '<span>Env. cible :</span>';
                 echo '<select name="repoNewEnv" required>';
-                foreach($ENVS as $env) {
+                foreach(ENVS as $env) {
                     if ($env !== $this->repo->env) { // on ne réaffiche pas l'env en cours
                         echo "<option value=\"${env}\">${env}</option>";
                     }
@@ -806,17 +790,11 @@ class Operation extends Model {
      *  CREER UN NOUVEAU REPO/SECTION
      */
     public function new() {
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $WWW_HOSTNAME;
-        global $REPOMANAGER_YUM_DIR;
-        global $DEFAULT_ENV;
-
-        if ($OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
-        if ($OS_FAMILY === "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
+        if (OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
+        if (OS_FAMILY === "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
         if ($this->chk_param_type() === false) ++$this->validate;
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
 
         if ($this->chk_param_alias() === false) ++$this->validate;
         $this->chk_param_group();
@@ -834,18 +812,18 @@ class Operation extends Model {
         } else {
             $this->repo->name = $this->repo->alias;
         }
-        $this->repo->env = $DEFAULT_ENV;
+        $this->repo->env = DEFAULT_ENV;
 
         if ($this->validate() === true) {
             /**
              *  Ok on a toutes les infos mais il faut vérifier qu'un/une repo/section du même nom n'existe pas déjà
              */
-            if ($OS_FAMILY == "Redhat" AND $this->repo->exists($this->repo->name) === true) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->exists($this->repo->name) === true) {
                 echo "<p>Erreur : Un repo du même nom existe déjà en ".envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             } 
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_exists($this->repo->name, $this->repo->dist, $this->repo->section) === true) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_exists($this->repo->name, $this->repo->dist, $this->repo->section) === true) {
                 echo "<p>Erreur : Une section du même nom existe déjà en ".envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
@@ -855,8 +833,8 @@ class Operation extends Model {
              *  On vérifie que le repo source existe dans /etc/yum.repos.d/repomanager/ (uniquement dans le cas d'un miroir)
              */
             if ($this->repo->type == 'mirror') {
-                if ($OS_FAMILY == "Redhat") {
-                    $checkifRepoRealnameExist = exec("grep '^\\[{$this->repo->source}\\]' ${REPOMANAGER_YUM_DIR}/*.repo");
+                if (OS_FAMILY == "Redhat") {
+                    $checkifRepoRealnameExist = exec("grep '^\\[{$this->repo->source}\\]' ".REPOMANAGER_YUM_DIR."/*.repo");
                     if (empty($checkifRepoRealnameExist)) {
                         echo "<p>Erreur : Il n'existe aucun repo source pour le nom de repo [{$this->repo->source}]</p>";
                         echo '<a href="index.php" class="btn-large-red">Retour</a>';
@@ -870,42 +848,42 @@ class Operation extends Model {
              */
             if ($this->repo->type == 'mirror') {
                 if (empty($_GET['confirm'])) {
-                    if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
-                    if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section :</p>';
-                    if ($OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>";
-                    if ($OS_FAMILY == "Debian") { 
+                    if (OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
+                    if (OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section :</p>';
+                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>";
+                    if (OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ({$this->repo->source})</span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
                         echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
                     }
                 }
 
-                echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+                echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
                 if ($this->confirm() === true) {                    
-                    if ($OS_FAMILY == "Redhat") exec("php ${WWW_DIR}/operations/execute.php --action='new' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");
-                    if ($OS_FAMILY == "Debian") exec("php ${WWW_DIR}/operations/execute.php --action='new' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");                    
+                    if (OS_FAMILY == "Redhat") exec("php ".ROOT."/operations/execute.php --action='new' --name='{$this->repo->name}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");
+                    if (OS_FAMILY == "Debian") exec("php ".ROOT."/operations/execute.php --action='new' --name='{$this->repo->name}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --source='{$this->repo->source}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='mirror' >/dev/null 2>/dev/null &");                    
                     echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
                 }
             }
 
             if ($this->repo->type == 'local') {
                 if (empty($_GET['confirm'])) {
-                    if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo local :</p>';
-                    if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo local :</p>';
-                    if ($OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
-                    if ($OS_FAMILY == "Debian") { 
+                    if (OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo local :</p>';
+                    if (OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo local :</p>';
+                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
+                    if (OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
                         echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
                     }
                 }
 
-                echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+                echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
                 if ($this->confirm() === true) {
-                    if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
-                    if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
+                    if (OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
+                    if (OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
 
                     try {
                         $this->exec_newLocalRepo();
@@ -930,25 +908,18 @@ class Operation extends Model {
      *  METTRE A JOUR UN REPO/SECTION
      */
     public function update() {
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $REPOMANAGER_YUM_DIR;
-        global $DEFAULT_ENV;
-
-        require_once("${WWW_DIR}/models/Source.php");
-
         if ($this->type == 'manual') {
-            if ($OS_FAMILY === "Redhat") echo '<h3>METTRE A JOUR UN REPO</h3>';
-            if ($OS_FAMILY === "Debian") echo '<h3>METTRE A JOUR UNE SECTION DE REPO</h3>';
+            if (OS_FAMILY === "Redhat") echo '<h3>METTRE A JOUR UN REPO</h3>';
+            if (OS_FAMILY === "Debian") echo '<h3>METTRE A JOUR UNE SECTION DE REPO</h3>';
 
             if ($this->chk_param_name() === false) ++$this->validate;
-            if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-            if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+            if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+            if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
             if ($this->chk_param_gpgCheck() === false)  ++$this->validate;
             if ($this->chk_param_gpgResign() === false) ++$this->validate;
         }
 
-        $this->repo->env = $DEFAULT_ENV;
+        $this->repo->env = DEFAULT_ENV;
 
         if ($this->validate() === true OR $this->validate == 0) {
             /**
@@ -967,15 +938,15 @@ class Operation extends Model {
             /**
              *  On vérifie que le repo source existe dans /etc/yum.repos.d/repomanager/
              */
-            if ($OS_FAMILY == "Redhat") {
-                $checkifRepoRealnameExist = exec("grep '^\\[{$this->repo->source}\\]' ${REPOMANAGER_YUM_DIR}/*.repo");
+            if (OS_FAMILY == "Redhat") {
+                $checkifRepoRealnameExist = exec("grep '^\\[{$this->repo->source}\\]' ".REPOMANAGER_YUM_DIR."/*.repo");
                 if (empty($checkifRepoRealnameExist)) {
                     echo "<p>Erreur : Il n'existe aucun repo source pour le nom de repo [{$this->repo->source}]</p>";
                     echo '<a href="index.php" class="btn-large-red">Retour</a>';
                     return false;
                 }
             }
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $stmt = $this->db->prepare("SELECT * FROM sources WHERE Name=:name");
                 $stmt->bindValue(':name', $this->repo->source);
                 $result = $stmt->execute();
@@ -990,12 +961,12 @@ class Operation extends Model {
             /**
              *  Ok on a toutes les infos mais il faut vérifier que le/la repo/section existe
              */
-            if ($OS_FAMILY == "Redhat") {
+            if (OS_FAMILY == "Redhat") {
                 if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
                     echo "<p>Erreur : Il n'existe aucun repo {$this->repo->name} ".envtag($this->repo->env)." à mettre à jour.</p>";
                 }
             }
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
                     echo "<p>Erreur : Il n'existe aucune section {$this->repo->section} ".envtag($this->repo->env)." du repo {$this->repo->name} (distribution {$this->repo->dist}) à mettre à jour.</p>";
                 }
@@ -1005,20 +976,20 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo '<p>L\'opération va mettre à jour le repo :</p>'; }
-                if ($OS_FAMILY == "Debian") { echo '<p>L\'opération va mettre à jour la section :</p>'; }
-                if ($OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>"; }
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Redhat") { echo '<p>L\'opération va mettre à jour le repo :</p>'; }
+                if (OS_FAMILY == "Debian") { echo '<p>L\'opération va mettre à jour la section :</p>'; }
+                if (OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>"; }
+                if (OS_FAMILY == "Debian") {
                     echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ({$this->repo->source})</b></span>";
                     echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
                     echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
                 }
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
-                exec("php ${WWW_DIR}/operations/execute.php --action='update' --id='{$this->repo->id}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &");
+                exec("php ".ROOT."/operations/execute.php --action='update' --id='{$this->repo->id}' --gpgCheck='{$this->repo->gpgCheck}' --gpgResign='{$this->repo->gpgResign}' >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
         }
@@ -1029,8 +1000,6 @@ class Operation extends Model {
      *  CREER UN NOUVEL ENVIRONNEMENT
      */
     public function changeEnv() {
-        global $OS_FAMILY;
-
         /**
          *  Réinitialisation de la description.
          *  db_getAllById() a récupéré la description de l'env source. Or on cherche à demander une description pour l'env cible donc on réinitialise $this->repo->description
@@ -1040,11 +1009,11 @@ class Operation extends Model {
         /**
          *  Vérification des paramètres
          */
-        if ($OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';
-        if ($OS_FAMILY === "Debian") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>';
+        if (OS_FAMILY === "Redhat") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE REPO</h3>';
+        if (OS_FAMILY === "Debian") echo '<h3>CRÉER UN NOUVEL ENVIRONNEMENT DE SECTION</h3>';
         if ($this->chk_param_name() === false) ++$this->validate;
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_env() === false)         ++$this->validate;
         if ($this->chk_param_newEnv() === false)      ++$this->validate;
         if ($this->chk_param_description() === false) ++$this->validate;
@@ -1053,12 +1022,12 @@ class Operation extends Model {
             /**
              *  Ok on a toutes les infos mais pour créer un nouvel env au repo, mais il faut vérifier qu'il existe
              */
-            if ($OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
                 echo "<p>Erreur : Il n'existe aucun repo <b>{$this->repo->name}</b> en ".envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
                 echo "<p>Erreur : Il n'existe aucune section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> (distribution {$this->repo->dist}) en ".envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
@@ -1068,7 +1037,7 @@ class Operation extends Model {
              *  Ensuite on vérifie si un repo existe déjà dans le nouvel env indiqué. Si c'est le cas, alors son miroir sera archivé si il n'est pas utilisé par un autre environnement
              */
             $repoArchive = 'no';
-            if ($OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir du repo à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
                 $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
@@ -1089,7 +1058,7 @@ class Operation extends Model {
                     $repoArchive = "yes"; // si le miroir n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                 }
             }
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir de la section à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
                 $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
@@ -1118,14 +1087,14 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur le repo suivant :</p>"; }
-                if ($OS_FAMILY == "Debian") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur la section de repo suivante : </p>"; }
+                if (OS_FAMILY == "Redhat") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur le repo suivant :</p>"; }
+                if (OS_FAMILY == "Debian") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur la section de repo suivante : </p>"; }
                 echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
-                if ($OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
+                if (OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
+                if (OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
                 echo "<span>Env. :</span><span>".envtag($this->repo->env)."</span>";
                 if ($repoArchive == "yes") echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivé</p>";
-                echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+                echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
             }
 
             if ($this->confirm() === true) {
@@ -1153,15 +1122,12 @@ class Operation extends Model {
      *  DUPLIQUER UN REPO
      */
     public function duplicate() {
-        global $OS_FAMILY;
-        global $WWW_DIR;
-
         echo '<h3>DUPLIQUER UN REPO</h3>';
 
         if ($this->chk_param_name() === false)    ++$this->validate;
         if ($this->chk_param_newName() === false) ++$this->validate;
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_env() === false)         ++$this->validate;
         if ($this->chk_param_description() === false) ++$this->validate;
         if ($this->chk_param_type() === false)        ++$this->validate;
@@ -1183,19 +1149,19 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
-                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo :</p>';
-                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
+                if (OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
+                if (OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo :</p>';
+                if (OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
                 echo "<span>Repo :</span><span><b>{$this->repo->newName}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                if ($OS_FAMILY == "Redhat") echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
-                if ($OS_FAMILY == "Debian") echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>";
-                echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+                if (OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if (OS_FAMILY == "Redhat") echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
+                if (OS_FAMILY == "Debian") echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>";
+                echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
             }
 
             if ($this->confirm() === true) {
-                if ($OS_FAMILY == "Redhat") exec("php ${WWW_DIR}/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
-                if ($OS_FAMILY == "Debian") exec("php ${WWW_DIR}/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
+                if (OS_FAMILY == "Redhat") exec("php ".ROOT."/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
+                if (OS_FAMILY == "Debian") exec("php ".ROOT."/operations/execute.php --action='duplicate' --name='{$this->repo->name}' --newname='{$this->repo->newName}' --dist='{$this->repo->dist}' --section='{$this->repo->section}' --env='{$this->repo->env}' --group='{$this->repo->group}' --description='{$this->repo->description}' --type='{$this->repo->type}' >/dev/null 2>/dev/null &");
                 echo "<script>window.location.replace('/run.php');</script>"; // On redirige vers la page de logs pour voir l'exécution
             }
         }
@@ -1205,12 +1171,10 @@ class Operation extends Model {
      *  SUPPRIMER UN REPO
      */
     public function delete() {
-        global $OS_FAMILY;
-
         echo '<h3>SUPPRIMER UN REPO</h3>';
 
         if ($this->chk_param_name() === false) ++$this->validate;
-        if ($OS_FAMILY == "Redhat" AND $this->chk_param_env() === false) ++$this->validate; // Pour Redhat on a besoin de l'environnement
+        if (OS_FAMILY == "Redhat" AND $this->chk_param_env() === false) ++$this->validate; // Pour Redhat on a besoin de l'environnement
 
         if ($this->validate() === true) {
             /**
@@ -1226,7 +1190,7 @@ class Operation extends Model {
              *  Debian : Ok le repo existe mais peut être que celui-ci contient plusieurs distrib et sections qui seront supprimées, on récupère les distrib et les sections concernées
              *  et on les affichera dans la demande de confirmation
              */
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $stmt = $this->db->prepare("SELECT Dist, Section, Env FROM repos WHERE Name=:name AND Status = 'active' ORDER BY Dist ASC, Section ASC");
                 $stmt->bindValue(':name', $this->repo->name);
                 $distAndSectionsToBeDeleted = $stmt->execute();
@@ -1236,11 +1200,11 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo suivant :</p>';
-                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer tout le contenu du repo suivant :</p>';
+                if (OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo suivant :</p>';
+                if (OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer tout le contenu du repo suivant :</p>';
                 echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Redhat") echo "<span>Env :</span><span>".envtag($this->repo->env)."</span>";
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Redhat") echo "<span>Env :</span><span>".envtag($this->repo->env)."</span>";
+                if (OS_FAMILY == "Debian") {
                     if (!empty($distAndSectionsToBeDeleted)) {
                         echo '<p>Attention, cela supprimera les distributions et sections suivantes :</p>';
                         echo '<span>';
@@ -1258,7 +1222,7 @@ class Operation extends Model {
                 }
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 /**
@@ -1266,11 +1230,11 @@ class Operation extends Model {
                  *  Si Redhat on peut récupérer sont ID en BDD directement
                  *  Si Debian, on indique seulement le nom du repo qui sera supprimé, car un repo peut posséder plusieures lignes en BDD (car potentiellement plusieurs distrib/sections)
                  */
-                if ($OS_FAMILY == "Redhat") {
+                if (OS_FAMILY == "Redhat") {
                     $this->repo->db_getId();
                     $this->startOperation(array('id_repo_target' => $this->repo->id));
                 }
-                if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => $this->repo->name));
+                if (OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => $this->repo->name));
 
                 try {
                     $this->exec_delete();
@@ -1293,7 +1257,6 @@ class Operation extends Model {
      *  SUPPRIMER UNE DISTRIBUTION
      */
     public function deleteDist() {
-
         echo '<h3>SUPPRIMER UNE DISTRIBUTION</h3>';
 
         if ($this->chk_param_name() === false) ++$this->validate;
@@ -1341,7 +1304,7 @@ class Operation extends Model {
                 echo '<p><br>Cela inclu également les sections archivées si il y en a.</p>';
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 /**
@@ -1397,7 +1360,7 @@ class Operation extends Model {
                 echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 /**
@@ -1423,26 +1386,24 @@ class Operation extends Model {
     }
 
     public function deleteArchive() {
-        global $OS_FAMILY;
-        
-        if ($OS_FAMILY == "Redhat") echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>';
-        if ($OS_FAMILY == "Debian") echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>';
+        if (OS_FAMILY == "Redhat") echo '<h3>SUPPRIMER UN REPO ARCHIVÉ</h3>';
+        if (OS_FAMILY == "Debian") echo '<h3>SUPPRIMER UNE SECTION ARCHIVÉE</h3>';
 
         if ($this->chk_param_name() === false) ++$this->validate;
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_date() === false) ++$this->validate;
 
         if ($this->validate() === true) {
             /**
              *  On a toutes les infos mais il faut vérifier que le/la repo/section archivé mentionné existe
              */
-            if ($OS_FAMILY == "Redhat" AND $this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) {
                 echo "<p>Erreur : Il n'existe aucun repo archivé {$this->repo->name} en date du {$this->repo->date}</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) {
                 echo "<p>Erreur : Il n'existe aucune section archivée {$this->repo->section} du repo {$this->repo->name} (distribution {$this->repo->dist})</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
@@ -1452,16 +1413,16 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo archivé suivant :</p>';
-                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer la section de repo archivée suivante :</p>';
+                if (OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo archivé suivant :</p>';
+                if (OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer la section de repo archivée suivante :</p>';
                 echo "<span>Repo :</span><span><b>{$this->repo->name}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
-                if ($OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if (OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if (OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
+                if (OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if (OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 $this->repo->db_getId_archived();
@@ -1485,16 +1446,14 @@ class Operation extends Model {
     }
 
     public function restore() {
-        global $OS_FAMILY;
-        
-        if ($OS_FAMILY == "Redhat") { echo '<h3>RESTAURER UN REPO ARCHIVÉ</h3>'; }
-        if ($OS_FAMILY == "Debian") { echo '<h3>RESTAURER UNE SECTION ARCHIVÉE</h3>'; }
+        if (OS_FAMILY == "Redhat") { echo '<h3>RESTAURER UN REPO ARCHIVÉ</h3>'; }
+        if (OS_FAMILY == "Debian") { echo '<h3>RESTAURER UNE SECTION ARCHIVÉE</h3>'; }
 
         if ($this->chk_param_name() === false) ++$this->validate;
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
-        if ($OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_dist() === false)    ++$this->validate; }
+        if (OS_FAMILY == "Debian") { if ($this->chk_param_section() === false) ++$this->validate; }
         if ($this->chk_param_date() === false) ++$this->validate;
-        $this->repo->env = ''; // On réinitialise cette variable car elle a été set à $DEFAULT_ENV lors de l'instanciation de l'objet $this->repo. Cela pose un pb pour la fonction qui suit.
+        $this->repo->env = ''; // On réinitialise cette variable car elle a été set à DEFAULT_ENV lors de l'instanciation de l'objet $this->repo. Cela pose un pb pour la fonction qui suit.
         if ($this->chk_param_newEnv() === false)      ++$this->validate;
         if ($this->chk_param_description() === false) ++$this->validate;
 
@@ -1502,12 +1461,12 @@ class Operation extends Model {
             /**
              *  On a toutes les infos mais il faut vérifier que le/la repo/section archivé mentionné existe
              */
-            if ($OS_FAMILY == "Redhat" AND $this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->existsDate($this->repo->name, $this->repo->date, 'archived') === false) {
                 echo "<p>Erreur : Il n'existe aucun repo archivé {$this->repo->name} en date du {$this->repo->dateFormatted}</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_existsDate($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, 'archived') === false) {
                 echo "<p>Erreur : Il n'existe aucune section archivée {$this->repo->section} du repo {$this->repo->name} (distribution {$this->repo->dist}) en date du {$this->repo->dateFormatted}</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
@@ -1517,7 +1476,7 @@ class Operation extends Model {
              *  On vérifie si un/une repo/section du même nom existe sur l'env $this->repo->newEnv, si c'est le cas et que son miroir n'est pas utilisé par d'autres environnements, il/elle sera archivé(e)
              */
             $repoArchive = 'no'; // on déclare une variable à 'no' par défaut
-            if ($OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
+            if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
                 $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
@@ -1538,7 +1497,7 @@ class Operation extends Model {
                     $repoArchive = 'yes';
                 }
             }
-            if ($OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
+            if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
                 $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
@@ -1568,24 +1527,24 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if ($OS_FAMILY == "Redhat") echo '<p>L\'opération va restaurer le repo archivé suivant :</p>';
-                if ($OS_FAMILY == "Debian") echo '<p>L\'opération va restaurer la section de repo archivée suivante :</p>';
+                if (OS_FAMILY == "Redhat") echo '<p>L\'opération va restaurer le repo archivé suivant :</p>';
+                if (OS_FAMILY == "Debian") echo '<p>L\'opération va restaurer la section de repo archivée suivante :</p>';
                 echo '<span>Repo :</span><span><b>'.$this->repo->getName().'</b></span>';
-                if ($OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
-                if ($OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
-                if ($OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
-                if ($OS_FAMILY == "Redhat") echo "<p>La restauration placera le repo sur l'environnement ".envtag($this->repo->newEnv)."</p>";
-                if ($OS_FAMILY == "Debian") echo "<p>La restauration placera la section sur l'environnement ".envtag($this->repo->newEnv)."</p>";
+                if (OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
+                if (OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
+                if (OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if (OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
+                if (OS_FAMILY == "Redhat") echo "<p>La restauration placera le repo sur l'environnement ".envtag($this->repo->newEnv)."</p>";
+                if (OS_FAMILY == "Debian") echo "<p>La restauration placera la section sur l'environnement ".envtag($this->repo->newEnv)."</p>";
                 if ($repoArchive == "yes")  echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivée.</p>";
             }
 
-            echo '<span class="loading">Chargement <img src="images/loading.gif" class="icon" /></span>';
+            echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
 
             if ($this->confirm() === true) {
                 $this->repo->db_getId_archived();
-                if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
-                if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
+                if (OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => "{$this->repo->name}"));
+                if (OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}"));
 
                 try {
                     $this->exec_restore();

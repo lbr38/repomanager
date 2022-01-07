@@ -1,21 +1,16 @@
 <?php
 /**
  *  Génération des données de statistiques des repos
- *  Les actions sont exécutées par cron avec l'utilisateur $WWW_USER
+ *  Les actions sont exécutées par cron avec l'utilisateur WWW_USER
  */
 
-$WWW_DIR = dirname(__FILE__, 2);
-
-/**
- *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
- */
-require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/models/Repo.php");
-require_once("${WWW_DIR}/models/Stat.php");
+define('ROOT', dirname(__FILE__, 2));
+require_once(ROOT."/models/Autoloader.php");
+Autoloader::loadAll();
 
 $repo = new Repo();
 
-if ($CRON_STATS_ENABLED == "yes") {
+if (CRON_STATS_ENABLED == "yes") {
     /**
      *  On récupère toute la liste des repos actifs
      */
@@ -25,36 +20,36 @@ if ($CRON_STATS_ENABLED == "yes") {
         foreach($reposList as $repo) {
             $repoId = $repo['Id'];
             $repoName = $repo['Name'];
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $repoDist = $repo['Dist'];
                 $repoSection = $repo['Section'];
             }
             $repoEnv = $repo['Env'];
 
-            if ($OS_FAMILY == "Redhat") {
-                if (file_exists("${REPOS_DIR}/${repoName}_${repoEnv}")) {
+            if (OS_FAMILY == "Redhat") {
+                if (file_exists(REPOS_DIR."/${repoName}_${repoEnv}")) {
                     /**
                      *  Calcul de la taille du repo
                      */
-                    $repoSize = exec("du -s ${REPOS_DIR}/${repoName}_${repoEnv}/ | awk '{print $1}'");
+                    $repoSize = exec("du -s ".REPOS_DIR."/${repoName}_${repoEnv}/ | awk '{print $1}'");
 
                     /**
                      *  Calcul du nombre de paquets présents dans le repo
                      */
-                    $packagesCount = exec("find ${REPOS_DIR}/${repoName}_${repoEnv}/ -type f -name '*.rpm' | wc -l");
+                    $packagesCount = exec("find ".REPOS_DIR."/${repoName}_${repoEnv}/ -type f -name '*.rpm' | wc -l");
                 }
             }
-            if ($OS_FAMILY == "Debian") {
-                if (file_exists("${REPOS_DIR}/${repoName}/${repoDist}/${repoSection}_${repoEnv}")) {
+            if (OS_FAMILY == "Debian") {
+                if (file_exists(REPOS_DIR."/${repoName}/${repoDist}/${repoSection}_${repoEnv}")) {
                     /**
                      *  Calcul de la taille de la section
                      */
-                    $repoSize = exec("du -s ${REPOS_DIR}/${repoName}/${repoDist}/${repoSection}_${repoEnv}/ | awk '{print $1}'");
+                    $repoSize = exec("du -s ".REPOS_DIR."/${repoName}/${repoDist}/${repoSection}_${repoEnv}/ | awk '{print $1}'");
 
                     /**
                      *  Calcul du nombre de paquets présents dans la section
                      */
-                    $packagesCount = exec("find ${REPOS_DIR}/${repoName}/${repoDist}/${repoSection}_${repoEnv}/ -type f -name '*.deb' | wc -l");
+                    $packagesCount = exec("find ".REPOS_DIR."/${repoName}/${repoDist}/${repoSection}_${repoEnv}/ -type f -name '*.deb' | wc -l");
                 }
             }
 
@@ -86,5 +81,5 @@ if ($CRON_STATS_ENABLED == "yes") {
 }
 
 // Vérification des erreurs et ajout dans le fichier de log si c'est le cas
-file_put_contents($CRON_STATS_LOG, 'Status="OK"'.PHP_EOL);
+file_put_contents(CRON_STATS_LOG, 'Status="OK"'.PHP_EOL);
 ?>

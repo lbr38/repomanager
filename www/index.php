@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html>
-
-<?php include('includes/head.inc.php'); ?>
-
 <?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
 require_once('functions/repo.functions.php');
-require_once('models/Repo.php');
-require_once('models/Group.php');
-require_once('models/Planification.php');
 require_once('common.php');
 
 // Cas où on souhaite retirer une div ServerInfo de la page d'accueil
@@ -21,7 +13,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     // On récupère le nom de la div qu'on souhaite retirer
     $divToClose = validateData($_GET['serverInfoSlideDivClose']);
     // On récupère le contenu actuel de display.ini
-    $displayConfiguration = parse_ini_file($DISPLAY_CONF, true);
+    $displayConfiguration = parse_ini_file(DISPLAY_CONF, true);
     if ($divToClose === "reposInfo")      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
     if ($divToClose === "rootSpace")      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
     if ($divToClose === "reposDirSpace")  $displayConfiguration['serverinfo']['display_serverInfo_reposDirSpace'] = 'no';
@@ -29,7 +21,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     if ($divToClose === "connectionInfo") $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
 
     // On écrit les modifications dans le fichier display.ini
-    write_ini_file($DISPLAY_CONF, $displayConfiguration);
+    write_ini_file(DISPLAY_CONF, $displayConfiguration);
 
     // rechargement de la page pour appliquer les modifications d'affichage
     header('Location: index.php');
@@ -44,7 +36,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 <section class="mainSectionRight">
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
     <section class="right" id="newRepoSlideDiv">
-        <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="icons/close.png" />
+        <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
         <?php include('includes/create-repo.inc.php'); ?> 
     </section>
 
@@ -60,7 +52,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 
     <section id="serverInfoContainer">
     <?php
-    if ($display_serverInfo_reposInfo == "yes") {
+    if (DISPLAY_SERVERINFO_REPOSINFO == "yes") {
         /**
          *  Récupération du total des repos actifs et repos archivés
          */
@@ -69,20 +61,20 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
         $totalReposArchived = $repo->countArchived();
 
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=reposInfo" title="Fermer"><img class="icon-invisible float-right" src="ressources/icons/close.png" /></a>';
         
         /**
          *  Nombre de repos/sections sur le serveur
          */
-        if ($OS_FAMILY == "Redhat") echo '<p>Repos</p>';
-        if ($OS_FAMILY == "Debian") echo '<p>Sections</p>';
+        if (OS_FAMILY == "Redhat") echo '<p>Repos</p>';
+        if (OS_FAMILY == "Debian") echo '<p>Sections</p>';
         echo "<b>${totalRepos}</b>";
 
         /**
          *  Nombre de repos/sections archivés sur le serveur
          */
-        if ($OS_FAMILY == "Redhat") echo '<p>Repos archivés</p>';
-        if ($OS_FAMILY == "Debian") echo '<p>Sections archivées</p>';
+        if (OS_FAMILY == "Redhat") echo '<p>Repos archivés</p>';
+        if (OS_FAMILY == "Debian") echo '<p>Sections archivées</p>';
         echo "<b>${totalReposArchived}</b>";
         echo '</div>';
     }
@@ -92,7 +84,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
      */
     function printSpace(string $path, string $name) {
         echo '<div class="serverInfo">';
-        echo "<a href=\"index.php?serverInfoSlideDivClose=${name}\" title=\"Fermer\"><img class=\"icon-invisible float-right\" src=\"icons/close.png\" /></a>"; 
+        echo "<a href=\"index.php?serverInfoSlideDivClose=${name}\" title=\"Fermer\"><img class=\"icon-invisible float-right\" src=\"ressources/icons/close.png\" /></a>"; 
         echo "<p>$path</p>";    
         $diskTotalSpace = disk_total_space($path);
         $diskFreeSpace = disk_free_space($path);
@@ -181,14 +173,14 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
         unset($diskUsedSpace, $diskUsedSpacePercent, $diskFreeSpace, $diskFreeSpacePercent);
     }
 
-    if ($display_serverInfo_rootSpace == "yes") printSpace('/', 'rootSpace');
-    if ($display_serverInfo_reposDirSpace == "yes") printSpace($REPOS_DIR, 'reposDirSpace');
+    if (DISPLAY_SERVERINFO_ROOTSPACE == "yes") printSpace('/', 'rootSpace');
+    if (DISPLAY_SERVERINFO_REPOSDIRSPACE == "yes") printSpace(REPOS_DIR, 'reposDirSpace');
     ?>
         
-    <?php if ($AUTOMATISATION_ENABLED == "yes" AND $display_serverInfo_planInfo == "yes") {
+    <?php if (AUTOMATISATION_ENABLED == "yes" AND DISPLAY_SERVERINFO_PLANINFO == "yes") {
         $plan = new Planification();
         echo '<div class="serverInfo">';
-        echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="icons/close.png" /></a>';
+        echo '<a href="index.php?serverInfoSlideDivClose=planInfo" title="Fermer"><img class="icon-invisible float-right" src="ressources/icons/close.png" /></a>';
         echo '<p>Dernière planification</p>';
         $lastPlan = $plan->listLast();
         if (empty($lastPlan)) {

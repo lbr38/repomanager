@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html>
-<?php include('includes/head.inc.php'); ?>
-
 <?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
 require_once('functions/repo.functions.php');
 require_once('common.php');
-require_once('models/Operation.php');
 ?>
 
 <body>

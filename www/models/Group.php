@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Model.php");
-
 class Group extends Model {
 
     public $id; // Id en BDD
@@ -148,25 +146,23 @@ class Group extends Model {
      *  LISTER TOUS LES REPOS D'UN GROUPE
      */
     public function listRepos(string $groupName) {
-        global $OS_FAMILY;
-
         /**
          *  Si le groupe est 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe 
          */
         if ($groupName == 'Default') {
-            if ($OS_FAMILY == "Redhat") {
+            if (OS_FAMILY == "Redhat") {
                 $reposInGroup = $this->db->query("SELECT * FROM repos
                 WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Env ASC");
             }
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $reposInGroup = $this->db->query("SELECT * FROM repos
                 WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
             }
             
         } else {
-            if ($OS_FAMILY == "Redhat") {
+            if (OS_FAMILY == "Redhat") {
                 // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
                 $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
                 FROM repos
@@ -180,7 +176,7 @@ class Group extends Model {
                 $stmt->bindValue(':groupname', $groupName);
                 $reposInGroup = $stmt->execute();
             }
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
                 $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Dist, repos.Section, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
                 FROM repos
@@ -209,9 +205,7 @@ class Group extends Model {
      *  LISTER TOUS LES REPOS MEMBRES D'UN GROUPE EN FILTRANT PAR ENVIRONNEMENT
      */
     public function listReposMembers_byEnv(string $groupName, string $env) {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
             FROM repos
             INNER JOIN group_members
@@ -223,7 +217,7 @@ class Group extends Model {
             AND repos.Status = 'active'
             ORDER BY repos.Name ASC");
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
             FROM repos
             INNER JOIN group_members
@@ -253,9 +247,7 @@ class Group extends Model {
      *  On fait un DISTINCT ici car un repo peut avoir plusieurs environnements et donc apparaitre en double, ce qu'on ne veut pas
      */
     public function selectRepos(string $groupName) {
-        global $OS_FAMILY;
-
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $stmt = $this->db->prepare("SELECT DISTINCT repos.Name
             FROM repos
             INNER JOIN group_members
@@ -279,7 +271,7 @@ class Group extends Model {
             FROM repos
             WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt = $this->db->prepare("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
             FROM repos
             INNER JOIN group_members
@@ -313,23 +305,23 @@ class Group extends Model {
         if (!empty($reposIn)) {
             foreach($reposIn as $repo) {
                 $repoName = $repo['Name'];
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $repoDist = $repo['Dist'];
                     $repoSection = $repo['Section'];
                 }
-                if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoName\" selected>$repoName</option>";
-                if ($OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\" selected>$repoName - $repoDist - $repoSection</option>";
+                if (OS_FAMILY == "Redhat") echo "<option value=\"$repoName\" selected>$repoName</option>";
+                if (OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\" selected>$repoName - $repoDist - $repoSection</option>";
             }
         }
         if (!empty($reposNotIn)) {
             foreach($reposNotIn as $repo) {
                 $repoName = $repo['Name'];
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $repoDist = $repo['Dist'];
                     $repoSection = $repo['Section'];
                 }
-                if ($OS_FAMILY == "Redhat") echo "<option value=\"$repoName\">$repoName</option>";
-                if ($OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\">$repoName - $repoDist - $repoSection</option>";
+                if (OS_FAMILY == "Redhat") echo "<option value=\"$repoName\">$repoName</option>";
+                if (OS_FAMILY == "Debian") echo "<option value=\"$repoName|$repoDist|$repoSection\">$repoName - $repoDist - $repoSection</option>";
             }
         }
         echo '</select>';  
@@ -341,8 +333,6 @@ class Group extends Model {
      *  AJOUTER / SUPPRIMER DES REPOS/SECTIONS D'UN GROUPE
      */
     public function addRepo(string $groupName, $repoNames) {
-        global $OS_FAMILY;
-
         /**
          *  1. Récupération des Id actuellement dans le groupe
          *  2. Suppression des Id actuellement dans le groupe qui ne sont pas dans l'array transmis $repoNames 
@@ -368,7 +358,7 @@ class Group extends Model {
             foreach ($repoNames as $repoName) {
                 $repoName = validateData($repoName);
                 // Sur debian, $repoName contient le nom du repo, de la dist et de la section séparés par un |
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $repoNameExplode = explode('|', $repoName);
                     $repoName = $repoNameExplode[0];
                     $repoDist = $repoNameExplode[1];
@@ -385,7 +375,7 @@ class Group extends Model {
                  *  Sur Debian on vérifie aussi que le nom de la dist et de la section ne contiennent pas de caractères interdits
                  *  On autorise le slash '/' dans le nom de la distribution
                  */
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     if (is_alphanumdash($repoDist, array('/')) === false) {
                         throw new Exception("Le nom de la distribution <b>$repoDist</b> contient des caractères invalides");
                     }
@@ -397,12 +387,12 @@ class Group extends Model {
                 /**
                  *  Récupération à partir de la BDD de l'id du repo à ajouter. Il peut y avoir plusieurs Id si le repo a plusieurs environnements.
                  */
-                if ($OS_FAMILY == "Redhat") {
+                if (OS_FAMILY == "Redhat") {
                     $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Status = 'active'");
                     $stmt->bindValue(':reponame', $repoName);
                     $result = $stmt->execute();
                 }
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Dist=:repodist AND Section=:reposection AND Status = 'active'");
                     $stmt->bindValue(':reponame', $repoName);
                     $stmt->bindValue(':repodist', $repoDist);
@@ -557,8 +547,6 @@ class Group extends Model {
     *  AJOUTER / SUPPRIMER DES SERVEURS D'UN GROUPE
     */
     public function addServer(array $hostsId) {
-        global $OS_FAMILY;
-
         /**
          *  1. Récupération des Id actuellement dans le groupe
          *  2. Suppression des Id actuellement dans le groupe qui ne sont pas dans l'array transmis $hostsId

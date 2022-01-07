@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Model.php");
-
 class Profile extends Model {
     //private $db;
     private $id;
@@ -29,8 +27,6 @@ class Profile extends Model {
      * 	Création d'un nouveau profil
      */
     function new() {
-        global $PROFILES_MAIN_DIR;
-
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
@@ -39,7 +35,7 @@ class Profile extends Model {
         /**
          * 	2. On vérifie qu'un profil du même nom n'existe pas déjà
          */
-        if (file_exists("${PROFILES_MAIN_DIR}/{$this->name}")) {
+        if (file_exists(PROFILES_MAIN_DIR."/{$this->name}")) {
             printAlert("Erreur : un profil du même nom (<b>$this->name</b>) existe déjà", 'error');
             return;
         }
@@ -47,8 +43,8 @@ class Profile extends Model {
         /**
          * 	3. Si pas d'erreur alors on peut créer le répertoire de profil
          */
-        if (!is_dir("${PROFILES_MAIN_DIR}/{$this->name}")) { 
-            if (!mkdir("${PROFILES_MAIN_DIR}/{$this->name}", 0775, true)) {
+        if (!is_dir(PROFILES_MAIN_DIR."/{$this->name}")) { 
+            if (!mkdir(PROFILES_MAIN_DIR."/{$this->name}", 0775, true)) {
                 printAlert("Erreur lors de la création du profil <b>$this->name</b>", 'error');
                 return;
             }
@@ -57,8 +53,8 @@ class Profile extends Model {
         /**
          * 	4. Créer le fichier de config
          */
-        if (!file_exists("${PROFILES_MAIN_DIR}/{$this->name}/config")) {
-            if (!touch("${PROFILES_MAIN_DIR}/{$this->name}/config")) {
+        if (!file_exists(PROFILES_MAIN_DIR."/{$this->name}/config")) {
+            if (!touch(PROFILES_MAIN_DIR."/{$this->name}/config")) {
                 printAlert("Erreur lors de l'initialisation du profil <b>$this->name</b>", 'error');
                 return;
             }
@@ -67,7 +63,7 @@ class Profile extends Model {
         /**
          * 	5. Créer le fichier de config du profil avec des valeurs vides ou par défaut
          */
-        if (!file_put_contents("${PROFILES_MAIN_DIR}/{$this->name}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
+        if (!file_put_contents(PROFILES_MAIN_DIR."/{$this->name}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
             printAlert("Erreur lors de l'initialisation du profil <b>$this->name</b>", 'error');
             return;
         }
@@ -83,8 +79,6 @@ class Profile extends Model {
      * 	Renommage d'un profil
      */
     function rename() {
-        global $PROFILES_MAIN_DIR;
-
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
@@ -93,7 +87,7 @@ class Profile extends Model {
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
          */
-        if (is_dir("${PROFILES_MAIN_DIR}/{$this->newName}")) {
+        if (is_dir(PROFILES_MAIN_DIR."/{$this->newName}")) {
             printAlert("Erreur : un profil du même nom (<b>{$this->newName}</b>) existe déjà", 'error');
             return false;
         }
@@ -101,7 +95,7 @@ class Profile extends Model {
         /**
          *  3. Si pas d'erreur alors on peut renommer le répertoire de profil
          */
-        if (!rename("${PROFILES_MAIN_DIR}/{$this->name}", "${PROFILES_MAIN_DIR}/{$this->newName}")) {
+        if (!rename(PROFILES_MAIN_DIR."/{$this->name}", PROFILES_MAIN_DIR."/{$this->newName}")) {
             printAlert("Erreur lors du renommage du profil <b>{$this->name}</b>", 'error');
             return;
         }
@@ -117,8 +111,6 @@ class Profile extends Model {
      *  Supliquer un profil et sa configuration
      */
     public function duplicate() {
-        global $PROFILES_MAIN_DIR;
-
         /**
          *  1. On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
          */
@@ -127,7 +119,7 @@ class Profile extends Model {
         /**
          *  2. On vérifie que le nouveau nom n'existe pas déjà sait-on jamais
          */
-        if (file_exists("${PROFILES_MAIN_DIR}/${newProfileName}")) {
+        if (file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) {
             printAlert("Erreur : un profil du même nom (<b>$newProfileName</b>) existe déjà", 'error');
             return;
         }
@@ -135,12 +127,12 @@ class Profile extends Model {
         /**
          *  3. Création du répertoire du nouveau profil
          */
-        if (!file_exists("${PROFILES_MAIN_DIR}/${newProfileName}")) mkdir("${PROFILES_MAIN_DIR}/${newProfileName}", 0775, true);
+        if (!file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) mkdir(PROFILES_MAIN_DIR."/${newProfileName}", 0775, true);
 
         /**
          *  4. Copie du contenu du répertoire du profil dupliqué afin de copier sa config et ses fichiers de repo
          */
-        exec("cp -rP ${PROFILES_MAIN_DIR}/{$this->name}/* ${PROFILES_MAIN_DIR}/${newProfileName}/");
+        exec("cp -rP ".PROFILES_MAIN_DIR."/{$this->name}/* ".PROFILES_MAIN_DIR."/${newProfileName}/");
 
         printAlert("Le profil <b>$newProfileName</b> a été créé", 'success');
     }
@@ -150,8 +142,6 @@ class Profile extends Model {
      *  Supprimer un profil
      */
     public function delete() {
-        global $PROFILES_MAIN_DIR;
-
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
@@ -160,7 +150,7 @@ class Profile extends Model {
         /**
          * 	2. Suppression du répertoire du profil
          */
-        exec("rm -fr ${PROFILES_MAIN_DIR}/{$this->name}/", $output, $return);
+        exec("rm -fr ".PROFILES_MAIN_DIR."/{$this->name}/", $output, $return);
         if ($return == 0) {
             printAlert("Le profil <b>{$this->name}</b> a été supprimé", 'success');
         } else {
@@ -174,10 +164,6 @@ class Profile extends Model {
      *  Gestion des paquets à exclure
      */
     public function configure() {
-        global $PROFILES_MAIN_DIR;
-        global $REPOS_PROFILES_CONF_DIR;
-	    global $REPO_CONF_FILES_PREFIX;
-	    global $OS_FAMILY;
         $error = 0;
 
         /**
@@ -198,9 +184,9 @@ class Profile extends Model {
         /**
          * 	1.3. D'abord on supprime tous les repos présents dans le répertoire du profil, avant de rajouter seulement ceux qui ont été sélectionnés dans la liste
          */
-        if (is_dir("${PROFILES_MAIN_DIR}/{$this->name}/")) {
-            if ($OS_FAMILY == "Redhat") exec("rm ${PROFILES_MAIN_DIR}/{$this->name}/*.repo -f");
-            if ($OS_FAMILY == "Debian") exec("rm ${PROFILES_MAIN_DIR}/{$this->name}/*.list -f");
+        if (is_dir(PROFILES_MAIN_DIR."/{$this->name}/")) {
+            if (OS_FAMILY == "Redhat") exec("rm ".PROFILES_MAIN_DIR."/{$this->name}/*.repo -f");
+            if (OS_FAMILY == "Debian") exec("rm ".PROFILES_MAIN_DIR."/{$this->name}/*.list -f");
         }
     
         /**
@@ -214,7 +200,7 @@ class Profile extends Model {
             foreach ($profileRepos as $profileRepo) {
                 $addProfileRepo = validateData($profileRepo);
         
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $addProfileRepoExplode = explode('|', $addProfileRepo);
                     $addProfileRepo = $addProfileRepoExplode[0];
                     $addProfileRepoDist = $addProfileRepoExplode[1];
@@ -226,12 +212,12 @@ class Profile extends Model {
                  *  Pour Debian, on vérifie également que la distribution et la section ne contiennent pas de caractères interdits
                  */
                 if (!is_alphanumdash($addProfileRepo, array('.'))) return;
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     // Certaines nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
                     if (!is_alphanumdash($addProfileRepoDist, array('/')) OR !is_alphanumdash($addProfileRepoSection)) return;
                 }
 
-                if ($OS_FAMILY == "Redhat") {
+                if (OS_FAMILY == "Redhat") {
                     $myRepo = new Repo(array('repoName' => $addProfileRepo));
 
                     /**
@@ -242,10 +228,10 @@ class Profile extends Model {
                         continue;
                     }
         
-                    exec("cd ${PROFILES_MAIN_DIR}/{$this->name}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$myRepo->name}.repo");
+                    exec("cd ".PROFILES_MAIN_DIR."/{$this->name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$myRepo->name}.repo");
                 }
         
-                if ($OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
+                if (OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
                     $myRepo = new Repo(array('repoName' => $addProfileRepo, 'repoDist' => $addProfileRepoDist, 'repoSection' => $addProfileRepoSection));
 
                     /**
@@ -265,7 +251,7 @@ class Profile extends Model {
                         $myRepo->dist = str_replace("/", "--slash--","$myRepo->dist");
                     }
                 
-                    exec("cd ${PROFILES_MAIN_DIR}/{$this->name}/ && ln -sfn ${REPOS_PROFILES_CONF_DIR}/${REPO_CONF_FILES_PREFIX}{$myRepo->name}_{$myRepo->dist}_{$myRepo->section}.list");
+                    exec("cd ".PROFILES_MAIN_DIR."/{$this->name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$myRepo->name}_{$myRepo->dist}_{$myRepo->section}.list");
                 }
             }
         }
@@ -425,7 +411,7 @@ class Profile extends Model {
         $profileConfiguration = "${profileConfiguration}\nKEEP_CRON=\"${profileConf_keepCron}\"";
         $profileConfiguration = "${profileConfiguration}\nALLOW_OVERWRITE=\"${profileConf_allowOverwrite}\"";
         $profileConfiguration = "${profileConfiguration}\nALLOW_REPOSFILES_OVERWRITE=\"${profileConf_allowReposFilesOverwrite}\"";
-        file_put_contents("${PROFILES_MAIN_DIR}/{$this->name}/config", $profileConfiguration);
+        file_put_contents(PROFILES_MAIN_DIR."/{$this->name}/config", $profileConfiguration);
 
         /**
          *  3. Affichage d'un message, si tout s'est bien passé

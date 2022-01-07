@@ -4,8 +4,6 @@ class Connection extends SQLite3 {
 
     public function __construct(string $database, string $mode, string $hostId = null)
     {
-        global $WWW_DIR;
-
         /**
          *  Ouvre la base de données à partie du chemin et du mode renseigné (read-write ou read-only)
          *  Si celle-ci n'existe pas elle est créée automatiquement
@@ -27,13 +25,13 @@ class Connection extends SQLite3 {
                 /**
                  *  Ouverture en mode read-only
                  */
-                if ($mode == "ro") $this->open("$WWW_DIR/db/repomanager.db", SQLITE3_OPEN_READONLY);
+                if ($mode == "ro") $this->open(ROOT."/db/repomanager.db", SQLITE3_OPEN_READONLY);
 
                 /**
                  *  Ouverture en mode read-write
                  */
                 if ($mode == "rw") {
-                    $this->open("$WWW_DIR/db/repomanager.db");
+                    $this->open(ROOT."/db/repomanager.db");
 
                     /**
                      *  Génération des tables si n'existent pas
@@ -48,13 +46,13 @@ class Connection extends SQLite3 {
                 /**
                  *  Ouverture en mode read-only
                  */
-                if ($mode == "ro") $this->open("$WWW_DIR/db/repomanager-stats.db", SQLITE3_OPEN_READONLY);
+                if ($mode == "ro") $this->open(ROOT."/db/repomanager-stats.db", SQLITE3_OPEN_READONLY);
 
                 /**
                  *  Ouverture en mode read-write
                  */
                 if ($mode == "rw") {
-                    $this->open("$WWW_DIR/db/repomanager-stats.db");
+                    $this->open(ROOT."/db/repomanager-stats.db");
 
                     /**
                      *  Génération des tables si n'existent pas
@@ -69,13 +67,13 @@ class Connection extends SQLite3 {
                 /**
                  *  Ouverture en mode read-only
                  */
-                if ($mode == "ro") $this->open("$WWW_DIR/db/repomanager-hosts.db", SQLITE3_OPEN_READONLY);
+                if ($mode == "ro") $this->open(ROOT."/db/repomanager-hosts.db", SQLITE3_OPEN_READONLY);
 
                 /**
                  *  Ouverture en mode read-write
                  */
                 if ($mode == "rw") {
-                    $this->open("$WWW_DIR/db/repomanager-hosts.db");
+                    $this->open(ROOT."/db/repomanager-hosts.db");
 
                     /**
                      *  Génération des tables si n'existent pas
@@ -89,18 +87,20 @@ class Connection extends SQLite3 {
 
             } elseif ($database == "host") {
 
-                $HOSTS_DIR = "${WWW_DIR}/hosts";
+                if (!defined('HOSTS_DIR')) {
+                    define('HOSTS_DIR', ROOT.'/hosts');
+                }
 
                 /**
                  *  Ouverture en mode read-only
                  */
-                if ($mode == "ro") $this->open("$HOSTS_DIR/$hostId/properties.db", SQLITE3_OPEN_READONLY);
+                if ($mode == "ro") $this->open(HOSTS_DIR."/$hostId/properties.db", SQLITE3_OPEN_READONLY);
 
                 /**
                  *  Ouverture en mode read-write
                  */
                 if ($mode == "rw") {
-                    $this->open("$HOSTS_DIR/$hostId/properties.db");
+                    $this->open(HOSTS_DIR."/$hostId/properties.db");
 
                     /**
                      *  Génération des tables si n'existent pas
@@ -261,12 +261,10 @@ class Connection extends SQLite3 {
      */
     private function generateMainTables()
     {
-        global $OS_FAMILY;
-
         /**
          *  Crée la table repos si n'existe pas
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Name VARCHAR(255) NOT NULL,
@@ -279,7 +277,7 @@ class Connection extends SQLite3 {
             Type CHAR(6) NOT NULL,
             Status CHAR(8) NOT NULL);");
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Name VARCHAR(255) NOT NULL,
@@ -298,7 +296,7 @@ class Connection extends SQLite3 {
         /**
          *  Crée la table repos_archive si n'existe pas
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos_archived (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Name VARCHAR(255) NOT NULL,
@@ -311,7 +309,7 @@ class Connection extends SQLite3 {
             Status CHAR(8) NOT NULL);");
         }
 
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos_archived (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Name VARCHAR(255) NOT NULL,
@@ -390,8 +388,9 @@ class Connection extends SQLite3 {
          */
         $this->exec("CREATE TABLE IF NOT EXISTS planifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Type CHAR(7), /* regular ou plan */
+        Type CHAR(7) NOT NULL, /* regular ou plan */
         Frequency CHAR(15), /* every-day, every-hour... */
+        Day CHAR(70),
         Date DATE,
         Time TIME,
         Action VARCHAR(255) NOT NULL,
@@ -403,7 +402,7 @@ class Connection extends SQLite3 {
         Notification_error CHAR(3),
         Notification_success CHAR(3),
         Mail_recipient VARCHAR(255),
-        Status CHAR(10), /* queued, done, running, canceled */
+        Status CHAR(10) NOT NULL, /* queued, done, running, canceled */
         Error VARCHAR(255),
         Logfile VARCHAR(255))");
 

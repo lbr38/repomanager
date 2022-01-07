@@ -1,7 +1,4 @@
 <?php
-require_once('models/Group.php');
-require_once('models/Source.php');
-
 /**
  *  Récupération de la liste de tous les groupes
  */
@@ -11,12 +8,12 @@ $groupList = $group->listAllName();
 /**
  *  Instanciation d'un objet Source pour pouvoir récupérer la liste de tous les repos sources (Debian)
  */
-if ($OS_FAMILY == "Debian") {
+if (OS_FAMILY == "Debian") {
     $source = new Source();
 }
 
-if ($OS_FAMILY == "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
-if ($OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
+if (OS_FAMILY == "Redhat") echo '<h3>CRÉER UN NOUVEAU REPO</h3>';
+if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>';
 
 echo '<form action="operation.php" method="get" class="actionform" autocomplete="off">';
 echo '<input name="action" type="hidden" value="new" />';
@@ -37,8 +34,8 @@ echo '<td>Repo source</td>';
 echo '<td>';
 echo '<select id="repoSourceSelect" name="repoSource" />';
 echo '<option value="">Sélectionner un repo source...</option>';
-if ($OS_FAMILY == "Redhat") {
-    $reposFiles = scandir($REPOMANAGER_YUM_DIR);
+if (OS_FAMILY == "Redhat") {
+    $reposFiles = scandir(REPOMANAGER_YUM_DIR);
     foreach($reposFiles as $repoFileName) {
         if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) {
         // on retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
@@ -47,7 +44,7 @@ if ($OS_FAMILY == "Redhat") {
         }
     }
 }
-if ($OS_FAMILY == "Debian") {
+if (OS_FAMILY == "Debian") {
     $sourcesList = $source->listAll();
     if (!empty($sourcesList)) {
         foreach($sourcesList as $source) {
@@ -65,7 +62,7 @@ echo '<td class="type_mirror_input hide">Nom personnalisé (fac.)</td>'; // Si t
 echo '<td class="type_local_input hide">Nom du repo</td>';              // Si type = local alors on affiche
 echo '<td><input type="text" name="repoAlias" /></td>';
 echo '</tr>';
-if ($OS_FAMILY == "Debian") {
+if (OS_FAMILY == "Debian") {
     echo '<tr>';
     echo '<td>Distribution</td>';
     echo '<td><input type="text" name="repoDist" required /></td>';
@@ -92,7 +89,7 @@ echo '<tr class="type_mirror_input hide">';
 echo '<td>Signer avec GPG</td>';
 echo '<td>';
 echo '<label class="onoff-switch-label">';
-echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
+echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
 echo '<span class="onoff-switch-slider"></span>';
 echo '</label>';
 echo '</td>';

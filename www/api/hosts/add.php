@@ -7,7 +7,10 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-$WWW_DIR = dirname(__FILE__, 3);
+define("ROOT", dirname(__FILE__, 3));
+require_once(ROOT.'/models/Autoloader.php');
+require_once(ROOT.'/functions/common-functions.php');
+Autoloader::loadAll();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -17,8 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $datas = json_decode(file_get_contents("php://input"));
 
     if (!empty($datas->ip) AND !empty($datas->hostname)) {
-
-        include_once("${WWW_DIR}/models/Host.php");
 
         /**
          *  Instanciation d'un objet Host

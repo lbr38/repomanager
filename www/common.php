@@ -7,7 +7,7 @@
 
 if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDisplay") {
     // On récupère le contenu actuel de display.ini
-    $displayConfiguration = parse_ini_file($DISPLAY_CONF, true);
+    $displayConfiguration = parse_ini_file(DISPLAY_CONF, true);
 
     // Liste des repos : choisir d'afficher ou non la taille des repos
     if (!empty($_POST['printRepoSize'])) {
@@ -98,28 +98,28 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
         } else {
             $displayConfiguration['display']['cache_repos_list'] = 'no';
             clearCache();
-            if (is_link($WWW_CACHE)) unlink($WWW_CACHE);
-            if (is_dir($WWW_CACHE))  rmdir($WWW_CACHE);
+            if (is_link(WWW_CACHE)) unlink(WWW_CACHE);
+            if (is_dir(WWW_CACHE))  rmdir(WWW_CACHE);
         }
     }
 
     // On écrit les modifications dans le fichier display.ini
-    write_ini_file($DISPLAY_CONF, $displayConfiguration);
+    write_ini_file(DISPLAY_CONF, $displayConfiguration);
 
     clearCache();
 
     // Puis rechargement de la page pour appliquer les modifications d'affichage
-    header("Location: $__ACTUAL_URL__");
+    header('Location: '.__ACTUAL_URL__);
     exit;
 }
 
 
 // Debian : on a la possibilité d'ajouter de nouvelles url hotes depuis l'accueil
-if ($OS_FAMILY == "Debian") {
+if (OS_FAMILY == "Debian") {
     // Cas où on souhaite supprimer un clé gpg du trousseau de repomanager :
     if (isset($_GET['action']) AND (validateData($_GET['action']) == "deleteGpgKey") AND !empty($_GET['gpgKeyID'])) {
         $gpgKeyID = validateData($_GET['gpgKeyID']);
-        exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
+        exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
         // Affichage d'un message et rechargement de la div
         printAlert('La clé GPG a été supprimée', 'success');
     }

@@ -3,10 +3,7 @@ trait op_finalize {
     /**
     *   Finalisation du repo : ajout en BDD et application des droits
     */
-    public function op_finalize($op_type) {
-        global $OS_FAMILY;
-        global $DATE_DMY;
-        global $REPOS_DIR;
+    public function op_finalize($op_type) {      
 
         ob_start();
 
@@ -26,8 +23,8 @@ trait op_finalize {
          *  - Si il s'agit d'une mise à jour de repo, on ne fait rien (les informations ont été mises à jour à l'étape op_archive)
          */
         if ($op_type == "new") {
-            if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :env, :date, :time, :description, :signed, :type, 'active')");
-            if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :env, :date, :time, :description, :signed, :type, 'active')");
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :env, :date, :time, :description, :signed, :type, 'active')");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :env, :date, :time, :description, :signed, :type, 'active')");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':source', $this->repo->source);
             $stmt->bindValue(':env', $this->repo->env);
@@ -36,7 +33,7 @@ trait op_finalize {
             $stmt->bindValue(':description', $this->repo->description);
             $stmt->bindValue(':signed', $this->repo->signed);
             $stmt->bindValue(':type', $this->repo->type);
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $stmt->bindValue(':dist', $this->repo->dist);
                 $stmt->bindValue(':section', $this->repo->section);
             }
@@ -48,11 +45,11 @@ trait op_finalize {
          */
         if ($op_type == "new") {
             if (!empty($this->repo->group)) {
-                if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
-                if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
                 $stmt->bindValue(':name', $this->repo->name);
                 $stmt->bindValue(':groupname', $this->repo->group);
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $stmt->bindValue(':dist', $this->repo->dist);
                     $stmt->bindValue(':section', $this->repo->section);
                 }
@@ -82,16 +79,16 @@ trait op_finalize {
         /**
          *  3. Application des droits sur le repo/section créé
          */
-        if ($OS_FAMILY == "Redhat") {
-            exec("find ${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
-            exec("find ${REPOS_DIR}/${DATE_DMY}_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
+        if (OS_FAMILY == "Redhat") {
+            exec("find ".REPOS_DIR."/".DATE_DMY."_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/".DATE_DMY."_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
             /*if [ $? -ne "0" ];then
                 echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur le repo <b>$this->name</b> a échoué"
             fi*/
         }
-        if ($OS_FAMILY == "Debian") {
-            exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/${DATE_DMY}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
-            exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/${DATE_DMY}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
+        if (OS_FAMILY == "Debian") {
+            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/".DATE_DMY."_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/".DATE_DMY."_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
             /*if [ $? -ne "0" ];then
                 echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur la section <b>$this->section</b> a échoué"
             fi*/

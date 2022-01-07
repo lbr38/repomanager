@@ -1,19 +1,14 @@
 <?php
 trait newMirror {
     public function exec_new() {
-        global $TEMP_DIR;
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $PID_DIR;
-
         /**
          *  Démarrage de l'opération
          *  On indique à startOperation, le nom du repo/section en cours de création. A la fin de l'opération, on remplacera cette valeur directement par 
          *  l'ID en BDD de ce repo/section créé.
          *  On indique également si on a activé ou non gpgCheck et gpgResign.
          */
-        if ($OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => $this->repo->name, 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
-        if ($OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}", 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
+        if (OS_FAMILY == "Redhat") $this->startOperation(array('id_repo_target' => $this->repo->name, 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
+        if (OS_FAMILY == "Debian") $this->startOperation(array('id_repo_target' => "{$this->repo->name}|{$this->repo->dist}|{$this->repo->section}", 'gpgCheck' => $this->repo->gpgCheck, 'gpgResign' => $this->repo->gpgResign));
 
         /**
          *  Ajout du PID de ce processus dans le fichier PID
@@ -24,15 +19,15 @@ trait newMirror {
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 5;
-        exec("php ${WWW_DIR}/operations/logbuilder.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} $TEMP_DIR/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ".ROOT."/operations/logbuilder.php ".PID_DIR."/{$this->log->pid}.pid {$this->log->location} ".TEMP_DIR."/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
              *  Etape 0 : Afficher le titre de l'opération
              */
             $this->log->steplog(0);
-            if ($OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h3>CREATION D'UN NOUVEAU REPO</h3>"); }
-            if ($OS_FAMILY == "Debian") { file_put_contents($this->log->steplog, "<h3>CREATION D'UNE NOUVELLE SECTION DE REPO</h3>"); }
+            if (OS_FAMILY == "Redhat") { file_put_contents($this->log->steplog, "<h3>CREATION D'UN NOUVEAU REPO</h3>"); }
+            if (OS_FAMILY == "Debian") { file_put_contents($this->log->steplog, "<h3>CREATION D'UNE NOUVELLE SECTION DE REPO</h3>"); }
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */

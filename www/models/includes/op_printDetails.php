@@ -8,7 +8,7 @@ trait op_printDetails {
     *    - une reconstruction des métadonnées d'un repo/section
     */
     public function op_printDetails() {
-        global $OS_FAMILY;
+
 
         ob_start();
 

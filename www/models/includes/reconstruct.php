@@ -1,11 +1,6 @@
 <?php
 trait reconstruct {
     public function exec_reconstruct() {
-        global $TEMP_DIR;
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $PID_DIR;
-
         /**
          *  Création d'une opération en BDD, on indique également si on a activé ou non gpgCheck et gpgResign
          *  Si cette fonction est appelée par une planification, alors l'id de cette planification est stockée dans $this->id_plan, on l'indique également à startOperation()
@@ -21,7 +16,7 @@ trait reconstruct {
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 3;
-        exec("php ${WWW_DIR}/operations/logbuilder.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} ${TEMP_DIR}/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ".ROOT."/operations/logbuilder.php ".PID_DIR."/{$this->log->pid}.pid {$this->log->location} ".TEMP_DIR."/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**

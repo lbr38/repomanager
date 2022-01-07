@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Model.php");
-
 class Source extends Model {
     public $name;
     //public $db;
@@ -22,14 +20,6 @@ class Source extends Model {
      *  Ajouter un nouveau repo source
      */
     public function new(string $name, string $url) {
-        global $OS_FAMILY;
-        global $REPOMANAGER_YUM_DIR;
-        global $WWW_HOSTNAME;
-        global $RPM_GPG_DIR;
-        global $TEMP_DIR;
-        global $GPGHOME;
-        global $DEBUG_MODE;
-
         /**
          *  On vérifie que le nom du repo source ne contient pas de caractères interdits
          */
@@ -63,8 +53,8 @@ class Source extends Model {
         /**
          *  Sur Redhat/Centos, on crée un fichier dans /etc/yum.repos.d/repomanager/
          */
-        if ($OS_FAMILY == "Redhat") {
-            if (file_exists("${REPOMANAGER_YUM_DIR}/${name}.repo")) {
+        if (OS_FAMILY == "Redhat") {
+            if (file_exists(REPOMANAGER_YUM_DIR."/${name}.repo")) {
                 printAlert("Un repo source <b>$name</b> existe déjà", 'error');
                 slidediv_byid('sourcesDiv');
                 return;
@@ -87,7 +77,7 @@ class Source extends Model {
                 /**
                  *  Si la clé renseignée n'existe pas, on quitte
                  */
-                if (!file_exists("$RPM_GPG_DIR/$existingGpgKey")) {
+                if (!file_exists(RPM_GPG_DIR."/$existingGpgKey")) {
                     printAlert('Erreur : la clé GPG renseignée n\'existe pas', 'error');
                     slidediv_byid('sourcesDiv');
                     return;
@@ -151,13 +141,13 @@ class Source extends Model {
                  *  On importe la clé gpg au format texte dans le répertoire par défaut où rpm stocke ses clés gpg importées (et dans un sous-répertoire repomanager)
                  */
                 $newGpgFile = "REPOMANAGER-RPM-GPG-KEY-${name}";
-                if (file_exists("${RPM_GPG_DIR}/${newGpgFile}")) {
+                if (file_exists(RPM_GPG_DIR."/${newGpgFile}")) {
                     // Affichage d'un message et rechargement de la div
                     printAlert("Erreur : un fichier GPG du même nom existe déjà dans le trousseau de repomanager", 'error'); // on n'incrémente pas error ici car l'import de la clé peut se refaire à part ensuite
                     slidediv_byid('sourcesDiv');
                     return;
                 } else {
-                    file_put_contents("${RPM_GPG_DIR}/${newGpgFile}", $gpgKeyText | LOCK_EX); // ajout de la clé gpg à l'intérieur du fichier gpg
+                    file_put_contents(RPM_GPG_DIR."/${newGpgFile}", $gpgKeyText | LOCK_EX); // ajout de la clé gpg à l'intérieur du fichier gpg
                 }
             }
 
@@ -175,7 +165,7 @@ class Source extends Model {
              */
             $newRepoFileConf  = "[$name]".PHP_EOL;
             $newRepoFileConf .= 'enabled=1'.PHP_EOL;
-            $newRepoFileConf .= "name=Repo source $name sur $WWW_HOSTNAME".PHP_EOL;
+            $newRepoFileConf .= "name=Repo source $name sur ".WWW_HOSTNAME.PHP_EOL;
 
             /**
              *  Forge l'url en fonction de son type (baseurl, mirrorlist...)
@@ -203,7 +193,7 @@ class Source extends Model {
              *  On indique le chemin vers la clé GPG existante si indiqué
              */
             if (!empty($existingGpgKey)) {
-                $newRepoFileConf .= "gpgkey=file://${RPM_GPG_DIR}/${existingGpgKey}".PHP_EOL;
+                $newRepoFileConf .= "gpgkey=file://".RPM_GPG_DIR."/${existingGpgKey}".PHP_EOL;
             }
             /**
              *  On indique l'url vers la clé GPG si indiqué
@@ -215,20 +205,20 @@ class Source extends Model {
              *  On indique le chemin vers la clé GPG importée
              */
             if (!empty($gpgKeyText)) {
-                $newRepoFileConf .= "gpgkey=file://${RPM_GPG_DIR}/${newGpgFile}".PHP_EOL;
+                $newRepoFileConf .= "gpgkey=file://".RPM_GPG_DIR."/${newGpgFile}".PHP_EOL;
             }
 
             /**
              *  Ecriture de la configuration dans le fichier de repo source
              */
-            file_put_contents("${REPOMANAGER_YUM_DIR}/${name}.repo", $newRepoFileConf.PHP_EOL);
+            file_put_contents(REPOMANAGER_YUM_DIR."/${name}.repo", $newRepoFileConf.PHP_EOL);
         }
 
 
         /**
          *  Sur Debian, on ajoute l'url en BDD
          */
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             /**
              *  On vérifie qu'un repo source du même nom n'existe pas déjà en BDD
              */
@@ -271,20 +261,20 @@ class Source extends Model {
                 /**
                  *  Création d'un fichier temporaire dans lequel on injecte la clé GPG à importer
                  */
-                $gpgTempFile = "${TEMP_DIR}/repomanager_newgpgkey.tmp";
+                $gpgTempFile = TEMP_DIR."/repomanager_newgpgkey.tmp";
                 file_put_contents($gpgTempFile, "$addSourceGpgKey");
 
                 /**
                  *  Import du fichier temporaire dans le trousseau de repomanager
                  */
-                exec("gpg --no-default-keyring --keyring ${GPGHOME}/trustedkeys.gpg --import $gpgTempFile", $output, $result);
+                exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --import $gpgTempFile", $output, $result);
 
                 /**
                  *  Si erreur lors de l'import, on affiche un message d'erreur
                  */
                 if ($result != 0) {
                     printAlert("Erreur lors de l'import de la clé GPG", 'error');
-                    if ($DEBUG_MODE == "yes") print_r($output); // affichage du retour de la commande exec si DEBUG_MODE est activé
+                    if (DEBUG_MODE == "yes") print_r($output); // affichage du retour de la commande exec si DEBUG_MODE est activé
                     unlink($gpgTempFile); // suppression du fichier temporaire
                     return;
                 }
@@ -314,18 +304,15 @@ class Source extends Model {
      *  Supprimer un repo source
      */
     public function delete(string $name) {
-        global $OS_FAMILY;
-        global $REPOMANAGER_YUM_DIR;
-
-        if ($OS_FAMILY == "Redhat") {
-            if (file_exists("$REPOMANAGER_YUM_DIR/${name}.repo")) {
-                if (!unlink("$REPOMANAGER_YUM_DIR/${name}.repo")) {
+        if (OS_FAMILY == "Redhat") {
+            if (file_exists(REPOMANAGER_YUM_DIR."/${name}.repo")) {
+                if (!unlink(REPOMANAGER_YUM_DIR."/${name}.repo")) {
                     printAlert("Erreur lors de la suppression du repo source <b>$name</b>", 'error');
                     return;
                 }
             }
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Name=:name");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
@@ -340,9 +327,6 @@ class Source extends Model {
      *  Renommer un repo source
      */
     public function rename(string $newName, string $newUrl = '') {
-        global $OS_FAMILY;
-        global $REPOMANAGER_YUM_DIR;
-
         /**
          *  On vérifie que le nouveau nom ne contient pas de caractères invalides
          */
@@ -355,11 +339,11 @@ class Source extends Model {
         /**
          *  Sur Redhat, le renommage consiste à changer le nom du fichier de repo source ainsi que le nom du repo à l'intérieur de ce fichier
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             /**
              *  Si un fichier portant le même nom que $newName existe déjà alors on ne peut pas renommer le fichier
              */
-            if (file_exists("$REPOMANAGER_YUM_DIR/${newName}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR."/${newName}.repo")) {
                 printAlert("Erreur : un repo source <b>$newName<b> existe déjà", 'error');
                 slidediv_byid('sourcesDiv');
                 return;
@@ -368,12 +352,12 @@ class Source extends Model {
             /**
              *  Renommage
              */
-            if (file_exists("$REPOMANAGER_YUM_DIR/{$this->name}.repo")) {
-                rename("$REPOMANAGER_YUM_DIR/{$this->name}.repo", "$REPOMANAGER_YUM_DIR/${newName}.repo");
-                $content = file_get_contents("$REPOMANAGER_YUM_DIR/${newName}.repo");
+            if (file_exists(REPOMANAGER_YUM_DIR."/{$this->name}.repo")) {
+                rename(REPOMANAGER_YUM_DIR."/{$this->name}.repo", REPOMANAGER_YUM_DIR."/${newName}.repo");
+                $content = file_get_contents(REPOMANAGER_YUM_DIR."/${newName}.repo");
                 $content = str_replace("[$this->name]", "[$newName]", $content);
                 $content = str_replace("Repo source $this->name", "Repo source $newName", $content);
-                file_put_contents("$REPOMANAGER_YUM_DIR/${newName}.repo", $content);
+                file_put_contents(REPOMANAGER_YUM_DIR."/${newName}.repo", $content);
                 unset($content);
             }
         }
@@ -381,7 +365,7 @@ class Source extends Model {
         /**
          *  Sur Debian, les repos sources sont stockés en BDD
          */
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             /**
              *  Formattage de l'URL passée
              */
@@ -416,10 +400,8 @@ class Source extends Model {
      *  Modifier la configuration d'un repo source
      */
     public function configure(string $sourceName, array $option, string $comments) {
-        global $REPOMANAGER_YUM_DIR;
         $generalError = 0;
-
-        $sourceFile = "$REPOMANAGER_YUM_DIR/${sourceName}.repo"; // Le fichier dans lequel on va écrire
+        $sourceFile = REPOMANAGER_YUM_DIR."/${sourceName}.repo"; // Le fichier dans lequel on va écrire
         $options = $_POST['option']; // Les options à inclure dans le fichier
 
         /**
@@ -524,7 +506,7 @@ class Source extends Model {
             }
         }
 
-        file_put_contents("$REPOMANAGER_YUM_DIR/${sourceName}.repo", $content);
+        file_put_contents(REPOMANAGER_YUM_DIR."/${sourceName}.repo", $content);
 
         if ($generalError == 0) printAlert('Modifications prises en compte', 'success');
         if ($generalError != 0) printAlert('Erreur : des caractères invalides ont été saisis', 'error');

@@ -2,11 +2,10 @@
 /**
  *  Import des variables nécessaires
  */
-$WWW_DIR = dirname(__FILE__, 2);
-require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/models/Operation.php");
-require_once("${WWW_DIR}/models/Repo.php");
+define("ROOT", dirname(__FILE__, 2));
+require_once(ROOT."/models/Autoloader.php");
+Autoloader::loadAll();
+require_once(ROOT."/functions/common-functions.php");
  
 /**
  *  1. Récupération de l'argument : type d'opération à exécuter
@@ -31,8 +30,8 @@ if ($opAction != "new" AND $opAction != "update" AND $opAction != "reconstruct" 
  *  Puis exécution de l'opération
  */
 if ($opAction == "new") {
-    if ($OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
-    if ($OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
+    if (OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
+    if (OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
 
     /**
      *  Vérification que les paramètres obligatoires ne sont pas vides
@@ -47,7 +46,7 @@ if ($opAction == "new") {
     /**
      *  Sur Debian on attends 2 paramètres supplémentaires
      */
-    if ($OS_FAMILY == "Debian") {
+    if (OS_FAMILY == "Debian") {
         if (empty($options['dist']))        throw new Exception("Erreur : nom de la distribution non défini");
         if (empty($options['section']))     throw new Exception("Erreur : nom de la section non défini");
     }
@@ -60,7 +59,7 @@ if ($opAction == "new") {
     /**
      * 	Création d'un objet Repo avec les infos du repo à créer
      */
-    if ($OS_FAMILY == "Redhat") $op->repo = new Repo(array(
+    if (OS_FAMILY == "Redhat") $op->repo = new Repo(array(
         'repoName'          => $options['name'],
         'repoSource'        => $options['source'],
         'repoGroup'         => $options['group'],
@@ -69,7 +68,7 @@ if ($opAction == "new") {
         'repoGpgResign'     => $options['gpgResign'],
         'repoType'          => $options['type']
     ));
-    if ($OS_FAMILY == "Debian") $op->repo = new Repo(array(
+    if (OS_FAMILY == "Debian") $op->repo = new Repo(array(
         'repoName'          => $options['name'],
         'repoSource'        => $options['source'],
         'repoDist'          => $options['dist'],
@@ -120,8 +119,8 @@ if ($opAction == "update") {
 }
 
 if ($opAction == "duplicate") {
-    if ($OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "newname:", "env:", "group:", "description:", "type:"]);
-    if ($OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "newname:", "env:", "group:", "description:", "type:"]);
+    if (OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "newname:", "env:", "group:", "description:", "type:"]);
+    if (OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "newname:", "env:", "group:", "description:", "type:"]);
 
     /**
      *  Vérification que les paramètres obligatoires ne sont pas vides
@@ -135,7 +134,7 @@ if ($opAction == "duplicate") {
     /**
      *  Sur Debian on attends 2 paramètres supplémentaires
      */
-    if ($OS_FAMILY == "Debian") {
+    if (OS_FAMILY == "Debian") {
         if (empty($options['dist']))        throw new Exception("Erreur : nom de la distribution non défini");
         if (empty($options['section']))     throw new Exception("Erreur : nom de la section non défini");
     }
@@ -148,7 +147,7 @@ if ($opAction == "duplicate") {
     /**
      * 	Création d'un objet Repo avec les infos du repo à dupliquer
      */
-    if ($OS_FAMILY == "Redhat") $op->repo = new Repo(array(
+    if (OS_FAMILY == "Redhat") $op->repo = new Repo(array(
         'repoName'          => $options['name'],
         'repoNewName'       => $options['newname'],
         'repoEnv'           => $options['env'],
@@ -156,7 +155,7 @@ if ($opAction == "duplicate") {
         'repoDescription'   => $options['description'],
         'repoType'          => $options['type'] 
     ));
-    if ($OS_FAMILY == "Debian") $op->repo = new Repo(array(
+    if (OS_FAMILY == "Debian") $op->repo = new Repo(array(
         'repoName'          => $options['name'],
         'repoNewName'       => $options['newname'],
         'repoDist'          => $options['dist'],
