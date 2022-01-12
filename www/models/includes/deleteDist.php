@@ -4,7 +4,7 @@ trait deleteDist {
      *  SUPPRESSION D'UNE DISTRIBUTION
      */
     public function exec_deleteDist() {
-        global $REPOS_DIR;
+        
 
         ob_start();
 
@@ -37,15 +37,15 @@ trait deleteDist {
         /**
          *  3. Suppression du répertoire de la distribution
          */
-        exec("rm ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist} -rf", $output, $result);
+        exec("rm ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist} -rf", $output, $result);
         if ($result != 0) throw new Exception('impossible de supprimer le répertoire de la distribution');
 
         /**
          *  4. On supprime le répertoire parent (repo) si celui-ci est vide après la suppression de la distribution
          */
-        $checkIfDirIsEmpty = exec("ls -A ${REPOS_DIR}/{$this->repo->name}/");
+        $checkIfDirIsEmpty = exec("ls -A ".REPOS_DIR."/{$this->repo->name}/");
         if (empty($checkIfDirIsEmpty)) {
-            exec("rm ${REPOS_DIR}/{$this->repo->name}/ -rf");
+            exec("rm ".REPOS_DIR."/{$this->repo->name}/ -rf");
         }
 
         /**

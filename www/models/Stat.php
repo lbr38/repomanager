@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Model.php");
-
 class Stat extends Model {
 
     /**
@@ -9,13 +7,12 @@ class Stat extends Model {
      */
     public function get_lastAccess(array $parameters = [])
     {
-        global $OS_FAMILY;
         extract($parameters);
 
         $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :likeRequest ORDER BY Date DESC, Time DESC LIMIT 50");
 
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
+        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
 
         $result = $stmt->execute();
 
@@ -31,8 +28,6 @@ class Stat extends Model {
      */
     public function get_lastMinutesAccess(array $parameters = [])
     {
-        global $OS_FAMILY;
-        global $DATE_YMD;
         extract($parameters);
 
         $timeEnd   = date("H:i:s");
@@ -40,9 +35,9 @@ class Stat extends Model {
 
         $datas = array();
 
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '$DATE_YMD' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
+        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
         $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
@@ -55,8 +50,6 @@ class Stat extends Model {
      */
     public function get_realTimeAccess(array $parameters = [])
     {
-        global $OS_FAMILY;
-        global $DATE_YMD;
         extract($parameters);
 
         $timeEnd   = date("H:i:s");
@@ -64,9 +57,9 @@ class Stat extends Model {
 
         $datas = array();
         
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '$DATE_YMD' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC");
+        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
         $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
@@ -79,12 +72,11 @@ class Stat extends Model {
      */
     public function get_dailyAccess_count(array $parameters = [])
     {
-        global $OS_FAMILY;
         extract($parameters);
 
         $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date AND Request LIKE :likeRequest");
-        if ($OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if ($OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
         $stmt->bindValue(':date', $date);
         $result = $stmt->execute();
 

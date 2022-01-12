@@ -12,7 +12,9 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 - Planifications automatiques permettant d'exécuter les actions ci-dessus à une date/heure souhaitée.
 
 
-![alt text](https://github.com/lbr38/repomanager/blob/beta/repomanager.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-2.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-3.png?raw=true)
 
 <b>Ressources :</b>
 
@@ -66,14 +68,17 @@ Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et f
 
 <h2>Installation</h2>
 
-<b>Serveur web</b>
+<b>Serveur web + PHP</b>
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.4) mais une compatibilité avec apache n'est pas exclue.
+Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x) mais une compatibilité avec apache n'est pas exclue.
 
 <pre>
+# Redhat / CentOS
 yum install nginx php-fpm php-cli php-pdo sqlite
+
+# Debian
 apt update && apt install nginx php-fpm php-cli php7.4-sqlite3 sqlite3
 </pre>
 
@@ -82,128 +87,192 @@ apt update && apt install nginx php-fpm php-cli php7.4-sqlite3 sqlite3
 S'assurer que l'extension sqlite pour php est activée (généralement dans /etc/php.d/) :
 
 <pre>
-vim /etc/php/7.4/mods-available/sqlite3.ini # Debian
-vim /etc/php.d/20-sqlite3.ini               # Redhat/CentOS
+# Debian
+vim /etc/php/7.4/mods-available/sqlite3.ini
+
+# Redhat/CentOS
+vim /etc/php.d/20-sqlite3.ini
 
 extension=sqlite3.so
 </pre>
 
 <b>Vhost</b>
 
-Pour nginx :
+Exemple de vhost pour nginx.
+
+Adapter les valeurs :
+ - du chemin vers le socket unix php
+ - des deux variables $WWW_DIR et $REPOS_DIR
+ - des directives server_name, access_log, error_log, ssl_certificate, ssl_certificate_key
 
 <pre>
 #### Repomanager vhost ####
 
-# Disable logging of automatics refreshes
+# Disable some logging
 map $request_uri $loggable {
         /run.php?reload 0;
         default 1;
 }
 
+# Path to unix socket
+upstream php-handler {
+        server unix:/run/php/php7.2-fpm.sock;
+}
+
 server {
         listen SERVER-IP:80 default_server;
         server_name SERVERNAME.MYDOMAIN.COM;
+
+        # Path to log files
         access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log combined if=$loggable;
         error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_error.log;
+
+        # Redirect to https
         return 301 https://$server_name$request_uri;
 }
 
 server {
+        # Set repomanager base directories variables
+        set $WWW_DIR '/var/www/repomanager'; # default is /var/www/repomanager
+        set $REPOS_DIR '/home/repo';         # default is /home/repo
+
         listen SERVER-IP:443 default_server ssl;
         server_name SERVERNAME.MYDOMAIN.COM;
-        #rewrite ^/(.*)/$ /$1 permanent;
 
-        # SSL certificate files
-        ssl_certificate      PATH-TO-CERTIFICATE.crt;
-        ssl_certificate_key  PATH-TO-PRIVATE-KEY.key;
-
-	# Log files
+        # Path to log files
         access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log combined if=$loggable;
         error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_error.log;
 
-        # Security headers
-        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains";
-        add_header X-Content-Type-Options nosniff;
-        add_header X-Frame-Options "SAMEORIGIN";
-        add_header X-XSS-Protection "1; mode=block";
-        add_header X-Robots-Tag none;
-        add_header X-Download-Options noopen;
-        add_header X-Permitted-Cross-Domain-Policies none;
+        # Path to SSL certificate/key files
+        ssl_certificate PATH-TO-CERTIFICATE.crt;
+        ssl_certificate_key PATH-TO-PRIVATE-KEY.key;
 
-	# Custom error pages
+        # Security headers
+        add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
+        add_header Referrer-Policy "no-referrer" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Download-Options "noopen" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Permitted-Cross-Domain-Policies "none" always;
+        add_header X-Robots-Tag "none" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+
+        # Remove X-Powered-By, which is an information leak
+        fastcgi_hide_header X-Powered-By;
+
+        # Path to repomanager root directory
+        root $WWW_DIR;
+
+        # Custom error pages
         error_page 404 /custom_404.html;
         error_page 500 502 503 504 /custom_50x.html;
         location = /custom_404.html {
-                root path_to_WWW_DIR/custom_errors;
+                root $WWW_DIR/custom_errors;
                 internal;
         }
         location = /custom_50x.html {
-                root path_to_WWW_DIR/custom_errors;
+                root $WWW_DIR/custom_errors;
                 internal;
         }
 
-	location / {
-		root path_to_WWW_DIR; # default is /var/www/repomanager
-	        try_files $actual_uri $actual_uri/ =404;
-	        index index.php;
-	}
+        location = /robots.txt {
+                deny all;
+                log_not_found off;
+                access_log off;
+        }
 
-	location ~ [^/]\.php(/|$) {
-		root path_to_WWW_DIR; # default is /var/www/repomanager
-	        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-	        if (!-f $document_root$fastcgi_script_name) {
-	                return 404;
-	        }
-	        fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock; 
-	        fastcgi_index index.php;
-	        include fastcgi_params;
-	}
-
-	location /repo {
-	        root path_to_REPOS_DIR-1; # default is /home
-                allow all;
-	}
-
-        location /profiles {
-	        root path_to_REPOS_DIR; # default is /home/repo
-	        autoindex on;
-	        allow all;
-	}
-
-        # Enable gzip
+        # Enable gzip but do not remove ETag headers
         gzip on;
         gzip_vary on;
         gzip_comp_level 4;
         gzip_min_length 256;
         gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
         gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
+
+        location / {
+                rewrite ^ /index.php;
+        }
+
+        location ~ \.php$ {
+                fastcgi_split_path_info ^(.+?\.php)(\/.*|)$;
+                set $path_info $fastcgi_path_info;
+                try_files $fastcgi_script_name =404;
+                include fastcgi_params;
+                #include fastcgi.conf;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                fastcgi_param PATH_INFO $path_info;
+                fastcgi_param HTTPS on;
+                # Avoid sending the security headers twice
+                fastcgi_param modHeadersAvailable true;
+                # Enable pretty urls
+                fastcgi_param front_controller_active true;
+                fastcgi_pass php-handler;
+                fastcgi_intercept_errors on;
+                fastcgi_request_buffering off;
+        }
+
+        location ~ \.(?:css|js|woff2?|svg|gif|map)$ {
+                try_files $uri /index.php$request_uri;
+                add_header Cache-Control "public, max-age=15778463";
+                add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
+                add_header Referrer-Policy "no-referrer" always;
+                add_header X-Content-Type-Options "nosniff" always;
+                add_header X-Download-Options "noopen" always;
+                add_header X-Frame-Options "SAMEORIGIN" always;
+                add_header X-Permitted-Cross-Domain-Policies "none" always;
+                add_header X-Robots-Tag "none" always;
+                add_header X-XSS-Protection "1; mode=block" always;
+
+                # Optional: Don't log access to assets
+                access_log off;
+        }
+
+        location ~ \.(?:png|html|ttf|ico|jpg|jpeg|bcmap)$ {
+                try_files $uri /index.php$request_uri;
+                # Optional: Don't log access to other assets
+                access_log off;
+        }
+
+        location = /main.conf {
+                root $REPOS_DIR/profiles/_reposerver;
+                allow all;
+        }
+
+        location /repo {
+                alias $REPOS_DIR;
+        }
+
+        location /profiles {
+                root $REPOS_DIR;
+                allow all;
+                autoindex on;
+        }
 }
 </pre>
 
 
 <b>Repomanager</b>
 
-Le programme s'installe dans 2 répertoires différents choisis par l'utilisateur au moment de l'installation :
+Le programme nécessite 2 répertoires choisis par l'utilisateur au moment de l'installation :
 <pre>
-Répertoire des fichiers web (par défaut /var/www/repomanager/)
+Répertoire d'installation (par défaut /var/www/repomanager/)
 Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
 </pre>
 
-Il est préférable de procéder à l'installation en tant que root ou sudo afin que l'utilisateur puisse correctement mettre en place les bonnes permissions sur tous les répertoires utilisés par repomanager.
+L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes permissions soient correctement établies sur les répertoires utilisés par repomanager.
 
-En tant que root, télécharger la dernière release disponible de repomanager au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
+Télécharger la dernière release disponible au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
 
 <pre>
-su -
+RELEASE="v2.5.1-beta" # choix de la release
 cd /tmp
-wget https://github.com/lbr38/repomanager/releases/download/RELEASE/repomanager_RELEASE.tar.gz
-tar xzf repomanager_RELEASE.tar.gz
+wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
+tar xzf repomanager_$RELEASE.tar.gz
 cd /tmp/repomanager/
 </pre>
 
 Lancer l'installation de repomanager :
 <pre>
 chmod 700 repomanager
-./repomanager --install
+sudo ./repomanager --install
 </pre>

@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html>
-<?php include('includes/head.inc.php'); ?>
-
 <?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
-//require_once('common.php');
-require_once('models/Repo.php');
-require_once('models/Stat.php');
 
 /**
  *  Chargement de la BDD stats
@@ -22,7 +15,6 @@ $mystats = new Stat();
 $mystats->getConnection('stats', 'rw');
 $mystats->closeConnection();
 $mystats->getConnection('stats', 'ro');
-//$mystats->db = new Database_stats('ro');
 
 $repoError = 0;
 
@@ -69,25 +61,25 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 
             <?php
                 if ($repoError !== 0) {
-                    if ($OS_FAMILY == "Redhat") echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
-                    if ($OS_FAMILY == "Debian") echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
+                    if (OS_FAMILY == "Redhat") echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+                    if (OS_FAMILY == "Debian") echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
                 }
 
                 if ($repoError === 0) {
-                    if ($OS_FAMILY == "Redhat" AND !empty($myrepo->name)) echo "<p>Statistiques du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
-                    if ($OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) echo "<p>Statistiques de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
+                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) echo "<p>Statistiques du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
+                    if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) echo "<p>Statistiques de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                 }
 
                 echo '<br>';
 
-                if (!file_exists($WWW_STATS_LOG_PATH)) echo "<p><span class=\"yellowtext\">Le fichier de log à analyser ($WWW_STATS_LOG_PATH) n'existe pas ou n'est pas correctement configuré.</span></p>";
-                if (!is_readable($WWW_STATS_LOG_PATH)) echo "<p><span class=\"yellowtext\">Le fichier de log à analyser ($WWW_STATS_LOG_PATH) n'est pas accessible en lecture.</span></p>";
+                if (!file_exists(WWW_STATS_LOG_PATH)) echo '<p><span class="yellowtext">Le fichier de log à analyser ('.WWW_STATS_LOG_PATH.') n\'existe pas ou n\'est pas correctement configuré.</span></p>';
+                if (!is_readable(WWW_STATS_LOG_PATH)) echo '<p><span class="yellowtext">Le fichier de log à analyser ('.WWW_STATS_LOG_PATH.') n\'est pas accessible en lecture.</span></p>';
 
                 /**
                  *  Récupération de la liste des derniers logs d'accès au repo, à partir de la BDD
                  */
-                if ($OS_FAMILY == "Redhat") $lastAccess = $mystats->get_lastAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
-                if ($OS_FAMILY == "Debian") $lastAccess = $mystats->get_lastAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                if (OS_FAMILY == "Redhat") $lastAccess = $mystats->get_lastAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                if (OS_FAMILY == "Debian") $lastAccess = $mystats->get_lastAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
 
                 /**
                  *  Tri des valeurs par date et heure
@@ -104,13 +96,13 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Comptage de la taille du repo et du nombre de paquets actuel
                      */
-                    if ($OS_FAMILY == "Redhat") {
-                        $repoSize = exec("du -hs ${REPOS_DIR}/{$myrepo->dateFormatted}_{$myrepo->name} | awk '{print $1}'");
-                        $packagesCount = exec("find ${REPOS_DIR}/{$myrepo->dateFormatted}_{$myrepo->name}/ -type f -name '*.rpm' | wc -l");
+                    if (OS_FAMILY == "Redhat") {
+                        $repoSize = exec("du -hs ".REPOS_DIR."/{$myrepo->dateFormatted}_{$myrepo->name} | awk '{print $1}'");
+                        $packagesCount = exec("find ".REPOS_DIR."/{$myrepo->dateFormatted}_{$myrepo->name}/ -type f -name '*.rpm' | wc -l");
                     }
-                    if ($OS_FAMILY == "Debian") {
-                        $repoSize = exec("du -hs ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section} | awk '{print $1}'");
-                        $packagesCount = exec("find ${REPOS_DIR}/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section}/ -type f -name '*.deb' | wc -l");
+                    if (OS_FAMILY == "Debian") {
+                        $repoSize = exec("du -hs ".REPOS_DIR."/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section} | awk '{print $1}'");
+                        $packagesCount = exec("find ".REPOS_DIR."/{$myrepo->name}/{$myrepo->dist}/{$myrepo->dateFormatted}_{$myrepo->section}/ -type f -name '*.deb' | wc -l");
                     }
 
                     /**
@@ -141,8 +133,8 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Détails des requêtes en temps réel (+/-5 sec)
                          */
-                        if ($OS_FAMILY == "Redhat") $realTimeAccess = $mystats->get_realTimeAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
-                        if ($OS_FAMILY == "Debian") $realTimeAccess = $mystats->get_realTimeAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                        if (OS_FAMILY == "Redhat") $realTimeAccess = $mystats->get_realTimeAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                        if (OS_FAMILY == "Debian") $realTimeAccess = $mystats->get_realTimeAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
                         /**
                          *  Comptage du nombre de requêtes précédemment récupérées
                          */
@@ -151,8 +143,8 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Détails des requêtes des 5 dernières minutes
                          */
-                        if ($OS_FAMILY == "Redhat") $lastMinutesAccess = $mystats->get_lastMinutesAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
-                        if ($OS_FAMILY == "Debian") $lastMinutesAccess = $mystats->get_lastMinutesAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
+                        if (OS_FAMILY == "Redhat") $lastMinutesAccess = $mystats->get_lastMinutesAccess(array('repo' => $myrepo->name, 'env' => $myrepo->env));
+                        if (OS_FAMILY == "Debian") $lastMinutesAccess = $mystats->get_lastMinutesAccess(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env));
                         /**
                          *  Comptage du nombre de requêtes précédemment récupérées
                          */
@@ -178,9 +170,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                              */
                                             if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
-                                                echo "<img src=\"icons/greencircle.png\" class=\"icon-small\" /> ";
+                                                echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                             else
-                                                echo "<img src=\"icons/redcircle.png\" class=\"icon-small\" /> ";
+                                                echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
                                             /**
                                              *  Affichage des détails de la/les requête(s)
                                              */
@@ -204,9 +196,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                              */
                                             if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
-                                                echo "<img src=\"icons/greencircle.png\" class=\"icon-small\" /> ";
+                                                echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                             else
-                                                echo "<img src=\"icons/redcircle.png\" class=\"icon-small\" /> ";
+                                                echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
                                             /**
                                              *  Affichage des détails de la/les requête(s)
                                              */
@@ -229,10 +221,10 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
                          */
-                        if ($repo_access_chart_filter == "1week") $dateCounter = date('Y-m-d',strtotime('-1 week',strtotime($DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
-                        if ($repo_access_chart_filter == "1month") $dateCounter = date('Y-m-d',strtotime('-1 month',strtotime($DATE_YMD))); // le début du compteur commence à la date actuelle -1 mois
-                        if ($repo_access_chart_filter == "3months") $dateCounter = date('Y-m-d',strtotime('-3 months',strtotime($DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois
-                        if ($repo_access_chart_filter == "6months") $dateCounter = date('Y-m-d',strtotime('-6 months',strtotime($DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
+                        if ($repo_access_chart_filter == "1week") $dateCounter = date('Y-m-d',strtotime('-1 week',strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
+                        if ($repo_access_chart_filter == "1month") $dateCounter = date('Y-m-d',strtotime('-1 month',strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 mois
+                        if ($repo_access_chart_filter == "3months") $dateCounter = date('Y-m-d',strtotime('-3 months',strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois
+                        if ($repo_access_chart_filter == "6months") $dateCounter = date('Y-m-d',strtotime('-6 months',strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
 
                         $repoAccessChartLabels = '';
                         $repoAccessChartData = '';
@@ -240,9 +232,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
                          */
-                        while ($dateCounter != date('Y-m-d',strtotime('+1 day',strtotime($DATE_YMD)))) {
-                            if ($OS_FAMILY == "Redhat") $dateAccessCount = $mystats->get_dailyAccess_count(array('repo' => $myrepo->name, 'env' => $myrepo->env, 'date' => $dateCounter));
-                            if ($OS_FAMILY == "Debian") $dateAccessCount = $mystats->get_dailyAccess_count(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env, 'date' => $dateCounter));
+                        while ($dateCounter != date('Y-m-d',strtotime('+1 day',strtotime(DATE_YMD)))) {
+                            if (OS_FAMILY == "Redhat") $dateAccessCount = $mystats->get_dailyAccess_count(array('repo' => $myrepo->name, 'env' => $myrepo->env, 'date' => $dateCounter));
+                            if (OS_FAMILY == "Debian") $dateAccessCount = $mystats->get_dailyAccess_count(array('repo' => $myrepo->name, 'dist' => $myrepo->dist, 'section' => $myrepo->section, 'env' => $myrepo->env, 'date' => $dateCounter));
 
                             if (!empty($dateAccessCount))
                                 $repoAccessChartData .= $dateAccessCount.', ';
@@ -352,9 +344,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         echo '<tr>';
                                             echo '<td class="td-10">';
                                             if ($access['Request_result'] == "200" OR $access['Request_result'] == "304")
-                                                echo '<img src="icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
+                                                echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             else
-                                                echo '<img src="icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
+                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             echo '</td>';
                                             echo '<td class="td-100">'.DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y').' à '.$access['Time'].'</td>';
                                             echo '<td class="td-100">'.$access['Source'].' ('.$access['IP'].')</td>';

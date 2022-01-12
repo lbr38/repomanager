@@ -22,10 +22,9 @@ cd /tmp/repomanager-update_${GITHUB_VERSION}/
 BACKUP_CONF_DIR="/tmp/repomanager-update_${GITHUB_VERSION}/backup-conf"
 
 # Sauvegarde des configurations actuelles
-cp ${WWW_DIR}/styles/colors.php ${BACKUP_CONF_DIR}/
+cp ${WWW_DIR}/ressources/styles/colors.php ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/configurations/repomanager.conf ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/configurations/display.ini ${BACKUP_CONF_DIR}/
-cp ${WWW_DIR}/configurations/envs.conf ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
 cp -r ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
@@ -59,16 +58,16 @@ if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 #rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
 #if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 ## Css
-#rsync -a --quiet --delete-after --exclude './styles/colors.php' ./styles/ ${WWW_DIR}/styles/
+#rsync -a --quiet --delete-after --exclude './ressources/styles/colors.php' ./ressources/styles/ ${WWW_DIR}/ressources/styles/
 #if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 ## JS
 #rsync -a --quiet --delete-after ./js/ ${WWW_DIR}/js/
 #if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 ## images
-#rsync -a --quiet --delete-after ./images/ ${WWW_DIR}/images/
+#rsync -a --quiet --delete-after ./ressources/images/ ${WWW_DIR}/ressources/images/
 #if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 ## icons
-#rsync -a --quiet --delete-after ./icons/ ${WWW_DIR}/icons/
+#rsync -a --quiet --delete-after ./ressources/icons/ ${WWW_DIR}/ressources/icons/
 #if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 ## fonts
 #rsync -a --quiet --delete-after ./fonts/ ${WWW_DIR}/fonts/
@@ -92,10 +91,9 @@ done &&
 \cp configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
 
 # Remise en place des configurations sauvegardées
-\cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/styles/colors.php
+\cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/ressources/styles/colors.php
 \cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf
 \cp ${BACKUP_CONF_DIR}/display.ini ${WWW_DIR}/configurations/display.ini
-\cp ${BACKUP_CONF_DIR}/envs.conf ${WWW_DIR}/configurations/envs.conf
 \cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db
 \cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db
 \cp -r ${BACKUP_CONF_DIR}/logs ${WWW_DIR}/
@@ -123,6 +121,7 @@ rm -f "${WWW_DIR}/configurations/hosts.conf"
 rm -f "${WWW_DIR}/configurations/repos.list"
 rm -f "${WWW_DIR}/configurations/repos-archive.list"
 rm -f "${WWW_DIR}/operations/cronjob_daily.php"
+rm -f "${WWW_DIR}/configurations/envs.conf"
 
 # Suppression du répertoire de mise à jour
 rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf

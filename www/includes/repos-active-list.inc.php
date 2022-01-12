@@ -7,7 +7,7 @@ $repoStatus = 'active';
 /**
  *  Cas où on trie par groupes
  */
-if ($filterByGroups == "yes") {
+if (FILTER_BY_GROUPS == "yes") {
     /**
      *  Récupération de tous les noms de groupes
      */
@@ -48,7 +48,7 @@ if ($filterByGroups == "yes") {
 /**
  *  Cas où on ne trie pas par groupes
  */
-if ($filterByGroups == "no") {
+if (FILTER_BY_GROUPS == "no") {
     /**
      *  Affichage de l'en-tête du tableau
      */

@@ -1,11 +1,6 @@
 <?php
 trait update {
     public function exec_update() {
-        global $TEMP_DIR;
-        global $OS_FAMILY;
-        global $WWW_DIR;
-        global $PID_DIR;
-
         /**
          *  Démarrage de l'opération
          *  A partir de l'ID de repo fourni, on récupère toutes les infos du repo à mettre à jour
@@ -41,15 +36,15 @@ trait update {
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 6;
-        exec("php ${WWW_DIR}/operations/logbuilder.php ${PID_DIR}/{$this->log->pid}.pid {$this->log->location} ${TEMP_DIR}/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec("php ".ROOT."/operations/logbuilder.php ".PID_DIR."/{$this->log->pid}.pid {$this->log->location} ".TEMP_DIR."/{$this->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
              *  Etape 0 : Afficher le titre de l'opération
              */
             $this->log->steplog(0);
-            if ($OS_FAMILY == "Redhat") file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UN REPO</h3>");
-            if ($OS_FAMILY == "Debian") file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UNE SECTION DE REPO</h3>");        
+            if (OS_FAMILY == "Redhat") file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UN REPO</h3>");
+            if (OS_FAMILY == "Debian") file_put_contents($this->log->steplog, "<h3>MISE A JOUR D'UNE SECTION DE REPO</h3>");        
             
             /**
              *  Récupère la source du repo si celle-ci est vide 

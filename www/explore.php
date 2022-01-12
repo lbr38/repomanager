@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html>
-<?php include('includes/head.inc.php'); ?>
-
 <?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
-require_once('models/Repo.php');
 
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
@@ -35,13 +30,13 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === 'reconstruct
     /**
      *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan
      */
-    if ($myrepo->existsId() === true) exec("php ${WWW_DIR}/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
+    if ($myrepo->existsId() === true) exec("php ".ROOT."/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
 
     /**
      *  Rafraichissement de la page
      */
     sleep(1);
-    header("Location: $__ACTUAL_URL__");
+    header('Location: '.__ACTUAL_URL__);
     exit;
 }
 
@@ -88,12 +83,12 @@ if ($pathError == 0) {
      *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
      */
     if ($state == 'active') {
-        if ($OS_FAMILY == "Redhat") $repoPath = "${REPOS_DIR}/{$myrepo->name}_{$myrepo->env}";
-        if ($OS_FAMILY == "Debian") $repoPath = "${REPOS_DIR}/$myrepo->name/$myrepo->dist/{$myrepo->section}_{$myrepo->env}";
+        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/{$myrepo->name}_{$myrepo->env}";
+        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/$myrepo->name/$myrepo->dist/{$myrepo->section}_{$myrepo->env}";
     }
     if ($state == 'archived') {
-        if ($OS_FAMILY == "Redhat") $repoPath = "${REPOS_DIR}/archived_{$myrepo->dateFormatted}_{$myrepo->name}";
-        if ($OS_FAMILY == "Debian") $repoPath = "${REPOS_DIR}/$myrepo->name/$myrepo->dist/archived_{$myrepo->dateFormatted}_{$myrepo->section}";
+        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/archived_{$myrepo->dateFormatted}_{$myrepo->name}";
+        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/$myrepo->name/$myrepo->dist/archived_{$myrepo->dateFormatted}_{$myrepo->section}";
     }
 
     /**
@@ -196,14 +191,14 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
         /**
          *  On vérifie que le paquet est valide
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             if ($packageType !== 'application/x-rpm') {
                 $uploadError++;
                 $packageInvalid .= "$packageName, ";
             }
         }
 
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             if ($packageType !== 'application/vnd.debian.binary-package') {
                 $uploadError++;
                 $packageInvalid .= "$packageName, ";
@@ -245,10 +240,10 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
         }
 
         /**
-         *  On vérifie que le chemin du fichier commence bien par $REPOS_DIR et on supprime
+         *  On vérifie que le chemin du fichier commence bien par REPOS_DIR et on supprime
          *  Empeche une personne mal intentionnée de fournir un chemin qui n'a aucun rapport avec le répertoire de repos (par exemple /etc/... )
          */
-        if (preg_match("#^${REPOS_DIR}#", $packagePath)) {
+        if (preg_match("#^".REPOS_DIR."#", $packagePath)) {
             /**
              *  On vérifie que le fichier ciblé se termine par .deb ou .rpm sinon on passe au suivant
              */
@@ -291,17 +286,17 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
 
             <?php
                 if ($pathError !== 0) {
-                    if ($OS_FAMILY == "Redhat") echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
-                    if ($OS_FAMILY == "Debian") echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
+                    if (OS_FAMILY == "Redhat") echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+                    if (OS_FAMILY == "Debian") echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
                 }
 
                 if ($pathError === 0) {
-                    if ($OS_FAMILY == "Redhat" AND !empty($myrepo->name)) {
+                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) {
                         if ($state == "active")   echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
                         if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>$myrepo->name</b>.</p>";
                     }
 
-                    if ($OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) {
+                    if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) {
                         if ($state == "active")   echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                         if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>$myrepo->section</b> du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                     }
@@ -379,9 +374,9 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                  */
                 function printSubDir($dir, $path) {
                     if ($dir == "my_uploaded_packages") { // Si le nom du répertoire est 'my_uploaded_packages' alors on l'affiche en jaune
-                        echo "<li><span class=\"explorer-toggle\"><img src=\"icons/folder.png\" class=\"icon\" /> <span class=\"yellowtext\">$dir</span></span>";
+                        echo "<li><span class=\"explorer-toggle\"><img src=\"ressources/icons/folder.png\" class=\"icon\" /> <span class=\"yellowtext\">$dir</span></span>";
                     } else {
-                        echo "<li><span class=\"explorer-toggle\"><img src=\"icons/folder.png\" class=\"icon\" /> $dir</span>";
+                        echo "<li><span class=\"explorer-toggle\"><img src=\"ressources/icons/folder.png\" class=\"icon\" /> $dir</span>";
                     }
                     tree("$path/$dir"); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier
                     echo "</li>";
@@ -444,17 +439,17 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
 
                     if (!empty($opRunning_update)) {
                         echo '<p>';
-                        echo '<img src="images/loading.gif" class="icon" /> ';
-                        if ($OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
-                        if ($OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
+                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                        if (OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
+                        if (OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
                         echo '</p>';
                     }
 
                     if (!empty($opRunning_reconstruct)) {
                         echo '<p>';
-                        echo '<img src="images/loading.gif" class="icon" /> ';
-                        if ($OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
-                        if ($OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
+                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                        if (OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
+                        if (OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
                         echo '</p>';
                     }
 
@@ -480,18 +475,18 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                         ?>
                         <hr>
                 
-                        <p><span id="rebuild-button" class="pointer"><img src="icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
+                        <p><span id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
                         <form id="hidden-form" class="hide" action="" method="post">
                             <input type="hidden" name="action" value="reconstruct">
                             <input type="hidden" name="repoId" value="'.$repoId.'">
                             <span>Signer avec GPG </span>
                             <label class="onoff-switch-label">
-                            <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
+                            <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
                             <span class="onoff-switch-slider"></span>
                             </label>
                             <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
                             <br>
-                            <button type="submit" class="btn-medium-red"><img src="icons/rocket.png" class="icon" />Exécuter</button>
+                            <button type="submit" class="btn-medium-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
                         </form>
                     <?php
                     }

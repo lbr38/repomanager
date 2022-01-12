@@ -4,14 +4,21 @@ if (empty($argv)) {
     exit('Erreur : aucun argument passé');
 }
 
-$WWW_DIR = dirname(__FILE__, 2);
+define('ROOT', dirname(__FILE__, 2));
 
 /**
  *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
  */
-require_once("${WWW_DIR}/functions/load_common_variables.php");
-require_once("${WWW_DIR}/functions/common-functions.php");
-require_once("${WWW_DIR}/models/Planification.php");
+require_once(ROOT.'/models/Autoloader.php');
+Autoloader::loadAll();
+require_once(ROOT."/functions/common-functions.php");
+
+/**
+ *  Si il y a eu un pb lors du chargement des constantes alors on quitte
+ */
+if (defined('__LOAD_GENERAL_ERROR') AND __LOAD_GENERAL_ERROR > 0) {
+    exit('Erreur lors du chargement des constantes');
+}
 
 /**
  *  Date et heure actuelle (à laquelle est exécuté ce script)
@@ -19,6 +26,7 @@ require_once("${WWW_DIR}/models/Planification.php");
 $dateNow = date('Y-m-d');
 $timeNow = date('H:i');
 $minutesNow = date('i');
+$dayNow = strtolower(date('l')); // jour de la semaine (ex : 'monday')
 
 /**
  *  1. On vérifie la présence d'une ou plusieurs planification dans le pool
@@ -40,6 +48,7 @@ if(!empty($plansQueued)) {
         if (!empty($planQueued['Id']))        $planId        = $planQueued['Id'];
         if (!empty($planQueued['Type']))      $planType      = $planQueued['Type'];
         if (!empty($planQueued['Frequency'])) $planFrequency = $planQueued['Frequency'];
+        if (!empty($planQueued['Day']))       $planDay       = $planQueued['Day'];
         if (!empty($planQueued['Date']))      $planDate      = $planQueued['Date'];
         if (!empty($planQueued['Time']))      $planTime      = $planQueued['Time'];
         if (!empty($planQueued['Reminder']))  $planReminder  = $planQueued['Reminder'];
@@ -87,9 +96,32 @@ if(!empty($plansQueued)) {
                     $plan->setId($planId);
                     $plan->exec();
                 }
+
+                /**
+                 *  Cas où la fréquence est 'toutes les semaines'
+                 *  Dans ce cas l'utilisateur a également précisé un/des jour(s) et une heure d'éxécution
+                 */
+                if ($planFrequency == "every-week" and !empty($planDay)) {
+                    /**
+                     *  On parcout la liste de(s) jour(s) spécifié par l'utilisateur
+                     */
+                    $planDay = explode(',', $planDay);
+
+                    foreach ($planDay as $dayOfWeek) {
+                        /**
+                         *  Si le jour et l'heure correspond alors on exécute la planif
+                         */
+                        if (($dayOfWeek == $dayNow) AND ($planTime == $timeNow)) {
+                            /**
+                             *  On indique à $plan quel est l'id de la planification et on l'exécute
+                             */
+                            $plan->setId($planId);
+                            $plan->exec();
+                        }
+                    }
+                }
             }
         }
-
 
         /**
          *  Traitement des rappels
@@ -120,8 +152,8 @@ if(!empty($plansQueued)) {
      *  2. Si il y a des rappels à envoyer, alors on envoi un mail
      */
     if (!empty($message_rappel)) {
-        include_once("${WWW_DIR}/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $message_rappel
-        $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur $WWW_HOSTNAME", $template);
+        include_once(ROOT."/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $message_rappel
+        $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur ".WWW_HOSTNAME, $template);
     }
 }
 

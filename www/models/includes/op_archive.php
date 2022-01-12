@@ -4,9 +4,6 @@ trait op_archive {
      *  Archivage de l'ancien repo/section
      */
     public function op_archive() {
-        global $OS_FAMILY;
-        global $REPOS_DIR;
-        global $DATE_YMD;
 
         $archiveError = 0;
 
@@ -46,11 +43,11 @@ trait op_archive {
          *  A partir de la date récupérée, on regarde si d'autres environnements pointent sur le repo/section à cette date
          *  On exclu $this->env de la recherche car il apparaitra forcémment sinon.
          */
-        if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
+        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
         $stmt->bindValue(':name', $this->repo->name);
         $stmt->bindValue(':date', $oldRepoDate);
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt->bindValue(':dist', $this->repo->dist);
             $stmt->bindValue(':section', $this->repo->section);
         }
@@ -77,12 +74,12 @@ trait op_archive {
          *  Cas où on archive l'ancien repo/section
          */
         if ($count == 0) {
-            if ($OS_FAMILY == "Redhat") {
+            if (OS_FAMILY == "Redhat") {
                 /**
                  *  Si un répertoire d'archive existe déjà alors on le supprime
                  */
-                if (is_dir("${REPOS_DIR}/archived_${oldRepoDateFormatted}_{$this->repo->name}")) exec("rm -rf '${REPOS_DIR}/archived_${oldRepoDateFormatted}_{$this->repo->name}'");
-                if (!rename("${REPOS_DIR}/${oldRepoDateFormatted}_{$this->repo->name}", "${REPOS_DIR}/archived_${oldRepoDateFormatted}_{$this->repo->name}")) {
+                if (is_dir(REPOS_DIR."/archived_${oldRepoDateFormatted}_{$this->repo->name}")) exec("rm -rf '".REPOS_DIR."/archived_${oldRepoDateFormatted}_{$this->repo->name}'");
+                if (!rename(REPOS_DIR."/${oldRepoDateFormatted}_{$this->repo->name}", REPOS_DIR."/archived_${oldRepoDateFormatted}_{$this->repo->name}")) {
                     $archiveError++;
 
                 } else {
@@ -101,12 +98,12 @@ trait op_archive {
                 }
             }
 
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 /**
                  *  Si un répertoire d'archive existe déjà alors on le supprime
                  */
-                if (is_dir("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}")) exec("rm -rf '${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}'");
-                if (!rename("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/${oldRepoDateFormatted}_{$this->repo->section}", "${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}")) {
+                if (is_dir(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}")) exec("rm -rf '".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}'");
+                if (!rename(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/${oldRepoDateFormatted}_{$this->repo->section}", REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${oldRepoDateFormatted}_{$this->repo->section}")) {
                     $archiveError++;
 
                 } else {

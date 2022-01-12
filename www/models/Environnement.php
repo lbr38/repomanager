@@ -1,7 +1,5 @@
 <?php
 
-require_once("${WWW_DIR}/models/Model.php");
-
 class Environnement extends Model {
 
     public $name;

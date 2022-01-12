@@ -1,29 +1,10 @@
 <!DOCTYPE html>
 <html>
-<?php include('includes/head.inc.php'); ?>
-
-<?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+<?php 
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
-//require_once('common.php');
-require_once('models/Repo.php');
-require_once('models/Profile.php');
-
-// Créer le répertoire principal des profils si n'existe pas
-if (!file_exists($PROFILES_MAIN_DIR)) mkdir($PROFILES_MAIN_DIR, 0775, true);
-
-// Créer le répertoire qui accueille les fichiers de conf .list ou .repo si n'existe pas
-if (!file_exists($REPOS_PROFILES_CONF_DIR)) mkdir($REPOS_PROFILES_CONF_DIR, 0775, true);
-
-// Créer le répertoire qui accueille le fichier de conf du serveur de repo
-if (!file_exists($REPOSERVER_PROFILES_CONF_DIR)) mkdir($REPOSERVER_PROFILES_CONF_DIR, 0775, true);
-
-// Créer le fichier de conf du serveur n'existe pas on le crée
-if (!file_exists($PROFILE_SERVER_CONF)) touch($PROFILE_SERVER_CONF);
 
 /**
  *  Cas où on souhaite modifier la conf serveur
@@ -34,22 +15,24 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyServer
 
     // On forge le bloc de conf qu'on va écrire dans le fichier
     $conf = '[REPOSERVER]'.PHP_EOL;
-    $conf .= "IP=\"$__SERVER_IP__\"".PHP_EOL;
-    $conf .= "URL=\"$__SERVER_URL__\"".PHP_EOL;
-    $conf .= "PROFILES_URL=\"${WWW_PROFILES_DIR_URL}\"".PHP_EOL;
-    $conf .= "OS_FAMILY=\"${OS_FAMILY}\"".PHP_EOL;
-    $conf .= "OS_NAME=\"${OS_NAME}\"".PHP_EOL;
-    $conf .= "OS_VERSION=\"${OS_VERSION}\"".PHP_EOL;
+    $conf .= 'IP="'.__SERVER_IP__.'"'.PHP_EOL;
+    $conf .= 'URL="'.__SERVER_URL__.'"'.PHP_EOL;
+    $conf .= 'PROFILES_URL="'.WWW_PROFILES_DIR_URL.'"'.PHP_EOL;
+    $conf .= 'OS_FAMILY="'.OS_FAMILY.'"'.PHP_EOL;
+    $conf .= 'OS_NAME="'.OS_NAME.'"'.PHP_EOL;
+    $conf .= 'OS_VERSION="'.OS_VERSION.'"'.PHP_EOL;
     // Sur les systèmes CentOS il est possible de modifier la variable releasever, permettant de faire des miroirs de version de paquets différent de l'OS
-    // Si c'est le cas, ($RELEASEVER différent de la version d'OS_VERSION alors il faut indiquer aux serveurs clients que ce serveur gère des paquets de version $RELEASEVER)
-    if (!empty($RELEASEVER) AND $RELEASEVER !== $OS_VERSION) {
-        $conf .= "PACKAGES_OS_VERSION=\"${RELEASEVER}\"".PHP_EOL;
+    // Si c'est le cas, (RELEASEVER différent de la version d'OS_VERSION alors il faut indiquer aux serveurs clients que ce serveur gère des paquets de version RELEASEVER)
+    if (OS_FAMILY == "Redhat") {
+        if (!empty(RELEASEVER) AND RELEASEVER !== OS_VERSION) {
+            $conf .= 'PACKAGES_OS_VERSION="'.RELEASEVER.'"'.PHP_EOL;
+        }
     }
-    $conf .= "MANAGE_CLIENTS_CONF=\"${serverConf_manageClientsConf}\"".PHP_EOL;
-    $conf .= "MANAGE_CLIENTS_REPOSCONF=\"${serverConf_manageClients_reposConf}\"".PHP_EOL;
+    $conf .= 'MANAGE_CLIENTS_CONF="'.$serverConf_manageClientsConf.'"'.PHP_EOL;
+    $conf .= 'MANAGE_CLIENTS_REPOSCONF="'.$serverConf_manageClients_reposConf.'"'.PHP_EOL;
 
     // Ajout de la conf au fichier de conf serveur
-    file_put_contents($PROFILE_SERVER_CONF, $conf);
+    file_put_contents(PROFILE_SERVER_CONF, $conf);
 
     // Affichage d'un message
     printAlert("La configuration du serveur a été enregistrée", 'success');
@@ -98,8 +81,8 @@ if (!empty($_GET['action']) AND (validateData($_GET['action']) == "duplicateprof
 /**
  *  Récupération de la conf dans le fichier de conf serveur
  */
-$serverConf_manageClientsConf = exec("grep '^MANAGE_CLIENTS_CONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
-$serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${PROFILE_SERVER_CONF} | cut -d'=' -f2 | sed 's/\"//g'");
+$serverConf_manageClientsConf = exec("grep '^MANAGE_CLIENTS_CONF=' ".PROFILE_SERVER_CONF." | cut -d'=' -f2 | sed 's/\"//g'");
+$serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".PROFILE_SERVER_CONF." | cut -d'=' -f2 | sed 's/\"//g'");
 ?>
 
 <body>
@@ -110,7 +93,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
     <!-- REPOS ACTIFS -->
     <section class="left">
         <h3>PROFILS</h3>
-        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if ($OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if ($OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if (OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if (OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
         <br>
         <p>Créer un nouveau profil :</p>
         <form action="profiles.php" method="post" autocomplete="off">
@@ -124,7 +107,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
         /**
          *  Récupération de tous les noms de profils
          */
-        $profilesNames = scandir($PROFILES_MAIN_DIR); // 
+        $profilesNames = scandir(PROFILES_MAIN_DIR); // 
 
         /**
          *  Tri des profils afin de les afficher dans l'ordre alpha
@@ -141,7 +124,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
              *  Affichage des profils et leur configuration
              */
             foreach($profilesNames as $profileName) {
-                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != "${PROFILE_SERVER_CONF}")) {
+                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
                     echo '<div class="profileDiv">';
                         echo '<form action="profiles.php" method="post" autocomplete="off">';
                             echo '<table class="table-large">';
@@ -153,10 +136,10 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                                 echo "<input type=\"text\" value=\"${profileName}\" name=\"profileName\" class=\"invisibleInput-blue\" />";
                                 echo '</td>';
                                 echo '<td class="td-fit">';
-                                echo "<img id=\"profileConfigurationToggleButton-${profileName}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"icons/cog.png\" />";
-                                echo "<a href=\"?action=duplicateprofile&profileName=${profileName}\" title=\"Créer un nouveau profil en dupliquant la configuration de $profileName\"><img class=\"icon-mediumopacity\" src=\"icons/duplicate.png\" /></a>";         
+                                echo "<img id=\"profileConfigurationToggleButton-${profileName}\" title=\"Configuration de $profileName\" class=\"icon-mediumopacity\" src=\"ressources/icons/cog.png\" />";
+                                echo "<a href=\"?action=duplicateprofile&profileName=${profileName}\" title=\"Créer un nouveau profil en dupliquant la configuration de $profileName\"><img class=\"icon-mediumopacity\" src=\"ressources/icons/duplicate.png\" /></a>";         
                                 // Bouton supprimer le profil
-                                echo "<img class=\"profileDeleteToggleButton-${profileName} icon-mediumopacity\" title=\"Supprimer le profil ${profileName}\" src=\"icons/bin.png\" />";
+                                echo "<img class=\"profileDeleteToggleButton-${profileName} icon-mediumopacity\" title=\"Supprimer le profil ${profileName}\" src=\"ressources/icons/bin.png\" />";
                                 deleteConfirm("Etes-vous sûr de vouloir supprimer le profil <b>$profileName</b>", "?action=deleteprofile&profileName=${profileName}", "profileDeleteDiv-${profileName}", "profileDeleteToggleButton-${profileName}");
                                 echo '</td>';
                                 echo '</tr>';
@@ -170,8 +153,8 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                         echo "<input type=\"hidden\" name=\"profileName\" value=\"${profileName}\" />";
                         echo '<input type="hidden" name="action" value="manageProfileConfiguration" />';
                         if ($serverConf_manageClients_reposConf == "yes") {
-                            if ($OS_FAMILY == "Redhat") echo '<p>Repos :</p>';
-                            if ($OS_FAMILY == "Debian") echo '<p>Sections de repos :</p>';
+                            if (OS_FAMILY == "Redhat") echo '<p>Repos :</p>';
+                            if (OS_FAMILY == "Debian") echo '<p>Sections de repos :</p>';
                             echo '<table class="table-large">';
                                 echo '<tr>';
                                     echo '<td colspan="100%">';
@@ -183,19 +166,19 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                                             $reposList = $repo->listAll_distinct();
                                             foreach($reposList as $myrepo) {
                                                 $repoName = $myrepo['Name'];
-                                                if ($OS_FAMILY == "Debian") {
+                                                if (OS_FAMILY == "Debian") {
                                                     $repoDist = $myrepo['Dist'];
                                                     $repoSection = $myrepo['Section'];
                                                 }
-                                                if ($OS_FAMILY == "Redhat") {
+                                                if (OS_FAMILY == "Redhat") {
                                                     // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                                                    if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}.repo")) {
+                                                    if (file_exists(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."${repoName}.repo")) {
                                                         echo "<option value=\"${repoName}\" selected>${repoName}</option>";
                                                     } else {
                                                         echo "<option value=\"${repoName}\">${repoName}</option>";
                                                     }
                                                 }
-                                                if ($OS_FAMILY == "Debian") {
+                                                if (OS_FAMILY == "Debian") {
                                                     /**
                                                      *  Si le nom de la distribution comporte un slash, alors on remplace '/' par '--slash--' car c'est comme cela qu'il sera écrit dans le nom du fichier
                                                      */
@@ -203,14 +186,14 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                                                         $repoDistFormatted = str_replace('/', '--slash--', $repoDist);
 
                                                         // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                                                        if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDistFormatted}_${repoSection}.list")) {
+                                                        if (file_exists(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."${repoName}_${repoDistFormatted}_${repoSection}.list")) {
                                                             echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
                                                         } else {
                                                             echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
                                                         }
                                                     } else {
                                                         // Si un fichier de repo existe dans ce profil, alors on génère une option "selected" pour indiquer que le repo est déjà présent dans ce profil
-                                                        if (file_exists("${PROFILES_MAIN_DIR}/${profileName}/${REPO_CONF_FILES_PREFIX}${repoName}_${repoDist}_${repoSection}.list")) {
+                                                        if (file_exists(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."${repoName}_${repoDist}_${repoSection}.list")) {
                                                             echo "<option value=\"${repoName}|${repoDist}|${repoSection}\" selected>${repoName} - ${repoDist} - ${repoSection}</option>";
                                                         } else {
                                                             echo "<option value=\"${repoName}|${repoDist}|${repoSection}\">${repoName} - ${repoDist} - ${repoSection}</option>";
@@ -236,12 +219,12 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                             /**
                              *  On récupére la conf du profil contenue dans le fichier "config"
                              */
-                            $profileConf_excludeMajor = exec("grep '^EXCLUDE_MAJOR=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-                            $profileConf_exclude = exec("grep '^EXCLUDE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-                            $profileConf_needRestart = exec("grep '^NEED_RESTART=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-                            $profileConf_keepCron = exec("grep '^KEEP_CRON=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-                            $profileConf_allowOverwrite = exec("grep '^ALLOW_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
-                            $profileConf_allowReposFilesOverwrite = exec("grep '^ALLOW_REPOSFILES_OVERWRITE=' ${PROFILES_MAIN_DIR}/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_excludeMajor = exec("grep '^EXCLUDE_MAJOR=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_exclude = exec("grep '^EXCLUDE=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_needRestart = exec("grep '^NEED_RESTART=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_keepCron = exec("grep '^KEEP_CRON=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_allowOverwrite = exec("grep '^ALLOW_OVERWRITE=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
+                            $profileConf_allowReposFilesOverwrite = exec("grep '^ALLOW_REPOSFILES_OVERWRITE=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
 
                             echo '<p>Paquets à exclure en cas de version majeure :</p>';
                             $profileConf_excludeMajor = explode(',', $profileConf_excludeMajor);
@@ -374,31 +357,31 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
             <input type="hidden" name="action" value="applyServerConfiguration" />
             <table class="table-large">
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="Permet aux serveurs clients de récupérer la configuration de leur profil avec http. Sous-répertoire du répertoire des repos. Non-modifiable." />URL d'accès aux profils</td>
-                <td><input type="text" class="td-medium" value="<?php echo $WWW_PROFILES_DIR_URL;?>" readonly /></td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Permet aux serveurs clients de récupérer la configuration de leur profil avec http. Sous-répertoire du répertoire des repos. Non-modifiable." />URL d'accès aux profils</td>
+                <td><input type="text" class="td-medium" value="<?php echo WWW_PROFILES_DIR_URL;?>" readonly /></td>
             </tr>
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="Famille d'OS que ce client gère. Défini en fonction de l'OS de ce serveur (non-modifiable). Seuls des serveurs clients de la même famille pourront récupérer leur configuration auprès de ce serveur." />Famille d'OS</td>
-                <td><input type="text" class="td-medium" value="<?php echo $OS_FAMILY;?>" readonly /></td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Famille d'OS que ce client gère. Défini en fonction de l'OS de ce serveur (non-modifiable). Seuls des serveurs clients de la même famille pourront récupérer leur configuration auprès de ce serveur." />Famille d'OS</td>
+                <td><input type="text" class="td-medium" value="<?php echo OS_FAMILY;?>" readonly /></td>
             </tr>
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="OS de ce serveur. Les serveurs clients appartenant à la même famille que ce serveur mais pas au même OS pourront tout de même récupérer leur configuration auprès de ce serveur si les repos sont compatibles." />Nom de l'OS</td>
-                <td><input type="text" class="td-medium" value="<?php echo $OS_NAME;?>" readonly /></td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="OS de ce serveur. Les serveurs clients appartenant à la même famille que ce serveur mais pas au même OS pourront tout de même récupérer leur configuration auprès de ce serveur si les repos sont compatibles." />Nom de l'OS</td>
+                <td><input type="text" class="td-medium" value="<?php echo OS_NAME;?>" readonly /></td>
             </tr>
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="Version d'OS de ce serveur" />Version d'OS</td>
-                <td><input type="text" class="td-medium" value="<?php echo $OS_VERSION;?>" readonly /></td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version d'OS de ce serveur" />Version d'OS</td>
+                <td><input type="text" class="td-medium" value="<?php echo OS_VERSION;?>" readonly /></td>
             </tr>
             <?php
-            if (!empty($RELEASEVER) AND $RELEASEVER !== $OS_VERSION) {
+            if (OS_FAMILY == "Redhat" AND defined('RELEASEVER') AND RELEASEVER !== OS_VERSION) {
                 echo '<tr>';
-                echo '<td><img src="icons/info.png" class="icon-verylowopacity" title="Version d\'OS des paquets récupérés lors de la création de miroirs." />Version de paquets gérée</td>';
-                echo "<td><input type=\"text\" class=\"td-medium\" value=\"$RELEASEVER\" readonly /></td>";
+                echo '<td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version d\'OS des paquets récupérés lors de la création de miroirs." />Version de paquets gérée</td>';
+                echo '<td><input type="text" class="td-medium" value="'.RELEASEVER.'" readonly /></td>';
                 echo '</tr>';
             }
             ?>
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des clients</td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des clients</td>
                 <td class="td-medium">
                     <label class="onoff-switch-label">
                     <input name="serverConf_manageClientsConf" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($serverConf_manageClientsConf == "yes") { echo 'checked'; }?> />
@@ -406,11 +389,11 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                     </label>
                 </td>
                 <?php if (empty($serverConf_manageClientsConf)) {
-                echo '<td class="td-fit"><img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
+                echo '<td class="td-fit"><img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
                 } ?>
             </tr>
             <tr>
-                <td><img src="icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos clients</td>
+                <td><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos clients</td>
                 <td class="td-medium">
                     <label class="onoff-switch-label">
                     <input name="serverConf_manageClients_reposConf" type="checkbox" class="onoff-switch-input" value="yes" <?php if ($serverConf_manageClients_reposConf == "yes") { echo 'checked'; }?> />
@@ -418,7 +401,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ${
                     </label>
                 </td>
                 <?php if (empty($serverConf_manageClients_reposConf)) {
-                echo '<td class="td-fit"><img src="icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
+                echo '<td class="td-fit"><img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" /></td>';
                 } ?>
             </tr>
             <tr>

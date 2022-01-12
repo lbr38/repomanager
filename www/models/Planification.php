@@ -1,9 +1,4 @@
 <?php
-require_once("${WWW_DIR}/models/Model.php");
-require_once("${WWW_DIR}/models/Log.php");
-require_once("${WWW_DIR}/models/Repo.php");
-require_once("${WWW_DIR}/models/Group.php");
-require_once("${WWW_DIR}/models/Operation.php");
 
 class Planification extends Model {
     private $id;
@@ -15,7 +10,9 @@ class Planification extends Model {
     private $logfile;
 
     private $type;
-    private $date;
+    private $day = null;
+    //private $date;
+    private $date = null;
     private $time = null;
     private $frequency = null;
     private $repoId = null;
@@ -45,6 +42,23 @@ class Planification extends Model {
     public function setId(string $id)
     {
         $this->id = validateData($id);
+    }
+
+    public function setDay(array $days)
+    {
+        $planDay = '';
+
+        /**
+         *  On sépare chaque jour spécifié par une virgule
+         */
+        foreach ($days as $day) {
+            $planDay .= validateData($day).',';
+        }
+
+        /**
+         *  Suppression de la dernière virgule
+         */
+        $this->day = rtrim($planDay, ",");
     }
 
     public function setDate(string $date)
@@ -152,9 +166,9 @@ class Planification extends Model {
     public function setReminder(array $reminders)
     {
         /**
-         *  Si la planification est de type 'regular' (planification récurrente) alors on ne set pas de rappel
+         *  Si la planification est de type 'regular' (planification récurrente) et que la fréquence est "every-day" ou "every-hour" alors on ne set pas de rappel
          */
-        if ($this->type == 'regular') return;
+        if ($this->type == 'regular' AND ($this->frequency == "every-day" OR $this->frequency == "every-hour")) return;
 
         $planReminder = '';
 
@@ -231,34 +245,66 @@ class Planification extends Model {
      *  Ajout d'une nouvelle planification en BDD
      */
     public function new() {
-        global $OS_FAMILY;
-
         /**
          *  Vérification des paramètres
          */
 
         /**
+         *  Vérification du type
+         */
+        if (empty($this->type)) {
+            throw new Exception("Vous devez spécifier un type");
+        }
+
+        /**
+         *  Vérification de la fréquence si il s'agit d'une tâche récurrente
+         */
+        if ($this->type == "regular" AND empty($this->frequency))  {
+            throw new Exception("Vous devez spécifiez une fréquence");
+        }
+
+        /**
+         *  Vérification du/des jour(s) dans le cas où il s'agit d'une planification récurrente "toutes les semaines"
+         */
+        if ($this->type == "regular" AND $this->frequency == "every-week" AND empty($this->day)) {
+            throw new Exception("Vous devez spécifiez le(s) jour(s) de la semaine");
+        }
+
+        /**
+         *  Vérification de la date (dans le cas où il s'agit d'une planification)
+         */
+        if ($this->type == 'plan' AND empty($this->date)) {
+            throw new Exception("Vous devez spécifier une date");
+        }
+
+        /**
+         * Vvérification de l'heure (dans le cas où il s'agit d'une planification ou d'une tâche récurrente "tous les jours" ou "toutes les semaines")
+         */
+        if ($this->type == 'plan' OR ($this->type == 'regular' AND $this->frequency == 'every-day') OR ($this->type == 'regular' AND $this->frequency == 'every-week')) {
+            if (empty($this->time)) {
+                throw new Exception("Vous devez spécifier une heure");
+            }
+        }
+
+        /**
          *  Si aucun repo et aucun groupe n'a été renseigné alors on quitte
          */
         if (empty($this->repoId) AND empty($this->groupId)) {
-            printAlert("Aucun repo ou groupe n'a été renseigné", 'error');
-            return;
+            throw new Exception("Vous devez spéficier un repo ou un groupe");
         }
 
         /**
          *  Si un repo ET un groupe ont été renseignés alors on quitte
          */
         if (!empty($this->repoId) AND !empty($this->groupId)) {
-            printAlert("Il faut renseigner soit un repo, soit un groupe mais pas les deux", 'error');
-            return;
+            throw new Exception("Vous devez spécifier soit un repo, soit un groupe mais pas les deux");
         }
 
         /**
          *  Vérification de l'action
          */
         if (empty($this->action)) {
-            printAlert("Erreur : action vide", 'error');
-            return;
+            throw new Exception("Vous devez spécifier une action");
         }
 
         /**
@@ -272,8 +318,7 @@ class Planification extends Model {
             $myrepo->setId($this->repoId);
 
             if ($myrepo->existsId() === false) {
-                printAlert("Le repo renseigné n'existe pas", 'error');
-                return;
+                throw new Exception("Le repo spécifié n'existe pas");
             }
         }
 
@@ -288,17 +333,17 @@ class Planification extends Model {
             $mygroup->setId($this->groupId);
 
             if ($mygroup->existsId() === false) {
-                printAlert("Le groupe renseigné n'existe pas", 'error');
-                return;
+                throw new Exception("Le groupe spécifié n'existe pas");
             }
         }
 
         /**
          *  Insertion en base de données
          */
-        $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Date', 'Time', 'Action', 'Id_repo', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :date, :time, :action, :idrepo, :idgroup, :gpgcheck, :gpgresign, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
+        $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Day', 'Date', 'Time', 'Action', 'Id_repo', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :day, :date, :time, :action, :idrepo, :idgroup, :gpgcheck, :gpgresign, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
         $stmt->bindValue(':plantype', $this->type);
         $stmt->bindValue(':frequency', $this->frequency);
+        $stmt->bindValue(':day', $this->day);
         $stmt->bindValue(':date', $this->date);
         $stmt->bindValue(':time', $this->time);
         $stmt->bindValue(':action', $this->action);
@@ -311,36 +356,25 @@ class Planification extends Model {
         $stmt->bindValue(':mailrecipient', $this->mailRecipient);
         $stmt->bindValue(':reminder', $this->reminder);
         $stmt->execute();
-        
-        printAlert("Planification créée", 'success');
     }
 
 /**
  *  Suppression d'une planification
  */
-    public function remove() {
-        if (empty($this->id)) {
-            printAlert('Erreur : ID de planification non renseigné', 'error');
-            return;
+    public function remove(string $planId) {
+        try {
+            $stmt = $this->db->prepare("UPDATE planifications SET Status = 'canceled' WHERE Id = :id");
+            $stmt->bindValue(':id', $planId);
+            $stmt->execute();
+        } catch(Exception $e) {
+            throw new Exception("Une erreur est survenue lors de la suppression de la planification : ".$e->getMessage());
         }
-
-        $stmt = $this->db->prepare("UPDATE planifications SET Status = 'canceled' WHERE Id = :id");
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
-
-        printAlert('La planification a été supprimée', 'success');
     }
 
 /**
  *  Exécution d'une planification
  */
     public function exec() {
-        global $WWW_DIR;
-        global $OS_FAMILY;
-        global $AUTOMATISATION_ENABLED;
-        global $ALLOW_AUTOUPDATE_REPOS;
-        global $ALLOW_AUTOUPDATE_REPOS_ENV;
-
         /**
          *  On génère un nouveau log pour cette planification
          *  Ce log général reprendra tous les sous-logs de chaque opération lancée par cette planification.
@@ -365,7 +399,7 @@ class Planification extends Model {
             /**
              *  1. Si les planifications ne sont pas activées, on quitte
              */
-            if ($AUTOMATISATION_ENABLED != "yes") throw new Exception("Erreur (EP01) : Les planifications ne sont pas activées. Vous pouvez modifier ce paramètre depuis l'onglet Configuration.");
+            if (AUTOMATISATION_ENABLED != "yes") throw new Exception("Erreur (EP01) : Les planifications ne sont pas activées. Vous pouvez modifier ce paramètre depuis l'onglet Configuration.");
 
             /**
              *  2. On instancie des objets Repo et Group
@@ -462,8 +496,8 @@ class Planification extends Model {
                     /**
                      *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
                      */
-                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
-                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
+                    if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
+                    if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
 
                     /**
                      *  Puis on quitte la planification en erreur
@@ -474,8 +508,8 @@ class Planification extends Model {
                     /**
                      *  On ajoute le repo traité à la liste des repo traités par cette planifications
                      */
-                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'done');
-                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'done');
+                    if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'done');
+                    if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'done');
                 }
             }
 
@@ -496,8 +530,8 @@ class Planification extends Model {
                     /**
                      *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
                      */
-                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
-                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
+                    if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => 'error');
+                    if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
 
                     $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)', $processedRepos); // On sort avec 1 car on considère que c'est une erreur de type vérification
                 }
@@ -535,8 +569,8 @@ class Planification extends Model {
                 /**
                  *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
                  */
-                if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
-                if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
+                if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
 
                 /**
                  *  Si cette opération s'est terminée avec une erreur, alors on clos la planification en erreur
@@ -598,8 +632,8 @@ class Planification extends Model {
                     /**
                      *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
                      */
-                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
-                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
+                    if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                    if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
                 }
 
                 /**
@@ -659,8 +693,8 @@ class Planification extends Model {
                     /**
                      *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
                      */
-                    if ($OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
-                    if ($OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
+                    if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->name, 'Status' => $this->op->status);
+                    if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => $this->op->status);
                 }
             }
 
@@ -681,9 +715,6 @@ class Planification extends Model {
      *  Retourne le message approprié
      */
     public function generateReminders() {
-        global $OS_FAMILY;
-        global $DEFAULT_ENV;
-    
         $this->repo = new Repo();
         $this->group = new Group();
             
@@ -743,8 +774,8 @@ class Planification extends Model {
              *  Cas où l'action prévue est une mise à jour
              */
             if ($this->action == "update") {
-                if ($OS_FAMILY == "Redhat") return "Mise à jour du repo {$this->op->repo->name} <span class=\"td-whitebackground\">${DEFAULT_ENV}</span>";
-                if ($OS_FAMILY == "Debian") return "Mise à jour de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist}) <span class=\"td-whitebackground\">${DEFAULT_ENV}</span>";
+                if (OS_FAMILY == "Redhat") return "Mise à jour du repo {$this->op->repo->name} <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
+                if (OS_FAMILY == "Debian") return "Mise à jour de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist}) <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
             }
     
             /**
@@ -756,8 +787,8 @@ class Planification extends Model {
         
                 if (empty($this->op->repo->env) AND empty($this->op->repo->newEnv)) return "Erreur : l'environnement source ou de destination est inconnu";
         
-                if ($OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) du repo {$this->op->repo->name}";
-                if ($OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist})";
+                if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) du repo {$this->op->repo->name}";
+                if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist})";
             }
         }
     
@@ -772,7 +803,7 @@ class Planification extends Model {
                  *  Pour chaque ligne on récupère les infos du repo/section
                  */
                 $this->op->repo->name = $line['Name'];
-                if ($OS_FAMILY == "Debian") {
+                if (OS_FAMILY == "Debian") {
                     $this->op->repo->dist = $line['Dist'];
                     $this->op->repo->section = $line['Section'];
                 }
@@ -781,8 +812,8 @@ class Planification extends Model {
                  *  Cas où l'action prévue est une mise à jour
                  */
                 if ($this->action == "update") {
-                    if ($OS_FAMILY == "Redhat") return "Mise à jour des repos du groupe {$this->group->name} (environnement ${DEFAULT_ENV})";
-                    if ($OS_FAMILY == "Debian") return "Mise à jour des sections de repos du groupe {$this->group->name}";
+                    if (OS_FAMILY == "Redhat") return "Mise à jour des repos du groupe {$this->group->name} (environnement ".DEFAULT_ENV.")";
+                    if (OS_FAMILY == "Debian") return "Mise à jour des sections de repos du groupe {$this->group->name}";
                 }
     
                 /**
@@ -793,8 +824,8 @@ class Planification extends Model {
                     $this->op->repo->newEnv = exec("echo '$this->action' | awk -F '->' '{print $2}'");
                     if (empty($this->op->repo->env) AND empty($this->op->repo->newEnv)) return "Erreur : l'environnement source ou de destination est inconnu";
 
-                    if ($OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des repos du groupe {$this->group->name}";
-                    if ($OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des sections de repos du groupe {$this->group->name}";
+                    if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des repos du groupe {$this->group->name}";
+                    if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des sections de repos du groupe {$this->group->name}";
                 }
             }
         }
@@ -805,11 +836,6 @@ class Planification extends Model {
  *  Génère le récapitulatif, le fichier de log et envoi un mail d'erreur si il y a eu une erreur.
  */
     public function close($planError, $plan_msg_error, $processedRepos = null) {
-        global $PLAN_LOGS_DIR;
-        global $EMAIL_DEST;
-        global $WWW_DIR;
-        global $WWW_HOSTNAME;
-
         /**
          *  Suppression des lignes vides dans le message d'erreur si il y en a
          */
@@ -832,7 +858,6 @@ class Planification extends Model {
                 $stmt->bindValue(':plan_logfile', $this->log->name);
                 $stmt->bindValue(':plan_id', $this->id);
             }
-            $stmt->execute(); unset($stmt);
         }
         if ($this->type == 'regular') {
             if ($planError == 0) {
@@ -847,8 +872,8 @@ class Planification extends Model {
                 $stmt->bindValue(':plan_logfile', $this->log->name);
                 $stmt->bindValue(':plan_id', $this->id);
             }
-            $stmt->execute(); unset($stmt);
         }
+        $stmt->execute(); unset($stmt);
 
         /**
          *  Si l'erreur est de type 1 (erreur lors des vérifications de l'opération), on affiche les erreurs avec echo, elles seront capturées par ob_get_clean() et affichées dans le fichier de log
@@ -931,7 +956,7 @@ class Planification extends Model {
         /**
          *  Génération du fichier de log final à partir d'un template, le contenu précédemment récupéré est alors inclu dans le template
          */
-        include_once("${WWW_DIR}/templates/planification_log.inc.php");
+        include_once(ROOT."/templates/planification_log.inc.php");
         $this->log->write($logContent);
         $this->log->close();
 
@@ -988,11 +1013,11 @@ class Planification extends Model {
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $plan_title   = "[OK] - Planification n°{$this->id} sur $WWW_HOSTNAME";
+                    $plan_title   = "[OK] - Planification n°{$this->id} sur ".WWW_HOSTNAME;
                     $plan_pre_msg = "Une planification vient de se terminer.";
                 }
                 if ($this->type == 'regular') {
-                    $plan_title   = "[OK] - Planification récurrente n°{$this->id} sur $WWW_HOSTNAME";
+                    $plan_title   = "[OK] - Planification récurrente n°{$this->id} sur ".WWW_HOSTNAME;
                     $plan_pre_msg = "Une planification récurrente vient de se terminer.";   
                 }
                 $plan_msg = "La planification s'est terminée sans erreur.".PHP_EOL;
@@ -1007,7 +1032,7 @@ class Planification extends Model {
                 /**
                  *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg
                  */
-                include("${WWW_DIR}/templates/plan_mail.inc.php");
+                include(ROOT."/templates/plan_mail.inc.php");
                 $this->sendMail($plan_title, $template);
             }
         }
@@ -1022,11 +1047,11 @@ class Planification extends Model {
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $plan_title   = "[ERREUR] - Planification n°{$this->id} sur $WWW_HOSTNAME";
+                    $plan_title   = "[ERREUR] - Planification n°{$this->id} sur ".WWW_HOSTNAME;
                     $plan_pre_msg = "Une planification s'est mal terminée.";
                 }
                 if ($this->type == 'regular') {
-                    $plan_title   = "[ERREUR] - Planification récurrente n°{$this->id} sur $WWW_HOSTNAME";
+                    $plan_title   = "[ERREUR] - Planification récurrente n°{$this->id} sur ".WWW_HOSTNAME;
                     $plan_pre_msg = "Une planification récurrente s'est mal terminée.";
                 }
                 $plan_msg = 'Cette planification a rencontré une erreur'.PHP_EOL;
@@ -1041,7 +1066,7 @@ class Planification extends Model {
                 /**
                  *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg
                  */
-                include("${WWW_DIR}/templates/plan_mail.inc.php");
+                include(ROOT."/templates/plan_mail.inc.php");
                 $this->sendMail($plan_title, $template);
             }
         }
@@ -1053,11 +1078,7 @@ class Planification extends Model {
  *  Envoi d'un mail d'erreur ou de rappel de planification
  *  A partir d'une variable $template contenant le corps HTML du mail à envoyer
  */
-public function sendMail($title, $template) {
-    global $WWW_DIR;
-    global $WWW_HOSTNAME;
-    //global $EMAIL_DEST;
-    
+public function sendMail($title, $template) {    
     /**
      *  On envoi un mail si une adresse de destination a été renseignée (non-vide et non null)
      */
@@ -1067,10 +1088,9 @@ public function sendMail($title, $template) {
          */
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = 'Content-type: text/html; charset=utf8';
-        $headers[] = "From: noreply@${WWW_HOSTNAME}";
-        $headers[] = "X-Sender: noreply@${WWW_HOSTNAME}";
-        $headers[] = "Reply-To: noreply@${WWW_HOSTNAME}";
-        //mail($EMAIL_DEST, $title, $template, implode("\r\n", $headers));
+        $headers[] = "From: noreply@".WWW_HOSTNAME;
+        $headers[] = "X-Sender: noreply@".WWW_HOSTNAME;
+        $headers[] = "Reply-To: noreply@".WWW_HOSTNAME;
         mail($this->mailRecipient, $title, $template, implode("\r\n", $headers));
     }
 }
@@ -1084,12 +1104,10 @@ public function sendMail($title, $template) {
     }
 
     private function checkAction_update_allowed() {
-        global $ALLOW_AUTOUPDATE_REPOS;
-
         /**
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
          */
-        if ($ALLOW_AUTOUPDATE_REPOS != "yes") throw new Exception("Erreur (CP02) : La mise à jour des miroirs par planification n'est pas autorisée. Vous pouvez modifier ce paramètre depuis l'onglet Configuration");
+        if (ALLOW_AUTOUPDATE_REPOS != "yes") throw new Exception("Erreur (CP02) : La mise à jour des miroirs par planification n'est pas autorisée. Vous pouvez modifier ce paramètre depuis l'onglet Configuration");
     }
 
     private function checkAction_update_gpgCheck() {
@@ -1101,28 +1119,24 @@ public function sendMail($title, $template) {
     }
 
     private function checkAction_env_allowed() {
-        global $ALLOW_AUTOUPDATE_REPOS_ENV;
-
         /**
          *  Si le changement d'environnement n'est pas autorisé, on quitte
          */
-        if ($ALLOW_AUTOUPDATE_REPOS_ENV != "yes") throw new Exception("Erreur (CP05) : Le changement d'environnement par planification n'est pas autorisé. Vous pouvez modifier ce paramètre depuis l'onglet Configuration.");
+        if (ALLOW_AUTOUPDATE_REPOS_ENV != "yes") throw new Exception("Erreur (CP05) : Le changement d'environnement par planification n'est pas autorisé. Vous pouvez modifier ce paramètre depuis l'onglet Configuration.");
     }
 
     /**
      *  Vérification si on traite un repo seul ou un groupe
      */
     private function checkIfRepoOrGroup() {
-        global $OS_FAMILY;
-
         if (empty($this->op->repo->name) AND empty($this->op->group->name)) throw new Exception("Erreur (CP06) : Aucun repo ou groupe spécifié");
     
         /**
          *  On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que planRepo et planGroup ne sont pas tous les deux renseignés en même temps :
          */
         if (!empty($this->op->repo->name) AND !empty($this->op->group->name)) {
-            if ($OS_FAMILY == "Redhat") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois un repo et un groupe de repos");
-            if ($OS_FAMILY == "Debian") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois une section et un groupe de sections");
+            if (OS_FAMILY == "Redhat") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois un repo et un groupe de repos");
+            if (OS_FAMILY == "Debian") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois une section et un groupe de sections");
         }
     }
   
@@ -1130,13 +1144,11 @@ public function sendMail($title, $template) {
      *  Vérification que le repo existe
      */
     private function checkIfRepoExists() {
-        global $OS_FAMILY;
-    
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             if ($this->op->repo->exists($this->op->repo->name) === false) throw new Exception("Erreur (CP08) : Le repo <b>{$this->op->repo->name}</b> n'existe pas");
         }
     
-        if ($OS_FAMILY == "Debian") {       
+        if (OS_FAMILY == "Debian") {       
             /**
              *  On vérifie qu'on a bien renseigné la distribution et la section
              */
@@ -1167,17 +1179,14 @@ public function sendMail($title, $template) {
      *  Récupération de la liste des repo dans le groupe
      */
     private function getGroupRepoList() {
-        global $OS_FAMILY;
-        global $DEFAULT_ENV;
-
         /**
          *  On récupère tous les repos du groupe
          */
-        $this->groupList = $this->op->group->listReposMembers_byEnv($this->op->group->name, $DEFAULT_ENV);
+        $this->groupList = $this->op->group->listReposMembers_byEnv($this->op->group->name, DEFAULT_ENV);
     
         if (empty($this->groupList)) {
-            if ($OS_FAMILY == "Redhat") throw new Exception("Erreur (CP13) : Il n'y a aucun repo renseigné dans le groupe <b>{$this->op->group->name}</b>");
-            if ($OS_FAMILY == "Debian") throw new Exception("Erreur (CP13) : Il n'y a aucune section renseignée dans le groupe <b>{$this->op->group->name}</b>");
+            if (OS_FAMILY == "Redhat") throw new Exception("Erreur (CP13) : Il n'y a aucun repo renseigné dans le groupe <b>{$this->op->group->name}</b>");
+            if (OS_FAMILY == "Debian") throw new Exception("Erreur (CP13) : Il n'y a aucune section renseignée dans le groupe <b>{$this->op->group->name}</b>");
         }
     
         /**
@@ -1187,16 +1196,16 @@ public function sendMail($title, $template) {
         foreach($this->groupList as $repo) {
             $repoId   = $repo['Id'];
             $repoName = $repo['Name'];
-            if ($OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
+            if (OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
                 $repoDist = $repo['Dist'];
                 $repoSection = $repo['Section'];
             }
 
-            if ($OS_FAMILY == "Redhat") {
+            if (OS_FAMILY == "Redhat") {
                 if ($this->op->repo->exists($repoName) === false) $msg_error .= "Erreur (CP15) : Le repo <b>$repoName</b> dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.".PHP_EOL;
             }
             
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 if ($this->op->repo->section_exists($repoName, $repoDist, $repoSection) === false) $msg_error .= "Erreur (CP16) : La section <b>$repoSection</b> du repo <b>$repoName</b> (distribution <b>$repoDist</b>) dans le groupe <b>{$this->op->group->name}</b> n'existe pas/plus.".PHP_EOL;
             }
         }

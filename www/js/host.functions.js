@@ -65,7 +65,6 @@ $(document).on('click',"input[name=checkbox-host\\[\\]]",function(){
     }
 });
 
-
 /**
  *  Event : lorsqu'on clique sur le bouton 'Tout sélectionner', cela sélectionne toutes les checkbox-host[] du groupe
  */
@@ -148,6 +147,33 @@ $(document).on('click','.getPackageTimeline',function(){
     getPackageTimeline(hostid, packagename);
 });
 
+
+$(document).on('mouseenter', '.showEventDetailsBtn', function() {
+    /**
+     *  Si un span showEventDetails a déjà été généré dans le DOM alors on le détruit
+     */
+    $('.showEventDetails').remove();
+
+    /**
+     *  On récupère l'Id de l'hôte
+     */
+    var hostId = $(this).attr('host-id');
+
+    /**
+     *  On récupère l'Id de l'event et le type de paquet qu'on souhaite afficher (installation de paquet, mise à jour)
+     */
+    var eventId = $(this).attr('event-id');
+    var packageState = $(this).attr('package-state');
+
+    /**
+     *  On crée un nouveau span showEventDetails
+     */
+    $(this).append('<span class="showEventDetails">Chargement<img src="../ressources/images/loading.gif" class="icon"/></span>');
+    $('.showEventDetails').show();
+
+    getEventDetails(hostId, eventId, packageState);
+});
+
 /**
  *  Event : recherche d'un hôte dans le champ prévu à cet effet
  */
@@ -183,7 +209,7 @@ $(document).on('click','.printHostDetails',function(){
      */
     $.get('/includes/host.inc.php', {id:host_id}, 
     function (data, status, jqXHR){
-        $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Fermer" class="icon-lowopacity" src="icons/close.png" /></span>'+data+'</div>');
+        $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /></span>'+data+'</div>');
     });
 
     /**
@@ -237,7 +263,8 @@ function searchPackage() {
 
 /**
  * Ajax : récupérer l'historique d'un paquet en base de données
- * @param {*} id 
+ * @param {*} hostid
+ * @param {*} packagename
  */
 function getPackageTimeline(hostid, packagename){
     $.ajax({
@@ -251,7 +278,35 @@ function getPackageTimeline(hostid, packagename){
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Fermer" class="icon-lowopacity" src="icons/close.png" /></span>'+jsonValue.message+'</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /></span>'+jsonValue.message+'</div>');
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax : récupérer les détails d'un évènement (la liste des paquets installés, mis à jour...)
+ * @param {*} hostId
+ * @param {*} eventId
+ * @param {*} packageState
+ */
+ function getEventDetails(hostId, eventId, packageState){
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax.php",
+        data: {
+            action: "getEventDetails",
+            hostId: hostId,
+            eventId: eventId,
+            packageState: packageState
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            $('.showEventDetails').html('<div>'+jsonValue.message+'</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

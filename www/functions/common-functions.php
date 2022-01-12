@@ -87,10 +87,8 @@ function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
  *  ou il s'agit d'un lien symbolique vers /dev/smh (en ram)
  */
 function clearCache() {
-    global $WWW_CACHE;
-
-    if (file_exists("${WWW_CACHE}/repomanager-repos-list.html")) unlink("${WWW_CACHE}/repomanager-repos-list.html");
-    if (file_exists("${WWW_CACHE}/repomanager-repos-archived-list.html")) unlink("${WWW_CACHE}/repomanager-repos-archived-list.html");
+    if (file_exists(WWW_CACHE."/repomanager-repos-list.html")) unlink(WWW_CACHE."/repomanager-repos-list.html");
+    if (file_exists(WWW_CACHE."./repomanager-repos-archived-list.html")) unlink(WWW_CACHE."/repomanager-repos-archived-list.html");
 }
 
 /**
@@ -150,34 +148,10 @@ function deleteConfirm(string $message, string $url, $divID, $aID) {
  *  Colore l'environnement d'une étiquette rouge ou blanche
  */
 function envtag($env) {
-    global $LAST_ENV;
-
-    if ($env == $LAST_ENV) {
-        return "<span class=\"last-env\">$env</span>";
-    } else {
-        return "<span class=\"env\">$env</span>";
-    }
-}
-
-/**
- *  Rechargement d'une div en fournissant sa class css
- */
-function refreshdiv_class($divclass) {
-    if (!empty($divclass)) {
-        echo '<script>';
-        echo "$( \".${divclass}\" ).load(window.location.href + \" .${divclass}\" );";
-        echo '</script>';
-    }
-}
-
-/**
- *  Affichage d'une div cachée en fournissant sa class
- */
-function showdiv_byclass($divclass) {
-    echo '<script>';
-    echo "$(document).ready(function() {";
-    echo "$('.${divclass}').show(); })";
-    echo '</script>';
+    if ($env == LAST_ENV)
+        return '<span class="last-env">'.$env.'</span>';
+    else
+        return '<span class="env">'.$env.'</span>';
 }
 
 /**
@@ -295,50 +269,43 @@ if (!function_exists('write_ini_file')) {
 }
 
 /**
- *  Inscrit les tâches cron dans la crontab de $WWW_USER
+ *  Inscrit les tâches cron dans la crontab de WWW_USER
  */
 function enableCron() {
-    global $WWW_DIR;
-    global $WWW_USER;
-    global $TEMP_DIR;
-    global $CRON_DAILY_ENABLED;
-    global $AUTOMATISATION_ENABLED;
-    global $CRON_PLAN_REMINDERS_ENABLED;
-    global $CRON_STATS_ENABLED;
 
     // Récupération du contenu de la crontab actuelle dans un fichier temporaire
-    shell_exec("crontab -l > ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
+    shell_exec("crontab -l > ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
 
     // On supprime toutes les lignes concernant repomanager dans ce fichier pour refaire propre
-    exec("sed -i '/cronjob.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
-    exec("sed -i '/plan.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
-    exec("sed -i '/stats.php/d' ${TEMP_DIR}/${WWW_USER}_crontab.tmp");
+    exec("sed -i '/cronjob.php/d' ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
+    exec("sed -i '/plan.php/d' ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
+    exec("sed -i '/stats.php/d' ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
 
     // Puis on ajoute les tâches cron suivantes au fichier temporaire
 
     // Tâche cron journalière
-    if ($CRON_DAILY_ENABLED == "yes") {
-        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "*/5 * * * * php ${WWW_DIR}/operations/cronjob.php".PHP_EOL, FILE_APPEND);
+    if (CRON_DAILY_ENABLED == "yes") {
+        file_put_contents(TEMP_DIR."/".WWW_USER."_crontab.tmp", "*/5 * * * * php ".ROOT."/operations/cronjob.php".PHP_EOL, FILE_APPEND);
     }
 
     // Statistiques
-    if ($CRON_STATS_ENABLED == "yes") {
-        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "0 0 * * * php ${WWW_DIR}/operations/stats.php".PHP_EOL, FILE_APPEND);
+    if (CRON_STATS_ENABLED == "yes") {
+        file_put_contents(TEMP_DIR."/".WWW_USER."_crontab.tmp", "0 0 * * * php ".ROOT."/operations/stats.php".PHP_EOL, FILE_APPEND);
     }
 
     // si on a activé l'automatisation alors on ajoute la tâche cron d'exécution des planifications
-    if ($AUTOMATISATION_ENABLED == "yes") {
-        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "* * * * * php ${WWW_DIR}/planifications/plan.php exec-plans".PHP_EOL, FILE_APPEND);
+    if (AUTOMATISATION_ENABLED == "yes") {
+        file_put_contents(TEMP_DIR."/".WWW_USER."_crontab.tmp", "* * * * * php ".ROOT."/planifications/plan.php exec-plans".PHP_EOL, FILE_APPEND);
     }
 
     // si on a activé l'automatisation et les envois de rappels de planifications alors on ajoute la tâche cron d'envoi des rappels
-    if ($AUTOMATISATION_ENABLED == "yes" AND $CRON_PLAN_REMINDERS_ENABLED == "yes") {
-        file_put_contents("${TEMP_DIR}/${WWW_USER}_crontab.tmp", "0 0 * * * php ${WWW_DIR}/planifications/plan.php send-reminders".PHP_EOL, FILE_APPEND);
+    if (AUTOMATISATION_ENABLED == "yes" AND CRON_PLAN_REMINDERS_ENABLED == "yes") {
+        file_put_contents(TEMP_DIR."/".WWW_USER."_crontab.tmp", "0 0 * * * php ".ROOT."/planifications/plan.php send-reminders".PHP_EOL, FILE_APPEND);
     }
 
     // Enfin on reimporte le contenu du fichier temporaire
-    exec("crontab ${TEMP_DIR}/${WWW_USER}_crontab.tmp");   // on importe le fichier dans la crontab de $WWW_USER
-    unlink("${TEMP_DIR}/${WWW_USER}_crontab.tmp");         // puis on supprime le fichier temporaire
+    exec("crontab ".TEMP_DIR."/".WWW_USER."_crontab.tmp");   // on importe le fichier dans la crontab de WWW_USER
+    unlink(TEMP_DIR."/".WWW_USER."_crontab.tmp");         // puis on supprime le fichier temporaire
 
     printAlert('Tâches cron redéployées', 'success');
 }
@@ -359,9 +326,5 @@ function dir_is_empty($dir) {
 }
 
 function kill_stats_log_parser() {
-    global $WWW_DIR;
-    global $WWW_USER;
-    global $WWW_STATS_LOG_PATH;
-
-    exec("/usr/bin/pkill -9 -u $WWW_USER -f 'tail -n0 -F $WWW_STATS_LOG_PATH'");
+    exec("/usr/bin/pkill -9 -u ".WWW_USER." -f 'tail -n0 -F ".WWW_STATS_LOG_PATH."'");
 } ?>

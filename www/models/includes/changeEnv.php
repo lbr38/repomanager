@@ -2,10 +2,6 @@
 trait changeEnv {
     
     public function exec_changeEnv() {
-        global $OS_FAMILY;
-        global $REPOS_DIR;
-        global $DEFAULT_ENV;
-        global $LAST_ENV;
 
         $case = 0;
 
@@ -23,7 +19,7 @@ trait changeEnv {
             <th>NOM DU REPO :</th>
             <td><b>{$this->repo->name}</b></td>
         </tr>";
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             echo "<tr>
                 <th>DISTRIBUTION :</th>
                 <td><b>{$this->repo->dist}</b></td>
@@ -57,12 +53,12 @@ trait changeEnv {
         /**
          *  2. On vérifie si le repo (source) existe
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
                 throw new Exception('ce repo n\'existe pas en '.envtag($this->repo->env).'');
             }
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
                 throw new Exception('cette section n\'existe pas en '.envtag($this->repo->env).'');
             }
@@ -71,12 +67,12 @@ trait changeEnv {
         /**
          *  3. On vérifie qu'un repo cible de même env et de même date n'existe pas déjà
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
                 throw new Exception("un repo ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
                 throw new Exception("une section ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
@@ -87,7 +83,7 @@ trait changeEnv {
          */
         $this->repo->db_getDate();
 
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':env', $this->repo->env);
@@ -98,7 +94,7 @@ trait changeEnv {
             $stmt2->bindValue(':env', $this->repo->env);
             $result2 = $stmt2->execute();
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':dist', $this->repo->dist);
@@ -144,11 +140,11 @@ trait changeEnv {
          *  4. Si on n'a pas transmis de description, on va conserver celle actuellement en place sur $this->repo->newEnv si existe. Cependant si il n'y a pas de description ou qu'aucun repo n'existe actuellement dans l'env $this->repo->newEnv alors celle-ci restera vide
          */
         if (empty($this->repo->description)) {
-            if ($OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-            if ($OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
             $stmt->bindValue(':name', $this->repo->name);
             $stmt->bindValue(':newenv', $this->repo->newEnv);
-            if ($OS_FAMILY == "Debian") {
+            if (OS_FAMILY == "Debian") {
                 $stmt->bindValue(':dist', $this->repo->dist);
                 $stmt->bindValue(':section', $this->repo->section);
             }
@@ -170,12 +166,12 @@ trait changeEnv {
         /**
          *  5. Dernière vérif : on vérifie que le repo n'est pas déjà dans l'environnement souhaité (par exemple fait par quelqu'un d'autre), dans ce cas on annule l'opération
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
                 throw new Exception("ce repo est déjà en ".envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
             }
         }
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
                 throw new Exception("cette section est déjà en ".envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
             }
@@ -187,7 +183,7 @@ trait changeEnv {
          *  - ce repo/section n'avait pas de version dans l'environnement cible, on crée simplement un lien symbo
          *  - ce repo/section avait déjà une version dans l'environnement cible, on modifie le lien symbo et on passe la version précédente en archive
          */
-        if ($OS_FAMILY == "Redhat") {
+        if (OS_FAMILY == "Redhat") {
 
             /**
              *  Cas 1 : pas de version déjà en $this->repo->newEnv
@@ -201,12 +197,12 @@ trait changeEnv {
                 /**
                  *  Suppression du lien symbolique (on sait jamais si il existe)
                  */
-                if (file_exists("${REPOS_DIR}/{$this->repo->name}_{$this->repo->newEnv}")) unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->newEnv}");
+                if (file_exists(REPOS_DIR."/{$this->repo->name}_{$this->repo->newEnv}")) unlink(REPOS_DIR."/{$this->repo->name}_{$this->repo->newEnv}");
     
                 /**
                  *  Création du lien symbolique
                  */
-                exec("cd ${REPOS_DIR}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->name}/ {$this->repo->name}_{$this->repo->newEnv}");
+                exec("cd ".REPOS_DIR."/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->name}/ {$this->repo->name}_{$this->repo->newEnv}");
     
                 /**
                  *  Mise à jour en BDD
@@ -241,12 +237,12 @@ trait changeEnv {
                 /**
                  *  Suppression du lien symbolique
                  */
-                if (file_exists("${REPOS_DIR}/{$this->repo->name}_{$this->repo->newEnv}")) unlink("${REPOS_DIR}/{$this->repo->name}_{$this->repo->newEnv}");
+                if (file_exists(REPOS_DIR."/{$this->repo->name}_{$this->repo->newEnv}")) unlink(REPOS_DIR."/{$this->repo->name}_{$this->repo->newEnv}");
 
                 /**
                  *  Création du lien symbolique
                  */
-                exec("cd ${REPOS_DIR}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->name}/ {$this->repo->name}_{$this->repo->newEnv}");
+                exec("cd ".REPOS_DIR."/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->name}/ {$this->repo->name}_{$this->repo->newEnv}");
 
                 /**
                  *  Clôture de l'étape en cours
@@ -279,8 +275,8 @@ trait changeEnv {
                  *  Renommage du répertoire en archived_
                  *  Si un répertoire du même nom existe déjà alors on le supprime
                  */
-                if (is_dir("${REPOS_DIR}/archived_${old_repoDateFormatted}_{$this->repo->name}")) exec("rm -rf '${REPOS_DIR}/archived_${old_repoDateFormatted}_{$this->repo->name}'");
-                if (!rename("${REPOS_DIR}/${old_repoDateFormatted}_{$this->repo->name}", "${REPOS_DIR}/archived_${old_repoDateFormatted}_{$this->repo->name}")) {
+                if (is_dir(REPOS_DIR."/archived_${old_repoDateFormatted}_{$this->repo->name}")) exec("rm -rf '".REPOS_DIR."/archived_${old_repoDateFormatted}_{$this->repo->name}'");
+                if (!rename(REPOS_DIR."/${old_repoDateFormatted}_{$this->repo->name}", REPOS_DIR."/archived_${old_repoDateFormatted}_{$this->repo->name}")) {
                     throw new Exception("un problème est survenu lors du passage de l'ancienne version du <b>$old_repoDateFormatted</b> en archive");
                 }
 
@@ -313,8 +309,8 @@ trait changeEnv {
                 /**
                  *  Application des droits sur la section archivée
                  */
-                exec("find ${REPOS_DIR}/archived_${old_repoDateFormatted}_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
-                exec("find ${REPOS_DIR}/archived_${old_repoDateFormatted}_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
+                exec("find ".REPOS_DIR."/archived_${old_repoDateFormatted}_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
+                exec("find ".REPOS_DIR."/archived_${old_repoDateFormatted}_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
 
                 /**
                  *  Clôture de l'étape en cours
@@ -323,7 +319,7 @@ trait changeEnv {
             }
         }
     
-        if ($OS_FAMILY == "Debian") {
+        if (OS_FAMILY == "Debian") {
             /**
              *  Cas 1 : pas de version déjà en $this->repo->newEnv
              */
@@ -336,12 +332,12 @@ trait changeEnv {
                 /**
                  *  Suppression du lien symbolique (on ne sait jamais si il existe)
                  */
-                if (file_exists("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}")) unlink("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}");
+                if (file_exists(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}")) unlink(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}");
 
                 /**
                  *  Création du lien symbolique
                  */
-                exec("cd ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->section}/ {$this->repo->section}_{$this->repo->newEnv}");
+                exec("cd ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->section}/ {$this->repo->section}_{$this->repo->newEnv}");
 
                 /**
                  *  Mise à jour en BDD
@@ -377,12 +373,12 @@ trait changeEnv {
                 /**
                  *  Suppression du lien symbolique
                  */
-                if (file_exists("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}")) unlink("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}");
+                if (file_exists(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}")) unlink(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->newEnv}");
 
                 /**
                  *  Création du lien symbolique
                  */
-                exec("cd ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->section}/ {$this->repo->section}_{$this->repo->newEnv}");
+                exec("cd ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->section}/ {$this->repo->section}_{$this->repo->newEnv}");
 
                 /**
                  *  Clôture de l'étape en cours
@@ -417,8 +413,8 @@ trait changeEnv {
                  *  Renommage du répertoire en archived_
                  *  Si un répertoire du même nom existe déjà alors on le supprime
                  */
-                if (is_dir("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}")) exec("rm -rf '${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}'");
-                if (!rename("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/${old_repoDateFormatted}_{$this->repo->section}", "${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}")) {
+                if (is_dir(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}")) exec("rm -rf '".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}'");
+                if (!rename(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/${old_repoDateFormatted}_{$this->repo->section}", REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}")) {
                     throw new Exception("un problème est survenu lors du passage de l'ancienne version du <b>$old_repoDateFormatted</b> en archive");
                 }
 
@@ -455,8 +451,8 @@ trait changeEnv {
                 /**
                  *  Application des droits sur la section archivée
                  */
-                exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
-                exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
+                exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
+                exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/archived_${old_repoDateFormatted}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
 
                 /**
                  *  Clôture de l'étape en cours
@@ -484,14 +480,14 @@ trait changeEnv {
         /**
          *  8. Application des droits sur le repo/la section modifié
          */
-        if ($OS_FAMILY == "Redhat") {
-            exec("find ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
-            exec("find ${REPOS_DIR}/{$this->repo->dateFormatted}_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
+        if (OS_FAMILY == "Redhat") {
+            exec("find ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
         }
 
-        if ($OS_FAMILY == "Debian") {
-            exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
-            exec("find ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");          
+        if (OS_FAMILY == "Debian") {
+            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");          
         }
 
         /**

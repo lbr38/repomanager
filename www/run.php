@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html>
-<?php include('includes/head.inc.php'); ?>
-
-<?php
-/**
- *  Import des variables et fonctions nécessaires
- */
-require_once('functions/load_common_variables.php');
-require_once('functions/load_display_variables.php');
+<?php 
+include_once('includes/head.inc.php');
+require_once('models/Autoloader.php');
+Autoloader::loadAll();
 require_once('functions/common-functions.php');
 require_once('functions/run.functions.php');
-//require_once('common.php');
-require_once('models/Model.php');
-require_once('models/Operation.php');
-require_once('models/Planification.php');
 
 /**
  * 	Bouton 'Stop' pour arrêter une opération en cours
@@ -46,20 +38,20 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 						 * 	Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
 						 */
 						if (!empty($_COOKIE['displayFullLogs']) AND $_COOKIE['displayFullLogs'] == "yes") {
-							echo '<button id="displayFullLogs-no" class="button-top-down-details pointer" title="Masquer les détails"><img src="icons/search.png" /></button>';
+							echo '<button id="displayFullLogs-no" class="button-top-down-details pointer" title="Masquer les détails"><img src="ressources/icons/search.png" /></button>';
 							echo '<style>';
 							echo '.getPackagesDiv { display: block; }';
 							echo '.signRepoDiv { display: block; }';
 							echo '.createRepoDiv { display: block; }';
 							echo '</style>';
 						} else {
-							echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Afficher les détails"><img src="icons/search.png" /></button>';
+							echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Afficher les détails"><img src="ressources/icons/search.png" /></button>';
 						}
 					?>
 					<br>
 					<br>
-					<a href="#top" class="button-top-down" title="Atteindre le haut de page"><img src="icons/arrow-circle-up.png" /></a>
-					<a href="#bottom" class="button-top-down" title="Atteindre le bas de page"><img src="icons/arrow-circle-down.png" /></a>
+					<a href="#top" class="button-top-down" title="Atteindre le haut de page"><img src="ressources/icons/arrow-circle-up.png" /></a>
+					<a href="#bottom" class="button-top-down" title="Atteindre le bas de page"><img src="ressources/icons/arrow-circle-down.png" /></a>
 				</div>
 			</div>
 
@@ -67,14 +59,14 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 				<div id="log">
 					<?php
 					if ($logfile == 'none') {
-						$logfiles = explode("\n", exec("cd $MAIN_LOGS_DIR/ && ls -tr1"));
+						$logfiles = explode("\n", exec("cd ".MAIN_LOGS_DIR."/ && ls -tr1"));
 						$logfile = $logfiles[0];
 					}
 
 					/**
 					 * 	Récupération du contenu du fichier de log
 					 */
-					$output = file_get_contents("$MAIN_LOGS_DIR/$logfile");
+					$output = file_get_contents(MAIN_LOGS_DIR."/$logfile");
 
 					/**
 					 * 	Suppression des codes ANSI (couleurs) dans le fichier
@@ -200,7 +192,7 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 							echo '<div class="header-blue">';
 							echo '<table>';
 								echo '<tr>';
-								echo '<td class="td-fit"><img class="icon" src="icons/calendar.png" title="Planification" /></td>';
+								echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
 								/**
 								 * 	On affiche un lien vers le fichier de log de la planification si il y en a un
 								 */
@@ -214,7 +206,7 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 								if ($planType == "regular") {
 									echo "<td>Planification récurrente</b></td>";
 								}
-								echo '<td class="td-fit">en cours <img class="icon" src="images/loading.gif" title="En cours d\'exécution" /></td>';
+								echo '<td class="td-fit">en cours <img class="icon" src="ressources/images/loading.gif" title="En cours d\'exécution" /></td>';
 								echo '</tr>';
 							echo '</table>';
 							echo '</div>';
@@ -315,16 +307,16 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 								echo '<div class="header-blue">';
 								echo '<table>';
 									echo '<tr>';
-									echo '<td class="td-fit"><img class="icon" src="icons/calendar.png" title="Planification" /></td>';
+									echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
 									if ($planType == "plan") {
 										if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
 											echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
 										} else {
 											echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
 										}
-										if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="icons/greencircle.png" title="Opération terminée" /></td>';
-										if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération en erreur" /></td>';
-										if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
+										if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" /></td>';
+										if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" /></td>';
+										if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
 									}
 									echo '</tr>';
 								echo '</table>';
@@ -358,7 +350,7 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 						 * 	On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
 						 */
 						if (!isset($_COOKIE['printAllOp']) OR (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] != "yes")) {
-							echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
+							echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
 						}
 					}
 				}
@@ -403,7 +395,7 @@ if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
 						 * 	On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
 						 */
 						if (!isset($_COOKIE['printAllRegularOp']) OR (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] != "yes")) {
-							echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="icons/chevron-circle-down.png" class="icon" /></p>';
+							echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
 						}
 					}
 				}

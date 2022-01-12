@@ -1,4 +1,5 @@
 <?php
+define("ROOT", dirname(__FILE__, 2));
 
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
@@ -6,11 +7,9 @@ const HTTP_METHOD_NOT_ALLOWED = 405;
 
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest"){
 
-    $WWW_DIR = dirname(__FILE__, 2);
-    require_once("$WWW_DIR/functions/load_common_variables.php");
-    require_once("$WWW_DIR/models/Repo.php");
-    require_once("$WWW_DIR/models/Group.php");
-    require_once("$WWW_DIR/models/Host.php");
+    require_once(ROOT."/models/Autoloader.php");
+    Autoloader::loadAll();
+    require_once(ROOT."/functions/common-functions.php");
 
     if (!empty($_POST['action'])) {
         /**
@@ -144,6 +143,102 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
 
         /**
          *  
+         *  Actions relatives aux planifications
+         * 
+         * 
+         *  Créer une nouvelle planification
+         * 
+         */
+        if ($_POST['action'] == "newPlan" AND !empty($_POST['type']) AND !empty($_POST['planAction'])) {
+            $myplan = new Planification();
+
+            /**
+             *  Tentative de création de la planification
+             */
+            try {
+                $myplan->setAction($_POST['planAction']);
+                if (!empty($_POST['day'])) $myplan->setDay($_POST['day']);
+                if (!empty($_POST['date'])) $myplan->setDate($_POST['date']);
+                if (!empty($_POST['time'])) $myplan->setTime($_POST['time']);
+                if (!empty($_POST['type'])) $myplan->setType($_POST['type']);
+                if (!empty($_POST['frequency'])) $myplan->setFrequency($_POST['frequency']);
+                if (!empty($_POST['mailRecipient'])) $myplan->setMailRecipient($_POST['mailRecipient']);
+                if (!empty($_POST['reminder'])) $myplan->setReminder($_POST['reminder']);
+                if (!empty($_POST['notificationOnError']) AND $_POST['notificationOnError'] == "yes") {
+                    $myplan->setNotification('on-error', 'yes');
+                } else {
+                    $myplan->setNotification('on-error', 'no');
+                }
+                if (!empty($_POST['notificationOnSuccess']) AND $_POST['notificationOnSuccess'] == "yes") {
+                    $myplan->setNotification('on-success', 'yes');
+                } else {
+                    $myplan->setNotification('on-success', 'no');
+                }
+
+                /**
+                 *  Si l'action est 'update' alors on récupère les paramètres concernant GPG
+                 */
+                if ($_POST['planAction'] == 'update') {
+                    if (!empty($_POST['gpgCheck']) AND $_POST['gpgCheck'] == "yes") {
+                        $myplan->setGpgCheck('yes');
+                    } else {
+                        $myplan->setGpgCheck('no');
+                    }
+
+                    if (!empty($_POST['gpgResign']) AND $_POST['gpgResign'] == "yes") {
+                        $myplan->setGpgResign('yes');
+                    } else {
+                        $myplan->setGpgResign('no');
+                    }
+                }
+            
+                /**
+                 *  Cas où c'est un repo seul
+                 */
+                if(!empty($_POST['repo'])) $myplan->setRepoId($_POST['repo']);
+
+                /**
+                 *  Cas où c'est un groupe
+                 */
+                if(!empty($_POST['group'])) $myplan->setGroupId($_POST['group']);
+
+                $myplan->new();
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "La planification a été créé");
+        }
+
+        /**
+         *  Supprimer une planification
+         */
+        if ($_POST['action'] == "deletePlan" AND !empty($_POST['id'])) {
+            $myplan = new Planification();
+
+            /**
+             *  Tentative de suppression du groupe
+             */
+            try {
+                $myplan->remove($_POST['id']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "La planification a été supprimée");
+        }
+
+
+        /**
+         *  
          *  Actions relatives aux hôtes
          * 
          * 
@@ -168,6 +263,30 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
              */
             response(HTTP_OK, $content);
         }
+
+        /**
+         *  Récupérer les détails d'un évènement au survol de la souris (afficher les paquets installé, mis à jour...)
+         */
+        if ($_POST['action'] == "getEventDetails" AND !empty($_POST['hostId']) AND !empty($_POST['eventId']) AND !empty($_POST['packageState'])) {
+            $myhost = new Host();
+            $myhost->setId($_POST['hostId']);
+
+            /**
+             *  Tentative de récupération des informations
+             */
+            try {
+                $content = $myhost->getEventDetails($_POST['eventId'], $_POST['packageState']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur, on renvoie les informations récupérées
+             */
+            response(HTTP_OK, $content);
+        }
+
 
         /**
          *  Si l'action ne correspond à aucune action valide

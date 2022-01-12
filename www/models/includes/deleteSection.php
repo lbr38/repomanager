@@ -4,7 +4,7 @@ trait deleteSection {
      *  SUPPRESSION D'UNE SECTION
      */
     public function exec_deleteSection() {
-        global $REPOS_DIR;
+        
         
         ob_start();
 
@@ -46,8 +46,8 @@ trait deleteSection {
         /**
          *  4. Suppression du lien symbolique
          */
-        if (file_exists("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->env}")) {
-            if (!unlink("${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->env}")) throw new Exception("impossible de supprimer la section");
+        if (file_exists(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->env}")) {
+            if (!unlink(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->section}_{$this->repo->env}")) throw new Exception("impossible de supprimer la section");
         }
 
         /**
@@ -72,7 +72,7 @@ trait deleteSection {
             
         } else {
             // Suppression du miroir puisque'il n'est plus utilisé par aucun environnement
-            exec("rm ${REPOS_DIR}/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section} -rf", $output, $result);
+            exec("rm ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section} -rf", $output, $result);
             if ($result != 0) throw new Exception('impossible de supprimer le miroir');
 
             $this->log->steplogOK();

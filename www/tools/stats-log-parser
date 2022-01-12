@@ -25,7 +25,6 @@ while read logline; do
             SOURCE_HOST=$(dig -x $SOURCE_IP +short)
             REQUEST=$(echo "$logline" | awk '{print $6,$7,$8}')
             REQUEST_RESULT=$(echo "$logline" | awk '{print $9}')
-            #/usr/bin/sqlite3 -init <(echo .timeout 5000) "$DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
             /usr/bin/sqlite3 -cmd ".timeout 5000" -cmd ".log '${WWW_DIR}/logs/stats/stats-log-parser.log'" "$DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
         fi
     fi
