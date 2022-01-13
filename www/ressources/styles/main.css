@@ -1053,3 +1053,22 @@ footer p { color: gray; }
     font-weight: bold;
     text-align: center;
 }
+
+#loginDiv-container {
+    height: 90vh;
+    position: relative;
+}
+
+#loginDiv {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#loginDiv form input {
+    display: block;
+}

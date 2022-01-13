@@ -714,9 +714,9 @@ class Planification extends Model {
      *  Générer les messages de rappels
      *  Retourne le message approprié
      */
-    public function generateReminders() {
-        $this->repo = new Repo();
-        $this->group = new Group();
+    public function generateReminders() { // toto
+        $this->op = new Operation(array('op_type' => 'plan'));
+        $this->op->group = new Group();
             
         /**
          *  1. Récupération des informations de la planification
@@ -744,7 +744,7 @@ class Planification extends Model {
              *  5. Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
              *  Puis on récupère toute la liste du groupe
              */
-            if (!empty($this->group->name)) {
+            if (!empty($this->op->group->name)) {
                 /**
                  *  On vérifie que le groupe existe
                  */
@@ -773,29 +773,29 @@ class Planification extends Model {
             /**
              *  Cas où l'action prévue est une mise à jour
              */
-            if ($this->action == "update") {
-                if (OS_FAMILY == "Redhat") return "Mise à jour du repo {$this->op->repo->name} <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
-                if (OS_FAMILY == "Debian") return "Mise à jour de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist}) <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
+            if ($this->op->action == "update") {
+                if (OS_FAMILY == "Redhat") return "Mise à jour du repo <b>{$this->op->repo->name}</b> <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
+                if (OS_FAMILY == "Debian") return "Mise à jour de la section <b>{$this->op->repo->section}</b> du repo <b>{$this->op->repo->name}</b> ({$this->op->repo->dist}) <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
             }
     
             /**
              *  Cas où l'action prévue est une création d'env
              */
-            if (strpos($this->action, '->') !== false) {
-                $this->op->repo->env = exec("echo '$this->action' | awk -F '->' '{print $1}'");
-                $this->op->repo->newEnv = exec("echo '$this->action' | awk -F '->' '{print $2}'");
+            if (strpos($this->op->action, '->') !== false) {
+                $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
+                $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
         
                 if (empty($this->op->repo->env) AND empty($this->op->repo->newEnv)) return "Erreur : l'environnement source ou de destination est inconnu";
         
-                if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) du repo {$this->op->repo->name}";
-                if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) de la section {$this->op->repo->section} du repo {$this->op->repo->name} (distribution {$this->op->repo->dist})";
+                if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) du repo <b>{$this->op->repo->name}</b>";
+                if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) de la section <b>{$this->op->repo->section}</b> du repo <b>{$this->op->repo->name}</b> ({$this->op->repo->dist})";
             }
         }
     
         /**
          *  Cas où la planif à rappeler concerne un groupe de repo
          */
-        if (!empty($this->group->name) AND !empty($this->groupList)) {
+        if (!empty($this->op->group->name) AND !empty($this->groupList)) {
 
             foreach($this->groupList as $line) {
 
@@ -811,21 +811,21 @@ class Planification extends Model {
                 /**
                  *  Cas où l'action prévue est une mise à jour
                  */
-                if ($this->action == "update") {
-                    if (OS_FAMILY == "Redhat") return "Mise à jour des repos du groupe {$this->group->name} (environnement ".DEFAULT_ENV.")";
-                    if (OS_FAMILY == "Debian") return "Mise à jour des sections de repos du groupe {$this->group->name}";
+                if ($this->op->action == "update") {
+                    if (OS_FAMILY == "Redhat") return "Mise à jour des repos du groupe <b>{$this->op->group->name}</b> (environnement ".DEFAULT_ENV.")";
+                    if (OS_FAMILY == "Debian") return "Mise à jour des sections de repos du groupe <b>{$this->op->group->name}</b>";
                 }
     
                 /**
                  *  Cas où l'action prévue est un changement d'env
                  */
-                if (strpos($this->action, '->') !== false) {
-                    $this->op->repo->env = exec("echo '$this->action' | awk -F '->' '{print $1}'");
-                    $this->op->repo->newEnv = exec("echo '$this->action' | awk -F '->' '{print $2}'");
+                if (strpos($this->op->action, '->') !== false) {
+                    $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
+                    $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
                     if (empty($this->op->repo->env) AND empty($this->op->repo->newEnv)) return "Erreur : l'environnement source ou de destination est inconnu";
 
-                    if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des repos du groupe {$this->group->name}";
-                    if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des sections de repos du groupe {$this->group->name}";
+                    if (OS_FAMILY == "Redhat") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des repos du groupe <b>{$this->group->name}</b>";
+                    if (OS_FAMILY == "Debian") return "Changement d'environnement ({$this->op->repo->env} -> {$this->op->repo->newEnv}) des sections de repos du groupe <b>{$this->group->name}</b>";
                 }
             }
         }

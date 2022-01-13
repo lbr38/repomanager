@@ -116,7 +116,7 @@ map $request_uri $loggable {
 
 # Path to unix socket
 upstream php-handler {
-        server unix:/run/php/php7.2-fpm.sock;
+        server unix:/var/run/php-fpm/php-fpm.sock;
 }
 
 server {
@@ -166,10 +166,12 @@ server {
         # Custom error pages
         error_page 404 /custom_404.html;
         error_page 500 502 503 504 /custom_50x.html;
+
         location = /custom_404.html {
                 root $WWW_DIR/custom_errors;
                 internal;
         }
+
         location = /custom_50x.html {
                 root $WWW_DIR/custom_errors;
                 internal;
@@ -190,22 +192,17 @@ server {
         gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
 
         location / {
-                rewrite ^ /index.php;
+                try_files $uri $uri/ =404;
+                index index.php;
         }
 
         location ~ \.php$ {
-                fastcgi_split_path_info ^(.+?\.php)(\/.*|)$;
-                set $path_info $fastcgi_path_info;
-                try_files $fastcgi_script_name =404;
                 include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $request_filename;
                 #include fastcgi.conf;
-                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                fastcgi_param PATH_INFO $path_info;
                 fastcgi_param HTTPS on;
                 # Avoid sending the security headers twice
                 fastcgi_param modHeadersAvailable true;
-                # Enable pretty urls
-                fastcgi_param front_controller_active true;
                 fastcgi_pass php-handler;
                 fastcgi_intercept_errors on;
                 fastcgi_request_buffering off;
@@ -228,8 +225,6 @@ server {
         }
 
         location ~ \.(?:png|html|ttf|ico|jpg|jpeg|bcmap)$ {
-                try_files $uri /index.php$request_uri;
-                # Optional: Don't log access to other assets
                 access_log off;
         }
 

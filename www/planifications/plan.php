@@ -127,7 +127,7 @@ if(!empty($plansQueued)) {
          *  Traitement des rappels
          *  Si la date actuelle ($dateNow) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
          */
-        if ($argv[1] == "send-reminders" AND !empty($planReminder)) {
+        if ($argv[1] == "send-reminders" AND !empty($planReminder) AND $planType == 'plan') {
             $planReminder = explode(",", $planReminder);
 
             /**
@@ -140,7 +140,7 @@ if(!empty($plansQueued)) {
                     /**
                      *  On indique à $plan quel est l'id de la planification et on génère le message de rappel
                      */
-                    $plan->id = $planId;
+                    $plan->setId($planId);
                     $msg = $plan->generateReminders();
                     $message_rappel = "${message_rappel}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
                 }

@@ -155,6 +155,7 @@ class Connection extends SQLite3 {
         OR name='planifications'
         OR name='profile_package'
         OR name='profile_service'");
+        //OR name='users'");
 
         /**
          *  On retourne le nombre de tables
@@ -343,10 +344,13 @@ class Connection extends SQLite3 {
         /**
          *  Crée la table users si n'existe pas
          */
-        /*$this->exec("CREATE TABLE IF NOT EXISTS users (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Name VARCHAR(255) NOT NULL,
-        Password VARCHAR(255) NOT NULL)");*/
+        // $this->exec("CREATE TABLE IF NOT EXISTS users (
+        // Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        // Login VARCHAR(255) NOT NULL UNIQUE,
+        // Password VARCHAR(255) NOT NULL,
+        // Salt VARCHAR(255) NOT NULL,
+        // Name VARCHAR(255),
+        // Last_name VARCHAR(255))");
             
         /** 
          *  Crée la table groups si n'existe pas

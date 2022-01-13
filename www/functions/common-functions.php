@@ -88,7 +88,7 @@ function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
  */
 function clearCache() {
     if (file_exists(WWW_CACHE."/repomanager-repos-list.html")) unlink(WWW_CACHE."/repomanager-repos-list.html");
-    if (file_exists(WWW_CACHE."./repomanager-repos-archived-list.html")) unlink(WWW_CACHE."/repomanager-repos-archived-list.html");
+    if (file_exists(WWW_CACHE."/repomanager-repos-archived-list.html")) unlink(WWW_CACHE."/repomanager-repos-archived-list.html");
 }
 
 /**

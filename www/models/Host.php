@@ -193,6 +193,10 @@ class Host extends Model {
         else
             $package_id_event = '';
  
+        if (empty($packageVersion)) {
+            exec("echo 'paquet : ".$packageName."' >> /tmp/toto");
+        }
+
         /**
          *  Puis on copie cet état dans packages_history
          */
@@ -210,9 +214,9 @@ class Host extends Model {
     }
 
     /**
-     *  Ajoute un paquet installé en base de données
+     *  Ajout d'un état de paquet en BDD
      */
-    public function db_setPackageInstalled(string $name, string $version, string $date, string $time, string $id_event = null)
+    public function db_setPackageState(string $name, string $version, string $state, string $date, string $time, string $id_event = null)
     {
         /**
          *  Nom du paquet
@@ -231,266 +235,41 @@ class Host extends Model {
         if ($this->packageExists($this->packageName) === true) {
             /**
              *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             */
-            /**
+             *
              *  Récupération de l'Id du paquet au préalable
              */
             $this->setPackageId($this->db_getPackageId($this->packageName));
 
             /**
-             *  Sauvegarde de l'état
+             *  Sauvegarde de l'état actuel
              */
             $this->db_setPackageHistory($this->packageId);
 
             /**
-             *  Puis on met à jour la version du paquet en base par celle qui vient d'être installée
+             *  Puis on met à jour l'état du paquet et sa version en base par les infos qui ont été transmises
              */
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = 'installed', Id_event = :id_event WHERE Name = :name");
+            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
 
         } else {
             /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement en état "installé"
+             *  Si le paquet n'existe pas on l'ajoute en BDD directement dans l'état spécifié (installed, upgraded, removed...)
              */
-            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, 'installed', 'package', :date, :time, :id_event)");
+            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, 'package', :date, :time, :id_event)");
         }
         $stmt->bindValue(':name', $this->packageName);
         $stmt->bindValue(':version', $this->packageVersion);
+        $stmt->bindValue(':state', $state);
         $stmt->bindValue(':date', $date);
         $stmt->bindValue(':time', $time);
         $stmt->bindValue(':id_event', $id_event);
         $stmt->execute();
 
         /**
-         *  Enfin si le paquet était présent dans packages_available on le retire
+         *  Enfin si le paquet et sa version était présent dans packages_available on le retire
          */
         $this->db_deletePackageAvailable($this->packageName, $this->packageVersion);
     }
 
-    /**
-     *  Ajout d'un nouveau paquet mis à jour en BDD
-     */
-    public function db_setPackageUpgraded(string $name, string $version, string $date, string $time, string $id_event = null)
-    {
-        /**
-         *  Nom du paquet
-         */
-        $this->setPackageName($name);
-
-        /**
-         *  Version du paquet
-         */
-        $this->setPackageVersion($version);
-
-        /**
-         *  Insertion en BDD
-         *  Si le paquet existe déjà en BDD, on le mets à jour
-         */
-        if ($this->packageExists($this->packageName) === true) {
-            /**
-             *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             */
-            /**
-             *  Récupération de l'Id du paquet au préalable
-             */
-            $this->setPackageId($this->db_getPackageId($this->packageName));
-
-            /**
-             *  Sauvegarde de l'état
-             */
-            $this->db_setPackageHistory($this->packageId);
-
-            /**
-             *  Puis on met à jour la version du paquet en base par celle qui vient d'être installée
-             */
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = 'upgraded', Id_event = :id_event WHERE Name = :name");
-
-        } else {
-            /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement en état "upgraded"
-             */
-            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, 'upgraded', 'package', :date, :time, :id_event)");
-        }
-        $stmt->bindValue(':name', $this->packageName);
-        $stmt->bindValue(':version', $this->packageVersion);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':time', $time);
-        $stmt->bindValue(':id_event', $id_event);
-        $stmt->execute();
-
-        /**
-         *  Enfin si le paquet était présent dans packages_available on le retire
-         */
-        $this->db_deletePackageAvailable($this->packageName, $this->packageVersion);
-    }
-
-    /**
-     *  Retrait d'un paquet supprimé en BDD
-     */
-    public function db_setPackageRemoved(string $name, string $version, string $date, string $time, string $id_event = null)
-    {
-        /**
-         *  Nom du paquet
-         */
-        $this->setPackageName($name);
-
-        /**
-         *  Version du paquet
-         */
-        $this->setPackageVersion($version);
-
-         /**
-         *  Suppression en BDD (changement de l'état du paquet à 'removed')
-         *  Si le paquet existe déjà en BDD, on met à jour son état
-         */
-        if ($this->packageExists($this->packageName) === true) {            
-            /**
-             *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             *  Récupération de l'Id du paquet au préalable :
-             */
-            $this->setPackageId($this->db_getPackageId($this->packageName));
-
-            /**
-             *  Sauvegarde de l'état
-             */
-            $this->db_setPackageHistory($this->packageId);
-
-            /**
-             *  Puis on met à jour la version du paquet en base par celle qui vient d'être supprimée et on passe l'état du paquet à 'removed'
-             */
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = 'removed', Id_event = :id_event WHERE Name = :name");        
-
-        } else {
-            /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement en état "removed"
-             */
-            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, 'removed', 'package', :date, :time, :id_event)");
-        }
-        $stmt->bindValue(':name', $this->packageName);
-        $stmt->bindValue(':version', $this->packageVersion);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':time', $time);
-        $stmt->bindValue(':id_event', $id_event);
-        $stmt->execute();
-
-        /**
-         *  Enfin si le paquet était présent dans packages_available on le retire
-         */
-        $this->db_deletePackageAvailable($this->packageName, $this->packageVersion);
-    }
-
-    /**
-     *  Ajout d'un paquet downgradé en BDD
-     */
-    public function db_setPackageDowngraded(string $name, string $version, string $date, string $time, string $id_event = null)
-    {
-        /**
-         *  Nom du paquet
-         */
-        $this->setPackageName($name);
-
-        /**
-         *  Version du paquet
-         */
-        $this->setPackageVersion($version);
-
-        /**
-         *  Insertion en BDD
-         *  Si le paquet existe déjà en BDD, on le mets à jour
-         */
-        if ($this->packageExists($this->packageName) === true) {
-            /**
-             *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             */
-            /**
-             *  Récupération de l'Id du paquet au préalable
-             */
-            $this->setPackageId($this->db_getPackageId($this->packageName));
-
-            /**
-             *  Sauvegarde de l'état
-             */
-            $this->db_setPackageHistory($this->packageId);
-
-            /**
-             *  Puis on met à jour la version du paquet en base par celle qui vient d'être installée
-             */
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = 'downgraded', Id_event = :id_event WHERE Name = :name");
-
-        } else {
-            /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement en état "downgraded"
-             */
-            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, 'downgraded', 'package', :date, :time, :id_event)");
-        }
-        $stmt->bindValue(':name', $this->packageName);
-        $stmt->bindValue(':version', $this->packageVersion);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':time', $time);
-        $stmt->bindValue(':id_event', $id_event);
-        $stmt->execute();
-
-        /**
-         *  Enfin si le paquet était présent dans packages_available on le retire
-         */
-        $this->db_deletePackageAvailable($this->packageName, $this->packageVersion);
-    }
-
-    /**
-     *  Ajout d'un paquet réinstallé en BDD
-     */
-    public function db_setPackageReinstalled(string $name, string $version, string $date, string $time, string $id_event = null)
-    {
-        /**
-         *  Nom du paquet
-         */
-        $this->setPackageName($name);
-
-        /**
-         *  Version du paquet
-         */
-        $this->setPackageVersion($version);
-
-        /**
-         *  Insertion en BDD
-         *  Si le paquet existe déjà en BDD, on le mets à jour
-         */
-        if ($this->packageExists($this->packageName) === true) {
-            /**
-             *  D'abord on fait une copie de l'état actuel du paquet dans packages_history afin de conserver un suivi.
-             */
-            /**
-             *  Récupération de l'Id du paquet au préalable
-             */
-            $this->setPackageId($this->db_getPackageId($this->packageName));
-
-            /**
-             *  Sauvegarde de l'état
-             */
-            $this->db_setPackageHistory($this->packageId);
-
-            /**
-             *  Puis on met à jour la version du paquet en base par celle qui vient d'être installée
-             */
-            $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = 'reinstalled', Id_event = :id_event WHERE Name = :name");
-
-        } else {
-            /**
-             *  Si le paquet n'existe pas on l'ajoute en BDD directement en état "reinstalled"
-             */
-            $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, 'reinstalled', 'package', :date, :time, :id_event)");
-        }
-        $stmt->bindValue(':name', $this->packageName);
-        $stmt->bindValue(':version', $this->packageVersion);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':time', $time);
-        $stmt->bindValue(':id_event', $id_event);
-        $stmt->execute();
-
-        /**
-         *  Enfin si le paquet était présent dans packages_available on le retire
-         */
-        $this->db_deletePackageAvailable($this->packageName, $this->packageVersion);
-    }
 
 /**
  *  
@@ -1246,7 +1025,7 @@ class Host extends Model {
              */
             if (!empty($event->installed)) {
                 foreach ($event->installed as $package_installed) {
-                    $this->db_setPackageInstalled($package_installed->name, $package_installed->version, $event->date_start, $event->time_start, $id_event);
+                    $this->db_setPackageState($package_installed->name, $package_installed->version, 'installed', $event->date_start, $event->time_start, $id_event);
                 }
             }
             /**
@@ -1254,7 +1033,7 @@ class Host extends Model {
              */
             if (!empty($event->upgraded)) {
                 foreach ($event->upgraded as $package_upgraded) {
-                    $this->db_setPackageUpgraded($package_upgraded->name, $package_upgraded->version, $event->date_start, $event->time_start, $id_event);
+                    $this->db_setPackageState($package_upgraded->name, $package_upgraded->version, 'upgraded', $event->date_start, $event->time_start, $id_event);
                 }
             }
             /**
@@ -1262,7 +1041,7 @@ class Host extends Model {
              */
             if (!empty($event->removed)) {
                 foreach ($event->removed as $package_removed) {
-                    $this->db_setPackageRemoved($package_removed->name, $package_removed->version, $event->date_start, $event->time_start, $id_event);
+                    $this->db_setPackageState($package_removed->name, $package_removed->version, 'removed', $event->date_start, $event->time_start, $id_event);
                 }
             }
             /**
@@ -1270,7 +1049,7 @@ class Host extends Model {
              */
             if (!empty($event->downgraded)) {
                 foreach ($event->downgraded as $package_downgraded) {
-                    $this->db_setPackageDowngraded($package_downgraded->name, $package_downgraded->version, $event->date_start, $event->time_start, $id_event);
+                    $this->db_setPackageState($package_downgraded->name, $package_downgraded->version, 'downgraded', $event->date_start, $event->time_start, $id_event);
                 }
             }
             /**
@@ -1278,7 +1057,15 @@ class Host extends Model {
              */
             if (!empty($event->reinstalled)) {
                 foreach ($event->reinstalled as $package_reinstalled) {
-                    $this->db_setPackageReinstalled($package_reinstalled->name, $package_reinstalled->version, $event->date_start, $event->time_start, $id_event);
+                    $this->db_setPackageState($package_reinstalled->name, $package_reinstalled->version, 'reinstalled', $event->date_start, $event->time_start, $id_event);
+                }
+            }
+            /**
+             *  Si l'évènement comporte des paquets purgés
+             */
+            if (!empty($event->purged)) {
+                foreach ($event->purged as $package_purged) {
+                    $this->db_setPackageState($package_purged->name, $package_purged->version, 'purged', $event->date_start, $event->time_start, $id_event);
                 }
             }
         }
@@ -1417,7 +1204,7 @@ class Host extends Model {
          */
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM packages");
+        $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
@@ -1652,6 +1439,14 @@ class Host extends Model {
                 $content_color = 'yellow';
                 $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Rétrogradé';
             }
+            if ($event['State'] == "reinstalled") {
+                $content_color = 'yellow';
+                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Réinstallé';
+            }
+            if ($event['State'] == "purged") {
+                $content_color = 'red';
+                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Purgé';
+            }
             $content_version = $event['Version'];
 
             /**
@@ -1716,7 +1511,8 @@ class Host extends Model {
         /**
          *  On ne retourne uniquement le 1er array (le plus récent)
          */
-        return $datas[0];
-    }
+        if (!empty($datas[0])) return $datas[0];
 
+        return '';
+    }
 }

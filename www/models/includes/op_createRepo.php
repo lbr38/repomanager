@@ -207,8 +207,6 @@ trait op_createRepo {
 
         $this->log->steplogOK();
 
-// 2
-
         return true;
     }
 }

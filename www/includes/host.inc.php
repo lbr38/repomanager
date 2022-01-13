@@ -295,10 +295,10 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                             } else {
                                                 echo '<img src="../ressources/icons/products/package.png" class="icon" />';
                                             }
-                                            if ($package['State'] == "inventored" OR $package['State'] == "installed" OR $package['State'] == "upgraded") {
+                                            if ($package['State'] == "inventored" OR $package['State'] == "installed" OR $package['State'] == "reinstalled" OR $package['State'] == "upgraded") {
                                                 echo $package['Name'];
                                             }
-                                            if ($package['State'] == "removed") {
+                                            if ($package['State'] == "removed" OR $package['State'] == "purged") {
                                                 echo '<span class="redtext">'.$package['Name'].' (désinstallé)</span>';
                                             }
                                             echo '</td>';
