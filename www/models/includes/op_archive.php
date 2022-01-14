@@ -40,25 +40,45 @@ trait op_archive {
         }
 
         /**
-         *  A partir de la date récupérée, on regarde si d'autres environnements pointent sur le repo/section à cette date
-         *  On exclu $this->env de la recherche car il apparaitra forcémment sinon.
+         *  Dans le cas où on remet à jour un repo à la date actuelle (par exemple plusieurs fois dans la journée) alors on ignore l'archivage de l'ancien repo (ce qui pourrait avoir comme conséquence d'archiver le repo qu'on vient de mettre à jour)
          */
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':date', $oldRepoDate);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
-        }
-        $result = $stmt->execute();
+        if ($oldRepoDate == $this->repo->date) {
+            $archive = 'no';
 
         /**
-         *  On compte le nombre de lignes obtenues
-         *  Si 0 lignes, cela signifie que plus aucun env n'utilise la version, on va pouvoir l'archiver
-         *  Si >0 lignes, cela signifie que la version est toujours utilisée par un env, on ne l'archive pas
+         *  Sinon on vérifie qu'on peut archiver l'ancien repo ou non
          */
-        $count = $this->db->count($result);
+        } else {
+            /**
+             *  A partir de la date récupérée, on regarde si d'autres environnements pointent sur le repo/section à cette date
+             *  On exclu $this->env de la recherche car il apparaitra forcémment sinon.
+             */
+            //if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
+            //if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env != :env AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env != :env AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':date', $oldRepoDate);
+            $stmt->bindValue(':env', $this->repo->env);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $result = $stmt->execute();
+
+            /**
+             *  On compte le nombre de lignes obtenues
+             *  Si 0 lignes, cela signifie que plus aucun env n'utilise la version, on va pouvoir l'archiver
+             *  Si >0 lignes, cela signifie que la version est toujours utilisée par un env, on ne l'archive pas
+             */
+            $count = $this->db->count($result);
+
+            if ($count == 0) {
+                $archive = 'yes';
+            } else {
+                $archive = 'no';
+            }
+        }
 
         /**
          *  Mise à jour de la date, de l'heure et de la signature en BDD du repo qu'on vient de mettre à jour
@@ -73,7 +93,7 @@ trait op_archive {
         /**
          *  Cas où on archive l'ancien repo/section
          */
-        if ($count == 0) {
+        if ($archive == 'yes') {
             if (OS_FAMILY == "Redhat") {
                 /**
                  *  Si un répertoire d'archive existe déjà alors on le supprime

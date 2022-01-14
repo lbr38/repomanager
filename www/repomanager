@@ -257,7 +257,7 @@ firstInstall() {
 
 	if [ "$OS_FAMILY" == "Redhat" ];then
 		PACKAGE_TYPE="rpm"
-		RELEASEVER=$OS_VERSION
+		RELEASEVER="$OS_VERSION"
 	fi
 	if [ "$OS_FAMILY" == "Debian" ];then
 		PACKAGE_TYPE="deb"

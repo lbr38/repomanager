@@ -118,7 +118,7 @@ if (OS_FAMILY == "Redhat") {
  *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
  */
 if (OS_FAMILY == "Debian") {
-    $gpgKeys = shell_exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+    $gpgKeys = shell_exec("gpg --homedir ".GPGHOME." --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
     $gpgKeys = explode("\n\n", $gpgKeys);
 }
 
@@ -182,7 +182,10 @@ if (!empty($gpgKeys)) {
                     continue;
                 }
                 $sourceName = str_replace(".repo", "", $source);
-                // on récupère le contenu du fichier
+                
+                /**
+                 *  On récupère le contenu du fichier
+                 */
                 $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR."/${source}", true));
             }
             if (OS_FAMILY == "Debian") {
