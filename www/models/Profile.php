@@ -1,7 +1,6 @@
 <?php
 
 class Profile extends Model {
-    //private $db;
     private $id;
     private $name;
     private $newName;

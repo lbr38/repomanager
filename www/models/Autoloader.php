@@ -18,24 +18,31 @@ class Autoloader
         require ROOT . '/models/' . $class . '.php';
     }
 
-
-    static function loadAll()
-    {
+    /**
+     *  Chargement de tous les paramètres nécessaires pour le fonctionnement des pages web (voir loadFromApi() pour l'api)
+     *  - chargement des sessions
+     *  - constantes
+     *  - vérifications de la présence de tous les répertoires et fichiers nécessaires
+     */
+    static function load() {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
 
         date_default_timezone_set('Europe/Paris');
 
+        /**
+         *  On défini un cookie contenant l'URI en cours, utile pour rediriger directement vers cette URI après s'être identifié sur la page de login
+         */
+        if (!empty($_SERVER['REQUEST_URI'])) {
+            setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        }
+
         if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
-        //Autoloader::loadSession();
-        Autoloader::register();
-        Autoloader::loadSystem();
-        Autoloader::loadConfiguration();
-        Autoloader::loadDirs();
-        Autoloader::loadEnvs();
-        Autoloader::checkForUpdate();
-        Autoloader::startStats();
-        Autoloader::loadReposListDisplayConf();
+
+        /**
+         *  Chargement de toutes les fonctions nécessaires
+         */
+        Autoloader::loadAll();
 
         /**
          *  On récupère les éventuelles erreurs de chargement
@@ -58,33 +65,94 @@ class Autoloader
         }
 
         /**
-         *  On définie une constante qui contient le nb d'erreur rencontrées
+         *  On définit une constante qui contient le nb d'erreur rencontrées
          */
         if (!defined('__LOAD_GENERAL_ERROR')) define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
 
         /**
-         *  On défini une constante qui contient tous les messages d'erreurs récoltés
+         *  On définit une constante qui contient tous les messages d'erreurs récoltés
          */
         if (!defined('__LOAD_ERROR_MESSAGES')) define('__LOAD_ERROR_MESSAGES', $__LOAD_ERROR_MESSAGES);
 
         unset($__LOAD_GENERAL_ERROR, $__LOAD_ERROR_MESSAGES);
     }
+
+    /**
+     *  Chargement de tous les paramètres nécessaires pour le fonctionnement de l'api
+     *  Charge moins de fonctions que load() notamment les sessions ne sont par démarrées car empêcheraient le bon fonctionnement de l'api
+     */
+    static function loadFromApi()
+    {
+        $__LOAD_GENERAL_ERROR = 0;
+        $__LOAD_ERROR_MESSAGES = array();
+
+        if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
+
+        /**
+         *  Chargement des fonctions nécessaires
+         */
+        Autoloader::register();
+        Autoloader::loadSystem();
+        Autoloader::loadConfiguration();
+        Autoloader::loadDirs();
+        Autoloader::loadEnvs();
+
+        /**
+         *  On récupère les éventuelles erreurs de chargement
+         */
+        /**
+         *  Erreur liées au chargement de la configuration principale
+         */
+        if (__LOAD_MAIN_CONF_ERROR > 0) {
+            ++$__LOAD_GENERAL_ERROR;
+        }
+
+        /**
+         *  On définie une constante qui contient le nb d'erreur rencontrées
+         */
+        if (!defined('__LOAD_GENERAL_ERROR')) define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
+
+        unset($__LOAD_GENERAL_ERROR);
+    }
+
+    /**
+     *  Exécution de toutes les fonctions
+     */
+    static function loadAll()
+    {
+        Autoloader::loadSession();
+        Autoloader::register();
+        Autoloader::loadSystem();
+        Autoloader::loadConfiguration();
+        Autoloader::loadDirs();
+        Autoloader::loadEnvs();
+        Autoloader::checkForUpdate();
+        Autoloader::startStats();
+        Autoloader::loadReposListDisplayConf();
+    }
     
+    /**
+     *  Démarrage et vérification de la session en cours
+     */
     static function loadSession() {
         /**
          *  On démarre la session
          */
         session_start();
 
-        // On teste si la variable de session existe et contient une valeur
-        if(empty($_SESSION['login'])) {
-            // Si inexistante ou nulle, on redirige vers le formulaire de login
+        /**
+         *  Si les variables de session username ou role sont vides alors on redirige vers la page de login
+         */
+        if(empty($_SESSION['username']) OR empty($_SESSION['role'])) {
             header('Location: login.php');
             exit();
         }
     }
 
-
+    /**
+     *  Chargement des chemins vers les répertoires et fichiers de base
+     *  Création si n'existent pas
+     */
     static function loadDirs()
     {
         /**
@@ -683,7 +751,10 @@ class Autoloader
         }
     }
 
-
+    /**
+     *  Vérification des nouvelles versions disponibles
+     *  Vérification si une mise à jour est en cours ou non
+     */
     static function checkForUpdate()
     {
         /**

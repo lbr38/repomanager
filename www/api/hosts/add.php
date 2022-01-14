@@ -10,7 +10,16 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 define("ROOT", dirname(__FILE__, 3));
 require_once(ROOT.'/models/Autoloader.php');
 require_once(ROOT.'/functions/common-functions.php');
-Autoloader::loadAll();
+Autoloader::loadFromApi();
+
+/**
+ *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
+ */
+if (__LOAD_GENERAL_ERROR != 0) {
+    http_response_code(503);
+    echo json_encode(["return" => "503", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -41,19 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             http_response_code(201);
             $authId = $myhost->getAuthId();
             $token  = $myhost->getToken();
-            echo json_encode(["return" => "201", "message" => "L'enregistrement a été effectué", "id" => "$authId", "token" => "$token"]);
+            echo json_encode(["return" => "201", "message" => "L'enregistrement a été effectué.", "id" => "$authId", "token" => "$token"]);
             exit;
         }
 
         if ($register == "2") {
             http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "Impossible de déterminer l'adresse IP de l'hôte"]);
+            echo json_encode(["return" => "503", "message" => "Impossible de déterminer l'adresse IP de l'hôte."]);
             exit;
         }
 
         if ($register == "3") {
             http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "Cet hôte est déjà enregistré"]);
+            echo json_encode(["return" => "503", "message" => "Cet hôte est déjà enregistré."]);
             exit;
         }
 
@@ -65,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     } else {
         http_response_code(400);
-        echo json_encode(["return" => "400", "message" => "Les données transmises sont invalides"]);
+        echo json_encode(["return" => "400", "message" => "Les données transmises sont invalides."]);
         exit;
     }
 
@@ -76,6 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
  *  Cas où on tente d'utiliser une autre méthode que POST
  */
 http_response_code(405);
-echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée"]);
+echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée."]);
 exit;
 ?>

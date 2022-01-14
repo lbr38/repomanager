@@ -4,7 +4,6 @@ export TERM="xterm-256color"
 export COLUMNS=190
 export GPG_TTY=$(tty)
 
-
 # Variables de couleurs :
 BLANC=$(tput setaf 7)
 GRIS=$(tput setaf 8)
@@ -660,7 +659,9 @@ firstInstall() {
 	chmod -R 770 $WWW_DIR
 	chmod 700 ${WWW_DIR}/.gnupg
 
-	echo -e "\nL'installation est terminée. Avant d'utiliser toutes les fonctionnalités de repomanager vous devez compléter la configuration à l'adresse : https://${WWW_HOSTNAME}/configuration.php"
+	echo -e "\nL'installation est terminée. Avant d'utiliser toutes les fonctionnalités de repomanager vous devez compléter la configuration à l'adresse : ${JAUNE}https://${WWW_HOSTNAME}/configuration.php${RESET}"
+	echo -e " Login        : ${JAUNE}admin${RESET}"
+	echo -e " Mot de passe : ${JAUNE}repomanager${RESET}\n"
 }
 
 echo '

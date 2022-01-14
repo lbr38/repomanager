@@ -192,10 +192,6 @@ class Host extends Model {
             $package_id_event = $data['Id_event'];
         else
             $package_id_event = '';
- 
-        if (empty($packageVersion)) {
-            exec("echo 'paquet : ".$packageName."' >> /tmp/toto");
-        }
 
         /**
          *  Puis on copie cet état dans packages_history

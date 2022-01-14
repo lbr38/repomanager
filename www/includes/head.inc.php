@@ -7,7 +7,7 @@
         /**
          *  Chargement de CSS suplémentaires
          */
-        define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
 
         if (__ACTUAL_URI__ == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="ressources/styles/run.css">';
         if (__ACTUAL_URI__ == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="ressources/styles/explore.css">';

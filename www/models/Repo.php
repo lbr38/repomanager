@@ -138,11 +138,13 @@ class Repo extends Model {
         if (!empty($repoStatus)) $this->status = $repoStatus;
     }
 
-    public function setId(string $id) {
+    public function setId(string $id)
+    {
         $this->id = validateData($id);
     }
 
-    public function setStatus(string $status) {
+    public function setStatus(string $status)
+    {
         $status = validateData($status);
         
         /**
@@ -155,10 +157,21 @@ class Repo extends Model {
         $this->status = $status;
     }
 
-    public function setDescription(string $description) {
+    public function setDescription(string $description)
+    {
         if ($description == 'nodescription') $description = '';
 
         $this->description = validateData($description);
+    }
+
+    public function setGpgResign(string $gpgResign)
+    {
+        if ($gpgResign != 'yes' AND $gpgResign != 'no') {
+            throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
+        }
+
+        $this->gpgResign = validateData($gpgResign);
+        $this->signed = validateData($gpgResign);
     }
 
     /**

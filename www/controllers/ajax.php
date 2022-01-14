@@ -8,7 +8,7 @@ const HTTP_METHOD_NOT_ALLOWED = 405;
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest"){
 
     require_once(ROOT."/models/Autoloader.php");
-    Autoloader::loadAll();
+    Autoloader::load();
     require_once(ROOT."/functions/common-functions.php");
 
     if (!empty($_POST['action'])) {

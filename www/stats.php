@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
 
 /**
@@ -108,7 +108,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Affichage de la taille du repo et du nombre de paquets actuel
                      */ ?>
-                    <div class="stats-div-15">
+                    <div class="flex-div-15">
                         <p class="center">Propriétés</p>
                         <div class="stats-round-counter">
                             <br><p class="lowopacity">Taille du repo</p><br>
@@ -129,7 +129,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Affichage du nombre d'accès au repo en temps réel et des 5 dernières minutes
                      */
-                    echo '<div id="refresh-me" class="stats-div-15">';
+                    echo '<div id="refresh-me" class="flex-div-15">';
                         /**
                          *  Détails des requêtes en temps réel (+/-5 sec)
                          */
@@ -211,7 +211,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         </div>
                     </div>
 
-                    <div id="repo-access-chart-div" class="stats-div-65">
+                    <div id="repo-access-chart-div" class="flex-div-65">
                     <?php 
                         /**
                          *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
@@ -312,7 +312,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Tableau des derniers logs d'accès
                      */
-                    echo '<div class="stats-div-100">';
+                    echo '<div class="flex-div-100">';
                         echo '<p class="center lowopacity">Dernières requêtes d\'accès</p>';
                         echo '<table class="stats-access-table">';
                             if (!empty($lastAccess)) {
@@ -405,7 +405,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                          *  Affichage du graphique taille du repo/section
                          */
                         if (!empty($dateLabels) AND !empty($sizeData)) { ?>
-                            <div class="stats-div-50">
+                            <div class="flex-div-50">
                                 <canvas id="repoSizeChart"></canvas>
                                 <script>
                                     var ctx = document.getElementById('repoSizeChart').getContext('2d');
@@ -452,7 +452,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                          *  Affichage du graphique nombre de paquets du repo/section
                          */
                         if (!empty($dateLabels) AND !empty($countData)) { ?>
-                            <div class="stats-div-50">
+                            <div class="flex-div-50">
                                 <canvas id="repoPackagesCountChart"></canvas>
                                 <script>
                                     var ctx = document.getElementById('repoPackagesCountChart').getContext('2d');

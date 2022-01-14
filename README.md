@@ -219,8 +219,6 @@ server {
                 add_header X-Permitted-Cross-Domain-Policies "none" always;
                 add_header X-Robots-Tag "none" always;
                 add_header X-XSS-Protection "1; mode=block" always;
-
-                # Optional: Don't log access to assets
                 access_log off;
         }
 

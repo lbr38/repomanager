@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
 require_once('functions/repo.functions.php');
 require_once('common.php');
 
-// Cas où on souhaite retirer une div ServerInfo de la page d'accueil
+/**
+ *  Cas où on souhaite retirer une div ServerInfo de la page d'accueil
+ */
 if (!empty($_GET['serverInfoSlideDivClose'])) {
-    // On récupère le nom de la div qu'on souhaite retirer
+    /**
+     *  On récupère le nom de la div qu'on souhaite retirer
+     */
     $divToClose = validateData($_GET['serverInfoSlideDivClose']);
-    // On récupère le contenu actuel de display.ini
+
+    /**
+     *  On récupère le contenu actuel de display.ini
+     */
     $displayConfiguration = parse_ini_file(DISPLAY_CONF, true);
     if ($divToClose === "reposInfo")      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
     if ($divToClose === "rootSpace")      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
@@ -20,10 +27,14 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     if ($divToClose === "planInfo")       $displayConfiguration['serverinfo']['display_serverInfo_planInfo'] = 'no';
     if ($divToClose === "connectionInfo") $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
 
-    // On écrit les modifications dans le fichier display.ini
+    /**
+     *  On écrit les modifications dans le fichier display.ini
+     */
     write_ini_file(DISPLAY_CONF, $displayConfiguration);
 
-    // rechargement de la page pour appliquer les modifications d'affichage
+    /**
+     *  Rechargement de la page pour appliquer les modifications d'affichage
+     */
     header('Location: index.php');
     exit;
 } ?>
