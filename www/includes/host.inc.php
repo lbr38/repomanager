@@ -4,7 +4,7 @@ if (!defined('ROOT')) {
     define('ROOT', dirname(__FILE__, 2));
 }
 require_once(ROOT.'/models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
 require_once(ROOT."/functions/common-functions.php");
 
 $idError = 0;
@@ -78,20 +78,20 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
 
 <?php echo '<h3>'.strtoupper($hostname).'</h3>'; ?>
 
-<article>
-    <section class="main">
+<!-- <article> -->
+    <!-- <section class="main"> -->
             <div class="div-flex">
-                <div class="hosts-div-100">
+                <div class="flex-div-100">
                     
                     <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
 
-                    <table class="host-properties-table">
+                    <table class="table-generic table-small opacity-80">
                         <tr>
-                            <th>IP</th>
+                            <td>IP</td>
                             <td><?php echo $ip; ?></td>
                         </tr>
                         <tr>
-                            <th>STATUS</th>
+                            <td>STATUS</td>
                             <td>
                                 <?php
                                 if ($onlineStatus == "online")
@@ -104,7 +104,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             </td>
                         </tr>
                         <tr>
-                            <th>OS</th>
+                            <td>OS</td>
                             <?php
                             if (!empty($os) AND !empty($os_version)) {
                                 echo '<td>';
@@ -124,7 +124,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             } ?>
                         </tr>
                         <tr>
-                            <th>PROFIL</th>
+                            <td>PROFIL</td>
                             <?php
                             if (!empty($profile)) {
                                 echo "<td>$profile</td>";
@@ -133,7 +133,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             } ?>
                         </tr>
                         <tr>
-                            <th>ENVIRONNEMENT</th>
+                            <td>ENVIRONNEMENT</td>
                             <?php
                             if (!empty($env)) {
                                 echo "<td>".envtag($env)."</td>";
@@ -145,7 +145,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                 </div>
             </div>
             <div class="div-flex">
-                <div class="hosts-div-50">
+                <div class="flex-div-50">
                     <h4>ETATS DES PAQUETS</h4>
 
                     <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
@@ -313,7 +313,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                     </div>
                 </div>               
 
-                <div class="hosts-div-50">
+                <div class="flex-div-50">
                     <h4>HISTORIQUE</h4>
                     
                     <!--<span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span>-->
@@ -416,8 +416,8 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                     </div>
                 </div>
             </div>
-    </section>
-</article>
+    <!-- </section> -->
+<!-- </article> -->
 
 <?php 
 /**

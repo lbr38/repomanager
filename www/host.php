@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
 ?>
 

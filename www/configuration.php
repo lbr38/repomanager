@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
+
+/**
+ *  Cette page est accessible uniquement aux utilisateurs administrateur, on redirige les autres vers l'accueil
+ */
+if ($_SESSION['role'] !== 'super-administrator' AND $_SESSION['role'] !== 'administrator') {
+    header('Location: index.php');
+    exit();
+}
 
 /**
  *  Mise à jour de Repomanager
@@ -21,7 +29,7 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "update") {
      *  Backup avant mise à jour
      */
     if (UPDATE_BACKUP_ENABLED == "yes") {
-        $backupName = DATE_YMD."_".TIME."_repomanager_full_backup.tar.gz";
+        $backupName = DATE_YMD.'_'.TIME.'_repomanager_full_backup.tar.gz';
         exec("tar --exclude='".BACKUP_DIR."' -czf /tmp/${backupName} ". ROOT ,$output, $result);
         if ($result != 0) {
             $error++;
@@ -522,6 +530,51 @@ if (!empty($_GET['deleteEnv'])) {
      */
     clearCache();
 }
+
+/**
+ *  Création d'un nouvel utilisateur
+ */
+if (!empty($_POST['action']) AND validateData($_POST['action']) == 'createUser' AND !empty($_POST['username'])) {
+    $username = validateData($_POST['username']);
+    $myuser = new Login();
+
+    $result = $myuser->addUser($username);
+
+    /**
+     *  Si la fonction a renvoyé false alors il y a eu une erreur lors de la création de l'utilisateur
+     *  Sinon on récupère le mot de passe généré
+     */
+    if ($result !== false) {
+        $newUserUsername = $username;
+        $newUserPassword = $result;
+    }
+} 
+
+/**
+ *  Réinitialisation du mot de passe d'un utilisateur
+ */
+if (isset($_GET['resetPassword']) AND !empty($_GET['username'])) {
+    $mylogin = new Login();
+
+    $result = $mylogin->resetPassword($_GET['username']);
+
+    /**
+     *  Si la fonction a renvoyé false alors il y a eu une erreur lors de la création de l'utilisateur
+     *  Sinon on récupère le mot de passe généré
+     */
+    if ($result !== false) {
+        $newResetedPwdUsername = $_GET['username'];
+        $newResetedPwdPassword = $result;
+    }
+} 
+
+/**
+ *  Suppression d'un utilisateur
+ */
+if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
+    $mylogin = new Login();
+    $mylogin->deleteUser($_GET['username']);
+}
 ?>
 
 <body>
@@ -875,7 +928,7 @@ if (!empty($_GET['deleteEnv'])) {
                     deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}");
                     echo '</td>';
                     if ($envName == DEFAULT_ENV) {
-                        echo '<td>Defaut</td>';
+                        echo '<td>(defaut)</td>';
                     } else {
                         echo '<td></td>';
                     }
@@ -1170,6 +1223,68 @@ if (!empty($_GET['deleteEnv'])) {
             </table>
         </form>
     </section>
+
+<?php
+    /**
+     *  Cette section est accessible uniquement pour les utilisateurs dont le role est 'super-administrator'
+     */
+    if ($_SESSION['role'] === 'super-administrator') { ?>
+        <section class="right">
+            <h3>UTILISATEURS</h3>
+                <form action="configuration.php" method="post" autocomplete="off">
+                    <input type="hidden" name="action" value="createUser" />
+
+                    <p>Créer un utilisateur :</p>
+                    <input class="input-medium" type="text" name="username" placeholder="Nom d'utilisateur" />
+                    <button class="btn-xxsmall-blue">+</button>
+                </form>
+                <?php
+                    // Cas où un nouveau mot de passe a été généré
+                    if (!empty($newUserUsername) AND !empty($newUserPassword)) {
+                        echo '<p class="greentext">Mot de passe temporaire généré pour <b>'.$newUserUsername.'</b> : '.$newUserPassword.'</p>';
+                    }
+                    // Cas où un mot de passe a été reseté
+                    if (!empty($newResetedPwdUsername) AND !empty($newResetedPwdPassword)) {
+                        echo '<p class="greentext">Un nouveau mot de passe a été généré pour <b>'.$newResetedPwdUsername.'</b> : '.$newResetedPwdPassword.'</p>';
+                    }
+
+                    echo '<br>';
+
+                    /**
+                     *  Affichage des utilisateurs existants
+                     */
+                    $myuser = new Login();
+                    $users = $myuser->getUsers();
+
+                    if (!empty($users)) { ?>
+                        <table class="table-generic-blue">
+                            <tr class="no-bkg">
+                                <td>Nom d'utilisateur</td>
+                                <td>Role</td>
+                                <td>Type de compte</td>
+                                <td></td>
+                            </tr>
+                <?php   foreach ($users as $user) { ?>
+                            <tr>
+                                <td><?php echo $user['Username'];?></td>
+                                <td><?php echo $user['Role_name'];?></td>
+                                <td><?php echo $user['Type'];?></td>
+                                <?php
+                                if ($user['Username'] != 'admin') {
+                                    echo '<td class="td-fit">';
+                                    echo '<a href="?resetPassword&username='.$user['Username'].'" title="Réinitialiser le mot de passe de '.$user['Username'].'"><img src="ressources/icons/update.png" class="icon-lowopacity" /></a>';
+                                    echo '<a href="?deleteUser&username='.$user['Username'].'" title="Supprimer l\'utilisateur '.$user['Username'].'"><img src="ressources/icons/bin.png" class="icon-lowopacity" /></a>';
+                                    echo '</td>';
+                                } else {
+                                    echo '<td></td>';
+                                } ?>
+                            </tr>
+                <?php   }
+                        echo '</table>';
+                    }
+                ?>
+        </section>
+<?php } ?>
 </section>
 </article>
 

@@ -60,6 +60,8 @@ class Group extends Model {
         $stmt->bindValue(':name', $name);
         $stmt->execute();
 
+        History::set($_SESSION['username'], "Création d'un nouveau groupe : $name", 'success');
+
         clearCache();
     }
 
@@ -98,6 +100,8 @@ class Group extends Model {
         $stmt->bindValue(':newname', $newName);
         $stmt->bindValue(':actualname', $actualName);
         $stmt->execute();
+
+        History::set($_SESSION['username'], "Renommage d'un groupe : $actualName en $newName", 'success');
 
         clearCache();
     }
@@ -138,6 +142,8 @@ class Group extends Model {
         $stmt = $this->db->prepare("DELETE FROM groups WHERE Name = :name");
         $stmt->bindValue(':name', $name);
         $stmt->execute();
+
+        History::set($_SESSION['username'], "Suppression du groupe $name", 'success');
 
         clearCache();
     }
@@ -240,7 +246,6 @@ class Group extends Model {
 
         return $reposIn;
     }
-
 
     /**
      *  LISTER (Select) LES REPOS D'UN GROUPE
@@ -441,6 +446,8 @@ class Group extends Model {
                 $stmt->execute();
             }
         }
+
+        History::set($_SESSION['username'], "Modifications des repos/sections membres du groupe $groupName", 'success');
 
         clearCache();
     }

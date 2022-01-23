@@ -6,7 +6,7 @@
 
 define('ROOT', dirname(__FILE__, 2));
 require_once(ROOT."/models/Autoloader.php");
-Autoloader::loadAll();
+Autoloader::loadFromApi();
 
 $repo = new Repo();
 

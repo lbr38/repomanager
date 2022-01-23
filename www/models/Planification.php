@@ -714,7 +714,7 @@ class Planification extends Model {
      *  Générer les messages de rappels
      *  Retourne le message approprié
      */
-    public function generateReminders() { // toto
+    public function generateReminders() {
         $this->op = new Operation(array('op_type' => 'plan'));
         $this->op->group = new Group();
             
@@ -774,8 +774,8 @@ class Planification extends Model {
              *  Cas où l'action prévue est une mise à jour
              */
             if ($this->op->action == "update") {
-                if (OS_FAMILY == "Redhat") return "Mise à jour du repo <b>{$this->op->repo->name}</b> <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
-                if (OS_FAMILY == "Debian") return "Mise à jour de la section <b>{$this->op->repo->section}</b> du repo <b>{$this->op->repo->name}</b> ({$this->op->repo->dist}) <span class=\"td-whitebackground\">".DEFAULT_ENV."</span>";
+                if (OS_FAMILY == "Redhat") return "Mise à jour du repo <b>{$this->op->repo->name}</b> <span>".DEFAULT_ENV."</span>";
+                if (OS_FAMILY == "Debian") return "Mise à jour de la section <b>{$this->op->repo->section}</b> du repo <b>{$this->op->repo->name}</b> ({$this->op->repo->dist}) <span>".DEFAULT_ENV."</span>";
             }
     
             /**

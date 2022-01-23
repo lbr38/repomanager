@@ -18,7 +18,7 @@ if (DEBUG_MODE == "enabled") {
 ?>
 <header>
 <nav>
-      <ul class="menu">
+    <ul class="menu">
         <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
         if (__ACTUAL_URI__ == '/' OR __ACTUAL_URI__ == '/index.php' OR __ACTUAL_URI__ == '/operation.php' OR __ACTUAL_URI__ == '/explore.php') {
@@ -47,10 +47,15 @@ if (DEBUG_MODE == "enabled") {
                 echo '<li><a href="profiles.php"><span>Gestion des profils</span></a></li>';
             }
         }
-        if (__ACTUAL_URI__ == '/configuration.php') {
-            echo '<li><a href="configuration.php"><span class="underline">Configuration</span></a></li>';
-        } else {
-            echo '<li><a href="configuration.php"><span>Configuration</span></a></li>';
+        /**
+         *  La page d'administration s'affiche uniquement pour les utilisateurs dont le role est 'super-administrator' ou 'administrator'
+         */
+        if ($_SESSION['role'] === 'super-administrator' OR $_SESSION['role'] === 'administrator') {
+            if (__ACTUAL_URI__ == '/configuration.php') {
+                echo '<li><a href="configuration.php"><span class="underline">Administration</span></a></li>';
+            } else {
+                echo '<li><a href="configuration.php"><span>Administration</span></a></li>';
+            }
         }
 
         echo '<li id="header-refresh-container">';
@@ -277,9 +282,22 @@ if (DEBUG_MODE == "enabled") {
             }
 
         echo '</li>'; // Fermeture du li id="refresh-me-header-container"
-        
         unset($opsRunning, $plansRunning); ?>
-      </ul>
+
+        </ul>
+        <div id="userspace">
+            <a href="user.php" class="lowopacity" title="Accéder à l'espace personnel">
+                <?php
+                    echo $_SESSION['username'];
+                    if (!empty($_SESSION['first_name'])) {
+                        echo ' ('.$_SESSION['first_name'].')';
+                    }
+                ?>
+            </a>
+            <a href="logout.php" class="lowopacity" title="Se déconnecter">
+                <img src="../ressources/icons/power.png" class="icon" />
+            </a>
+        </div>
     </nav>
 </header>
 

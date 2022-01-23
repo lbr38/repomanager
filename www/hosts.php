@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
 
 /**
@@ -163,7 +163,7 @@ if (isset($_GET['auto'])) {
                  */
                 $totalHosts = count($myhost->listAll('active')); ?>
 
-                <div class="hosts-div-15">
+                <div class="flex-div-15">
                     <p class="center">Propriétés</p>
                     <div class="stats-round-counter">
                         <br><p class="lowopacity">Nombre d'hôtes</p><br>
@@ -180,7 +180,7 @@ if (isset($_GET['auto'])) {
                 </div>
 
                 <!-- Graphique chartjs doughnut -->
-                <div class="hosts-div-68">
+                <div class="flex-div-68">
                     <?php
                     /**
                      *  Initialisation des compteurs du nombre d'hôtes à jour et non à jour pour le graph doughnut

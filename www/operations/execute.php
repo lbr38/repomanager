@@ -4,9 +4,9 @@
  */
 define("ROOT", dirname(__FILE__, 2));
 require_once(ROOT."/models/Autoloader.php");
-Autoloader::loadAll();
+Autoloader::loadFromApi();
 require_once(ROOT."/functions/common-functions.php");
- 
+
 /**
  *  1. Récupération de l'argument : type d'opération à exécuter
  *  Ne peut être vide.
@@ -173,7 +173,7 @@ if ($opAction == "duplicate") {
 }
 
 if ($opAction == "reconstruct") {
-    
+
     $options = getopt(null, ["id:", "gpgResign:"]);
 
     /**
@@ -216,5 +216,4 @@ if ($opAction == "reconstruct") {
 }
 
 exit(0);
-
 ?>

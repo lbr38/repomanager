@@ -8,7 +8,16 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 define("ROOT", dirname(__FILE__, 3));
 require_once(ROOT.'/models/Autoloader.php');
 require_once(ROOT.'/functions/common-functions.php');
-Autoloader::loadAll();
+Autoloader::loadFromApi();
+
+/**
+ *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
+ */
+if (__LOAD_GENERAL_ERROR != 0) {
+    http_response_code(503);
+    echo json_encode(["return" => "503", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
@@ -32,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
          */
         if (!$myhost->checkIdToken()) {
             http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "L'authentification a échouée"]);
+            echo json_encode(["return" => "503", "message" => "L'authentification a échouée."]);
             exit;
         }
 
@@ -43,19 +52,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
         if ($unregister === true) {
             http_response_code(201);
-            echo json_encode(["return" => "201", "message" => "L'hôte a été supprimé"]);
+            echo json_encode(["return" => "201", "message" => "L'hôte a été supprimé."]);
             exit;
         }
 
         if ($unregister == "2") {
             http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "L'authentification a échouée"]);
+            echo json_encode(["return" => "503", "message" => "L'authentification a échouée."]);
             exit;
         }
 
     } else {
         http_response_code(400);
-        echo json_encode(["return" => "400", "message" => "Les données transmises sont invalides"]);
+        echo json_encode(["return" => "400", "message" => "Les données transmises sont invalides."]);
         exit;
     }
 
@@ -66,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
  *  Cas où on tente d'utiliser une autre méthode que DELETE
  */
 http_response_code(405);
-echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée"]);
+echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée."]);
 
 exit(1);
 ?>

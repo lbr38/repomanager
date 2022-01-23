@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-include_once('includes/head.inc.php');
 require_once('models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::load();
+include_once('includes/head.inc.php');
 require_once('functions/common-functions.php');
 require_once('functions/explore.functions.php');
 
@@ -26,12 +26,16 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === 'reconstruct
     /**
      *  On instancie un nouvel objet Repo avec les infos transmises, on va ensuite pouvoir vérifier que ce repo existe bien
      */
-    $myrepo = new Repo(array('repoId' => $repoId, 'repoGpgResign' => $repoGpgResign));
+    $myrepo = new Repo();
+    $myrepo->setId($repoId);
+    $myrepo->setGpgResign($repoGpgResign);
 
     /**
      *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan
      */
-    if ($myrepo->existsId() === true) exec("php ".ROOT."/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
+    if ($myrepo->existsId() === true) {
+        exec("php ".ROOT."/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
+    }
 
     /**
      *  Rafraichissement de la page
@@ -393,7 +397,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
                         <p><span id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
                         <form id="hidden-form" class="hide" action="" method="post">
                             <input type="hidden" name="action" value="reconstruct">
-                            <input type="hidden" name="repoId" value="'.$repoId.'">
+                            <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
                             <span>Signer avec GPG </span>
                             <label class="onoff-switch-label">
                             <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />

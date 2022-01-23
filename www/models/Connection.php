@@ -32,12 +32,12 @@ class Connection extends SQLite3 {
                  */
                 if ($mode == "rw") {
                     $this->open(ROOT."/db/repomanager.db");
-
-                    /**
-                     *  Génération des tables si n'existent pas
-                     */
-                    //$this->generateMainTables();
                 }
+
+                /**
+                 *  Activation des exception pour SQLite
+                 */
+                //$this->enableExceptions(true);
 
             /**
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
@@ -53,12 +53,12 @@ class Connection extends SQLite3 {
                  */
                 if ($mode == "rw") {
                     $this->open(ROOT."/db/repomanager-stats.db");
-
-                    /**
-                     *  Génération des tables si n'existent pas
-                     */
-                    //$this->generateStatsTables();
                 }
+
+                /**
+                 *  Activation des exception pour SQLite
+                 */
+                //$this->enableExceptions(true);
                 
             /**
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
@@ -74,12 +74,12 @@ class Connection extends SQLite3 {
                  */
                 if ($mode == "rw") {
                     $this->open(ROOT."/db/repomanager-hosts.db");
-
-                    /**
-                     *  Génération des tables si n'existent pas
-                     */
-                    //$this->generateHostsTables();
                 }
+
+                /**
+                 *  Activation des exception pour SQLite
+                 */
+                //$this->enableExceptions(true);
 
             /**
              *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
@@ -107,6 +107,11 @@ class Connection extends SQLite3 {
                      */
                     $this->generateHostTables();
                 }
+
+                /**
+                 *  Activation des exception pour SQLite
+                 */
+                //$this->enableExceptions(true);
 
             /**
              *  Cas où la base de données ne correspond à aucun cas ci-dessus
@@ -154,8 +159,10 @@ class Connection extends SQLite3 {
         OR name='operations' 
         OR name='planifications'
         OR name='profile_package'
-        OR name='profile_service'");
-        //OR name='users'");
+        OR name='profile_service'
+        OR name='users'
+        OR name='user_role'
+        OR name='history'");
 
         /**
          *  On retourne le nombre de tables
@@ -200,15 +207,15 @@ class Connection extends SQLite3 {
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 10 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 13 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 10) {
+        if ($this->countMainTables() != 13) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 10) return false;
+            if ($this->countMainTables() != 13) return false;
         }
 
         return true;
@@ -295,7 +302,7 @@ class Connection extends SQLite3 {
         }
 
         /**
-         *  Crée la table repos_archive si n'existe pas
+         *  Crée la table repos_archived si n'existe pas
          */
         if (OS_FAMILY == "Redhat") {
             $this->exec("CREATE TABLE IF NOT EXISTS repos_archived (
@@ -344,14 +351,65 @@ class Connection extends SQLite3 {
         /**
          *  Crée la table users si n'existe pas
          */
-        // $this->exec("CREATE TABLE IF NOT EXISTS users (
-        // Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        // Login VARCHAR(255) NOT NULL UNIQUE,
-        // Password VARCHAR(255) NOT NULL,
-        // Salt VARCHAR(255) NOT NULL,
-        // Name VARCHAR(255),
-        // Last_name VARCHAR(255))");
-            
+        $this->exec("CREATE TABLE IF NOT EXISTS users (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Username VARCHAR(255) NOT NULL,
+        Password CHAR(60),
+        First_name VARCHAR(50),
+        Last_name VARCHAR(50),
+        Email VARCHAR(100),
+        Role INTEGER NOT NULL,
+        Type CHAR(5) NOT NULL,
+        State CHAR(7) NOT NULL)"); /* active / deleted */
+
+        /**
+         *  Crée la table user_role si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS user_role (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name CHAR(15) NOT NULL UNIQUE)");
+
+        /**
+         *  Si la table user_role est vide (vient d'être créée) alors on crée les roles par défaut
+         */
+        $result = $this->query("SELECT Id FROM user_role");
+        if ($this->isempty($result) === true) {
+            /**
+             *  Rôle super-administrator : tous les droits
+             */
+            $this->exec("INSERT INTO user_role ('Name') VALUES ('super-administrator')");
+            /**
+             *  Rôle administrator
+             */
+            $this->exec("INSERT INTO user_role ('Name') VALUES ('administrator')");
+            /**
+             *  Rôle usage
+             */
+            $this->exec("INSERT INTO user_role ('Name') VALUES ('usage')");
+        }
+
+        /**
+         *  Si la table users est vide (vient d'être créée) alors on crée l'utilisateur admin (mdp repomanager et role n°1 (super-administrator))
+         */
+        $result = $this->query("SELECT Id FROM users");
+        if ($this->isempty($result) === true) {
+            $password_hashed = '$2y$10$FD6/70o2nXPf76SAPYIGSutauQ96LqKie5PLanoYBNbCWen492cX6';
+            $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
+            $stmt->bindValue(':password_hashed', $password_hashed);
+            $stmt->execute();
+        }
+
+        /**
+         *  Crée la table history si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS history (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Id_user INTEGER NOT NULL,
+        Action VARCHAR(255) NOT NULL,
+        State CHAR(7))"); /* success ou error */
+        
         /** 
          *  Crée la table groups si n'existe pas
          */
@@ -419,7 +477,7 @@ class Connection extends SQLite3 {
         /**
          *  Si la table profile_package est vide (vient d'être créée) alors on la peuple
          */
-        $result = $this->query("SELECT * FROM profile_package");
+        $result = $this->query("SELECT Id FROM profile_package");
         if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
 
         /**
@@ -428,10 +486,11 @@ class Connection extends SQLite3 {
         $this->exec("CREATE TABLE IF NOT EXISTS profile_service (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
+
         /**
          *  Si la table profile_service est vide (vient d'être créée) alors on la peuple
          */
-        $result = $this->query("SELECT * FROM profile_service");
+        $result = $this->query("SELECT Id FROM profile_service");
         if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
     }
 

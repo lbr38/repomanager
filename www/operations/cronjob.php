@@ -10,7 +10,7 @@ define("ROOT", dirname(__FILE__, 2));
  *  Import des variables et fonctions nécessaires, ne pas changer l'ordre des requires
  */
 require_once(ROOT.'/models/Autoloader.php');
-Autoloader::loadAll();
+Autoloader::loadFromApi();
 
 /**
  *  Si il y a eu un pb lors du chargement des constantes alors on quitte
