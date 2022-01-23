@@ -93,7 +93,9 @@ if(!empty($_POST['username']) AND !empty($_POST['password']) AND !empty($_POST['
                  */
                 $_SESSION['username']   = $username;
                 $_SESSION['role']       = $mylogin->getRole();
-                $_SESSION['first_name'] = $mylogin->getName();
+                $_SESSION['first_name'] = $mylogin->getFirstName();
+                $_SESSION['last_name']  = $mylogin->getLastName();
+                $_SESSION['email']      = $mylogin->getEmail();
                 $_SESSION['type']       = 'local';
 
                 /**

@@ -68,12 +68,8 @@ $(document).on('submit','.groupForm',function(){
  *  Event : Suppression d'un groupe
  */
 $(document).on('click','.deleteGroupButton',function(){
-    event.preventDefault();
-
     var name = $(this).attr('name');
     deleteConfirm('Êtes vous sûr de vouloir supprimer le groupe '+name+' ?', function(){deleteGroup(name)});
-
-    return false;
 });
 
 /**
@@ -91,7 +87,6 @@ $(document).on('submit','.groupReposForm',function(){
 
     return false;
 });
-
 
 /**
  *  Event : Affichage du div permettant de gérer les groupes

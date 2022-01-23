@@ -143,6 +143,166 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
 
         /**
          *  
+         *  Actions relatives aux profils
+         * 
+         * 
+         *  Créer un nouveau profil
+         */
+        if ($_POST['action'] == "newProfile" AND !empty($_POST['name'])) {
+            $myprofile = new Profile();
+
+            /**
+             *  Tentative de création du nouveau profil
+             */
+            try {
+                $myprofile->new($_POST['name']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le profil <b>".$_POST['name']."</b> a été créé");
+        }
+
+        /**
+         *  Supprimer un profil
+         */
+        if ($_POST['action'] == "deleteProfile" AND !empty($_POST['name'])) {
+            $myprofile = new Profile();
+
+            /**
+             *  Tentative de suppression du profil
+             */
+            try {
+                $myprofile->delete($_POST['name']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le profil <b>".$_POST['name']."</b> a été supprimé");
+        }
+
+        /**
+         *  Renommer un profil
+         */
+        if ($_POST['action'] == "renameProfile" AND !empty($_POST['name']) AND !empty($_POST['newname'])) {
+            $myprofile = new Profile();
+
+            /**
+             *  Tentative de renommage du profil
+             */
+            try {
+                $myprofile->rename($_POST['name'], $_POST['newname']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le profil <b>".$_POST['name']."</b> a été renommé en <b>".$_POST['newname']."</b>");
+        }
+
+        /**
+         *  Dupliquer un profil
+         */
+        if ($_POST['action'] == "duplicateProfile" AND !empty($_POST['name'])) {
+            $myprofile = new Profile();
+
+            /**
+             *  Tentative de renommage du profil
+             */
+            try {
+                $myprofile->duplicate($_POST['name']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le profil <b>".$_POST['name']."</b> a été dupliqué");
+        }
+
+        /**
+         *  Configurer un profil
+         */
+        if ($_POST['action'] == "configureProfile" AND !empty($_POST['name']) AND !empty($_POST['keepCron']) AND !empty($_POST['allowOverwrite']) AND !empty($_POST['allowReposFilesOverwrite'])) {
+
+            $keepCron = $_POST['keepCron'];
+            $allowOverwrite = $_POST['allowOverwrite'];
+            $allowReposFilesOverwrite = $_POST['allowReposFilesOverwrite'];
+
+            /**
+             *  Si aucun repo n'a été transmis, cela signifie que l'utilisateur souhaite vider la liste, on set $reposList à vide
+             */
+            if (empty($_POST['reposList'])) {
+                $reposList = '';
+            } else {
+                $reposList = $_POST['reposList'];
+            }
+
+            /**
+             *  Si aucun paquet 'majeur' n'a été transmis, cela signifie que l'utilisateur souhaite vider la liste, on set $packagesMajorExcluded à vide
+             */
+            if (empty($_POST['packagesMajorExcluded'])) {
+                $packagesMajorExcluded = '';
+            } else {
+                $packagesMajorExcluded = $_POST['packagesMajorExcluded'];
+            }
+
+            /**
+             *  Si aucun paquet 'toute version' n'a été transmis, cela signifie que l'utilisateur souhaite vider la liste, on set $packagesExcluded à vide
+             */
+            if (empty($_POST['packagesExcluded'])) {
+                $packagesExcluded = '';
+            } else {
+                $packagesExcluded = $_POST['packagesExcluded'];
+            }
+
+            /**
+             *  Si aucun service 'à redémarrer' n'a été transmis, cela signifie que l'utilisateur souhaite vider la liste, on set $packagesExcluded à vide
+             */
+            if (empty($_POST['serviceNeedRestart'])) {
+                $serviceNeedRestart = '';
+            } else {
+                $serviceNeedRestart = $_POST['serviceNeedRestart'];
+            }
+
+            $myprofile = new Profile();
+
+            /**
+             *  Tentative de configuration du profil
+             */
+            try {
+                $myprofile->configure($_POST['name'], $reposList, $packagesMajorExcluded, $packagesExcluded, $serviceNeedRestart, $keepCron, $allowOverwrite, $allowReposFilesOverwrite);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Configuration du profil <b>".$_POST['name']."</b> enregistrée");
+        }
+
+
+
+
+
+
+        /**
+         *  
          *  Actions relatives aux planifications
          * 
          * 

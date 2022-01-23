@@ -5,156 +5,158 @@ class Profile extends Model {
     private $name;
     private $newName;
 
-    public function __construct(array $variables = []) {
-        extract($variables);
-
+    public function __construct() {
         /**
          *  Ouverture d'une connexion à la base de données
          */
         $this->getConnection('main', 'rw');
-
-        /* Id */
-        if (!empty($profileId)) $this->id = $profileId;
-        /* Nom */
-        if (!empty($profileName)) $this->name = $profileName;
-        /* Nouveau nom */
-        if (!empty($newProfileName)) $this->newName = $newProfileName;
     }
-
 
     /**
      * 	Création d'un nouveau profil
      */
-    function new() {
+    function new(string $name)
+    {
+        $name = validateData($name);
+
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (!is_alphanumdash($this->name)) return;
+        if (is_alphanumdash($name) === false) {
+            throw new Exception("Le profil <b>$name</b> contient des caractères invalides");
+        }
 
         /**
          * 	2. On vérifie qu'un profil du même nom n'existe pas déjà
          */
-        if (file_exists(PROFILES_MAIN_DIR."/{$this->name}")) {
-            printAlert("Erreur : un profil du même nom (<b>$this->name</b>) existe déjà", 'error');
-            return;
+        if (file_exists(PROFILES_MAIN_DIR."/${name}")) {
+            throw new Exception("Le profil <b>$name</b> existe déjà");
         }
 
         /**
          * 	3. Si pas d'erreur alors on peut créer le répertoire de profil
          */
-        if (!is_dir(PROFILES_MAIN_DIR."/{$this->name}")) { 
-            if (!mkdir(PROFILES_MAIN_DIR."/{$this->name}", 0775, true)) {
-                printAlert("Erreur lors de la création du profil <b>$this->name</b>", 'error');
-                return;
+        if (!is_dir(PROFILES_MAIN_DIR."/${name}")) { 
+            if (!mkdir(PROFILES_MAIN_DIR."/${name}", 0775, true)) {
+                throw new Exception("Impossible de créer le répertoire du profil <b>$name</b>");
             }
         }
 
         /**
          * 	4. Créer le fichier de config
          */
-        if (!file_exists(PROFILES_MAIN_DIR."/{$this->name}/config")) {
-            if (!touch(PROFILES_MAIN_DIR."/{$this->name}/config")) {
-                printAlert("Erreur lors de l'initialisation du profil <b>$this->name</b>", 'error');
-                return;
+        if (!file_exists(PROFILES_MAIN_DIR."/${name}/config")) {
+            if (!touch(PROFILES_MAIN_DIR."/${name}/config")) {
+                throw new Exception("Impossible d'initialiser la configuration du profil <b>$name</b>");
             }
         }
 
         /**
          * 	5. Créer le fichier de config du profil avec des valeurs vides ou par défaut
          */
-        if (!file_put_contents(PROFILES_MAIN_DIR."/{$this->name}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
-            printAlert("Erreur lors de l'initialisation du profil <b>$this->name</b>", 'error');
-            return;
+        if (!file_put_contents(PROFILES_MAIN_DIR."/${name}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
+            throw new Exception("Impossible de configurer le profil <b>$name</b>");
         }
-        
-        /**
-         * 	Affichage d'un message
-         */
-        printAlert("Le profil <b>{$this->name}</b> a été créé", 'success');
-    }
 
+        History::set($_SESSION['username'], "Création d'un nouveau profil : $name", 'success');
+    }
 
     /**
      * 	Renommage d'un profil
      */
-    function rename() {
+    function rename(string $name, string $newName)
+    {
+        $name = validateData($name);
+        $newName = validateData($newName);
+
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (!is_alphanumdash($this->name) OR !is_alphanumdash($this->newName)) return;
+        if (is_alphanumdash($name) === false) {
+            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
+        }
+
+        if (is_alphanumdash($newName) === false) {
+            throw new Exception("Le nom de profil <b>$newName</b> contient des caractères invalides");
+        }
 
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
          */
-        if (is_dir(PROFILES_MAIN_DIR."/{$this->newName}")) {
-            printAlert("Erreur : un profil du même nom (<b>{$this->newName}</b>) existe déjà", 'error');
-            return false;
+        if (is_dir(PROFILES_MAIN_DIR."/${newName}")) {
+            throw new Exception("Un profil du même nom (<b>{$newName}</b>) existe déjà");
         }
 
         /**
          *  3. Si pas d'erreur alors on peut renommer le répertoire de profil
          */
-        if (!rename(PROFILES_MAIN_DIR."/{$this->name}", PROFILES_MAIN_DIR."/{$this->newName}")) {
-            printAlert("Erreur lors du renommage du profil <b>{$this->name}</b>", 'error');
-            return;
+        if (!rename(PROFILES_MAIN_DIR."/${name}", PROFILES_MAIN_DIR."/${newName}")) {
+            throw new Exception("Impossible de finaliser le renommage du profil <b>$name</b>");
         }
 
-        /**
-         *  4. Affichage d'un message
-         */
-        printAlert("Le profil <b>{$this->name}</b> a été renommé en <b>{$this->newName}</b>", 'success');
+        History::set($_SESSION['username'], "Renommage du profil $name en $newName", 'success');
     }
 
-
     /**
-     *  Supliquer un profil et sa configuration
+     *  Dupliquer un profil et sa configuration
      */
-    public function duplicate() {
+    public function duplicate(string $name)
+    {
+        $name = validateData($name);
+
         /**
          *  1. On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
          */
-        $newProfileName = $this->name.'-'.mt_rand(100000,200000);
+        $newProfileName = $name.'-'.mt_rand(100000,200000);
         
         /**
          *  2. On vérifie que le nouveau nom n'existe pas déjà sait-on jamais
          */
         if (file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) {
-            printAlert("Erreur : un profil du même nom (<b>$newProfileName</b>) existe déjà", 'error');
-            return;
+            throw new Exception("Un profil du même nom (<b>$newProfileName</b>) existe déjà");
         }
 
         /**
          *  3. Création du répertoire du nouveau profil
          */
-        if (!file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) mkdir(PROFILES_MAIN_DIR."/${newProfileName}", 0775, true);
+        if (!file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) {
+            mkdir(PROFILES_MAIN_DIR."/${newProfileName}", 0775, true);
+        }
 
         /**
          *  4. Copie du contenu du répertoire du profil dupliqué afin de copier sa config et ses fichiers de repo
          */
-        exec("cp -rP ".PROFILES_MAIN_DIR."/{$this->name}/* ".PROFILES_MAIN_DIR."/${newProfileName}/");
+        exec("cp -rP ".PROFILES_MAIN_DIR."/${name}/* ".PROFILES_MAIN_DIR."/${newProfileName}/", $output, $result);
+        if ($result != 0) {
+            throw new Exception("Erreur lors de la duplication de <b>$name</b>");
+        }
 
-        printAlert("Le profil <b>$newProfileName</b> a été créé", 'success');
+        History::set($_SESSION['username'], "Duplication d'u profil $name en $newProfileName", 'success');
     }
-
 
     /**
      *  Supprimer un profil
      */
-    public function delete() {
+    public function delete(string $name)
+    {
+        $name = validateData($name);
+
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (!is_alphanumdash($this->name)) return;
+        if (is_alphanumdash($name) === false) {
+            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
+        }
 
         /**
          * 	2. Suppression du répertoire du profil
          */
-        exec("rm -fr ".PROFILES_MAIN_DIR."/{$this->name}/", $output, $return);
-        if ($return == 0) {
-            printAlert("Le profil <b>{$this->name}</b> a été supprimé", 'success');
-        } else {
-            printAlert("Erreur lors de la suppression du profil <b>{$this->name}</b>", 'error');
+        exec("rm -fr ".PROFILES_MAIN_DIR."/${name}/", $output, $return);
+        if ($return != 0) {
+            throw new Exception("Impossible de supprimer le profil <b>$name</b>");
         }
+
+        History::set($_SESSION['username'], "Suppression du profil $name", 'success');
     }
 
     /**
@@ -162,30 +164,25 @@ class Profile extends Model {
      *  Gestion des repos du profil
      *  Gestion des paquets à exclure
      */
-    public function configure() {
-        $error = 0;
+    public function configure(string $name, $profileRepos = null, $packagesMajorExcluded = null, $packagesExcluded = null, $serviceNeedRestart = null, string $keepCron, string $allowOverwrite, string $allowReposFilesOverwrite)
+    {
+        $name = validateData($name);
 
-        /**
-         *  1.1. Gestion des repos/sections du profil
-         *  Les repos peuvent être vides (si on a décidé de supprimer tous les repos d'un profil par exemple).
-         *  Donc il est tout à fait possible que $_POST['profileRepos'] ne soit pas définie, si c'est le cas alors on set $profileRepos à vide
-         */
-        if (empty($_POST['profileRepos']))
-            $profileRepos = '';
-        else
-            $profileRepos = $_POST['profileRepos']; // validateData fait plus bas
+        $error = 0;
 
         /**
          *  1.2. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (!is_alphanumdash($this->name)) return;
+        if (is_alphanumdash($name) === false) {
+            throw new Exception("Le nom du profil <b>$name</b> contient des caractères invalides");
+        }
         
         /**
          * 	1.3. D'abord on supprime tous les repos présents dans le répertoire du profil, avant de rajouter seulement ceux qui ont été sélectionnés dans la liste
          */
-        if (is_dir(PROFILES_MAIN_DIR."/{$this->name}/")) {
-            if (OS_FAMILY == "Redhat") exec("rm ".PROFILES_MAIN_DIR."/{$this->name}/*.repo -f");
-            if (OS_FAMILY == "Debian") exec("rm ".PROFILES_MAIN_DIR."/{$this->name}/*.list -f");
+        if (is_dir(PROFILES_MAIN_DIR."/${name}/")) {
+            if (OS_FAMILY == "Redhat") exec("rm ".PROFILES_MAIN_DIR."/${name}/*.repo -f");
+            if (OS_FAMILY == "Debian") exec("rm ".PROFILES_MAIN_DIR."/${name}/*.list -f");
         }
     
         /**
@@ -210,47 +207,48 @@ class Profile extends Model {
                  *  On vérifie que le nom du repo ne contient pas des caractères interdits. Ici la fonction is_alphanumdash autorise de base les tirets et underscore ainsi que le point (qu'on a indiqué)
                  *  Pour Debian, on vérifie également que la distribution et la section ne contiennent pas de caractères interdits
                  */
-                if (!is_alphanumdash($addProfileRepo, array('.'))) return;
-                if (OS_FAMILY == "Debian") {
-                    // Certaines nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
-                    if (!is_alphanumdash($addProfileRepoDist, array('/')) OR !is_alphanumdash($addProfileRepoSection)) return;
+                if (is_alphanumdash($addProfileRepo, array('.')) === false) {
+                    throw new Exception("Un ou plusieurs repo(s) sélectionné(s) contient des caractères invalides");
                 }
 
-                if (OS_FAMILY == "Redhat") {
-                    $myRepo = new Repo(array('repoName' => $addProfileRepo));
+                /**
+                 *  Certains nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
+                 */
+                if (OS_FAMILY == "Debian") {
+                    if (is_alphanumdash($addProfileRepoDist, array('/') === false) OR is_alphanumdash($addProfileRepoSection) === false) {
+                        throw new Exception("Une ou plusieurs distribution(s) de repo sélectionnée(s) contient des caractères invalides");
+                    }
+                }
 
+                $myRepo = new Repo();
+
+                if (OS_FAMILY == "Redhat") {
                     /**
                      *  On vérifie que le repo existe, sinon on passe au suivant
                      */
-                    if ($myRepo->exists($myRepo->name) === false) {
-                        printAlert("Le repo <b>$myRepo->name</b> n'existe pas", 'error');
+                    if ($myRepo->exists($addProfileRepo) === false) {
                         continue;
                     }
         
-                    exec("cd ".PROFILES_MAIN_DIR."/{$this->name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$myRepo->name}.repo");
+                    exec("cd ".PROFILES_MAIN_DIR."/${name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."${addProfileRepo}.repo");
                 }
         
                 if (OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
-                    $myRepo = new Repo(array('repoName' => $addProfileRepo, 'repoDist' => $addProfileRepoDist, 'repoSection' => $addProfileRepoSection));
-
                     /**
                      * 	On vérifie que la section repo existe, sinon on passe au suivant
                      */
-                    if ($myRepo->section_exists($myRepo->name, $myRepo->dist, $myRepo->section) === false) {
-                        printAlert("La section <b>$myRepo->section</b> du repo <b>$myRepo->name</b> n'existe pas", 'error');
+                    if ($myRepo->section_exists($addProfileRepo, $addProfileRepoDist, $addProfileRepoSection) === false) {
                         continue;
                     }
         
                     /**
                      * 	Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list
                      */
-                    //$checkIfDistContainsSlash = exec("echo $myRepo->dist | grep '/'");
-                    //if (!empty($checkIfDistContainsSlash)) {
-                    if (preg_match('#/#', $myRepo->dist)) {
-                        $myRepo->dist = str_replace("/", "--slash--","$myRepo->dist");
+                    if (preg_match('#/#', $addProfileRepoDist)) {
+                        $addProfileRepoDist = str_replace("/", "--slash--","$addProfileRepoDist");
                     }
                 
-                    exec("cd ".PROFILES_MAIN_DIR."/{$this->name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$myRepo->name}_{$myRepo->dist}_{$myRepo->section}.list");
+                    exec("cd ".PROFILES_MAIN_DIR."/${name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
                 }
             }
         }
@@ -268,8 +266,8 @@ class Profile extends Model {
          */
         $profileConf_excludeMajor = '';
 
-        if (!empty($_POST['profileConf_excludeMajor'])) {
-            foreach ($_POST['profileConf_excludeMajor'] as $packageName) {
+        if (!empty($packagesMajorExcluded)) {
+            foreach ($packagesMajorExcluded as $packageName) {
                 $packageName = validateData($packageName);
 
                 /**
@@ -303,15 +301,15 @@ class Profile extends Model {
              *  Suppression de la dernière virgule de la liste
              */
             $profileConf_excludeMajor = rtrim($profileConf_excludeMajor, ",");
-         }
+        }
 
         /**
          *  Remise à zero du paramètre, il est ensuite peuplé par les options sélectionnées ou laissé vide si aucune n'a été sélectionnée
          */
         $profileConf_exclude = '';
 
-        if (!empty($_POST['profileConf_exclude'])) {
-            foreach ($_POST['profileConf_exclude'] as $packageName) {
+        if (!empty($packagesExcluded)) {
+            foreach ($packagesExcluded as $packageName) {
                 $packageName = validateData($packageName);
 
                 /**
@@ -352,8 +350,8 @@ class Profile extends Model {
          */
         $profileConf_needRestart = '';
 
-        if (!empty($_POST['profileConf_needRestart'])) {
-            foreach ($_POST['profileConf_needRestart'] as $serviceName) {
+        if (!empty($serviceNeedRestart)) {
+            foreach ($serviceNeedRestart as $serviceName) {
                 $serviceName = validateData($serviceName);
 
                 /**
@@ -384,45 +382,17 @@ class Profile extends Model {
         }
 
         /**
-         *  Boutons radio : si non-vide alors on récupère sa valeur, sinon on set à 'no'
-         */
-        if (!empty($_POST['profileConf_keepCron']) AND validateData($_POST['profileConf_keepCron']) === "yes")
-            $profileConf_keepCron = 'yes';
-        else
-            $profileConf_keepCron = 'no';
-        
-        if (!empty($_POST['profileConf_allowOverwrite']) AND validateData($_POST['profileConf_allowOverwrite']) === "yes")
-            $profileConf_allowOverwrite = 'yes';
-        else
-            $profileConf_allowOverwrite = 'no';
-
-        if (!empty($_POST['profileConf_allowReposFilesOverwrite']) AND validateData($_POST['profileConf_allowReposFilesOverwrite']) === "yes")
-            $profileConf_allowReposFilesOverwrite = 'yes';
-        else
-            $profileConf_allowReposFilesOverwrite = 'no';
-
-        /**
          *  2.2. On écrit dans le fichier de conf les paramètres précédemment récupérées
          */
         $profileConfiguration = "EXCLUDE_MAJOR=\"${profileConf_excludeMajor}\"";
         $profileConfiguration = "${profileConfiguration}\nEXCLUDE=\"${profileConf_exclude}\"";
         $profileConfiguration = "${profileConfiguration}\nNEED_RESTART=\"${profileConf_needRestart}\"";
-        $profileConfiguration = "${profileConfiguration}\nKEEP_CRON=\"${profileConf_keepCron}\"";
-        $profileConfiguration = "${profileConfiguration}\nALLOW_OVERWRITE=\"${profileConf_allowOverwrite}\"";
-        $profileConfiguration = "${profileConfiguration}\nALLOW_REPOSFILES_OVERWRITE=\"${profileConf_allowReposFilesOverwrite}\"";
-        file_put_contents(PROFILES_MAIN_DIR."/{$this->name}/config", $profileConfiguration);
+        $profileConfiguration = "${profileConfiguration}\nKEEP_CRON=\"${keepCron}\"";
+        $profileConfiguration = "${profileConfiguration}\nALLOW_OVERWRITE=\"${allowOverwrite}\"";
+        $profileConfiguration = "${profileConfiguration}\nALLOW_REPOSFILES_OVERWRITE=\"${allowReposFilesOverwrite}\"";
+        file_put_contents(PROFILES_MAIN_DIR."/${name}/config", $profileConfiguration);
 
-        /**
-         *  3. Affichage d'un message, si tout s'est bien passé
-         */
-        if ($error == 0) printAlert("Configuration du profil <b>$this->name</b> enregistrée", 'success');
-
-        /**
-         *  4. Ré-affichage de la configuration du profil
-         */
-        showdiv_byid("profileConfigurationDiv-{$this->name}");
-
-        unset($profileConfiguration, $profileConf_excludeMajor, $profileConf_exclude, $profileConf_needRestart, $profileConf_keepCron, $profileConf_allowOverwrite, $profileConf_allowReposFilesOverwrite);
+        History::set($_SESSION['username'], "Modification de la configuration du profil $name", 'success');
     }
 
     /**
@@ -435,6 +405,22 @@ class Profile extends Model {
 
         /**
          *  Si le résultat obtenu est vide alors le package n'existe pas, on renvoie false
+         */
+        if ($this->db->isempty($result)) return false;
+
+        return true;
+    }
+
+    /**
+     *  Vérifier qu'un nom de service est présent dans la table profile_service
+     */
+    private function db_serviceExists(string $service) {
+        $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
+        $stmt->bindValue(':name', $service);
+        $result = $stmt->execute();
+
+        /**
+         *  Si le résultat obtenu est vide alors le service n'existe pas, on renvoie false
          */
         if ($this->db->isempty($result)) return false;
 
@@ -458,36 +444,6 @@ class Profile extends Model {
     }
 
     /**
-     *  Récupère la liste des paquets dans la table profile_package
-     */
-    public function db_getPackages() {
-        $result = $this->db->query("SELECT Name FROM profile_package");
-        
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $packages[] = $datas['Name'];
-
-        if (!empty($packages))
-            return $packages;
-        else
-            return '';
-    }
-
-    /**
-     *  Vérifier qu'un nom de service est présent dans la table profile_service
-     */
-    private function db_serviceExists(string $service) {
-        $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
-        $stmt->bindValue(':name', $service);
-        $result = $stmt->execute();
-
-        /**
-         *  Si le résultat obtenu est vide alors le service n'existe pas, on renvoie false
-         */
-        if ($this->db->isempty($result)) return false;
-
-        return true;
-    }
-
-    /**
      *  Ajout d'un nouveau nom de service dans la table profile_service
      */
     private function db_addService(string $service) {
@@ -501,6 +457,20 @@ class Profile extends Model {
         $stmt->execute();
 
         return true;
+    }
+
+    /**
+     *  Récupère la liste des paquets dans la table profile_package
+     */
+    public function db_getPackages() {
+        $result = $this->db->query("SELECT Name FROM profile_package");
+        
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $packages[] = $datas['Name'];
+
+        if (!empty($packages))
+            return $packages;
+        else
+            return '';
     }
 
     /**
