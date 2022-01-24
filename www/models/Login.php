@@ -5,6 +5,9 @@ class Login extends Model {
     public $db;
     protected $username;
     protected $password;
+    protected $first_name;
+    protected $last_name;
+    protected $email;
     protected $role;
 
     public function __construct()
@@ -25,9 +28,19 @@ class Login extends Model {
         $this->password = validateData($password);
     }
 
-    private function setName(string $name)
+    private function setFirstName(string $first_name = null)
     {
-        $this->name = validateData($name);
+        $this->first_name = validateData($first_name);
+    }
+
+    private function setLastName(string $last_name = null)
+    {
+        $this->last_name = validateData($last_name);
+    }
+
+    private function setEmail(string $email = null)
+    {
+        $this->email = validateData($email);
     }
 
     private function setRole(string $role)
@@ -35,9 +48,19 @@ class Login extends Model {
         $this->role = validateData($role);
     }
 
-    public function getName()
+    public function getFirstName()
     {
-        return $this->name;
+        return $this->first_name;
+    }
+
+    public function getLastName()
+    {
+        return $this->last_name;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
     }
 
     public function getRole()
@@ -75,7 +98,7 @@ class Login extends Model {
     public function getAll(string $username)
     {
         try {
-            $stmt = $this->db->prepare("SELECT users.Username, users.First_name, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username AND State = 'active'");
+            $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username AND State = 'active'");
             $stmt->bindValue(':username', validateData($username));
             $result = $stmt->execute();
         } catch(Exception $e) {
@@ -84,8 +107,10 @@ class Login extends Model {
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $this->setName($row['First_name']);
+            $this->setFirstName($row['First_name']);
+            $this->setLastName($row['Last_name']);
             $this->setRole($row['Role_name']);
+            $this->setEmail($row['Email']);
         }
 
         return true;
@@ -302,8 +327,8 @@ class Login extends Model {
     {
         $username        = validateData($username);
         $actual_password = validateData($actual_password);
-        $new_password    = validateData($new_password);
-        $new_password2   = validateData($new_password2);
+        $new_password    = $new_password;
+        $new_password2   = $new_password2;
 
         /**
          *  On vérifie que le mot de passe actuel saisi correspond au mot de passe actuel en base de données
