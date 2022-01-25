@@ -9,9 +9,9 @@ require_once('functions/common-functions.php');
 /**
  *  Cas où on souhaite modifier la conf serveur
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyServerConfiguration") {
-    if (!empty($_POST['serverConf_manageClientsConf'])) { $serverConf_manageClientsConf = validateData($_POST['serverConf_manageClientsConf']); } else { $serverConf_manageClientsConf = 'no'; }
-    if (!empty($_POST['serverConf_manageClients_reposConf'])) { $serverConf_manageClients_reposConf = validateData($_POST['serverConf_manageClients_reposConf']); } else { $serverConf_manageClients_reposConf = 'no'; }
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyServerConfiguration") {
+    if (!empty($_POST['serverConf_manageClientsConf'])) { $serverConf_manageClientsConf = Common::validateData($_POST['serverConf_manageClientsConf']); } else { $serverConf_manageClientsConf = 'no'; }
+    if (!empty($_POST['serverConf_manageClients_reposConf'])) { $serverConf_manageClients_reposConf = Common::validateData($_POST['serverConf_manageClients_reposConf']); } else { $serverConf_manageClients_reposConf = 'no'; }
 
     /**
      *  On forge le bloc de conf qu'on va écrire dans le fichier
@@ -22,7 +22,9 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) === "applyServer
     $conf .= 'PROFILES_URL="'.WWW_PROFILES_DIR_URL.'"'.PHP_EOL;
     $conf .= 'OS_FAMILY="'.OS_FAMILY.'"'.PHP_EOL;
     $conf .= 'OS_NAME="'.OS_NAME.'"'.PHP_EOL;
+    $conf .= 'OS_ID="'.OS_ID.'"'.PHP_EOL;
     $conf .= 'OS_VERSION="'.OS_VERSION.'"'.PHP_EOL;
+    $conf .= 'PACKAGE_TYPE="'.PACKAGE_TYPE.'"'.PHP_EOL;
 
     /**
      *  Sur les systèmes CentOS il est possible de modifier la variable releasever, permettant de faire des miroirs de version de paquets différent de l'OS

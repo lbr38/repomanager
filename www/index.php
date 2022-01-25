@@ -15,7 +15,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     /**
      *  On récupère le nom de la div qu'on souhaite retirer
      */
-    $divToClose = validateData($_GET['serverInfoSlideDivClose']);
+    $divToClose = Common::validateData($_GET['serverInfoSlideDivClose']);
 
     /**
      *  On récupère le contenu actuel de display.ini
@@ -46,7 +46,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
 <section class="mainSectionRight">
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
-    <section class="right" id="newRepoSlideDiv">
+    <section class="right" id="newRepoDiv">
         <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
         <?php include('includes/create-repo.inc.php'); ?> 
     </section>

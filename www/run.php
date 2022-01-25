@@ -12,14 +12,14 @@ require_once('functions/run.functions.php');
  */
 if(!empty($_GET['stop'])) {
 	$opToStop = new Operation();
-	$opToStop->kill(validateData($_GET['stop'])); // $_GET['stop'] contient le pid de l'opération
+	$opToStop->kill(Common::validateData($_GET['stop'])); // $_GET['stop'] contient le pid de l'opération
 }
 
 /**
  * 	Récupération du fichier de log à visualiser si passé en GET
  */
 $logfile = 'none';
-if (!empty($_GET['logfile'])) $logfile = validateData($_GET['logfile']);
+if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 ?>
 
 <body>

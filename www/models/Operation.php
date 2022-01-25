@@ -283,7 +283,7 @@ class Operation extends Model {
         /**
          *  Récupération de l'ID en GET
          */
-        $this->repo->id = validateData($_GET['repoId']);
+        $this->repo->id = Common::validateData($_GET['repoId']);
 
         if (!is_numeric($this->repo->id)) {
             echo "<p>Erreur : l'ID du repo doit être un nombre.</p>";
@@ -297,7 +297,7 @@ class Operation extends Model {
             echo "<p>Erreur : l'état du repo n'est pas renseigné.</p>";
             return false;
         }
-        if (validateData($_GET(['state'])) != "active" AND validateData($_GET(['state']) != "archived")) {
+        if (Common::validateData($_GET(['state'])) != "active" AND Common::validateData($_GET(['state']) != "archived")) {
             echo "<p>Erreur : l'état du repo est invalide.</p>";
             return false;
         }
@@ -305,7 +305,7 @@ class Operation extends Model {
         /**
          *  On vérifie que l'ID spécifié existe en BDD
          */
-        if ($this->repo->existsId(validateData($_GET(['state']))) === false) return false;
+        if ($this->repo->existsId(Common::validateData($_GET(['state']))) === false) return false;
 
         return true;
     }
@@ -315,9 +315,9 @@ class Operation extends Model {
             echo "<p>Erreur : la source ne peut pas être vide</p>";
             return false;
         } else {
-            $this->repo->source = validateData($_GET['repoSource']);
-            if (!is_alphanum($this->repo->source, array('-', '.'))) { // on autorise les points dans le nom de la source
-                echo '<p>Erreur : la source du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
+            $this->repo->source = Common::validateData($_GET['repoSource']);
+            if (!Common::is_alphanumdash($this->repo->source, array('.'))) { // on autorise les points dans le nom de la source
+                echo '<p>Erreur : la source du repo contient des caractères invalides</p>';
                 return false;
             }
 
@@ -328,8 +328,8 @@ class Operation extends Model {
 
     private function chk_param_type() {
         if (!empty($_GET['repoType'])) {
-            $this->repo->type = validateData($_GET['repoType']);
-            if (!is_alphanum($this->repo->type)) {
+            $this->repo->type = Common::validateData($_GET['repoType']);
+            if (!Common::is_alphanum($this->repo->type)) {
                 echo '<p>Erreur : le type du repo ne peut pas contenir de caractères spéciaux.</p>';
                 return false;
             }
@@ -354,8 +354,8 @@ class Operation extends Model {
             $this->repo->alias = "noalias";
             echo '<input type="hidden" name="repoAlias" value="noalias" />';
         } else {
-            $this->repo->alias = validateData($_GET['repoAlias']);
-            if (!is_alphanum($this->repo->alias, array('-'))) {
+            $this->repo->alias = Common::validateData($_GET['repoAlias']);
+            if (!Common::is_alphanum($this->repo->alias, array('-'))) {
                 echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -367,8 +367,8 @@ class Operation extends Model {
 
     private function chk_param_name() {
         if (!empty($_GET['repoName'])) {
-            $this->repo->name = validateData($_GET['repoName']);
-            if (!is_alphanum($this->repo->name, array('-'))) {
+            $this->repo->name = Common::validateData($_GET['repoName']);
+            if (!Common::is_alphanum($this->repo->name, array('-'))) {
                 echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -389,8 +389,8 @@ class Operation extends Model {
             echo '<span>Nouveau nom du repo :</span><input type="text" name="repoNewName" required />';
             return false;
         } else {
-            $this->repo->newName = validateData($_GET['repoNewName']);
-            if (!is_alphanum($this->repo->newName, array('-'))) {
+            $this->repo->newName = Common::validateData($_GET['repoNewName']);
+            if (!Common::is_alphanum($this->repo->newName, array('-'))) {
                 echo '<p>Erreur : le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -403,8 +403,8 @@ class Operation extends Model {
 
     private function chk_param_dist() {
         if (!empty($_GET['repoDist'])) {
-            $this->repo->dist = validateData($_GET['repoDist']);
-            if (!is_alphanum($this->repo->dist, array('-', '/'))) {
+            $this->repo->dist = Common::validateData($_GET['repoDist']);
+            if (!Common::is_alphanum($this->repo->dist, array('-', '/'))) {
                 echo '<p>Erreur : le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -422,8 +422,8 @@ class Operation extends Model {
 
     private function chk_param_section() {
         if (!empty($_GET['repoSection'])) {
-            $this->repo->section = validateData($_GET['repoSection']);
-            if (!is_alphanum($this->repo->section, array('-'))) {
+            $this->repo->section = Common::validateData($_GET['repoSection']);
+            if (!Common::is_alphanum($this->repo->section, array('-'))) {
                 echo '<p>Erreur : le nom de la section ne peut pas contenir de caractères spéciaux hormis le tiret -</p>';
                 return false;
             }
@@ -443,7 +443,7 @@ class Operation extends Model {
         if (empty($_GET['repoGpgCheck'])) {
             echo '<td><input type="hidden" name="repoGpgCheck" value="no"></td>';
         } else {
-            if (validateData($_GET['repoGpgCheck']) === "ask") {
+            if (Common::validateData($_GET['repoGpgCheck']) === "ask") {
                 echo '<span class="op_span">GPG check</span>';
                 echo '<label class="onoff-switch-label">';
                 echo '<input name="repoGpgCheck" type="checkbox" class="onoff-switch-input" value="yes" checked />';
@@ -452,7 +452,7 @@ class Operation extends Model {
                 return false;
 
             } else {
-                $this->repo->gpgCheck = validateData($_GET['repoGpgCheck']);
+                $this->repo->gpgCheck = Common::validateData($_GET['repoGpgCheck']);
                 /**
                  *  GPG Check ne peut qu'être égal à no ou à yes
                  */
@@ -471,7 +471,7 @@ class Operation extends Model {
         if (empty($_GET['repoGpgResign'])) {
             echo '<td><input type="hidden" name="repoGpgResign" value="no"></td>';
         } else {
-            if (validateData($_GET['repoGpgResign']) === "ask") {
+            if (Common::validateData($_GET['repoGpgResign']) === "ask") {
                 echo '<span class="op_span">Signer avec GPG</span>';
                 echo '<label class="onoff-switch-label">';
                 echo '<input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes"'; if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
@@ -480,7 +480,7 @@ class Operation extends Model {
                 return false;
 
             } else {
-                $this->repo->gpgResign = validateData($_GET['repoGpgResign']);
+                $this->repo->gpgResign = Common::validateData($_GET['repoGpgResign']);
                 /**
                  *  GPG Resign ne peut qu'être égal à no ou à yes
                  */
@@ -502,7 +502,7 @@ class Operation extends Model {
         if (empty($_GET['repoGroup'])) {
             echo '<input type="hidden" name="repoGroup" value="nogroup">';
         } else {
-            if (validateData($_GET['repoGroup']) === "ask") {
+            if (Common::validateData($_GET['repoGroup']) === "ask") {
                 $group = new Group();
                 $groupList = $group->listAllName();
                 // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes (résultat non vide) :
@@ -520,8 +520,8 @@ class Operation extends Model {
                 }
 
             } else {
-                $this->repo->group = validateData($_GET['repoGroup']);
-                if (!is_alphanumdash($this->repo->group, array('-'))) {
+                $this->repo->group = Common::validateData($_GET['repoGroup']);
+                if (!Common::is_alphanumdash($this->repo->group, array('-'))) {
                     echo '<p>Erreur : le groupe comporte des caractères invalides.</p>';
                     return false;
                 }
@@ -539,11 +539,11 @@ class Operation extends Model {
         if (empty($_GET['repoDescription'])) {
             echo '<input type="hidden" name="repoDescription" value="nodescription" />';
         } else {
-            if (validateData($_GET['repoDescription']) === "ask") {
+            if (Common::validateData($_GET['repoDescription']) === "ask") {
                 echo '<span>Description (fac.) :</span><input type="text" name="repoDescription" />';
             } else {
                 $this->repo->setDescription($_GET['repoDescription']);
-                if (!is_alphanumdash($this->repo->description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
+                if (!Common::is_alphanumdash($this->repo->description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) { // on accepte certains caractères spéciaux dans la description.
                     echo '<p>Erreur : la description comporte des caractères invalides.</p>';
                     return false;
                 }
@@ -557,7 +557,7 @@ class Operation extends Model {
 
     private function chk_param_env() {
         if (!empty($_GET['repoEnv'])) {
-            if (validateData($_GET['repoEnv']) === "ask") {
+            if (Common::validateData($_GET['repoEnv']) === "ask") {
                 echo '<span>Env. actuel :</span>';
                 echo '<select name="repoEnv" required>';
                 foreach(ENVS as $env) {
@@ -568,7 +568,7 @@ class Operation extends Model {
                 return false;
             }
 
-            $this->repo->env = validateData($_GET['repoEnv']);
+            $this->repo->env = Common::validateData($_GET['repoEnv']);
             echo '<input type="hidden" name="repoEnv" value="'.$this->repo->env.'" />';
 
             return true;
@@ -578,7 +578,7 @@ class Operation extends Model {
             echo "<p>Erreur : le nom de l'environnement ne peut pas être vide.</p>";
             return false;
         }
-        if (!is_alphanum($this->repo->env, array('-'))) {
+        if (!Common::is_alphanum($this->repo->env, array('-'))) {
             echo '<p>Erreur : l\'environnement comporte des caractères invalides.</p>';
             return false;
         }
@@ -586,7 +586,7 @@ class Operation extends Model {
 
     private function chk_param_newEnv() {
         if (!empty($_GET['repoNewEnv'])) {
-            if (validateData($_GET['repoNewEnv']) === "ask") {
+            if (Common::validateData($_GET['repoNewEnv']) === "ask") {
                 echo '<span>Env. cible :</span>';
                 echo '<select name="repoNewEnv" required>';
                 foreach(ENVS as $env) {
@@ -599,7 +599,7 @@ class Operation extends Model {
                 return false;
             }
 
-            $this->repo->newEnv = validateData($_GET['repoNewEnv']);
+            $this->repo->newEnv = Common::validateData($_GET['repoNewEnv']);
             echo '<input type="hidden" name="repoNewEnv" value="'.$this->repo->newEnv.'" />';
 
             return true;
@@ -609,7 +609,7 @@ class Operation extends Model {
             echo "<p>Erreur : le nom de l'environnement ne peut pas être vide.</p>";
             return false;
         }
-        if (!is_alphanum($this->repo->newEnv, array('-'))) {
+        if (!Common::is_alphanum($this->repo->newEnv, array('-'))) {
             echo '<p>Erreur : l\'environnement cible comporte des caractères invalides.</p>';
             return false;
         }
@@ -617,7 +617,7 @@ class Operation extends Model {
 
     private function chk_param_date() {
         if (!empty($_GET['repoDate'])) {
-            $this->repo->date = validateData($_GET['repoDate']);
+            $this->repo->date = Common::validateData($_GET['repoDate']);
             $this->repo->dateFormatted = DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y');
 
             echo '<input type="hidden" name="repoDate" value="'.$this->repo->date.'" />';

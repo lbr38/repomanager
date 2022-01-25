@@ -46,6 +46,14 @@ fi
 # Entre dans les fichiers décompréssés
 cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
 
+## Création des répertories cibles si n'existent pas
+mkdir -p ${WWW_DIR}/public
+mkdir -p ${WWW_DIR}/ressources
+mkdir -p ${WWW_DIR}/tools
+mkdir -p ${WWW_DIR}/templates
+mkdir -p ${WWW_DIR}/api
+mkdir -p ${WWW_DIR}/db
+
 # Copie des fichiers au bon endroit
 # Copie de tous les fichiers
 rsync -a --quiet ./ ${WWW_DIR}/
@@ -54,30 +62,6 @@ if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
 if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 
-# .php
-#rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## Css
-#rsync -a --quiet --delete-after --exclude './ressources/styles/colors.php' ./ressources/styles/ ${WWW_DIR}/ressources/styles/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## JS
-#rsync -a --quiet --delete-after ./js/ ${WWW_DIR}/js/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## images
-#rsync -a --quiet --delete-after ./ressources/images/ ${WWW_DIR}/ressources/images/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## icons
-#rsync -a --quiet --delete-after ./ressources/icons/ ${WWW_DIR}/ressources/icons/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## fonts
-#rsync -a --quiet --delete-after ./fonts/ ${WWW_DIR}/fonts/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## version
-#rsync -a --quiet version ${WWW_DIR}/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
-## favicon
-#rsync -a --quiet ./favicon.ico ${WWW_DIR}/
-#if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 # display.ini
 # Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
 cp configurations/display.ini configurations/display.ini.tmp

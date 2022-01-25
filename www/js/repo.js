@@ -19,14 +19,14 @@ $(document).on('click','#ReposSourcesCloseButton',function(){
  *  Event : affichage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoToggleButton',function(){
-    $("#newRepoSlideDiv").slideToggle().show("slow");
+    $("#newRepoDiv").slideToggle().show("slow");
 });
 
 /**
  *  Event : masquage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoCloseButton',function(){
-    $("#newRepoSlideDiv").hide("slow");
+    $("#newRepoDiv").hide("slow");
 });
 
 /**
@@ -47,9 +47,6 @@ $(document).on('keypress','.repoDescriptionInput',function(){
 
         setRepoDescription(id, status, description);            
     }
-    //Stop the event from propogation to other handlers
-    //If this line will be removed, then keypress event handler attached 
-    //at document level will also be triggered
     event.stopPropagation();
 });
 

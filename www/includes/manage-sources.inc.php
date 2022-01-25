@@ -1,36 +1,4 @@
-<?php
-$source = new Source();
-
-// Cas où on souhaite ajouter un nouveau repo source : 
-if (!empty($_POST['addSourceName'])) {
-    $source->new(validateData($_POST['addSourceName']), $_POST['addSourceUrl']); // pas de validateData sur l'url car ça transforme certains caractères. La fonction new() se charge de vérifier l'url.
-}
-
-// Cas où on souhaite supprimer un repo source :
-if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteSource") AND !empty($_GET['sourceName'])) {
-    $source->delete(validateData($_GET['sourceName']));
-}
-
-// Cas où on souhaite renommer un repo source :
-if (!empty($_POST['newSourceName']) AND !empty($_POST['actualSourceName'])) {
-    $source->name = validateData($_POST['actualSourceName']);
-
-    if (OS_FAMILY == "Redhat") {
-        $source->rename(validateData($_POST['newSourceName']));
-    }
-
-    /**
-     *  Pour Debian, l'URL du repo source fait partie du même formulaire (permet de la modifier en même temps que le nom si on le souhaite), on attends donc des paramètres supplémentaires
-     */
-    if (OS_FAMILY == "Debian" AND !empty($_POST['newSourceUrl']) AND !empty($_POST['actualSourceUrl'])) {
-        $source->rename(validateData($_POST['newSourceName']), validateData($_POST['newSourceUrl']));
-    }
-}
-
-// Cas où on souhaite modifier la conf d'un repo source
-if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validateData($_POST['action']) == "editRepoSourceConf" AND !empty($_POST['option'])) {
-    $source->configure(validateData($_POST['actualSourceName']), $_POST['option'], $_POST['comments']);
-} ?>
+<?php $source = new Source(); ?>
 
 <img id="ReposSourcesCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
 
@@ -39,69 +7,77 @@ if (!empty($_POST['actualSourceName']) AND !empty($_POST['action']) AND validate
 <p>Pour créer un miroir, repomanager doit connaitre l'URL du repo source.</p>
 <br>
 
-<p><b>Ajouter un nouveau repo source :</b></p>
-<?php 
-echo '<form action="'.__ACTUAL_URI__.'" method="post" autocomplete="off">';
-/**
- *  Cas Redhat
- */
-if (OS_FAMILY == "Redhat") { ?>
+<p><b>Ajouter un nouveau repo source :</b></p> 
+<form id="sourceAddForm" autocomplete="off">
     <p>Nom :</p>
-    <input type="text" class="input-large" name="addSourceName" required /><br>
+    <input type="text" class="input-large" name="addSourceName" required />
+
+    <br>
+
     <p>Url :</p>
 
-    <span>
-    <select name="addSourceUrlType" class="select-small" required>
-    <option value="baseurl">baseurl</option>
-    <option value="mirrorlist">mirrorlist</option>
-    <option value="metalink">metalink</option>
-    </select> 
-    <input type="text" name="addSourceUrl" class="input-large">
-    </span><br>
-    
-    <p>Ce repo source dispose d\'une clé GPG : 
-    <select id="newRepoSourceSelect" class="select-small">
-    <option id="newRepoSourceSelect_no">Non</option>
-    <option id="newRepoSourceSelect_yes">Oui</option>
-    </select>
-    </p>
-
-    <div class="sourceGpgDiv hide">
-    <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
-    <p>Clé GPG du trousseau de repomanager :</p>
-    <select name="existingGpgKey">
-    <option value="">Choisir une clé GPG...</option>
     <?php
-    $gpgFiles = scandir(RPM_GPG_DIR);
-    foreach($gpgFiles as $gpgFile) {
-      if (($gpgFile != "..") AND ($gpgFile != ".")) {
-        echo "<option value=\"$gpgFile\">$gpgFile</option>";
-      }
-    } ?>
-    </select>
-    <p>URL ou fichier vers une clé GPG :</p>
-    <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc..."><br>
-    <p>Importer une nouvelle clé GPG :</p>
-    <textarea name="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
-    </div>
-<?php
-}
+    if (OS_FAMILY == "Redhat") { ?>
+        <span>
+            <select id="addSourceUrlType" class="select-small" required>
+                <option value="baseurl">baseurl</option>
+                <option value="mirrorlist">mirrorlist</option>
+                <option value="metalink">metalink</option>
+            </select> 
+            <input type="text" name="addSourceUrl" class="input-large" required>
+        </span>
+        <br>
+<?php }
+    if (OS_FAMILY == "Debian") { ?>
+        <input type="text" name="addSourceUrl" class="input-large" required><br>
+<?php } 
 
-/**
- *  Cas Debian
- */
-if (OS_FAMILY == "Debian") { ?>
-    <p>Nom :</p>
-    <input type="text" class="input-large" name="addSourceName" required /><br>
-    <p>Url :</p>
-    <input type="text" class="input-large" name="addSourceUrl" required /><br>
-    <p>Clé GPG (fac.) :</p>
-    <textarea name="addSourceGpgKey" class="textarea-100" placeholder="Format ASCII"></textarea>
-<?php } ?>
-<br>
-<button type="submit" class="btn-medium-blue" title="Ajouter">Ajouter</button>
+    if (OS_FAMILY == "Redhat") { ?>
+        <p>Ce repo source dispose d'une clé GPG : 
+        <select id="newRepoGpgSelect" class="select-small">
+            <option id="newRepoGpgSelect_no">Non</option>
+            <option id="newRepoGpgSelect_yes">Oui</option>
+        </select>
+        </p>
+
+        <div class="sourceGpgDiv hide">
+            <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
+            <p>Clé GPG du trousseau de repomanager :</p>
+            <select name="existingGpgKey">
+                <option value="">Choisir une clé GPG...</option>
+                <?php
+                $gpgFiles = scandir(RPM_GPG_DIR);
+                foreach($gpgFiles as $gpgFile) {
+                    if (($gpgFile != "..") AND ($gpgFile != ".")) {
+                        echo '<option value="'.$gpgFile.'">'.$gpgFile.'</option>';
+                    }
+                } ?>
+            </select>
+
+            <p>URL ou fichier vers une clé GPG :</p>
+            <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc...">
+            <br>
+            <p>Importer une nouvelle clé GPG :</p>
+            <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+        </div>
+    <?php
+    }
+
+    /**
+     *  Cas Debian
+     */
+    if (OS_FAMILY == "Debian") { ?>
+        <p>Clé GPG (fac.) :</p>
+        <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+    <?php } ?>
+
+    <br>
+    <button type="submit" class="btn-medium-blue" title="Ajouter">Ajouter</button>
+
 </form>
+
 <br>
+
 <?php
 /**
  *  LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
@@ -126,34 +102,37 @@ if (!empty($gpgKeys)) {
     echo '<p><b>Liste des clés GPG du trousseau de repomanager :</b></p>';
     echo '<table class="table-large">';
 
-    $j=0;
     foreach($gpgKeys as $gpgKey) {
         if (OS_FAMILY == "Redhat") {
-            if (($gpgKey != "..") AND ($gpgKey != ".")) {
-                echo '<tr>';
-                echo '<td>';
-                echo "<img class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKey}\" src=\"ressources/icons/bin.png\" />";
-                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKey}", "?action=deleteGpgKey&gpgKeyFile=${gpgKey}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
-                echo '</td>';
-                echo "<td>$gpgKey</td>";
-                echo '</tr>';
-            }
+            if (($gpgKey != "..") AND ($gpgKey != ".")) { ?>
+                <tr>
+                    <td>
+                        <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKey;?>" title="Supprimer la clé GPG <?php echo $gpgKey;?>" />
+                    </td>
+                    <td>
+                        <?php echo $gpgKey;?>
+                    </td>
+                </tr>
+    <?php   }
         }
         if (OS_FAMILY == "Debian") {
-            $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'"); // on récup uniquement l'ID de la clé GPG
-            $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID); // retire tous les espaces blancs
+            // On récup uniquement l'ID de la clé GPG
+            $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
+            // Retire tous les espaces blancs
+            $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
+            // Récupère le nom de la clé GPG
             $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-            if (!empty($gpgKeyID) AND !empty($gpgKeyName)) {
-                echo '<tr>';
-                echo '<td>';
-                echo "<img src=\"ressources/icons/bin.png\" class=\"gpgKeyDeleteToggle${j} icon-lowopacity\" title=\"Supprimer la clé GPG ${gpgKeyID}\" />";
-                deleteConfirm("Êtes-vous sûr de vouloir supprimer la clé ${gpgKeyName}", "?action=deleteGpgKey&gpgKeyID=${gpgKeyID}", "gpgKeyDeleteDiv${j}", "gpgKeyDeleteToggle${j}");
-                echo '</td>';
-                echo "<td>$gpgKeyName ($gpgKeyID)</td>";
-                echo '</tr>';
-            }
+            if (!empty($gpgKeyID) AND !empty($gpgKeyName)) { ?>
+                <tr>
+                    <td>
+                        <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKeyID;?>" title="Supprimer la clé GPG <?php echo $gpgKeyID;?>" />
+                    </td>
+                    <td>
+                        <?php echo $gpgKeyName." ($gpgKeyID)";?>
+                    </td>
+                </tr>
+    <?php   }
         }
-        ++$j;
     }
     echo '</table>';
 } ?>
@@ -178,7 +157,10 @@ if (!empty($gpgKeys)) {
 
       	foreach($sourcesList as $source) {
             if (OS_FAMILY == "Redhat") {
-                if (($source == "..") OR ($source == ".") OR ($source == "repomanager.conf")) {
+                /**
+                 *  Si le nom du fichier ne termine pas par '.repo' alors on passe au suivant
+                 */
+                if (!preg_match('/.repo$/i', $source)) {
                     continue;
                 }
                 $sourceName = str_replace(".repo", "", $source);
@@ -193,65 +175,55 @@ if (!empty($gpgKeys)) {
                 $sourceUrl = $source['Url'];
             }
 
-            echo '<div class="header-container sourceDivs">';
-                echo '<div class="header-blue-min">';
+            /**
+             *  Affichage des sources
+             */ ?>
+            <div class="header-container sourceDivs">
+                <div class="header-blue-min">
+                    <?php
+                    if (OS_FAMILY == "Debian") {
+                        echo '<input type="hidden" name="actualSourceUrl" value="'.$sourceUrl.'" />';
+                    } ?>
 
-                    /**
-                     *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
-                     */
-                    echo '<form action="'.__ACTUAL_URI__.'" method="post" autocomplete="off">';
-
-                        /**
-                         *  On veut pouvoir renommer le repo source, donc il faut transmettre le nom de repo source actuel (actualSourceName)
-                         *  Idem pour l'url (Debian seulement)
-                         */
-                        echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
-                        if (OS_FAMILY == "Debian") {
-                            echo "<input type=\"hidden\" name=\"actualSourceUrl\" value=\"${sourceUrl}\" />";
-                        }
-
-                        echo '<table class="table-large">';
-                            echo '<tr>';
-                            // On affiche le nom actuel du repo source dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newSourceName)
-                            // Idem pour l'url (Debian seulement)
-                            echo "<td><input type=\"text\" value=\"${sourceName}\" name=\"newSourceName\" class=\"input-medium invisibleInput-blue\" /></td>";
+                    <table class="table-large">
+                        <tr>
+                            <td>
+                                <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?php echo $sourceName;?>" value="<?php echo $sourceName;?>" />
+                            </td>
+                            <?php
                             if (OS_FAMILY == "Debian") {
-                                echo "<td><input type=\"text\" value=\"${sourceUrl}\" name=\"newSourceUrl\" class=\"input-medium invisibleInput-blue\" /></td>";
-                            }
-                
-                            // Boutons configuration et suppression du repo source
-                            echo '<td class="td-fit">';
-                            if (OS_FAMILY == "Redhat") {
-                                echo "<img id=\"sourceConfigurationToggleButton-${sourceName}\" class=\"icon-mediumopacity\" title=\"Configuration de $sourceName\" src=\"ressources/icons/cog.png\" />";
-                            }
-                            echo "<img src=\"ressources/icons/bin.png\" class=\"sourceDeleteToggleButton-${sourceName} icon-lowopacity\" title=\"Supprimer le repo source ${sourceName}\" />";
-                            deleteConfirm("Êtes-vous sûr de vouloir supprimer le repo source <b>$sourceName</b> ?", "?action=deleteSource&sourceName=${sourceName}", "sourceDeleteDiv-${sourceName}", "sourceDeleteToggleButton-${sourceName}");
-                            echo '</td>';
-                            echo '</tr>';
-                        echo '</table>';
-                        echo '<input type="submit" class="hide" />';
-                    echo '</form>';
-                echo '</div>'; // cloture de header-blue-min
-
+                                echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="'.$sourceName.'" value="'.$sourceUrl.'" /></td>';
+                            } ?>
+                            <td class="td-fit">
+                                <?php
+                                if (OS_FAMILY == "Redhat") {
+                                    echo '<img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="'.$sourceName.'" title="Configuration de '.$sourceName.'" />';
+                                }
+                                echo '<img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="'.$sourceName.'" title="Supprimer le repo source '.$sourceName.'" />';
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <?php
                 /**
-                 *  4. La liste des repos sources est placée dans un div caché
+                 *  4. La configuration des repos sources est placée dans un div caché
                  */
-                if (OS_FAMILY == "Redhat") {
-                    echo "<div id=\"sourceConfigurationDiv-${sourceName}\" class=\"hide detailsDiv\">";
+                if (OS_FAMILY == "Redhat") { ?>
+                    <div id="sourceConfigurationDiv-<?php echo $sourceName;?>" class="hide detailsDiv">
                 
-                        echo '<p>Paramètres :</p>';
-
-                        /**
-                         *  On va récupérer la configuration du repo source et l'afficher
-                         */      
-                        echo '<form id="form-'.$sourceName.'" action="'.__ACTUAL_URI__.'" method="post" autocomplete="off">';
-                            // Il faut transmettre le nom du repo source dans le formulaire, donc on ajoute un input caché avec le nom du repo source
-                            echo "<input type=\"hidden\" name=\"actualSourceName\" value=\"${sourceName}\" />";
-                            echo '<input type="hidden" name="action" value="editRepoSourceConf" />';
+                        <p>Paramètres :</p>
+   
+                        <form class="sourceConfForm" sourcename="<?php echo $sourceName;?>" autocomplete="off">
+                            <?php
                             $j = 0;
                             $comments = '';
-                            foreach ($content as $option) {
-                                if (empty($option)) {
+
+                            foreach ($content as $line) {
+                                /**
+                                 *  Si la ligne est vide on passe à la suivante
+                                 */
+                                if (empty($line)) {
                                     continue;
                                 }
 
@@ -259,104 +231,73 @@ if (!empty($gpgKeys)) {
                                  *  On sépare le nom du paramètre de sa valeur (ils sont séparés par un =)
                                  *  On indique une limite de 2 afin de n'obtenir pas plus de 2 termes (la valeur et son paramètre)
                                  */
-                                $option = explode('=', $option, 2);
-                                if (!empty($option[0])) {
-                                    $optionName = $option[0];
+                                $line = explode('=', $line, 2);
+                                if (!empty($line[0])) {
+                                    $optionName = $line[0];
                                 } else {
                                     $optionName = '';
                                 }
-                                if (isset($option[1]) AND $option[1] != "") {
-                                    $optionValue = $option[1];
+                                if (isset($line[1]) AND $line[1] != "") {
+                                    $optionValue = $line[1];
                                 } else {
                                     $optionValue = '';
                                 }
-                                
+
                                 /**
-                                 *  Si la ligne commence par [$sourceName], on ne l'affiche pas
+                                 *  Si l'option contient [$sourceName], on ne l'affiche pas
                                  */
                                 if ($optionName == "[$sourceName]") {
                                     continue;
                                 }
 
-                                if (substr($optionName, 0, 1) === "#") {
+                                /**
+                                 *  Si l'option contient un dièse # alors il s'agit d'un commentaire
+                                 *  On l'ajoute à la liste des commentaires
+                                 */
+                                //if (substr($optionName, 0, 1) === "#") {
+                                if (preg_match('/^#/', $optionName)) {
                                     $comments .= str_replace('#', '', $optionName).PHP_EOL;
                                     continue;
                                 }
 
-                                echo "<input type=\"text\" class=\"input-small\" name=\"option[$j][name]\" value=\"$optionName\" readonly />";
-                                if ($optionValue == "1" OR $optionValue == "0") {
-                                    if ($optionValue == "1") {
+                                /**
+                                 *  Affichage de l'option et de sa valeur
+                                 */
+                                echo '<input type="text" class="sourceConfForm-optionName input-small" name="option-name" option-id="'.$j.'" value="'.$optionName.'" readonly />';
+                                
+                                if ($optionValue == "1" OR $optionValue == "0" OR $optionValue == "yes" OR $optionValue == "no") {
+                                    if ($optionValue == "1" OR $optionValue == "yes") {
                                         echo '<label class="onoff-switch-label">';
-                                        echo "<input name=\"option[$j][value]\" type=\"checkbox\" class=\"onoff-switch-input\" value=\"yes\" checked />";
+                                        echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="'.$j.'" type="checkbox" value="yes" checked />';
                                         echo '<span class="onoff-switch-slider"></span>';
                                         echo '</label>';
                                     }
-                                    if ($optionValue == "0") {
+                                    if ($optionValue == "0" OR $optionValue == "no") {
                                         echo '<label class="onoff-switch-label">';
-                                        echo "<input name=\"option[$j][value]\" type=\"checkbox\" class=\"onoff-switch-input\" value=\"yes\" />";
+                                        echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="'.$j.'" type="checkbox" value="yes" />';
                                         echo '<span class="onoff-switch-slider"></span>';
                                         echo '</label>';
                                     }
 
                                 } else {
-                                    echo "<input type=\"text\" class=\"input-large\" name=\"option[$j][value]\" value=\"$optionValue\" />";
+                                    echo '<input type="text" class="sourceConfForm-optionValue input-large" name="option-value" option-id="'.$j.'" value="'.$optionValue.'" />';
                                 }
                                 echo '<br>';
                                 ++$j;
-                            }
-                            /*echo '<br>';
-                            echo "<a class=\"pointer\" sourcename=\"$sourceName\" class=\"add-new-param-button\">Ajouter un paramètre</a>";
-                            echo "<div id=\"add-new-param-for-$sourceName\">";
-                            echo '</div>';
-                            echo '<br>';*/
+                            } ?>
 
-                            echo '<p>Notes :</p>';
+                            <p>Notes :</p>
 
-                            /**
-                             *  Si la ligne commence par un # c'est un commentaire, on l'affiche dans un textarea
-                             */
-                            echo '<textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire...">';
-                            if (!empty($comments)) echo trim($comments);
-                            echo '</textarea>';
+                            <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire..."><?php if (!empty($comments)) echo trim($comments);?></textarea>
 
-                            echo '<button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>';
-                        echo '</form>';
-                        echo '<br>';
-                    echo '</div>'; // cloture de sourceConfigurationDiv${i}
+                            <button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>
+                        </form>
+                        <br>
+                    </div>
+        <?php   }
 
-                    // Afficher ou masquer la div 'sourceConfigurationDiv' :
-                    echo "<script>";
-                    echo "$(document).ready(function(){";
-                    echo "$(\"#sourceConfigurationToggleButton-${sourceName}\").click(function(){";
-                    echo "$(\"div#sourceConfigurationDiv-${sourceName}\").slideToggle(150);";
-                    echo '$(this).toggleClass("open");';
-                    echo "});";
-                    echo "});";
-                    echo "</script>";
-                }
-
-            echo '</div>'; // cloture de header-container
+            echo '</div>';
       	}
     }
    ?>
  </table>
-
-<script> 
-// Redhat : afficher ou masquer les inputs permettant de renseigner une clé gpg à importer, en fonction de la valeur du select
-$(document).ready(function(){
-    $(function() {
-        $("#newRepoSourceSelect").change(function() {
-            if ($("#newRepoSourceSelect_yes").is(":selected")) {
-                $(".sourceGpgDiv").show();
-            } else {
-                $(".sourceGpgDiv").hide();
-            }
-        }).trigger('change');
-    });
-           
-    /*$('.add-new-param-button').click(function() {
-        var sourcename = $(this).attr('sourcename');
-        $('#form-'+sourcename+'').append('<span>test</span>');
-    });*/
-});
-</script>

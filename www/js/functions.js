@@ -3,7 +3,7 @@
  */
 
 /** 
- * Afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
+ *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
  */
 $(document).on('click','#ReposListDisplayToggleButton, #DisplayCloseButton',function(){
     $("#divReposListDisplay").slideToggle('slow');
@@ -89,4 +89,19 @@ function reloadContentById(id){
  */
 function reloadContentByClass(className){
     $('.'+className).load(location.href + ' .'+className+' > *');
+}
+
+/**
+ *  Rechargement de la div 'nouveau repo'
+ */
+function reloadNewRepoDiv(){
+    $("#newRepoDiv").load(" #newRepoDiv > *");
+
+    if ($("#repoType_mirror").is(":checked")) {
+        $(".type_mirror_input").show();
+        $(".type_local_input").hide();
+    } else {
+        $(".type_mirror_input").hide();
+        $(".type_local_input").show();
+    }
 }

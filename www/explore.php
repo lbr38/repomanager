@@ -10,8 +10,8 @@ require_once('functions/explore.functions.php');
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) === 'reconstruct' AND !empty($_POST['repoId'])) {
-    $repoId = validateData($_POST['repoId']);
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === 'reconstruct' AND !empty($_POST['repoId'])) {
+    $repoId = Common::validateData($_POST['repoId']);
 
     /**
      *  Récupération de la valeur de GPG Resign
@@ -53,7 +53,7 @@ $pathError = 0;
 if (empty($_GET['id'])) { 
     $pathError++;
 } else {
-    $repoId = validateData($_GET['id']);
+    $repoId = Common::validateData($_GET['id']);
 }
 
 /**
@@ -64,7 +64,7 @@ if (empty($_GET['state'])) {
     $pathError++;
 
 } else {
-    $state = validateData($_GET['state']);
+    $state = Common::validateData($_GET['state']);
 
     if ($state != "active" AND $state != "archived") $pathError++;
 }
@@ -105,7 +105,7 @@ if ($pathError == 0) {
 /**
  *  Cas où on upload un package dans un repo
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackage' AND !empty($_FILES['packages']) AND $pathError === 0 AND !empty($repoPath)) {
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uploadPackage' AND !empty($_FILES['packages']) AND $pathError === 0 AND !empty($repoPath)) {
     /**
      *  On définit le chemin d'upload comme étant le répertoire my_uploaded_packages à l'intérieur du répertoire du repo
      */
@@ -143,7 +143,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
          *  Le nom du paquet ne doit pas contenir de caractère spéciaux, sinon on passe au suivant
          *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          */
-        if (!is_alphanumdash($packageName, array('.'))) { 
+        if (!Common::is_alphanumdash($packageName, array('.'))) { 
             $uploadError++;
             $packageInvalid .= "$packageName, ";
             continue;
@@ -209,13 +209,13 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'uploadPackag
 /**
  *  Cas où on supprime un ou plusieurs paquets d'un repo
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackages' AND !empty($_POST['packageName']) AND $pathError === 0 AND !empty($repoPath)) {
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'deletePackages' AND !empty($_POST['packageName']) AND $pathError === 0 AND !empty($repoPath)) {
 
     $packagesToDeleteNonExists = ''; // contiendra la liste des fichiers qui n'existent pas, si on tente de supprimer un fichier qui n'existe pas
     $packagesDeleted = array();
 
     foreach ($_POST['packageName'] as $packageToDelete) {
-        $packageName = validateData($packageToDelete);
+        $packageName = Common::validateData($packageToDelete);
         $packagePath = "$repoPath/$packageName";
 
         /**
@@ -223,7 +223,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == 'deletePackag
          *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
          */
-        if (!is_alphanumdash($packageName, array('.', '/', '+', '~'))) {
+        if (!Common::is_alphanumdash($packageName, array('.', '/', '+', '~'))) {
             continue;
         }
 

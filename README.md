@@ -76,10 +76,10 @@ Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x) mais une compatibilité
 
 <pre>
 # Redhat / CentOS
-yum install nginx php-fpm php-cli php-pdo sqlite
+yum install nginx php-fpm php-cli php-pdo php-json sqlite
 
 # Debian
-apt update && apt install nginx php-fpm php-cli php7.4-sqlite3 sqlite3
+apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3
 </pre>
 
 <b>SQLite</b>

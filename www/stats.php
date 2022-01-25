@@ -24,7 +24,7 @@ $repoError = 0;
 if (empty($_GET['id']))
     $repoError++;
 else
-    $repoId = validateData($_GET['id']);
+    $repoId = Common::validateData($_GET['id']);
 
 /**
  *  Le repo transmis doit être un numéro car il s'agit de l'ID en BDD
@@ -44,10 +44,10 @@ if ($repoError == 0) {
  *  Si un filtre a été sélectionné pour le graphique principal, la page est rechargée en arrière plan par jquery et récupère les données du graphique à partir du filtre sélectionné
  */
 if (!empty($_GET['repo_access_chart_filter'])) {
-    if (validateData($_GET['repo_access_chart_filter']) == "1week")   $repo_access_chart_filter = "1week";
-    if (validateData($_GET['repo_access_chart_filter']) == "1month")  $repo_access_chart_filter = "1month";
-    if (validateData($_GET['repo_access_chart_filter']) == "3months") $repo_access_chart_filter = "3months";
-    if (validateData($_GET['repo_access_chart_filter']) == "6months") $repo_access_chart_filter = "6months";
+    if (Common::validateData($_GET['repo_access_chart_filter']) == "1week")   $repo_access_chart_filter = "1week";
+    if (Common::validateData($_GET['repo_access_chart_filter']) == "1month")  $repo_access_chart_filter = "1month";
+    if (Common::validateData($_GET['repo_access_chart_filter']) == "3months") $repo_access_chart_filter = "3months";
+    if (Common::validateData($_GET['repo_access_chart_filter']) == "6months") $repo_access_chart_filter = "6months";
 }
 ?>
 

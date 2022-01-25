@@ -35,37 +35,37 @@ class Host extends Model {
 
     public function setId(string $id)
     {
-        $this->id = validateData($id);
+        $this->id = Common::validateData($id);
     }
 
     public function setIp(string $ip)
     {
-        $this->ip = validateData($ip);
+        $this->ip = Common::validateData($ip);
     }
 
     public function setHostname(string $hostname)
     {
-        $this->hostname = validateData($hostname);
+        $this->hostname = Common::validateData($hostname);
     }
 
     public function setOS(string $os)
     {
-        $this->os = validateData($os);
+        $this->os = Common::validateData($os);
     }
 
     public function setOS_version(string $os_version)
     {
-        $this->os_version = validateData($os_version);
+        $this->os_version = Common::validateData($os_version);
     }
 
     public function setProfile(string $profile)
     {
-        $this->profile = validateData($profile);
+        $this->profile = Common::validateData($profile);
     }
 
     public function setEnv(string $env)
     {
-        $this->env = validateData($env);
+        $this->env = Common::validateData($env);
     }
 
     /**
@@ -94,32 +94,32 @@ class Host extends Model {
 
     public function setPackageId(string $packageId)
     {
-        $this->packageId = validateData($packageId);
+        $this->packageId = Common::validateData($packageId);
     }
 
     public function setPackageName(string $packageName)
     {
-        $this->packageName = validateData($packageName);
+        $this->packageName = Common::validateData($packageName);
     }
 
     public function setPackageVersion(string $packageVersion)
     {
-        $this->packageVersion = validateData($packageVersion);
+        $this->packageVersion = Common::validateData($packageVersion);
     }
 
     public function setPackagesInventory(string $packages_inventory)
     {
-        $this->packages_inventory = validateData($packages_inventory);
+        $this->packages_inventory = Common::validateData($packages_inventory);
     }
 
     public function setAuthId(string $authId)
     {
-        $this->authId = validateData($authId);
+        $this->authId = Common::validateData($authId);
     }
 
     public function setToken(string $token)
     {
-        $this->token = validateData($token);
+        $this->token = Common::validateData($token);
     }
 
     public function setFromApi()
@@ -582,7 +582,7 @@ class Host extends Model {
                 /**
                  *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
                  */
-                if (!is_numeric(validateData($hostId))) {
+                if (!is_numeric(Common::validateData($hostId))) {
                     $idError[] = $hostId;
                     continue;
                 }
@@ -680,7 +680,7 @@ class Host extends Model {
          *  On traite l'array contenant les Id de l'hôte à mettre à jour
          */
         foreach ($hostsId as $hostId) {
-            $this->setId(validateData($hostId));
+            $this->setId(Common::validateData($hostId));
 
             /**
              *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
@@ -807,7 +807,7 @@ class Host extends Model {
         /**
          *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
          */
-        $packagesList = array_filter(explode(",", validateData($packagesInventory)));
+        $packagesList = array_filter(explode(",", Common::validateData($packagesInventory)));
 
         /**
          *  On traite si l'array n'est pas vide
@@ -883,7 +883,7 @@ class Host extends Model {
         /**
          *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
          */
-        $packagesList = array_filter(explode(",", validateData($packagesAvailable)));
+        $packagesList = array_filter(explode(",", Common::validateData($packagesAvailable)));
 
         /**
          *  On traite si l'array n'est pas vide
@@ -1100,7 +1100,7 @@ class Host extends Model {
     private function ipExists(string $ip)
     {
         $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip AND Status = 'active'");
-        $stmt->bindValue(':ip', validateData($ip));
+        $stmt->bindValue(':ip', Common::validateData($ip));
         $result = $stmt->execute();
 
         if ($this->db->isempty($result) === true) return false;
@@ -1114,7 +1114,7 @@ class Host extends Model {
     private function hostnameExists(string $hostname)
     {
         $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Hostname = :hostname");
-        $stmt->bindValue(':hostname', validateData($hostname));
+        $stmt->bindValue(':hostname', Common::validateData($hostname));
         $result = $stmt->execute();
 
         if ($this->db->isempty($result) === true) return false;
@@ -1128,7 +1128,7 @@ class Host extends Model {
     public function packageExists(string $packageName)
     {
         $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name = :name");
-        $stmt->bindValue(':name', validateData($packageName));
+        $stmt->bindValue(':name', Common::validateData($packageName));
         $result = $stmt->execute();
 
         if ($this->host_db->isempty($result) === true) return false;
@@ -1315,8 +1315,8 @@ class Host extends Model {
         UNION
         SELECT * FROM packages_history       
         WHERE Id_event = :eventId AND State = :packageState");
-        $stmt->bindValue(':eventId', validateData($eventId));
-        $stmt->bindValue(':packageState', validateData($packageState));
+        $stmt->bindValue(':eventId', Common::validateData($eventId));
+        $stmt->bindValue(':packageState', Common::validateData($packageState));
         $result = $stmt->execute();
 
         $datas = array();
@@ -1349,14 +1349,14 @@ class Host extends Model {
             UNION
             SELECT Name, Version FROM packages_history
             WHERE Id_event = :id_event AND State = :state");
-            $stmt->bindValue(':id_event', validateData($eventId));
-            $stmt->bindValue(':state', validateData($packageState));
+            $stmt->bindValue(':id_event', Common::validateData($eventId));
+            $stmt->bindValue(':state', Common::validateData($packageState));
             $result = $stmt->execute();
         } catch(Exception $e) {
             throw new Exception('');
         }
 
-        $packageState = validateData($packageState);
+        $packageState = Common::validateData($packageState);
         if ($packageState == 'installed')  $content = '<span><b>Installé(s) :</b></span><br>';
         if ($packageState == 'upgraded')   $content = '<span><b>Mis à jour :</b></span><br>';
         if ($packageState == 'removed')    $content = '<span><b>Désinstallé(s) :</b></span><br>';

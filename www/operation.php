@@ -28,7 +28,7 @@ if ($action_error == 0) {
     /**
      *  On récupère le nom de l'action
      */
-    $op_action = validateData($_GET['action']);
+    $op_action = Common::validateData($_GET['action']);
 
     /**
      *  Ici on a lancé l'opération à la main (ce n'est pas une planification)

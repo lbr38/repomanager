@@ -24,7 +24,8 @@ class Autoloader
      *  - constantes
      *  - vérifications de la présence de tous les répertoires et fichiers nécessaires
      */
-    static function load() {
+    static function load()
+    {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
 
@@ -85,6 +86,8 @@ class Autoloader
     {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
+
+        date_default_timezone_set('Europe/Paris');
 
         if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
 
@@ -359,8 +362,16 @@ class Autoloader
                 if (!defined('OS_FAMILY')) define('OS_FAMILY', "Debian");
             }
         }
+        
+        /**
+         *  A partir d'ici si OS_FAMILY n'est pas défini alors le système sur lequel est installé Repomanager est incompatible
+         */
+        if (!defined('OS_FAMILY')) {
+            die('Erreur : Repomanager est incompatible sur cet OS');
+        }
 
         if (!defined('OS_NAME')) define('OS_NAME', OS_INFO['name']);
+        if (!defined('OS_ID')) define('OS_ID', OS_INFO['id']);
         if (!defined('OS_VERSION')) define('OS_VERSION', OS_INFO['version_id']);
 
         if (!defined('PACKAGE_TYPE')) {

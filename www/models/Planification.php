@@ -41,7 +41,7 @@ class Planification extends Model {
 
     public function setId(string $id)
     {
-        $this->id = validateData($id);
+        $this->id = Common::validateData($id);
     }
 
     public function setDay(array $days)
@@ -52,7 +52,7 @@ class Planification extends Model {
          *  On sépare chaque jour spécifié par une virgule
          */
         foreach ($days as $day) {
-            $planDay .= validateData($day).',';
+            $planDay .= Common::validateData($day).',';
         }
 
         /**
@@ -63,22 +63,22 @@ class Planification extends Model {
 
     public function setDate(string $date)
     {
-        $this->date = validateData($date);
+        $this->date = Common::validateData($date);
     }
 
     public function setTime(string $time)
     {
-        $this->time = validateData($time);
+        $this->time = Common::validateData($time);
     }
 
     public function setType(string $type)
     {
-        $this->type = validateData($type);
+        $this->type = Common::validateData($type);
     }
 
     public function setFrequency(string $frequency)
     {
-        $this->frequency = validateData($frequency);
+        $this->frequency = Common::validateData($frequency);
     }
 
     public function setAction(string $action)
@@ -124,7 +124,7 @@ class Planification extends Model {
 
     public function setMailRecipient(string $mailRecipient)
     {
-        $mailRecipient = validateData($mailRecipient);
+        $mailRecipient = Common::validateData($mailRecipient);
 
         /**
          *  On vérifie que la/les adresses renseignées sont valides
@@ -135,11 +135,11 @@ class Planification extends Model {
 
             $mailRecipient = explode(',', $mailRecipient);
             foreach ($mailRecipient as $mail) {
-                $mail = validateData($mail);
+                $mail = Common::validateData($mail);
                 /**
                  *  On vérifie que l'adresse email en est bien une
                  */
-                if (validateMail($mail) === false) {
+                if (Common::validateMail($mail) === false) {
                     throw new Exception("Adresse email invalide : $mail");
                 }
 
@@ -155,7 +155,7 @@ class Planification extends Model {
          *  Cas où 1 seule adresse mail a été renseignée
          */
         } else {
-            if (validateMail($mailRecipient) === false) {
+            if (Common::validateMail($mailRecipient) === false) {
                 throw new Exception("Adresse email invalide : $mail");
             }
         }
@@ -176,7 +176,7 @@ class Planification extends Model {
          *  On sépare chaque jour de rappel par une virgule
          */
         foreach ($reminders as $reminder) {
-            $planReminder .= validateData($reminder).',';
+            $planReminder .= Common::validateData($reminder).',';
         }
 
         /**
@@ -214,7 +214,7 @@ class Planification extends Model {
             die();
         }
 
-        $this->gpgCheck = validateData($state);
+        $this->gpgCheck = Common::validateData($state);
     }
 
     public function setGpgResign(string $state)
@@ -227,17 +227,17 @@ class Planification extends Model {
             die();
         }
 
-        $this->gpgResign = validateData($state);
+        $this->gpgResign = Common::validateData($state);
     }
 
     public function setRepoId(string $id)
     {
-        $this->repoId = validateData($id);
+        $this->repoId = Common::validateData($id);
     }
 
     public function setGroupId(string $id)
     {
-        $this->groupId = validateData($id);
+        $this->groupId = Common::validateData($id);
     }
 
 

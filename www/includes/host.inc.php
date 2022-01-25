@@ -95,11 +95,11 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             <td>
                                 <?php
                                 if ($onlineStatus == "online")
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" />Online</span>';
+                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne (ping)" />Online</span>';
                                 if ($onlineStatus == "unknown")
-                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />';
+                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />Inconnu</span>';
                                 if ($onlineStatus == "unreachable")
-                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" />';
+                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable (ping)" />Injoignable</span>';
                                 ?>
                             </td>
                         </tr>

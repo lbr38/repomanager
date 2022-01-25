@@ -17,21 +17,21 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'editPersonnalInfos') {
      */
     // Prénom
     if (!empty($_POST['first_name'])) {
-        $firstName = validateData($_POST['first_name']);
+        $firstName = Common::validateData($_POST['first_name']);
     } else {
         $firstName = '';
     }
 
     // Nom
     if (!empty($_POST['last_name'])) {
-        $lastName = validateData($_POST['last_name']);
+        $lastName = Common::validateData($_POST['last_name']);
     } else {
         $lastName = '';
     }
 
     // Email
     if (!empty($_POST['email'])) {
-        $email = validateData($_POST['email']);
+        $email = Common::validateData($_POST['email']);
     } else {
         $email = '';
     }
