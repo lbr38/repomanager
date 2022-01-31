@@ -296,10 +296,148 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             response(HTTP_OK, "Configuration du profil <b>".$_POST['name']."</b> enregistrée");
         }
 
+        /**
+         *  
+         *  Actions relatives aux sources
+         * 
+         * 
+         *  Créer un nouveau repo source
+         */
+        if ($_POST['action'] == "addSource"
+            AND !empty($_POST['name'])
+            AND isset($_POST['urlType'])
+            AND !empty($_POST['url'])
+            AND isset($_POST['existingGpgKey'])
+            AND isset($_POST['gpgKeyURL'])
+            AND isset($_POST['gpgKeyText'])) {
 
+            $mysource = new Source();
 
+            /**
+             *  Tentative de création du nouveau profil
+             */
+            try {
+                $mysource->new($_POST['name'], $_POST['urlType'], $_POST['url'], $_POST['existingGpgKey'], $_POST['gpgKeyURL'], $_POST['gpgKeyText']);
 
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
 
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le repo source <b>".$_POST['name']."</b> a été créé");
+        }
+
+        /**
+         *  Supprimer une source
+         */
+        if ($_POST['action'] == "deleteSource" AND !empty($_POST['name'])) {
+            $mysource = new Source();
+
+            /**
+             *  Tentative de suppression d'une source
+             */
+            try {
+                $mysource->delete($_POST['name']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le repo source <b>".$_POST['name']."</b> a été retiré");
+        }
+
+        /**
+         *  Renommer une source
+         */
+        if ($_POST['action'] == "renameSource" AND !empty($_POST['name']) AND !empty($_POST['newname'])) {
+            $mysource = new Source();
+
+            /**
+             *  Tentative de renommage du repo source
+             */
+            try {
+                $mysource->rename($_POST['name'], $_POST['newname']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le repo source <b>".$_POST['name']."</b> a été renommé en <b>".$_POST['newname']."</b>");
+        }
+
+        /**
+         *  Modifier l'url d'un repo source (Debian uniquement)
+         */
+        if ($_POST['action'] == "editSourceUrl" AND !empty($_POST['name']) AND !empty($_POST['url'])) {
+            $mysource = new Source();
+
+            /**
+             *  Tentative de modification de l'url
+             */
+            try {
+                $mysource->editUrl($_POST['name'], $_POST['url']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "L'URL du repo source <b>".$_POST['name']."</b> a été modifiée");
+        }
+
+        /**
+         *  Modifier la configuration d'un repo source (Redhat-CentOS uniquement)
+         */
+        if ($_POST['action'] == "configureSource" AND !empty($_POST['name']) AND !empty($_POST['options_array']) AND isset($_POST['comments'])) {
+            $mysource = new Source();
+
+            /**
+             *  Tentative de configuration du repo source
+             */
+            try {
+                $mysource->configureSource($_POST['name'], $_POST['options_array'], $_POST['comments']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "La configuration du repo source <b>".$_POST['name']."</b> a été modifiée");
+        }
+
+        /**
+         *  Supprimer une clé GPG
+         */
+        if ($_POST['action'] == "deleteGpgKey" AND !empty($_POST['gpgkey'])) {
+            $mysource = new Source();
+
+            /**
+             *  Tentative de suppression de la clé GPG
+             */
+            try {
+                $mysource->removeGpgKey($_POST['gpgkey']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "La clé GPG <b>".$_POST['gpgkey']."</b> a été supprimée");
+        }
 
         /**
          *  

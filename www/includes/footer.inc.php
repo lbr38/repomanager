@@ -13,22 +13,22 @@
 if (__ACTUAL_URI__ == "/index.php" OR __ACTUAL_URI__ == "/") {
     echo '<script src="js/repo.js"></script>';
     echo '<script src="js/group.js"></script>';
+    echo '<script src="js/source.js"></script>';
 }
 if (__ACTUAL_URI__ == "/operation.php") {
     echo '<script src="js/repo.js"></script>';
     echo '<script src="js/group.js"></script>';
+    echo '<script src="js/source.js"></script>';
 }
 if (__ACTUAL_URI__ == "/planifications.php") {
     echo '<script src="js/repo.js"></script>';
     echo '<script src="js/group.js"></script>';
     echo '<script src="js/plan.js"></script>';
+    echo '<script src="js/source.js"></script>';
 }
-if (__ACTUAL_URI__ == "/hosts.php") {
+if (__ACTUAL_URI__ == "/hosts.php" OR __ACTUAL_URI__ == "/host.php") {
     echo '<script src="js/host.js"></script>';
 }
-if (__ACTUAL_URI__ == "/host.php") {
-    echo '<script src="js/host.js"></script>';
-} 
 if (__ACTUAL_URI__ == "/explore.php") {
     echo '<script src="js/explore.js"></script>';
 } 

@@ -1,6 +1,7 @@
 <head>
     <meta charset="utf-8">
     <!-- CSS -->
+    <!-- <link rel="stylesheet" type="text/css" href="ressources/styles/reset.css"> -->
     <link rel="stylesheet" type="text/css" href="ressources/styles/main.css">
     <link rel="stylesheet" type="text/css" href="ressources/styles/colors.php">
     <?php

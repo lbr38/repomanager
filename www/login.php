@@ -31,7 +31,7 @@ if(!empty($_POST['username']) AND !empty($_POST['password']) AND !empty($_POST['
      */
     if ($error == 0) {
 
-        $username = validateData($_POST['username']);
+        $username = Common::validateData($_POST['username']);
 
         $mylogin = new Login();
 

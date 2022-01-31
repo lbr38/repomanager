@@ -63,34 +63,21 @@ trait op_createRepo {
              *  On se mets à la racine de la section
              *  On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
              */
-            $repoPath = REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}";
-            if (!is_dir($repoPath)) throw new Exception("le répertoire du repo n'existe pas");
+            $sectionPath = REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}";
+            if (!is_dir($sectionPath)) throw new Exception("le répertoire du repo n'existe pas");
             if (!is_dir($TMP_DIR)) throw new Exception("le répertoire temporaire n'existe pas");
-            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ -name '*.deb' -exec mv '{}' ${TMP_DIR}/ \;");          
-            /**
-             *  Autre méthode de déplacement :
-             */
-            /*$dir_it = new DirectoryIterator($repoPath);
-            foreach($dir_it as $file) {
-                /**
-                 *  Si le fichier contient l'extension .deb alors on peut le déplacer, sinon on ne touche pas
-                 */
-                /*if($file->isFile() AND $file->getExtension() == "deb") {
-                    rename($file->getRealPath(), "$TMP_DIR/" . $file->getFilename());
-                }
-            }
-            unset($repoPath);*/
+            exec("find $sectionPath/ -name '*.deb' -exec mv '{}' ${TMP_DIR}/ \;");          
 
             /**
              *  Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
              */
-            exec("rm -rf ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/*");
+            exec("rm -rf $sectionPath/*");
 
             /**
              *  Création du répertoire 'conf' et des fichiers de conf du repo
              */
-            if (!is_dir(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/conf")) {
-                if (!mkdir(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/conf", 0770, true)) throw new Exception("impossible de créer le répertoire de configuration du repo (conf)");
+            if (!is_dir($sectionPath."/conf")) {
+                if (!mkdir($sectionPath."/conf", 0770, true)) throw new Exception("impossible de créer le répertoire de configuration du repo (conf)");
             }
 
             /**
@@ -102,7 +89,7 @@ trait op_createRepo {
             else
                 $file_distributions_content = "Origin: Repo {$this->repo->name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Repo {$this->repo->name}, miroir du repo {$this->repo->source}, distribution {$this->repo->dist}, section {$this->repo->section}\nPull: {$this->repo->section}";
 
-            if (!file_put_contents(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/conf/distributions", "$file_distributions_content".PHP_EOL)) {
+            if (!file_put_contents($sectionPath."/conf/distributions", "$file_distributions_content".PHP_EOL)) {
                 throw new Exception('impossible de créer le fichier de configuration du repo (distributions)');
             }
 
@@ -111,11 +98,11 @@ trait op_createRepo {
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
             if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")
-                $file_options_content = "basedir ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}\nask-passphrase";
+                $file_options_content = "basedir $sectionPath\nask-passphrase";
             else 
-                $file_options_content = "basedir ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}";
+                $file_options_content = "basedir $sectionPath";
 
-            if (!file_put_contents(REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/conf/options", "$file_options_content".PHP_EOL)) {
+            if (!file_put_contents($sectionPath."/conf/options", "$file_options_content".PHP_EOL)) {
                 throw new Exception('impossible de créer le fichier de configuration du repo (options)');
             }
 
@@ -137,9 +124,9 @@ trait op_createRepo {
                  *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
                  */
                 if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ --gnupghome ".GPGHOME." includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ --gnupghome ".GPGHOME." includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
                 } else {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}/ includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
                 }
             
                 /**

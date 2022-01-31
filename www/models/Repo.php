@@ -140,12 +140,12 @@ class Repo extends Model {
 
     public function setId(string $id)
     {
-        $this->id = validateData($id);
+        $this->id = Common::validateData($id);
     }
 
     public function setStatus(string $status)
     {
-        $status = validateData($status);
+        $status = Common::validateData($status);
         
         /**
          *  Le status ne peut qu'être 'active' ou 'archived'
@@ -161,7 +161,7 @@ class Repo extends Model {
     {
         if ($description == 'nodescription') $description = '';
 
-        $this->description = validateData($description);
+        $this->description = Common::validateData($description);
     }
 
     public function setGpgResign(string $gpgResign)
@@ -170,8 +170,8 @@ class Repo extends Model {
             throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
         }
 
-        $this->gpgResign = validateData($gpgResign);
-        $this->signed = validateData($gpgResign);
+        $this->gpgResign = Common::validateData($gpgResign);
+        $this->signed = Common::validateData($gpgResign);
     }
 
     /**
@@ -722,13 +722,13 @@ class Repo extends Model {
         /**
          *  Vérification des caractères de la description
          */
-        if (is_alphanumdash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
+        if (Common::is_alphanumdash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
             throw new Exception("La description contient des caractères invalides");
         }
 
         if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description = :description WHERE Id = :id");
         if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description = :description WHERE Id = :id");
-        $stmt->bindValue(':description', validateData($description));
+        $stmt->bindValue(':description', Common::validateData($description));
         $stmt->bindValue(':id', $this->id);
         $stmt->execute();
         unset($stmt);

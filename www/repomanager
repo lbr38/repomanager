@@ -210,8 +210,8 @@ permissions() {
         fi
 
         if [ "$OS_FAMILY" == "Redhat" ];then
-            chown root:repomanager /etc/yum/vars/RELEASEVER
-            chmod 660 /etc/yum/vars/RELEASEVER
+            chown root:repomanager /etc/yum/vars/releasever
+            chmod 660 /etc/yum/vars/releasever
             # permissions sur repomanager et ses fichiers de conf
             if [ -d "$REPOMANAGER_YUM_DIR" ];then
                 chown -R ${WWW_USER}:repomanager "$REPOMANAGER_YUM_DIR"
@@ -631,13 +631,13 @@ firstInstall() {
 	fi
 
 	if [ "$OS_FAMILY" == "Redhat" ];then
-	# Création du fichier RELEASEVER dans lequel on injecte la version des paquets qu'on synchronise sur ce serveur
-		if [ ! -f "/etc/yum/vars/RELEASEVER" ];then
+	# Création du fichier releasever dans lequel on injecte la version des paquets qu'on synchronise sur ce serveur
+		if [ ! -f "/etc/yum/vars/releasever" ];then
 			mkdir -p "/etc/yum/vars/"		# On crée le répertoire; les droits dessus seront ensuite ajustés par la fonction permissions  
 		fi
-		echo "$RELEASEVER" > /etc/yum/vars/RELEASEVER
-		chown root:repomanager /etc/yum/vars/RELEASEVER
-		chmod 660 /etc/yum/vars/RELEASEVER
+		echo "$RELEASEVER" > /etc/yum/vars/releasever
+		chown root:repomanager /etc/yum/vars/releasever
+		chmod 660 /etc/yum/vars/releasever
 
 		# Création du répertoire contenant les clés gpg importées par repomanager
 		if [ ! -d "$RPM_GPG_DIR" ];then
@@ -653,11 +653,6 @@ firstInstall() {
 			echo -e "[main]\nreposdir=/etc/yum.repos.d/repomanager/\nkeepcache=0\ndebuglevel=2\n#logfile=/etc/yum.repos.d/repomanager/repomanager.log\nexactarch=1\nobsoletes=1\ngpgcheck=1\nplugins=1\ninstallonly_limit=5\ndistroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
 		fi
 	fi
-
-	# Application des droits sur le répertoire $WWW_DIR
-	chown -R ${WWW_USER}:repomanager $WWW_DIR
-	chmod -R 770 $WWW_DIR
-	chmod 700 ${WWW_DIR}/.gnupg
 
 	echo -e "\nL'installation est terminée. Avant d'utiliser toutes les fonctionnalités de repomanager vous devez compléter la configuration à l'adresse : ${JAUNE}https://${WWW_HOSTNAME}/configuration.php${RESET}"
 	echo -e " Login        : ${JAUNE}admin${RESET}"

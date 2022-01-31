@@ -16,8 +16,8 @@ $error = 0;
 /**
  *  Enregistrement d'un nouvel hôte
  */
-if (!empty($_GET['action']) AND validateData($_GET['action']) == "register" AND !empty($_GET['host'])) {
-    $host = validateData($_GET['host']);
+if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "register" AND !empty($_GET['host'])) {
+    $host = Common::validateData($_GET['host']);
 
     $myhost = new Host();
 
@@ -38,14 +38,14 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "register" AND 
  * 	Cas où on souhaite ajouter un nouveau groupe
  */
 /*if (!empty($_POST['addGroupName'])) {
-    $group->new(validateData($_POST['addGroupName']));
+    $group->new(Common::validateData($_POST['addGroupName']));
 }*/
 
 /**
  * 	Cas où on souhaite supprimer un groupe
  */
-/*if (!empty($_GET['action']) AND (validateData($_GET['action']) == "deleteGroup") AND !empty($_GET['groupName'])) {
-    $group->delete(validateData($_GET['groupName']));
+/*if (!empty($_GET['action']) AND (Common::validateData($_GET['action']) == "deleteGroup") AND !empty($_GET['groupName'])) {
+    $group->delete(Common::validateData($_GET['groupName']));
     $group->cleanServers();
 }*/
 
@@ -53,14 +53,14 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "register" AND 
  * 	Cas où on souhaite renommer un groupe
  */
 /*if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
-    $group->rename(validateData($_POST['actualGroupName']), validateData($_POST['newGroupName']));
+    $group->rename(Common::validateData($_POST['actualGroupName']), Common::validateData($_POST['newGroupName']));
 }*/
 
 /**
  * 	Cas où on souhaite modifier la liste des hotes d'un groupe
  */
 /*if (!empty($_POST['actualGroupName']) AND !empty($_POST['groupAddServerId'])) {
-	$mygroup = new Group(array('useDB' => 'hosts', 'groupName' => validateData($_POST['actualGroupName'])));
+	$mygroup = new Group(array('useDB' => 'hosts', 'groupName' => Common::validateData($_POST['actualGroupName'])));
   	// Pas de validateData sur $_POST['groupAddServerId'], il est opéré dans la fonction addRepo directement :
 	$mygroup->addServer($_POST['groupAddServerId']);
 	unset($mygroup);
@@ -70,14 +70,14 @@ if (!empty($_GET['action']) AND validateData($_GET['action']) == "register" AND 
  *  Mise à jour d'un ou plusieurs hote(s)
  *  La requête peut être en GET (1 seul) ou en POST (plusieurs)
  */
-if ((!empty($_GET['action']) AND validateData($_GET['action']) == "update") OR (!empty($_POST['action']) AND validateData($_POST['action']) == "update")) {
+if ((!empty($_GET['action']) AND Common::validateData($_GET['action']) == "update") OR (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "update")) {
     $myhost = new Host();
     
     /**
      *  Mise à jour d'un seul hote
      */
     /*if (!empty($_GET['id'])) {
-        $myhost->id = validateData($_GET['id']);
+        $myhost->id = Common::validateData($_GET['id']);
     }*/
     
     /**
@@ -94,7 +94,7 @@ if ((!empty($_GET['action']) AND validateData($_GET['action']) == "update") OR (
  *  Suppression d'un ou plusieurs hôtes
  *  La requete peut être en GET (1 seul) ou en POST (plusieurs)
  */
-if (!empty($_POST['action']) AND validateData($_POST['action']) == "delete" AND !empty($_POST['checkbox-host'])) {
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "delete" AND !empty($_POST['checkbox-host'])) {
     $myhost = new Host();
 
     /**

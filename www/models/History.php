@@ -4,9 +4,9 @@ class History {
 
     static function set(string $username, string $action, string $state = null)
     {
-        $username = validateData($username);
-        $action   = validateData($action);
-        $state    = validateData($state);
+        $username = Common::validateData($username);
+        $action   = Common::validateData($action);
+        $state    = Common::validateData($state);
 
         /**
          *  Ouverture d'une connexion à la base de données

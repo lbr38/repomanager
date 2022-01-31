@@ -29,7 +29,7 @@ if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; ?>
                 </div>
             </td>
         </tr>
-        <tr class="type_mirror_input hide">
+        <tr class="type_mirror_input">
             <td>Repo source</td>
             <td>
                 <select id="repoSourceSelect" name="repoSource" />
@@ -59,7 +59,7 @@ if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; ?>
             </td>
         </tr>
         <tr>
-            <td class="type_mirror_input hide">Nom personnalisé (fac.)</td>
+            <td class="type_mirror_input">Nom personnalisé (fac.)</td>
             <td class="type_local_input hide">Nom du repo</td>
             <td><input type="text" name="repoAlias" /></td>
         </tr>
@@ -77,7 +77,7 @@ if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; ?>
             <td>Description (fac.)</td>
             <td><input type="text" name="repoDescription" /></td>
         </tr>
-        <tr class="type_mirror_input hide">
+        <tr class="type_mirror_input">
             <td>GPG check</td>
             <td>
                 <label class="onoff-switch-label">
@@ -86,7 +86,7 @@ if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; ?>
                 </label>
             </td>
         </tr>
-        <tr class="type_mirror_input hide">
+        <tr class="type_mirror_input">
             <td>Signer avec GPG</td>
             <td>
                 <label class="onoff-switch-label">
@@ -119,16 +119,6 @@ if (OS_FAMILY == "Debian") echo '<h3>CRÉER UNE NOUVELLE SECTION</h3>'; ?>
 </form>
 
 <script>
-/**
- *  Premier chargement de la page : Affiche les inputs supplémentaires en fonction du type de repo sélectionné par défaut
- */
-if ($("#repoType_mirror").is(":checked")) {
-    $(".type_mirror_input").show();
-    $(".type_local_input").hide();
-} else {
-    $(".type_mirror_input").hide();
-    $(".type_local_input").show();
-}
 /**
  *  Puis à chaque changement d'état, affiche ou masque les inputs supplémentaires en fonction de ce qui est coché
  */

@@ -1,7 +1,9 @@
 <?php
-
+/**
+ *  On vérifie qu'un paramètre a été passé
+ */
 if (empty($argv)) {
-    exit('Erreur : aucun argument passé');
+    exit("Erreur : aucun paramètre n'a été passé");
 }
 
 define('ROOT', dirname(__FILE__, 2));

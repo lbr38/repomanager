@@ -17,12 +17,12 @@ class Profile extends Model {
      */
     function new(string $name)
     {
-        $name = validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (is_alphanumdash($name) === false) {
+        if (Common::is_alphanumdash($name) === false) {
             throw new Exception("Le profil <b>$name</b> contient des caractères invalides");
         }
 
@@ -66,17 +66,17 @@ class Profile extends Model {
      */
     function rename(string $name, string $newName)
     {
-        $name = validateData($name);
-        $newName = validateData($newName);
+        $name = Common::validateData($name);
+        $newName = Common::validateData($newName);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (is_alphanumdash($name) === false) {
+        if (Common::is_alphanumdash($name) === false) {
             throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
         }
 
-        if (is_alphanumdash($newName) === false) {
+        if (Common::is_alphanumdash($newName) === false) {
             throw new Exception("Le nom de profil <b>$newName</b> contient des caractères invalides");
         }
 
@@ -102,7 +102,7 @@ class Profile extends Model {
      */
     public function duplicate(string $name)
     {
-        $name = validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
@@ -139,12 +139,12 @@ class Profile extends Model {
      */
     public function delete(string $name)
     {
-        $name = validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (is_alphanumdash($name) === false) {
+        if (Common::is_alphanumdash($name) === false) {
             throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
         }
 
@@ -166,14 +166,14 @@ class Profile extends Model {
      */
     public function configure(string $name, $profileRepos = null, $packagesMajorExcluded = null, $packagesExcluded = null, $serviceNeedRestart = null, string $keepCron, string $allowOverwrite, string $allowReposFilesOverwrite)
     {
-        $name = validateData($name);
+        $name = Common::validateData($name);
 
         $error = 0;
 
         /**
          *  1.2. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (is_alphanumdash($name) === false) {
+        if (Common::is_alphanumdash($name) === false) {
             throw new Exception("Le nom du profil <b>$name</b> contient des caractères invalides");
         }
         
@@ -194,7 +194,7 @@ class Profile extends Model {
              * 	On traite chaque repo sélectionné
              */
             foreach ($profileRepos as $profileRepo) {
-                $addProfileRepo = validateData($profileRepo);
+                $addProfileRepo = Common::validateData($profileRepo);
         
                 if (OS_FAMILY == "Debian") {
                     $addProfileRepoExplode = explode('|', $addProfileRepo);
@@ -207,7 +207,7 @@ class Profile extends Model {
                  *  On vérifie que le nom du repo ne contient pas des caractères interdits. Ici la fonction is_alphanumdash autorise de base les tirets et underscore ainsi que le point (qu'on a indiqué)
                  *  Pour Debian, on vérifie également que la distribution et la section ne contiennent pas de caractères interdits
                  */
-                if (is_alphanumdash($addProfileRepo, array('.')) === false) {
+                if (Common::is_alphanumdash($addProfileRepo, array('.')) === false) {
                     throw new Exception("Un ou plusieurs repo(s) sélectionné(s) contient des caractères invalides");
                 }
 
@@ -215,7 +215,7 @@ class Profile extends Model {
                  *  Certains nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
                  */
                 if (OS_FAMILY == "Debian") {
-                    if (is_alphanumdash($addProfileRepoDist, array('/') === false) OR is_alphanumdash($addProfileRepoSection) === false) {
+                    if (Common::is_alphanumdash($addProfileRepoDist, array('/') === false) OR Common::is_alphanumdash($addProfileRepoSection) === false) {
                         throw new Exception("Une ou plusieurs distribution(s) de repo sélectionnée(s) contient des caractères invalides");
                     }
                 }
@@ -268,7 +268,7 @@ class Profile extends Model {
 
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = validateData($packageName);
+                $packageName = Common::validateData($packageName);
 
                 /**
                  *  Pour chaque packageName sélectionnées dans la liste déroulante, on vérifie que le paquet existe en BDD,
@@ -310,7 +310,7 @@ class Profile extends Model {
 
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
-                $packageName = validateData($packageName);
+                $packageName = Common::validateData($packageName);
 
                 /**
                  *  Pour chaque packageName sélectionnées dans la liste déroulante, on vérifie que le paquet existe en BDD,
@@ -352,7 +352,7 @@ class Profile extends Model {
 
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = validateData($serviceName);
+                $serviceName = Common::validateData($serviceName);
 
                 /**
                  *  Pour chaque serviceName sélectionnées dans la liste déroulante, on vérifie que le service existe en BDD,
@@ -434,7 +434,7 @@ class Profile extends Model {
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères interdits sinon on renvoie false
          */
-        if (!is_alphanumdash($package)) return false;
+        if (!Common::is_alphanumdash($package)) return false;
 
         $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
         $stmt->bindValue(':name', $package);
@@ -450,7 +450,7 @@ class Profile extends Model {
         /**
          *  On vérifie que le nom du service ne contient pas de caractères interdits sinon on renvoie false
          */
-        if (!is_alphanumdash($service)) return false;
+        if (!Common::is_alphanumdash($service)) return false;
 
         $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
         $stmt->bindValue(':name', $service);

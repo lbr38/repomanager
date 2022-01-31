@@ -38,7 +38,7 @@ function reloadGroupsDiv(){
 /**
  *  Event : Création d'un nouveau groupe
  */
- $(document).on('submit','#newGroupForm',function(){
+$(document).on('submit','#newGroupForm',function(){
     event.preventDefault();
     /**
      *  Récupération du nom de groupe à créer dans l'input prévu à cet effet
@@ -132,6 +132,7 @@ function newGroup(name) {
              */
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
+            reloadNewRepoDiv();
             reloadContentByClass('mainSectionLeft');
         },
         error : function (jqXHR, textStatus, thrownError) {
@@ -161,6 +162,7 @@ function deleteGroup(name) {
              */
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
+            reloadNewRepoDiv();
             reloadContentByClass('mainSectionLeft');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
@@ -191,6 +193,7 @@ function deleteGroup(name) {
              */
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
+            reloadNewRepoDiv();
             reloadContentByClass('mainSectionLeft');
         },
         error : function (jqXHR, textStatus, thrownError) {

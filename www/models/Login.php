@@ -20,32 +20,32 @@ class Login extends Model {
 
     private function setUsername(string $username)
     {
-        $this->username = validateData($username);
+        $this->username = Common::validateData($username);
     }
 
     private function setPassword(string $password)
     {
-        $this->password = validateData($password);
+        $this->password = Common::validateData($password);
     }
 
     private function setFirstName(string $first_name = null)
     {
-        $this->first_name = validateData($first_name);
+        $this->first_name = Common::validateData($first_name);
     }
 
     private function setLastName(string $last_name = null)
     {
-        $this->last_name = validateData($last_name);
+        $this->last_name = Common::validateData($last_name);
     }
 
     private function setEmail(string $email = null)
     {
-        $this->email = validateData($email);
+        $this->email = Common::validateData($email);
     }
 
     private function setRole(string $role)
     {
-        $this->role = validateData($role);
+        $this->role = Common::validateData($role);
     }
 
     public function getFirstName()
@@ -99,7 +99,7 @@ class Login extends Model {
     {
         try {
             $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username AND State = 'active'");
-            $stmt->bindValue(':username', validateData($username));
+            $stmt->bindValue(':username', Common::validateData($username));
             $result = $stmt->execute();
         } catch(Exception $e) {
             printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
@@ -139,7 +139,15 @@ class Login extends Model {
      */
     public function addUser(string $username)
     {
-        $username = validateData($username);
+        $username = Common::validateData($username);
+
+        /**
+         *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
+         */
+        if (Common::is_alphanumdash($username) === false) {
+            printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
+            return false;
+        }
 
         /**
          *  On vérifie que le nom d'utilisateur n'est pas déjà utilisé
@@ -201,7 +209,7 @@ class Login extends Model {
      */
     public function checkUsernamePwd(string $username, string $password)
     {
-        $username = validateData($username);
+        $username = Common::validateData($username);
 
         /**
          *  On récupère le username et le mot de passe haché en base de données correspondant à l'username fourni
@@ -283,11 +291,11 @@ class Login extends Model {
         /**
          *  Vérification des données renseignées
          */
-        $username = validateData($username);
-        if (!empty($first_name)) $first_name = validateData($first_name);
-        if (!empty($last_name))  $last_name = validateData($last_name);
+        $username = Common::validateData($username);
+        if (!empty($first_name)) $first_name = Common::validateData($first_name);
+        if (!empty($last_name))  $last_name = Common::validateData($last_name);
         if (!empty($email)) {
-            if (validateMail($email) === false) {
+            if (Common::validateMail($email) === false) {
                 printAlert("L'adresse email est incorrecte", 'error');
                 return;
             }
@@ -325,8 +333,8 @@ class Login extends Model {
      */
     public function changePassword(string $username, string $actual_password, string $new_password, string $new_password2)
     {
-        $username        = validateData($username);
-        $actual_password = validateData($actual_password);
+        $username        = Common::validateData($username);
+        $actual_password = Common::validateData($actual_password);
         $new_password    = $new_password;
         $new_password2   = $new_password2;
 
@@ -384,7 +392,7 @@ class Login extends Model {
      */
     public function resetPassword(string $username)
     {
-        $username = validateData($username);
+        $username = Common::validateData($username);
 
         /**
          *  Vérification de l'existance de l'utilisateur en base de données
@@ -442,7 +450,7 @@ class Login extends Model {
      */
     public function deleteUser(string $username)
     {
-        $username = validateData($username);
+        $username = Common::validateData($username);
 
         /**
          *  On vérifie que l'utilisateur mentionné existe en base de données

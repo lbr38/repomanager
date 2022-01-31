@@ -28,7 +28,7 @@ class Group extends Model {
 
     public function setId(string $id)
     {
-        $this->id = validateData($id);
+        $this->id = Common::validateData($id);
     }
 
 
@@ -37,12 +37,12 @@ class Group extends Model {
      */
     public function new(string $name) {
 
-        $name = validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du groupe ne contient pas de caractères interdits
          */
-        if (is_alphanumdash($name) === false) {
+        if (Common::is_alphanumdash($name) === false) {
             throw new Exception("Le groupe <b>$name</b> contient des caractères invalides");
         }
 
@@ -72,10 +72,10 @@ class Group extends Model {
         /**
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
-        if (is_alphanumdash($actualName) === false) {
+        if (Common::is_alphanumdash($actualName) === false) {
             throw new Exception("Le nom actuel du groupe <b>$actualName</b> contient des caractères invalides");
         }
-        if (is_alphanumdash($newName) === false) {
+        if (Common::is_alphanumdash($newName) === false) {
             throw new Exception("Le nouveau nom du groupe <b>$newName</b> contient des caractères invalides");
         }
 
@@ -361,7 +361,7 @@ class Group extends Model {
 
         if (!empty($repoNames)) {
             foreach ($repoNames as $repoName) {
-                $repoName = validateData($repoName);
+                $repoName = Common::validateData($repoName);
                 // Sur debian, $repoName contient le nom du repo, de la dist et de la section séparés par un |
                 if (OS_FAMILY == "Debian") {
                     $repoNameExplode = explode('|', $repoName);
@@ -372,7 +372,7 @@ class Group extends Model {
                 /**
                  *  On vérifie que le nom du repo ne contient pas des caractères interdits
                  */
-                if (is_alphanumdash($repoName, array('.')) === false) {
+                if (Common::is_alphanumdash($repoName, array('.')) === false) {
                     throw new Exception("Le nom du repo <b>$repoName</b> contient des caractères invalides");
                 }
 
@@ -381,10 +381,10 @@ class Group extends Model {
                  *  On autorise le slash '/' dans le nom de la distribution
                  */
                 if (OS_FAMILY == "Debian") {
-                    if (is_alphanumdash($repoDist, array('/')) === false) {
+                    if (Common::is_alphanumdash($repoDist, array('/')) === false) {
                         throw new Exception("Le nom de la distribution <b>$repoDist</b> contient des caractères invalides");
                     }
-                    if (is_alphanumdash($repoSection) === false) {
+                    if (Common::is_alphanumdash($repoSection) === false) {
                         throw new Exception("Le nom de la section <b>$repoSection</b> contient des caractères invalides");
                     }
                 }
@@ -572,7 +572,7 @@ class Group extends Model {
          *  2. On traite chaque hote sélectionnés
          */
         foreach ($hostsId as $hostId) {
-            $hostId = validateData($hostId);
+            $hostId = Common::validateData($hostId);
 
             /**
              *  Si l'id n'est pas un chiffre alors on passe au suivant
@@ -612,12 +612,6 @@ class Group extends Model {
         }
 
         clearCache();
-
-        printAlert('Modifications prises en compte', 'success');
-        slidediv_byid('hostGroupsDiv'); // ré-affichage du volet gestion des groupes
-        showdiv_byid("groupConfigurationDiv-{$this->name}"); // puis affichage de la configuration du nouveau groupe créé
-
-        unset($stmt, $result);
     }
 
     /**

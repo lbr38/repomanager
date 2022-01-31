@@ -1,86 +1,5 @@
 <?php
 /**
- *  Fonction de vérification des données envoyées par formulaire
- */
-function validateData($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-}
-
-/**
- *  Fonction de vérification de l'adresse email
- */
-function validateMail(string $mail) {
-    $mail = trim($mail);
-
-    if (filter_var($mail, FILTER_VALIDATE_EMAIL)) return true;
-
-    return false;
-}
-
-/**
- *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres
- */
-function is_alphanum(string $data, array $additionnalValidCaracters = []) {
-    /**
-     *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ignore dans le test en les remplacant temporairement par du vide
-     */
-    if (!empty($additionnalValidCaracters)) {
-        if (!ctype_alnum(str_replace($additionnalValidCaracters, '', $data))) {
-            printAlert('Vous ne pouvez renseigner que des chiffres ou des lettres', 'error');
-            return false;
-        }
-
-    /**
-     *  Si on n'a pas passé de caractères supplémentaires alors on teste simplement la chaine avec ctype_alnum
-     */
-    } else {
-        if (!ctype_alnum($data)) {
-            printAlert('Vous ne pouvez renseigner que des chiffres ou des lettres', 'error');
-            return false;
-        }
-    }
-
-    return true;    
-}
-
-
-/**
- *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
- *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
- */
-function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
-    /**
-     *  Si une chaine vide a été transmise alors c'est valide
-     */
-    if (empty($data)) {
-        return true;
-    }
-
-    /**
-     *  array contenant quelques exceptions de caractères valides
-     */
-    $validCaracters = array('-', '_');
-
-    /**
-     *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ajoute à l'array $validCaracters
-     */
-    if (!empty($additionnalValidCaracters)) {
-        $validCaracters = array_merge($validCaracters, $additionnalValidCaracters);
-    }
-
-    if(!ctype_alnum(str_replace($validCaracters, '', $data))) {
-        //printAlert('Vous ne pouvez renseigner que des chiffres, des lettres ou des tirets', 'error');
-        throw new Exception('Vous ne pouvez renseigner que des chiffres, des lettres ou des tirets');
-        return false;
-    }
-
-    return true;    
-}
-
-/**
  *  Suppression du "faux" cache ram du serveur
  *  2 cas possibles : 
  *  il s'agit d'un répertoire classique sur le disque
@@ -157,24 +76,24 @@ function envtag($env) {
 /**
  *  Affichage d'une div cachée en fournissant son id
  */
-function showdiv_byid(string $divid) {
-    echo '<script>';
-    echo "$(document).ready(function() {";
-    echo "$('#${divid}').show(); })";
-    echo '</script>';
-}
+// function showdiv_byid(string $divid) {
+//     echo '<script>';
+//     echo "$(document).ready(function() {";
+//     echo "$('#${divid}').show(); })";
+//     echo '</script>';
+// }
 
 /**
  *  Slide et affiche une div en fournissant son id
  *  S'applique notamment aux divs cachées dans le panel droit (gestion des sources, des groupes...)
  */
-function slidediv_byid(string $divid) {
-    echo "<script>
-    $(document).ready(function(){
-        $(\"#${divid}\").slideToggle().show('slow');
-    });
-    </script>";
-}
+// function slidediv_byid(string $divid) {
+//     echo "<script>
+//     $(document).ready(function(){
+//         $(\"#${divid}\").slideToggle().show('slow');
+//     });
+//     </script>";
+// }
 
 /**
  *  Vérifie que la tâche cron des rappels de planifications est en place

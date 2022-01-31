@@ -5,13 +5,13 @@
 
 // AFFICHAGE DANS LISTE DES REPOS //
 
-if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDisplay") {
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "configureDisplay") {
     // On récupère le contenu actuel de display.ini
     $displayConfiguration = parse_ini_file(DISPLAY_CONF, true);
 
     // Liste des repos : choisir d'afficher ou non la taille des repos
     if (!empty($_POST['printRepoSize'])) {
-        $printRepoSize = validateData($_POST['printRepoSize']);
+        $printRepoSize = Common::validateData($_POST['printRepoSize']);
         if ($printRepoSize == "on") {
             $displayConfiguration['display']['printRepoSize'] = 'yes';
         } else {
@@ -21,7 +21,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : choisir d'afficher ou non le type des repos
     if (!empty($_POST['printRepoType'])) {
-        $printRepoType = validateData($_POST['printRepoType']);
+        $printRepoType = Common::validateData($_POST['printRepoType']);
         if ($printRepoType == "on") {
             $displayConfiguration['display']['printRepoType'] = 'yes';
         } else {
@@ -31,7 +31,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : choisir d'afficher ou non la signature gpg des repos
     if (!empty($_POST['printRepoSignature'])) {
-        $printRepoSignature = validateData($_POST['printRepoSignature']);
+        $printRepoSignature = Common::validateData($_POST['printRepoSignature']);
         if ($printRepoSignature == "on") {
             $displayConfiguration['display']['printRepoSignature'] = 'yes';
         } else {
@@ -41,7 +41,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : choisir de filtrer ou non par groupe
     if (!empty($_POST['filterByGroups'])) {
-        $filterByGroups = validateData($_POST['filterByGroups']);
+        $filterByGroups = Common::validateData($_POST['filterByGroups']);
         if ($filterByGroups == "on") {
             $displayConfiguration['display']['filterByGroups'] = 'yes';
         } else {
@@ -51,7 +51,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : choisir ou non la vue simplifiée
     if (!empty($_POST['concatenateReposName'])) {
-        $concatenateReposName = validateData($_POST['concatenateReposName']);
+        $concatenateReposName = Common::validateData($_POST['concatenateReposName']);
         if ($concatenateReposName == "on") {
             $displayConfiguration['display']['concatenateReposName'] = 'yes';
         } else {
@@ -61,7 +61,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : choisir d'afficher ou non une ligne séparatrice entre chaque nom de repo/section
     if (!empty($_POST['dividingLine'])) {
-        $dividingLine = validateData($_POST['dividingLine']);
+        $dividingLine = Common::validateData($_POST['dividingLine']);
         if ($dividingLine == "on") {
             $displayConfiguration['display']['dividingLine'] = 'yes';
         } else {
@@ -71,7 +71,7 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Liste des repos : alterner ou non les couleurs dans la liste
     if (!empty($_POST['alternateColors'])) {
-        $alternateColors = validateData($_POST['alternateColors']);
+        $alternateColors = Common::validateData($_POST['alternateColors']);
         if ($alternateColors == "on") {
             $displayConfiguration['display']['alternateColors'] = 'yes';
         } else {
@@ -81,18 +81,18 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
 
     // Modification des couleurs
     if (!empty($_POST['alternativeColor1'])) {
-        $alternativeColor1 = validateData($_POST['alternativeColor1']);
+        $alternativeColor1 = Common::validateData($_POST['alternativeColor1']);
         $displayConfiguration['display']['alternativeColor1'] = "$alternativeColor1";
     }
 
     if (!empty($_POST['alternativeColor2'])) {
-        $alternativeColor2 = validateData($_POST['alternativeColor2']);
+        $alternativeColor2 = Common::validateData($_POST['alternativeColor2']);
         $displayConfiguration['display']['alternativeColor2'] = "$alternativeColor2";
     }
 
     // activation du cache
     if (!empty($_POST['cache_repos_list'])) {
-        $cache_repos_list = validateData($_POST['cache_repos_list']);
+        $cache_repos_list = Common::validateData($_POST['cache_repos_list']);
         if ($cache_repos_list == "on") {
             $displayConfiguration['display']['cache_repos_list'] = 'yes';
         } else {
@@ -111,17 +111,5 @@ if (!empty($_POST['action']) AND validateData($_POST['action']) == "configureDis
     // Puis rechargement de la page pour appliquer les modifications d'affichage
     header('Location: '.__ACTUAL_URL__);
     exit;
-}
-
-
-// Debian : on a la possibilité d'ajouter de nouvelles url hotes depuis l'accueil
-if (OS_FAMILY == "Debian") {
-    // Cas où on souhaite supprimer un clé gpg du trousseau de repomanager :
-    if (isset($_GET['action']) AND (validateData($_GET['action']) == "deleteGpgKey") AND !empty($_GET['gpgKeyID'])) {
-        $gpgKeyID = validateData($_GET['gpgKeyID']);
-        exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgKeyID");
-        // Affichage d'un message et rechargement de la div
-        printAlert('La clé GPG a été supprimée', 'success');
-    }
 }
 ?>
