@@ -43,10 +43,10 @@ trait op_getPackages {
          */
         if ($op_type == "new") {        
             if (OS_FAMILY == "Redhat") {
-                if ($this->repo->existsEnv($this->repo->name, DEFAULT_ENV) === true) throw new Exception("le repo <b>{$this->repo->name}</b> existe déjà en ".envtag(DEFAULT_ENV));
+                if ($this->repo->existsEnv($this->repo->name, DEFAULT_ENV) === true) throw new Exception("le repo <b>{$this->repo->name}</b> existe déjà en ".Common::envtag(DEFAULT_ENV));
             }
             if (OS_FAMILY == "Debian") {
-                if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, DEFAULT_ENV) === true) throw new Exception("la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en ".envtag(DEFAULT_ENV));
+                if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, DEFAULT_ENV) === true) throw new Exception("la section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> existe déjà en ".Common::envtag(DEFAULT_ENV));
             }
         }
         /**
@@ -57,10 +57,10 @@ trait op_getPackages {
              *  Vérifie si le repo qu'on souhaite mettre à jour existe bien en base de données
              */
             if (OS_FAMILY == "Redhat") {
-                if ($this->repo->existsEnv($this->repo->name, DEFAULT_ENV) === false) throw new Exception("le repo <b>{$this->repo->name}</b> ".envtag(DEFAULT_ENV)." n'existe pas");
+                if ($this->repo->existsEnv($this->repo->name, DEFAULT_ENV) === false) throw new Exception("le repo <b>{$this->repo->name}</b> ".Common::envtag(DEFAULT_ENV)." n'existe pas");
             }
             if (OS_FAMILY == "Debian") {
-                if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, DEFAULT_ENV) === false) throw new Exception("la section <b>{$this->repo->section}</b> ".envtag(DEFAULT_ENV)." du repo <b>{$this->repo->name}</b> n'existe pas</p>");
+                if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, DEFAULT_ENV) === false) throw new Exception("la section <b>{$this->repo->section}</b> ".Common::envtag(DEFAULT_ENV)." du repo <b>{$this->repo->name}</b> n'existe pas</p>");
             }
         }
 

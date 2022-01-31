@@ -42,7 +42,7 @@ trait duplicate {
             if (OS_FAMILY == "Redhat") {
                 echo "<tr>
                     <th>NOM DU REPO SOURCE :</th>
-                    <td><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</td>
+                    <td><b>{$this->repo->name}</b> ".Common::envtag($this->repo->env)."</td>
                 </tr>";
             }
             if (OS_FAMILY == "Debian") {
@@ -56,7 +56,7 @@ trait duplicate {
                 </tr>
                 <tr>
                     <th>SECTION :</th>
-                    <td><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</td>
+                    <td><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</td>
                 </tr>";
             }
             if (!empty($this->repo->newName)) {

@@ -401,7 +401,7 @@ class Autoloader
          *  Vérification de la présence de repomanager.conf
          */
         if (!file_exists(REPOMANAGER_CONF)) {
-            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.";
+            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.".ROOT;
             die();
         }
 

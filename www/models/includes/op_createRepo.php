@@ -28,7 +28,7 @@ trait op_createRepo {
                 /**
                  *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
                  */
-                if (!dir_is_empty(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
+                if (!Common::dir_is_empty(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
                     exec("mv -f ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/*.rpm ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages/");
                 }
 
@@ -109,7 +109,7 @@ trait op_createRepo {
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
-            if (dir_is_empty($TMP_DIR) === true) {
+            if (Common::dir_is_empty($TMP_DIR) === true) {
                 echo "Il n'y a aucun paquets dans ce repo";
                 echo '</pre></div>';
 

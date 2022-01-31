@@ -5,9 +5,8 @@ header("Access-Control-Allow-Methods: PUT");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-define("ROOT", dirname(__FILE__, 3));
+define("ROOT", dirname(__FILE__, 4));
 require_once(ROOT.'/models/Autoloader.php');
-require_once(ROOT.'/functions/common-functions.php');
 Autoloader::loadFromApi();
 
 /**

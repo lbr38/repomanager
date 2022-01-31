@@ -381,4 +381,9 @@
     .timeline-container-right {
       left: 0%;
     }
+
+
+    .toto:hover .tutu {
+        display: block;
+    }
 }

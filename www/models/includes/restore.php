@@ -35,7 +35,7 @@ trait restore {
         </tr>
         <tr>
             <th>ENVIRONNEMENT CIBLE :</th>
-            <td>".envtag($this->repo->newEnv)."</td>
+            <td>".Common::envtag($this->repo->newEnv)."</td>
         </tr>";
         if (!empty($this->repo->description)) {
             echo "<tr>

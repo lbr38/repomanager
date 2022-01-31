@@ -1,5 +1,5 @@
 <?php
-define("ROOT", dirname(__FILE__, 2));
+define("ROOT", dirname(__FILE__, 3));
 
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
@@ -9,7 +9,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
 
     require_once(ROOT."/models/Autoloader.php");
     Autoloader::load();
-    require_once(ROOT."/functions/common-functions.php");
 
     if (!empty($_POST['action'])) {
         /**

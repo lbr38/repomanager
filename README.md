@@ -168,12 +168,12 @@ server {
         error_page 500 502 503 504 /custom_50x.html;
 
         location = /custom_404.html {
-                root $WWW_DIR/custom_errors;
+                root $WWW_DIR/public/custom_errors;
                 internal;
         }
 
         location = /custom_50x.html {
-                root $WWW_DIR/custom_errors;
+                root $WWW_DIR/public/custom_errors;
                 internal;
         }
 
@@ -192,11 +192,11 @@ server {
         gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
 
         location / {
-                try_files $uri $uri/ =404;
-                index index.php;
+                rewrite ^ /index.php;
         }
 
         location ~ \.php$ {
+                root $WWW_DIR/public;
                 include fastcgi_params;
                 fastcgi_param SCRIPT_FILENAME $request_filename;
                 #include fastcgi.conf;
@@ -209,7 +209,7 @@ server {
         }
 
         location ~ \.(?:css|js|woff2?|svg|gif|map)$ {
-                try_files $uri /index.php$request_uri;
+                try_files $uri $uri/ =404;
                 add_header Cache-Control "public, max-age=15778463";
                 add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
                 add_header Referrer-Policy "no-referrer" always;

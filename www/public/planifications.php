@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
-require_once('functions/repo.functions.php');
-require_once('common.php');
+include_once('../includes/head.inc.php');
+require_once('../functions/repo.functions.php');
+require_once('../common.php');
 ?>
 
 <body>
-<?php include('includes/header.inc.php'); ?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
     <!-- section 'conteneur' principal englobant toutes les sections de droite -->
@@ -20,13 +19,13 @@ require_once('common.php');
         <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
         <!-- GERER LES GROUPES -->
         <section class="right" id="groupsDiv">
-            <?php include('includes/manage-groups.inc.php'); ?>
+            <?php include_once('../includes/manage-groups.inc.php'); ?>
         </section>
 
         <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
         <!-- GERER LES SOURCES -->
         <section class="right" id="sourcesDiv">
-            <?php include('includes/manage-sources.inc.php'); ?>
+            <?php include_once('../includes/manage-sources.inc.php'); ?>
         </section>
 
         <section id="planDiv" class="right">
@@ -36,7 +35,7 @@ require_once('common.php');
                 <?php
                     // on commence par vérifier si une tache cron est déjà présente ou non :
                     if (CRON_PLAN_REMINDERS_ENABLED == "yes") {
-                        $cronStatus = checkCronReminder();
+                        $cronStatus = Common::checkCronReminder();
                         if ($cronStatus == 'On') echo '<span class="pointer" title="La tâche cron pour l\'envoi des rappels est active">Rappels <img src="ressources/icons/greencircle.png" /></span>';
                         if ($cronStatus == 'Off') echo '<span class="pointer" title="Il n\'y a aucune tâche cron active pour l\'envoi des rappels">Rappels <img src="ressources/icons/redcircle.png" /></span>';
                     } else {
@@ -182,11 +181,11 @@ require_once('common.php');
                              */
                             if ($planAction == "update") {
                                 if (!empty($planGroup)) {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Mise à jour des repos ".envtag(DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
-                                    if (OS_FAMILY == "Debian") echo "<p>Mise à jour des sections de repos ".envtag(DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
+                                    if (OS_FAMILY == "Redhat") echo "<p>Mise à jour des repos ".Common::envtag(DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
+                                    if (OS_FAMILY == "Debian") echo "<p>Mise à jour des sections de repos ".Common::envtag(DEFAULT_ENV)." du groupe <b>$planGroup</b></p>";
                                 } else {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Mise à jour du repo <b>$planName</b> ".envtag(DEFAULT_ENV)."</p>";
-                                    if (OS_FAMILY == "Debian") echo "<p>Mise à jour du repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b> ".envtag(DEFAULT_ENV)."</p>";
+                                    if (OS_FAMILY == "Redhat") echo "<p>Mise à jour du repo <b>$planName</b> ".Common::envtag(DEFAULT_ENV)."</p>";
+                                    if (OS_FAMILY == "Debian") echo "<p>Mise à jour du repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b> ".Common::envtag(DEFAULT_ENV)."</p>";
                                 }
 
                             /**
@@ -197,11 +196,11 @@ require_once('common.php');
                                 $envTarget = $envs[0];
                                 $envSource = $envs[1];
                                 if (!empty($planGroup)) {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les repos du groupe <b>$planGroup</b></p>";
-                                    if (OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour les sections de repos du groupe <b>$planGroup</b></p>";
+                                    if (OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".Common::envtag($envSource)." vers ".Common::envtag($envTarget)." pour les repos du groupe <b>$planGroup</b></p>";
+                                    if (OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".Common::envtag($envSource)." vers ".Common::envtag($envTarget)." pour les sections de repos du groupe <b>$planGroup</b></p>";
                                 } else {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b></p>";
-                                    if (OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".envtag($envSource)." vers ".envtag($envTarget)." pour le repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b></p>";
+                                    if (OS_FAMILY == "Redhat") echo "<p>Pointage de l'environnement ".Common::envtag($envSource)." vers ".Common::envtag($envTarget)." pour le repo <b>$planName</b></p>";
+                                    if (OS_FAMILY == "Debian") echo "<p>Pointage de l'environnement ".Common::envtag($envSource)." vers ".Common::envtag($envTarget)." pour le repo <b>$planName</b>, distribution <b>$planDist</b>, section <b>$planSection</b></p>";
                                 }
                             }
 
@@ -686,15 +685,15 @@ require_once('common.php');
     <section class="mainSectionLeft">
         <section class="left">
             <!-- REPOS ACTIFS -->
-            <?php include('includes/repos-list-container.inc.php'); ?>
+            <?php include_once('../includes/repos-list-container.inc.php'); ?>
         </section>
         <section class="left">
             <!-- REPOS ARCHIVÉS-->
-            <?php include('includes/repos-archive-list-container.inc.php'); ?>
+            <?php include_once('../includes/repos-archive-list-container.inc.php'); ?>
         </section>
     </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 </body>
 </html>

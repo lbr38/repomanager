@@ -31,11 +31,11 @@ trait changeEnv {
         }
         echo '<tr>
             <th>ENVIRONNEMENT SOURCE :</th>
-            <td><span>'.envtag($this->repo->env).'</span></td>
+            <td><span>'.Common::envtag($this->repo->env).'</span></td>
         </tr>';
         echo '<tr>
             <th>NOUVEL ENVIRONNEMENT :</th>
-            <td><span>'.envtag($this->repo->newEnv).'</span></td>
+            <td><span>'.Common::envtag($this->repo->newEnv).'</span></td>
         </tr>';
         if (!empty($this->repo->description)) {
             echo "<tr>
@@ -47,7 +47,7 @@ trait changeEnv {
 
         $this->log->steplog(1);
         $this->log->steplogInitialize('createEnv');
-        $this->log->steplogTitle("CREATION DE L'ENVIRONNEMENT ".envtag($this->repo->newEnv)."");
+        $this->log->steplogTitle("CREATION DE L'ENVIRONNEMENT ".Common::envtag($this->repo->newEnv)."");
         $this->log->steplogLoading();
 
         /**
@@ -55,12 +55,12 @@ trait changeEnv {
          */
         if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
-                throw new Exception('ce repo n\'existe pas en '.envtag($this->repo->env).'');
+                throw new Exception('ce repo n\'existe pas en '.Common::envtag($this->repo->env).'');
             }
         }
         if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
-                throw new Exception('cette section n\'existe pas en '.envtag($this->repo->env).'');
+                throw new Exception('cette section n\'existe pas en '.Common::envtag($this->repo->env).'');
             }
         }
 
@@ -69,12 +69,12 @@ trait changeEnv {
          */
         if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("un repo ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
+                throw new Exception("un repo ".Common::envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
         }
         if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("une section ".envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
+                throw new Exception("une section ".Common::envtag($this->repo->newEnv)." existe déjà au <b>".DateTime::createFromFormat('Y-m-d', $this->repo->date)->format('d-m-Y')."</b>");
             }
         }
 
@@ -168,12 +168,12 @@ trait changeEnv {
          */
         if (OS_FAMILY == "Redhat") {
             if ($this->repo->existsDateEnv($this->repo->name, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("ce repo est déjà en ".envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
+                throw new Exception("ce repo est déjà en ".Common::envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
             }
         }
         if (OS_FAMILY == "Debian") {
             if ($this->repo->section_existsDateEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->date, $this->repo->newEnv) === true) {
-                throw new Exception("cette section est déjà en ".envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
+                throw new Exception("cette section est déjà en ".Common::envtag($this->repo->newEnv)." au <b>{$this->repo->dateFormatted}</b>");
             }
         }
 

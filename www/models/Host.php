@@ -377,7 +377,7 @@ class Host extends Model {
     public function db_getAll()
     {
         if (!is_numeric($this->id)) {
-            printAlert("Erreur : l'ID spécifié n'est pas numérique", 'error');   
+            Common::printAlert("Erreur : l'ID spécifié n'est pas numérique", 'error');   
             return false;
         }
 
@@ -539,7 +539,7 @@ class Host extends Model {
              *  Sert à stocker des rapport de mise à jour et une BDD pour l'hôte
              */
             if (!mkdir(HOSTS_DIR."/{$this->id}", 0770, true)) {
-                if ($this->callFromApi == 'no') printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                if ($this->callFromApi == 'no') Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 return 5;
             }
 
@@ -553,7 +553,7 @@ class Host extends Model {
              *  Création d'un répertoire 'reports' pour cet hôte
              */
             if (!mkdir(HOSTS_DIR."/{$this->id}/reports", 0770, true)) {
-                if ($this->callFromApi == 'no') printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                if ($this->callFromApi == 'no') Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 return 5;
             }
         }
@@ -631,7 +631,7 @@ class Host extends Model {
                 $message .= "$hostHostname ($hostIp)<br>";
             }
 
-            printAlert("Suppression des hôtes suivants effectuée :<br>$message", 'success');
+            Common::printAlert("Suppression des hôtes suivants effectuée :<br>$message", 'success');
 
             return true;
         }
@@ -651,7 +651,7 @@ class Host extends Model {
             /**
              *  Si l'IP et le token ne correspondent à aucun hôte alors on quittes
              */
-            if ($this->db->count($result) == 0) {
+            if ($this->db->isempty($result) === true) {
                 return 2;
             }
 
@@ -662,9 +662,159 @@ class Host extends Model {
 
         $stmt->execute();
 
-        if ($this->callFromApi == 'no') printAlert('Serveur supprimé', 'success');
-
         return true;
+    }
+
+    /**
+     *  Reset d'un hôte
+     *  Depuis l'interface web ou depuis l'API
+     */
+    public function reset(array $hostsId = null)
+    {
+        /**
+         *  Cas où on a renseigné 1 ou plusieurs hôtes depuis l'interface web
+         */
+        if (!empty($hostsId)) {
+            $idError = array();
+            $deleteError = array();
+            $deleteOK = array();
+
+            /**
+             *  On traite l'array contenant les Id de l'hôte à supprimer
+             */
+            foreach ($hostsId as $hostId) {
+                /**
+                 *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
+                 */
+                if (!is_numeric(Common::validateData($hostId))) {
+                    $idError[] = $hostId;
+                    continue;
+                }
+        
+                /**
+                 *  D'abord on récupère l'IP et le hostname de l'hôte à reset
+                 */
+                $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts WHERE Id = :id");
+                $stmt->bindValue(':id', $hostId);
+                $result = $stmt->execute();
+
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+
+                if (!empty($datas['Ip'])) $hostIp = $datas['Ip'];
+                if (!empty($datas['Hostname'])) $hostHostname = $datas['Hostname'];
+
+                /**
+                 *  Reset de certaines informations générales de l'hôte
+                 */
+                $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE id = :id");
+                $stmt->bindValue(':id', $hostId);
+                $stmt->execute();
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($hostHostname)) {
+                    $deleteOK[] = array('ip' => $hostIp, 'hostname' => $hostHostname);
+                } else {
+                    $deleteOK[] = array('ip' => $hostIp);
+                }
+
+                /**
+                 *  Réinitilisation de la base de données de l'hôte
+                 */
+                if (is_dir(HOSTS_DIR."/".$hostId)) {
+                    /**
+                     *  Ouverture de la base de données
+                     */
+                    $this->openHostDb($hostId, 'rw');
+                    
+                    /**
+                     *  On supprime toutes les tables dans cette base de données
+                     */
+                    $this->host_db->exec("DROP TABLE events");
+                    $this->host_db->exec("DROP TABLE packages");
+                    $this->host_db->exec("DROP TABLE packages_available");
+                    $this->host_db->exec("DROP TABLE packages_history");
+                    $this->host_db->exec("DROP TABLE updates_requests");
+
+                    /**
+                     *  Puis on les re-génère à vide
+                     */
+                    $this->host_db->generateHostTables();                    
+                }
+            }
+
+            /**
+             *  Affichage d'un message de confirmation avec le nom/ip des hôtes dont la suppression a été effectuée
+             */
+            $message = '';
+            foreach ($deleteOK as $hostDeleted) {
+                if (!empty($hostDeleted['ip'])) {
+                    $hostIp = $hostDeleted['ip'];
+                }
+                if (!empty($hostDeleted['hostname'])) {
+                    $hostHostname = $hostDeleted['hostname'];
+                }
+
+                $message .= "$hostHostname ($hostIp)<br>";
+            }
+
+            Common::printAlert("Réinitialisation des informations des hôtes suivants effectuée :<br>$message", 'success');
+
+            return true;
+        }
+
+        /**
+         *  Cas où on a renseigné un ID + un token (api)
+         */
+        if (!empty($this->authId) AND !empty($this->token)) {
+            /**
+             *  On vérifie que l'ip et le token correspondent bien à un hôte
+             */
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId AND Token = :token");
+            $stmt->bindValue(':authId', $this->authId);
+            $stmt->bindValue(':token', $this->token);
+            $result = $stmt->execute();
+
+            /**
+             *  Si l'IP et le token ne correspondent à aucun hôte alors on quittes
+             */
+            if ($this->db->isempty($result) === true) {
+                return 2;
+            }
+
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) $hostId = $row['Id'];
+
+            $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE Id = :id");
+            $stmt->bindValue(':id', $hostId);
+            $stmt->execute();
+
+
+            /**
+             *  Réinitilisation de la base de données de l'hôte
+             */
+            if (is_dir(HOSTS_DIR."/".$hostId)) {
+                /**
+                 *  Ouverture de la base de données
+                 */
+                $this->openHostDb($hostId, 'rw');
+                
+                /**
+                 *  On supprime toutes les tables dans cette base de données
+                 */
+                $this->host_db->exec("DROP TABLE events");
+                $this->host_db->exec("DROP TABLE packages");
+                $this->host_db->exec("DROP TABLE packages_available");
+                $this->host_db->exec("DROP TABLE packages_history");
+                $this->host_db->exec("DROP TABLE updates_requests");
+                /**
+                 *  Puis on les re-génère à vide
+                 */
+                $this->host_db->generateHostTables();                    
+            }
+
+            return true;
+        }
     }
 
     /**
@@ -716,7 +866,7 @@ class Host extends Model {
              */
             exec("ping -W2 -c 1 -p 7570646174652d726571756573746564 $this->ip", $output, $pingResult);
             if ($pingResult != 0) {
-                printAlert("Impossible d'envoyer la demande de mise à jour à l'hôte (injoignable)", 'error');
+                Common::printAlert("Impossible d'envoyer la demande de mise à jour à l'hôte (injoignable)", 'error');
                 return false;
             }
 
@@ -758,7 +908,7 @@ class Host extends Model {
             $message .= "$hostHostname ($hostIp)<br>";
         }
 
-        printAlert("Demande de mise à jour envoyée aux hôtes suivants :<br>$message", 'success');
+        Common::printAlert("Demande de mise à jour envoyée aux hôtes suivants :<br>$message", 'success');
 
         return true;
     }

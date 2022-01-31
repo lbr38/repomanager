@@ -5,7 +5,6 @@
 define("ROOT", dirname(__FILE__, 2));
 require_once(ROOT."/models/Autoloader.php");
 Autoloader::loadFromApi();
-require_once(ROOT."/functions/common-functions.php");
 
 /**
  *  1. Récupération de l'argument : type d'opération à exécuter

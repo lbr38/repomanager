@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 /**
  *  Instancie un nouvel objet Group en précisant qu'il faut utiliser la BDD repomanager-hosts.db
@@ -68,52 +67,35 @@ if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "regist
 
 /**
  *  Mise à jour d'un ou plusieurs hote(s)
- *  La requête peut être en GET (1 seul) ou en POST (plusieurs)
  */
 if ((!empty($_GET['action']) AND Common::validateData($_GET['action']) == "update") OR (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "update")) {
     $myhost = new Host();
-    
-    /**
-     *  Mise à jour d'un seul hote
-     */
-    /*if (!empty($_GET['id'])) {
-        $myhost->id = Common::validateData($_GET['id']);
-    }*/
-    
-    /**
-     *  Mise à jour de plusieurs hotes (plusieurs checkbox sélectionnées)
-     */
-    /*if (!empty($_POST['checkbox-host'])) {
-        $myhost->idArray = $_POST['checkbox-host'];
-    }*/
         
     $myhost->update($_POST['checkbox-host']);
 }
 
 /**
  *  Suppression d'un ou plusieurs hôtes
- *  La requete peut être en GET (1 seul) ou en POST (plusieurs)
  */
 if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "delete" AND !empty($_POST['checkbox-host'])) {
     $myhost = new Host();
 
-    /**
-     *  Suppression de plusieurs hotes (plusieurs checkbox sélectionnées)
-     */
-    /*if (!empty($_POST['checkbox-host'])) {
-        $myhost->idArray = $_POST['checkbox-host'];
-    }*/
-
     $myhost->unregister($_POST['checkbox-host']);
+}
+
+/**
+ *  Reset d'un ou plusieurs hôtes
+ */
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "reset" AND !empty($_POST['checkbox-host'])) {
+    $myhost = new Host();
+
+    $myhost->reset($_POST['checkbox-host']);
 } 
 
 /**
  *  Cas où un raffraichissement automatique a été demandé 
  */
 if (isset($_GET['auto'])) {
-    /**
-     *  
-     */
     $myhost = new Host();
 
     /**
@@ -140,11 +122,10 @@ if (isset($_GET['auto'])) {
             $myhost->update_online_status();
         }
     }
-}
-?>
+} ?>
 
 <body>
-<?php include('includes/header.inc.php');?>
+<?php include_once('../includes/header.inc.php');?>
 
 <article>
     <section class="main">
@@ -232,7 +213,7 @@ if (isset($_GET['auto'])) {
                             /*    echo '<td class="td-fit">';
                                 echo "<img id=\"groupConfigurationToggleButton-${groupName}\" class=\"icon-mediumopacity\" title=\"Configuration de $groupName\" src=\"ressources/icons/cog.png\" />";
                                 echo "<img src=\"ressources/icons/bin.png\" class=\"groupDeleteToggleButton-${groupName} icon-lowopacity\" title=\"Supprimer le groupe ${groupName}\" />";
-                                deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv-${groupName}", "groupDeleteToggleButton-${groupName}");
+                                Common::deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv-${groupName}", "groupDeleteToggleButton-${groupName}");
                                 echo '</td>';
                                 echo '</tr>';
                                 echo '</table>';
@@ -311,136 +292,141 @@ if (isset($_GET['auto'])) {
 
                         /**
                          * Formulaire sur le tableau, permet de gérer les checkbox pour effectuer une action commune sur plusieurs hôtes sélectionnés
-                         */
-                        echo '<form action="hosts.php" method="post" autocomplete="off">';
-                        echo "<input type='hidden' name='groupname' value='$group->name'>";
-                        echo '<div class="hosts-group-container">';
-
-                        /**
-                         *  On affiche le nom du groupe sauf si il s'agit du groupe Default
-                         */
-                        if ($group->name != "Default") {
-                            echo "<h3>$group->name</h3>";
-                        }
-
-                        /**
-                         *  Boutons d'actions sur les checkbox sélectionnées
-                         */
-                        echo "<div class='js-buttons-$group->name hide float-right'>";
-                        echo "<button name='action' value='delete' class='hide pointer btn-medium-red js-delete-all-button' group='$group->name'><img src='ressources/icons/bin.png' class='icon' /><b>Supprimer</b></button>";
-                        echo "<button name='action' value='update' class='hide pointer btn-medium-blue js-update-all-button' group='$group->name'><img src='ressources/icons/update.png' class='icon' /><b>Mettre à jour</b></button>";
-                        echo '</div>';
-
-                        /**
-                         *  Affichage des hôtes du groupe
-                         */
-                        if (!empty($hostsList)) { ?>
-                            <table class="hosts-table">
-                                <thead>
-                                    <tr>
-                                        <td></td>
-                                        <td>Hôte</td>
-                                        <td>Status de mise à jour</td>
-                                        <td>Paquets disponibles</td>
-                                        <td></td>
-                                        <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                         */ ?>
+                        <form action="hosts.php" method="post" autocomplete="off">
+                            <input type='hidden' name='groupname' value='<?php echo $group->name;?>'>
+                            
+                            <div class="hosts-group-container">
                                 <?php
-                                foreach ($hostsList as $host) {
-                                    /**
-                                     *  On ouvre la BDD dédiée à l'hôte à partir de son ID, pour pouvoir récupérer des informations supplémentaires.
-                                     */
-                                    $myhost->openHostDb($host['Id'], 'ro');
+                                /**
+                                 *  On affiche le nom du groupe sauf si il s'agit du groupe Default
+                                 */
+                                if ($group->name != "Default") {
+                                    echo "<h3>$group->name</h3>";
+                                }
 
-                                    /**
-                                     *  Récupération des paquets disponibles pour installation
-                                     */
-                                    $packagesAvailable = $myhost->getPackagesAvailable();
-                                    $packagesAvailableTotal = count($packagesAvailable);
+                                /**
+                                 *  Boutons d'actions sur les checkbox sélectionnées
+                                 */ ?>
+                                <div class='js-buttons-<?php echo $group->name;?> hide float-right'>
+                                    <button name='action' value='delete' class='hide pointer btn-medium-red ' group='<?php echo $group->name;?>'><img src='ressources/icons/bin.png' class='icon' /><b>Supprimer</b></button>
+                                    <button name='action' value='reset' class='hide pointer btn-small-red' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Reset</b></button>
+                                    <!-- <button name='action' value='general-status-update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Informations générales</b></button> -->
+                                    <!-- <button name='action' value='available-packages-status-update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets disponibles</b></button> -->
+                                    <button name='action' value='update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Mettre à jour les paquets</b></button>
+                                </div>
 
-                                    /**
-                                     *  Si le nombre total de paquets disponibles récupéré précédemment est > 1 alors on incrémente $totalNotUptodate (recense le nombre d'hôtes qui ne sont pas à jour dans le chartjs)
-                                     *  Sinon c'est $totalUptodate qu'on incrémente.
-                                     */
-                                    if ($packagesAvailableTotal > 1) 
-                                        $totalNotUptodate++;
-                                    else
-                                        $totalUptodate++;
-                                        
-                                    /**
-                                     *  Récupération du status de la dernière mise à jour (si il y en a)
-                                     */
-                                    $lastUpdateStatus = $myhost->getLastUpdateStatus();
-
-                                    echo '<tr>';
-                                        /**
-                                         *  Status ping
-                                         */
-                                        if ($host['Online_status'] == "online")
-                                            echo '<td><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" /></td>';
-                                        if ($host['Online_status'] == "unknown")
-                                            echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" /></td>';
-                                        if ($host['Online_status'] == "unreachable")
-                                            echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" /></td>';
-                                        /**
-                                         *  Nom de l'hôte + ip
-                                         */
-                                        if ($host['Os'] == "Centos" OR $host['Os'] == "centos" OR $host['Os'] == "CentOS") {
-                                            echo '<td><img src="ressources/icons/centos.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                        } elseif ($host['Os'] == "Debian" OR $host['Os'] == "debian") {
-                                            echo '<td><img src="ressources/icons/debian.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                        } elseif ($host['Os'] == "Ubuntu" OR $host['Os'] == "ubuntu" OR $host['Os'] == "linuxmint") {
-                                            echo '<td><img src="ressources/icons/ubuntu.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                        } else {
-                                            echo '<td><img src="ressources/icons/tux.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                        }
-                                        /**
-                                         *  Status de mise à jour
-                                         */
-                                        echo '<td>';
-                                        if (empty($lastUpdateStatus['Status']))
-                                            echo "-";
-                                        elseif ($lastUpdateStatus['Status'] == "running")
-                                            echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En cours</span>";
-                                        elseif ($lastUpdateStatus['Status'] == "error")
-                                            echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En erreur</span>";
-                                        elseif ($lastUpdateStatus['Status'] == "done")
-                                            echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Terminée</span>";
-                                        elseif ($lastUpdateStatus['Status'] == "requested") {
+                                <?php
+                                /**
+                                 *  Affichage des hôtes du groupe
+                                 */
+                                if (!empty($hostsList)) { ?>
+                                    <table class="hosts-table">
+                                        <thead>
+                                            <tr>
+                                                <td></td>
+                                                <td>Hôte</td>
+                                                <td>Status de mise à jour</td>
+                                                <td>Paquets disponibles</td>
+                                                <td></td>
+                                                <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        foreach ($hostsList as $host) {
                                             /**
-                                             *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +5min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
+                                             *  On ouvre la BDD dédiée à l'hôte à partir de son ID, pour pouvoir récupérer des informations supplémentaires.
                                              */
-                                            if ($lastUpdateStatus['Date'] != DATE_YMD OR $lastUpdateStatus['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 5 minutes'))) {
-                                                echo "<span class='yellowtext' title=\"La demande de mise à jour semble ne pas avoir été prise en compte par l'hôte (demandée le ".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time'].")\">Mise à jour demandée</span>";
-                                            } else {
-                                                echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Mise à jour demandée</span>";
-                                            }
-                                        } ?>
-                                        </td>
-                                        <td>
-                                            <?php
-                                            if ($packagesAvailableTotal < "10") {
-                                                echo '<span>'.$packagesAvailableTotal.'</span>';
-                                            } elseif ($packagesAvailableTotal >= "10" AND $packagesAvailableTotal < "20") {
-                                                echo '<span class="yellowtext">'.$packagesAvailableTotal.'</span>';
-                                            } elseif ($packagesAvailableTotal > "20") {
-                                                echo '<span class="redtext">'.$packagesAvailableTotal.'</span>';
-                                            }
-                                            ?>
-                                        </td>
-                                        <td><span class="printHostDetails pointer" host_id="<?php echo $host['Id']; ?>">Détails</span><a href="host.php?id=<?php echo $host['Id']; ?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a></td>
-                                        <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
-                                    </tr>
-                        <?php   }
-                                echo '</tbody>';
-                            echo '</table>';
-                        } else {
-                            echo '<p>Il n\'y a aucun hôte dans ce groupe</p>';
-                        }
-                                
-                        echo '</div>';
+                                            $myhost->openHostDb($host['Id'], 'ro');
+
+                                            /**
+                                             *  Récupération des paquets disponibles pour installation
+                                             */
+                                            $packagesAvailable = $myhost->getPackagesAvailable();
+                                            $packagesAvailableTotal = count($packagesAvailable);
+
+                                            /**
+                                             *  Si le nombre total de paquets disponibles récupéré précédemment est > 1 alors on incrémente $totalNotUptodate (recense le nombre d'hôtes qui ne sont pas à jour dans le chartjs)
+                                             *  Sinon c'est $totalUptodate qu'on incrémente.
+                                             */
+                                            if ($packagesAvailableTotal > 1) 
+                                                $totalNotUptodate++;
+                                            else
+                                                $totalUptodate++;
+                                                
+                                            /**
+                                             *  Récupération du status de la dernière mise à jour (si il y en a)
+                                             */
+                                            $lastUpdateStatus = $myhost->getLastUpdateStatus();
+
+                                            echo '<tr>';
+                                                /**
+                                                 *  Status ping
+                                                 */
+                                                if ($host['Online_status'] == "online")
+                                                    echo '<td><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" /></td>';
+                                                if ($host['Online_status'] == "unknown")
+                                                    echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" /></td>';
+                                                if ($host['Online_status'] == "unreachable")
+                                                    echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" /></td>';
+                                                /**
+                                                 *  Nom de l'hôte + ip
+                                                 */
+                                                if ($host['Os'] == "Centos" OR $host['Os'] == "centos" OR $host['Os'] == "CentOS") {
+                                                    echo '<td><img src="ressources/icons/centos.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
+                                                } elseif ($host['Os'] == "Debian" OR $host['Os'] == "debian") {
+                                                    echo '<td><img src="ressources/icons/debian.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
+                                                } elseif ($host['Os'] == "Ubuntu" OR $host['Os'] == "ubuntu" OR $host['Os'] == "linuxmint") {
+                                                    echo '<td><img src="ressources/icons/ubuntu.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
+                                                } else {
+                                                    echo '<td><img src="ressources/icons/tux.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
+                                                }
+                                                /**
+                                                 *  Status de mise à jour
+                                                 */
+                                                echo '<td>';
+                                                if (empty($lastUpdateStatus['Status']))
+                                                    echo "-";
+                                                elseif ($lastUpdateStatus['Status'] == "running")
+                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En cours</span>";
+                                                elseif ($lastUpdateStatus['Status'] == "error")
+                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En erreur</span>";
+                                                elseif ($lastUpdateStatus['Status'] == "done")
+                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Terminée</span>";
+                                                elseif ($lastUpdateStatus['Status'] == "requested") {
+                                                    /**
+                                                     *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +5min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
+                                                     */
+                                                    if ($lastUpdateStatus['Date'] != DATE_YMD OR $lastUpdateStatus['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 5 minutes'))) {
+                                                        echo "<span class='yellowtext' title=\"La demande de mise à jour semble ne pas avoir été prise en compte par l'hôte (demandée le ".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time'].")\">Mise à jour demandée</span>";
+                                                    } else {
+                                                        echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Mise à jour demandée</span>";
+                                                    }
+                                                } ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    if ($packagesAvailableTotal < "10") {
+                                                        echo '<span>'.$packagesAvailableTotal.'</span>';
+                                                    } elseif ($packagesAvailableTotal >= "10" AND $packagesAvailableTotal < "20") {
+                                                        echo '<span class="yellowtext">'.$packagesAvailableTotal.'</span>';
+                                                    } elseif ($packagesAvailableTotal > "20") {
+                                                        echo '<span class="redtext">'.$packagesAvailableTotal.'</span>';
+                                                    }
+                                                    ?>
+                                                </td>
+                                                <td><span class="printHostDetails pointer" host_id="<?php echo $host['Id']; ?>">Détails</span><a href="host.php?id=<?php echo $host['Id']; ?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a></td>
+                                                <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
+                                            </tr>
+                                <?php   }
+                                        echo '</tbody>';
+                                    echo '</table>';
+                                } else {
+                                    echo '<p>Il n\'y a aucun hôte dans ce groupe</p>';
+                                }
+    
+                            echo '</div>';
                         echo '</form>';
                     }
                     echo '</div>';
@@ -449,7 +435,7 @@ if (isset($_GET['auto'])) {
         </section>
     </section>
 </article>
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 </body>
 <script>
 $(document).ready(function(){

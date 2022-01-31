@@ -1,5 +1,4 @@
 <?php
-require_once(ROOT.'/functions/common-functions.php');
 
 class Login extends Model {
     public $db;
@@ -75,7 +74,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
@@ -102,7 +101,7 @@ class Login extends Model {
             $stmt->bindValue(':username', Common::validateData($username));
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
@@ -124,7 +123,7 @@ class Login extends Model {
         try {
             $result = $this->db->query("SELECT users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
@@ -145,7 +144,7 @@ class Login extends Model {
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
         if (Common::is_alphanumdash($username) === false) {
-            printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
+            Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
             return false;
         }
 
@@ -157,12 +156,12 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
         if ($this->db->isempty($result) === false) {
-            printAlert("Le nom d'utilisateur <b>$username</b> est déjà utilisé", 'error');
+            Common::printAlert("Le nom d'utilisateur <b>$username</b> est déjà utilisé", 'error');
             return false;
         }
 
@@ -176,7 +175,7 @@ class Login extends Model {
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            printAlert("Erreur lors de la création de l'utilisateur", 'error');
+            Common::printAlert("Erreur lors de la création de l'utilisateur", 'error');
             return false;
         }
 
@@ -190,11 +189,11 @@ class Login extends Model {
             $stmt->bindValue(':first_name', $username);
             $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
-        printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
+        Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
 
         History::set($_SESSION['username'], "Création de l'utilisateur $username", 'success');
 
@@ -219,7 +218,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
@@ -296,7 +295,7 @@ class Login extends Model {
         if (!empty($last_name))  $last_name = Common::validateData($last_name);
         if (!empty($email)) {
             if (Common::validateMail($email) === false) {
-                printAlert("L'adresse email est incorrecte", 'error');
+                Common::printAlert("L'adresse email est incorrecte", 'error');
                 return;
             }
         }
@@ -312,7 +311,7 @@ class Login extends Model {
             $stmt->bindValue(':email', $email);
             $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Erreur lors de la modification des paramètres', 'error');
+            Common::printAlert('Erreur lors de la modification des paramètres', 'error');
             return;
         }
 
@@ -325,7 +324,7 @@ class Login extends Model {
 
         History::set($_SESSION['username'], "Modifications des informations personnelles", 'success');
 
-        printAlert('Les modifications ont été appliquées', 'success');
+        Common::printAlert('Les modifications ont été appliquées', 'success');
     }
 
     /**
@@ -352,7 +351,7 @@ class Login extends Model {
          *  On vérifie que le nouveau mot de passe renseigné et sa re-saisie sont les mêmes
          */
         if ($new_password !== $new_password2) {
-            printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
+            Common::printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
             return;
         }
    
@@ -360,7 +359,7 @@ class Login extends Model {
          *  On vérifie que le nouveau mot de passe renseigné et l'ancien (hashé en bdd) sont différents
          */
         if (password_verify($new_password, $actual_password_hashed)) {
-            printAlert('Le nouveau mot de passe est identique à l\'ancien mot de passe', 'error');
+            Common::printAlert('Le nouveau mot de passe est identique à l\'ancien mot de passe', 'error');
             return;
         }
 
@@ -378,13 +377,13 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
         History::set($_SESSION['username'], "Modification du mot de passe", 'success');
 
-        printAlert('Le mot de passe a bien été changé', 'success');
+        Common::printAlert('Le mot de passe a bien été changé', 'success');
     }
 
     /**
@@ -402,12 +401,12 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
         if ($this->db->isempty($result) === true) {
-            printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
             return false;
         }
 
@@ -421,7 +420,7 @@ class Login extends Model {
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            printAlert("Erreur lors de la création de l'utilisateur <b>$username</b>", 'error');
+            Common::printAlert("Erreur lors de la création de l'utilisateur <b>$username</b>", 'error');
             return false;
         }
 
@@ -434,13 +433,13 @@ class Login extends Model {
             $stmt->bindValue(':password', $password_hashed);
             $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return false;
         }
 
         History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur $username", 'success');
 
-        printAlert('Le mot de passe a été regénéré', 'success');
+        Common::printAlert('Le mot de passe a été regénéré', 'success');
 
         return $password;
     }
@@ -460,12 +459,12 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
         if ($this->db->isempty($result) === true) {
-            printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
             return;
         }
 
@@ -477,13 +476,13 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
         History::set($_SESSION['username'], "Suppression de l'utilisateur $username", 'success');
 
-        printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
+        Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
     }
 }
 ?>

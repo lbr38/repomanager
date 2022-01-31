@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 /**
  *  Cette page est accessible uniquement aux utilisateurs administrateur, on redirige les autres vers l'accueil
@@ -326,7 +325,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
         /**
          *  On stoppe le process stats-log-parser.sh actuel, il sera relancé au rechargement de la page
          */
-        kill_stats_log_parser();
+        Common::kill_stats_log_parser();
     }
 /**
  *  Section AUTOMATISATION
@@ -402,7 +401,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Nettoyage du cache de repos-list
      */
-    clearCache();
+    Common::clearCache();
 }
 
 /**
@@ -460,12 +459,12 @@ function save(array $array) {
     /**
      *  On écrit toutes les modifications dans le fichier display.ini
      */
-    write_ini_file(REPOMANAGER_CONF, $array);
+    Common::write_ini_file(REPOMANAGER_CONF, $array);
 
     /**
      *  On appelle enableCron pour qu'il ré-écrive / supprime les lignes de la crontab
      */
-    enableCron();
+    Common::enableCron();
 
     /**
      *  Puis rechargement de la page pour appliquer les modifications de configuration
@@ -478,7 +477,7 @@ function save(array $array) {
  * Deploiement des tâches cron
  */
 if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "enableCron") {
-    enableCron();
+    Common::enableCron();
 }
 
 /**
@@ -499,7 +498,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "add
     /**
      *  Nettoyage du cache de repos-list
      */
-    clearCache();
+    Common::clearCache();
 }
 
 /**
@@ -515,7 +514,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Nettoyage du cache de repos-list
      */
-    clearCache();
+    Common::clearCache();
 } 
 
 /**
@@ -528,7 +527,7 @@ if (!empty($_GET['deleteEnv'])) {
     /**
      *  Nettoyage du cache de repos-list
      */
-    clearCache();
+    Common::clearCache();
 }
 
 /**
@@ -578,7 +577,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
 ?>
 
 <body>
-<?php include('includes/header.inc.php');?>
+<?php include_once('../includes/header.inc.php');?>
 
 <article>
 <section class="mainSectionLeft">
@@ -928,7 +927,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     echo '</td>';
                     echo '<td class="td-fit center">';
                     echo "<img src=\"ressources/icons/bin.png\" class=\"envDeleteToggle-${envName} icon-lowopacity\" title=\"Supprimer l'environnement ${envName}\"/>";
-                    deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}");
+                    Common::deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}");
                     echo '</td>';
                     if ($envName == DEFAULT_ENV) {
                         echo '<td>(defaut)</td>';
@@ -1182,7 +1181,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 echo '<td></td>'; // comble les td affichant des boutons radio de la précédente ligne
                 echo '<td>';
                 // On vérifie la présence d'une ligne contenant 'planifications/plan.php' dans la crontab
-                $cronStatus = checkCronReminder();
+                $cronStatus = Common::checkCronReminder();
                 if ($cronStatus == 'On')  echo '<span title="OK">Status <img src="ressources/icons/greencircle.png" class="icon-small" /></span>';
                 if ($cronStatus == 'Off') echo '<span title="Erreur">Status <img src="ressources/icons/redcircle.png" class="icon-small" /></span>';
                 echo '</td>';
@@ -1291,6 +1290,6 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
 </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 </body>
 </html>

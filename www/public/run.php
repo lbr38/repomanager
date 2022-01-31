@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <?php 
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
-require_once('functions/run.functions.php');
+include_once('../includes/head.inc.php');
+require_once('../functions/run.functions.php');
 
 /**
  * 	Bouton 'Stop' pour arrêter une opération en cours
@@ -24,7 +23,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 
 <body>
 <div id="top"></div> <!-- pour atteindre le haut de la page -->
-<?php include('includes/header.inc.php'); ?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
 <section class="mainSectionLeft">
@@ -404,7 +403,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 <div id="bottom"></div> <!-- pour atteindre le bas de page -->
 </body>
 <script>

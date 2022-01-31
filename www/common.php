@@ -97,16 +97,16 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "conf
             $displayConfiguration['display']['cache_repos_list'] = 'yes';
         } else {
             $displayConfiguration['display']['cache_repos_list'] = 'no';
-            clearCache();
+            Common::clearCache();
             if (is_link(WWW_CACHE)) unlink(WWW_CACHE);
             if (is_dir(WWW_CACHE))  rmdir(WWW_CACHE);
         }
     }
 
     // On écrit les modifications dans le fichier display.ini
-    write_ini_file(DISPLAY_CONF, $displayConfiguration);
+    Common::write_ini_file(DISPLAY_CONF, $displayConfiguration);
 
-    clearCache();
+    Common::clearCache();
 
     // Puis rechargement de la page pour appliquer les modifications d'affichage
     header('Location: '.__ACTUAL_URL__);

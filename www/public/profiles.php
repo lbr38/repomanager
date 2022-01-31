@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php 
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 /**
  *  Cas où on souhaite modifier la conf serveur
@@ -46,7 +45,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Affichage d'un message
      */
-    printAlert("La configuration du serveur a été enregistrée", 'success');
+    Common::printAlert("La configuration du serveur a été enregistrée", 'success');
 }
 
 /**
@@ -57,14 +56,14 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
 ?>
 
 <body>
-<?php include('includes/header.inc.php'); ?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
 <section class="mainSectionLeft">
     <!-- REPOS ACTIFS -->
     <section id="profilesDiv" class="left">
         <h3>PROFILS</h3>
-        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <?php if (OS_FAMILY == "Redhat") { echo "yum-update-auto"; } if (OS_FAMILY == "Debian") { echo "apt-update-auto"; } ?>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <a href="https://github.com/lbr38/linupdate">linupdate</a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
         <br>
         <p>Créer un nouveau profil :</p>
         <form id="newProfileForm" action="profiles.php" method="post" autocomplete="off">
@@ -368,6 +367,6 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
 </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 </body>
 </html>

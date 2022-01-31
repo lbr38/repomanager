@@ -24,7 +24,7 @@ trait deleteSection {
         </tr>
         <tr>
             <th>SECTION :</th>
-            <td><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</td>
+            <td><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</td>
         </tr>
         </table>";
 
