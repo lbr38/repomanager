@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 /**
  *  Chargement de la BDD stats
@@ -52,7 +51,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 ?>
 
 <body>
-<?php include('includes/header.inc.php');?>
+<?php include_once('../includes/header.inc.php');?>
 
 <article>
     <section class="main">
@@ -66,8 +65,8 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                 }
 
                 if ($repoError === 0) {
-                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) echo "<p>Statistiques du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
-                    if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) echo "<p>Statistiques de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
+                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) echo "<p>Statistiques du repo <b>$myrepo->name</b> " . Common::envtag($myrepo->env) . "</p>";
+                    if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) echo "<p>Statistiques de la section <b>$myrepo->section</b> " . Common::envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                 }
 
                 echo '<br>';
@@ -502,7 +501,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 </article>
 <?php 
     $mystats->closeConnection();
-    include('includes/footer.inc.php');
+    include_once('../includes/footer.inc.php');
 ?>
 </body>
 <script>

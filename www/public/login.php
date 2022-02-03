@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <?php
-if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 1));
-require_once('models/Autoloader.php');
+if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
+require_once('../models/Autoloader.php');
 Autoloader::register();
 Autoloader::loadSystem();
 Autoloader::loadConfiguration();
 Autoloader::loadDirs();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 $loginErrors = array();
 $error = 0;

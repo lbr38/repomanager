@@ -30,7 +30,7 @@ class History {
             if (empty($user_id)) throw new Exception();
 
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
         }
 
         try {
@@ -42,7 +42,7 @@ class History {
             $stmt->bindValue(':state', $state);
             $stmt->execute();
         } catch(Exception $e) {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
+            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
         }
     }
 }

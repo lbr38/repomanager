@@ -5,7 +5,6 @@ if (!defined('ROOT')) {
 }
 require_once(ROOT.'/models/Autoloader.php');
 Autoloader::load();
-require_once(ROOT."/functions/common-functions.php");
 
 $idError = 0;
 
@@ -136,7 +135,7 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                             <td>ENVIRONNEMENT</td>
                             <?php
                             if (!empty($env)) {
-                                echo "<td>".envtag($env)."</td>";
+                                echo "<td>".Common::envtag($env)."</td>";
                             } else {
                                 echo '<td>Inconnu</td>';
                             } ?>

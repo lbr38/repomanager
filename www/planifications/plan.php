@@ -13,7 +13,6 @@ define('ROOT', dirname(__FILE__, 2));
  */
 require_once(ROOT.'/models/Autoloader.php');
 Autoloader::loadFromApi();
-require_once(ROOT."/functions/common-functions.php");
 
 /**
  *  Si il y a eu un pb lors du chargement des constantes alors on quitte

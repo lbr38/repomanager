@@ -20,7 +20,7 @@ class Environnement extends Model {
      */
     public function new() {
         if (!Common::is_alphanumdash($this->name)) {
-            printAlert("Erreur : le nom d'environnement contient des caractères invalides", 'error');
+            Common::printAlert("Erreur : le nom d'environnement contient des caractères invalides", 'error');
             return;
         }
 
@@ -78,7 +78,7 @@ class Environnement extends Model {
 
             foreach($envsToInsert as $env) {
                 if (!Common::is_alphanumdash($env)) {
-                    printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
+                    Common::printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
                     return;
                 }
         

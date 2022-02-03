@@ -2,17 +2,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
 body { background-color: #333333; }
 
-#errorDiv { 
+#errorDiv-container {
+    width: 98vw;
+    height: 98vh;
+    position: relative;
+    margin: auto;
+}
+
+#errorDiv {
     width: 1000px;
     height: 400px;
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
     line-height: 400px;
-    margin: 0px;
     padding: 0px;
     margin: auto;
     font-family: 'Montserrat', sans-serif;
     color: whitesmoke;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow:
     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
     0px 2px 2px 0px rgba(255, 255, 255, 0.2);

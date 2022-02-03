@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
-require_once('functions/explore.functions.php');
+include_once('../includes/head.inc.php');
+require_once('../functions/explore.functions.php');
 
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
@@ -116,7 +115,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uplo
      */
     if (!is_dir($targetDir)) {
         if (!mkdir($targetDir, 0770, true)) {
-            printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
+            Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
             return;
         }
     }
@@ -200,9 +199,9 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uplo
     }
 
     if ($uploadError === 0) {
-        printAlert('Les fichiers ont été chargés', 'success');
+        Common::printAlert('Les fichiers ont été chargés', 'success');
     } else {
-        printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
+        Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
     }
 }
 
@@ -265,7 +264,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
 ?>
 
 <body>
-<?php include('includes/header.inc.php');?>
+<?php include_once('../includes/header.inc.php');?>
 
 <article>
     <section class="mainSectionLeft">
@@ -280,17 +279,17 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
 
                 if ($pathError === 0) {
                     if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) {
-                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . envtag($myrepo->env) . "</p>";
+                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . Common::envtag($myrepo->env) . "</p>";
                         if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>$myrepo->name</b>.</p>";
                     }
 
                     if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) {
-                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
+                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . Common::envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                         if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>$myrepo->section</b> du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
                     }
 
                     if (is_dir("$repoPath/my_uploaded_packages")) {
-                        if(!dir_is_empty("$repoPath/my_uploaded_packages")) {
+                        if(!Common::dir_is_empty("$repoPath/my_uploaded_packages")) {
                             echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
                         }
                     }
@@ -421,6 +420,6 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
     </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 </body>
 </html>

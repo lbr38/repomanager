@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
+include_once('../includes/head.inc.php');
 
 /**
  *  Modification des informations personnelles
@@ -53,7 +52,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
 ?>
 
 <body>
-<?php include('includes/header.inc.php'); ?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
     <section class="main">
@@ -117,7 +116,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
     </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 
 </body>
 </html>

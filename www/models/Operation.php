@@ -1,5 +1,4 @@
 <?php
-require_once(ROOT."/functions/common-functions.php"); // pour avoir accès à la fonction clearCache
 include_once(ROOT."/models/includes/new.php");
 include_once(ROOT."/models/includes/update.php");
 include_once(ROOT."/models/includes/op_printDetails.php");
@@ -249,9 +248,9 @@ class Operation extends Model {
         }
 
         unset($stmt, $datas, $result);
-        printAlert("L'opération a été arrêtée", 'success');
+        Common::printAlert("L'opération a été arrêtée", 'success');
 
-        clearCache();
+        Common::clearCache();
     }
 
     private function validate() {
@@ -783,7 +782,7 @@ class Operation extends Model {
         /**
          *  Nettoyage du cache de repos-list
          */
-        clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -819,12 +818,12 @@ class Operation extends Model {
              *  Ok on a toutes les infos mais il faut vérifier qu'un/une repo/section du même nom n'existe pas déjà
              */
             if (OS_FAMILY == "Redhat" AND $this->repo->exists($this->repo->name) === true) {
-                echo "<p>Erreur : Un repo du même nom existe déjà en ".envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Un repo du même nom existe déjà en ".Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             } 
             if (OS_FAMILY == "Debian" AND $this->repo->section_exists($this->repo->name, $this->repo->dist, $this->repo->section) === true) {
-                echo "<p>Erreur : Une section du même nom existe déjà en ".envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Une section du même nom existe déjà en ".Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
@@ -850,11 +849,11 @@ class Operation extends Model {
                 if (empty($_GET['confirm'])) {
                     if (OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo :</p>';
                     if (OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section :</p>';
-                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>";
+                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".Common::envtag($this->repo->env)." ({$this->repo->source})</b></span>";
                     if (OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ({$this->repo->source})</span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                        echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
+                        echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</span>";
                     }
                 }
 
@@ -871,11 +870,11 @@ class Operation extends Model {
                 if (empty($_GET['confirm'])) {
                     if (OS_FAMILY == "Redhat") echo '<p>L\'opération va créer un nouveau repo local :</p>';
                     if (OS_FAMILY == "Debian") echo '<p>L\'opération va créer une nouvelle section de repo local :</p>';
-                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
+                    if (OS_FAMILY == "Redhat") echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b> ".Common::envtag($this->repo->env)."</span>";
                     if (OS_FAMILY == "Debian") { 
                         echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
                         echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                        echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
+                        echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</span>";
                     }
                 }
 
@@ -963,12 +962,12 @@ class Operation extends Model {
              */
             if (OS_FAMILY == "Redhat") {
                 if ($this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
-                    echo "<p>Erreur : Il n'existe aucun repo {$this->repo->name} ".envtag($this->repo->env)." à mettre à jour.</p>";
+                    echo "<p>Erreur : Il n'existe aucun repo {$this->repo->name} ".Common::envtag($this->repo->env)." à mettre à jour.</p>";
                 }
             }
             if (OS_FAMILY == "Debian") {
                 if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
-                    echo "<p>Erreur : Il n'existe aucune section {$this->repo->section} ".envtag($this->repo->env)." du repo {$this->repo->name} (distribution {$this->repo->dist}) à mettre à jour.</p>";
+                    echo "<p>Erreur : Il n'existe aucune section {$this->repo->section} ".Common::envtag($this->repo->env)." du repo {$this->repo->name} (distribution {$this->repo->dist}) à mettre à jour.</p>";
                 }
             }
 
@@ -978,11 +977,11 @@ class Operation extends Model {
             if (empty($_GET['confirm'])) {
                 if (OS_FAMILY == "Redhat") { echo '<p>L\'opération va mettre à jour le repo :</p>'; }
                 if (OS_FAMILY == "Debian") { echo '<p>L\'opération va mettre à jour la section :</p>'; }
-                if (OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".envtag($this->repo->env)." ({$this->repo->source})</b></span>"; }
+                if (OS_FAMILY == "Redhat") { echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ".Common::envtag($this->repo->env)." ({$this->repo->source})</b></span>"; }
                 if (OS_FAMILY == "Debian") {
                     echo "<span>Nom du repo :</span><span><b>{$this->repo->name} ({$this->repo->source})</b></span>";
                     echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                    echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
+                    echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</span>";
                 }
             }
 
@@ -1023,12 +1022,12 @@ class Operation extends Model {
              *  Ok on a toutes les infos mais pour créer un nouvel env au repo, mais il faut vérifier qu'il existe
              */
             if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->env) === false) {
-                echo "<p>Erreur : Il n'existe aucun repo <b>{$this->repo->name}</b> en ".envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Il n'existe aucun repo <b>{$this->repo->name}</b> en ".Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
             if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
-                echo "<p>Erreur : Il n'existe aucune section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> (distribution {$this->repo->dist}) en ".envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Il n'existe aucune section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b> (distribution {$this->repo->dist}) en ".Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
@@ -1087,13 +1086,13 @@ class Operation extends Model {
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
              */
             if (empty($_GET['confirm'])) {
-                if (OS_FAMILY == "Redhat") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur le repo suivant :</p>"; }
-                if (OS_FAMILY == "Debian") { echo "<p>L'opération va faire pointer un environnement ".envtag($this->repo->newEnv)." sur la section de repo suivante : </p>"; }
+                if (OS_FAMILY == "Redhat") { echo "<p>L'opération va faire pointer un environnement ".Common::envtag($this->repo->newEnv)." sur le repo suivant :</p>"; }
+                if (OS_FAMILY == "Debian") { echo "<p>L'opération va faire pointer un environnement ".Common::envtag($this->repo->newEnv)." sur la section de repo suivante : </p>"; }
                 echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
                 if (OS_FAMILY == "Debian") { echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>"; }
                 if (OS_FAMILY == "Debian") { echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>"; }
-                echo "<span>Env. :</span><span>".envtag($this->repo->env)."</span>";
-                if ($repoArchive == "yes") echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivé</p>";
+                echo "<span>Env. :</span><span>".Common::envtag($this->repo->env)."</span>";
+                if ($repoArchive == "yes") echo "<p>Le miroir actuellement en ".Common::envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoArchiveDate)->format('d-m-Y')."</b> sera archivé</p>";
                 echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
             }
 
@@ -1154,8 +1153,8 @@ class Operation extends Model {
                 if (OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
                 echo "<span>Repo :</span><span><b>{$this->repo->newName}</b></span>";
                 if (OS_FAMILY == "Debian") echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                if (OS_FAMILY == "Redhat") echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".envtag($this->repo->env)."</span>";
-                if (OS_FAMILY == "Debian") echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>";
+                if (OS_FAMILY == "Redhat") echo "<span>A partir du repo :</span><span><b>{$this->repo->name}</b> ".Common::envtag($this->repo->env)."</span>";
+                if (OS_FAMILY == "Debian") echo "<span>A partir de la section :</span><span><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)." du repo <b>{$this->repo->name}</b></span>";
                 echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
             }
 
@@ -1181,7 +1180,7 @@ class Operation extends Model {
              *  On a toutes les infos mais il faut vérifier que le repo mentionné existe
              */
             if ($this->repo->exists($this->repo->name) === false) {
-                echo "<p>Erreur : Il n'existe aucun repo {$this->repo->name} ".envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Il n'existe aucun repo {$this->repo->name} ".Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
@@ -1203,7 +1202,7 @@ class Operation extends Model {
                 if (OS_FAMILY == "Redhat") echo '<p>L\'opération va supprimer le repo suivant :</p>';
                 if (OS_FAMILY == "Debian") echo '<p>L\'opération va supprimer tout le contenu du repo suivant :</p>';
                 echo "<span>Nom du repo :</span><span><b>{$this->repo->name}</b></span>";
-                if (OS_FAMILY == "Redhat") echo "<span>Env :</span><span>".envtag($this->repo->env)."</span>";
+                if (OS_FAMILY == "Redhat") echo "<span>Env :</span><span>".Common::envtag($this->repo->env)."</span>";
                 if (OS_FAMILY == "Debian") {
                     if (!empty($distAndSectionsToBeDeleted)) {
                         echo '<p>Attention, cela supprimera les distributions et sections suivantes :</p>';
@@ -1212,7 +1211,7 @@ class Operation extends Model {
                             $dist = $distAndSection['Dist'];
                             $section = $distAndSection['Section'];
                             $env = $distAndSection['Env'];
-                            echo "<b>$dist</b> -> <b>$section</b> ".envtag($env)."<br><br>";
+                            echo "<b>$dist</b> -> <b>$section</b> ".Common::envtag($env)."<br><br>";
                         }
                         echo '</span>';
                     } else {
@@ -1295,7 +1294,7 @@ class Operation extends Model {
                     while ($sections = $sectionsToBeDeleted->fetchArray(SQLITE3_ASSOC)) {
                         $section = $sections['Section'];
                         $env = $sections['Env'];
-                        echo "<b>$section</b> ".envtag($env)."<br><br>";
+                        echo "<b>$section</b> ".Common::envtag($env)."<br><br>";
                     }
                     echo '</span>';
                 } else {
@@ -1345,7 +1344,7 @@ class Operation extends Model {
              *  On a toutes les infos mais il faut vérifier que la section mentionnée existe
              */
             if ($this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->env) === false) {
-                echo "<p>Erreur : Il n'existe aucune section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b>(distribution <b>{$this->repo->dist}</b>)" .envtag($this->repo->env)."</p>";
+                echo "<p>Erreur : Il n'existe aucune section <b>{$this->repo->section}</b> du repo <b>{$this->repo->name}</b>(distribution <b>{$this->repo->dist}</b>)" .Common::envtag($this->repo->env)."</p>";
                 echo '<a href="index.php" class="btn-large-red">Retour</a>';
                 return false;
             }
@@ -1357,7 +1356,7 @@ class Operation extends Model {
                 echo '<p>L\'opération va supprimer la section de repo suivante :</p>';
                 echo "<span>Repo :</span><span><b>{$this->repo->name}</b></span>";
                 echo "<span>Distribution :</span><span><b>{$this->repo->dist}</b></span>";
-                echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".envtag($this->repo->env)."</span>";
+                echo "<span>Section :</span><span><b>{$this->repo->section}</b> ".Common::envtag($this->repo->env)."</span>";
             }
 
             echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
@@ -1534,9 +1533,9 @@ class Operation extends Model {
                 if (OS_FAMILY == "Debian") echo "<span>Section :</span><span><b>{$this->repo->section}</b></span>";
                 if (OS_FAMILY == "Redhat") echo "<span>Date du repo :</span><span><b>{$this->repo->dateFormatted}</b></span>";
                 if (OS_FAMILY == "Debian") echo "<span>Date de la section :</span><span><b>{$this->repo->dateFormatted}</b></span>";
-                if (OS_FAMILY == "Redhat") echo "<p>La restauration placera le repo sur l'environnement ".envtag($this->repo->newEnv)."</p>";
-                if (OS_FAMILY == "Debian") echo "<p>La restauration placera la section sur l'environnement ".envtag($this->repo->newEnv)."</p>";
-                if ($repoArchive == "yes")  echo "<p>Le miroir actuellement en ".envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivée.</p>";
+                if (OS_FAMILY == "Redhat") echo "<p>La restauration placera le repo sur l'environnement ".Common::envtag($this->repo->newEnv)."</p>";
+                if (OS_FAMILY == "Debian") echo "<p>La restauration placera la section sur l'environnement ".Common::envtag($this->repo->newEnv)."</p>";
+                if ($repoArchive == "yes")  echo "<p>Le miroir actuellement en ".Common::envtag($this->repo->newEnv)." en date du <b>".DateTime::createFromFormat('Y-m-d', $repoToBeArchivedDate)->format('d-m-Y')."</b> sera archivée.</p>";
             }
 
             echo '<span class="loading">Chargement <img src="ressources/images/loading.gif" class="icon" /></span>';
@@ -1548,7 +1547,7 @@ class Operation extends Model {
 
                 try {
                     $this->exec_restore();
-                    echo "<p>Restauré en ".envtag($this->repo->newEnv)."</p>"; // Affichage du message à l'utilisateur
+                    echo "<p>Restauré en ".Common::envtag($this->repo->newEnv)."</p>"; // Affichage du message à l'utilisateur
                     $this->status = 'done';
 
                 } catch(Exception $e) {

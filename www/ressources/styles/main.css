@@ -420,6 +420,13 @@ table.list-repos {
     table-layout: auto !important;
     white-space: nowrap;
 }
+table.list-repos tr.color1 td, table.list-repos tr.color1 .td-desc input[type=text] { 
+    color: #808080 !important;
+}
+
+table.list-repos tr.color2 td, table.list-repos tr.color2 .td-desc input[type=text] { 
+    color: #ffffff !important;
+}
 .td-white-bckg span, .td-red-bckg span {
     width: 100%;
     display: block; /* pour que le width s'applique correctement */

@@ -267,6 +267,9 @@ class Connection extends SQLite3 {
      *  Fonctions de génération des tables si n'existent pas
      * 
      */
+    /**
+     *  Génération des tables dans la base de données repomanager.db
+     */
     private function generateMainTables()
     {
         /**
@@ -494,6 +497,9 @@ class Connection extends SQLite3 {
         if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
     }
 
+    /**
+     *  Génération des tables dans la base de données repomanager-stats.db
+     */
     private function generateStatsTables()
     {
         /**
@@ -520,6 +526,9 @@ class Connection extends SQLite3 {
         Request_result VARCHAR(8) NOT NULL)");
     }
 
+    /**
+     *  Génération des tables dans la base de données repomanager-hosts.db
+     */
     private function generateHostsTables()
     {
         /**
@@ -559,7 +568,11 @@ class Connection extends SQLite3 {
         Id_group INTEGER NOT NULL);");
     }
 
-    private function generateHostTables()
+    /**
+     *  Génération des tables dans la base de données dédiée à un hôte
+     *  Cette fonction est public car elle peut être appelée lors de la réinitialisation d'un hôte
+     */
+    public function generateHostTables()
     {
         /**
          *  Inventaire de tous les paquets du serveur

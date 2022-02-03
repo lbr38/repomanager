@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
-require_once('functions/repo.functions.php');
-require_once('common.php');
+include_once('../includes/head.inc.php');
+require_once('../functions/repo.functions.php');
+require_once('../common.php');
 
 /**
  *  Cas où on souhaite retirer une div ServerInfo de la page d'accueil
@@ -30,7 +29,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     /**
      *  On écrit les modifications dans le fichier display.ini
      */
-    write_ini_file(DISPLAY_CONF, $displayConfiguration);
+    Common::write_ini_file(DISPLAY_CONF, $displayConfiguration);
 
     /**
      *  Rechargement de la page pour appliquer les modifications d'affichage
@@ -40,7 +39,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 } ?>
 
 <body>
-<?php include('includes/header.inc.php'); ?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
@@ -48,17 +47,17 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
     <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
     <section class="right" id="newRepoDiv">
         <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
-        <?php include('includes/create-repo.inc.php'); ?> 
+        <?php include_once('../includes/create-repo.inc.php'); ?> 
     </section>
 
     <!-- GERER LES GROUPES -->
     <section class="right" id="groupsDiv">
-        <?php include('includes/manage-groups.inc.php'); ?>
+        <?php include_once('../includes/manage-groups.inc.php'); ?>
     </section>
 
     <!-- GERER LES SOURCES -->
     <section class="right" id="sourcesDiv">
-        <?php include('includes/manage-sources.inc.php'); ?>
+        <?php include_once('../includes/manage-sources.inc.php'); ?>
     </section>
 
     <section id="serverInfoContainer">
@@ -220,16 +219,16 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 <section class="mainSectionLeft">
     <section class="left">
         <!-- REPOS ACTIFS -->
-        <?php include('includes/repos-list-container.inc.php'); ?>
+        <?php include_once('../includes/repos-list-container.inc.php'); ?>
     </section>
     <section class="left">
         <!-- REPOS ARCHIVÉS-->
-        <?php include('includes/repos-archive-list-container.inc.php'); ?>
+        <?php include_once('../includes/repos-archive-list-container.inc.php'); ?>
     </section>
 </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 
 </body>
 </html>

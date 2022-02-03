@@ -207,7 +207,7 @@ $(document).on('click','.printHostDetails',function(){
     /**
      *  Appelle host.inc.php avec l'id de l'hote et affiche le résultat contenant les informations détaillées l'hôte
      */
-    $.get('/includes/host.inc.php', {id:host_id}, 
+    $.get('host.inc.php', {id:host_id}, 
     function (data, status, jqXHR){
         $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /></span>'+data+'</div>');
     });

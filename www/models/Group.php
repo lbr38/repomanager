@@ -62,7 +62,7 @@ class Group extends Model {
 
         History::set($_SESSION['username'], "Création d'un nouveau groupe : $name", 'success');
 
-        clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -103,7 +103,7 @@ class Group extends Model {
 
         History::set($_SESSION['username'], "Renommage d'un groupe : $actualName en $newName", 'success');
 
-        clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -145,7 +145,7 @@ class Group extends Model {
 
         History::set($_SESSION['username'], "Suppression du groupe $name", 'success');
 
-        clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -449,7 +449,7 @@ class Group extends Model {
 
         History::set($_SESSION['username'], "Modifications des repos/sections membres du groupe $groupName", 'success');
 
-        clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -611,7 +611,7 @@ class Group extends Model {
             }
         }
 
-        clearCache();
+        Common::clearCache();
     }
 
     /**

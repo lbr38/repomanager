@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('models/Autoloader.php');
+require_once('../models/Autoloader.php');
 Autoloader::load();
-include_once('includes/head.inc.php');
-require_once('functions/common-functions.php');
-require_once('functions/repo.functions.php');
-require_once('common.php');
+include_once('../includes/head.inc.php');
+require_once('../functions/repo.functions.php');
+require_once('../common.php');
 ?>
 
 <body>
 <?php 
-include('includes/header.inc.php');
+include_once('../includes/header.inc.php');
 
 $action_error = 0;
 $id_error = 0;
@@ -20,7 +19,7 @@ $id_error = 0;
  *  On vérifie qu'une action a été demandée
  */
 if (empty($_GET['action'])) {
-    printAlert("Aucune action n'a été demandée", 'error');
+    Common::printAlert("Aucune action n'a été demandée", 'error');
     $action_error++;
 }
 
@@ -45,7 +44,7 @@ if ($action_error == 0) {
      *  Seule l'opération 'new' ne précise pas d'ID puisque le repo à créer n'existe pas en BDD
      */
     if (empty($_GET['id']) AND $op->action != "new") {
-        printAlert("Aucun id de repo n'a été précisé", 'error');
+        Common::printAlert("Aucun id de repo n'a été précisé", 'error');
         $id_error++;
     }
 
@@ -60,7 +59,7 @@ if ($action_error == 0) {
         $op->repo->id = $_GET['id'];
 
         if (!is_numeric($op->repo->id)) {
-            printAlert("L'id de repo doit être un nombre", 'error');
+            Common::printAlert("L'id de repo doit être un nombre", 'error');
             $id_error++;
         }
 
@@ -122,16 +121,16 @@ if ($action_error == 0 AND $id_error == 0) {
 <section class="mainSectionLeft">
     <section class="left">
         <!-- REPOS ACTIFS -->
-        <?php include('includes/repos-list-container.inc.php'); ?>
+        <?php include_once('../includes/repos-list-container.inc.php'); ?>
     </section>
     <section class="left">
         <!-- REPOS ARCHIVÉS-->
-        <?php include('includes/repos-archive-list-container.inc.php'); ?>
+        <?php include_once('../includes/repos-archive-list-container.inc.php'); ?>
     </section>
 </section>
 </article>
 
-<?php include('includes/footer.inc.php'); ?>
+<?php include_once('../includes/footer.inc.php'); ?>
 
 <script>
 // Le clic sur le bouton confirmer fait afficher l'icone de chargement (gif) et fait disparaitre le bouton confirmer

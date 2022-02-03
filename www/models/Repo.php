@@ -733,7 +733,7 @@ class Repo extends Model {
         $stmt->execute();
         unset($stmt);
 
-        clearCache();
+        Common::clearCache();
     }
 
 /**
@@ -751,7 +751,7 @@ class Repo extends Model {
         $stmt->execute();
         unset($stmt);
 
-        clearCache();
+        Common::clearCache();
     }
 
 

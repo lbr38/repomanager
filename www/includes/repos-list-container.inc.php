@@ -74,24 +74,6 @@
         </label>
         <span> Ligne séparatrice</span><br>
 
-        <!-- alterner ou non les couleurs dans la liste -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="alternateColors" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="alternateColors" value="on" <?php if (ALTERNATE_COLORS == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Couleurs alternées</span>
-
-        <?php
-        // choix des couleurs :
-        if (ALTERNATE_COLORS == "yes") {
-            echo ' | ';
-            echo '<label for="alternativeColor1"> Couleur 1 : </label>';
-            echo '<input type="color" class="color-xsmall" name="alternativeColor1" value="'.ALTERNATIVE_COLOR1.'" id="alternativeColor1">';
-            echo '<label for="alternativeColor2"> Couleur 2 : </label>';
-            echo '<input type="color" class="color-xsmall" name="alternativeColor2" value="'.ALTERNATIVE_COLOR2.'" id="alternativeColor2">';
-        } ?>
-
         <p><b>Cache</b></p>
         <p>Utiliser <b>/dev/shm</b> pour mettre en ram la liste des repos (recommandé)</p>
         <!-- mettre en cache ou non la liste des repos -->
