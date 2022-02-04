@@ -430,7 +430,7 @@ class Host extends Model {
      *  Ajoute un nouvel hôte en BDD
      *  Depuis l'interface web ou depuis l'API
      */
-    public function register()
+    public function api_register()
     {
         /**
          *  Lorsque appelé par l'api, HOSTS_DIR n'est pas setté, donc on le fait
@@ -562,286 +562,114 @@ class Host extends Model {
     }
 
     /**
-     *  Suppression d'un hôte
-     *  Depuis l'interface web ou depuis l'API
+     *  Suppression d'un hôte depuis l'api
      */
-    public function unregister(array $hostsId = null)
+    public function api_unregister()
     {
         /**
-         *  Cas où on a renseigné 1 ou plusieurs hôtes depuis l'interface web
+         *  On vérifie que l'ip et le token correspondent bien à un hôte, si ce n'est pas le cas on quitte
          */
-        if (!empty($hostsId)) {
-            $idError = array();
-            $deleteError = array();
-            $deleteOK = array();
-
-            /**
-             *  On traite l'array contenant les Id de l'hôte à supprimer
-             */
-            foreach ($hostsId as $hostId) {
-                /**
-                 *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
-                 */
-                if (!is_numeric(Common::validateData($hostId))) {
-                    $idError[] = $hostId;
-                    continue;
-                }
-        
-                /**
-                 *  D'abord on récupère l'IP et le hostname de l'hôte à mettre à jour
-                 */
-                $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts WHERE Id = :id");
-                $stmt->bindValue(':id', $hostId);
-                $result = $stmt->execute();
-
-                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
-
-                if (!empty($datas['Ip'])) $hostIp = $datas['Ip'];
-                if (!empty($datas['Hostname'])) $hostHostname = $datas['Hostname'];
-
-                /**
-                 *  Suppression en BDD de l'hôte
-                 */
-                $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :id");
-                $stmt->bindValue(':id', $hostId);
-                $stmt->execute();
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($hostHostname)) {
-                    $deleteOK[] = array('ip' => $hostIp, 'hostname' => $hostHostname);
-                } else {
-                    $deleteOK[] = array('ip' => $hostIp);
-                }
-            }
-
-            /**
-             *  Affichage d'un message de confirmation avec le nom/ip des hôtes dont la suppression a été effectuée
-             */
-            $message = '';
-            foreach ($deleteOK as $hostDeleted) {
-                if (!empty($hostDeleted['ip'])) {
-                    $hostIp = $hostDeleted['ip'];
-                }
-                if (!empty($hostDeleted['hostname'])) {
-                    $hostHostname = $hostDeleted['hostname'];
-                }
-
-                $message .= "$hostHostname ($hostIp)<br>";
-            }
-
-            Common::printAlert("Suppression des hôtes suivants effectuée :<br>$message", 'success');
-
-            return true;
+        if ($this->checkIdToken() === false) {
+            return 2;
         }
 
-        /**
-         *  Cas où on a renseigné un ID + un token (api)
-         */
-        if (!empty($this->authId) AND !empty($this->token)) {
-            /**
-             *  On vérifie que l'ip et le token correspondent bien à un hôte
-             */
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId AND Token = :token");
-            $stmt->bindValue(':authId', $this->authId);
-            $stmt->bindValue(':token', $this->token);
-            $result = $stmt->execute();
-
-            /**
-             *  Si l'IP et le token ne correspondent à aucun hôte alors on quittes
-             */
-            if ($this->db->isempty($result) === true) {
-                return 2;
-            }
-
-            $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE AuthId = :authId AND Token = :token");
-            $stmt->bindValue(':authId', $this->authId);
-            $stmt->bindValue(':token', $this->token);
-        }
-
+        $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE AuthId = :authId AND Token = :token");
+        $stmt->bindValue(':authId', $this->authId);
+        $stmt->bindValue(':token', $this->token);
         $stmt->execute();
 
         return true;
     }
 
-    /**
-     *  Reset d'un hôte
-     *  Depuis l'interface web ou depuis l'API
-     */
-    public function reset(array $hostsId = null)
+    public function api_setUpdateRequestStatus(string $type, string $status)
     {
+        $type = Common::validateData($type);
+        $status = Common::validateData($status);
+
         /**
-         *  Cas où on a renseigné 1 ou plusieurs hôtes depuis l'interface web
+         *  On vérifie que l'action spécifiée par l'hôte est valide
          */
-        if (!empty($hostsId)) {
-            $idError = array();
-            $deleteError = array();
-            $deleteOK = array();
-
-            /**
-             *  On traite l'array contenant les Id de l'hôte à supprimer
-             */
-            foreach ($hostsId as $hostId) {
-                /**
-                 *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
-                 */
-                if (!is_numeric(Common::validateData($hostId))) {
-                    $idError[] = $hostId;
-                    continue;
-                }
-        
-                /**
-                 *  D'abord on récupère l'IP et le hostname de l'hôte à reset
-                 */
-                $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts WHERE Id = :id");
-                $stmt->bindValue(':id', $hostId);
-                $result = $stmt->execute();
-
-                while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
-
-                if (!empty($datas['Ip'])) $hostIp = $datas['Ip'];
-                if (!empty($datas['Hostname'])) $hostHostname = $datas['Hostname'];
-
-                /**
-                 *  Reset de certaines informations générales de l'hôte
-                 */
-                $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE id = :id");
-                $stmt->bindValue(':id', $hostId);
-                $stmt->execute();
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($hostHostname)) {
-                    $deleteOK[] = array('ip' => $hostIp, 'hostname' => $hostHostname);
-                } else {
-                    $deleteOK[] = array('ip' => $hostIp);
-                }
-
-                /**
-                 *  Réinitilisation de la base de données de l'hôte
-                 */
-                if (is_dir(HOSTS_DIR."/".$hostId)) {
-                    /**
-                     *  Ouverture de la base de données
-                     */
-                    $this->openHostDb($hostId, 'rw');
-                    
-                    /**
-                     *  On supprime toutes les tables dans cette base de données
-                     */
-                    $this->host_db->exec("DROP TABLE events");
-                    $this->host_db->exec("DROP TABLE packages");
-                    $this->host_db->exec("DROP TABLE packages_available");
-                    $this->host_db->exec("DROP TABLE packages_history");
-                    $this->host_db->exec("DROP TABLE updates_requests");
-
-                    /**
-                     *  Puis on les re-génère à vide
-                     */
-                    $this->host_db->generateHostTables();                    
-                }
-            }
-
-            /**
-             *  Affichage d'un message de confirmation avec le nom/ip des hôtes dont la suppression a été effectuée
-             */
-            $message = '';
-            foreach ($deleteOK as $hostDeleted) {
-                if (!empty($hostDeleted['ip'])) {
-                    $hostIp = $hostDeleted['ip'];
-                }
-                if (!empty($hostDeleted['hostname'])) {
-                    $hostHostname = $hostDeleted['hostname'];
-                }
-
-                $message .= "$hostHostname ($hostIp)<br>";
-            }
-
-            Common::printAlert("Réinitialisation des informations des hôtes suivants effectuée :<br>$message", 'success');
-
-            return true;
+        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update') {
+            return false;
         }
 
         /**
-         *  Cas où on a renseigné un ID + un token (api)
+         *  On vérifie que le status spécifié par l'hôte est valide
          */
-        if (!empty($this->authId) AND !empty($this->token)) {
-            /**
-             *  On vérifie que l'ip et le token correspondent bien à un hôte
-             */
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId AND Token = :token");
-            $stmt->bindValue(':authId', $this->authId);
-            $stmt->bindValue(':token', $this->token);
-            $result = $stmt->execute();
+        if ($status != 'running' AND $status != 'done') {
+            return false;
+        }
 
-            /**
-             *  Si l'IP et le token ne correspondent à aucun hôte alors on quittes
-             */
-            if ($this->db->isempty($result) === true) {
-                return 2;
-            }
+        /**
+         *  Ouverture de la base de données de l'hôte
+         */
+        $this->openHostDb($this->id, 'rw');
 
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) $hostId = $row['Id'];
-
-            $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE Id = :id");
-            $stmt->bindValue(':id', $hostId);
+        try {
+            $stmt = $this->host_db->prepare("UPDATE updates_requests SET Status = :status WHERE Type = :type AND Status = 'requested' OR Status = 'running'");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':type', $type);
             $stmt->execute();
-
-
-            /**
-             *  Réinitilisation de la base de données de l'hôte
-             */
-            if (is_dir(HOSTS_DIR."/".$hostId)) {
-                /**
-                 *  Ouverture de la base de données
-                 */
-                $this->openHostDb($hostId, 'rw');
-                
-                /**
-                 *  On supprime toutes les tables dans cette base de données
-                 */
-                $this->host_db->exec("DROP TABLE events");
-                $this->host_db->exec("DROP TABLE packages");
-                $this->host_db->exec("DROP TABLE packages_available");
-                $this->host_db->exec("DROP TABLE packages_history");
-                $this->host_db->exec("DROP TABLE updates_requests");
-                /**
-                 *  Puis on les re-génère à vide
-                 */
-                $this->host_db->generateHostTables();                    
-            }
-
-            return true;
+        } catch(Exception $e) {
+            return false;
         }
+
+        return true;
     }
 
     /**
-     *  Demande à un hôte d'exécuter une mise à jour de paquets
+     *  Demande à un ou plusieurs hôte(s) d'exécuter une action
+     *  - update
+     *  - reset
+     *  - delete
      */
-    public function update(array $hostsId)
+    public function hostExec(array $hostsId, string $action)
     {
-        $idError = array();
-        $updateError = array();
-        $updateOK = array();
+        /**
+         *  On vérifie que l'action est valide
+         */
+        if ($action != 'delete' AND 
+            $action != 'reset' AND 
+            $action != 'update' AND 
+            $action != 'general-status-update' AND
+            $action != 'available-packages-status-update' AND
+            $action != 'installed-packages-status-update' AND
+            $action != 'full-history-update') {
+            throw new Exception("L'action à exécuter est invalide");
+        }
+
+        $hostIdError                      = array();
+        $hostUpdateError                  = array();
+        $hostUpdateOK                     = array();
+        $hostResetError                   = array();
+        $hostResetOK                      = array();
+        $hostDeleteError                  = array();
+        $hostDeleteOK                     = array();
+        $hostGeneralUpdateError           = array();
+        $hostGeneralUpdateOK              = array();
+        $hostAvailPackagesUpdateError     = array();
+        $hostAvailPackagesUpdateOK        = array();
+        $hostInstalledPackagesUpdateError = array();
+        $hostInstalledPackagesUpdateOK    = array();
+        $hostFullHistoryUpdateError       = array();
+        $hostFullHistoryUpdateOK          = array();
 
         /**
-         *  On traite l'array contenant les Id de l'hôte à mettre à jour
+         *  On traite l'array contenant les Id d'hôtes à traiter
          */
         foreach ($hostsId as $hostId) {
             $this->setId(Common::validateData($hostId));
 
             /**
-             *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $idError[] puis on passe à l'hôte suivant
+             *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $hostIdError[] puis on passe à l'hôte suivant
              */
             if (!is_numeric($this->id)) {
-                $idError[] = $this->id;
+                $hostIdError[] = $this->id;
                 continue;
             }
     
             /**
-             *  D'abord on récupère l'IP et le hostname de l'hôte à mettre à jour
+             *  D'abord on récupère l'IP et le hostname de l'hôte à traiter
              */
             $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts WHERE Id = :id");
             $stmt->bindValue(':id', $this->id);
@@ -862,55 +690,419 @@ class Host extends Model {
             }
 
             /**
-             *  Envoi d'un ping avec le message 'update-requested' en hexadecimal pour ordonner à l'hôte de se mettre à jour
-             */
-            exec("ping -W2 -c 1 -p 7570646174652d726571756573746564 $this->ip", $output, $pingResult);
-            if ($pingResult != 0) {
-                Common::printAlert("Impossible d'envoyer la demande de mise à jour à l'hôte (injoignable)", 'error');
-                return false;
-            }
-
-            /**
              *  Ouverture de la base de données de l'hôte
              */
             $this->openHostDb($this->id, 'rw');
 
             /**
-             *  Modification de l'état en BDD pour cet hôte (pending = demande envoyée, en attente)
+             *  Cas où l'action demandée est une mise à jour
              */
-            $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Status') VALUES (:date, :time, 'requested')");
-            $stmt->bindValue(':date', date('Y-m-d'));
-            $stmt->bindValue(':time', date('H:i:s'));
-            $stmt->execute();
+            if ($action == 'update') {
+                /**
+                 *  Envoi d'un ping avec le message 'r-update-pkgs' en hexadecimal pour ordonner à l'hôte de se mettre à jour
+                 */
+                exec("ping -W2 -c 1 -p 722d7570646174652d706b6773 $this->ip", $output, $pingResult);
+                if ($pingResult != 0) {
+                    if (!empty($this->hostname)) {
+                        $hostUpdateError[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    } else {
+                        $hostUpdateError[] = array('ip' => $this->ip);
+                    }
+                    continue;
+                }
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'packages-update', 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostUpdateOK[] = array('ip' => $this->ip);
+                }
+            }
 
             /**
-             *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+             *  Si l'action est un reset de l'hôte
              */
-            if (!empty($this->hostname)) {
-                $updateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-            } else {
-                $updateOK[] = array('ip' => $this->ip);
+            if ($action == 'reset') {
+                /**
+                 *  Reset de certaines informations générales de l'hôte
+                 */
+                try {
+                    $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE id = :id");
+                    $stmt->bindValue(':id', $hostId);
+                    $stmt->execute();
+
+                    /**
+                     *  On supprime toutes les tables dans cette base de données
+                     */
+                    $this->host_db->exec("DROP TABLE events");
+                    $this->host_db->exec("DROP TABLE packages");
+                    $this->host_db->exec("DROP TABLE packages_available");
+                    $this->host_db->exec("DROP TABLE packages_history");
+                    $this->host_db->exec("DROP TABLE updates_requests");
+
+                    /**
+                     *  Puis on les re-génère à vide
+                     */
+                    $this->host_db->generateHostTables();
+
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostResetOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostResetOK[] = array('ip' => $this->ip);
+                }
+            }
+
+            /**
+             *  Si l'action est une suppression de l'hôte
+             */
+            if ($action == 'delete') {
+                /**
+                 *  Passage de l'hôte en état 'deleted' en BDD
+                 */
+                try {
+                    $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :id");
+                    $stmt->bindValue(':id', $hostId);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostDeleteOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostDeleteOK[] = array('ip' => $this->ip);
+                }
+            }
+           
+            /**
+             *  Si l'action est une demande de mise à jour des informations générales de l'hôte
+             */
+            if ($action == 'general-status-update') {
+                /**
+                 *  Envoi d'un ping avec le message 'r-general-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 */
+                exec("ping -W2 -c 1 -p 722d67656e6572616c2d737461747573 $this->ip", $output, $pingResult);
+                if ($pingResult != 0) {
+                    if (!empty($this->hostname)) {
+                        $hostGeneralUpdateError[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    } else {
+                        $hostGeneralUpdateError[] = array('ip' => $this->ip);
+                    }
+                    continue;
+                }
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'general-status-update', 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostGeneralUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostGeneralUpdateOK[] = array('ip' => $this->ip);
+                }
+            }
+
+            /**
+             *  Si l'action est une demande de mise à jour des informations concernant les paquets disponibles sur l'hôte
+             */
+            if ($action == 'available-packages-status-update') {
+                /**
+                 *  Envoi d'un ping avec le message 'r-avail-pkgs' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 */
+                exec("ping -W2 -c 1 -p 722d617661696c2d706b6773 $this->ip", $output, $pingResult);
+                if ($pingResult != 0) {
+                    if (!empty($this->hostname)) {
+                        $hostAvailPackagesUpdateError[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    } else {
+                        $hostAvailPackagesUpdateError[] = array('ip' => $this->ip);
+                    }
+                    continue;
+                }
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'available-packages-status-update', 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostAvailPackagesUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostAvailPackagesUpdateOK[] = array('ip' => $this->ip);
+                }
+            }
+
+            /**
+             *  Si l'action est une demande de mise à jour des informations concernant les paquets installés sur l'hôte
+             */
+            if ($action == 'installed-packages-status-update') {
+                /**
+                 *  Envoi d'un ping avec le message 'r-installed-pkgs' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 */
+                exec("ping -W2 -c 1 -p 722d696e7374616c6c65642d706b6773 $this->ip", $output, $pingResult);
+                if ($pingResult != 0) {
+                    if (!empty($this->hostname)) {
+                        $hostInstalledPackagesUpdateError[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    } else {
+                        $hostInstalledPackagesUpdateError[] = array('ip' => $this->ip);
+                    }
+                    continue;
+                }
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'installed-packages-status-update', 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostInstalledPackagesUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostInstalledPackagesUpdateOK[] = array('ip' => $this->ip);
+                }
+            }
+
+            /**
+             *  Si l'action est une demande de mise à jour de l'historique des évènements sur l'hôte
+             */
+            if ($action == 'full-history-update') {
+                /**
+                 *  Envoi d'un ping avec le message 'r-full-history' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 */
+                exec("ping -W2 -c 1 -p 722d66756c6c2d686973746f7279 $this->ip", $output, $pingResult);
+                if ($pingResult != 0) {
+                    if (!empty($this->hostname)) {
+                        $hostFullHistoryUpdateError[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    } else {
+                        $hostFullHistoryUpdateError[] = array('ip' => $this->ip);
+                    }
+                    continue;
+                }
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'full-history-update', 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                }
+
+                /**
+                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
+                 */
+                if (!empty($this->hostname)) {
+                    $hostFullHistoryUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                } else {
+                    $hostFullHistoryUpdateOK[] = array('ip' => $this->ip);
+                }
+            }
+
+            /**
+             *  Clotûre de la base de données de l'hôte
+             */
+            $this->closeHostDb();
+        }
+
+        /**
+         *  Génération d'un message de confirmation avec le nom/ip des hôtes sur lesquels l'action a été effectuée
+         */
+        $message = '';
+
+        /**
+         *  Génération des messages pour les hôtes dont l'id est invalide
+         */
+        if (!empty($hostIdError)) {
+            $message .= "Les ID d'hôtes suivants sont invalides :<br>";
+
+            foreach ($hostIdError as $id) {
+                $message .= $id.'<br>';
             }
         }
 
         /**
-         *  Affichage d'un message de confirmation avec le nom/ip des hôtes dont la mise à jour a été demandée
+         *  Génération des messages pour une action de type 'update'
          */
-        $message = '';
+        if (!empty($hostUpdateError)) {
+            $message .= 'La demande de mise à jour a échouée pour les hôtes suivants (injoignables) :<br>';
 
-        foreach ($updateOK as $hostUpdated) {
-            if (!empty($hostUpdated['ip'])) {
-                $hostIp = $hostUpdated['ip'];
+            foreach ($hostUpdateError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
             }
-            if (!empty($hostUpdated['hostname'])) {
-                $hostHostname = $hostUpdated['hostname'];
+        }
+        if (!empty($hostUpdateOK)) {
+            $message .= 'La demande de mise à jour a été envoyée aux hôtes suivants :<br>';
+
+            foreach ($hostUpdateOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
             }
-            $message .= "$hostHostname ($hostIp)<br>";
         }
 
-        Common::printAlert("Demande de mise à jour envoyée aux hôtes suivants :<br>$message", 'success');
+        /**
+         *  Génération des messages pour une action de type 'reset'
+         */
+        if (!empty($hostErrorError)) {
+            $message .= 'La réinitialisation a échouée pour les hôtes suivants :<br>';
 
-        return true;
+            foreach ($hostErrorError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostResetOK)) {
+            $message .= 'Les hôtes suivants ont été réinitialisé :<br>';
+
+            foreach ($hostResetOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        /**
+         *  Génération des messages pour une action de type 'delete'
+         */
+        if (!empty($hostDeleteError)) {
+            $message .= "Les hôtes suivants n'ont pas pu être supprimés :<br>";
+
+            foreach ($hostDeleteError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostDeleteOK)) {
+            $message .= 'Les hôtes suivants ont été supprimés :<br>';
+
+            foreach ($hostDeleteOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        /**
+         *  Génération des messages pour une action de type 'general-status-update'
+         */
+        if (!empty($hostGeneralUpdateError)) {
+            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+
+            foreach ($hostGeneralUpdateError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostGeneralUpdateOK)) {
+            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+
+            foreach ($hostGeneralUpdateOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        /**
+         *  Génération des messages pour une action de type 'available-packages-status-update'
+         */
+        if (!empty($hostAvailPackagesUpdateError)) {
+            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+
+            foreach ($hostAvailPackagesUpdateError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostAvailPackagesUpdateOK)) {
+            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+
+            foreach ($hostAvailPackagesUpdateOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        /**
+         *  Génération des messages pour une action de type 'installed-packages-status-update'
+         */
+        if (!empty($hostInstalledPackagesUpdateError)) {
+            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+
+            foreach ($hostInstalledPackagesUpdateError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostInstalledPackagesUpdateOK)) {
+            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+
+            foreach ($hostInstalledPackagesUpdateOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        /**
+         *  Génération des messages pour une action de type 'full-history-update'
+         */
+        if (!empty($hostFullHistoryUpdateError)) {
+            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+
+            foreach ($hostFullHistoryUpdateError as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+        if (!empty($hostFullHistoryUpdateOK)) {
+            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+
+            foreach ($hostFullHistoryUpdateOK as $host) {
+                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
+            }
+        }
+
+        return $message;
     }
 
     /**
@@ -924,7 +1116,7 @@ class Host extends Model {
         if (empty($this->authId) OR empty($this->token)) return false;
 
         /**
-         *  D'abord on vérifie qu'un hôte avec l'ip et le token correspondant existe bien
+         *  D'abord on vérifie qu'un hôte avec l'id et le token correspondant existe bien
          */
         $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token");
         $stmt->bindValue(':hostId', $this->authId);
@@ -1632,7 +1824,7 @@ class Host extends Model {
     }
 
     /**
-     *  Récupère les informations concernant la dernière mise à jour exécutée sur l'hôte
+     *  Récupère les informations concernant la dernière requête de mise à jour envoyée à l'hôte
      */
     public function getLastUpdateStatus()
     {
@@ -1660,5 +1852,21 @@ class Host extends Model {
         if (!empty($datas[0])) return $datas[0];
 
         return '';
+    }
+
+
+    public function getLastRequestedUpdateStatus()
+    {
+        /**
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         */
+        if (empty($this->host_db)) return false;
+
+        $datas = array();
+
+        $result = $this->host_db->query("SELECT Date, Time, Type, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+
+        return $datas;
     }
 }

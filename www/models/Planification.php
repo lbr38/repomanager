@@ -329,7 +329,7 @@ class Planification extends Model {
             /**
              *  On vérifie que l'Id de groupe renseigné existe
              */
-            $mygroup = new Group();
+            $mygroup = new Group('repo');
             $mygroup->setId($this->groupId);
 
             if ($mygroup->existsId() === false) {
@@ -405,7 +405,7 @@ class Planification extends Model {
              *  2. On instancie des objets Repo et Group
              */
             $this->op = new Operation(array('op_type' => 'plan'));
-            $this->op->group = new Group();
+            $this->op->group = new Group('repo');
 
             /**
              *  3. Récupération des détails de la planification en cours d'exécution, afin de savoir quels repos ou quel groupe sont impliqués et quelle action effectuer
@@ -716,7 +716,7 @@ class Planification extends Model {
      */
     public function generateReminders() {
         $this->op = new Operation(array('op_type' => 'plan'));
-        $this->op->group = new Group();
+        $this->op->group = new Group('repo');
             
         /**
          *  1. Récupération des informations de la planification

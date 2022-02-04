@@ -75,14 +75,25 @@ $eventsList = $myhost->getEventsHistory();
 $allEventsList = array_merge($eventsList, $updatesRequestsList);
 array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($allEventsList, 'Time'), SORT_DESC, $allEventsList); ?>
 
-<?php echo '<h3>'.strtoupper($hostname).'</h3>'; ?>
+<?php echo '<h3>'.strtoupper($hostname).'</h3>';
+
+if (Common::isadmin()) { ?>
+<div class="hostActionBtn-container">
+    <span class="btn-large-blue"><img src="../ressources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='general-status-update' title="Rafraichir les informations générales">Rafraichir les informations générales</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='available-packages-status-update' title="Rafraichir les paquets disponibles">Rafraichir les paquets disponibles</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='installed-packages-status-update' title="Rafraichir les paquets installés">Rafraichir les paquets installés</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='full-history-update' title="Rafraichir l'historique des évènements<">Rafraichir l'historique des évènements</span>
+    <span class="hostActionBtn btn-large-red" hostid="<?php echo $id?>" action='update' title="Mettre à jour tous les paquets de l'hôte">Mettre à jour les paquets</span>
+    <span class="hostActionBtn btn-large-red " hostid="<?php echo $id?>" action='reset' title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
+    <span class="hostActionBtn btn-large-red" hostid="<?php echo $id?>" action='delete' title="Supprimer cet hôte">Supprimer cet hôte</span>
+</div>
+<?php } ?>
 
 <!-- <article> -->
     <!-- <section class="main"> -->
             <div class="div-flex">
                 <div class="flex-div-100">
-                    
-                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
 
                     <table class="table-generic table-small opacity-80">
                         <tr>
@@ -145,9 +156,8 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
             </div>
             <div class="div-flex">
                 <div class="flex-div-50">
+                                   
                     <h4>ETATS DES PAQUETS</h4>
-
-                    <!-- <span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span> -->
 
                     <table class="hosts-table">
                         <thead>
@@ -342,8 +352,27 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
                                             <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
                                             <?php 
                                             if ($event['Event_type'] == "update_request") {
-                                                echo '<span>Demande de mise à jour</span>';
+                                                if ($event['Type'] == 'general-status-update') {
+                                                    echo '<span>Demande de maj des informations générales</span>';
+                                                }
+
+                                                if ($event['Type'] == 'available-packages-status-update') {
+                                                    echo '<span>Demande de maj de la liste des paquets disponibles</span>';
+                                                }
+
+                                                if ($event['Type'] == 'installed-packages-status-update') {
+                                                    echo '<span>Demande de maj de la liste des paquets installés</span>';
+                                                }
+
+                                                if ($event['Type'] == 'full-history-update') {
+                                                    echo '<span>Demande de maj de l\'historique des évènements</span>';
+                                                }
+
+                                                if ($event['Type'] == 'packages-update') {
+                                                    echo '<span>Demande de mise à jour des paquets</span>';
+                                                } 
                                             }
+
                                             if ($event['Event_type'] == "event") {
                                                 /**
                                                  *  Récupération des paquets installés par cet évènement

@@ -125,7 +125,8 @@ require_once('../common.php');
                                      *  Si la planification traite un groupe, on récupère son nom à partir de son Id
                                      */
                                     if (!empty($planGroupId)) {
-                                        $group = new Group(array('groupId' => $planGroupId));
+                                        $group = new Group('repo');
+                                        $group->setId($planGroupId);
                                         $group->db_getName();
                                         $planGroup = $group->name;
                                         echo "Groupe $planGroup";
@@ -429,7 +430,7 @@ require_once('../common.php');
                             <select id="addPlanGroupId">
                                 <option value="">Sélectionnez un groupe...</option>
                                 <?php
-                                $group = new Group();
+                                $group = new Group('repo');
                                 $groupsList = $group->listAll();
                                 if (!empty($groupsList)) {
                                     foreach($groupsList as $group) {
@@ -573,7 +574,8 @@ require_once('../common.php');
                              */
                             echo '<td>';
                             if (!empty($planGroupId)) {
-                                $group = new Group(array('groupId' => $planGroupId));
+                                $group = new Group('repo');
+                                $group->setId($planGroupId);
                                 $group->db_getName();
                                 $planGroup = $group->name;
                                 echo "Groupe $planGroup";

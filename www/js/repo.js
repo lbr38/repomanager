@@ -2,31 +2,17 @@
  *  Events listeners
  */
 /**
- *  Event : affichage du div permettant de gérer les sources
- */
-$(document).on('click','#ReposSourcesToggleButton',function(){
-    $("#sourcesDiv").slideToggle().show("slow");
-});
-
-/**
- *  Event : masquage du div permettant de gérer les sources
- */
-$(document).on('click','#ReposSourcesCloseButton',function(){
-    $("#sourcesDiv").hide("slow");
-});
-
-/**
  *  Event : affichage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoToggleButton',function(){
-    $("#newRepoDiv").slideToggle().show("slow");
+    $("#newRepoDiv").slideToggle();
 });
 
 /**
  *  Event : masquage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoCloseButton',function(){
-    $("#newRepoDiv").hide("slow");
+    $("#newRepoDiv").slideToggle();
 });
 
 /**
@@ -78,14 +64,14 @@ $(document).on('keypress','.repoDescriptionInput',function(){
     /**
      *  Le div est créé mais il est masqué par défaut (hide), ceci afin de pouvoir l'afficher avec une animation show
      */
-    $('.divReposConf').show(200);
+    $('.divReposConf').slideToggle();
 
     /**
      *  Fermeture de la configuration du repo générée par la fonction ci-dessus
      *  D'abord on masque le div avec une animation, puis on détruit le div
      */
     $(".divReposConf-close").click(function(){
-        $(".divReposConf").hide(200);
+        $(".divReposConf").slideToggle();
         $(".divReposConf").remove();
     }); 
 });

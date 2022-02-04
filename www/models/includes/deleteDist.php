@@ -65,7 +65,7 @@ trait deleteDist {
         /**
          *  6. Supprime les sections des groupes où elles apparaissent
          */
-        $group = new Group();
+        $group = new Group('repo');
         $group->cleanRepos();
 
         $this->log->steplogOK();

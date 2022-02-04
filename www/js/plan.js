@@ -161,8 +161,6 @@ $(document).on('submit','#newPlanForm',function(){
  *  Event : Suppression d'une planification
  */
  $(document).on('click','.deletePlanButton',function(){
-    event.preventDefault();
-
     var planId = $(this).attr('plan-id');
     var planType = $(this).attr('plan-type');
 
@@ -172,8 +170,6 @@ $(document).on('submit','#newPlanForm',function(){
     if (planType == 'regular') {
         deleteConfirm('Êtes vous sûr de vouloir supprimer cette tâche récurrente ?', function(){deletePlan(planId)});
     }
-
-    return false;
 });
 
 

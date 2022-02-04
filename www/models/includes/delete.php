@@ -92,7 +92,7 @@ trait delete {
         /**
          *  6. Supprime le repo/les sections des groupes où il apparait
          */
-        $group = new Group();
+        $group = new Group('repo');
         $group->cleanRepos();
 
         $this->log->steplogOK();

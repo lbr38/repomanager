@@ -18,7 +18,7 @@
     /**
      *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
      */
-	$group = new Group();
+	$group = new Group('repo');
     $groupsList = $group->listAllName();
 
     /**
@@ -48,7 +48,6 @@
 
 				<div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide detailsDiv">
 					<form class="groupReposForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-						<input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
 						<?php
 						if (OS_FAMILY == "Redhat") echo '<p><b>Repos</b></p>';
 						if (OS_FAMILY == "Debian") echo '<p><b>Sections de repos</b></p>'; ?>
@@ -67,13 +66,3 @@
 			</div>
     <?php }
     } ?>
-
-<script>
-$(document).ready(function(){
-	// Script Select2 pour transformer un select multiple en liste déroulante
-	$('.reposSelectList').select2({
-		closeOnSelect: false,
-		placeholder: 'Ajouter un repo...'
-	});
-});
-</script>

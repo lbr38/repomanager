@@ -141,7 +141,9 @@ class Autoloader
         /**
          *  On démarre la session
          */
-        session_start();
+        if(!isset($_SESSION)){
+            session_start();
+        }
 
         /**
          *  Si les variables de session username ou role sont vides alors on redirige vers la page de login

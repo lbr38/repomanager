@@ -136,6 +136,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         }
 
         /**
+         *  Mise à jour du status d'une requête 
+         */
+        if (!empty($datas->set_update_request_type) AND !empty($datas->set_update_request_status)) {
+            if ($myhost->api_setUpdateRequestStatus($datas->set_update_request_type, $datas->set_update_request_status) === false) {
+                $message_error[] = "Impossible d'acquitter la demande auprès du serveur repomanager.";
+            }
+        }
+
+        /**
          *  Si il y a eu des messages d'erreur alors on retourne un code d'erreur 503, sinon 201
          */
         /**

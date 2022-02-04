@@ -46,8 +46,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
          * 
          *  Créer un nouveau groupe
          */
-        if ($_POST['action'] == "newGroup" AND !empty($_POST['name'])) {
-            $mygroup = new Group();
+        if ($_POST['action'] == "newGroup" AND !empty($_POST['name']) AND !empty($_POST['type'])) {
+            $mygroup = new Group($_POST['type']);
 
             /**
              *  Tentative de création du nouveau groupe
@@ -68,8 +68,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
         /**
          *  Renommer un groupe
          */
-        if ($_POST['action'] == "renameGroup" AND !empty($_POST['name']) AND !empty($_POST['newname'])) {
-            $mygroup = new Group();
+        if ($_POST['action'] == "renameGroup" AND !empty($_POST['name']) AND !empty($_POST['newname']) AND !empty($_POST['type'])) {
+            $mygroup = new Group($_POST['type']);
 
             /**
              *  Tentative de renommage du groupe
@@ -90,8 +90,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
         /**
          *  Supprimer un groupe
          */
-        if ($_POST['action'] == "deleteGroup" AND !empty($_POST['name'])) {
-            $mygroup = new Group();
+        if ($_POST['action'] == "deleteGroup" AND !empty($_POST['name']) AND !empty($_POST['type'])) {
+            $mygroup = new Group($_POST['type']);
 
             /**
              *  Tentative de suppression du groupe
@@ -122,7 +122,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
                 $reposList = $_POST['reposList'];
             }
 
-            $mygroup = new Group();
+            $mygroup = new Group('repo');
 
             /**
              *  Tentative d'ajout/suppression des repos dans le groupe
@@ -139,6 +139,46 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
              */
             response(HTTP_OK, "Le groupe <b>".$_POST['name']."</b> a été édité");
         }
+
+        /**
+         *  Ajouter / supprimer des hôtes d'un groupe
+         */
+        if ($_POST['action'] == "editGroupHosts" AND !empty($_POST['name'])) {
+            /**
+             *  Si aucun repo n'a été transmis, cela signifie que l'utilisateur souhaite vider le groupe, on set $hostsList à vide
+             */
+            if (empty($_POST['hostsList'])) {
+                $hostsList = '';
+            } else {
+                $hostsList = $_POST['hostsList'];
+            }
+
+            $mygroup = new Group('host');
+
+            /**
+             *  Tentative d'ajout/suppression des repos dans le groupe
+             */
+            try {
+                $mygroup->addHost($_POST['name'], $hostsList);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Le groupe <b>".$_POST['name']."</b> a été édité");
+        }
+
+
+
+
+
+
+
+
+
 
         /**
          *  
@@ -539,6 +579,28 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
          *  Actions relatives aux hôtes
          * 
          * 
+         *  Exécuter une action sur le(s) hôte(s) sélectionné(s)
+         */
+        if ($_POST['action'] == "hostExecAction" AND !empty($_POST['exec']) AND !empty($_POST['hosts_array'])) {
+            $myhost = new Host();
+
+            /**
+             *  Tentative d'exécution de l'action
+             */
+            try {
+                $content = $myhost->hostExec($_POST['hosts_array'], $_POST['exec']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur, on renvoie la liste des hôtes qui ont été traités
+             */
+            response(HTTP_OK, $content);
+        }
+
+        /**
          *  Récupérer l'historique d'un paquet
          */
         if ($_POST['action'] == "getPackageTimeline" AND !empty($_POST['hostid']) AND !empty($_POST['packagename'])) {

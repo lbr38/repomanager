@@ -5,25 +5,26 @@ class Group extends Model {
     public $id; // Id en BDD
     public $name;
 
-    public function __construct(array $variables = []) {
-        extract($variables);
-
+    public function __construct(string $type) {
         /**
          *  Cette class permet de manipuler des groupes de repos ou d'hôtes. 
          *  Selon ce qu'on souhaite traiter, la base de données n'est pas la même.
          *  Si on a renseigné une base de données au moment de l'instanciation d'un objet Group alors on utilise cette base
          *  Sinon par défaut on utilise la base principale de repomanager
          */
-        if (!empty($useDB) AND $useDB == 'hosts') {
+
+        if ($type != 'repo' AND $type != 'host') {
+            throw new Exception("Le type de groupe est invalide");
+        }
+
+        if ($type == 'host') {
             $this->getConnection('hosts', 'rw');
-        } else {
+        }
+        if ($type == 'repo') {
             $this->getConnection('main', 'rw');
         }
 
-        /* Id */
-        if (!empty($groupId)) $this->id = $groupId;
-        /* Nom */
-        if (!empty($groupName)) $this->name = $groupName;
+        $this->type = $type;
     }
 
     public function setId(string $id)
@@ -34,9 +35,12 @@ class Group extends Model {
 
     /**
      *  CREER UN GROUPE
+     *  Permets de créer un groupe de repo ou un groupe d'hôtes
+     *  @param name
+     *  @param type
      */
-    public function new(string $name) {
-
+    public function new(string $name)
+    {
         $name = Common::validateData($name);
 
         /**
@@ -56,11 +60,15 @@ class Group extends Model {
         /**
          *  3. Insertion du nouveau groupe
          */
-        $stmt = $this->db->prepare("INSERT INTO groups (Name) VALUES (:name)");
-        $stmt->bindValue(':name', $name);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO groups (Name) VALUES (:name)");
+            $stmt->bindValue(':name', $name);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
-        History::set($_SESSION['username'], "Création d'un nouveau groupe : $name", 'success');
+        History::set($_SESSION['username'], "Création d'un nouveau groupe $name (type : $this->type)", 'success');
 
         Common::clearCache();
     }
@@ -82,9 +90,13 @@ class Group extends Model {
         /**
          *  2. On vérifie que le nouveau nom de groupe n'existe pas déjà
          */
-        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :newname");
-        $stmt->bindValue(':newname', $newName);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :newname");
+            $stmt->bindValue(':newname', $newName);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Si le résultat n'est pas vide alors le groupe existe déjà
@@ -96,12 +108,16 @@ class Group extends Model {
         /**
          *  3. Renommage du groupe
          */
-        $stmt = $this->db->prepare("UPDATE groups SET Name = :newname WHERE Name = :actualname");
-        $stmt->bindValue(':newname', $newName);
-        $stmt->bindValue(':actualname', $actualName);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE groups SET Name = :newname WHERE Name = :actualname");
+            $stmt->bindValue(':newname', $newName);
+            $stmt->bindValue(':actualname', $actualName);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
-        History::set($_SESSION['username'], "Renommage d'un groupe : $actualName en $newName", 'success');
+        History::set($_SESSION['username'], "Renommage d'un groupe : $actualName en $newName (type : $this->type)", 'success');
 
         Common::clearCache();
     }
@@ -113,9 +129,13 @@ class Group extends Model {
         /**
          *  1. On vérifie que le groupe existe
          */
-        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :name");
-        $stmt->bindValue(':name', $name);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Compte le nombre de lignes retournées, si il a 0 ligne alors le groupe n'existe pas
@@ -132,18 +152,26 @@ class Group extends Model {
         /**
          *  2. Supprime toutes les entrées concernant ce groupe dans group_members afin que les repos repassent sur le groupe par défaut
          */
-        $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group IN (SELECT Id FROM groups WHERE Name = :name)");
-        $stmt->bindValue(':name', $name);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group IN (SELECT Id FROM groups WHERE Name = :name)");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  3. Suppression du groupe
          */
-        $stmt = $this->db->prepare("DELETE FROM groups WHERE Name = :name");
-        $stmt->bindValue(':name', $name);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("DELETE FROM groups WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
-        History::set($_SESSION['username'], "Suppression du groupe $name", 'success');
+        History::set($_SESSION['username'], "Suppression du groupe $name (type : $this->type)", 'success');
 
         Common::clearCache();
     }
@@ -529,7 +557,7 @@ class Group extends Model {
         while ($datas = $hostsInGroup->fetchArray(SQLITE3_ASSOC)) $hostsIn[] = $datas;
         while ($datas = $hostsNotInAnyGroup->fetchArray(SQLITE3_ASSOC)) $hostsNotIn[] = $datas;
         
-        echo '<select class="hostsSelectList" name="groupAddServerId[]" multiple>';
+        echo '<select class="hostsSelectList" groupname="'.$groupName.'" name="groupAddServerId[]" multiple>';
         if (!empty($hostsIn)) {
             foreach($hostsIn as $host) {
                 $hostIp   = $host['Ip'];
@@ -553,65 +581,87 @@ class Group extends Model {
     /**
     *  AJOUTER / SUPPRIMER DES SERVEURS D'UN GROUPE
     */
-    public function addServer(array $hostsId) {
+    public function addHost(string $groupName, $hostsId) {
         /**
          *  1. Récupération des Id actuellement dans le groupe
-         *  2. Suppression des Id actuellement dans le groupe qui ne sont pas dans l'array transmis $hostsId
+         *  2. Suppression des Id actuellement dans le groupe qui ne sont pas dans l'array transmis $hostsList
          *  3. Insertion des Id des repo transmis
          */
 
         /**
-         *  1. Récupération de l'id du groupe dans lequel on va ajouter les repos
+         *  1. Récupération de l'Id du groupe dans lequel on va ajouter les repos
          */
-        $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name=:name");
-        $stmt->bindValue(':name', $this->name);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name = :name");
+            $stmt->bindValue(':name', $groupName);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            throw new Exception("Impossible de récupérer l'Id du groupe $groupName");
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $groupId = $row['Id'];
 
         /**
          *  2. On traite chaque hote sélectionnés
          */
-        foreach ($hostsId as $hostId) {
-            $hostId = Common::validateData($hostId);
+        if (!empty($hostsId)) {
+            foreach ($hostsId as $hostId) {
+                /**     
+                 *  Si l'id n'est pas un chiffre alors on passe au suivant
+                 */
+                if (!is_numeric($hostId)) {
+                    throw new Exception("L'Id de l'hôte est invalide");
+                }
 
-            /**
-             *  Si l'id n'est pas un chiffre alors on passe au suivant
-             */
-            if (!is_numeric($hostId)) continue;
-
-            /**
-             *  Insertion en BDD de l'ID de l'hote
-             *  Le format de cet INSERT est fait de sorte à ne pas insérer un Id_host si celui-ci est déjà présent en BDD
-             */
-            $stmt = $this->db->prepare("INSERT INTO group_members (Id_host, Id_group)
-            SELECT :idhost, :idgroup WHERE not exists(SELECT * from group_members where Id_host=:idhost AND Id_group=:idgroup)");
-            $stmt->bindValue(':idhost', $hostId);
-            $stmt->bindValue(':idgroup', $groupId);
-            $stmt->execute();
+                /**
+                 *  Insertion en BDD de l'ID de l'hote
+                 *  Le format de cet INSERT est fait de sorte à ne pas insérer un Id_host si celui-ci est déjà présent en BDD
+                 */
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO group_members (Id_host, Id_group)
+                    SELECT :idhost, :idgroup WHERE not exists(SELECT * from group_members where Id_host = :idhost AND Id_group = :idgroup)");
+                    $stmt->bindValue(':idhost', $hostId);
+                    $stmt->bindValue(':idgroup', $groupId);
+                    $stmt->execute();
+                } catch (Exception $e) {
+                    Common::dbError($e);
+                }
+            }
         }
 
         /**
          *  3. On récupère la liste des hotes actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
          */
-        $stmt = $this->db->prepare("SELECT Id_host FROM group_members WHERE Id_group=:idgroup");
-        $stmt->bindValue(':idgroup', $groupId);
-        $result = $stmt->execute();
-        $actualServersId = array();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $actualServersId[] = $row['Id_host'];
+        try {
+            $stmt = $this->db->prepare("SELECT Id_host FROM group_members WHERE Id_group = :idgroup");
+            $stmt->bindValue(':idgroup', $groupId);
+            $result = $stmt->execute();
+            //$actualHostsId = array();
+        } catch (Exception $e) {
+            Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $actualHostsId[] = $row['Id_host'];
 
         /**
          *  4. Suppression des repos qui n'ont pas été sélectionnés
          */
-        foreach ($actualServersId as $actualServerId) {
-            if (!in_array($actualServerId, $hostsId)) {
-                $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_host=:idhost AND Id_group=:idgroup");
-                $stmt->bindValue(':idhost', $actualServerId);
-                $stmt->bindValue(':idgroup', $groupId);
-                $stmt->execute();
+        foreach ($actualHostsId as $actualHostId) {
+            if (!in_array($actualHostId, $hostsId)) {
+                try {
+                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_host = :idhost AND Id_group = :idgroup");
+                    $stmt->bindValue(':idhost', $actualHostId);
+                    $stmt->bindValue(':idgroup', $groupId);
+                    $stmt->execute();
+                } catch (Exception $e) {
+                    Common::dbError($e);
+                }
             }
         }
-
-        Common::clearCache();
     }
 
     /**

@@ -11,7 +11,7 @@ include_once('../includes/head.inc.php');
 
 <article>
     <section class="main">
-        <section class="section-center">
+        <section class="section-center relative">
             <?php include_once('host.inc.php'); ?>
         </section>
     </section>

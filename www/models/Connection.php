@@ -627,7 +627,8 @@ class Connection extends SQLite3 {
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
-        Status VARCHAR(10))");
+        Type CHAR(32), /* packages-update, general-status-update, available-packages-status-update */
+        Status VARCHAR(10))"); /* running, done, error */
     }
 
     /**
