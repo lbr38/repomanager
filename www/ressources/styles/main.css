@@ -88,6 +88,7 @@ hr {
 .float-right { float: right; }
 .align-top { vertical-align: top; }
 .text-center { text-align: center; }
+.relative { position: relative; }
 .pointer { cursor: pointer; }
 /* Classes génériques permettant de créer des textes de couleurs */
 .greentext { color: #489f4d; }
@@ -332,6 +333,10 @@ section.missing-param-alert {
     width: 98%;
     padding: 10px;
     display: none;
+}
+
+#groupsHostDiv {
+    padding: 10px;
 }
 
 #serverInfoContainer {
@@ -875,6 +880,7 @@ footer p { color: gray; }
     position: fixed; /* on positionne le div au centre de la page */
     bottom: 0;
     left: 0;
+    z-index:99;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);

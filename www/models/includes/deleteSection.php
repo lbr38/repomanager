@@ -88,7 +88,7 @@ trait deleteSection {
         /**
          *  6. Supprime la section des groupes où elle apparait
          */
-        $group = new Group();
+        $group = new Group('repo');
         $group->cleanRepos();
     }
 }

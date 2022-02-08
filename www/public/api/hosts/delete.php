@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         /**
          *  Suppression de l'hôte en BDD
          */
-        $unregister = $myhost->unregister();
+        $unregister = $myhost->api_unregister();
 
         if ($unregister === true) {
             http_response_code(201);

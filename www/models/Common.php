@@ -50,7 +50,6 @@ class Common
         return true;    
     }
 
-
     /**
      *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
      *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
@@ -144,6 +143,17 @@ class Common
         echo "</script>";
         echo '</div>';
         unset($message, $url, $divID, $aID);
+    }
+
+    /**
+     *  Affiche une erreur générique ou personnalisée lorsqu'il y a eu une erreur d'exécution d'une requête dans la base de données
+     */
+    static function dbError(string $error = null) {
+        if (!empty($string) AND DEBUG_MODE == 'enabled') {
+            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>'.$error, 'error');
+        } else {
+            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+        }
     }
 
     /**
@@ -291,5 +301,16 @@ class Common
 
     static function kill_stats_log_parser() {
         exec("/usr/bin/pkill -9 -u ".WWW_USER." -f 'tail -n0 -F ".WWW_STATS_LOG_PATH."'");
+    }
+
+    /**
+     *  Renvoi si la session utilisateur en cours est administrateur ou non
+     */
+    static function isadmin() {
+        if ($_SESSION['role'] === 'super-administrator' OR $_SESSION['role'] === 'administrator') {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -8,52 +8,9 @@ include_once('../includes/head.inc.php');
 /**
  *  Instancie un nouvel objet Group en précisant qu'il faut utiliser la BDD repomanager-hosts.db
  */
-$group = new Group(array('useDB' => 'hosts'));
+$group = new Group('host');
 
 $error = 0;
-
-/**
- *  Enregistrement d'un nouvel hôte
- */
-if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "register" AND !empty($_GET['host'])) {
-    $host = Common::validateData($_GET['host']);
-
-    $myhost = new Host();
-
-    /**
-     *  Vérif si l'hôte renseigné est un nom d'hôte ou une IP
-     */
-    if (preg_match('/^[a-zA-Z]/', $host)) {
-        $myhost->hostname = $host;
-    }
-    if (filter_var($host, FILTER_VALIDATE_IP)) {
-        $myhost->ip = $host;
-    }
-    
-    $myhost->register();
-}
-
-/**
- * 	Cas où on souhaite ajouter un nouveau groupe
- */
-/*if (!empty($_POST['addGroupName'])) {
-    $group->new(Common::validateData($_POST['addGroupName']));
-}*/
-
-/**
- * 	Cas où on souhaite supprimer un groupe
- */
-/*if (!empty($_GET['action']) AND (Common::validateData($_GET['action']) == "deleteGroup") AND !empty($_GET['groupName'])) {
-    $group->delete(Common::validateData($_GET['groupName']));
-    $group->cleanServers();
-}*/
-
-/**
- * 	Cas où on souhaite renommer un groupe
- */
-/*if (!empty($_POST['newGroupName']) AND !empty($_POST['actualGroupName'])) {
-    $group->rename(Common::validateData($_POST['actualGroupName']), Common::validateData($_POST['newGroupName']));
-}*/
 
 /**
  * 	Cas où on souhaite modifier la liste des hotes d'un groupe
@@ -64,33 +21,6 @@ if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "regist
 	$mygroup->addServer($_POST['groupAddServerId']);
 	unset($mygroup);
 }*/
-
-/**
- *  Mise à jour d'un ou plusieurs hote(s)
- */
-if ((!empty($_GET['action']) AND Common::validateData($_GET['action']) == "update") OR (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "update")) {
-    $myhost = new Host();
-        
-    $myhost->update($_POST['checkbox-host']);
-}
-
-/**
- *  Suppression d'un ou plusieurs hôtes
- */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "delete" AND !empty($_POST['checkbox-host'])) {
-    $myhost = new Host();
-
-    $myhost->unregister($_POST['checkbox-host']);
-}
-
-/**
- *  Reset d'un ou plusieurs hôtes
- */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "reset" AND !empty($_POST['checkbox-host'])) {
-    $myhost = new Host();
-
-    $myhost->reset($_POST['checkbox-host']);
-} 
 
 /**
  *  Cas où un raffraichissement automatique a été demandé 
@@ -152,12 +82,6 @@ if (isset($_GET['auto'])) {
                             <span class="stats-info-counter"><?php echo $totalHosts;?></span>
                         </span>
                     </div>
-                    <!--<div class="stats-round-counter">
-                        <br><p class="lowopacity"><br>
-                        <span class="stats-info-container">
-                            <span class="stats-info-counter"></span>
-                        </span>
-                    </div>-->
                 </div>
 
                 <!-- Graphique chartjs doughnut -->
@@ -173,12 +97,12 @@ if (isset($_GET['auto'])) {
             </div>
         </section>
 
-        <section id="hostGroupsDiv" class="section-center hide">
+        <section id="groupsHostDiv" class="section-center ">
             <img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
             <h3>GROUPES</h3>
             <p><b>Créer un groupe :</b></p>
-            <form action="<?php echo __ACTUAL_URI__;?>" method="post" autocomplete="off">
-                <input type="text" class="input-medium" name="addGroupName" /></td>
+            <form id="newGroupForm" autocomplete="off">
+                <input id="newGroupInput" type="text" class="input-medium" /></td>
                 <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button></td>
             </form>
             <?php
@@ -191,70 +115,49 @@ if (isset($_GET['auto'])) {
              *  2. Affichage des groupes si il y en a
              */
             if (!empty($groupsList)) {
-                echo '<div class="groups-container">';
                 echo '<p><b>Groupes actuels :</b></p>';
-                    foreach($groupsList as $groupName) {
-                        echo '<div class="header-container">';
-                            //echo '<div class="header-blue-min">';
-                                /**
-                                 *   3. On créé un formulaire pour chaque groupe, car chaque groupe sera modifiable :
-                                 */
-                            /*    echo "<form action='__ACTUAL_URI__' method='post' autocomplete='off'>";
-                                // On veut pouvoir renommer le groupe, ou ajouter des repos à ce groupe, donc il faut transmettre le nom de groupe actuel (actualGroupName) :
-                                echo "<input type='hidden' name='actualGroupName' value='${groupName}' />";
-                                echo '<table class="table-large">';
-                                echo '<tr>';
-                                // On affiche le nom actuel du groupe dans un input type=text qui permet de renseigner un nouveau nom si on le souhaite (newGroupeName) :
-                                echo "<td><input type='text' value='${groupName}' name='newGroupName' class='input-medium invisibleInput-blue' /></td>";
-                            
-                                /**
-                                 *  Boutons configuration et suppression du groupe
-                                 */
-                            /*    echo '<td class="td-fit">';
-                                echo "<img id=\"groupConfigurationToggleButton-${groupName}\" class=\"icon-mediumopacity\" title=\"Configuration de $groupName\" src=\"ressources/icons/cog.png\" />";
-                                echo "<img src=\"ressources/icons/bin.png\" class=\"groupDeleteToggleButton-${groupName} icon-lowopacity\" title=\"Supprimer le groupe ${groupName}\" />";
-                                Common::deleteConfirm("Etes-vous sûr de vouloir supprimer le groupe $groupName", "?action=deleteGroup&groupName=${groupName}", "groupDeleteDiv-${groupName}", "groupDeleteToggleButton-${groupName}");
-                                echo '</td>';
-                                echo '</tr>';
-                                echo '</table>';
-                                echo '</form>';
-                            echo '</div>';*/
+                echo '<div class="groups-list-container">';
+                    foreach($groupsList as $groupName) { ?>
+                        <div class="header-container">
+                            <div class="header-blue-min">
+                                <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
+                                    <input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
+                                    <table class="table-large">
+                                        <tr>
+                                            <td>
+                                                <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
+                                            </td>
+                                            <td class="td-fit">
+                                                <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="ressources/icons/cog.png" />
+                                                <img src="ressources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
 
-                            /**
-                             *  4. La liste des repos du groupe est placée dans un div caché
-                             */
-                            /*echo "<div id=\"groupConfigurationDiv-${groupName}\" class=\"hide detailsDiv\">";
-                                // On va récupérer la liste des repos du groupe et les afficher si il y en a (résultat non vide)           
-                                echo "<form action=\"__ACTUAL_URI__\" method=\"post\" autocomplete=\"off\">";
-                                    // Il faut transmettre le nom du groupe dans le formulaire, donc on ajoute un input caché avec le nom du groupe
-                                    echo "<input type=\"hidden\" name=\"actualGroupName\" value=\"${groupName}\" />";
-                                    echo '<p>Hôtes :</p>';
-                                    echo '<table class="table-large">';
-                                    echo '<tr>';
-                                    echo '<td>';
-                                    $group->selectServers($groupName);
-                                    echo '</td>';
-                                    echo '<td class="td-fit"><button type="submit" class="btn-xxsmall-blue" title="Enregistrer">💾</button></td>';
-                                    echo '</tr>';
-                                    echo '</table>';
-                                echo '</form>';
-                            echo '</div>';*/
-                            // Afficher ou masquer la div 'groupConfigurationDiv' :
-                            /*echo "<script>";
-                            echo "$(document).ready(function(){";
-                            echo "$(\"#groupConfigurationToggleButton-${groupName}\").click(function(){";
-                                echo "$(\"div#groupConfigurationDiv-${groupName}\").slideToggle(150);";
-                                echo '$(this).toggleClass("open");';
-                            echo "});";
-                            echo "});";
-                            echo "</script>";*/
-                        echo '</div>';
-                    }
+                            <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide detailsDiv">
+                                <form class="groupHostsForm" groupname="<?php echo $groupName;?>" autocomplete="off">
+                                    <p><b>Hôtes</b></p>
+                                    <table class="table-large">
+                                        <tr>
+                                            <td>
+                                                <?php $group->selectServers($groupName); ?>
+                                            </td>
+                                            <td class="td-fit">
+                                                <button type="submit" class="btn-xxsmall-blue" title="Enregistrer">💾</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+            <?php   }
                 echo '</div>';
             } ?>
         </section>
 
-        <section class="section-center">
+        <section id="hostsDiv" class="section-center">
             <?php
             /**
              *  Récupération des noms des groupes
@@ -264,9 +167,9 @@ if (isset($_GET['auto'])) {
             <div>
                 <div class="div-flex">
                     <h3>HÔTES</h3>
-                    <!--<div>
+                    <div>
                         <span id="GroupsListToggleButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="ressources/icons/folder.png" class="icon"></span>
-                    </div>-->
+                    </div>
                 </div>
 
                 <br>
@@ -289,13 +192,9 @@ if (isset($_GET['auto'])) {
                          *  Si il s'agit du groupe par défaut 'Default' et que celui-ci ne possède aucun hôte alors on ignore son affichage
                          */
                         if ($group->name == "Default" AND empty($hostsList)) continue;
-
-                        /**
-                         * Formulaire sur le tableau, permet de gérer les checkbox pour effectuer une action commune sur plusieurs hôtes sélectionnés
-                         */ ?>
-                        <form action="hosts.php" method="post" autocomplete="off">
-                            <input type='hidden' name='groupname' value='<?php echo $group->name;?>'>
-                            
+                        ?>
+                        <input type='hidden' name='groupname' value='<?php echo $group->name;?>'>
+        
                             <div class="hosts-group-container">
                                 <?php
                                 /**
@@ -305,18 +204,19 @@ if (isset($_GET['auto'])) {
                                     echo "<h3>$group->name</h3>";
                                 }
 
-                                /**
-                                 *  Boutons d'actions sur les checkbox sélectionnées
-                                 */ ?>
-                                <div class='js-buttons-<?php echo $group->name;?> hide float-right'>
-                                    <button name='action' value='delete' class='hide pointer btn-medium-red ' group='<?php echo $group->name;?>'><img src='ressources/icons/bin.png' class='icon' /><b>Supprimer</b></button>
-                                    <button name='action' value='reset' class='hide pointer btn-small-red' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Reset</b></button>
-                                    <!-- <button name='action' value='general-status-update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Informations générales</b></button> -->
-                                    <!-- <button name='action' value='available-packages-status-update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets disponibles</b></button> -->
-                                    <button name='action' value='update' class='hide pointer btn-medium-blue' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Mettre à jour les paquets</b></button>
-                                </div>
-
-                                <?php
+                                if (Common::isadmin()) {
+                                    /**
+                                     *  Boutons d'actions sur les checkbox sélectionnées
+                                     */ ?>
+                                    <div class='js-buttons-<?php echo $group->name;?> hide float-right'>
+                                        <button class='hostsActionBtn hide pointer btn-medium-red' action='delete' group='<?php echo $group->name;?>'><img src='ressources/icons/bin.png' class='icon' /><b>Supprimer</b></button>
+                                        <button class='hostsActionBtn hide pointer btn-small-red' action='reset' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Reset</b></button>
+                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='general-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Informations générales</b></button>
+                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='available-packages-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets disponibles</b></button>
+                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='installed-packages-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets installés</b></button>
+                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Mettre à jour les paquets</b></button>
+                                    </div>
+                                <?php }
                                 /**
                                  *  Affichage des hôtes du groupe
                                  */
@@ -326,10 +226,10 @@ if (isset($_GET['auto'])) {
                                             <tr>
                                                 <td></td>
                                                 <td>Hôte</td>
-                                                <td>Status de mise à jour</td>
                                                 <td>Paquets disponibles</td>
                                                 <td></td>
                                                 <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
+                                                <td></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -358,7 +258,7 @@ if (isset($_GET['auto'])) {
                                             /**
                                              *  Récupération du status de la dernière mise à jour (si il y en a)
                                              */
-                                            $lastUpdateStatus = $myhost->getLastUpdateStatus();
+                                            $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
 
                                             echo '<tr>';
                                                 /**
@@ -381,30 +281,7 @@ if (isset($_GET['auto'])) {
                                                     echo '<td><img src="ressources/icons/ubuntu.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
                                                 } else {
                                                     echo '<td><img src="ressources/icons/tux.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                                }
-                                                /**
-                                                 *  Status de mise à jour
-                                                 */
-                                                echo '<td>';
-                                                if (empty($lastUpdateStatus['Status']))
-                                                    echo "-";
-                                                elseif ($lastUpdateStatus['Status'] == "running")
-                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En cours</span>";
-                                                elseif ($lastUpdateStatus['Status'] == "error")
-                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>En erreur</span>";
-                                                elseif ($lastUpdateStatus['Status'] == "done")
-                                                    echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Terminée</span>";
-                                                elseif ($lastUpdateStatus['Status'] == "requested") {
-                                                    /**
-                                                     *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +5min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
-                                                     */
-                                                    if ($lastUpdateStatus['Date'] != DATE_YMD OR $lastUpdateStatus['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 5 minutes'))) {
-                                                        echo "<span class='yellowtext' title=\"La demande de mise à jour semble ne pas avoir été prise en compte par l'hôte (demandée le ".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time'].")\">Mise à jour demandée</span>";
-                                                    } else {
-                                                        echo "<span title='".DateTime::createFromFormat('Y-m-d', $lastUpdateStatus['Date'])->format('d-m-Y')." à ".$lastUpdateStatus['Time']."'>Mise à jour demandée</span>";
-                                                    }
-                                                } ?>
-                                                </td>
+                                                } ?>                                                
                                                 <td>
                                                     <?php
                                                     if ($packagesAvailableTotal < "10") {
@@ -418,6 +295,55 @@ if (isset($_GET['auto'])) {
                                                 </td>
                                                 <td><span class="printHostDetails pointer" host_id="<?php echo $host['Id']; ?>">Détails</span><a href="host.php?id=<?php echo $host['Id']; ?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a></td>
                                                 <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
+                                                <td>
+                                                    <?php
+                                                    /**
+                                                     *  Status de la dernière demande
+                                                     */                                                    
+                                                    if (!empty($lastRequestedUpdate)) {
+                                                        if ($lastRequestedUpdate['Type'] == 'packages-update') {
+                                                            $updateType = 'Mise à jour des paquets';
+                                                        }
+                                                        if ($lastRequestedUpdate['Type'] == 'general-status-update') {
+                                                            $updateType = 'Maj des infos. générales';
+                                                        }
+                                                        if ($lastRequestedUpdate['Type'] == 'available-packages-status-update') {
+                                                            $updateType = 'Maj des paquets disponibles';
+                                                        }
+                                                        if ($lastRequestedUpdate['Type'] == 'installed-packages-status-update') {
+                                                            $updateType = 'Maj des paquets installés';
+                                                        }
+                                                        if ($lastRequestedUpdate['Type'] == 'full-history-update') {
+                                                            $updateType = 'Maj de l\'historique des évènements';
+                                                        }
+                                                        if ($lastRequestedUpdate['Status'] == 'requested') {
+                                                            $updateStatus = 'demandée';
+                                                        }
+                                                        if ($lastRequestedUpdate['Status'] == 'running') {
+                                                            $updateStatus = 'en cours';
+                                                        }
+                                                        if ($lastRequestedUpdate['Status'] == 'done') {
+                                                            $updateStatus = 'terminée';
+                                                        }
+                                                        if ($lastRequestedUpdate['Status'] == 'error') {
+                                                            $updateStatus = 'en erreur';
+                                                        }
+
+                                                        /**
+                                                         *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +10min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
+                                                         */
+                                                        if ($lastRequestedUpdate['Status'] == 'requested' OR $lastRequestedUpdate['Status'] == 'running') {
+                                                            if ($lastRequestedUpdate['Date'] != DATE_YMD OR $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 10 minutes'))) {
+                                                                echo '<span class="yellowtext" title="La demande de mise à jour semble ne pas avoir été prise en compte par l\'hôte (demandée le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].')">'.$updateType.' '.$updateStatus.'</span>';
+                                                            } else {
+                                                                echo '<span title="Le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].'">'.$updateType.' '.$updateStatus.'</span>';
+                                                            }
+                                                        } 
+                                                        if ($lastRequestedUpdate['Status'] == 'error') {
+                                                            echo '<span class="redtext" title="Le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].'">'.$updateType.' '.$updateStatus.'</span>';
+                                                        }
+                                                    } ?>
+                                                </td>
                                             </tr>
                                 <?php   }
                                         echo '</tbody>';
@@ -427,7 +353,7 @@ if (isset($_GET['auto'])) {
                                 }
     
                             echo '</div>';
-                        echo '</form>';
+                        //echo '</form>';
                     }
                     echo '</div>';
                 }

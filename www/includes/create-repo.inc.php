@@ -2,7 +2,7 @@
 /**
  *  Récupération de la liste de tous les groupes
  */
-$group = new Group();
+$group = new Group('repo');
 $groupList = $group->listAllName();
 
 /**

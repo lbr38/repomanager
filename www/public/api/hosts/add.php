@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         /**
          *  Enregistrement du nouvel hôte en BDD
          */
-        $register = $myhost->register();
+        $register = $myhost->api_register();
         
         /**
          *  Si l'enregistrement a été effectué, on retourne l'id et le token généré pour cet hôte

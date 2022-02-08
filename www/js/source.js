@@ -6,6 +6,23 @@ function reloadSourcesDiv(){
 }
 
 /**
+ *  Events listeners
+ */
+/**
+ *  Event : affichage du div permettant de gérer les sources
+ */
+ $(document).on('click','#ReposSourcesToggleButton',function(){
+    $("#sourcesDiv").slideToggle();
+});
+
+/**
+ *  Event : masquage du div permettant de gérer les sources
+ */
+$(document).on('click','#ReposSourcesCloseButton',function(){
+    $("#sourcesDiv").slideToggle();
+});
+
+/**
  *  Event : afficher des inputs supplémentaires pour importer une clé GPG (CentOS)
  */
 $(document).on('change','#newRepoGpgSelect',function(){

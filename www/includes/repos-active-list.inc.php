@@ -11,7 +11,7 @@ if (FILTER_BY_GROUPS == "yes") {
     /**
      *  Récupération de tous les noms de groupes
      */
-    $mygroup = new Group();
+    $mygroup = new Group('repo');
     $groupsList = $mygroup->listAllWithDefault();
 
     /**

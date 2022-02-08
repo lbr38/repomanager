@@ -502,7 +502,7 @@ class Operation extends Model {
             echo '<input type="hidden" name="repoGroup" value="nogroup">';
         } else {
             if (Common::validateData($_GET['repoGroup']) === "ask") {
-                $group = new Group();
+                $group = new Group('repo');
                 $groupList = $group->listAllName();
                 // on va afficher le tableau de groupe seulement si la commande précédente a trouvé des groupes (résultat non vide) :
                 if (!empty($groupList)) {
