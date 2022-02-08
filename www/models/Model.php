@@ -8,12 +8,12 @@ abstract class Model {
     /**
      *  Nouvelle connexion à la base de données
      */
-    public function getConnection(string $database, string $mode, ?string $hostId = null)
+    public function getConnection(string $database, ?string $hostId = null)
     {
         if (!empty($hostId)) {
-            $this->host_db = new Connection($database, $mode, $hostId);
+            $this->host_db = new Connection($database, $hostId);
         } else {
-            $this->db = new Connection($database, $mode);
+            $this->db = new Connection($database);
         }
 
         return;

@@ -53,19 +53,27 @@ trait deleteSection {
         /**
          *  5. On met à jour la BDD
          */
-        $stmt = $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->repo->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->repo->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  6. Vérifications avant suppression définitive du miroir
          */
-        $stmt = $this->repo->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':dist', $this->repo->dist);
-        $stmt->bindValue(':section', $this->repo->section);
-        $stmt->bindValue(':date', $this->repo->date);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->repo->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':dist', $this->repo->dist);
+            $stmt->bindValue(':section', $this->repo->section);
+            $stmt->bindValue(':date', $this->repo->date);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         
         if ($this->repo->db->isempty($result) === false) {
             $this->log->steplogOK("La version du miroir de cette section est toujours utilisée pour d'autres environnements. Le miroir du <b>{$this->repo->dateFormatted}</b> n'est donc pas supprimé");

@@ -9,7 +9,7 @@ class Profile extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
     }
 
     /**
@@ -399,9 +399,13 @@ class Profile extends Model {
      *  Vérifier qu'un nom de package est présent dans la table profile_package
      */
     private function db_packageExists(string $package) {
-        $stmt = $this->db->prepare("SELECT * FROM profile_package WHERE Name=:name");
-        $stmt->bindValue(':name', $package);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM profile_package WHERE Name=:name");
+            $stmt->bindValue(':name', $package);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Si le résultat obtenu est vide alors le package n'existe pas, on renvoie false
@@ -415,9 +419,13 @@ class Profile extends Model {
      *  Vérifier qu'un nom de service est présent dans la table profile_service
      */
     private function db_serviceExists(string $service) {
-        $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
-        $stmt->bindValue(':name', $service);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
+            $stmt->bindValue(':name', $service);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Si le résultat obtenu est vide alors le service n'existe pas, on renvoie false
@@ -436,9 +444,13 @@ class Profile extends Model {
          */
         if (!Common::is_alphanumdash($package)) return false;
 
-        $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
-        $stmt->bindValue(':name', $package);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
+            $stmt->bindValue(':name', $package);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         return true;
     }
@@ -452,9 +464,13 @@ class Profile extends Model {
          */
         if (!Common::is_alphanumdash($service)) return false;
 
-        $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
-        $stmt->bindValue(':name', $service);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
+            $stmt->bindValue(':name', $service);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         return true;
     }

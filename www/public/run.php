@@ -173,15 +173,23 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 						/**
 						 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
 						 */
-						$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status=:status");
-						$stmt->bindValue(':id_plan', $planId);
-						$stmt->bindValue(':status', 'running');
-						$result = $stmt->execute();
+						try {
+							$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status=:status");
+							$stmt->bindValue(':id_plan', $planId);
+							$stmt->bindValue(':status', 'running');
+							$result = $stmt->execute();
+						} catch(Exception $e) {
+							Common::dbError($e);
+						}
 						while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsRunning[] = $row;
 
-						$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
-						$stmt->bindValue(':id_plan', $planId);
-						$result = $stmt->execute();
+						try {
+							$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
+							$stmt->bindValue(':id_plan', $planId);
+							$result = $stmt->execute();
+						} catch(Exception $e) {
+							Common::dbError($e);
+						}
 						while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
 
 						/**
@@ -294,9 +302,13 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							/**
 							 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
 							 */
-							$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
-							$stmt->bindValue(':id_plan', $planId);
-							$result = $stmt->execute();
+							try {
+								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
+								$stmt->bindValue(':id_plan', $planId);
+								$result = $stmt->execute();
+							} catch(Exception $e) {
+								Common::dbError($e);
+							}
 							while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
 						
 							/**

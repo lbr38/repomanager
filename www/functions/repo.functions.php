@@ -13,7 +13,6 @@ function printHead() {
      *  Affichage de l'entête (Repo, Distrib, Section, Env, Date...)
      */
     echo '<tr class="reposListHead">';
-        //echo '<td class="td-30"></td>';
         echo '<td class="td-10"></td>';
         echo '<td class="td-30">Repo</td>';
         if (OS_FAMILY == "Debian") {
@@ -123,15 +122,17 @@ function printRepoLine($variables = []) {
                  *  Pour Redhat, on précise l'id du repo à supprimer
                  *  Pour Debian, on précise le nom du repo puisque celui-ci n'a pas d'id directement (ce sont les sections qui ont des id en BDD)
                  */
-                if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=delete&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
-                if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=delete&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
-
+                if (Common::isadmin()) {
+                    if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=delete&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo ${repoName} (${repoEnv})\" /></a>";
+                    if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=delete&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo ${repoName}\" /></a>";
+                }
                 /**
                  *  Affichage de l'icone "dupliquer" pour dupliquer le repo
                  */
-                if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=duplicate&id=${repoId}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
-                if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=duplicate&id=${repoId}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
-
+                if (Common::isadmin()) {
+                    if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=duplicate&id=${repoId}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} (${repoEnv})\" /></a>";
+                    if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=duplicate&id=${repoId}&repoGroup=ask&repoDescription=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/duplicate.png\" title=\"Dupliquer le repo ${repoName} avec sa distribution ${repoDist} et sa section ${repoSection} (${repoEnv})\" /></a>";
+                }
                 /**
                  *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
                  */
@@ -141,20 +142,22 @@ function printRepoLine($variables = []) {
                 /**
                  *  Affichage de l'icone 'update' pour mettre à jour le repo/section. On affiche seulement si l'env du repo/section = DEFAULT_ENV et si il s'agit d'un miroir
                  */
-                if ($repoType === "mirror" AND $repoEnv === DEFAULT_ENV) {
+                if (Common::isadmin() AND $repoType === "mirror" AND $repoEnv === DEFAULT_ENV) {
                     if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=update&id=${repoId}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/update.png\" title=\"Mettre à jour le repo ${repoName} (${repoEnv})\" /></a>";
                     if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=update&id=${repoId}&repoGpgCheck=ask&repoGpgResign=ask\"><img class=\"icon-lowopacity\" src=\"ressources/icons/update.png\" title=\"Mettre à jour la section ${repoSection} (${repoEnv})\" /></a>";
                 }
             }
             if ($repoStatus == 'archived') {
-                if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=deleteArchive&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
-                if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=deleteArchive&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
+                if (Common::isadmin()) {
+                    if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=deleteArchive&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer le repo archivé ${repoName}\" /></a>";
+                    if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=deleteArchive&id=${repoId}\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la section archivée ${repoSection}\" /></a>";
                 
-                /**
-                 *  Affichage de l'icone "remise en production du repo"
-                 */
-                if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=restore&id=${repoId}&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/arrow-circle-up.png\" title=\"Restaurer le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
-                if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=restore&id=${repoId}&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/arrow-circle-up.png\" title=\"Restaurer la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
+                    /**
+                     *  Affichage de l'icone "remise en production du repo"
+                     */
+                    if (OS_FAMILY == "Redhat") echo "<a href=\"operation.php?action=restore&id=${repoId}&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/arrow-circle-up.png\" title=\"Restaurer le repo archivé ${repoName} en date du ${repoDate}\" /></a>";
+                    if (OS_FAMILY == "Debian") echo "<a href=\"operation.php?action=restore&id=${repoId}&repoDescription=${repoDescription}&repoNewEnv=ask\"><img class=\"icon-lowopacity-red\" src=\"ressources/icons/arrow-circle-up.png\" title=\"Restaurer la section archivée ${repoSection} en date du ${repoDate}\" /></a>";
+                }
             }
         echo '</td>';
 
@@ -172,11 +175,20 @@ function printRepoLine($variables = []) {
             if ($repoStatus == 'active') echo '<td class="td-fit"></td>';
             echo '<td class="td-30"></td>';
         } else {
-            if ($repoStatus == 'active') echo "<td class=\"td-fit\"><a href=\"operation.php?action=deleteDist&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
+            if ($repoStatus == 'active') {
+                echo '<td class="td-fit">';
+                if (Common::isadmin()) echo "<a href=\"operation.php?action=deleteDist&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la distribution ${repoDist}\" /></a>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque distribution
+                echo '</td>';
+            }
             echo "<td class=\"td-30\">$repoDist</td>";
         }
 
-        if ($repoStatus == 'active') echo "<td class=\"td-fit\"><a href=\"operation.php?action=deleteSection&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
+        if ($repoStatus == 'active') {
+            echo '<td class="td-fit">';
+            if (Common::isadmin()) echo "<a href=\"operation.php?action=deleteSection&id=${repoId}\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/bin.png\" title=\"Supprimer la section ${repoSection} (${repoEnv})\" /></a>"; // td de toute petite taille, permettra d'afficher une icone 'corbeille' avant chaque section
+            echo '</td>';
+        }
+
         // Si la vue simplifiée est activée (masquage du nom de repo si similaire au précédent) :    
         if (CONCATENATE_REPOS_NAME == "yes" AND $repoName === $repoLastName AND $repoDist === $repoLastDist AND $repoSection === $repoLastSection) {
             echo '<td class="td-30"></td>';
@@ -199,12 +211,15 @@ function printRepoLine($variables = []) {
         } else {
             echo "<td class=\"td-white-bckg td-30\"><span>$repoEnv</span></td>";
         }
-        if (ENVS_TOTAL > 1) {
+
+        echo '<td class="td-fit">';
+        if (Common::isadmin() AND ENVS_TOTAL > 1) {
             /**
              *  Icone permettant d'ajouter un nouvel environnement, placée juste avant la date
              */           
-            echo "<td class=\"td-fit\"><a href=\"operation.php?action=changeEnv&id=${repoId}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a></td>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
+            echo "<a href=\"operation.php?action=changeEnv&id=${repoId}&repoNewEnv=ask&repoDescription=ask\"><img class=\"icon-verylowopacity-red\" src=\"ressources/icons/link.png\" title=\"Faire pointer un nouvel environnement sur le repo $repoName du $repoDate\" /></a>"; // td de toute petite taille, permettra d'afficher une icone 'link' avant chaque date
         }
+        echo '</td>';
     }
 
     /**

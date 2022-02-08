@@ -44,21 +44,23 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
 <article>
 <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
 <section class="mainSectionRight">
-    <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
-    <section class="right" id="newRepoDiv">
-        <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
-        <?php include_once('../includes/create-repo.inc.php'); ?> 
-    </section>
+    <?php if (Common::isadmin()) { ?>
+        <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
+        <section class="right" id="newRepoDiv">
+            <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+            <?php include_once('../includes/create-repo.inc.php'); ?> 
+        </section>
 
-    <!-- GERER LES GROUPES -->
-    <section class="right" id="groupsDiv">
-        <?php include_once('../includes/manage-groups.inc.php'); ?>
-    </section>
+        <!-- GERER LES GROUPES -->
+        <section class="right" id="groupsDiv">
+            <?php include_once('../includes/manage-groups.inc.php'); ?>
+        </section>
 
-    <!-- GERER LES SOURCES -->
-    <section class="right" id="sourcesDiv">
-        <?php include_once('../includes/manage-sources.inc.php'); ?>
-    </section>
+        <!-- GERER LES SOURCES -->
+        <section class="right" id="sourcesDiv">
+            <?php include_once('../includes/manage-sources.inc.php'); ?>
+        </section>
+    <?php } ?>
 
     <section id="serverInfoContainer">
     <?php

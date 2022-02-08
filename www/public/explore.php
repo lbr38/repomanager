@@ -301,12 +301,14 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
             <div id="explorer">
                 <?php
                 /**
-                 *  On appelle la fonction tree permettant de construire l'arbisrescence de fichiers si on a bien reçu toutes les infos
+                 *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
                  */
                 if ($pathError === 0) {
                     echo '<form action="" method="post" />';
-                    echo '<input type="hidden" name="action" value="deletePackages" />';
-                    echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
+                    if (Common::isadmin()) {
+                        echo '<input type="hidden" name="action" value="deletePackages" />';
+                        echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
+                    }
                     
                     /**
                      *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
@@ -337,87 +339,99 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
         </section>
     </section>
 
-    <section class="mainSectionRight">
-        <section class="right">
-            <h3>ACTIONS</h3>
-            <?php
-                if ($pathError === 0 AND $state == 'active') {
-                    /**
-                     *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
-                     */
-                    $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'update' AND Id_repo_target=:id AND Status = 'running'");
-                    $stmt->bindValue(':id', $myrepo->id);
-                    $result = $stmt->execute();
-                    while ($datas = $result->fetchArray()) $opRunning_update[] = $datas;
-
-                    $stmt2 = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'reconstruct' AND Id_repo_target=:id AND Status = 'running'");
-                    $stmt2->bindValue(':id', $myrepo->id);
-                    $result2 = $stmt2->execute();
-                    while ($datas = $result2->fetchArray()) $opRunning_reconstruct[] = $datas;
-
-                    if (!empty($opRunning_update)) {
-                        echo '<p>';
-                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
-                        if (OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
-                        if (OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
-                        echo '</p>';
-                    }
-
-                    if (!empty($opRunning_reconstruct)) {
-                        echo '<p>';
-                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
-                        if (OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
-                        if (OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
-                        echo '</p>';
-                    }
-
-                    /**
-                     *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
-                     */
-                    if (empty($opRunning_update) AND empty($opRunning_reconstruct)) { ?>
-                        <p>Uploader des packages :</p>
-                        <form action="" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="action" value="uploadPackage" />
-                            <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
-                            <button type="submit" class="btn-medium-blue">Ajouter</button>
-                        </form>
-
-                        <?php
+    <?php if (Common::isadmin()) { ?>
+        <section class="mainSectionRight">
+            <section class="right">
+                <h3>ACTIONS</h3>
+                <?php
+                    if ($pathError === 0 AND $state == 'active') {
                         /**
-                         *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                         *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
                          */
-                        if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
-                        if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
-                        if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
-                        if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
-                        ?>
-                        <hr>
-                
-                        <p><span id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
-                        <form id="hidden-form" class="hide" action="" method="post">
-                            <input type="hidden" name="action" value="reconstruct">
-                            <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
-                            <span>Signer avec GPG </span>
-                            <label class="onoff-switch-label">
-                            <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
-                            <span class="onoff-switch-slider"></span>
-                            </label>
-                            <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
-                            <br>
-                            <button type="submit" class="btn-medium-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
-                        </form>
-                    <?php
+                        try {
+                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'update' AND Id_repo_target=:id AND Status = 'running'");
+                            $stmt->bindValue(':id', $myrepo->id);
+                            $result = $stmt->execute();
+                        } catch(Exception $e) {
+                            Common::dbError($e);
+                        }
+
+                        while ($datas = $result->fetchArray()) $opRunning_update[] = $datas;
+
+                        try {
+                            $stmt2 = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'reconstruct' AND Id_repo_target=:id AND Status = 'running'");
+                            $stmt2->bindValue(':id', $myrepo->id);
+                            $result2 = $stmt2->execute();
+                        } catch(Exception $e) {
+                            Common::dbError($e);
+                        }
+                        
+                        while ($datas = $result2->fetchArray()) $opRunning_reconstruct[] = $datas;
+
+                        if (!empty($opRunning_update)) {
+                            echo '<p>';
+                            echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                            if (OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
+                            if (OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
+                            echo '</p>';
+                        }
+
+                        if (!empty($opRunning_reconstruct)) {
+                            echo '<p>';
+                            echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                            if (OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
+                            if (OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
+                            echo '</p>';
+                        }
+
+                        /**
+                         *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
+                         */
+                        if (empty($opRunning_update) AND empty($opRunning_reconstruct)) { ?>
+                            <p>Uploader des packages :</p>
+                            <form action="" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="action" value="uploadPackage" />
+                                <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
+                                <button type="submit" class="btn-medium-blue">Ajouter</button>
+                            </form>
+
+                            <?php
+                            /**
+                             *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                             */
+                            if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
+                            if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
+                            if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
+                            if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
+                            ?>
+                            <hr>
+                    
+                            <p><span id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
+                            <form id="hidden-form" class="hide" action="" method="post">
+                                <input type="hidden" name="action" value="reconstruct">
+                                <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
+                                <span>Signer avec GPG </span>
+                                <label class="onoff-switch-label">
+                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
+                                <span class="onoff-switch-slider"></span>
+                                </label>
+                                <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
+                                <br>
+                                <button type="submit" class="btn-medium-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
+                            </form>
+                        <?php
+                        }
+                    
+                    } else {
+
+                        echo '<p>Aucune action possible.</p>';
+
                     }
-                
-                } else {
 
-                    echo '<p>Aucune action possible.</p>';
-
-                }
-
-            unset($myrepo); ?>
+                unset($myrepo); ?>
+            </section>
         </section>
-    </section>
+    <?php } ?>
 </article>
 
 <?php include_once('../includes/footer.inc.php'); ?>

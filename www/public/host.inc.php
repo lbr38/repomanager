@@ -33,7 +33,7 @@ if (!empty($_GET['id'])) {
         /**
          *  Si on a pu récupérer les informations de l'hôte alors on ouvre sa base de données (lecture seule)
          */
-        $myhost->openHostDb($id, 'rw');
+        $myhost->openHostDb($id);
 
     } else {
         $idError++;

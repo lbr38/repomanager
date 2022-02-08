@@ -9,12 +9,14 @@ class Stat extends Model {
     {
         extract($parameters);
 
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :likeRequest ORDER BY Date DESC, Time DESC LIMIT 50");
-
-        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
-
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :likeRequest ORDER BY Date DESC, Time DESC LIMIT 50");
+            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         $datas = array();
 
@@ -35,10 +37,14 @@ class Stat extends Model {
 
         $datas = array();
 
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
-        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
+            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
         
@@ -57,10 +63,14 @@ class Stat extends Model {
 
         $datas = array();
         
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC");
-        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC");
+            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
         
@@ -74,11 +84,15 @@ class Stat extends Model {
     {
         extract($parameters);
 
-        $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date AND Request LIKE :likeRequest");
-        if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-        if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
-        $stmt->bindValue(':date', $date);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date AND Request LIKE :likeRequest");
+            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
+            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Compte le nombre de lignes retournées par la requête

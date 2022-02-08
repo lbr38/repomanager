@@ -61,15 +61,19 @@ if (CRON_STATS_ENABLED == "yes") {
                  *  Ouverture de la BDD
                  */
                 $mystats = new Stat();
-                $mystats->getConnection('stats', 'rw');
+                $mystats->getConnection('stats');
                 
-                $stmt = $mystats->db->prepare("INSERT INTO stats (Date, Time, Id_repo, Size, Packages_count) VALUES (:date, :time, :id_repo, :size, :packages_count)");
-                $stmt->bindValue(':date', date('Y-m-d'));
-                $stmt->bindValue(':time', date('H:i:s'));
-                $stmt->bindValue(':id_repo', $repoId);
-                $stmt->bindValue(':size', $repoSize);
-                $stmt->bindValue(':packages_count', $packagesCount);
-                $stmt->execute();
+                try {
+                    $stmt = $mystats->db->prepare("INSERT INTO stats (Date, Time, Id_repo, Size, Packages_count) VALUES (:date, :time, :id_repo, :size, :packages_count)");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->bindValue(':id_repo', $repoId);
+                    $stmt->bindValue(':size', $repoSize);
+                    $stmt->bindValue(':packages_count', $packagesCount);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Fermeture de la BDD

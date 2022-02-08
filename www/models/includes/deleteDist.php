@@ -52,14 +52,18 @@ trait deleteDist {
          *  5. Mise à jour en BDD
          *  La suppression d'une distribution entière entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
          */
-        $stmt =  $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
-        $stmt2 = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':dist', $this->repo->dist);
-        $stmt2->bindValue(':name', $this->repo->name);
-        $stmt2->bindValue(':dist', $this->repo->dist);
-        $stmt->execute();
-        $stmt2->execute();
+        try {
+            $stmt =  $this->repo->db->prepare("UPDATE repos SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
+            $stmt2 = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':dist', $this->repo->dist);
+            $stmt2->bindValue(':name', $this->repo->name);
+            $stmt2->bindValue(':dist', $this->repo->dist);
+            $stmt->execute();
+            $stmt2->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt, $stmt2);
         
         /**

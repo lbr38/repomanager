@@ -30,7 +30,7 @@ function printAlert(message, type) {
 
     window.setTimeout(function() {
         $('#newalert').fadeTo(1000, 0).slideUp(1000, function(){
-            $(this).remove();
+            $('#newalert').remove();
         });
     }, 2500);
 }
@@ -39,9 +39,9 @@ function deleteConfirm(message, myfunction) {
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
      */
-     $("#newalert").remove();
+     $("#newdeletealert").remove();
 
-    var $content = '<div id="newalert" class="deleteAlert"><span class="deleteAlert-message">'+message+'</span><div class="deleteAlert-buttons-container"><span class="pointer btn-doDelete">Supprimer</span><span class="pointer btn-cancelDelete">Annuler</span></div></div>';
+    var $content = '<div id="newdeletealert" class="deleteAlert"><span class="deleteAlert-message">'+message+'</span><div class="deleteAlert-buttons-container"><span class="pointer btn-doDelete">Supprimer</span><span class="pointer btn-cancelDelete">Annuler</span></div></div>';
 
     $('footer').append($content);
 
@@ -57,8 +57,8 @@ function deleteConfirm(message, myfunction) {
         /**
          *  Puis suppression de l'alerte
          */
-        $("#newalert").slideToggle(150, function () {
-            $("#newalert").remove();
+        $("#newdeletealert").slideToggle(150, function () {
+            $("#newdeletealert").remove();
         });
     });
 
@@ -69,8 +69,8 @@ function deleteConfirm(message, myfunction) {
         /**
          *  Suppression de l'alerte
          */
-        $("#newalert").slideToggle(150, function () {
-            $("#newalert").remove();
+        $("#newdeletealert").slideToggle(150, function () {
+            $("#newdeletealert").remove();
         });
     });
 }

@@ -39,7 +39,7 @@ class Repo extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
         
         /* Id */
         if (!empty($repoId)) $this->id = $repoId;
@@ -231,10 +231,14 @@ class Repo extends Model {
  *  Retourne un array de tous les repos/sections (nom seulement), sur un environnement en particulier
  */
     public function listAll_distinct_byEnv(string $env) {
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-        $stmt->bindValue(':env', $env);
-        $result = $stmt->execute();
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
         
@@ -281,9 +285,13 @@ class Repo extends Model {
          */
         if (!empty($state)) {
             if ($state == "active") {
-                $stmt = $this->db-prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                $stmt->bindValue(':id', $this->id);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db-prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                    $stmt->bindValue(':id', $this->id);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 if ($this->db->isempty($result) === true)
                     return false;
@@ -291,9 +299,13 @@ class Repo extends Model {
                     return true;
 
             } elseif ($state == "archived") {
-                $stmt = $this->db-prepare("SELECT * FROM repos_archived WHERE Id=:id AND Status = 'active'");
-                $stmt->bindValue(':id', $this->id);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db-prepare("SELECT * FROM repos_archived WHERE Id=:id AND Status = 'active'");
+                    $stmt->bindValue(':id', $this->id);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 if ($this->db->isempty($result) === true)
                     return false;
@@ -308,9 +320,13 @@ class Repo extends Model {
         /**
          *  Si on n'a pas renseigné $state alors on interroge par défaut la table repos
          */
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true)
             return false;
@@ -324,9 +340,13 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function exists(string $name) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
 
@@ -339,10 +359,14 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function existsEnv(string $name, string $env) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':env', $env);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
         
@@ -359,10 +383,14 @@ class Repo extends Model {
          *  Recherche dans la table repos
          */
         if ($status == 'active') {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $name);
+                $stmt->bindValue(':date', $date);
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             if ($this->db->isempty($result) === true) return false;
             
@@ -372,10 +400,14 @@ class Repo extends Model {
          *  Recherche dans la table repos_archived
          */
         if ($status == 'archived') {
-            $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date' AND Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name = '$name' AND Date = '$date' AND Status = 'active'");
+                $stmt->bindValue(':name', $name);
+                $stmt->bindValue(':date', $date);
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             if ($this->db->isempty($result) === true) return false;
 
@@ -389,11 +421,15 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function existsDateEnv(string $name, string $date, string $env) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':env', $env);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
 
@@ -406,10 +442,14 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function dist_exists(string $name, string $dist) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':dist', $dist);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
         
@@ -422,11 +462,15 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function section_exists(string $name, string $dist, string $section) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':dist', $dist);
-        $stmt->bindValue(':section', $section);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
 
@@ -439,12 +483,16 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function section_existsEnv(string $name, string $dist, string $section, string $env) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':dist', $dist);
-        $stmt->bindValue(':section', $section);
-        $stmt->bindValue(':env', $env);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
 
@@ -461,12 +509,16 @@ class Repo extends Model {
          *  Recherche dans la table repos
          */
         if ($status == 'active') {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $name);
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+                $stmt->bindValue(':date', $date);
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             if ($this->db->isempty($result) === true) return false;
             
@@ -476,12 +528,16 @@ class Repo extends Model {
          *  Recherche dans la table repos_archived
          */
         if ($status == 'archived') {
-            $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $name);
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+                $stmt->bindValue(':date', $date);
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             if ($this->db->isempty($result) === true) return false;
 
@@ -495,13 +551,17 @@ class Repo extends Model {
  *  Retourne false si n'existe pas
  */
     public function section_existsDateEnv(string $name, string $dist, string $section, string $date, string $env) {
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $name);
-        $stmt->bindValue(':dist', $dist);
-        $stmt->bindValue(':section', $section);
-        $stmt->bindValue(':date', $date);
-        $stmt->bindValue(':env', $env);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) return false;
 
@@ -516,15 +576,19 @@ class Repo extends Model {
  *  Récupère l'ID du repo/de la section en BDD
  */
     public function db_getId() {
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $this->name);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->dist);
-            $stmt->bindValue(':section', $this->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Env =:env AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $this->name);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->dist);
+                $stmt->bindValue(':section', $this->section);
+            }
+            $stmt->bindValue(':env', $this->env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->bindValue(':env', $this->env);
-        $result = $stmt->execute();
 
         while ($row = $result->fetchArray()) {
             $this->id = $row['Id'];
@@ -537,15 +601,19 @@ class Repo extends Model {
      *  Comme au dessus mais pour un repo/section archivé
      */
     public function db_getId_archived() {
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        $stmt->bindValue(':name', $this->name);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->dist);
-            $stmt->bindValue(':section', $this->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $this->name);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->dist);
+                $stmt->bindValue(':section', $this->section);
+            }
+            $stmt->bindValue(':date', $this->date);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->bindValue(':date', $this->date);
-        $result = $stmt->execute();
 
         while ($row = $result->fetchArray()) {
             $this->id = $row['Id'];
@@ -562,13 +630,17 @@ class Repo extends Model {
          *  Si on a précisé un state en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
          *  Sinon dans tous les autres cas on interroge la table par défaut càd les repos actifs
          */
-        if (!empty($state) AND $state == 'archived') {
-            $stmt = $this->db->prepare("SELECT * from repos_archived WHERE Id=:id");
-        } else {
-            $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
+        try {
+            if (!empty($state) AND $state == 'archived') {
+                $stmt = $this->db->prepare("SELECT * from repos_archived WHERE Id=:id");
+            } else {
+                $stmt = $this->db->prepare("SELECT * from repos WHERE Id=:id");
+            }
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
 
         /**
          *  Si rien n'a été trouvé en BDD avec l'ID fourni alors on quitte
@@ -600,15 +672,19 @@ class Repo extends Model {
  *  Recupère toutes les information du repo/de la section en BDD à partir de son nom et son env
  */
     public function db_getAll() {
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $this->name);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->dist);
-            $stmt->bindValue(':section', $this->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $this->name);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->dist);
+                $stmt->bindValue(':section', $this->section);
+            }
+            $stmt->bindValue(':env', $this->env);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->bindValue(':env', $this->env);
-        $result = $stmt->execute();        
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->id = $row['Id'];
@@ -624,15 +700,19 @@ class Repo extends Model {
  *  Récupère la date du repo/section en BDD
  */
     public function db_getDate() {
-        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-        $stmt->bindValue(':name', $this->name);
-        $stmt->bindValue(':env', $this->env);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->dist);
-            $stmt->bindValue(':section', $this->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+            $stmt->bindValue(':name', $this->name);
+            $stmt->bindValue(':env', $this->env);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->dist);
+                $stmt->bindValue(':section', $this->section);
+            }
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
         $this->date = $datas['Date'];
@@ -643,9 +723,14 @@ class Repo extends Model {
  *  Récupère le type du repo/section en BDD
  */
     public function db_getType() {
-        $stmt = $this->db->prepare("SELECT Type FROM repos WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Type FROM repos WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray()) $this->type = $row['Type'];
         
         unset($stmt, $result);
@@ -655,9 +740,14 @@ class Repo extends Model {
  *  Recupère la source du repo/section en BDD
  */
     public function db_getSource() {
-        $stmt = $this->db->prepare("SELECT Source FROM repos WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Source FROM repos WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray()) $this->source = $row['Source'];
 
         if (empty($this->source)) throw new Exception("<br><span class=\"redtext\">Erreur : </span>impossible de déterminer la source de du repo <b>$this->name</b>");
@@ -670,9 +760,14 @@ class Repo extends Model {
         /**
          *  Récupère l'url complète
          */
-        $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name=:name");
-        $stmt->bindValue(':name', $this->source);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name=:name");
+            $stmt->bindValue(':name', $this->source);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray()) {
             $this->sourceFullUrl = $row['Url'];
         }
@@ -726,11 +821,15 @@ class Repo extends Model {
             throw new Exception("La description contient des caractères invalides");
         }
 
-        if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description = :description WHERE Id = :id");
-        if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description = :description WHERE Id = :id");
-        $stmt->bindValue(':description', Common::validateData($description));
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description = :description WHERE Id = :id");
+            if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description = :description WHERE Id = :id");
+            $stmt->bindValue(':description', Common::validateData($description));
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
 
         Common::clearCache();
@@ -745,10 +844,14 @@ class Repo extends Model {
          */
         if ($this->signed != "yes" AND $this->signed != "no") return;
 
-        $stmt = $this->db->prepare("UPDATE repos SET Signed=:signed WHERE Id=:id");
-        $stmt->bindValue(':signed', $this->signed);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Signed=:signed WHERE Id=:id");
+            $stmt->bindValue(':signed', $this->signed);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
 
         Common::clearCache();

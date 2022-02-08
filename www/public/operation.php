@@ -6,7 +6,13 @@ Autoloader::load();
 include_once('../includes/head.inc.php');
 require_once('../functions/repo.functions.php');
 require_once('../common.php');
-?>
+/**
+ *  Seuls les admins ont accès à operation.php
+ */
+if (!Common::isadmin()) {
+    header('Location: index.php');
+    exit;
+} ?>
 
 <body>
 <?php 

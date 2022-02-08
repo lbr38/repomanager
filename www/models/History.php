@@ -12,7 +12,7 @@ class History {
          *  Ouverture d'une connexion à la base de données
          *  pas d'objet ici car il s'agit d'une classe static
          */
-        $db = new Connection('main', 'rw');
+        $db = new Connection('main');
 
         /**
          *  Récupération de l'ID de l'utilisateur à partir de son username

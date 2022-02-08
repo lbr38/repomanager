@@ -99,7 +99,7 @@ class Common
         if ($alertType == "error")   echo '<div class="alert-error">';
         if ($alertType == "success") echo '<div class="alert-success">';
         if (empty($alertType))       echo '<div class="alert">';
-
+        
         echo "<span>$message</span>";
         echo '</div>';
 
@@ -147,13 +147,39 @@ class Common
 
     /**
      *  Affiche une erreur générique ou personnalisée lorsqu'il y a eu une erreur d'exécution d'une requête dans la base de données
+     *  Ajoute une copie de l'erreur dans le fichier de logs 'exceptions'
      */
-    static function dbError(string $error = null) {
-        if (!empty($string) AND DEBUG_MODE == 'enabled') {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>'.$error, 'error');
-        } else {
-            printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+    static function dbError(string $exception = null) {
+        /**
+         *  Date et heure de l'évènement
+         */
+        $content = PHP_EOL.date("Y-m-d H:i:s").PHP_EOL;   
+        /**
+         *  Récupération du nom du fichier ayant fait appel à cette fonction
+         */
+        $content .= 'File : '.debug_backtrace()[0]['file'].PHP_EOL;       
+
+        /**
+         *  Si une exception a été catchée, on va l'ajouter au contenu
+         */
+        if (!empty($exception)) {
+            $content .= 'Error catched ¬'.PHP_EOL.$exception.PHP_EOL;
         }
+        /**
+         *  Ajout du contenu au fichier de log
+         */
+        $content .= '___________________________'.PHP_EOL;
+        file_put_contents(EXCEPTIONS_LOG, $content, FILE_APPEND);
+
+        /**
+         *  Lancement d'une exception qui sera catchée par printAlert
+         *  Si le mode debug est activé alors on affiche l'exception dans le message d'erreur
+         */
+        if (!empty($exception) AND DEBUG_MODE == 'enabled') {
+            throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>'.$exception.'<br>');
+        } else {
+            throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>');
+        }    
     }
 
     /**

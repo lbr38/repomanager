@@ -11,9 +11,7 @@ include_once('../includes/head.inc.php');
  *  - 2ème ouverture en mode ro pour la suite du traitement où on ne fera que de la récupération de données
  */
 $mystats = new Stat();
-$mystats->getConnection('stats', 'rw');
-$mystats->closeConnection();
-$mystats->getConnection('stats', 'ro');
+$mystats->getConnection('stats');
 
 $repoError = 0;
 
@@ -364,9 +362,13 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                      *  Graphique taille du repo et nombre de paquets
                      *  On récupère le contenu de la table stats qui concerne le repo
                      */
-                    $stmt = $mystats->db->prepare("SELECT * FROM stats WHERE Id_repo=:id_repo");
-                    $stmt->bindValue('id_repo', $myrepo->id);
-                    $result = $stmt->execute();                
+                    try {
+                        $stmt = $mystats->db->prepare("SELECT * FROM stats WHERE Id_repo=:id_repo");
+                        $stmt->bindValue('id_repo', $myrepo->id);
+                        $result = $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
                     
                     /**
                      *  Si le résultat n'est pas vide alors on traite

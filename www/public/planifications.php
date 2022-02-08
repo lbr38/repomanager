@@ -15,18 +15,19 @@ require_once('../common.php');
     <!-- section 'conteneur' principal englobant toutes les sections de droite -->
     <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionRight">
+        <?php if (Common::isadmin()) { ?>
+            <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
+            <!-- GERER LES GROUPES -->
+            <section class="right" id="groupsDiv">
+                <?php include_once('../includes/manage-groups.inc.php'); ?>
+            </section>
 
-        <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
-        <!-- GERER LES GROUPES -->
-        <section class="right" id="groupsDiv">
-            <?php include_once('../includes/manage-groups.inc.php'); ?>
-        </section>
-
-        <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
-        <!-- GERER LES SOURCES -->
-        <section class="right" id="sourcesDiv">
-            <?php include_once('../includes/manage-sources.inc.php'); ?>
-        </section>
+            <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
+            <!-- GERER LES SOURCES -->
+            <section class="right" id="sourcesDiv">
+                <?php include_once('../includes/manage-sources.inc.php'); ?>
+            </section>
+        <?php } ?>
 
         <section id="planDiv" class="right">
             <div class="div-flex">
@@ -329,197 +330,199 @@ require_once('../common.php');
                 echo '<br><hr><br>';
             } ?>
 
-            <form id="newPlanForm" class="actionform" autocomplete="off">
-                <p><b><img src="ressources/icons/plus.png" class="icon" />Créer une planification</b></p>
-                <table class="table-large">
-                    <tr>
-                        <td>Type</td>
-                        <td class="td-medium">
-                            <div class="switch-field">
-                                <input type="radio" id="addPlanType-plan" name="planType" value="plan" checked />
-                                <label for="addPlanType-plan">Tâche unique</label>
-                                <input type="radio" id="addPlanType-regular" name="planType" value="regular" />
-                                <label for="addPlanType-regular">Tâche récurrente</label>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="__regular_plan_input hide">
-                        <td class="td-fit">Fréquence</td>
-                        <td>
-                            <select id="planFrequencySelect">
-                                <option value="">Sélectionner...</option>
-                                <option id="planFrequency-every-hour" value="every-hour">toutes les heures</option>
-                                <option id="planFrequency-every-day" value="every-day">tous les jours</option>
-                                <option id="planFrequency-every-week" value="every-week">toutes les semaines</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="__regular_plan_input __regular_plan_day_input hide">
-                        <td class="td-fit">Jour(s)</td>
-                        <td>
-                            <select id="planDayOfWeekSelect" multiple>
-                                <option value="monday">Lundi</option>
-                                <option value="tuesday">Mardi</option>
-                                <option value="wednesday">Mercredi</option>
-                                <option value="thursday">Jeudi</option>
-                                <option value="friday">Vendredi</option>
-                                <option value="saturday">Samedi</option>
-                                <option value="sunday">Dimanche</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="__plan_input">
-                        <td class="td-fit">Date</td>
-                        <td><input id="addPlanDate" type="date" /></td>
-                    </tr>
-                    <tr class="__plan_hour_input">
-                        <td class="td-fit">Heure</td>
-                        <td><input id="addPlanTime" type="time" /></td>
-                    </tr>
-                    <tr>
-                        <td class="td-fit">Action</td>
-                        <td>
-                            <select id="planActionSelect">
-                            <?php
-                            $lastEnv = '';
-                            foreach (ENVS as $env) {
-                                if (!empty($lastEnv)) {
-                                    echo "<option value='${lastEnv}->${env}'>Faire pointer un environnement ${lastEnv} -> ${env}</option>";
+            <?php if (Common::isadmin()) { ?>
+                <form id="newPlanForm" class="actionform" autocomplete="off">
+                    <p><b><img src="ressources/icons/plus.png" class="icon" />Créer une planification</b></p>
+                    <table class="table-large">
+                        <tr>
+                            <td>Type</td>
+                            <td class="td-medium">
+                                <div class="switch-field">
+                                    <input type="radio" id="addPlanType-plan" name="planType" value="plan" checked />
+                                    <label for="addPlanType-plan">Tâche unique</label>
+                                    <input type="radio" id="addPlanType-regular" name="planType" value="regular" />
+                                    <label for="addPlanType-regular">Tâche récurrente</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="__regular_plan_input hide">
+                            <td class="td-fit">Fréquence</td>
+                            <td>
+                                <select id="planFrequencySelect">
+                                    <option value="">Sélectionner...</option>
+                                    <option id="planFrequency-every-hour" value="every-hour">toutes les heures</option>
+                                    <option id="planFrequency-every-day" value="every-day">tous les jours</option>
+                                    <option id="planFrequency-every-week" value="every-week">toutes les semaines</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="__regular_plan_input __regular_plan_day_input hide">
+                            <td class="td-fit">Jour(s)</td>
+                            <td>
+                                <select id="planDayOfWeekSelect" multiple>
+                                    <option value="monday">Lundi</option>
+                                    <option value="tuesday">Mardi</option>
+                                    <option value="wednesday">Mercredi</option>
+                                    <option value="thursday">Jeudi</option>
+                                    <option value="friday">Vendredi</option>
+                                    <option value="saturday">Samedi</option>
+                                    <option value="sunday">Dimanche</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="__plan_input">
+                            <td class="td-fit">Date</td>
+                            <td><input id="addPlanDate" type="date" /></td>
+                        </tr>
+                        <tr class="__plan_hour_input">
+                            <td class="td-fit">Heure</td>
+                            <td><input id="addPlanTime" type="time" /></td>
+                        </tr>
+                        <tr>
+                            <td class="td-fit">Action</td>
+                            <td>
+                                <select id="planActionSelect">
+                                <?php
+                                $lastEnv = '';
+                                foreach (ENVS as $env) {
+                                    if (!empty($lastEnv)) {
+                                        echo "<option value='${lastEnv}->${env}'>Faire pointer un environnement ${lastEnv} -> ${env}</option>";
+                                    }
+                                    $lastEnv = $env;
                                 }
-                                $lastEnv = $env;
-                            }
-                            if (ENVS_TOTAL >= 1) {
-                                echo '<option value="update" id="updateRepoSelect">Mise à jour de l\'environnement '.DEFAULT_ENV.'</option>';
-                            } ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="td-fit">Repo</td>
-                        <td>
-                            <select id="addPlanRepoId">
-                                <option value="">Sélectionnez un repo...</option>
-                                <?php
-                                /**
-                                 *  Récupération de la liste des repos qui possèdent un environnement DEFAULT_ENV
-                                 */
-                                $repo = new Repo();
-                                $reposList = $repo->listAll_distinct_byEnv(DEFAULT_ENV);
-                                if (!empty($reposList)) {
-                                    foreach($reposList as $myrepo) {
-                                        $repoId = $myrepo['Id'];
-                                        $repoName = $myrepo['Name'];
-                                        if (OS_FAMILY == "Debian") {
-                                            $repoDist = $myrepo['Dist'];
-                                            $repoSection = $myrepo['Section'];
-                                        }
+                                if (ENVS_TOTAL >= 1) {
+                                    echo '<option value="update" id="updateRepoSelect">Mise à jour de l\'environnement '.DEFAULT_ENV.'</option>';
+                                } ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-fit">Repo</td>
+                            <td>
+                                <select id="addPlanRepoId">
+                                    <option value="">Sélectionnez un repo...</option>
+                                    <?php
+                                    /**
+                                     *  Récupération de la liste des repos qui possèdent un environnement DEFAULT_ENV
+                                     */
+                                    $repo = new Repo();
+                                    $reposList = $repo->listAll_distinct_byEnv(DEFAULT_ENV);
+                                    if (!empty($reposList)) {
+                                        foreach($reposList as $myrepo) {
+                                            $repoId = $myrepo['Id'];
+                                            $repoName = $myrepo['Name'];
+                                            if (OS_FAMILY == "Debian") {
+                                                $repoDist = $myrepo['Dist'];
+                                                $repoSection = $myrepo['Section'];
+                                            }
 
-                                        /**
-                                         *  On génère une <option> pour chaque repo
-                                         */
-                                        if (OS_FAMILY == "Redhat") echo "<option value=\"$repoId\">$repoName</option>";
-                                        if (OS_FAMILY == "Debian") echo "<option value=\"$repoId\">$repoName - $repoDist - $repoSection</option>";
-                                    }
-                                } ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="td-fit">ou Groupe</td>
-                        <td>
-                            <select id="addPlanGroupId">
-                                <option value="">Sélectionnez un groupe...</option>
-                                <?php
-                                $group = new Group('repo');
-                                $groupsList = $group->listAll();
-                                if (!empty($groupsList)) {
-                                    foreach($groupsList as $group) {
-                                        $groupId = $group['Id'];
-                                        $groupName = $group['Name'];
-                                        echo "<option value=\"${groupId}\">${groupName}</option>";
-                                    }
-                                } ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr class="__plan_gpg_input hide">
-                        <td colspan="100%"><hr><p><b>Paramètres GPG</b></p></td>
-                    </tr>
-                    <tr class="__plan_gpg_input hide">
-                        <td class="td-fit">Vérif. des sign. GPG</td>
-                        <td>
-                            <label class="onoff-switch-label">
-                                <input id="addPlanGpgCheck" type="checkbox" name="addPlanGpgCheck" class="onoff-switch-input" value="yes" checked />
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </td>
-                    </tr>      
-                    <tr class="__plan_gpg_input hide">
-                        <td class="td-fit">Signer avec GPG</td>
-                        <td>
-                            <label class="onoff-switch-label">
-                                <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes"<?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; }?> />
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="100%"><hr><p><b>Notifications mail</b></p></td>
-                    </tr>
-                    <tr>
-                        <td>Destinataire(s)</td>
-                        <td><input type="email" id="addPlanMailRecipient" placeholder="Adresses emails séparées par une virgule" value="<?php echo EMAIL_DEST;?>" multiple /></td>
-                    </tr>
-                    <tr class="__plan_input __plan_input_reminder">
-                        <td class="td-fit">Envoyer un rappel</td>
-                        <td>
-                            <select id="planReminderSelect" name="addPlanReminder[]" multiple>
-                                <option value="1">1 jour avant</option>
-                                <option value="2">2 jours avant</option>
-                                <option value="3" selected>3 jours avant</option>
-                                <option value="4">4 jours avant</option>
-                                <option value="5">5 jours avant</option>
-                                <option value="6">6 jours avant</option>
-                                <option value="7" selected>7 jours avant</option>
-                                <option value="8">8 jours avant</option>
-                                <option value="9">9 jours avant</option>
-                                <option value="10">10 jours avant</option>
-                                <option value="15">15 jours avant</option>
-                                <option value="20">20 jours avant</option>
-                                <option value="25">25 jours avant</option>
-                                <option value="30">30 jours avant</option>
-                                <option value="35">35 jours avant</option>
-                                <option value="40">40 jours avant</option>
-                                <option value="45">45 jours avant</option>
-                                <option value="50">50 jours avant</option>
-                                <option value="55">55 jours avant</option>
-                                <option value="60">60 jours avant</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="td-fit">Planification en erreur</td>
-                        <td>
-                            <label class="onoff-switch-label">
-                                <input id="addPlanNotificationOnError" name="addPlanNotificationOnError" type="checkbox" class="onoff-switch-input" value="yes" checked />
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="td-fit">Planification terminée</td>
-                        <td>
-                            <label class="onoff-switch-label">
-                                <input id="addPlanNotificationOnSuccess" type="checkbox" class="onoff-switch-input" value="yes" checked />
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="100%"><button type="submit" class="btn-large-blue">Ajouter</button></td>
-                    </tr>
-                </table>
-            </form>
+                                            /**
+                                             *  On génère une <option> pour chaque repo
+                                             */
+                                            if (OS_FAMILY == "Redhat") echo "<option value=\"$repoId\">$repoName</option>";
+                                            if (OS_FAMILY == "Debian") echo "<option value=\"$repoId\">$repoName - $repoDist - $repoSection</option>";
+                                        }
+                                    } ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-fit">ou Groupe</td>
+                            <td>
+                                <select id="addPlanGroupId">
+                                    <option value="">Sélectionnez un groupe...</option>
+                                    <?php
+                                    $group = new Group('repo');
+                                    $groupsList = $group->listAll();
+                                    if (!empty($groupsList)) {
+                                        foreach($groupsList as $group) {
+                                            $groupId = $group['Id'];
+                                            $groupName = $group['Name'];
+                                            echo "<option value=\"${groupId}\">${groupName}</option>";
+                                        }
+                                    } ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="__plan_gpg_input hide">
+                            <td colspan="100%"><hr><p><b>Paramètres GPG</b></p></td>
+                        </tr>
+                        <tr class="__plan_gpg_input hide">
+                            <td class="td-fit">Vérif. des sign. GPG</td>
+                            <td>
+                                <label class="onoff-switch-label">
+                                    <input id="addPlanGpgCheck" type="checkbox" name="addPlanGpgCheck" class="onoff-switch-input" value="yes" checked />
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </td>
+                        </tr>      
+                        <tr class="__plan_gpg_input hide">
+                            <td class="td-fit">Signer avec GPG</td>
+                            <td>
+                                <label class="onoff-switch-label">
+                                    <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes"<?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; }?> />
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="100%"><hr><p><b>Notifications mail</b></p></td>
+                        </tr>
+                        <tr>
+                            <td>Destinataire(s)</td>
+                            <td><input type="email" id="addPlanMailRecipient" placeholder="Adresses emails séparées par une virgule" value="<?php echo EMAIL_DEST;?>" multiple /></td>
+                        </tr>
+                        <tr class="__plan_input __plan_input_reminder">
+                            <td class="td-fit">Envoyer un rappel</td>
+                            <td>
+                                <select id="planReminderSelect" name="addPlanReminder[]" multiple>
+                                    <option value="1">1 jour avant</option>
+                                    <option value="2">2 jours avant</option>
+                                    <option value="3" selected>3 jours avant</option>
+                                    <option value="4">4 jours avant</option>
+                                    <option value="5">5 jours avant</option>
+                                    <option value="6">6 jours avant</option>
+                                    <option value="7" selected>7 jours avant</option>
+                                    <option value="8">8 jours avant</option>
+                                    <option value="9">9 jours avant</option>
+                                    <option value="10">10 jours avant</option>
+                                    <option value="15">15 jours avant</option>
+                                    <option value="20">20 jours avant</option>
+                                    <option value="25">25 jours avant</option>
+                                    <option value="30">30 jours avant</option>
+                                    <option value="35">35 jours avant</option>
+                                    <option value="40">40 jours avant</option>
+                                    <option value="45">45 jours avant</option>
+                                    <option value="50">50 jours avant</option>
+                                    <option value="55">55 jours avant</option>
+                                    <option value="60">60 jours avant</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-fit">Planification en erreur</td>
+                            <td>
+                                <label class="onoff-switch-label">
+                                    <input id="addPlanNotificationOnError" name="addPlanNotificationOnError" type="checkbox" class="onoff-switch-input" value="yes" checked />
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td-fit">Planification terminée</td>
+                            <td>
+                                <label class="onoff-switch-label">
+                                    <input id="addPlanNotificationOnSuccess" type="checkbox" class="onoff-switch-input" value="yes" checked />
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="100%"><button type="submit" class="btn-large-blue">Ajouter</button></td>
+                        </tr>
+                    </table>
+                </form>
+            <?php } ?>
         </section>
 
         <?php

@@ -36,7 +36,7 @@ class Planification extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
     }
 
     public function setId(string $id)
@@ -340,22 +340,26 @@ class Planification extends Model {
         /**
          *  Insertion en base de données
          */
-        $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Day', 'Date', 'Time', 'Action', 'Id_repo', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :day, :date, :time, :action, :idrepo, :idgroup, :gpgcheck, :gpgresign, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
-        $stmt->bindValue(':plantype', $this->type);
-        $stmt->bindValue(':frequency', $this->frequency);
-        $stmt->bindValue(':day', $this->day);
-        $stmt->bindValue(':date', $this->date);
-        $stmt->bindValue(':time', $this->time);
-        $stmt->bindValue(':action', $this->action);
-        $stmt->bindValue(':idrepo', $this->repoId);
-        $stmt->bindValue(':idgroup', $this->groupId);
-        $stmt->bindValue(':gpgcheck', $this->gpgCheck);
-        $stmt->bindValue(':gpgresign', $this->gpgResign);
-        $stmt->bindValue(':notification_error', $this->notificationOnError);
-        $stmt->bindValue(':notification_success', $this->notificationOnSuccess);
-        $stmt->bindValue(':mailrecipient', $this->mailRecipient);
-        $stmt->bindValue(':reminder', $this->reminder);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Day', 'Date', 'Time', 'Action', 'Id_repo', 'Id_group', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :day, :date, :time, :action, :idrepo, :idgroup, :gpgcheck, :gpgresign, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
+            $stmt->bindValue(':plantype', $this->type);
+            $stmt->bindValue(':frequency', $this->frequency);
+            $stmt->bindValue(':day', $this->day);
+            $stmt->bindValue(':date', $this->date);
+            $stmt->bindValue(':time', $this->time);
+            $stmt->bindValue(':action', $this->action);
+            $stmt->bindValue(':idrepo', $this->repoId);
+            $stmt->bindValue(':idgroup', $this->groupId);
+            $stmt->bindValue(':gpgcheck', $this->gpgCheck);
+            $stmt->bindValue(':gpgresign', $this->gpgResign);
+            $stmt->bindValue(':notification_error', $this->notificationOnError);
+            $stmt->bindValue(':notification_success', $this->notificationOnSuccess);
+            $stmt->bindValue(':mailrecipient', $this->mailRecipient);
+            $stmt->bindValue(':reminder', $this->reminder);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
     }
 
 /**
@@ -367,7 +371,7 @@ class Planification extends Model {
             $stmt->bindValue(':id', $planId);
             $stmt->execute();
         } catch(Exception $e) {
-            throw new Exception("Une erreur est survenue lors de la suppression de la planification : ".$e->getMessage());
+            Common::dbError($e);
         }
     }
 
@@ -384,9 +388,13 @@ class Planification extends Model {
         /**
          *  Passe le status de la planification à "running", jusqu'à maintenant le status était "queued"
          */
-        $stmt = $this->db->prepare("UPDATE planifications SET Status = 'running' WHERE Id = :id");
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE planifications SET Status = 'running' WHERE Id = :id");
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  0. Démarre l'enregistrement de la planification
@@ -845,35 +853,39 @@ class Planification extends Model {
          *  Mise à jour du status de la planification en BDD
          *  On ne met à jour uniquement si le type de planification = 'plan'. Pour les planifications régulière ('regular') il faut les remettre en status queued.
          */
-        if ($this->type == 'plan') {
-            if ($planError == 0) {
-                $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Logfile = :plan_logfile WHERE Id = :plan_id");
-                $stmt->bindValue(':plan_status', 'done');
-                $stmt->bindValue(':plan_logfile', $this->log->name);
-                $stmt->bindValue(':plan_id', $this->id);
-            } else {
-                $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Error = :plan_msg_error, Logfile = :plan_logfile WHERE Id = :plan_id");
-                $stmt->bindValue(':plan_status', 'error');
-                $stmt->bindValue(':plan_msg_error', $plan_msg_error);
-                $stmt->bindValue(':plan_logfile', $this->log->name);
-                $stmt->bindValue(':plan_id', $this->id);
+        try {
+            if ($this->type == 'plan') {
+                if ($planError == 0) {
+                    $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Logfile = :plan_logfile WHERE Id = :plan_id");
+                    $stmt->bindValue(':plan_status', 'done');
+                    $stmt->bindValue(':plan_logfile', $this->log->name);
+                    $stmt->bindValue(':plan_id', $this->id);
+                } else {
+                    $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Error = :plan_msg_error, Logfile = :plan_logfile WHERE Id = :plan_id");
+                    $stmt->bindValue(':plan_status', 'error');
+                    $stmt->bindValue(':plan_msg_error', $plan_msg_error);
+                    $stmt->bindValue(':plan_logfile', $this->log->name);
+                    $stmt->bindValue(':plan_id', $this->id);
+                }
             }
-        }
-        if ($this->type == 'regular') {
-            if ($planError == 0) {
-                $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Logfile = :plan_logfile WHERE Id = :plan_id");
-                $stmt->bindValue(':plan_status', 'queued');
-                $stmt->bindValue(':plan_logfile', $this->log->name);
-                $stmt->bindValue(':plan_id', $this->id);
-            } else {
-                $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Error = :plan_msg_error, Logfile = :plan_logfile WHERE Id = :plan_id");
-                $stmt->bindValue(':plan_status', 'queued');
-                $stmt->bindValue(':plan_msg_error', $plan_msg_error);
-                $stmt->bindValue(':plan_logfile', $this->log->name);
-                $stmt->bindValue(':plan_id', $this->id);
+            if ($this->type == 'regular') {
+                if ($planError == 0) {
+                    $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Logfile = :plan_logfile WHERE Id = :plan_id");
+                    $stmt->bindValue(':plan_status', 'queued');
+                    $stmt->bindValue(':plan_logfile', $this->log->name);
+                    $stmt->bindValue(':plan_id', $this->id);
+                } else {
+                    $stmt = $this->db->prepare("UPDATE planifications SET Status = :plan_status, Error = :plan_msg_error, Logfile = :plan_logfile WHERE Id = :plan_id");
+                    $stmt->bindValue(':plan_status', 'queued');
+                    $stmt->bindValue(':plan_msg_error', $plan_msg_error);
+                    $stmt->bindValue(':plan_logfile', $this->log->name);
+                    $stmt->bindValue(':plan_id', $this->id);
+                }
             }
+            $stmt->execute(); unset($stmt);
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->execute(); unset($stmt);
 
         /**
          *  Si l'erreur est de type 1 (erreur lors des vérifications de l'opération), on affiche les erreurs avec echo, elles seront capturées par ob_get_clean() et affichées dans le fichier de log
@@ -1166,9 +1178,13 @@ public function sendMail($title, $template) {
      *  Vérification que le groupe existe
      */
     private function checkIfGroupExists() {
-        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
-        $stmt->bindValue(':name', $this->op->group->name);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
+            $stmt->bindValue(':name', $this->op->group->name);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true) {
             throw new Exception("Erreur (CP14) : Le groupe <b>{$this->op->group->name}</b> n'existe pas");
@@ -1279,9 +1295,13 @@ public function sendMail($title, $template) {
     private function getInfo() {
         if (empty($this->id)) throw new Exception("Erreur (EP02) Impossible de récupérer les informations de la planification car son ID est vide");
 
-        $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
 

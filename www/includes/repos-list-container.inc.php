@@ -1,5 +1,6 @@
 <div class="div-flex">
     <h3>REPOS ACTIFS</h3>
+    <?php if (Common::isadmin()) { ?>
     <div>
         <!-- Bouton "Affichage" -->
         <span id="ReposListDisplayToggleButton" class="pointer" title="Affichage">Affichage<img src="ressources/icons/cog.png" class="icon"/></span>
@@ -15,79 +16,82 @@
             }
         ?>
     </div>
+    <?php } ?>
 </div>
 
-<!-- div cachée, affichée par le bouton "Affichage" -->
-<div id="divReposListDisplay" class="divReposListDisplay">
-    <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /> 
-    <form action="<?php echo __ACTUAL_URI__; ?>" method="post">
-        <input type="hidden" name="action" value="configureDisplay" />
-        <p><b>Informations</b></p>
-        
-        <!-- afficher ou non la taille des repos/sections -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="printRepoSize" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="printRepoSize" value="on" <?php if (PRINT_REPO_SIZE == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Afficher la taille du repo</span><br>
+<?php if (Common::isadmin()) { ?>
+    <!-- div cachée, affichée par le bouton "Affichage" -->
+    <div id="divReposListDisplay" class="divReposListDisplay">
+        <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /> 
+        <form action="<?php echo __ACTUAL_URI__; ?>" method="post">
+            <input type="hidden" name="action" value="configureDisplay" />
+            <p><b>Informations</b></p>
+            
+            <!-- afficher ou non la taille des repos/sections -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="printRepoSize" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="printRepoSize" value="on" <?php if (PRINT_REPO_SIZE == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Afficher la taille du repo</span><br>
 
-        <!-- afficher ou non le type des repos (miroir ou local) -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="printRepoType" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="printRepoType" value="on" <?php if (PRINT_REPO_TYPE == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Afficher le type du repo</span><br>
+            <!-- afficher ou non le type des repos (miroir ou local) -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="printRepoType" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="printRepoType" value="on" <?php if (PRINT_REPO_TYPE == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Afficher le type du repo</span><br>
 
-        <!-- afficher ou non la signature gpg des repos -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="printRepoSignature" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="printRepoSignature" value="on" <?php if (PRINT_REPO_SIGNATURE == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Afficher la signature du repo</span><br>
+            <!-- afficher ou non la signature gpg des repos -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="printRepoSignature" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="printRepoSignature" value="on" <?php if (PRINT_REPO_SIGNATURE == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Afficher la signature du repo</span><br>
 
-        <p><b>Filtrage</b></p>
+            <p><b>Filtrage</b></p>
 
-        <!-- filtrer ou non par groupe -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="filterByGroups" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="filterByGroups" value="on" <?php if (FILTER_BY_GROUPS == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Filtrer par groupes</span><br>
+            <!-- filtrer ou non par groupe -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="filterByGroups" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="filterByGroups" value="on" <?php if (FILTER_BY_GROUPS == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Filtrer par groupes</span><br>
 
-        <!-- concatener ou non les noms de repo/section -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="concatenateReposName" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="concatenateReposName" value="on" <?php if (CONCATENATE_REPOS_NAME == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Vue simplifiée</span><br>
+            <!-- concatener ou non les noms de repo/section -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="concatenateReposName" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="concatenateReposName" value="on" <?php if (CONCATENATE_REPOS_NAME == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Vue simplifiée</span><br>
 
-        <!-- Afficher ou non une ligne séparatrice entre chaque nom de repo/section -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="dividingLine" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="dividingLine" value="on" <?php if (DIVIDING_LINE == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Ligne séparatrice</span><br>
+            <!-- Afficher ou non une ligne séparatrice entre chaque nom de repo/section -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="dividingLine" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="dividingLine" value="on" <?php if (DIVIDING_LINE == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Ligne séparatrice</span><br>
 
-        <p><b>Cache</b></p>
-        <p>Utiliser <b>/dev/shm</b> pour mettre en ram la liste des repos (recommandé)</p>
-        <!-- mettre en cache ou non la liste des repos -->
-        <label class="onoff-switch-label">
-            <input type="hidden" name="cache_repos_list" value="off" />
-            <input class="onoff-switch-input" type="checkbox" name="cache_repos_list" value="on" <?php if (CACHE_REPOS_LIST == "yes") echo 'checked'; ?> />
-            <span class="onoff-switch-slider"></span>
-        </label>
-        <span> Mettre en cache dans /dev/shm</span><br>
+            <p><b>Cache</b></p>
+            <p>Utiliser <b>/dev/shm</b> pour mettre en ram la liste des repos (recommandé)</p>
+            <!-- mettre en cache ou non la liste des repos -->
+            <label class="onoff-switch-label">
+                <input type="hidden" name="cache_repos_list" value="off" />
+                <input class="onoff-switch-input" type="checkbox" name="cache_repos_list" value="on" <?php if (CACHE_REPOS_LIST == "yes") echo 'checked'; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <span> Mettre en cache dans /dev/shm</span><br>
 
-        <br><br>
-        <button type="submit" class="btn-medium-blue">Enregistrer</button>
-    </form>
-</div>
+            <br><br>
+            <button type="submit" class="btn-medium-blue">Enregistrer</button>
+        </form>
+    </div>
+<?php } ?>
 
 <!-- LISTE DES REPOS ACTIFS -->
 <table class="list-repos">

@@ -19,9 +19,13 @@ trait op_archive {
          *  Puis on affiche toutes les occurences de ce repo/section en BDD en filtrant sur la date récupérée.
          *  Si il y a 1 ou plusieurs occurences alors on ne peut pas archiver le repo/section à la date indiquée car il est toujours utilisé
          */
-        $stmt = $this->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->repo->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->repo->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
         $oldRepoDate = $datas['Date'];
@@ -53,18 +57,20 @@ trait op_archive {
              *  A partir de la date récupérée, on regarde si d'autres environnements pointent sur le repo/section à cette date
              *  On exclu $this->env de la recherche car il apparaitra forcémment sinon.
              */
-            //if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Status = 'active'");
-            //if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env != :env AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env != :env AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':date', $oldRepoDate);
-            $stmt->bindValue(':env', $this->repo->env);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {            
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env != :env AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env != :env AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':date', $oldRepoDate);
+                $stmt->bindValue(':env', $this->repo->env);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
 
             /**
              *  On compte le nombre de lignes obtenues
@@ -83,12 +89,16 @@ trait op_archive {
         /**
          *  Mise à jour de la date, de l'heure et de la signature en BDD du repo qu'on vient de mettre à jour
          */
-        $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Signed=:signed WHERE Id=:id");
-        $stmt->bindValue(':date', $this->repo->date);
-        $stmt->bindValue(':time', $this->repo->time);
-        $stmt->bindValue(':signed', $this->repo->gpgResign);
-        $stmt->bindValue(':id', $this->repo->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Signed=:signed WHERE Id=:id");
+            $stmt->bindValue(':date', $this->repo->date);
+            $stmt->bindValue(':time', $this->repo->time);
+            $stmt->bindValue(':signed', $this->repo->gpgResign);
+            $stmt->bindValue(':id', $this->repo->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Cas où on archive l'ancien repo/section
@@ -106,15 +116,19 @@ trait op_archive {
                     /**
                      *  Insertion en BDD du nouveau repo archivé
                      */
-                    $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :olddate, :oldtime, :description, :signed, :type, 'active')");
-                    $stmt->bindValue(':name', $this->repo->name);
-                    $stmt->bindValue(':source', $this->repo->source);
-                    $stmt->bindValue(':olddate', $oldRepoDate);
-                    $stmt->bindValue(':oldtime', $oldRepoTime);
-                    $stmt->bindValue(':description', $this->repo->description);
-                    $stmt->bindValue(':signed', $this->repo->signed);
-                    $stmt->bindValue(':type', $this->repo->type);
-                    $stmt->execute();
+                    try {
+                        $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :olddate, :oldtime, :description, :signed, :type, 'active')");
+                        $stmt->bindValue(':name', $this->repo->name);
+                        $stmt->bindValue(':source', $this->repo->source);
+                        $stmt->bindValue(':olddate', $oldRepoDate);
+                        $stmt->bindValue(':oldtime', $oldRepoTime);
+                        $stmt->bindValue(':description', $this->repo->description);
+                        $stmt->bindValue(':signed', $this->repo->signed);
+                        $stmt->bindValue(':type', $this->repo->type);
+                        $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
                 }
             }
 
@@ -130,17 +144,21 @@ trait op_archive {
                     /**
                      *  Insertion en BDD du nouveau repo archivé
                      */
-                    $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :olddate, :oldtime, :description, :signed, :type, 'active')");
-                    $stmt->bindValue(':name', $this->repo->name);
-                    $stmt->bindValue(':dist', $this->repo->dist);
-                    $stmt->bindValue(':section', $this->repo->section);
-                    $stmt->bindValue(':source', $this->repo->source);
-                    $stmt->bindValue(':olddate', $oldRepoDate);
-                    $stmt->bindValue(':oldtime', $oldRepoTime);
-                    $stmt->bindValue(':description', $this->repo->description);
-                    $stmt->bindValue(':signed', $this->repo->signed);
-                    $stmt->bindValue(':type', $this->repo->type);
-                    $stmt->execute();
+                    try {
+                        $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :olddate, :oldtime, :description, :signed, :type, 'active')");
+                        $stmt->bindValue(':name', $this->repo->name);
+                        $stmt->bindValue(':dist', $this->repo->dist);
+                        $stmt->bindValue(':section', $this->repo->section);
+                        $stmt->bindValue(':source', $this->repo->source);
+                        $stmt->bindValue(':olddate', $oldRepoDate);
+                        $stmt->bindValue(':oldtime', $oldRepoTime);
+                        $stmt->bindValue(':description', $this->repo->description);
+                        $stmt->bindValue(':signed', $this->repo->signed);
+                        $stmt->bindValue(':type', $this->repo->type);
+                        $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
                 }
             }
 
