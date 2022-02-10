@@ -26,7 +26,10 @@ if (__ACTUAL_URI__ == "/planifications.php") {
     echo '<script src="js/plan.js"></script>';
     echo '<script src="js/source.js"></script>';
 }
-if (__ACTUAL_URI__ == "/hosts.php" OR __ACTUAL_URI__ == "/host.php") {
+if (__ACTUAL_URI__ == "/hosts.php") {
+    echo '<script src="js/hosts.js"></script>';
+}
+if (__ACTUAL_URI__ == "/host.php") {
     echo '<script src="js/host.js"></script>';
 }
 if (__ACTUAL_URI__ == "/explore.php") {

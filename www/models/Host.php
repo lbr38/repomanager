@@ -1574,6 +1574,39 @@ class Host extends Model {
         return true;
     }
 
+    public function searchPackage(string $packageName)
+    {
+        /**
+         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
+         */
+        if (empty($this->id)) return false;
+
+        /**
+         *  Ouverture de la BDD dédiée de l'hôte
+         */
+        $this->openHostDb($this->id);
+
+        try {
+            $stmt = $this->host_db->prepare("SELECT Version FROM packages WHERE Name = :name");
+            $stmt->bindValue(':name', $packageName);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        /**
+         *  Si aucun résultat on renvoi false
+         */
+        if ($this->host_db->isempty($result) === true) return false;
+
+        /**
+         *  Sinon on récupère les données
+         */
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $version = $row['Version'];
+
+        return $version;
+    }
+
     /**
      *  Vérifie l'existence d'un paquet dans la table packages_available
      */

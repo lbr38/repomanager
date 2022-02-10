@@ -144,6 +144,22 @@
     padding-bottom: 40px;
 }
 
+.searchInput-container {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.searchInput-subcontainer {
+    margin: auto;
+    width: 30%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.searchInput-subcontainer p {
+    text-align: center;
+}
+
 .hostDetails, .packageDetails {
     width: 95%;
     height: 100vh;
@@ -170,7 +186,6 @@
     position: fixed;
     right: 8px;
 }
-
 .host-update-request-btn {
     position:absolute;
     top: 4px;
