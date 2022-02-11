@@ -182,10 +182,13 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             $myhost->setId($hostid);
 
             /**
-             *  Tentative d'ajout/suppression des repos dans le groupe
+             *  Tentative de recherche du paquet
              */
             try {
                 $result = $myhost->searchPackage($package);
+                /**
+                 *  Si aucun paquet n'est trouvé
+                 */
                 if ($result === false) {
                     response(HTTP_BAD_REQUEST, '');
                     exit();

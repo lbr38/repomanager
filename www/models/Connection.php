@@ -23,7 +23,7 @@ class Connection extends SQLite3 {
                 /**
                  *  Activation du mode WAL
                  */
-                $this->exec('PRAGMA journal_mode = wal;');
+                $this->enableWAL();
 
                 /**
                  *  Activation des exception pour SQLite
@@ -40,7 +40,7 @@ class Connection extends SQLite3 {
                 /**
                  *  Activation du mode WAL
                  */
-                $this->exec('PRAGMA journal_mode = wal;');
+                $this->enableWAL();
 
                 /**
                  *  Activation des exception pour SQLite
@@ -57,7 +57,7 @@ class Connection extends SQLite3 {
                 /**
                  *  Activation du mode WAL
                  */
-                $this->exec('PRAGMA journal_mode = wal;');
+                $this->enableWAL();
 
                 /**
                  *  Activation des exception pour SQLite
@@ -116,6 +116,24 @@ class Connection extends SQLite3 {
         }        
     }
 
+    /**
+     *  Activation du mode WAL SQLite
+     */
+    private function enableWAL()
+    {
+        $this->exec('pragma journal_mode = WAL;');
+        $this->exec('pragma synchronous = normal;');
+        $this->exec('pragma temp_store = memory;');
+        $this->exec('pragma mmap_size = 30000000000;');
+    }
+
+    /**
+     *  Désactivation du mode WAL SQLite
+     */
+    private function disableWAL()
+    {
+        $this->exec('pragma journal_mode = DELETE;');
+    }
 
     /**
      *  

@@ -792,7 +792,7 @@ class Host extends Model {
                     $stmt->bindValue(':time', date('H:i:s'));
                     $stmt->execute();
                 } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                    Common::dbError($e);
                 }
 
                 /**
@@ -832,7 +832,7 @@ class Host extends Model {
                     $this->host_db->generateHostTables();
 
                 } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                    Common::dbError($e);
                 }
 
                 /**
@@ -857,7 +857,7 @@ class Host extends Model {
                     $stmt->bindValue(':id', $hostId);
                     $stmt->execute();
                 } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                    Common::dbError($e);
                 }
 
                 /**
@@ -871,6 +871,28 @@ class Host extends Model {
             }
            
             /**
+             *  Si l'action correspond à l'une des suivantes, on ajoute une entrée dans la base de données de l'hôte
+             */
+            if ($action == 'general-status-update' OR
+                $action == 'available-packages-status-update' OR
+                $action == 'installed-packages-status-update' OR
+                $action == 'full-history-update') {
+
+                /**
+                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
+                 */
+                try {
+                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, :action, 'requested')");
+                    $stmt->bindValue(':date', date('Y-m-d'));
+                    $stmt->bindValue(':time', date('H:i:s'));
+                    $stmt->bindValue(':action', $action);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
+            }
+
+            /**
              *  Si l'action est une demande de mise à jour des informations générales de l'hôte
              */
             if ($action == 'general-status-update') {
@@ -878,18 +900,6 @@ class Host extends Model {
                  *  Envoi d'un ping avec le message 'r-general-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
                  */
                 exec("ping -W2 -c 1 -p 722d67656e6572616c2d737461747573 $this->ip");
-
-                /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
-                 */
-                try {
-                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'general-status-update', 'requested')");
-                    $stmt->bindValue(':date', date('Y-m-d'));
-                    $stmt->bindValue(':time', date('H:i:s'));
-                    $stmt->execute();
-                } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
-                }
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -911,18 +921,6 @@ class Host extends Model {
                 exec("ping -W2 -c 1 -p 722d617661696c2d706b6773 $this->ip");
 
                 /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
-                 */
-                try {
-                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'available-packages-status-update', 'requested')");
-                    $stmt->bindValue(':date', date('Y-m-d'));
-                    $stmt->bindValue(':time', date('H:i:s'));
-                    $stmt->execute();
-                } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
-                }
-
-                /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
                  */
                 if (!empty($this->hostname)) {
@@ -942,18 +940,6 @@ class Host extends Model {
                 exec("ping -W2 -c 1 -p 722d696e7374616c6c65642d706b6773 $this->ip");
 
                 /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
-                 */
-                try {
-                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'installed-packages-status-update', 'requested')");
-                    $stmt->bindValue(':date', date('Y-m-d'));
-                    $stmt->bindValue(':time', date('H:i:s'));
-                    $stmt->execute();
-                } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
-                }
-
-                /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
                  */
                 if (!empty($this->hostname)) {
@@ -971,18 +957,6 @@ class Host extends Model {
                  *  Envoi d'un ping avec le message 'r-full-history' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
                  */
                 exec("ping -W2 -c 1 -p 722d66756c6c2d686973746f7279 $this->ip");
-
-                /**
-                 *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
-                 */
-                try {
-                    $stmt = $this->host_db->prepare("INSERT INTO updates_requests ('Date', 'Time', 'Type', 'Status') VALUES (:date, :time, 'full-history-update', 'requested')");
-                    $stmt->bindValue(':date', date('Y-m-d'));
-                    $stmt->bindValue(':time', date('H:i:s'));
-                    $stmt->execute();
-                } catch(Exception $e) {
-                    throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
-                }
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -1574,6 +1548,9 @@ class Host extends Model {
         return true;
     }
 
+    /**
+     *  Rechercher l'existance d'un paquet sur un hôte et retourner sa version
+     */
     public function searchPackage(string $packageName)
     {
         /**
