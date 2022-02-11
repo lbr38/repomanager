@@ -6,6 +6,14 @@ Autoloader::load();
 include_once('../includes/head.inc.php');
 
 /**
+ *  Seuls les admins ont accès à configuration.php
+ */
+if (!Common::isadmin()) {
+    header('Location: index.php');
+    exit;
+}
+
+/**
  *  Cas où on souhaite modifier la conf serveur
  */
 if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyServerConfiguration") {

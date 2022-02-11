@@ -60,22 +60,30 @@ trait cleanArchives {
              */
             if (!empty($repoName)) {
                 if (OS_FAMILY == "Redhat") {
-                    $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
-                    $stmt->bindValue(':name', $repoName);
-                    $stmt->bindValue(':retention', RETENTION);
-                    $result = $stmt->execute();
+                    try {
+                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                        $stmt->bindValue(':name', $repoName);
+                        $stmt->bindValue(':retention', RETENTION);
+                        $result = $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
 
                     if ($this->db->isempty($result)) {
                         continue;
                     }
                 }
                 if (OS_FAMILY == "Debian") {
-                    $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
-                    $stmt->bindValue(':name', $repoName);
-                    $stmt->bindValue(':dist', $repoDist);
-                    $stmt->bindValue(':section', $repoSection);
-                    $stmt->bindValue(':retention', RETENTION);
-                    $result = $stmt->execute();
+                    try {
+                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                        $stmt->bindValue(':name', $repoName);
+                        $stmt->bindValue(':dist', $repoDist);
+                        $stmt->bindValue(':section', $repoSection);
+                        $stmt->bindValue(':retention', RETENTION);
+                        $result = $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
 
                     if ($this->db->isempty($result)) {
                         continue;
@@ -107,15 +115,19 @@ trait cleanArchives {
                         /**
                          *   9. Nettoyage de la BDD
                          */
-                        if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date");
-                        if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date");
-                        $stmt->bindValue(':name', $repoName);
-                        $stmt->bindValue(':date', $repoDate);
-                        if (OS_FAMILY == "Debian") {
-                            $stmt->bindValue(':dist', $repoDist);
-                            $stmt->bindValue(':section', $repoSection);
+                        try {
+                            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date");
+                            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date");
+                            $stmt->bindValue(':name', $repoName);
+                            $stmt->bindValue(':date', $repoDate);
+                            if (OS_FAMILY == "Debian") {
+                                $stmt->bindValue(':dist', $repoDist);
+                                $stmt->bindValue(':section', $repoSection);
+                            }
+                            $stmt->execute();
+                        } catch(Exception $e) {
+                            Common::dbError($e);
                         }
-                        $stmt->execute();
                     }
                 }
             }

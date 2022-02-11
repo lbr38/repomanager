@@ -14,7 +14,7 @@ class Login extends Model {
         /**
          *  Ouverture de la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
     }
 
     private function setUsername(string $username)
@@ -74,8 +74,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return;
+            Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $password = $row['Password'];
@@ -101,8 +100,7 @@ class Login extends Model {
             $stmt->bindValue(':username', Common::validateData($username));
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -156,8 +154,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === false) {
@@ -189,8 +186,7 @@ class Login extends Model {
             $stmt->bindValue(':first_name', $username);
             $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
@@ -218,8 +214,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         /**
@@ -311,8 +306,7 @@ class Login extends Model {
             $stmt->bindValue(':email', $email);
             $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Erreur lors de la modification des paramètres', 'error');
-            return;
+            Common::dbError($e);
         }
 
         /**
@@ -377,8 +371,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return;
+            Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Modification du mot de passe", 'success');
@@ -401,8 +394,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -433,8 +425,7 @@ class Login extends Model {
             $stmt->bindValue(':password', $password_hashed);
             $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return false;
+            Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur $username", 'success');
@@ -459,8 +450,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return;
+            Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -476,8 +466,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
-            return;
+            Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Suppression de l'utilisateur $username", 'success');

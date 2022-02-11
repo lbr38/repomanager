@@ -70,14 +70,18 @@ trait deleteArchive {
         /**
          *  4. Mise à jour de la BDD
          */
-        $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
-        $stmt->bindValue(':id', $this->repo->id);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
+        try {
+            $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Id=:id AND Status = 'active'");
+            $stmt->bindValue(':id', $this->repo->id);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $stmt->bindValue(':date', $this->repo->date);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $stmt->bindValue(':date', $this->repo->date);
-        $stmt->execute();
 
         $this->log->steplogOK();
     }

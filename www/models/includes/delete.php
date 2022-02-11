@@ -55,23 +55,25 @@ trait delete {
         /**
          *  4. Mise à jour de la BDD
          */
-        if (OS_FAMILY == "Redhat") {
-            //$stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Env=:env AND Date=:date AND Status = 'active'");
-            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Id=:id AND Status = 'active'");
-            $stmt->bindValue(':id', $this->repo->id);
-            $stmt->execute();
-        }
-        if (OS_FAMILY == "Debian") {
-            /**
-             *  Sur Debian, la suppression d'un repo entier entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
-             */
-            $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->execute();
+        try {
+            if (OS_FAMILY == "Redhat") {
+                $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Id=:id AND Status = 'active'");
+                $stmt->bindValue(':id', $this->repo->id);
+            }
+            if (OS_FAMILY == "Debian") {
+                /**
+                 *  Sur Debian, la suppression d'un repo entier entraine la suppression des sections archivées si il y en a, donc on met aussi à jour repos_archived
+                 */
+                $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->execute();
 
-            $stmt = $this->repo->db->prepare("UPDATE repos_archived SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
+                $stmt = $this->repo->db->prepare("UPDATE repos_archived SET status = 'deleted' WHERE Name=:name AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+            }
             $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
         
         unset($stmt);

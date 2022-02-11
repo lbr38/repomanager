@@ -7,7 +7,7 @@ class Source extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
     }
 
     /**
@@ -190,7 +190,7 @@ class Source extends Model {
                 $stmt->bindValue(':name', $name);
                 $result = $stmt->execute();
             } catch(Exception $e) {
-                throw new Exception("Une erreur est survenue lors de l'exécution de la requête en base de données");
+                Common::dbError($e);
             }
 
             /**
@@ -252,7 +252,7 @@ class Source extends Model {
                 $stmt->bindValue(':url', $url);
                 $stmt->execute();
             } catch(Exception $e) {
-                throw new Exception("Une erreur est survenue lors de l'ajout du repo source en base de données");
+                Common::dbError($e);
             }
         }
     }
@@ -276,7 +276,7 @@ class Source extends Model {
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
             } catch(Exception $e) {
-                throw new Exception("Erreur lors de la suppression du repo source <b>$name</b>");
+                Common::dbError($e);
             }
         }
     }
@@ -343,7 +343,7 @@ class Source extends Model {
                 $stmt->bindValue(':newname', $newName);
                 $result = $stmt->execute();
             } catch(Exception $e) {
-                throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données');
+                Common::dbError($e);
             }
             if ($this->db->isempty($result) === false) {
                 throw new Exception("Un repo source <b>$newName</b> existe déjà");
@@ -355,7 +355,7 @@ class Source extends Model {
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
             } catch(Exception $e) {
-                throw new Exception('Une erreur est survenue lors de l\'ajout du repo source en base de données');
+                Common::dbError($e);
             }
         }
     }
@@ -394,7 +394,7 @@ class Source extends Model {
             $stmt->bindValue(':name', $sourceName);
             $stmt->execute();
         } catch(Exception $e) {
-            throw new Exception("Impossible de modifier l'url du repo source");
+            Common::dbError($e);
         }
     }
 

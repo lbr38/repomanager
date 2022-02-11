@@ -53,15 +53,19 @@ trait restore {
         /**
          *  1. On récupère la source, le type et la signature du repo/section archivé(e) qui va être restauré(e)
          */
-        if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':date', $this->repo->date);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Date=:date AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':date', $this->repo->date);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
         $this->repo->source = $datas['Source'];
@@ -86,15 +90,20 @@ trait restore {
         /**
          *  3. On récupère des informations du repo du même nom actuellement en place et qui va être remplacé
          */
-        if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':newenv', $this->repo->newEnv);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':newenv', $this->repo->newEnv);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result = $stmt->execute();
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
         if (!empty($datas['Date'])) $repoActualDate = $datas['Date'];
         if (!empty($repoActualDate)) $repoActualDateFormatted = DateTime::createFromFormat('Y-m-d', $repoActualDate)->format('d-m-Y');
@@ -146,31 +155,41 @@ trait restore {
          *  7. Archivage de la version du repo (qui vient d'être remplacée par le repo restauré) si elle n'est plus utilisée par d'autres envs
          *  On vérifie que la version du repo n'est pas utilisée par d'autres environnements avant de l'archiver
          */
-        if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
-        $stmt->bindValue(':name', $this->repo->name);
-        $stmt->bindValue(':date', $repoActualDate);
-        $stmt->bindValue(':newenv', $this->repo->newEnv);
-        if (OS_FAMILY == "Debian") {
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
+            $stmt->bindValue(':name', $this->repo->name);
+            $stmt->bindValue(':date', $repoActualDate);
+            $stmt->bindValue(':newenv', $this->repo->newEnv);
+            if (OS_FAMILY == "Debian") {
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+            }
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result = $stmt->execute();
+
         if ($this->repo->db->isempty($result) === true) {
             $checkIfStillUsed = 0;
         } else {
             $checkIfStillUsed = 1;
         }
 
-        if (OS_FAMILY == "Redhat") $stmt2 = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-        if (OS_FAMILY == "Debian") $stmt2 = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-        $stmt2->bindValue(':name', $this->repo->name);
-        $stmt2->bindValue(':newenv', $this->repo->newEnv);
-        if (OS_FAMILY == "Debian") {
-            $stmt2->bindValue(':dist', $this->repo->dist);
-            $stmt2->bindValue(':section', $this->repo->section);
+        try {
+            if (OS_FAMILY == "Redhat") $stmt2 = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt2 = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+            $stmt2->bindValue(':name', $this->repo->name);
+            $stmt2->bindValue(':newenv', $this->repo->newEnv);
+            if (OS_FAMILY == "Debian") {
+                $stmt2->bindValue(':dist', $this->repo->dist);
+                $stmt2->bindValue(':section', $this->repo->section);
+            }
+            $result2 = $stmt2->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result2 = $stmt2->execute();
+
         if ($this->repo->db->isempty($result2) === true) {
             $checkIfStillUsed_2 = 0;
         } else {
@@ -188,16 +207,20 @@ trait restore {
             /**
              *  Récupération de l'Id du repo actuellement en place
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name=:name AND Env=:newenv AND Date=:date AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            $stmt->bindValue(':date', $repoActualDate);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name=:name AND Env=:newenv AND Date=:date AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':date', $repoActualDate);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
             $repoActualId = $datas['Id'];
@@ -206,38 +229,50 @@ trait restore {
             /**
              *  Mise à jour des informations du repo actuellement en place (on change essentiellement sa date, mais aussi la description, la signature gpg...)
              */
-            $stmt = $this->repo->db->prepare("UPDATE repos SET Date = :date, Time = :time, Source = :source, Env = :newenv, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
-            $stmt->bindValue(':id', $repoActualId);
-            $stmt->bindValue(':date', $this->repo->date);
-            $stmt->bindValue(':time', $this->repo->time);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            $stmt->bindValue(':description', $this->repo->description);
-            $stmt->bindValue(':signed', $this->repo->signed);
-            $stmt->bindValue(':type', $this->repo->type);
-            $stmt->execute();
+            try {
+                $stmt = $this->repo->db->prepare("UPDATE repos SET Date = :date, Time = :time, Source = :source, Env = :newenv, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
+                $stmt->bindValue(':id', $repoActualId);
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                $stmt->bindValue(':type', $this->repo->type);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             /**
              *  Mise à jour du repo dans repos_archived (il a été restauré alors on change son status en 'restored')
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':date', $this->repo->date);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':date', $this->repo->date);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $stmt->execute();
 
             /**
              *  Dans la table group_members on remplace l'id du repo qui vient d'etre remplacé par l'id du repo remplacant, afin que le repo remplacant apparaisse bien dans le même groupe
              */
-            $stmt = $this->repo->db->prepare("UPDATE group_members SET Id_repo=:idrepo WHERE Id_repo=:actual_idrepo");
-            $stmt->bindValue(':idrepo', $this->repo->id);
-            $stmt->bindValue(':actual_idrepo', $repoActualId);
-            $stmt->execute();
+            try {
+                $stmt = $this->repo->db->prepare("UPDATE group_members SET Id_repo=:idrepo WHERE Id_repo=:actual_idrepo");
+                $stmt->bindValue(':idrepo', $this->repo->id);
+                $stmt->bindValue(':actual_idrepo', $repoActualId);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             $this->log->steplogOK("Le miroir en date du <b>${repoActualDateFormatted}</b> est toujours utilisé par d'autres environnements, il n'a donc pas été archivé");
 
@@ -250,14 +285,18 @@ trait restore {
              *  D'abord on regarde si un repo du même nom fait actuellement partie d'un groupe.
              *  Si c'est le cas alors on récupère l'Id du groupe afin d'ajouter le repo qui sera restauré dans le même groupe.
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
             $idToCheck = $datas['Id'];
@@ -265,9 +304,14 @@ trait restore {
             /**
              *  On récupère l'Id du groupe dans lequel l'Id du repo pourrait éventuellement faire partie
              */
-            $stmt = $this->repo->db->prepare("SELECT Id_group FROM group_members WHERE Id_repo = :idrepo");
-            $stmt->bindValue(':idrepo', $idToCheck);
-            $result = $stmt->execute();
+            try {
+                $stmt = $this->repo->db->prepare("SELECT Id_group FROM group_members WHERE Id_repo = :idrepo");
+                $stmt->bindValue(':idrepo', $idToCheck);
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
+
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
 
             /**
@@ -283,21 +327,25 @@ trait restore {
             /**
              *  Ajout du repo qui vient d'etre restauré dans la table repos
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :newenv, :date, :time, :description, :signed, :type, 'active')");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :newenv, :date, :time, :description, :signed, :type, 'active')");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            $stmt->bindValue(':date', $this->repo->date);
-            $stmt->bindValue(':time', $this->repo->time);
-            $stmt->bindValue(':description', $this->repo->description);
-            $stmt->bindValue(':signed', $this->repo->signed);
-            $stmt->bindValue(':type', $this->repo->type);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :newenv, :date, :time, :description, :signed, :type, 'active')");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :newenv, :date, :time, :description, :signed, :type, 'active')");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                $stmt->bindValue(':type', $this->repo->type);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $stmt->execute();
 
             /**
              *  On récupère l'Id du repo qu'on vient d'insérer, on en aura peut être besoin pour ajouter le repo à un groupe
@@ -307,16 +355,20 @@ trait restore {
             /**
              *  Puis mise à jour de ce même repo de repos_archived (il a été restauré alors on change son status en 'restored')
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':date', $this->repo->date);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'restored' WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':date', $this->repo->date);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $stmt->execute();
 
             $this->log->steplogOK();
 
@@ -324,10 +376,14 @@ trait restore {
              *  Enfin si le repo qui a été restauré doit être ajouté à un groupe alors on le fait
              */
             if ($addToGroup = 'yes' AND !empty($id_repo) AND !empty($id_group)) {
-                $stmt = $this->repo->db->prepare("INSERT INTO group_members ('Id_repo', 'Id_group') VALUES (:id_repo, :id_group)");
-                $stmt->bindValue(':id_repo', $id_repo);
-                $stmt->bindValue(':id_group', $id_group);
-                $stmt->execute();
+                try {
+                    $stmt = $this->repo->db->prepare("INSERT INTO group_members ('Id_repo', 'Id_group') VALUES (:id_repo, :id_group)");
+                    $stmt->bindValue(':id_repo', $id_repo);
+                    $stmt->bindValue(':id_group', $id_group);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
 
 
@@ -351,16 +407,20 @@ trait restore {
             /**
              *  On récupère des informations supplémentaires sur le repo qui va être remplacé
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:newenv AND Date=:date AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            $stmt->bindValue(':date', $repoActualDate);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:newenv AND Date=:date AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':date', $repoActualDate);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
             $repoActualId = $datas['Id'];
@@ -392,16 +452,20 @@ trait restore {
             /**
              *  Maj de la table repos
              */
-            $stmt = $this->repo->db->prepare("UPDATE repos SET Date = :date, Time = :time, Source = :source, Env = :newenv, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
-            $stmt->bindValue(':id', $repoActualId);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            $stmt->bindValue(':date', $this->repo->date);
-            $stmt->bindValue(':time', $this->repo->time);
-            $stmt->bindValue(':description', $this->repo->description);
-            $stmt->bindValue(':signed', $this->repo->signed);
-            $stmt->bindValue(':type', $this->repo->type);
-            $stmt->execute();
+            try {
+                $stmt = $this->repo->db->prepare("UPDATE repos SET Date = :date, Time = :time, Source = :source, Env = :newenv, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
+                $stmt->bindValue(':id', $repoActualId);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                $stmt->bindValue(':type', $this->repo->type);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             /**
              *  Maj de la table repos_archived
@@ -410,16 +474,20 @@ trait restore {
             /**
              *  Récupération de l'ID du repo dans la table repos_archived
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos_archived WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos_archived WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':date', $this->repo->date);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-            }            
-            $result = $stmt->execute();
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos_archived WHERE Name = :name AND Source = :source AND Date = :date AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos_archived WHERE Name = :name AND Dist = :dist AND Section = :section AND Source = :source AND Date = :date AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':date', $this->repo->date);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }            
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
             $repoArchivedActualId = $datas['Id'];
@@ -428,15 +496,19 @@ trait restore {
             /**
              *  On mets à jour les données du repos dans repos_archived, il prend les données du repo qui était actuellement en place
              */
-            $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Source = :source, Date = :date, Time = :time, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
-            $stmt->bindValue(':id', $repoArchivedActualId);
-            $stmt->bindValue(':source', $repoActualSource);
-            $stmt->bindValue(':date', $repoActualDate);
-            $stmt->bindValue(':time', $repoActualTime);
-            $stmt->bindValue(':description', $repoActualDescription);
-            $stmt->bindValue(':signed', $repoActualSigned);
-            $stmt->bindValue(':type', $repoActualType);
-            $stmt->execute(); 
+            try {
+                $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Source = :source, Date = :date, Time = :time, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
+                $stmt->bindValue(':id', $repoArchivedActualId);
+                $stmt->bindValue(':source', $repoActualSource);
+                $stmt->bindValue(':date', $repoActualDate);
+                $stmt->bindValue(':time', $repoActualTime);
+                $stmt->bindValue(':description', $repoActualDescription);
+                $stmt->bindValue(':signed', $repoActualSigned);
+                $stmt->bindValue(':type', $repoActualType);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             $this->log->steplogOK("Le miroir en date du <b>$repoActualDateFormatted</b> a été archivé car il n'est plus utilisé par quelconque environnement");
         }

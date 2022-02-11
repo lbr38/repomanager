@@ -6,11 +6,11 @@ Autoloader::load();
 include_once('../includes/head.inc.php');
 
 /**
- *  Cette page est accessible uniquement aux utilisateurs administrateur, on redirige les autres vers l'accueil
+ *  Seuls les admins ont accès à configuration.php
  */
-if ($_SESSION['role'] !== 'super-administrator' AND $_SESSION['role'] !== 'administrator') {
+if (!Common::isadmin()) {
     header('Location: index.php');
-    exit();
+    exit;
 }
 
 /**
@@ -972,7 +972,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     /**
                      *  Vérification de la présence des tables
                      */
-                    $myconn = new Connection('main', 'rw');
+                    $myconn = new Connection('main');
 
                     if (!$myconn->checkMainTables()) {
                         echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="ressources/icons/redcircle.png" class="icon-small" />';
@@ -1005,7 +1005,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     /**
                      *  Vérification de la présence des tables
                      */
-                    $myconn = new Connection('stats', 'rw');
+                    $myconn = new Connection('stats');
 
                     if (!$myconn->checkStatsTables()) {
                         echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="ressources/icons/redcircle.png" class="icon-small" />';
@@ -1038,7 +1038,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     /**
                      *  Vérification de la présence des tables
                      */
-                    $myconn = new Connection('hosts', 'rw');
+                    $myconn = new Connection('hosts');
 
                     if (!$myconn->checkHostsTables()) {
                         echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="ressources/icons/redcircle.png" class="icon-small" />';

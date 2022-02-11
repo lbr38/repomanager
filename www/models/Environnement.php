@@ -10,7 +10,7 @@ class Environnement extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
 
         if (!empty($envName)) $this->name = $envName;
     }
@@ -27,9 +27,13 @@ class Environnement extends Model {
         /**
          *  On ajoute le nouvel env en BDD
          */
-        $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
-        $stmt->bindValue(':name', $this->name);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
+            $stmt->bindValue(':name', $this->name);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Puis rechargement de la page pour voir les modifications de configuration
@@ -42,9 +46,13 @@ class Environnement extends Model {
      *  Suppression d'un environnement
      */
     public function delete() {
-        $stmt = $this->db->prepare("DELETE FROM env WHERE Name=:name");
-        $stmt->bindValue(':name', Common::validateData($_GET['deleteEnv']));
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("DELETE FROM env WHERE Name=:name");
+            $stmt->bindValue(':name', Common::validateData($_GET['deleteEnv']));
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Puis rechargement de la page pour voir les modifications de configuration
@@ -85,9 +93,13 @@ class Environnement extends Model {
                 /**
                  *  On ajoute le nouvel env en BDD
                  */
-                $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
-                $stmt->bindValue(':name', $env);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
+                    $stmt->bindValue(':name', $env);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
         }
 
@@ -153,9 +165,13 @@ class Environnement extends Model {
      */
     public function exists(string $env)
     {
-        $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
-        $stmt->bindValue(':env', Common::validateData($env));
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
+            $stmt->bindValue(':env', Common::validateData($env));
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result)) return false;
 

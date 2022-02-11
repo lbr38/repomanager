@@ -40,7 +40,7 @@ if (DEBUG_MODE == "enabled") {
                 echo '<li><a href="hosts.php"><span>Gestion des hôtes</span></a></li>';
             }
         }
-        if (MANAGE_PROFILES == "yes") {
+        if (Common::isadmin() AND MANAGE_PROFILES == "yes") {
             if (__ACTUAL_URI__ == '/profiles.php') {
                 echo '<li><a href="profiles.php"><span class="underline">Gestion des profils</span></a></li>';
             } else {
@@ -50,7 +50,7 @@ if (DEBUG_MODE == "enabled") {
         /**
          *  La page d'administration s'affiche uniquement pour les utilisateurs dont le role est 'super-administrator' ou 'administrator'
          */
-        if ($_SESSION['role'] === 'super-administrator' OR $_SESSION['role'] === 'administrator') {
+        if (Common::isadmin()) {
             if (__ACTUAL_URI__ == '/configuration.php') {
                 echo '<li><a href="configuration.php"><span class="underline">Administration</span></a></li>';
             } else {
@@ -95,9 +95,13 @@ if (DEBUG_MODE == "enabled") {
                          *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                          */
                         if (is_numeric($opRepoSource)) {
-                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                            $stmt->bindValue(':id', $opRepoSource);
-                            $result = $stmt->execute();
+                            try {
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt->bindValue(':id', $opRepoSource);
+                                $result = $stmt->execute();
+                            } catch(Exception $e) {
+                                Common::dbError($e);
+                            }
 
                             while ($datas = $result->fetchArray()) {
                                 $name = $datas['Name'];
@@ -130,9 +134,13 @@ if (DEBUG_MODE == "enabled") {
                          *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                          */
                         if (is_numeric($opRepoTarget)) {
-                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                            $stmt->bindValue(':id', $opRepoTarget);
-                            $result = $stmt->execute();
+                            try {
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt->bindValue(':id', $opRepoTarget);
+                                $result = $stmt->execute();
+                            } catch(Exception $e) {
+                                Common::dbError($e);
+                            }
 
                             while ($datas = $result->fetchArray()) {
                                 $name = $datas['Name'];
@@ -204,9 +212,13 @@ if (DEBUG_MODE == "enabled") {
                          *  Si le repo source retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                          */
                         if (is_numeric($opRepoSource)) {
-                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
-                            $stmt->bindValue(':id', $opRepoSource);
-                            $result = $stmt->execute();
+                            try {
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt->bindValue(':id', $opRepoSource);
+                                $result = $stmt->execute();
+                            } catch(Exception $e) {
+                                Common::dbError($e);
+                            }
 
                             while ($datas = $result->fetchArray()) {
                                 $name = $datas['Name'];
@@ -239,9 +251,13 @@ if (DEBUG_MODE == "enabled") {
                          *  Si le repo cible retourné est une chaine numérique, alors il s'agit de son ID en BDD. On va s'en servir pour récupérer les infos du repo concerné en BDD
                          */
                         if (is_numeric($opRepoTarget)) {
-                            $stmt = $op->db->prepare("SELECT * FROM repos WHERE id=:id AND Status = 'active'");
-                            $stmt->bindValue(':id', $opRepoTarget);
-                            $result = $stmt->execute();
+                            try {
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE id=:id AND Status = 'active'");
+                                $stmt->bindValue(':id', $opRepoTarget);
+                                $result = $stmt->execute();
+                            } catch(Exception $e) {
+                                Common::dbError($e);
+                            }
 
                             while ($datas = $result->fetchArray()) {
                                 $name = $datas['Name'];

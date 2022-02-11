@@ -97,65 +97,67 @@ if (isset($_GET['auto'])) {
             </div>
         </section>
 
-        <section id="groupsHostDiv" class="section-center ">
-            <img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
-            <h3>GROUPES</h3>
-            <p><b>Créer un groupe :</b></p>
-            <form id="newGroupForm" autocomplete="off">
-                <input id="newGroupInput" type="text" class="input-medium" /></td>
-                <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button></td>
-            </form>
-            <?php
-            /**
-             *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
-             */
-            $groupsList = $group->listAllName();
+        <?php if (Common::isadmin()) { ?>
+            <section id="groupsHostDiv" class="section-center hide">
+                <img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+                <h3>GROUPES</h3>
+                <p><b>Créer un groupe :</b></p>
+                <form id="newGroupForm" autocomplete="off">
+                    <input id="newGroupInput" type="text" class="input-medium" /></td>
+                    <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button></td>
+                </form>
+                <?php
+                /**
+                 *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
+                 */
+                $groupsList = $group->listAllName();
 
-            /**
-             *  2. Affichage des groupes si il y en a
-             */
-            if (!empty($groupsList)) {
-                echo '<p><b>Groupes actuels :</b></p>';
-                echo '<div class="groups-list-container">';
-                    foreach($groupsList as $groupName) { ?>
-                        <div class="header-container">
-                            <div class="header-blue-min">
-                                <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-                                    <input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
-                                    <table class="table-large">
-                                        <tr>
-                                            <td>
-                                                <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
-                                            </td>
-                                            <td class="td-fit">
-                                                <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="ressources/icons/cog.png" />
-                                                <img src="ressources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </form>
-                            </div>
+                /**
+                 *  2. Affichage des groupes si il y en a
+                 */
+                if (!empty($groupsList)) {
+                    echo '<p><b>Groupes actuels :</b></p>';
+                    echo '<div class="groups-list-container">';
+                        foreach($groupsList as $groupName) { ?>
+                            <div class="header-container">
+                                <div class="header-blue-min">
+                                    <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
+                                        <input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
+                                        <table class="table-large">
+                                            <tr>
+                                                <td>
+                                                    <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
+                                                </td>
+                                                <td class="td-fit">
+                                                    <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="ressources/icons/cog.png" />
+                                                    <img src="ressources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </form>
+                                </div>
 
-                            <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide detailsDiv">
-                                <form class="groupHostsForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-                                    <p><b>Hôtes</b></p>
-                                    <table class="table-large">
-                                        <tr>
-                                            <td>
-                                                <?php $group->selectServers($groupName); ?>
-                                            </td>
-                                            <td class="td-fit">
-                                                <button type="submit" class="btn-xxsmall-blue" title="Enregistrer">💾</button>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </form>
+                                <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide detailsDiv">
+                                    <form class="groupHostsForm" groupname="<?php echo $groupName;?>" autocomplete="off">
+                                        <p><b>Hôtes</b></p>
+                                        <table class="table-large">
+                                            <tr>
+                                                <td>
+                                                    <?php $group->selectServers($groupName); ?>
+                                                </td>
+                                                <td class="td-fit">
+                                                    <button type="submit" class="btn-xxsmall-blue" title="Enregistrer">💾</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-            <?php   }
-                echo '</div>';
-            } ?>
-        </section>
+                <?php   }
+                    echo '</div>';
+                } ?>
+            </section>
+        <?php } ?>
 
         <section id="hostsDiv" class="section-center">
             <?php
@@ -167,9 +169,11 @@ if (isset($_GET['auto'])) {
             <div>
                 <div class="div-flex">
                     <h3>HÔTES</h3>
-                    <div>
-                        <span id="GroupsListToggleButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="ressources/icons/folder.png" class="icon"></span>
-                    </div>
+                    <?php if (Common::isadmin()) { ?>
+                        <div>
+                            <span id="GroupsListToggleButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="ressources/icons/folder.png" class="icon"></span>
+                        </div>
+                    <?php } ?>
                 </div>
 
                 <br>
@@ -228,7 +232,9 @@ if (isset($_GET['auto'])) {
                                                 <td>Hôte</td>
                                                 <td>Paquets disponibles</td>
                                                 <td></td>
-                                                <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
+                                                <?php if (Common::isadmin()) { ?>
+                                                    <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
+                                                <?php } ?>
                                                 <td></td>
                                             </tr>
                                         </thead>
@@ -238,7 +244,7 @@ if (isset($_GET['auto'])) {
                                             /**
                                              *  On ouvre la BDD dédiée à l'hôte à partir de son ID, pour pouvoir récupérer des informations supplémentaires.
                                              */
-                                            $myhost->openHostDb($host['Id'], 'ro');
+                                            $myhost->openHostDb($host['Id']);
 
                                             /**
                                              *  Récupération des paquets disponibles pour installation
@@ -294,7 +300,9 @@ if (isset($_GET['auto'])) {
                                                     ?>
                                                 </td>
                                                 <td><span class="printHostDetails pointer" host_id="<?php echo $host['Id']; ?>">Détails</span><a href="host.php?id=<?php echo $host['Id']; ?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a></td>
-                                                <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
+                                                <?php if (Common::isadmin()) { ?>
+                                                    <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
+                                                <?php } ?>
                                                 <td>
                                                     <?php
                                                     /**

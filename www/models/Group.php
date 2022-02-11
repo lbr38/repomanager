@@ -18,10 +18,10 @@ class Group extends Model {
         }
 
         if ($type == 'host') {
-            $this->getConnection('hosts', 'rw');
+            $this->getConnection('hosts');
         }
         if ($type == 'repo') {
-            $this->getConnection('main', 'rw');
+            $this->getConnection('main');
         }
 
         $this->type = $type;
@@ -198,31 +198,39 @@ class Group extends Model {
         } else {
             if (OS_FAMILY == "Redhat") {
                 // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
-                $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
-                FROM repos
-                INNER JOIN group_members
-                    ON repos.Id = group_members.Id_repo
-                INNER JOIN groups
-                    ON groups.Id = group_members.Id_group
-                WHERE groups.Name=:groupname
-                AND repos.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Env ASC");
-                $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
+                    FROM repos
+                    INNER JOIN group_members
+                        ON repos.Id = group_members.Id_repo
+                    INNER JOIN groups
+                        ON groups.Id = group_members.Id_group
+                    WHERE groups.Name=:groupname
+                    AND repos.Status = 'active'
+                    ORDER BY repos.Name ASC, repos.Env ASC");
+                    $stmt->bindValue(':groupname', $groupName);
+                    $reposInGroup = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
             if (OS_FAMILY == "Debian") {
                 // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
-                $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Dist, repos.Section, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
-                FROM repos
-                INNER JOIN group_members
-                    ON repos.Id = group_members.Id_repo
-                INNER JOIN groups
-                    ON groups.Id = group_members.Id_group
-                WHERE groups.Name=:groupname
-                AND repos.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
-                $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Source, repos.Dist, repos.Section, repos.Env, repos.Date, repos.Time, repos.Description, repos.Type, repos.Signed
+                    FROM repos
+                    INNER JOIN group_members
+                        ON repos.Id = group_members.Id_repo
+                    INNER JOIN groups
+                        ON groups.Id = group_members.Id_group
+                    WHERE groups.Name=:groupname
+                    AND repos.Status = 'active'
+                    ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
+                    $stmt->bindValue(':groupname', $groupName);
+                    $reposInGroup = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
 
             unset($stmt);
@@ -239,33 +247,38 @@ class Group extends Model {
      *  LISTER TOUS LES REPOS MEMBRES D'UN GROUPE EN FILTRANT PAR ENVIRONNEMENT
      */
     public function listReposMembers_byEnv(string $groupName, string $env) {
-        if (OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name=:groupname
-            AND repos.Env=:env
-            AND repos.Status = 'active'
-            ORDER BY repos.Name ASC");
+        try {
+            if (OS_FAMILY == "Redhat") {
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name=:groupname
+                AND repos.Env=:env
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC");
+            }
+            if (OS_FAMILY == "Debian") {
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name=:groupname
+                AND repos.Env=:env
+                AND repos.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Dist ASC");
+            }
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':groupname', $groupName);
+            $reposInGroup = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        if (OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT DISTINCT repos.Id, repos.Name, repos.Dist, repos.Section
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name=:groupname
-            AND repos.Env=:env
-            AND repos.Status = 'active'
-            ORDER BY repos.Name ASC, repos.Dist ASC");
-        }
-        $stmt->bindValue(':env', $env);
-        $stmt->bindValue(':groupname', $groupName);
-        $reposInGroup = $stmt->execute();
+
         unset($stmt);
 
         $reposIn = array();
@@ -280,53 +293,57 @@ class Group extends Model {
      *  On fait un DISTINCT ici car un repo peut avoir plusieurs environnements et donc apparaitre en double, ce qu'on ne veut pas
      */
     public function selectRepos(string $groupName) {
-        if (OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT DISTINCT repos.Name
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name=:groupname
-            AND repos.Status = 'active'");
-            $stmt->bindValue(':groupname', $groupName);
-            $reposInGroup = $stmt->execute();
+        try {
+            if (OS_FAMILY == "Redhat") {
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Name
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name=:groupname
+                AND repos.Status = 'active'");
+                $stmt->bindValue(':groupname', $groupName);
+                $reposInGroup = $stmt->execute();
 
-            /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name != '$groupName'");*/
+                /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name != '$groupName'");*/
 
-            $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name
-            FROM repos
-            WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
-        }
-        if (OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name=:groupname
-            AND repos.Status = 'active'");
-            $stmt->bindValue(':groupname', $groupName);
-            $reposInGroup = $stmt->execute();
+                $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name
+                FROM repos
+                WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+            }
+            if (OS_FAMILY == "Debian") {
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name=:groupname
+                AND repos.Status = 'active'");
+                $stmt->bindValue(':groupname', $groupName);
+                $reposInGroup = $stmt->execute();
 
-            /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
-            FROM repos
-            INNER JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name != '$groupName'");*/
+                /*$reposNotInGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
+                FROM repos
+                INNER JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name != '$groupName'");*/
 
-            $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
-            FROM repos
-            WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+                $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
+                FROM repos
+                WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+            }
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
 
         unset($stmt);
@@ -375,9 +392,14 @@ class Group extends Model {
         /**
          *  1. Récupération de l'Id du groupe dans lequel on va ajouter les repos
          */
-        $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name=:name");
-        $stmt->bindValue(':name', $groupName);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name=:name");
+            $stmt->bindValue(':name', $groupName);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $groupId = $row['Id'];
         }
@@ -420,18 +442,23 @@ class Group extends Model {
                 /**
                  *  Récupération à partir de la BDD de l'id du repo à ajouter. Il peut y avoir plusieurs Id si le repo a plusieurs environnements.
                  */
-                if (OS_FAMILY == "Redhat") {
-                    $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Status = 'active'");
-                    $stmt->bindValue(':reponame', $repoName);
+                try {
+                    if (OS_FAMILY == "Redhat") {
+                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Status = 'active'");
+                        $stmt->bindValue(':reponame', $repoName);
+                    }
+                    if (OS_FAMILY == "Debian") {
+                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Dist=:repodist AND Section=:reposection AND Status = 'active'");
+                        $stmt->bindValue(':reponame', $repoName);
+                        $stmt->bindValue(':repodist', $repoDist);
+                        $stmt->bindValue(':reposection', $repoSection);
+                    }
                     $result = $stmt->execute();
+
+                } catch(Exception $e) {
+                    Common::dbError($e);
                 }
-                if (OS_FAMILY == "Debian") {
-                    $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Dist=:repodist AND Section=:reposection AND Status = 'active'");
-                    $stmt->bindValue(':reponame', $repoName);
-                    $stmt->bindValue(':repodist', $repoDist);
-                    $stmt->bindValue(':reposection', $repoSection);
-                    $result = $stmt->execute();
-                }
+
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                     $repoId = $row['Id'];
 
@@ -439,11 +466,15 @@ class Group extends Model {
                      *  Insertion en BDD de l'ID du repo (il peut y avoir 1 ou plusieurs Id à insérer si le repo a plusieurs environnements)
                      *  Le format de cet INSERT est fait de sorte à ne pas insérer un Id_repo si celui-ci est déjà présent en BDD
                      */
-                    $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group)
-                    SELECT :idrepo, :idgroup WHERE not exists(SELECT * from group_members where Id_repo=:idrepo AND Id_group=:idgroup)");
-                    $stmt->bindValue(':idrepo', $repoId);
-                    $stmt->bindValue(':idgroup', $groupId);
-                    $stmt->execute();
+                    try {
+                        $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group)
+                        SELECT :idrepo, :idgroup WHERE not exists(SELECT * from group_members where Id_repo=:idrepo AND Id_group=:idgroup)");
+                        $stmt->bindValue(':idrepo', $repoId);
+                        $stmt->bindValue(':idgroup', $groupId);
+                        $stmt->execute();
+                    } catch(Exception $e) {
+                        Common::dbError($e);
+                    }
 
                     /**
                      *  On stocke dans reposId[] TOUS les Id des repos sélectionnés (tout environnements confondus) car on va en avoir besoin par la suite
@@ -456,9 +487,14 @@ class Group extends Model {
         /**
          *  3. On récupère la liste des repos actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
          */
-        $stmt = $this->db->prepare("SELECT Id_repo FROM group_members WHERE Id_group=:idgroup");
-        $stmt->bindValue(':idgroup', $groupId);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id_repo FROM group_members WHERE Id_group=:idgroup");
+            $stmt->bindValue(':idgroup', $groupId);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $actualReposId[] = $row['Id_repo'];
         }
@@ -468,10 +504,14 @@ class Group extends Model {
          */
         foreach ($actualReposId as $actualRepoId) {
             if (!in_array($actualRepoId, $reposId)) {
-                $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo=:idrepo AND Id_group=:idgroup");
-                $stmt->bindValue(':idrepo', $actualRepoId);
-                $stmt->bindValue(':idgroup', $groupId);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo=:idrepo AND Id_group=:idgroup");
+                    $stmt->bindValue(':idrepo', $actualRepoId);
+                    $stmt->bindValue(':idgroup', $groupId);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
         }
 
@@ -487,37 +527,41 @@ class Group extends Model {
         /**
          *  Si le nom du groupe est 'Default' (groupe fictif) alors on affiche tous les hotes n'ayant pas de groupe 
          */
-        if ($this->name == 'Default') {
-            $hostsInGroup = $this->db->query("SELECT * FROM hosts
-            WHERE Id NOT IN (SELECT Id_host FROM group_members)
-            AND Status = 'active'
-            ORDER BY hosts.Hostname ASC");
-            
-        } else {
-            // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
-            $stmt = $this->db->prepare("SELECT
-            hosts.Id,
-            hosts.Ip,
-            hosts.Hostname,
-            hosts.Os,
-            hosts.Os_version,
-            hosts.Profile,
-            hosts.Env,
-            hosts.Online_status,
-            hosts.Online_status_date,
-            hosts.Online_status_time,
-            hosts.Status
-            FROM hosts
-            INNER JOIN group_members
-                ON hosts.Id = group_members.Id_host
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name=:groupname
-            AND hosts.Status = 'active'
-            ORDER BY hosts.Hostname ASC");
-            $stmt->bindValue(':groupname', $this->name);
-            $hostsInGroup = $stmt->execute();
-            unset($stmt);
+        try {
+            if ($this->name == 'Default') {
+                $hostsInGroup = $this->db->query("SELECT * FROM hosts
+                WHERE Id NOT IN (SELECT Id_host FROM group_members)
+                AND Status = 'active'
+                ORDER BY hosts.Hostname ASC");
+                
+            } else {
+                // Note : ne pas utiliser SELECT *, comme il s'agit d'une jointure il faut bien préciser les données souhaitées
+                $stmt = $this->db->prepare("SELECT
+                hosts.Id,
+                hosts.Ip,
+                hosts.Hostname,
+                hosts.Os,
+                hosts.Os_version,
+                hosts.Profile,
+                hosts.Env,
+                hosts.Online_status,
+                hosts.Online_status_date,
+                hosts.Online_status_time,
+                hosts.Status
+                FROM hosts
+                INNER JOIN group_members
+                    ON hosts.Id = group_members.Id_host
+                INNER JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name=:groupname
+                AND hosts.Status = 'active'
+                ORDER BY hosts.Hostname ASC");
+                $stmt->bindValue(':groupname', $this->name);
+                $hostsInGroup = $stmt->execute();
+                unset($stmt);
+            }
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
 
         $hostsIn = array();
@@ -530,26 +574,29 @@ class Group extends Model {
      *  LISTER (Select) LES SERVEURS D'UN GROUPE
      */
     public function selectServers(string $groupName) {
-        /**
-         *  Liste des hotes actuellement dans le groupe $groupName
-         */
-        $stmt = $this->db->prepare("SELECT hosts.Id, hosts.Hostname, hosts.Ip
-        FROM hosts
-        INNER JOIN group_members
-            ON hosts.Id = group_members.Id_host
-        INNER JOIN groups
-            ON groups.Id = group_members.Id_group
-        WHERE groups.Name=:groupname");
-        $stmt->bindValue(':groupname', $groupName);
-        $hostsInGroup = $stmt->execute();
-        unset($stmt);
+        try {
+            /**
+             *  Liste des hotes actuellement dans le groupe $groupName
+             */
+            $stmt = $this->db->prepare("SELECT hosts.Id, hosts.Hostname, hosts.Ip
+            FROM hosts
+            INNER JOIN group_members
+                ON hosts.Id = group_members.Id_host
+            INNER JOIN groups
+                ON groups.Id = group_members.Id_group
+            WHERE groups.Name=:groupname");
+            $stmt->bindValue(':groupname', $groupName);
+            $hostsInGroup = $stmt->execute();
 
-        /**
-         *  Liste des hotes n'appartenant pas à $groupName
-         */
-        $hostsNotInAnyGroup = $this->db->query("SELECT DISTINCT hosts.Id, hosts.Hostname, hosts.Ip
-        FROM hosts
-        WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");    
+            /**
+             *  Liste des hotes n'appartenant pas à $groupName
+             */
+            $hostsNotInAnyGroup = $this->db->query("SELECT DISTINCT hosts.Id, hosts.Hostname, hosts.Ip
+            FROM hosts
+            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");    
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         $hostsIn    = array();
         $hostsNotIn = array();
@@ -682,9 +729,14 @@ class Group extends Model {
      *  Recupère le nom du groupe à partir de son ID en BDD
      */
     public function db_getName() {
-        $stmt = $this->db->prepare("SELECT Name from groups WHERE Id=:id");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Name from groups WHERE Id=:id");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $this->name = $row['Name'];
         }
@@ -750,9 +802,13 @@ class Group extends Model {
      *  Retourne false si n'existe pas
      */
     public function existsId() {
-        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Id=:id");
-        $stmt->bindValue(':id', $this->id);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM groups WHERE Id=:id");
+            $stmt->bindValue(':id', $this->id);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         if ($this->db->isempty($result) === true)
             return false;
@@ -765,13 +821,17 @@ class Group extends Model {
      *  Si on passe un argument à cette fonction ($name) alors c'est cet argument qui est testé, sinon c'est $this->name
      */
     public function exists(string $name = '') {
-        $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
-        if (!empty($name)) {
-            $stmt->bindValue(':name', $name);
-        } else {
-            $stmt->bindValue(':name', $this->name);
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
+            if (!empty($name)) {
+                $stmt->bindValue(':name', $name);
+            } else {
+                $stmt->bindValue(':name', $this->name);
+            }
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
-        $result = $stmt->execute();
 
         if ($this->db->isempty($result) === true)
             return false;

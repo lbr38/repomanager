@@ -83,31 +83,35 @@ trait changeEnv {
          */
         $this->repo->db_getDate();
 
-        if (OS_FAMILY == "Redhat") {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':env', $this->repo->env);
-            $result1 = $stmt->execute();
+        try {
+            if (OS_FAMILY == "Redhat") {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':env', $this->repo->env);
+                $result1 = $stmt->execute();
 
-            $stmt2 = $this->db->prepare("SELECT Id_group FROM group_members INNER JOIN repos ON repos.Id = group_members.Id_repo WHERE repos.Name=:name AND repos.Env=:env AND repos.Status = 'active'");
-            $stmt2->bindValue(':name', $this->repo->name);
-            $stmt2->bindValue(':env', $this->repo->env);
-            $result2 = $stmt2->execute();
-        }
-        if (OS_FAMILY == "Debian") {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $stmt->bindValue(':section', $this->repo->section);
-            $stmt->bindValue(':env', $this->repo->env);
-            $result1 = $stmt->execute();
+                $stmt2 = $this->db->prepare("SELECT Id_group FROM group_members INNER JOIN repos ON repos.Id = group_members.Id_repo WHERE repos.Name=:name AND repos.Env=:env AND repos.Status = 'active'");
+                $stmt2->bindValue(':name', $this->repo->name);
+                $stmt2->bindValue(':env', $this->repo->env);
+                $result2 = $stmt2->execute();
+            }
+            if (OS_FAMILY == "Debian") {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $stmt->bindValue(':section', $this->repo->section);
+                $stmt->bindValue(':env', $this->repo->env);
+                $result1 = $stmt->execute();
 
-            $stmt2 = $this->db->prepare("SELECT Id_group FROM group_members INNER JOIN repos ON repos.Id = group_members.Id_repo WHERE repos.Name=:name AND Dist=:dist AND Section=:section AND repos.Env=:env AND repos.Status = 'active'");
-            $stmt2->bindValue(':name', $this->repo->name);
-            $stmt2->bindValue(':dist', $this->repo->dist);
-            $stmt2->bindValue(':section', $this->repo->section);
-            $stmt2->bindValue(':env', $this->repo->env);
-            $result2 = $stmt2->execute();
+                $stmt2 = $this->db->prepare("SELECT Id_group FROM group_members INNER JOIN repos ON repos.Id = group_members.Id_repo WHERE repos.Name=:name AND Dist=:dist AND Section=:section AND repos.Env=:env AND repos.Status = 'active'");
+                $stmt2->bindValue(':name', $this->repo->name);
+                $stmt2->bindValue(':dist', $this->repo->dist);
+                $stmt2->bindValue(':section', $this->repo->section);
+                $stmt2->bindValue(':env', $this->repo->env);
+                $result2 = $stmt2->execute();
+            }
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
 
         /**
@@ -140,15 +144,19 @@ trait changeEnv {
          *  4. Si on n'a pas transmis de description, on va conserver celle actuellement en place sur $this->repo->newEnv si existe. Cependant si il n'y a pas de description ou qu'aucun repo n'existe actuellement dans l'env $this->repo->newEnv alors celle-ci restera vide
          */
         if (empty($this->repo->description)) {
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':newenv', $this->repo->newEnv);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description from repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':newenv', $this->repo->newEnv);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
 
             /**
              *  La description récupérée peut être vide, du coup on précise le paramètre 'ignore-null' afin que la fonction fetch() ne s'arrête pas si le résultat est vide
@@ -207,16 +215,20 @@ trait changeEnv {
                 /**
                  *  Mise à jour en BDD
                  */
-                $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :newenv, :date, :time, :description, :signed, :type, 'active')");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':source', $this->repo->source);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $stmt->bindValue(':date', $this->repo->date);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $this->repo->description);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':type', $this->repo->type);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :newenv, :date, :time, :description, :signed, :type, 'active')");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':source', $this->repo->source);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $stmt->bindValue(':date', $this->repo->date);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':description', $this->repo->description);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':type', $this->repo->type);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
                 unset($stmt);
 
                 /**
@@ -253,10 +265,14 @@ trait changeEnv {
                  *  Passage de l'ancienne version de $this->repo->newEnv en archive
                  *  Pour cela on récupère la date et la description du repo qui va être archivé
                  */
-                $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 $result = $this->repo->db->fetch($result);
                 $old_repoDate = $result['Date'];
@@ -283,28 +299,36 @@ trait changeEnv {
                 /**
                  *  Mise à jour de la BDD
                  */
-                $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Env=:newenv AND Date=:old_date AND Status='active'");
-                $stmt->bindValue(':date', $this->repo->date);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $this->repo->description);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $stmt->bindValue(':old_date', $old_repoDate);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Env=:newenv AND Date=:old_date AND Status='active'");
+                    $stmt->bindValue(':date', $this->repo->date);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':description', $this->repo->description);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $stmt->bindValue(':old_date', $old_repoDate);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Insertion du repo archivé dans repos_archived
                  */
-                $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :date, :time, :description, :signed, :type, 'active')");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':source', $this->repo->source);
-                $stmt->bindValue(':date', $old_repoDate);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':decription', $old_repoDescription);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':type', $this->repo->type);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :date, :time, :description, :signed, :type, 'active')");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':source', $this->repo->source);
+                    $stmt->bindValue(':date', $old_repoDate);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':decription', $old_repoDescription);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':type', $this->repo->type);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Application des droits sur la section archivée
@@ -342,18 +366,22 @@ trait changeEnv {
                 /**
                  *  Mise à jour en BDD
                  */
-                $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :newenv, :date, :time, :description, :signed, :type, 'active')");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':source', $this->repo->source);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $stmt->bindValue(':date', $this->repo->date);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $this->repo->description);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':type', $this->repo->type);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :newenv, :date, :time, :description, :signed, :type, 'active')");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':source', $this->repo->source);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $stmt->bindValue(':date', $this->repo->date);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':description', $this->repo->description);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':type', $this->repo->type);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Récupération de l'ID du repos précédemment inséré car on va en avoir besoin pour l'ajouter au même groupe que le repo sur $this->repo->env
@@ -389,12 +417,16 @@ trait changeEnv {
                  *  Passage de l'ancienne version de $this->repo->newEnv en archive
                  *  Pour cela on récupère la date et la description du repo qui va être archivé
                  */
-                $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 $result = $this->repo->db->fetch($result);
                 $old_repoDate = $result['Date'];
@@ -421,32 +453,40 @@ trait changeEnv {
                 /**
                  *  Mise à jour de la BDD
                  */
-                $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:old_date AND Status='active'");
-                $stmt->bindValue(':date', $this->repo->date);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $this->repo->description);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $stmt->bindValue(':old_date', $old_repoDate);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("UPDATE repos SET Date=:date, Time=:time, Description=:description, Signed=:signed WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Date=:old_date AND Status='active'");
+                    $stmt->bindValue(':date', $this->repo->date);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':description', $this->repo->description);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $stmt->bindValue(':old_date', $old_repoDate);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Insertion du repo archivé dans repos_archived
                  */
-                $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :olddate, :time, :description, :signed, :type, 'active')");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':source', $this->repo->source);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':olddate', $old_repoDate);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $old_repoDescription);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':type', $this->repo->type);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO repos_archived (Name, Source, Dist, Section, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :olddate, :time, :description, :signed, :type, 'active')");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':source', $this->repo->source);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':olddate', $old_repoDate);
+                    $stmt->bindValue(':time', $this->repo->time);
+                    $stmt->bindValue(':description', $old_repoDescription);
+                    $stmt->bindValue(':signed', $this->repo->signed);
+                    $stmt->bindValue(':type', $this->repo->type);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 /**
                  *  Application des droits sur la section archivée
@@ -471,10 +511,14 @@ trait changeEnv {
          *  On traite ce cas uniquement si on est passé par le Cas n°1
          */
         if (!empty($this->repo->group) AND $case == 1) {
-            $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
-            $stmt->bindValue(':repoid', $this->repo->id);
-            $stmt->bindValue(':groupid', $this->repo->group);
-            $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
+                $stmt->bindValue(':repoid', $this->repo->id);
+                $stmt->bindValue(':groupid', $this->repo->group);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
         }
 
         /**

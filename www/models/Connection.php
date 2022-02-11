@@ -2,18 +2,13 @@
 
 class Connection extends SQLite3 {
 
-    public function __construct(string $database, string $mode, string $hostId = null)
+    public function __construct(string $database, string $hostId = null)
     {
         /**
          *  Ouvre la base de données à partie du chemin et du mode renseigné (read-write ou read-only)
          *  Si celle-ci n'existe pas elle est créée automatiquement
          */
         try {
-            /**
-             *  Si le mode renseigné ne correspond pas à 'rw' ni 'ro', on quitte
-             */
-            if ($mode != "rw" AND $mode != "ro") throw new Exception("mode inconnu : $mode");
-
             /**
              *  Ouverture de la base de données
              */
@@ -22,64 +17,52 @@ class Connection extends SQLite3 {
              *  Cas où la base de données renseignée est "main", il s'agit de la base de données principale repomanager.db
              */
             if ($database == "main") {
-                /**
-                 *  Ouverture en mode read-only
-                 */
-                if ($mode == "ro") $this->open(ROOT."/db/repomanager.db", SQLITE3_OPEN_READONLY);
+                
+                $this->open(ROOT."/db/repomanager.db");
 
                 /**
-                 *  Ouverture en mode read-write
+                 *  Activation du mode WAL
                  */
-                if ($mode == "rw") {
-                    $this->open(ROOT."/db/repomanager.db");
-                }
+                $this->exec('PRAGMA journal_mode = wal;');
 
                 /**
                  *  Activation des exception pour SQLite
                  */
-                //$this->enableExceptions(true);
+                $this->enableExceptions(true);
 
             /**
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
              */
             } elseif ($database == "stats") {
-                /**
-                 *  Ouverture en mode read-only
-                 */
-                if ($mode == "ro") $this->open(ROOT."/db/repomanager-stats.db", SQLITE3_OPEN_READONLY);
+
+                $this->open(ROOT."/db/repomanager-stats.db");
 
                 /**
-                 *  Ouverture en mode read-write
+                 *  Activation du mode WAL
                  */
-                if ($mode == "rw") {
-                    $this->open(ROOT."/db/repomanager-stats.db");
-                }
+                $this->exec('PRAGMA journal_mode = wal;');
 
                 /**
                  *  Activation des exception pour SQLite
                  */
-                //$this->enableExceptions(true);
+                $this->enableExceptions(true);
                 
             /**
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
              */
             } elseif ($database == "hosts") {
-                /**
-                 *  Ouverture en mode read-only
-                 */
-                if ($mode == "ro") $this->open(ROOT."/db/repomanager-hosts.db", SQLITE3_OPEN_READONLY);
+
+                $this->open(ROOT."/db/repomanager-hosts.db");
 
                 /**
-                 *  Ouverture en mode read-write
+                 *  Activation du mode WAL
                  */
-                if ($mode == "rw") {
-                    $this->open(ROOT."/db/repomanager-hosts.db");
-                }
+                $this->exec('PRAGMA journal_mode = wal;');
 
                 /**
                  *  Activation des exception pour SQLite
                  */
-                //$this->enableExceptions(true);
+                $this->enableExceptions(true);
 
             /**
              *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
@@ -91,27 +74,23 @@ class Connection extends SQLite3 {
                     define('HOSTS_DIR', ROOT.'/hosts');
                 }
 
-                /**
-                 *  Ouverture en mode read-only
-                 */
-                if ($mode == "ro") $this->open(HOSTS_DIR."/$hostId/properties.db", SQLITE3_OPEN_READONLY);
+                $this->open(HOSTS_DIR."/$hostId/properties.db");
 
                 /**
-                 *  Ouverture en mode read-write
+                 *  Activation du mode WAL
                  */
-                if ($mode == "rw") {
-                    $this->open(HOSTS_DIR."/$hostId/properties.db");
+                $this->exec('PRAGMA journal_mode = wal;');
 
-                    /**
-                     *  Génération des tables si n'existent pas
-                     */
-                    $this->generateHostTables();
-                }
+                /**
+                 *  Génération des tables si n'existent pas
+                 */
+                $this->generateHostTables();
+
 
                 /**
                  *  Activation des exception pour SQLite
                  */
-                //$this->enableExceptions(true);
+                $this->enableExceptions(true);
 
             /**
              *  Cas où la base de données ne correspond à aucun cas ci-dessus
@@ -397,9 +376,13 @@ class Connection extends SQLite3 {
         $result = $this->query("SELECT Id FROM users");
         if ($this->isempty($result) === true) {
             $password_hashed = '$2y$10$FD6/70o2nXPf76SAPYIGSutauQ96LqKie5PLanoYBNbCWen492cX6';
-            $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
-            $stmt->bindValue(':password_hashed', $password_hashed);
-            $stmt->execute();
+            try {
+                $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
+                $stmt->bindValue(':password_hashed', $password_hashed);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
         }
 
         /**

@@ -48,7 +48,7 @@ class Operation extends Model {
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $this->getConnection('main', 'rw');
+        $this->getConnection('main');
 
         if (!empty($op_action)) {
             $this->action = $op_action;
@@ -78,20 +78,24 @@ class Operation extends Model {
         /**
          *  Cas où on souhaite tous les types
          */
-        if (empty($type)) {
-            $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' ORDER BY Date DESC, Time DESC");
-            $result = $stmt->execute();
+        try {
+            if (empty($type)) {
+                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' ORDER BY Date DESC, Time DESC");
 
-        /**
-         *  Cas où souhaite filtrer par un type en particulier
-         */
-        } else {
-            $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' AND Type=:type ORDER BY Date DESC, Time DESC");
-            $stmt->bindValue(':type', $type);
+            /**
+             *  Cas où souhaite filtrer par un type en particulier
+             */
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' AND Type=:type ORDER BY Date DESC, Time DESC");
+                $stmt->bindValue(':type', $type);
+            }
             $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
         }
 
-        while ($datas = $result->fetchArray()) { $operations[] = $datas; }
+        while ($datas = $result->fetchArray()) $operations[] = $datas;
+
         if (!empty($operations)) {
             return $operations;
         } else {
@@ -112,75 +116,69 @@ class Operation extends Model {
             throw new Error("Type d'opération non reconnu");
         }
 
-        /**
-         *  Cas où on souhaite tous les types
-         */
-        if (empty($type) AND empty($planType)) {
-            $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'error' OR Status = 'done' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
-        }
+        try {
+            /**
+             *  Cas où on souhaite tous les types
+             */
+            if (empty($type) AND empty($planType)) {
+                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'error' OR Status = 'done' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
+            }
 
-        /**
-         *  Cas où on filtre par type d'opération seulement
-         */
-        if (!empty($type) AND empty($planType)) {
-            $stmt = $this->db->prepare("SELECT * FROM operations
-            WHERE Type = :type AND (Status = 'error' OR Status = 'done' OR Status = 'stopped')
-            ORDER BY Date DESC, Time DESC");
-            $stmt->bindValue(':type', $type);
-        }
+            /**
+             *  Cas où on filtre par type d'opération seulement
+             */
+            if (!empty($type) AND empty($planType)) {
+                $stmt = $this->db->prepare("SELECT * FROM operations
+                WHERE Type = :type AND (Status = 'error' OR Status = 'done' OR Status = 'stopped')
+                ORDER BY Date DESC, Time DESC");
+                $stmt->bindValue(':type', $type);
+            }
 
-        /**
-         *  Cas où on filtre par type de planification seulement
-         */
-        if (empty($type) AND !empty($planType)) {
-            $stmt = $this->db->prepare("SELECT * FROM operations 
-            INNER JOIN planifications
-            ON operations.Id_plan = planifications.Id
-            WHERE planifications.Type = :plantype AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
-            ORDER BY operations.Date DESC, operations.Time DESC");
-            $stmt->bindValue(':plantype', $planType);
-        }
+            /**
+             *  Cas où on filtre par type de planification seulement
+             */
+            if (empty($type) AND !empty($planType)) {
+                $stmt = $this->db->prepare("SELECT * FROM operations 
+                INNER JOIN planifications
+                ON operations.Id_plan = planifications.Id
+                WHERE planifications.Type = :plantype AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
+                ORDER BY operations.Date DESC, operations.Time DESC");
+                $stmt->bindValue(':plantype', $planType);
+            }
 
-        /**
-         *  Cas où on filtre par type d'opération ET par type de planification
-         */
-        if (!empty($type) AND !empty($planType)) {
-            $stmt = $this->db->prepare("SELECT
-            operations.Id,
-            operations.Date,
-            operations.Time,
-            operations.Action,
-            operations.Type,
-            operations.Id_repo_source,
-            operations.Id_repo_target,
-            operations.Id_group,
-            operations.Id_plan,
-            operations.GpgCheck,
-            operations.GpgResign,
-            operations.Pid,
-            operations.Logfile,
-            operations.Status
-            FROM operations 
-            INNER JOIN planifications
-            ON operations.Id_plan = planifications.Id
-            WHERE operations.Type = :type
-            AND planifications.Type = :plantype
-            AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
-            ORDER BY operations.Date DESC, operations.Time DESC");
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':plantype', $planType);
-        }
-
-        /**
-         *  Cas où souhaite filtrer par un type en particulier
-         */
-        /*} else {
-            $stmt = $this->db->prepare("SELECT * FROM operations WHERE Type=:type AND (Status = 'error' OR Status = 'done' OR Status = 'stopped') ORDER BY Date DESC, Time DESC");
-            $stmt->bindValue(':type', $type);
+            /**
+             *  Cas où on filtre par type d'opération ET par type de planification
+             */
+            if (!empty($type) AND !empty($planType)) {
+                $stmt = $this->db->prepare("SELECT
+                operations.Id,
+                operations.Date,
+                operations.Time,
+                operations.Action,
+                operations.Type,
+                operations.Id_repo_source,
+                operations.Id_repo_target,
+                operations.Id_group,
+                operations.Id_plan,
+                operations.GpgCheck,
+                operations.GpgResign,
+                operations.Pid,
+                operations.Logfile,
+                operations.Status
+                FROM operations 
+                INNER JOIN planifications
+                ON operations.Id_plan = planifications.Id
+                WHERE operations.Type = :type
+                AND planifications.Type = :plantype
+                AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
+                ORDER BY operations.Date DESC, operations.Time DESC");
+                $stmt->bindValue(':type', $type);
+                $stmt->bindValue(':plantype', $planType);
+            }
             $result = $stmt->execute();
-        }*/
-
-        $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         $datas = array();
 
@@ -225,29 +223,41 @@ class Operation extends Model {
          *  Si cette opération a été lancée par un planification, il faudra mettre à jour la planification en BDD
          *  On récupère d'abord l'ID de la planification
          */
-        $stmt = $this->db->prepare("SELECT Id_plan FROM operations WHERE Pid=:pid AND Status = 'running'");
-        $stmt->bindValue(':pid', $pid);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id_plan FROM operations WHERE Pid=:pid AND Status = 'running'");
+            $stmt->bindValue(':pid', $pid);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($datas = $result->fetchArray()) { $planId = $datas['Id_plan']; }
 
         /**
          *  Mise à jour de l'opération en BDD, on la passe en status = stopped
          */
-        $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid=:pid AND Status = 'running'");
-        $stmt->bindValue(':pid', $pid);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid=:pid AND Status = 'running'");
+            $stmt->bindValue(':pid', $pid);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         /**
          *  Mise à jour de la planification en BDD
          */
         if (!empty($planId)) {
-            $stmt = $this->db->prepare("UPDATE planifications SET Status = 'stopped' WHERE Id=:id AND Status = 'running'");
-            $stmt->bindValue(':id', $planId);
-            $stmt->execute();
-            unset($planId);
+            try {
+                $stmt = $this->db->prepare("UPDATE planifications SET Status = 'stopped' WHERE Id=:id AND Status = 'running'");
+                $stmt->bindValue(':id', $planId);
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
         }
+        unset($stmt, $planId, $datas, $result);
 
-        unset($stmt, $datas, $result);
         Common::printAlert("L'opération a été arrêtée", 'success');
 
         Common::clearCache();
@@ -647,15 +657,19 @@ class Operation extends Model {
         $this->status = 'running';
         $this->log = new Log('repomanager');
 
-        $stmt = $this->db->prepare("INSERT INTO operations (date, time, action, type, pid, logfile, status) VALUES (:date, :time, :action, :type, :pid, :logfile, :status)");
-        $stmt->bindValue(':date', $this->date);
-        $stmt->bindValue(':time', $this->time);
-        $stmt->bindValue(':action', $this->action);
-        $stmt->bindValue(':type', $this->type);
-        $stmt->bindValue(':pid', $this->log->pid);
-        $stmt->bindValue(':logfile', $this->log->name);
-        $stmt->bindValue(':status', $this->status);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("INSERT INTO operations (date, time, action, type, pid, logfile, status) VALUES (:date, :time, :action, :type, :pid, :logfile, :status)");
+            $stmt->bindValue(':date', $this->date);
+            $stmt->bindValue(':time', $this->time);
+            $stmt->bindValue(':action', $this->action);
+            $stmt->bindValue(':type', $this->type);
+            $stmt->bindValue(':pid', $this->log->pid);
+            $stmt->bindValue(':logfile', $this->log->name);
+            $stmt->bindValue(':status', $this->status);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         unset($stmt);
 
@@ -712,50 +726,74 @@ class Operation extends Model {
     }
 
     public function db_update_idplan($id_plan) {
-        $stmt = $this->db->prepare("UPDATE operations SET Id_plan=:id_plan WHERE Id=:id");
-        $stmt->bindValue(':id_plan', $id_plan);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Id_plan=:id_plan WHERE Id=:id");
+            $stmt->bindValue(':id_plan', $id_plan);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
     public function db_update_idrepo_source($id_repo_source) {
-        $stmt = $this->db->prepare("UPDATE operations SET Id_repo_source=:id_repo_source WHERE Id=:id");
-        $stmt->bindValue(':id_repo_source', $id_repo_source);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Id_repo_source=:id_repo_source WHERE Id=:id");
+            $stmt->bindValue(':id_repo_source', $id_repo_source);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
     public function db_update_idrepo_target($id_repo_target) {
-        $stmt = $this->db->prepare("UPDATE operations SET Id_repo_target=:id_repo_target WHERE Id=:id");
-        $stmt->bindValue(':id_repo_target', $id_repo_target);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Id_repo_target=:id_repo_target WHERE Id=:id");
+            $stmt->bindValue(':id_repo_target', $id_repo_target);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
     public function db_update_idgroup($id_group) {
-        $stmt = $this->db->prepare("UPDATE operations SET Id_group=:id_group WHERE Id=:id");
-        $stmt->bindValue(':id_group', $id_group);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Id_group=:id_group WHERE Id=:id");
+            $stmt->bindValue(':id_group', $id_group);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
     public function db_update_gpgCheck($gpgCheck) {
-        $stmt = $this->db->prepare("UPDATE operations SET GpgCheck=:gpgCheck WHERE Id=:id");
-        $stmt->bindValue(':gpgCheck', $gpgCheck);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET GpgCheck=:gpgCheck WHERE Id=:id");
+            $stmt->bindValue(':gpgCheck', $gpgCheck);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
     public function db_update_gpgResign($gpgResign) {
-        $stmt = $this->db->prepare("UPDATE operations SET GpgResign=:gpgResign WHERE Id=:id");
-        $stmt->bindValue(':gpgResign', $gpgResign);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET GpgResign=:gpgResign WHERE Id=:id");
+            $stmt->bindValue(':gpgResign', $gpgResign);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
         unset($stmt);
     }
 
@@ -768,11 +806,15 @@ class Operation extends Model {
         $this->timeEnd = microtime(true);
         $this->duration = $this->timeEnd - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
 
-        $stmt = $this->db->prepare("UPDATE operations SET Status=:status, Duration=:duration WHERE Id=:id");
-        $stmt->bindValue(':status', $this->status);
-        $stmt->bindValue(':duration', $this->duration);
-        $stmt->bindValue(':id', $this->id);
-        $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE operations SET Status=:status, Duration=:duration WHERE Id=:id");
+            $stmt->bindValue(':status', $this->status);
+            $stmt->bindValue(':duration', $this->duration);
+            $stmt->bindValue(':id', $this->id);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         // Cloture du fichier de log ouvert par startOperation()
         $this->log->close();
@@ -946,9 +988,13 @@ class Operation extends Model {
                 }
             }
             if (OS_FAMILY == "Debian") {
-                $stmt = $this->db->prepare("SELECT * FROM sources WHERE Name=:name");
-                $stmt->bindValue(':name', $this->repo->source);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT * FROM sources WHERE Name=:name");
+                    $stmt->bindValue(':name', $this->repo->source);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 if ($this->db->isempty($result) === true) {
                     echo "<p>Erreur : L'hôte source {$this->repo->source} du repo {$this->repo->name} n'existe pas/plus</p>";
@@ -1039,19 +1085,29 @@ class Operation extends Model {
             if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir du repo à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
+
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+
                 $repoArchiveDate = $datas['Date'];
                 unset($datas);
 
-                $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':date', $repoArchiveDate);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':date', $repoArchiveDate);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 if ($this->db->isempty($result) === true) {
                     $repoArchive = "yes"; // si le miroir n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
@@ -1060,23 +1116,32 @@ class Operation extends Model {
             if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // du coup on vérifie que le miroir de la section à archiver n'est pas utilisé par un autre environnement :
                 // pour cela on récupère sa date de synchro et on regarde si elle est utilisée par un autre env :
-                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
+
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
                 $repoArchiveDate = $datas['Date'];
                 unset($datas);
 
-                $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':date', $repoArchiveDate);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Name, Env FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':date', $repoArchiveDate);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
                 if ($this->db->isempty($result) === true) {
                     $repoArchive = "yes"; // si le miroir n'est pas utilisé par un autre environnement, alors on pourra indiquer qu'il sera archivé
                 }
@@ -1190,9 +1255,13 @@ class Operation extends Model {
              *  et on les affichera dans la demande de confirmation
              */
             if (OS_FAMILY == "Debian") {
-                $stmt = $this->db->prepare("SELECT Dist, Section, Env FROM repos WHERE Name=:name AND Status = 'active' ORDER BY Dist ASC, Section ASC");
-                $stmt->bindValue(':name', $this->repo->name);
-                $distAndSectionsToBeDeleted = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Dist, Section, Env FROM repos WHERE Name=:name AND Status = 'active' ORDER BY Dist ASC, Section ASC");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $distAndSectionsToBeDeleted = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
             }
 
             /**
@@ -1275,10 +1344,14 @@ class Operation extends Model {
              *  Ok la distribution existe mais peut être que celle-ci contient plusieurs sections qui seront supprimées, on récupère les sections concernées
              *  et on les affichera dans la demande de confirmation
              */
-            $stmt = $this->db->prepare("SELECT Section, Env FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active' ORDER BY Section ASC");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':dist', $this->repo->dist);
-            $sectionsToBeDeleted = $stmt->execute();
+            try {
+                $stmt = $this->db->prepare("SELECT Section, Env FROM repos WHERE Name=:name AND Dist=:dist AND Status = 'active' ORDER BY Section ASC");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':dist', $this->repo->dist);
+                $sectionsToBeDeleted = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
+            }
 
             /**
              *  Si tout est OK alors on affiche un récapitulatif avec une demande de confirmation
@@ -1478,18 +1551,26 @@ class Operation extends Model {
             if (OS_FAMILY == "Redhat" AND $this->repo->existsEnv($this->repo->name, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
-                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
                 $repoToBeArchivedDate = $datas['Date'];
 
-                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':date', $repoToBeArchivedDate);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':date', $repoToBeArchivedDate);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive :
                 if ($this->db->isempty($result) === true) {
@@ -1499,22 +1580,30 @@ class Operation extends Model {
             if (OS_FAMILY == "Debian" AND $this->repo->section_existsEnv($this->repo->name, $this->repo->dist, $this->repo->section, $this->repo->newEnv) === true) {
                 // Si le résultat précedent === true, alors il y a un miroir qui sera potentiellement archivé. 
                 // On récupère sa date et on regarde si cette date n'est pas utilisée par un autre env.
-                $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT Date FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
                 $repoToBeArchivedDate = $datas['Date'];
 
-                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
-                $stmt->bindValue(':date', $repoToBeArchivedDate);
-                $stmt->bindValue(':newenv', $this->repo->newEnv);
-                $result = $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date AND Env !=:newenv AND Status = 'active'");
+                    $stmt->bindValue(':name', $this->repo->name);
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':date', $repoToBeArchivedDate);
+                    $stmt->bindValue(':newenv', $this->repo->newEnv);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
                 // Si d'autres env utilisent le miroir en date du '$repoToBeArchivedDate' alors on ne peut pas archiver. Sinon on archive :
                 if ($this->db->isempty($result) === true) {

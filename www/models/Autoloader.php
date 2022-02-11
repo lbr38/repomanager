@@ -177,6 +177,7 @@ class Autoloader
         if (!defined('LOGS_DIR')) define('LOGS_DIR', ROOT."/logs");
         // Logs du programme
         if (!defined('MAIN_LOGS_DIR')) define('MAIN_LOGS_DIR', LOGS_DIR.'/main');
+        if (!defined('EXCEPTIONS_LOG')) define('EXCEPTIONS_LOG', LOGS_DIR.'/exceptions');
         // Logs des cron
         if (!defined('CRON_LOGS_DIR')) define('CRON_LOGS_DIR', LOGS_DIR.'/cron');
         if (!defined('CRON_LOG')) define('CRON_LOG', CRON_LOGS_DIR.'/cronjob-daily.log');
@@ -264,7 +265,7 @@ class Autoloader
             /**
              *  On va vérifier la présence des tables et les créer si nécessaire
              */
-            $myconn = new Connection('main', 'rw');
+            $myconn = new Connection('main');
 
             if (!$myconn->checkMainTables()) {
                 /**

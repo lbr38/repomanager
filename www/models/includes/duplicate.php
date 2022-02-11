@@ -107,15 +107,19 @@ trait duplicate {
              */
             $this->repo->db_getDate();
 
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
-            $stmt->bindValue(':name', $this->repo->name);
-            $stmt->bindValue(':env', $this->repo->env);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Source, Signed FROM repos WHERE Name=:name AND Dist=:dist AND Section=:section AND Env=:env AND Status = 'active'");
+                $stmt->bindValue(':name', $this->repo->name);
+                $stmt->bindValue(':env', $this->repo->env);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $result = $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $result = $stmt->execute();
             $result = $this->repo->db->fetch($result);
             $this->repo->source = $result['Source'];
             $this->repo->signed = $result['Signed'];
@@ -178,20 +182,24 @@ trait duplicate {
             /**
              *  8. Insertion en BDD du nouveau repo
              */
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :env, :date, :time, :description, :signed, 'mirror', 'active')");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :dist, :section, :env, :date, :time, :description, :signed, 'mirror', 'active')");
-            $stmt->bindValue(':newname', $this->repo->newName);
-            $stmt->bindValue(':source', $this->repo->source);
-            $stmt->bindValue(':env', $this->repo->env);
-            $stmt->bindValue(':date', $this->repo->date);
-            $stmt->bindValue(':time', $this->repo->time);
-            $stmt->bindValue(':description', $this->repo->description);
-            $stmt->bindValue(':signed', $this->repo->signed);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->repo->dist);
-                $stmt->bindValue(':section', $this->repo->section);
+            try {
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :env, :date, :time, :description, :signed, 'mirror', 'active')");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:newname, :source, :dist, :section, :env, :date, :time, :description, :signed, 'mirror', 'active')");
+                $stmt->bindValue(':newname', $this->repo->newName);
+                $stmt->bindValue(':source', $this->repo->source);
+                $stmt->bindValue(':env', $this->repo->env);
+                $stmt->bindValue(':date', $this->repo->date);
+                $stmt->bindValue(':time', $this->repo->time);
+                $stmt->bindValue(':description', $this->repo->description);
+                $stmt->bindValue(':signed', $this->repo->signed);
+                if (OS_FAMILY == "Debian") {
+                    $stmt->bindValue(':dist', $this->repo->dist);
+                    $stmt->bindValue(':section', $this->repo->section);
+                }
+                $stmt->execute();
+            } catch(Exception $e) {
+                Common::dbError($e);
             }
-            $stmt->execute();
             unset($stmt);
 
             $this->repo->id = $this->db->lastInsertRowID();
@@ -214,15 +222,19 @@ trait duplicate {
                 $this->log->steplogTitle('AJOUT A UN GROUPE');
                 $this->log->steplogLoading();
 
-                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Status = 'active' AND groups.Name=:groupname");
-                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
-                $stmt->bindValue(':newname', $this->repo->newName);
-                if (OS_FAMILY == "Debian") {
-                    $stmt->bindValue(':dist', $this->repo->dist);
-                    $stmt->bindValue(':section', $this->repo->section);
+                try {
+                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Status = 'active' AND groups.Name=:groupname");
+                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:newname AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+                    $stmt->bindValue(':newname', $this->repo->newName);
+                    if (OS_FAMILY == "Debian") {
+                        $stmt->bindValue(':dist', $this->repo->dist);
+                        $stmt->bindValue(':section', $this->repo->section);
+                    }
+                    $stmt->bindValue(':groupname', $this->repo->group);
+                    $result = $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
                 }
-                $stmt->bindValue(':groupname', $this->repo->group);
-                $result = $stmt->execute();
 
                 while ($data = $result->fetchArray(SQLITE3_ASSOC)) {
                     $repoId = $data['repoId'];
@@ -232,10 +244,14 @@ trait duplicate {
                 if (empty($this->repo->id)) throw new Exception("impossible de récupérer l'id du repo <b>{$this->repo->newName}</b>");
                 if (empty($groupId)) throw new Exception("impossible de récupérer l'id du groupe <b>{$this->repo->group}</b>");
 
-                $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
-                $stmt->bindValue(':repoid', $repoId);
-                $stmt->bindValue(':groupid', $groupId);
-                $stmt->execute();
+                try {
+                    $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
+                    $stmt->bindValue(':repoid', $repoId);
+                    $stmt->bindValue(':groupid', $groupId);
+                    $stmt->execute();
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
                 unset($stmt);
 
                 $this->log->steplogOK();
