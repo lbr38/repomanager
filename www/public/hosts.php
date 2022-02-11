@@ -176,14 +176,24 @@ if (isset($_GET['auto'])) {
                     <?php } ?>
                 </div>
 
-                <br>
-                <!--<input id="searchHostInput" type="text" class="input-large" autocomplete="off" placeholder="Rechercher un hôte..." />
-                <br>
-                <br>-->
-
                 <?php
-                if (!empty($groupsList)) {
-                    echo '<div class="groups-container">';
+                if (!empty($groupsList)) { ?>
+                    <div class="searchInput-container">
+                        <div class="searchInput-subcontainer">
+                            <div>
+                                <p>Rechercher un hôte :</p>
+                                <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Nom d'hôte, IP" />
+                            </div>
+                            <div>
+                                <p>Rechercher un paquet :</p>
+                                <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Nom du paquet" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="groups-container">
+
+                    <?php
                     foreach($groupsList as $groupName) {
                         $group->name = $groupName;
 
@@ -236,6 +246,7 @@ if (isset($_GET['auto'])) {
                                                     <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
                                                 <?php } ?>
                                                 <td></td>
+                                                <td></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -266,7 +277,7 @@ if (isset($_GET['auto'])) {
                                              */
                                             $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
 
-                                            echo '<tr>';
+                                            echo '<tr class="host-tr" hostid="'.$host['Id'].'" hostname="'.$host['Hostname'].'">';
                                                 /**
                                                  *  Status ping
                                                  */
@@ -352,16 +363,17 @@ if (isset($_GET['auto'])) {
                                                         }
                                                     } ?>
                                                 </td>
+                                                <td class="host-additionnal-info">
+                                                </td>
                                             </tr>
                                 <?php   }
                                         echo '</tbody>';
                                     echo '</table>';
                                 } else {
-                                    echo '<p>Il n\'y a aucun hôte dans ce groupe</p>';
+                                    echo '<table class="hosts-table-empty"><tr class="host-tr"><td>Il n\'y a aucun hôte dans ce groupe</td></tr></table>';
                                 }
     
                             echo '</div>';
-                        //echo '</form>';
                     }
                     echo '</div>';
                 }
