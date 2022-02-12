@@ -80,13 +80,13 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
 if (Common::isadmin()) { ?>
 <div class="hostActionBtn-container">
     <span class="btn-large-blue"><img src="../ressources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='general-status-update' title="Rafraichir les informations générales">Rafraichir les informations générales</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='available-packages-status-update' title="Rafraichir les paquets disponibles">Rafraichir les paquets disponibles</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='installed-packages-status-update' title="Rafraichir les paquets installés">Rafraichir les paquets installés</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action='full-history-update' title="Rafraichir l'historique des évènements<">Rafraichir l'historique des évènements</span>
-    <span class="hostActionBtn btn-large-red" hostid="<?php echo $id?>" action='update' title="Mettre à jour tous les paquets de l'hôte">Mettre à jour les paquets</span>
-    <span class="hostActionBtn btn-large-red " hostid="<?php echo $id?>" action='reset' title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
-    <span class="hostActionBtn btn-large-red" hostid="<?php echo $id?>" action='delete' title="Supprimer cet hôte">Supprimer cet hôte</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="general-status-update" title="Rafraichir les informations générales">Rafraichir les informations générales</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="available-packages-status-update" title="Rafraichir les paquets disponibles">Rafraichir les paquets disponibles</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="installed-packages-status-update" title="Rafraichir les paquets installés">Rafraichir les paquets installés</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="full-history-update" title="Rafraichir l'historique des évènements">Rafraichir l'historique des évènements</span>
+    <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Mettre à jour les paquets</span>
+    <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="reset" title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
+    <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="delete" title="Supprimer cet hôte">Supprimer cet hôte</span>
 </div>
 <?php } ?>
 
@@ -262,7 +262,7 @@ if (Common::isadmin()) { ?>
                         <div id="packagesInstalledDiv" class="hide">
                             <h4>Inventaire des paquets de l'hôte</h4>
 
-                            <input type="text" id="packagesIntalledSearchInput" onkeyup="searchPackage()" autocomplete="off" placeholder="Rechercher...">
+                            <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Rechercher...">
                             <table id="packagesIntalledTable" class="packages-table">
                                 <thead>
                                     <tr>

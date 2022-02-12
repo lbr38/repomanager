@@ -176,14 +176,24 @@ if (isset($_GET['auto'])) {
                     <?php } ?>
                 </div>
 
-                <br>
-                <!--<input id="searchHostInput" type="text" class="input-large" autocomplete="off" placeholder="Rechercher un hôte..." />
-                <br>
-                <br>-->
-
                 <?php
-                if (!empty($groupsList)) {
-                    echo '<div class="groups-container">';
+                if (!empty($groupsList)) { ?>
+                    <div class="searchInput-container">
+                        <div class="searchInput-subcontainer">
+                            <div>
+                                <p>Rechercher un hôte :</p>
+                                <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Nom d'hôte, IP" />
+                            </div>
+                            <div>
+                                <p>Rechercher un paquet :</p>
+                                <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Nom du paquet" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="groups-container">
+
+                    <?php
                     foreach($groupsList as $groupName) {
                         $group->name = $groupName;
 
@@ -212,13 +222,14 @@ if (isset($_GET['auto'])) {
                                     /**
                                      *  Boutons d'actions sur les checkbox sélectionnées
                                      */ ?>
-                                    <div class='js-buttons-<?php echo $group->name;?> hide float-right'>
-                                        <button class='hostsActionBtn hide pointer btn-medium-red' action='delete' group='<?php echo $group->name;?>'><img src='ressources/icons/bin.png' class='icon' /><b>Supprimer</b></button>
-                                        <button class='hostsActionBtn hide pointer btn-small-red' action='reset' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Reset</b></button>
-                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='general-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Informations générales</b></button>
-                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='available-packages-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets disponibles</b></button>
-                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='installed-packages-status-update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Paquets installés</b></button>
-                                        <button class='hostsActionBtn hide pointer btn-medium-blue' action='update' group='<?php echo $group->name;?>'><img src='ressources/icons/update.png' class='icon' /><b>Mettre à jour les paquets</b></button>
+                                    <div class="js-buttons-<?php echo $group->name;?> hide">
+                                    <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer ses informations générales."><img src="ressources/icons/update.png" class="icon" /><b>Informations générales</b></button>
+                                        <button class="hostsActionBtn pointer btn-fit-blue" action="available-packages-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer les paquets disponibles pour mise à jour."><img src="ressources/icons/update.png" class="icon" /><b>Paquets disponibles</b></button>
+                                        <button class="hostsActionBtn pointer btn-fit-blue" action="installed-packages-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer la liste des paquets installés."><img src="ressources/icons/update.png" class="icon" /><b>Paquets installés</b></button>
+                                        <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'exécuter une mise à jour de ses paquets."><img src="ressources/icons/update.png" class="icon" /><b>Mettre à jour les paquets</b></button>
+                                        <br>
+                                        <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?php echo $group->name;?>" title="Supprimer l'hôte."><img src="ressources/icons/bin.png" class="icon" /><b>Supprimer</b></button>
+                                        <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?php echo $group->name;?>" title="Réinitialiser les données connues de l'hôte. Cette action est irréversible."><img src="ressources/icons/update.png" class="icon" /><b>Reset</b></button>
                                     </div>
                                 <?php }
                                 /**
@@ -230,12 +241,13 @@ if (isset($_GET['auto'])) {
                                             <tr>
                                                 <td></td>
                                                 <td>Hôte</td>
-                                                <td>Paquets disponibles</td>
+                                                <td title="Paquets disponibles pour installation"><img src="../ressources/icons/products/package.png" class="icon" />Disp.</td>
                                                 <td></td>
                                                 <?php if (Common::isadmin()) { ?>
                                                     <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
                                                 <?php } ?>
-                                                <td></td>
+                                                <td class="td-fit"></td>
+                                                <td class="td-fit"></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -266,7 +278,7 @@ if (isset($_GET['auto'])) {
                                              */
                                             $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
 
-                                            echo '<tr>';
+                                            echo '<tr class="host-tr" hostid="'.$host['Id'].'" hostname="'.$host['Hostname'].'">';
                                                 /**
                                                  *  Status ping
                                                  */
@@ -303,7 +315,7 @@ if (isset($_GET['auto'])) {
                                                 <?php if (Common::isadmin()) { ?>
                                                     <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
                                                 <?php } ?>
-                                                <td>
+                                                <td class="host-update-status td-10">
                                                     <?php
                                                     /**
                                                      *  Status de la dernière demande
@@ -352,16 +364,17 @@ if (isset($_GET['auto'])) {
                                                         }
                                                     } ?>
                                                 </td>
+                                                <td class="host-additionnal-info td-10">
+                                                </td>
                                             </tr>
                                 <?php   }
                                         echo '</tbody>';
                                     echo '</table>';
                                 } else {
-                                    echo '<p>Il n\'y a aucun hôte dans ce groupe</p>';
+                                    echo '<table class="hosts-table-empty"><tr class="host-tr"><td>Il n\'y a aucun hôte dans ce groupe</td></tr></table>';
                                 }
     
                             echo '</div>';
-                        //echo '</form>';
                     }
                     echo '</div>';
                 }

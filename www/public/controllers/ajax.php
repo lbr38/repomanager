@@ -171,13 +171,38 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             response(HTTP_OK, "Le groupe <b>".$_POST['name']."</b> a été édité");
         }
 
+        /**
+         *  Rechercher si un paquet est présent sur un hôte (depuis la liste de tous les hôtes sur hosts.php)
+         */
+        if ($_POST['action'] == "searchHostPackage" AND !empty($_POST['hostid']) AND !empty($_POST['package'])) {
+            $hostid  = Common::validateData($_POST['hostid']);
+            $package = Common::validateData($_POST['package']);
 
+            $myhost = new Host();
+            $myhost->setId($hostid);
 
+            /**
+             *  Tentative de recherche du paquet
+             */
+            try {
+                $result = $myhost->searchPackage($package);
+                /**
+                 *  Si aucun paquet n'est trouvé
+                 */
+                if ($result === false) {
+                    response(HTTP_BAD_REQUEST, '');
+                    exit();
+                }
 
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
 
-
-
-
+            /**
+             *  Si il n'y a pas eu d'erreur, on renvoie $result qui contient la version du paquet trouvée
+             */
+            response(HTTP_OK, $result);
+        }
 
 
         /**

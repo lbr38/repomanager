@@ -161,7 +161,7 @@ server {
         fastcgi_hide_header X-Powered-By;
 
         # Path to repomanager root directory
-        root $WWW_DIR;
+        root $WWW_DIR/public;
 
         # Custom error pages
         error_page 404 /custom_404.html;

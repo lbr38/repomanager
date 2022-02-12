@@ -243,8 +243,11 @@ nav {
 }
 
 section.main {
-    width: 99%;
-    margin: auto; /* pour recentrer tout le bloc section */
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    /* width: 99%; */
+    /*margin: auto; /* pour recentrer tout le bloc section */
 }
 
 .div-28 { width: 28%; padding: 10px; }.div-29 { width: 29%; padding: 10px; }.div-30 { width: 30%; padding: 10px; }
@@ -284,16 +287,15 @@ article {
 section.mainSectionLeft {
     flex: 0 0 68%;
     order: 1;
-    padding-left: 10px;
+    padding-left: 15px;
     display: inline-block;
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
 section.mainSectionRight {
-    flex: 0 0 30%;
+    flex: 0 0 29.5%;
     order: 2;
-    padding-right: 10px;
-    float: right;
+    padding-right: 15px;
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
@@ -587,7 +589,7 @@ input:checked { opacity: 1; }
 }
 
 /* Tous les boutons */
-.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red {
+[class^="btn-"], [class*=" btn-"] {
     padding-top: 7px;
     padding-bottom: 7px;
     border: none;
@@ -602,17 +604,22 @@ input:checked { opacity: 1; }
     font-size: 14px;
     cursor: pointer;
 }
+
 /* Tous les boutons bleus */
-.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue {
+.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue {
     background-color: #2b426e;
 }
 /* Tous les boutons verts */
-.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green {
+.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green {
     background-color: #489f4d;
 }
 /* Tous les boutons rouges */
-.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red {
+.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red {
     background-color: #d9534f;
+}
+/* Tous les boutons jaunes */
+.btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow {
+    background-color: #eb984e;
 }
 /* Boutons taille large */
 .button-large, .btn-large-blue, .btn-large-green, .btn-large-red {
@@ -637,17 +644,17 @@ input:checked { opacity: 1; }
 }
 
 /* Tous les boutons bleus :hover */
-.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover {
+.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover, .btn-fit-blue:hover {
     transition-duration: 0.4s;
     background-color: #263859;
 }
 /* Tous les boutons verts :hover */
-.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover {
+.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover, .btn-fit-green:hover {
     transition-duration: 0.4s;
     background-color: #3e8e41;
 }
 /* Tous les boutons rouges :hover */
-.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover {
+.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover {
     transition-duration: 0.4s;
     background-color: #b14440;
 }

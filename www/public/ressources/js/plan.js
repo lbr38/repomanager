@@ -12,7 +12,7 @@ $(document).ready(function(){
  *  Rechargement de la div des planifications
  *  Recharge les menus select2 en même temps
  */
- function reloadPlanDiv(){
+function reloadPlanDiv(){
     $("#planDiv").load(" #planDiv > *",function(){
         $('#planReminderSelect, #planDayOfWeekSelect').select2({
             closeOnSelect: false,
@@ -160,7 +160,7 @@ $(document).on('submit','#newPlanForm',function(){
 /**
  *  Event : Suppression d'une planification
  */
- $(document).on('click','.deletePlanButton',function(){
+$(document).on('click','.deletePlanButton',function(){
     var planId = $(this).attr('plan-id');
     var planType = $(this).attr('plan-type');
 
@@ -177,7 +177,7 @@ $(document).on('submit','#newPlanForm',function(){
  * Ajax: Créer une nouvelle planification
  * @param {string} type 
  */
- function newPlan(type, day, date, time, frequency, planAction, repo, group, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess) {
+function newPlan(type, day, date, time, frequency, planAction, repo, group, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess) {
     $.ajax({
         type: "POST",
         url: "controllers/ajax.php",
@@ -218,7 +218,7 @@ $(document).on('submit','#newPlanForm',function(){
  * Ajax : Supprimer une planification
  * @param {string} id 
  */
- function deletePlan(id) {
+function deletePlan(id) {
     $.ajax({
         type: "POST",
         url: "controllers/ajax.php",
