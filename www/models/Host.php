@@ -1564,8 +1564,8 @@ class Host extends Model {
         $this->openHostDb($this->id);
 
         try {
-            $stmt = $this->host_db->prepare("SELECT Version FROM packages WHERE Name = :name");
-            $stmt->bindValue(':name', $packageName);
+            $stmt = $this->host_db->prepare("SELECT Version FROM packages WHERE Name LIKE :name");
+            $stmt->bindValue(':name', "${packageName}%");
             $result = $stmt->execute();
         } catch(Exception $e) {
             Common::dbError($e);

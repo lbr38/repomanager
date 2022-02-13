@@ -39,7 +39,9 @@ $plansQueued = $plan->listQueue();
  *  Si il y a des planifications dans le pool (status = 'queued') alors on traite
  */
 if(!empty($plansQueued)) {
-    $message_rappel = '';
+    $reminder_msg = '';
+    $planToExec = array();
+    $planToReminder = array();
 
     /**
      *  On traite chaque planification
@@ -60,18 +62,22 @@ if(!empty($plansQueued)) {
          *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($dateNow et $timeNow) alors on exécute la planification
          */
         if ($argv[1] == "exec-plans") {
-            if ($planType == "plan" AND  $planDate == $dateNow AND $planTime == $timeNow) {
+            if ($planType == "plan" AND $planDate == $dateNow AND $planTime == $timeNow) {
                 /**
                  *  On indique à $plan quel est l'id de la planification et on l'exécute
                  */
-                $plan->setId($planId);
-                $plan->exec();
+                // $plan->setId($planId);
+                // $plan->exec();
+
+                /**
+                 *  On place la planification dans l'array des planififcations à exécuter
+                 */
+                $planToExec[] = $planId;
             }
 
             /**
              *  Exécution
              *  Si il s'agit d'une planification récurrente (toutes les heures, tous les jours...) ($planType == 'regular')
-             *  
              */
             if ($planType == "regular") {
                 /**
@@ -82,8 +88,13 @@ if(!empty($plansQueued)) {
                     /**
                      *  On indique à $plan quel est l'id de la planification et on l'exécute
                      */
-                    $plan->setId($planId);
-                    $plan->exec();
+                    // $plan->setId($planId);
+                    // $plan->exec();
+
+                    /**
+                     *  On place la planification dans l'array des planififcations à exécuter
+                     */
+                    $planToExec[] = $planId;
                 }
 
                 /**
@@ -94,8 +105,13 @@ if(!empty($plansQueued)) {
                     /**
                      *  On indique à $plan quel est l'id de la planification et on l'exécute
                      */
-                    $plan->setId($planId);
-                    $plan->exec();
+                    // $plan->setId($planId);
+                    // $plan->exec();
+
+                    /**
+                     *  On place la planification dans l'array des planififcations à exécuter
+                     */
+                    $planToExec[] = $planId;
                 }
 
                 /**
@@ -116,8 +132,13 @@ if(!empty($plansQueued)) {
                             /**
                              *  On indique à $plan quel est l'id de la planification et on l'exécute
                              */
-                            $plan->setId($planId);
-                            $plan->exec();
+                            // $plan->setId($planId);
+                            // $plan->exec();
+
+                            /**
+                             *  On place la planification dans l'array des planififcations à exécuter
+                             */
+                            $planToExec[] = $planId;
                         }
                     }
                 }
@@ -141,21 +162,50 @@ if(!empty($plansQueued)) {
                     /**
                      *  On indique à $plan quel est l'id de la planification et on génère le message de rappel
                      */
-                    $plan->setId($planId);
-                    $msg = $plan->generateReminders();
-                    $message_rappel = "${message_rappel}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
+                    // $plan->setId($planId);
+                    // $msg = $plan->generateReminders();
+                    // $reminder_msg = "${reminder_msg}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
+
+                    /**
+                     *  On place la planification dans l'array des planifications à rappeler
+                     */
+                    $planToReminder[] = $planId;
                 }
             }
         }
     }
-    
+
     /**
-     *  2. Si il y a des rappels à envoyer, alors on envoi un mail
+     *  Si il y a des planifications à exécuter
      */
-    if (!empty($message_rappel)) {
-        include_once(ROOT."/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $message_rappel
-        $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur ".WWW_HOSTNAME, $template);
+    if (!empty($planToExec)) {
+        foreach($planToExec as $planId) {
+            /**
+             *  Exécution de la planification
+             */
+            $plan->setId($planId);
+            $plan->exec();
+        }
     }
+
+    /**
+     *  Si il y a des planifications à rappeler
+     */
+    if (!empty($planToReminder)) {
+        foreach ($planToReminder as $planId) {
+            /**
+             *  Génération du message de rappel
+             */
+            $plan->setId($planId);
+            $msg = $plan->generateReminders();
+            $reminder_msg = "${reminder_msg}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
+        }
+
+        if (!empty($reminder_msg)) {
+            include_once(ROOT."/templates/plan_reminder_mail.inc.php"); // inclu une variable $template contenant le corps du mail avec $reminder_msg
+            $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur ".WWW_HOSTNAME, $template);
+        }
+    }    
 }
 
 exit();

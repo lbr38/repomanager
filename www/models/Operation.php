@@ -63,6 +63,11 @@ class Operation extends Model {
         $this->repo = new Repo();
     }
 
+    public function setAction(string $action)
+    {
+        $this->action = Common::validateData($action);
+    }
+
     /**
      *  Lister les opérations en cours d'exécution en fonction du type souhaité (opérations manuelles ou planifiées)
      */

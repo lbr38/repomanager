@@ -189,8 +189,17 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
         }
         
         // enfin, on remplace le préfix dans le fichier de conf repomanager.conf
-        $repomanager_conf_array['CONFIGURATION']['REPO_CONF_FILES_PREFIX'] = "$newRepoFilesPrefix";
+        $repomanager_conf_array['CONFIGURATION']['REPO_CONF_FILES_PREFIX'] = $newRepoFilesPrefix;
     }
+
+    /**
+     *  Releasever (Redhat/CentOS)
+     */
+    if (!empty($_POST['releasever']) AND is_numeric($_POST['releasever'])) {
+        $repomanager_conf_array['CONFIGURATION']['RELEASEVER'] = $_POST['releasever'];
+        file_put_contents('/etc/yum/vars/releasever', $_POST['releasever']);
+    }
+
 
 /**
  *  Section GPG
@@ -533,11 +542,12 @@ if (!empty($_GET['deleteEnv'])) {
 /**
  *  Création d'un nouvel utilisateur
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'createUser' AND !empty($_POST['username'])) {
+if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'createUser' AND !empty($_POST['username']) AND !empty($_POST['role'])) {
     $username = Common::validateData($_POST['username']);
+    $role = Common::validateData($_POST['role']);
     $myuser = new Login();
 
-    $result = $myuser->addUser($username);
+    $result = $myuser->addUser($username, $role);
 
     /**
      *  Si la fonction a renvoyé false alors il y a eu une erreur lors de la création de l'utilisateur
@@ -629,7 +639,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 <?php
                 if (UPDATE_AVAILABLE == "yes") {
                     echo '<td class="td-fit">';
-                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Mettre à jour repomanager" value="↻">';
+                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Mettre à jour repomanager vers : '.GIT_VERSION.'" value="↻">';
                     echo '</td>';
                 }
                 if (empty(UPDATE_BRANCH)) { echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } 
@@ -686,30 +696,30 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 </td>
             </tr>
             <?php
-            if (OS_FAMILY == "Redhat") {
-                echo '<tr>';
-                echo "<td class=\"td-large\"><img src=\"ressources/icons/info.png\" class=\"icon-verylowopacity\" title=\"Ce serveur créera des miroirs de repos pour CentOS ".RELEASEVER." uniquement\" />Version de paquets gérée</td>";
-                echo '<td><input type="number" name="releasever" autocomplete="off" value="'.RELEASEVER.'"></td>';
-                echo '<td class="td-fit">';
-                if (!file_exists('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'existe pas" />';
-                if (!is_readable('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas accessible pour '.WWW_USER.'" />';
-                if (!is_writable('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas modifiable pour '.WWW_USER.'" />';
-                if (empty(RELEASEVER)) echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                echo '</td>';
-                echo '</tr>';
-            }
-            echo '<tr>';
-            echo '<td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d\'un miroir de repo" />Signer les paquets avec GPG</td>';    
-            echo '<td>';
-            echo '<label class="onoff-switch-label">';
-            echo '<input name="gpgSignPackages" type="checkbox" class="onoff-switch-input" value="yes"'; if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } echo ' />';
-            echo '<span class="onoff-switch-slider"></span>';
-            echo '</label>';
-            echo '</td>';
-            echo '<td class="td-fit">';
-            if (empty(GPG_SIGN_PACKAGES)) { echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; }
-            echo '</td>';
-
+            if (OS_FAMILY == "Redhat") { ?>
+                <tr>
+                    <td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Ce serveur créera des miroirs de repos pour CentOS <?php echo RELEASEVER;?>. Attention cette valeur est globale à yum et peut impacter les mises à jour du serveur <?= WWW_HOSTNAME ?> si elle est modifiée." />Version de paquets gérée</td>
+                    <td><input type="number" name="releasever" autocomplete="off" value="<?php echo RELEASEVER;?>"></td>
+                    <td class="td-fit">
+                        <?php if (!file_exists('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'existe pas" />';?>
+                        <?php if (!is_readable('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas accessible pour '.WWW_USER.'" />';?>
+                        <?php if (!is_writable('/etc/yum/vars/releasever')) echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas modifiable pour '.WWW_USER.'" />';?>
+                        <?php if (empty(RELEASEVER)) echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';?>
+                    </td>
+                </tr>
+    <?php   } ?>
+        <tr>
+            <td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d'un miroir de repo" />Signer les paquets avec GPG</td>    
+            <td>
+                <label class="onoff-switch-label">
+                <input name="gpgSignPackages" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") echo 'checked';?>  />
+                <span class="onoff-switch-slider"></span>
+                </label>
+            </td>
+            <td class="td-fit">
+                <?php if (empty(GPG_SIGN_PACKAGES)) echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';?>
+            </td>
+        <?php
             if (GPG_SIGN_PACKAGES == "yes") {
                 echo '<tr>';
                 if (OS_FAMILY == "Redhat") {
@@ -1068,7 +1078,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     </td>
                     <td>
                         <label class="onoff-switch-label">
-                            <input name="cronDailyEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php if (CRON_DAILY_ENABLED == "yes") { echo 'checked'; } ?> />
+                            <input name="cronDailyEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php if (CRON_DAILY_ENABLED == "yes") echo 'checked'; ?> />
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </td>
@@ -1238,6 +1248,11 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
 
                     <p>Créer un utilisateur :</p>
                     <input class="input-medium" type="text" name="username" placeholder="Nom d'utilisateur" />
+                    <select name="role" class="select-medium">
+                        <option value="">Sélectionner role...</option>
+                        <option value="usage">usage</option>
+                        <option value="administrator">administrateur</option>
+                    </select>
                     <button class="btn-xxsmall-blue">+</button>
                 </form>
                 <?php

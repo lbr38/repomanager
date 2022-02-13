@@ -32,6 +32,11 @@ class Group extends Model {
         $this->id = Common::validateData($id);
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
 
     /**
      *  CREER UN GROUPE

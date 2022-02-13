@@ -474,6 +474,7 @@ class Planification extends Model {
          */
         } catch(Exception $e) {
             $this->close(1, $e->getMessage());
+            return;
         }
 
 
@@ -511,6 +512,7 @@ class Planification extends Model {
                      *  Puis on quitte la planification en erreur
                      */
                     $this->close(2, 'Une erreur est survenue pendant la mise à jour du repo, voir les logs', $processedRepos);
+                    return;
 
                 } else {
                     /**
@@ -542,6 +544,7 @@ class Planification extends Model {
                     if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => "{$this->op->repo->name} ({$this->op->repo->dist}) {$this->op->repo->section}", 'Status' => 'error');
 
                     $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)', $processedRepos); // On sort avec 1 car on considère que c'est une erreur de type vérification
+                    return;
                 }
 
                 /**
@@ -587,7 +590,10 @@ class Planification extends Model {
                 /**
                  *  Puis on quitte la planification en erreur
                  */
-                if ($this->op->status == 'error') $this->close(2, "Erreur : ".$e->getMessage(), $processedRepos);
+                if ($this->op->status == 'error') {
+                    $this->close(2, "Erreur : ".$e->getMessage(), $processedRepos);
+                    return;
+                }
             }
         }
 
@@ -650,23 +656,6 @@ class Planification extends Model {
                 if (strpos($this->op->action, '->') !== false) {
                     $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
                     $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
-                    /*try {
-                        $this->op->repo->env = exec("echo '{$this->op->action}' | awk -F '->' '{print $1}'");
-                        $this->op->repo->newEnv = exec("echo '{$this->op->action}' | awk -F '->' '{print $2}'");
-                        if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
-                            /**
-                             *  On emet une exception si au moins 1 environnement n'est pas défini
-                             */
-                /*            if (empty($this->op->repo->env) OR empty($this->op->repo->newEnv)) {
-                                throw new Exception('Erreur (EP04) : Environnement(s) non défini(s)');
-                            }
-                        }
-                    } catch(Exception $e) {
-                        /**
-                         *  L'erreur est suffisamment importante pour quitter toute la planification (un ou plusieurs environnements ne sont pas définis alors on ne peut pas continuer)
-                         */
-                /*        $this->close(2, $e->getMessage());
-                    }*/
         
                     $this->log->title = 'NOUVEL ENVIRONNEMENT';
 
@@ -709,13 +698,17 @@ class Planification extends Model {
             /**
              *  Si on a rencontré des erreurs dans la boucle, alors on quitte le script
              */
-            if ($plan_error > 0) $this->close(2, 'Une erreur est survenue pendant le traitement de ce groupe, voir les logs', $processedRepos);
+            if ($plan_error > 0) {
+                $this->close(2, 'Une erreur est survenue pendant le traitement de ce groupe, voir les logs', $processedRepos);
+                return;
+            }
         }
 
         /**
          *  Si on est arrivé jusqu'ici alors on peut quitter sans erreur
          */
         $this->close(0, '', $processedRepos);
+        return;
     }
 
     /**
@@ -968,7 +961,7 @@ class Planification extends Model {
         /**
          *  Génération du fichier de log final à partir d'un template, le contenu précédemment récupéré est alors inclu dans le template
          */
-        include_once(ROOT."/templates/planification_log.inc.php");
+        include(ROOT."/templates/planification_log.inc.php");
         $this->log->write($logContent);
         $this->log->close();
 
@@ -1082,8 +1075,6 @@ class Planification extends Model {
                 $this->sendMail($plan_title, $template);
             }
         }
-
-        exit();
     }
 
 /**
@@ -1111,26 +1102,31 @@ public function sendMail($title, $template) {
  *  VERIFICATIONS
  *  Code d'erreurs : CP "Check Planification"
  */
-    private function checkAction() {
+    private function checkAction()
+    {
         if (empty($this->op->action)) throw new Exception("Erreur (CP01) : Aucune action n'est spécifiée dans cette planification");
     }
 
-    private function checkAction_update_allowed() {
+    private function checkAction_update_allowed()
+    {
         /**
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
          */
         if (ALLOW_AUTOUPDATE_REPOS != "yes") throw new Exception("Erreur (CP02) : La mise à jour des miroirs par planification n'est pas autorisée. Vous pouvez modifier ce paramètre depuis l'onglet Configuration");
     }
 
-    private function checkAction_update_gpgCheck() {
+    private function checkAction_update_gpgCheck()
+    {
         if (empty($this->op->repo->gpgCheck)) throw new Exception("Erreur (CP03) : Vérification des signatures GPG non spécifié dans cette planification");
     }
 
-    private function checkAction_update_gpgResign() {
+    private function checkAction_update_gpgResign()
+    {
         if (empty($this->op->repo->gpgResign)) throw new Exception("Erreur (CP04) : Signature des paquets avec GPG non spécifié dans cette planification");
     }
 
-    private function checkAction_env_allowed() {
+    private function checkAction_env_allowed()
+    {
         /**
          *  Si le changement d'environnement n'est pas autorisé, on quitte
          */
@@ -1140,7 +1136,8 @@ public function sendMail($title, $template) {
     /**
      *  Vérification si on traite un repo seul ou un groupe
      */
-    private function checkIfRepoOrGroup() {
+    private function checkIfRepoOrGroup()
+    {
         if (empty($this->op->repo->name) AND empty($this->op->group->name)) throw new Exception("Erreur (CP06) : Aucun repo ou groupe spécifié");
     
         /**
@@ -1155,7 +1152,8 @@ public function sendMail($title, $template) {
     /**
      *  Vérification que le repo existe
      */
-    private function checkIfRepoExists() {
+    private function checkIfRepoExists()
+    {
         if (OS_FAMILY == "Redhat") {
             if ($this->op->repo->exists($this->op->repo->name) === false) throw new Exception("Erreur (CP08) : Le repo <b>{$this->op->repo->name}</b> n'existe pas");
         }
@@ -1177,7 +1175,8 @@ public function sendMail($title, $template) {
     /**
      *  Vérification que le groupe existe
      */
-    private function checkIfGroupExists() {
+    private function checkIfGroupExists()
+    {
         try {
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name=:name");
             $stmt->bindValue(':name', $this->op->group->name);
@@ -1194,7 +1193,8 @@ public function sendMail($title, $template) {
     /**
      *  Récupération de la liste des repo dans le groupe
      */
-    private function getGroupRepoList() {
+    private function getGroupRepoList()
+    {
         /**
          *  On récupère tous les repos du groupe
          */
@@ -1262,7 +1262,8 @@ public function sendMail($title, $template) {
     /**
     *  Liste les planifications terminées (tout status compris sauf canceled)
     */
-    public function listDone() {
+    public function listDone()
+    {
         $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'done' OR Status = 'error' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
         
         $plans = array();
@@ -1275,7 +1276,8 @@ public function sendMail($title, $template) {
     /**
      *  Liste la dernière planification exécutée
      */
-    public function listLast() {
+    public function listLast()
+    {
         $result = $this->db->queryArray("SELECT Date, Time FROM planifications WHERE Type = 'plan' AND (Status = 'done' OR Status = 'error') ORDER BY Date DESC, Time DESC LIMIT 1");
         return $result;
     }
@@ -1283,7 +1285,8 @@ public function sendMail($title, $template) {
     /**
      *  Liste la prochaine planification qui sera exécutée
      */
-    public function listNext() {
+    public function listNext()
+    {
         $result = $this->db->queryArray("SELECT Date, Time FROM planifications WHERE Type = 'plan' AND Status = 'queued' ORDER BY Date ASC, Time ASC LIMIT 1");
         return $result;
     }
@@ -1292,8 +1295,14 @@ public function sendMail($title, $template) {
     *   Récupère toutes les infos d'une planification
     *   Un objet Operation doit avoir été instancié pour récupérer les infos concernant le repo concerné par cette planification
     */
-    private function getInfo() {
-        if (empty($this->id)) throw new Exception("Erreur (EP02) Impossible de récupérer les informations de la planification car son ID est vide");
+    private function getInfo()
+    {
+        /**
+         *  Si l'Id de la planification n'est pas renseignée on quitte
+         */
+        if (empty($this->id)) {
+            throw new Exception("Erreur (EP02) Impossible de récupérer les informations de la planification car son ID est vide");
+        }
 
         try {
             $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
@@ -1313,23 +1322,28 @@ public function sendMail($title, $template) {
         /**
          *  Action
          */
-        $this->op->action = $datas['Action'];
+        //$this->op->action = $datas['Action'];
+        $this->op->setAction($datas['Action']);
 
         /**
          *  Id du repo ou du groupe
          */
-        if (!empty($datas['Id_repo']))  $this->op->repo->id  = $datas['Id_repo'];
-        if (!empty($datas['Id_group'])) $this->op->group->id = $datas['Id_group'];
+        // if (!empty($datas['Id_repo']))  $this->op->repo->id  = $datas['Id_repo'];
+        // if (!empty($datas['Id_group'])) $this->op->group->id = $datas['Id_group'];
+        if (!empty($datas['Id_repo']))  $this->op->repo->setId($datas['Id_repo']);
+        if (!empty($datas['Id_group'])) $this->op->group->setId($datas['Id_group']);
 
         /**
          *  On récupère les infos concernant le groupe à traiter (son nom)
          */
-        if (!empty($this->op->group->id)) $this->op->group->db_getName();
+        if (!empty($this->op->group->getId())) {
+            $this->op->group->db_getName();
+        }
 
         /**
          *  On récupère les infos concernant le repo à traiter (son nom, sa distribution...)
          */
-        if (!empty($this->op->repo->id)) {
+        if (!empty($this->op->repo->getId())) {
             $this->op->repo->db_getAllById();
         }
 
