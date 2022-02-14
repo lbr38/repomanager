@@ -399,6 +399,8 @@ table {
 /* Concerne toutes les classes commencant par table-generic- */
 [class^="table-generic"] {
     border-spacing: 0 4px;
+    table-layout: auto !important;
+    white-space: nowrap;
 }
 [class^="table-generic"] tr td {
     padding-bottom: 9px;
@@ -413,6 +415,10 @@ table {
 [class^="table-generic"] tr td:last-child {
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
+}
+[class^="table-generic"] thead tr {
+    background: none !important;
+    font-weight: bold;
 }
 .table-generic-blue tr { background-color: #2b426e; }
 .table-generic-red tr  { background-color: #d9534f; }
@@ -477,13 +483,13 @@ td {
     width: 0px;
     margin: 0px;
 }
-.td-10 { padding-right: 10px; }
-.td-30 { padding-right: 30px; }
-.td-50 { padding-right: 50px; }
-.td-100 { padding-right: 100px; }
+.td-10 { padding-right: 10px !important; }
+.td-30 { padding-right: 30px !important; }
+.td-50 { padding-right: 50px !important; }
+.td-100 { padding-right: 100px !important; }
 .td-desc {
     margin: 0px;
-    padding-right: 30px;
+    padding-right: 30px !important;
     white-space: normal;
 }
 
@@ -595,8 +601,8 @@ input:checked { opacity: 1; }
     border: none;
     border-radius: 2px;
     margin-top: 10px;
-    margin-left: 2px;
-    margin-right: 2px;
+    /* margin-left: 2px;
+    margin-right: 2px; */
     color: whitesmoke;
     text-align: center;
     text-decoration: none;

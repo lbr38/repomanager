@@ -119,7 +119,7 @@ class Login extends Model {
     public function getUsers()
     {
         try {
-            $result = $this->db->query("SELECT users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
+            $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch(Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
@@ -134,15 +134,24 @@ class Login extends Model {
     /**
      *  Ajoute un nouvel utilisateur en base de données
      */
-    public function addUser(string $username)
+    public function addUser(string $username, string $role)
     {
         $username = Common::validateData($username);
+        $role = Common::validateData($role);
 
         /**
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
         if (Common::is_alphanumdash($username) === false) {
             Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
+            return false;
+        }
+
+        /**
+         *  On vérifie que le role est valide
+         */
+        if ($role != "usage" AND $role != "administrator") {
+            Common::printAlert("Le role sélectionné est invalide", 'error');
             return false;
         }
 
@@ -177,13 +186,24 @@ class Login extends Model {
         }
 
         /**
+         *  Conversion du role
+         */
+        if ($role == "administrator") {
+            $role = 2;
+        }
+        if ($role == "usage") {
+            $role = 3;
+        }
+
+        /**
          *  Insertion de l'username, du mdp hashé et son salt en base de données
          */
         try {
-            $stmt = $this->db->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES (:username, :password, :first_name, '3', 'active', 'local')");
+            $stmt = $this->db->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES (:username, :password, :first_name, :role, 'active', 'local')");
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $password_hashed);
             $stmt->bindValue(':first_name', $username);
+            $stmt->bindValue(':role', $role);
             $stmt->execute();
         } catch(Exception $e) {
             Common::dbError($e);
@@ -460,9 +480,11 @@ class Login extends Model {
 
         /**
          *  Suppression de l'utilisateur en base de données
+         *  On conserve l'utilisateur pour des raisons d'historique mais on passe son status en 'deleted' et devient alors inutilisable
+         *  On vide le Password de l'utilisateur pour ne plus le stocker en base
          */
         try {
-            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted' WHERE Username = :username AND Type = 'local'");
+            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Username = :username AND Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch(Exception $e) {

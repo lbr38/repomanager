@@ -174,10 +174,13 @@ class Repo extends Model {
         $this->signed = Common::validateData($gpgResign);
     }
 
-    /**
-     *  Retourne le nom du repo
-     */
-    public function getName() {
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getName()
+    {
         return $this->name;
     }
 

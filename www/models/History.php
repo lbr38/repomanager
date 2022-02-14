@@ -1,6 +1,71 @@
 <?php
+/**
+ *  Historique des actions effectuées par les utilisateurs
+ */
 
 class History {
+
+    /**
+     *  Récupérer l'historique complet
+     */
+    static function getAll()
+    {
+        /**
+         *  Ouverture d'une connexion à la base de données
+         *  pas d'objet ici car il s'agit d'une classe static
+         */
+        $db = new Connection('main');
+
+        try {
+            $result = $db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
+
+        } catch(Exception $e) {
+            Common::dbError($e);
+            return;
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
+
+        return $datas;
+    }
+
+    /**
+     *  Récupérer l'hsitorique complet d'un utilisateur
+     */
+    static function getByUser(string $userId)
+    {
+        $userId = Common::validateData($userId);
+
+        /**
+         *  On vérifie que l'Id est valide
+         */
+        if (!is_numeric($userId)) {
+            printAlert("L'Id de l'utilisateur est invalide", 'error');
+            return;
+        }
+
+        /**
+         *  Ouverture d'une connexion à la base de données
+         *  pas d'objet ici car il s'agit d'une classe static
+         */
+        $db = new Connection('main');
+
+        try {
+            $stmt = $db->prepare("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id WHERE history.Id_user = :userid ORDER BY Date DESC, Time DESC");
+            $stmt->bindValue(':userid', $userId);
+            $result = $stmt->execute();
+
+        } catch(Exception $e) {
+            Common::dbError($e);
+            return;
+        }
+
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
+
+        return $datas;
+    }
 
     static function set(string $username, string $action, string $state = null)
     {
@@ -31,6 +96,7 @@ class History {
 
         } catch(Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
+            return;
         }
 
         try {
@@ -43,6 +109,7 @@ class History {
             $stmt->execute();
         } catch(Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
+            return;
         }
     }
 }

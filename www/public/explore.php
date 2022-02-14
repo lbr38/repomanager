@@ -298,7 +298,10 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
 
             <br>
 
-            <div id="explorer">
+            <span id="loading">Génération de l'arborescence<img src="ressources/images/loading.gif" class="icon" /></span>
+
+            <div id="explorer" class="hide">
+
                 <?php
                 /**
                  *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
