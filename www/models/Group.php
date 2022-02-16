@@ -37,6 +37,11 @@ class Group extends Model {
         return $this->id;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
 
     /**
      *  CREER UN GROUPE
@@ -241,11 +246,11 @@ class Group extends Model {
             unset($stmt);
         }
 
+        $reposIn = array();
+        
         while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) $reposIn[] = $datas;
 
-        if (!empty($reposIn)) {
-            return $reposIn;
-        }
+        return $reposIn;
     }
 
     /**
@@ -526,6 +531,22 @@ class Group extends Model {
     }
 
     /**
+     *  Ajouter un repo à un groupe par Id
+     */
+    public function addRepoById(string $repoId, string $groupId)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:id_repo, :id_group)");
+            $stmt->bindValue(':id_repo', $repoId);
+            $stmt->bindValue(':id_group', $groupId);
+            $stmt->execute();
+
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+    }
+
+    /**
      *  LISTER TOUS LES SERVEURS D'UN GROUPE
      */
     public function listHosts() {
@@ -719,21 +740,50 @@ class Group extends Model {
     /**
      *  Supprime dans les groupes les repos/sections qui n'existent plus
      */
-    public function cleanRepos() {
+    public function cleanRepos()
+    {
         $this->db->exec("DELETE FROM group_members WHERE Id_repo NOT IN (SELECT Id FROM repos)");
     }
 
     /**
      *  Supprime dans les groupes les hotes qui n'existent plus
      */
-    public function cleanServers() {
+    public function cleanServers()
+    {
         $this->db->exec("DELETE FROM group_members WHERE Id_host NOT IN (SELECT Id FROM hosts)");
     }
 
     /**
-     *  Recupère le nom du groupe à partir de son ID en BDD
+     *  Récupère l'Id du groupe à partir de son nom en BDD
      */
-    public function db_getName() {
+    public function db_getId(string $name)
+    {
+        $name = Common::validateData($name);
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        /**
+         *  Si le groupe spécifié n'existe pas
+         */
+        if ($this->db->isempty($result)) {
+            throw new Exception("Le groupe $name n'existe pas");
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $this->setId($row['Id']);
+    }
+
+    /**
+     *  Recupère le nom du groupe à partir de son Id en BDD
+     */
+    public function db_getName()
+    {
         try {
             $stmt = $this->db->prepare("SELECT Name from groups WHERE Id=:id");
             $stmt->bindValue(':id', $this->id);

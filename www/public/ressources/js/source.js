@@ -18,7 +18,7 @@ function reloadSourcesDiv(){
 /**
  *  Event : masquage du div permettant de gérer les sources
  */
-$(document).on('click','#ReposSourcesCloseButton',function(){
+$(document).on('click','#reposSourcesDivCloseButton',function(){
     $("#sourcesDiv").slideToggle();
 });
 

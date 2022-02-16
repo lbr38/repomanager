@@ -63,14 +63,9 @@ if(!empty($plansQueued)) {
          */
         if ($argv[1] == "exec-plans") {
             if ($planType == "plan" AND $planDate == $dateNow AND $planTime == $timeNow) {
-                /**
-                 *  On indique à $plan quel est l'id de la planification et on l'exécute
-                 */
-                // $plan->setId($planId);
-                // $plan->exec();
 
                 /**
-                 *  On place la planification dans l'array des planififcations à exécuter
+                 *  On place l'Id de la planification dans l'array des planifications à exécuter
                  */
                 $planToExec[] = $planId;
             }
@@ -85,14 +80,9 @@ if(!empty($plansQueued)) {
                  *  Dans ce cas on exécute la tâche au tout début de l'heure en cours (xx:00 minutes)
                  */
                 if ($planFrequency == "every-hour" AND $minutesNow == "00") {
-                    /**
-                     *  On indique à $plan quel est l'id de la planification et on l'exécute
-                     */
-                    // $plan->setId($planId);
-                    // $plan->exec();
 
                     /**
-                     *  On place la planification dans l'array des planififcations à exécuter
+                     *  On place l'Id de la planification dans l'array des planifications à exécuter
                      */
                     $planToExec[] = $planId;
                 }
@@ -102,14 +92,9 @@ if(!empty($plansQueued)) {
                  *  Dans ce cas l'utilisateur a également précisé l'heure à laquelle il faut que la planification soit exécutée chaque jour.
                  */
                 if ($planFrequency == "every-day" AND $timeNow == $planTime) {
-                    /**
-                     *  On indique à $plan quel est l'id de la planification et on l'exécute
-                     */
-                    // $plan->setId($planId);
-                    // $plan->exec();
 
                     /**
-                     *  On place la planification dans l'array des planififcations à exécuter
+                     *  On place l'Id de la planification dans l'array des planifications à exécuter
                      */
                     $planToExec[] = $planId;
                 }
@@ -129,14 +114,9 @@ if(!empty($plansQueued)) {
                          *  Si le jour et l'heure correspond alors on exécute la planif
                          */
                         if (($dayOfWeek == $dayNow) AND ($planTime == $timeNow)) {
-                            /**
-                             *  On indique à $plan quel est l'id de la planification et on l'exécute
-                             */
-                            // $plan->setId($planId);
-                            // $plan->exec();
 
                             /**
-                             *  On place la planification dans l'array des planififcations à exécuter
+                             *  On place la planification dans l'array des planifications à exécuter
                              */
                             $planToExec[] = $planId;
                         }
@@ -159,15 +139,9 @@ if(!empty($plansQueued)) {
                 $reminderDate = date_create($planDate)->modify("-${reminder} days")->format('Y-m-d');
 
                 if ($reminderDate == $dateNow) {
-                    /**
-                     *  On indique à $plan quel est l'id de la planification et on génère le message de rappel
-                     */
-                    // $plan->setId($planId);
-                    // $msg = $plan->generateReminders();
-                    // $reminder_msg = "${reminder_msg}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
 
                     /**
-                     *  On place la planification dans l'array des planifications à rappeler
+                     *  On place l'Id de la planification dans l'array des planifications à rappeler
                      */
                     $planToReminder[] = $planId;
                 }
@@ -198,7 +172,7 @@ if(!empty($plansQueued)) {
              */
             $plan->setId($planId);
             $msg = $plan->generateReminders();
-            $reminder_msg = "${reminder_msg}<span><b>Planification du $planDate à $planTime :</b></span><br><span>- $msg</span><br><hr>";
+            $reminder_msg = "${reminder_msg}<span><b>Planification du ".DateTime::createFromFormat('Y-m-d', $planDate)->format('d-m-Y')." à $planTime :</b></span><br><span>- $msg</span><br><hr>";
         }
 
         if (!empty($reminder_msg)) {

@@ -16,17 +16,14 @@ require_once('../common.php');
     <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionRight">
         <?php if (Common::isadmin()) { ?>
-            <!-- div cachée, affichée par le bouton "Gérer les groupes" -->
-            <!-- GERER LES GROUPES -->
-            <section class="right" id="groupsDiv">
-                <?php include_once('../includes/manage-groups.inc.php'); ?>
-            </section>
 
-            <!-- div cachée, affichée par le bouton "Gérer les repos sources" -->
+            <?php include_once('../includes/operation.inc.php'); ?> 
+
+            <!-- GERER LES GROUPES -->
+            <?php include_once('../includes/manage-groups.inc.php'); ?>
+
             <!-- GERER LES SOURCES -->
-            <section class="right" id="sourcesDiv">
-                <?php include_once('../includes/manage-sources.inc.php'); ?>
-            </section>
+            <?php include_once('../includes/manage-sources.inc.php'); ?>
         <?php } ?>
 
         <section id="planDiv" class="right">
@@ -129,7 +126,7 @@ require_once('../common.php');
                                         $group = new Group('repo');
                                         $group->setId($planGroupId);
                                         $group->db_getName();
-                                        $planGroup = $group->name;
+                                        $planGroup = $group->getName();
                                         echo "Groupe $planGroup";
                                     }
                                     /**
@@ -143,15 +140,15 @@ require_once('../common.php');
                                          *  Récupération de toutes les infos concernant le repo
                                          */
                                         $repo->db_getAllById();
-                                        $planName = $repo->name;
+                                        $planName = $repo->getName();
                                         echo $planName;
 
                                         /**
                                          *  Dans le cas de Debian, on affiche également la distribution et la section
                                          */
                                         if (OS_FAMILY == "Debian") {
-                                            $planDist = $repo->dist;
-                                            $planSection = $repo->section;
+                                            $planDist = $repo->getDist();
+                                            $planSection = $repo->getSection();
                                             echo " - $planDist";
                                             echo " - $planSection";
                                         }
@@ -585,17 +582,18 @@ require_once('../common.php');
                                 unset($group);
                             }
                             if (!empty($planRepoId)) {
-                                $repo = new Repo(array('repoId' => $planRepoId));
+                                $repo = new Repo();
+                                $repo->setId($planRepoId);
                                 $repo->db_getAllById();     // Récupération de toutes les infos concernant le repo
-                                $planName = $repo->name;
+                                $planName = $repo->getName();
                                 echo $planName;
 
                                 /**
                                  *  Dans le cas de Debian, on affiche également la distribution et la section
                                  */
                                 if (OS_FAMILY == "Debian") {
-                                    $planDist = $repo->dist;
-                                    $planSection = $repo->section;
+                                    $planDist = $repo->getDist();
+                                    $planSection = $repo->getSection();
                                     echo " - $planDist";
                                     echo " - $planSection";
                                 }
@@ -688,11 +686,11 @@ require_once('../common.php');
     <!-- section 'conteneur' principal englobant toutes les sections de gauche -->
     <!-- On charge la section de gauche après celle de droite car elle peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionLeft">
-        <section class="left">
+        <section class="left reposList">
             <!-- REPOS ACTIFS -->
             <?php include_once('../includes/repos-list-container.inc.php'); ?>
         </section>
-        <section class="left">
+        <section class="left reposList">
             <!-- REPOS ARCHIVÉS-->
             <?php include_once('../includes/repos-archive-list-container.inc.php'); ?>
         </section>

@@ -74,7 +74,7 @@ function printFile($file, $path) {
  */
 function printSubDir($dir, $path) {
     if ($dir == "my_uploaded_packages") { // Si le nom du répertoire est 'my_uploaded_packages' alors on l'affiche en jaune
-        echo "<li><span class=\"explorer-toggle\"><img src=\"ressources/icons/folder.png\" class=\"icon\" /> <span class=\"yellowtext\">$dir</span></span>";
+        echo "<li><span class=\"explorer-toggle yellowtext\"><img src=\"ressources/icons/folder.png\" class=\"icon\" />$dir</span>";
     } else {
         echo "<li><span class=\"explorer-toggle\"><img src=\"ressources/icons/folder.png\" class=\"icon\" />$dir</span>";
     }

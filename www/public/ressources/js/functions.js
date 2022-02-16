@@ -1,11 +1,18 @@
 /**
+ *  Rechargement régulier du bandeau de navigation
+ */
+setInterval(function(){
+    reloadHeader();
+}, 5000);
+
+/**
  *  Events listeners
  */
 
 /** 
  *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
  */
-$(document).on('click','#ReposListDisplayToggleButton, #DisplayCloseButton',function(){
+$(document).on('click','#ReposListDisplayToggleButton, #displayCloseButton',function(){
     $("#divReposListDisplay").slideToggle('slow');
 });
 
@@ -14,6 +21,13 @@ $(document).on('click','#ReposListDisplayToggleButton, #DisplayCloseButton',func
  *  Fonctions utiles
  * 
  */
+
+/**
+ *  Rechargement du bandeau de navigation
+ */
+function reloadHeader() {
+    $("#header-refresh-container").load("run.php?reload #header-refresh-container > *");
+}
 
 /**
  * Afficher un message d'alerte (success ou error)

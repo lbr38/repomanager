@@ -11,8 +11,8 @@
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
             if ((__ACTUAL_URI__ == "/index.php") OR (__ACTUAL_URI__ == "/")) {
-                if (OS_FAMILY == "Redhat") echo '<span id="newRepoToggleButton" class="pointer">Créer un nouveau repo<img class="icon" src="ressources/icons/plus.png" title="Créer un nouveau repo" /></span>';
-                if (OS_FAMILY == "Debian") echo '<span id="newRepoToggleButton" class="pointer">Créer une nouvelle section<img class="icon" src="ressources/icons/plus.png" title="Créer une nouvelle section" /></span>';
+                if (OS_FAMILY == "Redhat") echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer un nouveau repo<img class="icon" src="ressources/icons/plus.png" title="Créer un nouveau repo" /></span>';
+                if (OS_FAMILY == "Debian") echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer une nouvelle section<img class="icon" src="ressources/icons/plus.png" title="Créer une nouvelle section" /></span>';
             }
         ?>
     </div>
@@ -22,7 +22,7 @@
 <?php if (Common::isadmin()) { ?>
     <!-- div cachée, affichée par le bouton "Affichage" -->
     <div id="divReposListDisplay" class="divReposListDisplay">
-        <img id="DisplayCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /> 
+        <img id="displayCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" /> 
         <form action="<?php echo __ACTUAL_URI__; ?>" method="post">
             <input type="hidden" name="action" value="configureDisplay" />
             <p><b>Informations</b></p>
@@ -51,32 +51,6 @@
             </label>
             <span> Afficher la signature du repo</span><br>
 
-            <p><b>Filtrage</b></p>
-
-            <!-- filtrer ou non par groupe -->
-            <label class="onoff-switch-label">
-                <input type="hidden" name="filterByGroups" value="off" />
-                <input class="onoff-switch-input" type="checkbox" name="filterByGroups" value="on" <?php if (FILTER_BY_GROUPS == "yes") echo 'checked'; ?> />
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <span> Filtrer par groupes</span><br>
-
-            <!-- concatener ou non les noms de repo/section -->
-            <label class="onoff-switch-label">
-                <input type="hidden" name="concatenateReposName" value="off" />
-                <input class="onoff-switch-input" type="checkbox" name="concatenateReposName" value="on" <?php if (CONCATENATE_REPOS_NAME == "yes") echo 'checked'; ?> />
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <span> Vue simplifiée</span><br>
-
-            <!-- Afficher ou non une ligne séparatrice entre chaque nom de repo/section -->
-            <label class="onoff-switch-label">
-                <input type="hidden" name="dividingLine" value="off" />
-                <input class="onoff-switch-input" type="checkbox" name="dividingLine" value="on" <?php if (DIVIDING_LINE == "yes") echo 'checked'; ?> />
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <span> Ligne séparatrice</span><br>
-
             <p><b>Cache</b></p>
             <p>Utiliser <b>/dev/shm</b> pour mettre en ram la liste des repos (recommandé)</p>
             <!-- mettre en cache ou non la liste des repos -->
@@ -93,26 +67,30 @@
     </div>
 <?php } ?>
 
+<!-- Bouton permettant de masquer le contenu de tous les groupes -->
+<div class="relative">
+    <span id="hideActiveReposGroups" class="lowopacity pointer">Tout masquer <img src="ressources/icons/chevron-circle-down.png" class="icon" /></span>
+</div>
+
 <!-- LISTE DES REPOS ACTIFS -->
-<table class="list-repos">
-<?php 
-/**
- *  Génération de la page en html et stockage en ram
- */
-if (CACHE_REPOS_LIST == "yes") {
-     if (!file_exists(WWW_CACHE."/repomanager-repos-list.html")) {
-        touch(WWW_CACHE."/repomanager-repos-list.html");
-        ob_start();
-        include(__DIR__.'/repos-active-list.inc.php');
-        $content = ob_get_clean();
-        file_put_contents(WWW_CACHE."/repomanager-repos-list.html", $content);
-    }
+<div class="repos-list-container">
+    <?php
     /**
-     *  Enfin on affiche le fichier html généré
+     *  Génération de la page en html et stockage en ram
      */
-    include(WWW_CACHE."/repomanager-repos-list.html");
-} else {
-    include(__DIR__.'/repos-active-list.inc.php');
-}
-unset($repoGroups, $groupName, $repoGroupList, $rows, $row, $rowData, $repoFullInformations, $repoName, $repoDist, $repoSection, $repoEnv, $repoDate, $repoDescription, $repoSize, $repoLastName, $repoLastDist, $repoLastSection, $repoLastEnv); ?>
-</table>
+    if (CACHE_REPOS_LIST == "yes") {
+        if (!file_exists(WWW_CACHE."/repomanager-repos-list.html")) {
+            touch(WWW_CACHE."/repomanager-repos-list.html");
+            ob_start();
+            include(__DIR__.'/repos-active-list.inc.php');
+            $content = ob_get_clean();
+            file_put_contents(WWW_CACHE."/repomanager-repos-list.html", $content);
+        }
+        /**
+         *  Enfin on affiche le fichier html généré
+         */
+        include(WWW_CACHE."/repomanager-repos-list.html");
+    } else {
+        include(__DIR__.'/repos-active-list.inc.php');
+    } ?>
+</div>

@@ -600,6 +600,26 @@ class Source extends Model {
         }
     }
 
+    /**
+     *  Vérifie si le nom de source spécifié existe en base de données
+     */
+    public function exists(string $source)
+    {
+        $sourceName = Common::validateData($source);
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
+            $stmt->bindValue(':name', $sourceName);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result)) return false;
+
+        return true;
+    }
+
 /**
  *  LISTER TOUS LES REPOS SOURCES
  */

@@ -107,18 +107,18 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                      */ ?>
                     <div class="flex-div-15">
                         <p class="center">Propriétés</p>
-                        <div class="stats-round-counter">
+                        <div class="round-div">
                             <br><p class="lowopacity">Taille du repo</p><br>
-                            <span class="stats-info-container">
-                                <span class="stats-info-counter"><?php echo $repoSize;?></span>
-                            </span>
+                            <div class="round-div-container">
+                                <span><?php echo $repoSize;?></span>
+                            </div>
                         </div>
 
-                        <div class="stats-round-counter">
+                        <div class="round-div">
                             <br><p class="lowopacity">Nombre de paquets</p><br>
-                            <span class="stats-info-container">
-                                <span class="stats-info-counter"><?php echo $packagesCount;?></span>
-                            </span>
+                            <div class="round-div-container">
+                                <span><?php echo $packagesCount;?></span>
+                            </div>
                         </div>
                     </div>
 
@@ -156,10 +156,10 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 
                         <!-- Temps réel -->
                         <p class="center">Nombre d'accès au repo</p>
-                        <div class="stats-round-counter">
+                        <div class="round-div">
                             <br><p class="lowopacity">Temps réel</p><br>
-                            <span class="stats-info-container pointer">
-                                <span class="stats-info-counter"><?php echo $realTimeAccessCount;?></span>
+                            <div class="round-div-container pointer">
+                                <span><?php echo $realTimeAccessCount;?></span>
                                 <?php if (!empty($realTimeAccess)) {
                                     echo '<span class="stats-info-requests">';
                                         foreach ($realTimeAccess as $line) {
@@ -178,14 +178,14 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         }
                                     echo '</span>';
                                 } ?>
-                            </span>
+                            </div>
                         </div>
 
                         <!-- 5 dernières minutes -->
-                        <div class="stats-round-counter">
+                        <div class="round-div">
                             <br><p class="lowopacity" title="5 dernières minutes">Dernières minutes</p><br>
-                            <span class="stats-info-container">
-                                <span class="stats-info-counter pointer"><?php echo $lastMinutesAccessCount;?></span>
+                            <div class="round-div-container">
+                                <span class="pointer"><?php echo $lastMinutesAccessCount;?></span>
                                 <?php if (!empty($lastMinutesAccess)) {
                                     echo '<span class="stats-info-requests">';
                                         foreach ($lastMinutesAccess as $line) {
@@ -204,7 +204,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         }
                                     echo '</span>';
                                 } ?>
-                            </span>
+                            </div>
                         </div>
                     </div>
 
