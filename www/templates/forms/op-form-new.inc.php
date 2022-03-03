@@ -1,5 +1,5 @@
 <section id="newRepoDiv" class="right">
-    <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+    <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
     <?php
     /**
      *  Récupération de la liste de tous les groupes

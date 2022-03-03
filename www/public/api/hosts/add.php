@@ -15,8 +15,8 @@ Autoloader::loadFromApi();
  *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
-    http_response_code(503);
-    echo json_encode(["return" => "503", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
     exit;
 }
 
@@ -54,20 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if ($register == "2") {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "Impossible de déterminer l'adresse IP de l'hôte."]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message" => "Impossible de déterminer l'adresse IP de l'hôte."]);
             exit;
         }
 
         if ($register == "3") {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "Cet hôte est déjà enregistré."]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message" => "Cet hôte est déjà enregistré."]);
             exit;
         }
 
         if ($register == "5") {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "Le serveur n'a pas pu finaliser l'enregistrement."]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message" => "Le serveur n'a pas pu finaliser l'enregistrement."]);
             exit;
         }
 

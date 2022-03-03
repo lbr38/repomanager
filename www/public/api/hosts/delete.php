@@ -13,8 +13,8 @@ Autoloader::loadFromApi();
  *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
-    http_response_code(503);
-    echo json_encode(["return" => "503", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
     exit;
 }
 
@@ -39,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
          *  D'abord on vérifie que l'ID et le token transmis sont valides
          */
         if (!$myhost->checkIdToken()) {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "L'authentification a échouée."]);
+            $message_error[] = "Hôte inconnu.";
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message" => $message_error]);
             exit;
         }
 
@@ -56,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         }
 
         if ($unregister == "2") {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message" => "L'authentification a échouée."]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message" => "L'authentification a échouée."]);
             exit;
         }
 

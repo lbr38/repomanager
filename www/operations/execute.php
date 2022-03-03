@@ -99,7 +99,7 @@ foreach ($operation_params as $operation) {
                 throw new Exception("Operation 'new' - Erreur : le paramètre Section n'est pas défini");
                 continue;
             }
-            $dist = $operation['section'];
+            $section = $operation['section'];
         }
 
         /**
@@ -165,12 +165,12 @@ foreach ($operation_params as $operation) {
          */
         $op->repo = new Repo();
         $op->repo->setType($type);
-        $op->repo->setName($operation['alias']);
+        $op->repo->setName($alias);
         $op->repo->setTargetGroup($targetGroup);
         $op->repo->setTargetDescription($targetDescription);
         if (OS_FAMILY == 'Debian') {
-            $op->repo->setDist($operation['dist']);
-            $op->repo->setSection($operation['section']);
+            $op->repo->setDist($dist);
+            $op->repo->setSection($section);
         }
         if ($type === 'mirror') {
             $op->repo->setSource($source);

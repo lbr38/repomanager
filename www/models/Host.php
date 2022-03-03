@@ -665,7 +665,7 @@ class Host extends Model {
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
          */
-        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update') {
+        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update' AND $type != 'full-history-update') {
             return false;
         }
 
@@ -1133,7 +1133,8 @@ class Host extends Model {
          *  D'abord on vérifie qu'un hôte avec l'id et le token correspondant existe bien
          */
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token");
+            //$stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token");
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token AND Status = 'active'");
             $stmt->bindValue(':hostId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $result = $stmt->execute();
@@ -1144,7 +1145,9 @@ class Host extends Model {
         /**
          *  Si l'ID et le token ne correspondent à aucune ligne en BDD alors on quitte
          */
-        if ($this->db->isempty($result)) return false;
+        if ($this->db->isempty($result)) {
+            return false;
+        }
 
         return true;
     }

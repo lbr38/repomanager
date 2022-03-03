@@ -8,23 +8,29 @@
  *  Le titre de la planification (à ne pas confondre avec le titre de la/les opérations lancées par la planification même si c'est le même en soit)
  */
 
-$logContent = "
+$logContent = '
 <h3>PLANIFICATION</h3>
 
-<table class=\"op-table\">
+<table class="op-table">
     <tr>
         <th>EXECUTÉE LE</td>
-        <td><b>".DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y')."</b> à <b>".DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s')."</b></td>
+        <td><b>'.DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y').'</b> à <b>'.DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s').'</b></td>
     </tr>
     <tr>
         <th>PID</td>
-        <td><b>{$this->log->pid}</b></td>
+        <td>'.$this->log->pid.'</td>
+    </tr>'.
+    ((!empty($this->mailRecipient)) ? 
+    '<tr>
+        <th>CONTACT</th>
+        <td>'.$this->getMailRecipientFormatted().'</td>
     </tr>
-</table>
+    ' : '').
+'</table>
 
 <br>
 <hr>
 <br>
 
-$content";
+'.$content;
 ?>

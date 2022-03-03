@@ -325,7 +325,7 @@ section.missing-param-alert {
     margin-bottom: 30px;
 }
 
-#newRepoDiv, #groupsDiv, #sourcesDiv {
+#newRepoDiv, #groupsDiv, #sourcesDiv, #displayDiv {
     width: 98%;
     padding: 10px;
     display: none;
@@ -384,12 +384,7 @@ table {
 .table-generic-blue tr { background-color: #2b426e; }
 .table-generic-red tr  { background-color: #d9534f; }
 
-.repos-list-container {
-    width: 100%;
-    font-size: 14px;
-}
-
-.repos-list-group {
+.div-generic-gray {
     margin: 5px;
     padding: 15px;
     margin-bottom: 20px;
@@ -398,6 +393,11 @@ table {
     background-color: #333333;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+}
+
+.repos-list-container {
+    width: 100%;
+    font-size: 14px;
 }
 
 .repos-list-group-flex-div {
@@ -632,19 +632,36 @@ td {
     width: 100%;
     padding-top: 15px;
     padding-left: 30px;
-    padding-bottom: 30px;
     position: fixed; /* on positionne le div au centre de la page */
     bottom: 0;
     left: 0;
-    -webkit-box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
-    box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    background-color:#252525;
+    box-shadow: 0px 1px 1px 0px rgb(0 0 0 / 50%) inset, 0px 2px 2px 0px rgb(109 109 109 / 20%);
+    background-color: #252525;
+    z-index: 90;
     color: whitesmoke;
     vertical-align: middle;
 }
 .divReposConf-close {
     position: fixed;
     right: 8px;
+}
+#divReposConfCommands-container {
+    position: relative;
+    width: fit-content;
+}
+#divReposConfCommands-container img {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+#divReposConfCommands {
+    width: fit-content;
+    background-color: #222222;
+    border-radius: 4px;
+    border: 1px solid #1c1c1c;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding: 15px;
 }
 
 /* form, button, input, textarea */
@@ -1053,10 +1070,6 @@ footer p { color: gray; }
     padding: 15px;
 }
 
-#newRepoCloseButton, #groupsDivCloseButton, #reposSourcesDivCloseButton, #displayCloseButton, #operationsDivCloseButton { /* Boutons 'croix' permettant de fermer la div coulissante */
-    float: right;
-}
-
 #newRepoToggleButton:hover .hide {
     display: inline-block;
     padding-left: 8px;
@@ -1087,7 +1100,7 @@ footer p { color: gray; }
     table-layout: auto !important;
 }
 
-.planDetailsDiv {
+.detailsDiv {
     padding: 10px;
     background-color: #262525;
     border: 1px solid #1c1c1c;
@@ -1095,11 +1108,11 @@ footer p { color: gray; }
     border-radius: 4px;
 }
 
-.planDetailsDiv div {
+#planDiv .detailsDiv div {
     display: table-row;
 }
 
-.planDetailsDiv div span {
+#planDiv .detailsDiv div span {
     display: table-cell;
     width: 60%;
     padding: 5px;
@@ -1243,7 +1256,7 @@ footer p { color: gray; }
     margin: auto;
 }
 
-.round-div, [class^="round-div-small"] {
+.round-div, [class^="round-div-medium"], [class^="round-div-small"] {
     width: 150px;
     height: 150px;
     margin: auto;
@@ -1256,14 +1269,18 @@ footer p { color: gray; }
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
     position: relative;
 }
-.round-div-small-red {
+.round-div-medium-red, .round-div-small-red {
     border: 8px solid #d9534f;;
+}
+[class^="round-div-medium"] {
+    width: 120px;
+    height: 120px;
 }
 [class^="round-div-small"] {
     width: 100px;
     height: 100px;
 }
-.round-div p, [class^="round-div-small"] p {
+.round-div p, [class^="round-div-medium"] p, [class^="round-div-small"] p {
     position: absolute;
     top: 15%;
     left: 50%;
@@ -1280,7 +1297,7 @@ footer p { color: gray; }
 .round-div-container span {
     font-size: 35px;
 }
-[class^="round-div-small"] .round-div-container span {
+[class^="round-div-medium"] .round-div-container span, [class^="round-div-small"] .round-div-container span {
     font-size: 24px;
 }
 .round-div-container:hover span.stats-info-requests {
@@ -1291,11 +1308,12 @@ footer p { color: gray; }
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     justify-content: space-between;
-    vertical-align: top;
+    align-items: center;
+    grid-gap: 20px;
 }
 .server-properties .round-div,
-.server-properties [class^="round-div-small"],
+.server-properties [class^="round-div-medium"],
 .server-properties svg {
-    margin-top: 40px !important;
-    margin-bottom: 40px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }

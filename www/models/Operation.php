@@ -816,13 +816,18 @@ class Operation extends Model {
              */
             if ($action == 'new') {
                 $this->chk_param_type($operation_params['type']);
-                $this->chk_param_name($operation_params['alias']);
                 if (OS_FAMILY == 'Debian') {
                     $this->chk_param_dist($operation_params['dist']);
                     $this->chk_param_section($operation_params['section']);
                 }
                 $this->chk_param_description($operation_params['targetDescription']);
                 $this->chk_param_group($operation_params['targetGroup']);
+                /**
+                 *  Si le type de repo sélectionné est 'local' alors on vérifie qu'un nom a été fourni (peut rester vide dans le cas d'un miroir)
+                 */
+                if ($operation_params['type'] == "local") {
+                    $this->chk_param_name($operation_params['alias']);
+                }
                 /**
                  *  Si le type de repo sélectionné est 'mirror' alors on vérifie des paramètres supplémentaires
                  */
