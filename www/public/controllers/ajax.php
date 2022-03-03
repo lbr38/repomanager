@@ -573,7 +573,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La planification a été créé");
+            response(HTTP_OK, "La planification a été créée");
         }
 
         /**

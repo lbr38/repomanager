@@ -99,7 +99,7 @@ $(document).on('submit','.groupReposForm',function(){
 /**
  *  Event : Affichage / masquage du div permettant de gérer les groupes
  */
-$(document).on('click','#GroupsListToggleButton, #GroupsListCloseButton',function(){
+$(document).on('click','#GroupsListToggleButton, #groupsDivCloseButton',function(){
     $("#groupsDiv").slideToggle();
 });
 

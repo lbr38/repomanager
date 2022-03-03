@@ -76,11 +76,11 @@ if (isset($_GET['auto'])) {
 
                 <div class="flex-div-15">
                     <p class="center">Propriétés</p>
-                    <div class="stats-round-counter">
+                    <div class="round-div">
                         <br><p class="lowopacity">Nombre d'hôtes</p><br>
-                        <span class="stats-info-container">
-                            <span class="stats-info-counter"><?php echo $totalHosts;?></span>
-                        </span>
+                        <div class="round-div-container">
+                            <span><?php echo $totalHosts;?></span>
+                        </div>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@ if (isset($_GET['auto'])) {
 
         <?php if (Common::isadmin()) { ?>
             <section id="groupsHostDiv" class="section-center hide">
-                <img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+                <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
                 <h3>GROUPES</h3>
                 <p><b>Créer un groupe :</b></p>
                 <form id="newGroupForm" autocomplete="off">

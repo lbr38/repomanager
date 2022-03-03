@@ -182,6 +182,8 @@ class Autoloader
         if (!defined('CRON_LOGS_DIR')) define('CRON_LOGS_DIR', LOGS_DIR.'/cron');
         if (!defined('CRON_LOG')) define('CRON_LOG', CRON_LOGS_DIR.'/cronjob-daily.log');
         if (!defined('CRON_STATS_LOG')) define('CRON_STATS_LOG', CRON_LOGS_DIR.'/cronjob-stats.log');
+        // Pool de taches asynchrones
+        if (!defined('POOL')) define('POOL', ROOT."/operations/pool");
 
         // PIDs
         if (!defined('PID_DIR')) define('PID_DIR', ROOT."/operations/pid");
@@ -216,9 +218,10 @@ class Autoloader
         if (!is_dir(MAIN_LOGS_DIR)) mkdir(MAIN_LOGS_DIR, 0770, true);
         if (!is_dir(CRON_LOGS_DIR)) mkdir(CRON_LOGS_DIR, 0770, true);
         if (!is_dir(CRON_DIR))      mkdir(CRON_DIR, 0770, true);
+        if (!is_dir(POOL))          mkdir(POOL, 0770, true);
         if (!is_dir(PID_DIR))       mkdir(PID_DIR, 0770, true);
         if (!is_dir(TEMP_DIR))      mkdir(TEMP_DIR, 0770, true);
-        if (!is_dir(HOSTS_DIR)) mkdir(HOSTS_DIR, 0770, true);
+        if (!is_dir(HOSTS_DIR))     mkdir(HOSTS_DIR, 0770, true);
         if (!file_exists(WWW_CACHE)) {
             // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
             if (file_exists("/dev/shm")) { 
@@ -850,18 +853,7 @@ class Autoloader
                 define('PRINT_REPO_SIZE', $display_ini_array['printRepoSize']);
                 define('PRINT_REPO_TYPE', $display_ini_array['printRepoType']);
                 define('PRINT_REPO_SIGNATURE', $display_ini_array['printRepoSignature']);
-                define('FILTER_BY_GROUPS', $display_ini_array['filterByGroups']);
-                define('CONCATENATE_REPOS_NAME', $display_ini_array['concatenateReposName']);
-                define('ALTERNATE_COLORS', $display_ini_array['alternateColors']);
-                if (!defined('ALTERNATIVE_COLOR1')) define('ALTERNATIVE_COLOR1', $display_ini_array['alternativeColor1']);
-                if (!defined('ALTERNATIVE_COLOR2')) define('ALTERNATIVE_COLOR2', $display_ini_array['alternativeColor2']);
-                define('DIVIDING_LINE', $display_ini_array['dividingLine']);
                 define('CACHE_REPOS_LIST', $display_ini_array['cache_repos_list']);
-
-                define('DISPLAY_SERVERINFO_REPOSINFO', $display_ini_array['display_serverInfo_reposInfo']);
-                define('DISPLAY_SERVERINFO_ROOTSPACE', $display_ini_array['display_serverInfo_rootSpace']);
-                define('DISPLAY_SERVERINFO_REPOSDIRSPACE', $display_ini_array['display_serverInfo_reposDirSpace']);
-                define('DISPLAY_SERVERINFO_PLANINFO', $display_ini_array['display_serverInfo_planInfo']);
 
                 unset($display_ini_array);
             }

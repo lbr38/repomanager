@@ -22,9 +22,9 @@ if (DEBUG_MODE == "enabled") {
         <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
         if (__ACTUAL_URI__ == '/' OR __ACTUAL_URI__ == '/index.php' OR __ACTUAL_URI__ == '/operation.php' OR __ACTUAL_URI__ == '/explore.php') {
-            echo '<li><a href="index.php"><span class="underline">Opérations</span></a></li>';
+            echo '<li><a href="index.php"><span class="underline">Accueil</span></a></li>';
         } else {
-            echo '<li><a href="index.php"><span>Opérations</span></a></li>';
+            echo '<li><a href="index.php"><span>Accueil</span></a></li>';
         }
         if (AUTOMATISATION_ENABLED == "yes") {
             if (__ACTUAL_URI__ == '/planifications.php') {
@@ -96,7 +96,7 @@ if (DEBUG_MODE == "enabled") {
                          */
                         if (is_numeric($opRepoSource)) {
                             try {
-                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id = :id");
                                 $stmt->bindValue(':id', $opRepoSource);
                                 $result = $stmt->execute();
                             } catch(Exception $e) {
@@ -127,7 +127,7 @@ if (DEBUG_MODE == "enabled") {
                     /**
                      *  Si un repo cible est renseigné, on récupère son nom
                      */
-                    if (!empty($opRunning['Id_repo_target'])) { 
+                    if (!empty($opRunning['Id_repo_target'])) {
                         $opRepoTarget = $opRunning['Id_repo_target'];
 
                         /**
@@ -135,7 +135,7 @@ if (DEBUG_MODE == "enabled") {
                          */
                         if (is_numeric($opRepoTarget)) {
                             try {
-                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id = :id");
                                 $stmt->bindValue(':id', $opRepoTarget);
                                 $result = $stmt->execute();
                             } catch(Exception $e) {
@@ -170,6 +170,10 @@ if (DEBUG_MODE == "enabled") {
                     if ($opAction == "update") {
                         if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                         if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    }
+                    if ($opAction == "env") {
+                        if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                     if ($opAction == "reconstruct") {
                         if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Reconstruction des metadonnées ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
@@ -213,7 +217,7 @@ if (DEBUG_MODE == "enabled") {
                          */
                         if (is_numeric($opRepoSource)) {
                             try {
-                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id=:id AND Status = 'active'");
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id = :id");
                                 $stmt->bindValue(':id', $opRepoSource);
                                 $result = $stmt->execute();
                             } catch(Exception $e) {
@@ -252,7 +256,7 @@ if (DEBUG_MODE == "enabled") {
                          */
                         if (is_numeric($opRepoTarget)) {
                             try {
-                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE id=:id AND Status = 'active'");
+                                $stmt = $op->db->prepare("SELECT * FROM repos WHERE Id = :id");
                                 $stmt->bindValue(':id', $opRepoTarget);
                                 $result = $stmt->execute();
                             } catch(Exception $e) {
@@ -288,9 +292,9 @@ if (DEBUG_MODE == "enabled") {
                         if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                         if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
-                    if ($planAction == "changeEnv" OR strpos($planAction, '->') !== false) {
-                        if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Créat. d'env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
-                        if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Créat. d'env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                    if ($planAction == "env" OR strpos(htmlspecialchars_decode($planAction), '->') !== false) {
+                        if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
+                        if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
                 }
                 echo '</ul>';
@@ -336,12 +340,3 @@ if (!empty(__LOAD_GENERAL_ERROR > 0)) { ?>
 <?php } 
 
 include('maintenance.inc.php'); ?>
-
-<script>
-// script jQuery d'autorechargement du menu dans le header. Permet de recharger le bouton opération en cours automatiquement :
-$(document).ready(function(){
-    setInterval(function(){
-        $("#header-refresh-container").load("run.php?reload #header-refresh-container > *");
-    }, 5000);
-});
-</script>

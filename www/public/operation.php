@@ -36,14 +36,11 @@ if ($action_error == 0) {
     $op_action = Common::validateData($_GET['action']);
 
     /**
-     *  Ici on a lancé l'opération à la main (ce n'est pas une planification)
-     */
-    $op_type = 'manual';
-
-    /**
      *  Instanciation d'une nouvelle opération
      */
-    $op = new Operation(compact('op_action', 'op_type'));
+    $op = new Operation();
+    $op->setAction($op_action);
+    $op->setType('manual');
 
     /**
      *  On vérifie qu'un ID de repo a été précisé
@@ -81,8 +78,6 @@ if ($action_error == 0) {
             }
         }
     }
-
-    unset($op_action, $op_type);
 }
 ?>
 

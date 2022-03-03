@@ -232,7 +232,7 @@ $(document).on('click',"#GroupsListToggleButton",function(){
 /**
  *  Masquage du div permettant de gérer les groupes
  */
-$(document).on('click',"#GroupsListCloseButton",function(){
+$(document).on('click',"#groupsDivCloseButton",function(){
     $("#groupsHostDiv").hide('200');
 });
 
@@ -360,7 +360,7 @@ $(document).on('click','.hostsActionBtn',function(){
     /**
      *  On parcourt toutes les checkbox dans ce groupe
      */
-    $('.js-host-checkbox[group='+group+']').each(function () {
+    $('.js-host-checkbox[group='+group+']').each(function(){
         /**
          *  Si la checkbox est cochée alors on ajoute l'id de l'hôte à hosts_array
          */

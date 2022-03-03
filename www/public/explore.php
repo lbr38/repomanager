@@ -32,8 +32,18 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === 'rec
     /**
      *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan
      */
-    if ($myrepo->existsId() === true) {
-        exec("php ".ROOT."/operations/execute.php --action='reconstruct' --id='$myrepo->id' --gpgResign='$myrepo->gpgResign' >/dev/null 2>/dev/null &");
+    if ($myrepo->existsId($repoId) === true) {
+        /**
+         *  Création d'un fichier json qui défini l'opération à exécuter
+         */
+        $params = array();
+        $params['action'] = 'reconstruct';
+        $params['repoId'] = $repoId;
+        $params['repoStatus'] = 'active';
+        $params['targetGpgResign'] = $repoGpgResign;
+
+        $myop = new Operation();
+        $myop->execute(array($params));
     }
 
     /**
@@ -78,7 +88,7 @@ if (!is_numeric($repoId)) $pathError++;
  */
 if ($pathError == 0) {
     $myrepo = new Repo();
-    $myrepo->id = $repoId;
+    $myrepo->setId($repoId);
 
     if ($state == 'active')   $myrepo->db_getAllById();
     if ($state == 'archived') $myrepo->db_getAllById('archived');
@@ -87,12 +97,12 @@ if ($pathError == 0) {
      *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
      */
     if ($state == 'active') {
-        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/{$myrepo->name}_{$myrepo->env}";
-        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/$myrepo->name/$myrepo->dist/{$myrepo->section}_{$myrepo->env}";
+        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/".$myrepo->getName()."_".$myrepo->getEnv();
+        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/".$myrepo->getName()."/".$myrepo->getDist()."/".$myrepo->getSection()."_".$myrepo->getEnv();
     }
     if ($state == 'archived') {
-        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/archived_{$myrepo->dateFormatted}_{$myrepo->name}";
-        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/$myrepo->name/$myrepo->dist/archived_{$myrepo->dateFormatted}_{$myrepo->section}";
+        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/archived_".$myrepo->getDateFormatted()."_".$myrepo->getName();
+        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/".$myrepo->getName()."/".$myrepo->getDist()."/archived_".$myrepo->getDateFormatted()."_".$myrepo->getSection();
     }
 
     /**
@@ -278,18 +288,18 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                 }
 
                 if ($pathError === 0) {
-                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->name)) {
-                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>$myrepo->name</b> " . Common::envtag($myrepo->env) . "</p>";
-                        if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>$myrepo->name</b>.</p>";
+                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) {
+                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>".$myrepo->getName()."</b> " . Common::envtag($myrepo->getEnv()) . "</p>";
+                        if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>".$myrepo->getName()."</b>.</p>";
                     }
 
-                    if (OS_FAMILY == "Debian" AND !empty($myrepo->name) AND !empty($myrepo->dist) AND !empty($myrepo->section)) {
-                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>$myrepo->section</b> " . Common::envtag($myrepo->env) . " du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
-                        if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>$myrepo->section</b> du repo <b>$myrepo->name</b> (distribution <b>$myrepo->dist</b>).</p>";
+                    if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) {
+                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>".$myrepo->getSection()."</b> " . Common::envtag($myrepo->getEnv()) . " du repo <b>".$myrepo->getName()."</b> (distribution <b>".$myrepo->getDist()."</b>).</p>";
+                        if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>".$myrepo->getSection()."</b> du repo <b>".$myrepo->getName()."</b> (distribution <b>".$myrepo->getDist()."</b>).</p>";
                     }
 
-                    if (is_dir("$repoPath/my_uploaded_packages")) {
-                        if(!Common::dir_is_empty("$repoPath/my_uploaded_packages")) {
+                    if (is_dir($repoPath.'/my_uploaded_packages')) {
+                        if(!Common::dir_is_empty($repoPath."/my_uploaded_packages")) {
                             echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
                         }
                     }
@@ -352,45 +362,27 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                          *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
                          */
                         try {
-                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'update' AND Id_repo_target=:id AND Status = 'running'");
-                            $stmt->bindValue(':id', $myrepo->id);
+                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE Id_repo_target = :id AND Status = 'running'");
+                            $stmt->bindValue(':id', $myrepo->getId());
                             $result = $stmt->execute();
                         } catch(Exception $e) {
                             Common::dbError($e);
                         }
 
-                        while ($datas = $result->fetchArray()) $opRunning_update[] = $datas;
+                        while ($datas = $result->fetchArray()) $opRunning[] = $datas;
 
-                        try {
-                            $stmt2 = $myrepo->db->prepare("SELECT * FROM operations WHERE action = 'reconstruct' AND Id_repo_target=:id AND Status = 'running'");
-                            $stmt2->bindValue(':id', $myrepo->id);
-                            $result2 = $stmt2->execute();
-                        } catch(Exception $e) {
-                            Common::dbError($e);
-                        }
-                        
-                        while ($datas = $result2->fetchArray()) $opRunning_reconstruct[] = $datas;
-
-                        if (!empty($opRunning_update)) {
+                        if (!empty($opRunning)) {
                             echo '<p>';
                             echo '<img src="ressources/images/loading.gif" class="icon" /> ';
-                            if (OS_FAMILY == "Redhat") echo 'Une opération de mise à jour est en cours sur ce repo.';
-                            if (OS_FAMILY == "Debian") echo 'Une opération de mise à jour est en cours sur cette section.';
-                            echo '</p>';
-                        }
-
-                        if (!empty($opRunning_reconstruct)) {
-                            echo '<p>';
-                            echo '<img src="ressources/images/loading.gif" class="icon" /> ';
-                            if (OS_FAMILY == "Redhat") echo 'Une opération de reconstruction est en cours sur ce repo.';
-                            if (OS_FAMILY == "Debian") echo 'Une opération de reconstruction est en cours sur cette section.';
+                            if (OS_FAMILY == "Redhat") echo 'Une opération est en cours sur ce repo.';
+                            if (OS_FAMILY == "Debian") echo 'Une opération est en cours sur cette section.';
                             echo '</p>';
                         }
 
                         /**
                          *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                          */
-                        if (empty($opRunning_update) AND empty($opRunning_reconstruct)) { ?>
+                        if (empty($opRunning)) { ?>
                             <p>Uploader des packages :</p>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="action" value="uploadPackage" />
