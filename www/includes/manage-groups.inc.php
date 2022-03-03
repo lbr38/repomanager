@@ -1,15 +1,16 @@
-<img id="GroupsListCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
-<h3>GROUPES</h3>
-<p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
-<br>
+<section class="right" id="groupsDiv">
+	<img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+	<h3>GROUPES</h3>
+	<p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
+	<br>
 
-<p><b>Ajouter un nouveau groupe :</b></p>
-<form id="newGroupForm" autocomplete="off">
-  	<input id="newGroupInput" type="text" class="input-medium" />
-  	<button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
-</form>
+	<p><b>Ajouter un nouveau groupe :</b></p>
+	<form id="newGroupForm" autocomplete="off">
+		<input id="newGroupInput" type="text" class="input-medium" />
+		<button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
+	</form>
 
-<br>
+	<br>
   	<?php
   	/**
    	 *  AFFICHAGE DES GROUPES ACTUELS
@@ -66,3 +67,4 @@
 			</div>
     <?php }
     } ?>
+</section>

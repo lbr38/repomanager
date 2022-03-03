@@ -3,7 +3,8 @@ trait op_createRepo {
     /**
      *  Création des metadata du repo (Redhat) et des liens symboliques (environnements)
      */
-    public function op_createRepo() {
+    public function op_createRepo($params) {
+        extract($params);
 
         ob_start();
 
@@ -19,26 +20,26 @@ trait op_createRepo {
             /**
              *  Si un répertoire my_uploaded_packages existe, alors on déplace ses éventuels packages
              */
-            if (is_dir(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
+            if (is_dir(REPOS_DIR."/${dateFormatted}_${name}/my_uploaded_packages/")) {
                 /**
                  *  Création du répertoire my_integrated_packages qui intègrera les paquets intégrés au repo
                  */
-                if (!is_dir(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages/")) mkdir(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages", 0770, true);
+                if (!is_dir(REPOS_DIR."/${dateFormatted}_${name}/my_integrated_packages/")) mkdir(REPOS_DIR."/${dateFormatted}_${name}/my_integrated_packages", 0770, true);
 
                 /**
                  *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
                  */
-                if (!Common::dir_is_empty(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/")) {
-                    exec("mv -f ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/*.rpm ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_integrated_packages/");
+                if (!Common::dir_is_empty(REPOS_DIR."/${dateFormatted}_${name}/my_uploaded_packages/")) {
+                    exec("mv -f ".REPOS_DIR."/${dateFormatted}_${name}/my_uploaded_packages/*.rpm ".REPOS_DIR."/${dateFormatted}_${name}/my_integrated_packages/");
                 }
 
                 /**
                  *  Suppression de my_uploaded_packages
                  */
-                rmdir(REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/my_uploaded_packages/");
+                rmdir(REPOS_DIR."/${dateFormatted}_${name}/my_uploaded_packages/");
             }
 
-            exec("createrepo -v ".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}/ 1>&2 >> {$this->log->steplog}", $output, $return);
+            exec("createrepo -v ".REPOS_DIR."/${dateFormatted}_${name}/ 1>&2 >> {$this->log->steplog}", $output, $return);
             echo '</pre></div>';
 
             $this->log->steplogWrite();
@@ -63,7 +64,7 @@ trait op_createRepo {
              *  On se mets à la racine de la section
              *  On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
              */
-            $sectionPath = REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}";
+            $sectionPath = REPOS_DIR."/${name}/${dist}/${dateFormatted}_${section}";
             if (!is_dir($sectionPath)) throw new Exception("le répertoire du repo n'existe pas");
             if (!is_dir($TMP_DIR)) throw new Exception("le répertoire temporaire n'existe pas");
             exec("find $sectionPath/ -name '*.deb' -exec mv '{}' ${TMP_DIR}/ \;");          
@@ -84,10 +85,11 @@ trait op_createRepo {
              *  Création du fichier "distributions"
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
-            if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")
-                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Repo {$this->repo->name}, miroir du repo {$this->repo->source}, distribution {$this->repo->dist}, section {$this->repo->section}\nSignWith: ".GPG_KEYID."\nPull: {$this->repo->section}";
+            //if ($signed == "yes" OR $targetGpgResign == "yes")
+            if ($targetGpgResign == "yes")
+                $file_distributions_content = "Origin: Repo ${name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: ${dist}\nArchitectures: i386 amd64\nComponents: ${section}\nDescription: Repo ${name}, miroir du repo ${source}, distribution ${dist}, section ${section}\nSignWith: ".GPG_KEYID."\nPull: $section";
             else
-                $file_distributions_content = "Origin: Repo {$this->repo->name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: {$this->repo->dist}\nArchitectures: i386 amd64\nComponents: {$this->repo->section}\nDescription: Repo {$this->repo->name}, miroir du repo {$this->repo->source}, distribution {$this->repo->dist}, section {$this->repo->section}\nPull: {$this->repo->section}";
+                $file_distributions_content = "Origin: Repo ${name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: ${dist}\nArchitectures: i386 amd64\nComponents: ${section}\nDescription: Repo ${name}, miroir du repo ${source}, distribution ${dist}, section ${section}\nPull: $section";
 
             if (!file_put_contents($sectionPath."/conf/distributions", "$file_distributions_content".PHP_EOL)) {
                 throw new Exception('impossible de créer le fichier de configuration du repo (distributions)');
@@ -97,7 +99,8 @@ trait op_createRepo {
              *  Création du fichier "options"
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
-            if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")
+            //if ($signed == "yes" OR $targetGpgResign == "yes")
+            if ($targetGpgResign == "yes")
                 $file_options_content = "basedir $sectionPath\nask-passphrase";
             else 
                 $file_options_content = "basedir $sectionPath";
@@ -123,10 +126,11 @@ trait op_createRepo {
                 /**
                  *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
                  */
-                if ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes") {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ --gnupghome ".GPGHOME." includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
+                //if ($signed == "yes" OR $targetGpgResign == "yes") {
+                if ($targetGpgResign == "yes") {
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ --gnupghome ".GPGHOME." includedeb ${dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
                 } else {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ includedeb {$this->repo->dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
+                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ includedeb ${dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);                
                 }
             
                 /**
@@ -162,7 +166,9 @@ trait op_createRepo {
                 /**
                  *  Suppression du répertoire temporaire
                  */
-                if (OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) exec("rm -rf '$TMP_DIR'");
+                if (OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) {
+                    exec("rm -rf '$TMP_DIR'");
+                }
 
                 /**
                  *  Récupération du code d'erreur de reprepro
@@ -176,8 +182,8 @@ trait op_createRepo {
              *  Suppression de ce qui a été fait :
              */
             if ($this->action != "reconstruct") {
-                if (OS_FAMILY == "Redhat") exec("rm -rf '".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}'");
-                if (OS_FAMILY == "Debian") exec("rm -rf '".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/{$this->repo->dateFormatted}_{$this->repo->section}'"); 
+                if (OS_FAMILY == "Redhat") exec("rm -rf '".REPOS_DIR."/${dateFormatted}_${name}'");
+                if (OS_FAMILY == "Debian") exec("rm -rf '".REPOS_DIR."/${name}/${dist}/${dateFormatted}_${section}'"); 
             }
 
             throw new Exception('la création du repo a échouée');
@@ -188,8 +194,8 @@ trait op_createRepo {
         /**
          *  Création du lien symbolique (environnement)
          */
-        if (OS_FAMILY == "Redhat") exec("cd ".REPOS_DIR."/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->name}/ {$this->repo->name}_".DEFAULT_ENV."", $output, $result);
-        if (OS_FAMILY == "Debian") exec("cd ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/ && ln -sfn {$this->repo->dateFormatted}_{$this->repo->section}/ {$this->repo->section}_".DEFAULT_ENV."", $output, $result);
+        if (OS_FAMILY == "Redhat") exec("cd ".REPOS_DIR."/ && ln -sfn ${dateFormatted}_${name}/ ${name}_".DEFAULT_ENV."", $output, $result);
+        if (OS_FAMILY == "Debian") exec("cd ".REPOS_DIR."/${name}/${dist}/ && ln -sfn ${dateFormatted}_${section}/ ${section}_".DEFAULT_ENV."", $output, $result);
         if ($result != 0) throw new Exception('la finalisation du repo a échouée');
 
         $this->log->steplogOK();

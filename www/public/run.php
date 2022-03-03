@@ -429,13 +429,6 @@ $(document).ready(function(){
 	}, 3000);
 
 	/**
-	*	Affiche des boutons de défilement si la page de log fait +700px de haut
-	*/
-	/*if ($('#log').height() < 700) {
-		$(".button-top-down").hide();
-	}*/
-
-	/**
 	*	Afficher toutes les opérations terminées
 	*/
 	$(document).on('click','#print-all-op',function(){

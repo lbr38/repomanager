@@ -9,6 +9,7 @@
          */
         if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
 
+        if (__ACTUAL_URI__ == "/index.php")   echo '<link rel="stylesheet" type="text/css" href="ressources/styles/donut.css">';
         if (__ACTUAL_URI__ == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="ressources/styles/run.css">';
         if (__ACTUAL_URI__ == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="ressources/styles/explore.css">';
         if (__ACTUAL_URI__ == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';

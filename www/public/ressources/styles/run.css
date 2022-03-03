@@ -98,6 +98,7 @@
 }
 .op-table td {
     opacity: 1;
+    font-weight: bold !important;
 }
 .op-step-div {
     margin-bottom: 5px;

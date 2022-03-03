@@ -4,7 +4,8 @@ trait op_signPackages {
      *  Signature des paquets (Redhat) avec GPG
      *  Opération exclusive à Redhat car sous Debian c'est le fichier Release du repo qu'on signe
      */
-    public function op_signPackages() {
+    public function op_signPackages($params) {
+        extract($params);
 
         $warning = 0;
 
@@ -14,7 +15,8 @@ trait op_signPackages {
          *  Signature des paquets du repo avec GPG
          *  Redhat seulement car sur Debian c'est le fichier Release qui est signé ors de la création du repo
          */
-        if (OS_FAMILY == "Redhat" AND ($this->repo->signed == "yes" OR $this->repo->gpgResign == "yes")) {
+        // if (OS_FAMILY == "Redhat" AND ($signed == "yes" OR $gpgResign == "yes")) {
+        if (OS_FAMILY == "Redhat" AND $targetGpgResign == "yes") {
 
             $this->log->steplogInitialize('signPackages');
             $this->log->steplogTitle('SIGNATURE DES PAQUETS (GPG)');
@@ -34,7 +36,7 @@ trait op_signPackages {
              *  Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
              */
             if (file_exists("/usr/bin/rpmresign")) {
-                $process = proc_open("shopt -s globstar && cd '".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}' && /usr/bin/rpmresign --path '".GPGHOME."' --name '".GPG_KEYID."' --passwordfile '".PASSPHRASE_FILE."' **/*.rpm 1>&2", $descriptors, $pipes);
+                $process = proc_open("shopt -s globstar && cd '".REPOS_DIR."/${dateFormatted}_${name}' && /usr/bin/rpmresign --path '".GPGHOME."' --name '".GPG_KEYID."' --passwordfile '".PASSPHRASE_FILE."' **/*.rpm 1>&2", $descriptors, $pipes);
             }
 
             /**
@@ -97,7 +99,7 @@ trait op_signPackages {
                     /**
                      *  Suppression de ce qui a été fait :
                      */
-                    exec("rm -rf '".REPOS_DIR."/{$this->repo->dateFormatted}_{$this->repo->name}'");
+                    exec("rm -rf '".REPOS_DIR."/${dateFormatted}_${name}'");
                 }
 
                 throw new Exception('la signature des paquets a échouée');

@@ -39,57 +39,6 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == "conf
         }
     }
 
-    // Liste des repos : choisir de filtrer ou non par groupe
-    if (!empty($_POST['filterByGroups'])) {
-        $filterByGroups = Common::validateData($_POST['filterByGroups']);
-        if ($filterByGroups == "on") {
-            $displayConfiguration['display']['filterByGroups'] = 'yes';
-        } else {
-            $displayConfiguration['display']['filterByGroups'] = 'no';
-        }
-    }
-
-    // Liste des repos : choisir ou non la vue simplifiée
-    if (!empty($_POST['concatenateReposName'])) {
-        $concatenateReposName = Common::validateData($_POST['concatenateReposName']);
-        if ($concatenateReposName == "on") {
-            $displayConfiguration['display']['concatenateReposName'] = 'yes';
-        } else {
-            $displayConfiguration['display']['concatenateReposName'] = 'no';
-        }
-    }
-
-    // Liste des repos : choisir d'afficher ou non une ligne séparatrice entre chaque nom de repo/section
-    if (!empty($_POST['dividingLine'])) {
-        $dividingLine = Common::validateData($_POST['dividingLine']);
-        if ($dividingLine == "on") {
-            $displayConfiguration['display']['dividingLine'] = 'yes';
-        } else {
-            $displayConfiguration['display']['dividingLine'] = 'no';
-        }
-    }
-
-    // Liste des repos : alterner ou non les couleurs dans la liste
-    if (!empty($_POST['alternateColors'])) {
-        $alternateColors = Common::validateData($_POST['alternateColors']);
-        if ($alternateColors == "on") {
-            $displayConfiguration['display']['alternateColors'] = 'yes';
-        } else {
-            $displayConfiguration['display']['alternateColors'] = 'no';
-        }
-    }
-
-    // Modification des couleurs
-    if (!empty($_POST['alternativeColor1'])) {
-        $alternativeColor1 = Common::validateData($_POST['alternativeColor1']);
-        $displayConfiguration['display']['alternativeColor1'] = "$alternativeColor1";
-    }
-
-    if (!empty($_POST['alternativeColor2'])) {
-        $alternativeColor2 = Common::validateData($_POST['alternativeColor2']);
-        $displayConfiguration['display']['alternativeColor2'] = "$alternativeColor2";
-    }
-
     // activation du cache
     if (!empty($_POST['cache_repos_list'])) {
         $cache_repos_list = Common::validateData($_POST['cache_repos_list']);

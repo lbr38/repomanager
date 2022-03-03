@@ -3,7 +3,8 @@ trait op_finalize {
     /**
     *   Finalisation du repo : ajout en BDD et application des droits
     */
-    public function op_finalize($op_type) {      
+    public function op_finalize($op_type, $params) {
+        extract($params);
 
         ob_start();
 
@@ -26,17 +27,17 @@ trait op_finalize {
             try {
                 if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :env, :date, :time, :description, :signed, :type, 'active')");
                 if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("INSERT INTO repos (Name, Source, Dist, Section, Env, Date, Time, Description, Signed, Type, Status) VALUES (:name, :source, :dist, :section, :env, :date, :time, :description, :signed, :type, 'active')");
-                $stmt->bindValue(':name', $this->repo->name);
-                $stmt->bindValue(':source', $this->repo->source);
-                $stmt->bindValue(':env', $this->repo->env);
-                $stmt->bindValue(':date', $this->repo->date);
-                $stmt->bindValue(':time', $this->repo->time);
-                $stmt->bindValue(':description', $this->repo->description);
-                $stmt->bindValue(':signed', $this->repo->signed);
-                $stmt->bindValue(':type', $this->repo->type);
+                $stmt->bindValue(':name', $name);
+                $stmt->bindValue(':source', $source);
+                $stmt->bindValue(':env', $env);
+                $stmt->bindValue(':date', $date);
+                $stmt->bindValue(':time', $time);
+                $stmt->bindValue(':description', $targetDescription);
+                $stmt->bindValue(':signed', $targetGpgResign);
+                $stmt->bindValue(':type', $type);
                 if (OS_FAMILY == "Debian") {
-                    $stmt->bindValue(':dist', $this->repo->dist);
-                    $stmt->bindValue(':section', $this->repo->section);
+                    $stmt->bindValue(':dist', $dist);
+                    $stmt->bindValue(':section', $section);
                 }
                 $stmt->execute();
             } catch(Exception $e) {
@@ -48,15 +49,15 @@ trait op_finalize {
          *  2. Ajout à un groupe si un groupe a été renseigné. Uniquement si il s'agit d'un nouveau repo/section ($op_type = new)
          */
         if ($op_type == "new") {
-            if (!empty($this->repo->group)) {
+            if (!empty($targetGroup)) {
                 try {
-                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
-                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
-                    $stmt->bindValue(':name', $this->repo->name);
-                    $stmt->bindValue(':groupname', $this->repo->group);
+                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name AND repos.Status = 'active' AND groups.Name = :groupname");
+                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name AND repos.Dist = :dist AND repos.Section = :section AND repos.Status = 'active' AND groups.Name = :groupname");
+                    $stmt->bindValue(':name', $name);
+                    $stmt->bindValue(':groupname', $targetGroup);
                     if (OS_FAMILY == "Debian") {
-                        $stmt->bindValue(':dist', $this->repo->dist);
-                        $stmt->bindValue(':section', $this->repo->section);
+                        $stmt->bindValue(':dist', $dist);
+                        $stmt->bindValue(':section', $section);
                     }
                     $result = $stmt->execute();
                 } catch(Exception $e) {
@@ -69,12 +70,12 @@ trait op_finalize {
                 }
 
                 if (empty($repoId)){
-                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du repo {$this->repo->name}");
+                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du repo $name");
                     return;
                 }
 
                 if (empty($groupId)) {
-                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du groupe {$this->repo->group}");
+                    $this->log->steplogError("Ajout à un groupe : impossible de récupérer l'id du groupe $targetGroup");
                     return;
                 }
 
@@ -93,15 +94,15 @@ trait op_finalize {
          *  3. Application des droits sur le repo/section créé
          */
         if (OS_FAMILY == "Redhat") {
-            exec("find ".REPOS_DIR."/".DATE_DMY."_{$this->repo->name}/ -type f -exec chmod 0660 {} \;");
-            exec("find ".REPOS_DIR."/".DATE_DMY."_{$this->repo->name}/ -type d -exec chmod 0770 {} \;");
+            exec("find ".REPOS_DIR."/".DATE_DMY."_${name}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/".DATE_DMY."_${name}/ -type d -exec chmod 0770 {} \;");
             /*if [ $? -ne "0" ];then
                 echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur le repo <b>$this->name</b> a échoué"
             fi*/
         }
         if (OS_FAMILY == "Debian") {
-            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/".DATE_DMY."_{$this->repo->section}/ -type f -exec chmod 0660 {} \;");
-            exec("find ".REPOS_DIR."/{$this->repo->name}/{$this->repo->dist}/".DATE_DMY."_{$this->repo->section}/ -type d -exec chmod 0770 {} \;");
+            exec("find ".REPOS_DIR."/${name}/${dist}/".DATE_DMY."_${section}/ -type f -exec chmod 0660 {} \;");
+            exec("find ".REPOS_DIR."/${name}/${dist}/".DATE_DMY."_${section}/ -type d -exec chmod 0770 {} \;");
             /*if [ $? -ne "0" ];then
                 echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur la section <b>$this->section</b> a échoué"
             fi*/

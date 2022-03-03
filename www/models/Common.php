@@ -185,11 +185,17 @@ class Common
     /**
      *  Colore l'environnement d'une étiquette rouge ou blanche
      */
-    static function envtag($env) {
+    static function envtag($env, $css = null) {
         if ($env == LAST_ENV)
-            return '<span class="last-env">'.$env.'</span>';
+            $class = 'last-env';
         else
-            return '<span class="env">'.$env.'</span>';
+            $class = 'env';
+
+        if ($css == 'fit') {
+            $class .= '-fit';
+        }
+
+        return '<span class="'.$class.'">'.$env.'</span>';
     }
 
     /**
@@ -313,7 +319,8 @@ class Common
     /**
      *  Indique si un répertoire est vide ou non
      */
-    static function dir_is_empty($dir) {
+    static function dir_is_empty($dir)
+    {
         $handle = opendir($dir);
         while (false !== ($entry = readdir($handle))) {
             if ($entry != "." && $entry != "..") {
@@ -325,18 +332,31 @@ class Common
         return true;
     }
 
-    static function kill_stats_log_parser() {
+    /**
+     *  Stoppe le process bash de génération des statistiques
+     */
+    static function kill_stats_log_parser()
+    {
         exec("/usr/bin/pkill -9 -u ".WWW_USER." -f 'tail -n0 -F ".WWW_STATS_LOG_PATH."'");
     }
 
     /**
      *  Renvoi si la session utilisateur en cours est administrateur ou non
      */
-    static function isadmin() {
+    static function isadmin()
+    {
         if ($_SESSION['role'] === 'super-administrator' OR $_SESSION['role'] === 'administrator') {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     *  Génère un nombre aléatoire en 1000 et 99999
+     */
+    static function generateRandom()
+    {
+        return mt_rand(1000, 99999);
     }
 }

@@ -29,7 +29,7 @@ if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "update
      */
     if (UPDATE_BACKUP_ENABLED == "yes") {
         $backupName = DATE_YMD.'_'.TIME.'_repomanager_full_backup.tar.gz';
-        exec("tar --exclude='".BACKUP_DIR."' -czf /tmp/${backupName} ". ROOT ,$output, $result);
+        exec("tar --exclude='".BACKUP_DIR."' --exclude='".ROOT."/db' -czf /tmp/${backupName} ". ROOT ,$output, $result);
         if ($result != 0) {
             $error++;
             $errorMsg = 'Erreur lors de la sauvegarde de la configuration actuelle de repomanager';

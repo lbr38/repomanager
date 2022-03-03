@@ -18,201 +18,401 @@ Autoloader::loadFromApi();
  *  Le premier paramètre passé à getopt est null : on ne souhaites pas travailler avec des options courtes.
  *  Plus d'infos sur getopt() : https://blog.pascal-martin.fr/post/php-5.3-getopt-parametres-ligne-de-commande/
  */
-$getOptions = getopt(null, ["action:"]);
-$opAction = $getOptions['action'];
-
-if (empty($opAction)) throw new Exception("Erreur : type d'opération non défini");
-if ($opAction != "new" AND $opAction != "update" AND $opAction != "reconstruct" AND $opAction != "duplicate") throw new Exception("Erreur : type d'opération invalide");
+$getOptions = getopt(null, ["id:"]);
 
 /**
- *  2. Récupération des arguments suivants, différents en fonction du type d'opération précédemment récupéré.
- *  Puis exécution de l'opération
+ *  Récupération de l'Id de l'opération à traiter
  */
-if ($opAction == "new") {
-    if (OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
-    if (OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "source:", "gpgCheck:", "gpgResign:", "group:", "description:", "type:"]);
+if (empty($getOptions['id'])) {
+    throw new Exception("Erreur : l'Id d'opération non défini");
+    exit(1);
+}
+
+$id = $getOptions['id'];
+
+/**
+ *  Récupération des détails de l'opération à traiter, sous forme d'array
+ */
+if (!file_exists(POOL."/${id}.json")) {
+    throw new Exception("Erreur : impossible de récupérer les détails de l'opération (id $id) : le fichier est introuvable");
+    exit(1);
+}
+
+$operation_params = json_decode(file_get_contents(POOL."/${id}.json"), true);
+
+/**
+ *  Traitement de chaque opération
+ */
+foreach ($operation_params as $operation) {
+    $action     = $operation['action'];
+    $repoStatus = $operation['repoStatus'];
 
     /**
-     *  Vérification que les paramètres obligatoires ne sont pas vides
+     *  Un Id de repo a été renseigné seulement dans le cas où l'action n'est pas 'new'
      */
-    if (empty($options['name']))        throw new Exception("Erreur : nom du repo non défini");
-    if (empty($options['source']))      throw new Exception("Erreur : repo source non défini");
-    if (empty($options['gpgCheck']))    throw new Exception("Erreur : gpg check non défini");
-    if (empty($options['gpgResign']))   throw new Exception("Erreur : gpg resign non défini");
-    if (empty($options['group']))       throw new Exception("Erreur : groupe non défini");
-    if (empty($options['description'])) throw new Exception("Erreur : description non définie");
-    if (empty($options['type']))        throw new Exception("Erreur : type de repo non défini");
-    /**
-     *  Sur Debian on attends 2 paramètres supplémentaires
-     */
-    if (OS_FAMILY == "Debian") {
-        if (empty($options['dist']))        throw new Exception("Erreur : nom de la distribution non défini");
-        if (empty($options['section']))     throw new Exception("Erreur : nom de la section non défini");
+    if ($action !== 'new') {
+        $repoId = $operation['repoId'];
     }
 
     /**
-     * Création d'une nouvelle opération
+     *  Si aucun groupe et/ou description n'a été renseigné alors on set la valeur à 'nogroup' ou 'nodescription'
      */
-    $op = new Operation(array('op_action' => 'new', 'op_type' => 'manual'));
-
-    /**
-     * 	Création d'un objet Repo avec les infos du repo à créer
-     */
-    if (OS_FAMILY == "Redhat") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoSource'        => $options['source'],
-        'repoGroup'         => $options['group'],
-        'repoDescription'   => $options['description'],
-        'repoGpgCheck'      => $options['gpgCheck'],
-        'repoGpgResign'     => $options['gpgResign'],
-        'repoType'          => $options['type']
-    ));
-    if (OS_FAMILY == "Debian") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoSource'        => $options['source'],
-        'repoDist'          => $options['dist'],
-        'repoSection'       => $options['section'],
-        'repoGroup'         => $options['group'],
-        'repoDescription'   => $options['description'],
-        'repoGpgCheck'      => $options['gpgCheck'],
-        'repoGpgResign'     => $options['gpgResign'],
-        'repoType'          => $options['type']
-    ));
-
-    /**
-     * 	Exécution de l'opération "nouveau repo"
-     */
-    $op->exec_new();
-}
-
-if ($opAction == "update") {
-    $options = getopt(null, ["id:", "gpgCheck:", "gpgResign:"]);
-
-    /**
-     *  Vérification que les paramètres obligatoires ne sont pas vides
-     */
-    if (empty($options['id']))          throw new Exception("Erreur : id du repo non défini");
-    if (empty($options['gpgCheck']))    throw new Exception("Erreur : gpg check non défini");
-    if (empty($options['gpgResign']))   throw new Exception("Erreur : gpg resign non défini");
-
-    /**
-     * Création d'une nouvelle opération
-     */
-    $op = new Operation(array('op_action' => 'update', 'op_type' => 'manual'));
-
-    /**
-     * 	Création d'un objet Repo avec les infos du repo à mettre à jour
-     */
-    $op->repo = new Repo(array('repoId' => $options['id']));
-
-    /**
-     *  Les paramètres GPG Check et GPG Resign sont conservées de côté et seront pris en compte au début de l'exécution de exec_update()
-     */
-    $op->gpgCheck  = $options['gpgCheck'];
-    $op->gpgResign = $options['gpgResign'];
-
-    /**
-     * 	Exécution de l'opération "mise à jour du repo"
-     */
-    $op->exec_update();
-}
-
-if ($opAction == "duplicate") {
-    if (OS_FAMILY == "Redhat") $options = getopt(null, ["name:", "newname:", "env:", "group:", "description:", "type:"]);
-    if (OS_FAMILY == "Debian") $options = getopt(null, ["name:", "dist:", "section:", "newname:", "env:", "group:", "description:", "type:"]);
-
-    /**
-     *  Vérification que les paramètres obligatoires ne sont pas vides
-     */
-    if (empty($options['name']))        throw new Exception("Erreur : nom du repo non défini");
-    if (empty($options['newname']))     throw new Exception("Erreur : nom du nouveau repo non défini");
-    if (empty($options['group']))       throw new Exception("Erreur : groupe non défini");
-    if (empty($options['description'])) throw new Exception("Erreur : description non définie");
-    if (empty($options['env']))         throw new Exception("Erreur : environnement du repo source non défini");
-    if (empty($options['type']))        throw new Exception("Erreur : type de repo non défini");
-    /**
-     *  Sur Debian on attends 2 paramètres supplémentaires
-     */
-    if (OS_FAMILY == "Debian") {
-        if (empty($options['dist']))        throw new Exception("Erreur : nom de la distribution non défini");
-        if (empty($options['section']))     throw new Exception("Erreur : nom de la section non défini");
+    if (empty($operation['targetGroup'])) {
+        $targetGroup = 'nogroup';
+    } else {
+        $targetGroup = $operation['targetGroup'];
+    }
+    if (empty($operation['targetDescription'])) {
+        $targetDescription = 'nodescription';
+    } else {
+        $targetDescription = $operation['targetDescription'];
     }
 
     /**
-     * Création d'une nouvelle opération
+     *  Si l'action est 'new'
      */
-    $op = new Operation(array('op_action' => 'duplicate', 'op_type' => 'manual'));
+    if ($action == 'new') {
+        /**
+         *  Si le paramètre Type n'est pas défini, on quitte
+         */
+        if (empty($operation['type'])) {
+            throw new Exception("Operation 'new' - Erreur : le paramètre Type n'est pas défini");
+            continue;
+        }
+        $type = $operation['type'];
 
-    /**
-     * 	Création d'un objet Repo avec les infos du repo à dupliquer
-     */
-    if (OS_FAMILY == "Redhat") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoNewName'       => $options['newname'],
-        'repoEnv'           => $options['env'],
-        'repoGroup'         => $options['group'],
-        'repoDescription'   => $options['description'],
-        'repoType'          => $options['type'] 
-    ));
-    if (OS_FAMILY == "Debian") $op->repo = new Repo(array(
-        'repoName'          => $options['name'],
-        'repoNewName'       => $options['newname'],
-        'repoDist'          => $options['dist'],
-        'repoSection'       => $options['section'],
-        'repoEnv'           => $options['env'],
-        'repoGroup'         => $options['group'],
-        'repoDescription'   => $options['description'],
-        'repoType'          => $options['type']        
-    ));
 
+        if (OS_FAMILY == 'Debian') {
+            /**
+             *  Si le paramètre Dist n'est pas défini, on quitte
+             */
+            if (empty($operation['dist'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre Dist n'est pas défini");
+                continue;
+            }
+            $dist = $operation['dist'];
+
+            /**
+             *  Si le paramètre Section n'est pas défini, on quitte
+             */
+            if (empty($operation['section'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre Section n'est pas défini");
+                continue;
+            }
+            $dist = $operation['section'];
+        }
+
+        /**
+         *  Si le type est 'mirror' alors on vérifie des paramètres supplémentaires
+         */
+        if ($type === 'mirror') {
+            /**
+             *  Si le paramètre Source n'est pas défini, on quitte
+             */
+            if (empty($operation['source'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre Source n'est pas défini");
+                continue;
+            }
+            $source = $operation['source'];
+
+            /**
+             *  Si le paramètre GPG Check n'est pas défini, on quitte
+             */
+            if (empty($operation['targetGpgCheck'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre GPG Check n'est pas défini");
+                continue;
+            }
+            $targetGpgCheck = $operation['targetGpgCheck'];
+
+            /**
+             *  Si le paramètre GPG Resign n'est pas défini, on quitte
+             */
+            if (empty($operation['targetGpgResign'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre GPG Resign n'est pas défini");
+                continue;
+            }
+            $targetGpgResign = $operation['targetGpgResign'];
+        }
+
+        /**
+         *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
+         *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
+         */
+        if ($type === 'mirror') {
+            if (empty($operation['alias'])) {
+                $alias = $source;
+            } else {
+                $alias = $operation['alias'];
+            }
+        }
+        if ($type === 'local') {
+            if (empty($operation['alias'])) {
+                throw new Exception("Operation 'new' - Erreur : le paramètre Alias (Name) n'est pas défini");
+                continue;
+            } else {
+                $alias = $operation['alias'];
+            }        
+        }
+
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('new');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos spécifiées par l'utilisateur
+         */
+        $op->repo = new Repo();
+        $op->repo->setType($type);
+        $op->repo->setName($operation['alias']);
+        $op->repo->setTargetGroup($targetGroup);
+        $op->repo->setTargetDescription($targetDescription);
+        if (OS_FAMILY == 'Debian') {
+            $op->repo->setDist($operation['dist']);
+            $op->repo->setSection($operation['section']);
+        }
+        if ($type === 'mirror') {
+            $op->repo->setSource($source);
+            $op->repo->setTargetGpgCheck($targetGpgCheck);
+            $op->repo->setTargetGpgResign($targetGpgResign);
+        }
+        /**
+         * 	Exécution de l'opération
+         */
+        if ($type === 'mirror') {
+            $op->exec_new();
+        }
+        if ($type === 'local') {
+            $op->exec_newLocalRepo();
+        }
+    }
     /**
-     * 	Exécution de l'opération "mise à jour du repo"
+     *  Si l'action est 'update'
      */
-    $op->exec_duplicate();
+    if ($action == 'update') {
+        /**
+         *  Si le paramètre GPG Check n'est pas défini on quitte
+         */
+        if (empty($operation['targetGpgCheck'])) {
+            throw new Exception("Operation 'update' - Erreur : le paramètre GPG Check n'est pas défini");
+            continue;
+        }
+        $targetGpgCheck = $operation['targetGpgCheck'];
+
+        /**
+         *  Si le paramètre GPG Resign n'est pas défini on quitte
+         */
+        if (empty($operation['targetGpgResign'])) {
+            throw new Exception("Operation 'update' - Erreur : le paramètre GPG Resign n'est pas défini");
+            continue;
+        }
+        $targetGpgResign = $operation['targetGpgResign'];
+
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('update');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos du repo source
+         */
+        $op->repo = new Repo();
+        $op->repo->setId($repoId);
+        /**
+         *  On récupère toutes les infos du repo en base de données
+         */
+        $op->repo->db_getAllById('active');
+        /**
+         *  Set de GPG Check
+         */
+        $op->repo->setTargetGpgCheck($targetGpgCheck);
+        /**
+         *  Set de GPG Resign
+         */
+        $op->repo->setTargetGpgResign($targetGpgResign);
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_update();
+    }
+    /**
+     *  Si l'action est 'duplicate'
+     */
+    if ($action == 'duplicate') {
+        /**
+         *  Si le nouveau nom n'est pas défini on quitte
+         */
+        if (empty($operation['targetName'])) {
+            throw new Exception("Operation 'duplicate' - Erreur : le nouveau nom n'est pas défini");
+            continue;
+        }
+        $targetName = $operation['targetName'];
+        
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('duplicate');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos du repo à dupliquer
+         */
+        $op->repo = new Repo();
+        $op->repo->setId($repoId);
+        /**
+         *  On récupère toutes les infos du repo en base de données
+         */
+        $op->repo->db_getAllById('active');
+        /**
+         *  Set du nouveau nom du repo cible
+         */
+        $op->repo->setTargetName($targetName);
+        /**
+         *  Set du groupe cible
+         */
+        $op->repo->setTargetGroup($targetGroup);
+        /**
+         *  Set de la description cible
+         */
+        $op->repo->setTargetDescription($targetDescription);
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_duplicate();
+    }
+    /**
+     *  Si l'action est 'delete'
+     */
+    if ($action == 'delete') {
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        if ($repoStatus == 'active')   $op->setAction('delete');
+        if ($repoStatus == 'archived') $op->setAction('deleteArchive');
+        $op->setType('manual');
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_delete($repoId, $repoStatus);
+    }
+    /**
+     *  Si l'action est 'env'
+     */
+    if ($action == 'env') {
+        /**
+         *  Si le l'environnement cible n'est pas défini on quitte
+         */
+        if (empty($operation['targetEnv'])) {
+            throw new Exception("Operation 'env' - Erreur : l'env cible n'est pas défini");
+            continue;
+        }
+        $targetEnv = $operation['targetEnv'];
+        
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('env');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos du repo source
+         */
+        $op->repo = new Repo();
+        $op->repo->setId($repoId);
+        /**
+         *  On récupère toutes les infos du repo en base de données
+         */
+        $op->repo->db_getAllById('active');
+        /**
+         *  Set de l'env cible
+         */
+        $op->repo->setTargetEnv($targetEnv);
+        /**
+         *  Set de la description cible
+         */
+        $op->repo->setTargetDescription($targetDescription);
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_env();
+    }
+    /**
+     *  Si l'action est 'restore'
+     */
+    if ($action == 'restore') {
+        /**
+         *  Si le l'environnement cible n'est pas défini on quitte
+         */
+        if (empty($operation['targetEnv'])) {
+            throw new Exception("Operation 'env' - Erreur : l'env cible n'est pas défini");
+            continue;
+        }
+        $targetEnv = $operation['targetEnv'];
+        
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('restore');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos du repo source
+         */
+        $op->repo = new Repo();
+        $op->repo->setId($repoId);
+        /**
+         *  On récupère toutes les infos du repo en base de données
+         */
+        $op->repo->db_getAllById('archived');
+        /**
+         *  Set de l'env cible
+         */
+        $op->repo->setTargetEnv($targetEnv);
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_restore();
+    }
+    /**
+     *  Si l'action est 'reconstruct'
+     */
+    if ($action == 'reconstruct') {
+        /**
+         *  Si le paramètre GPG Resign n'est pas défini on quitte
+         */
+        if (empty($operation['targetGpgResign'])) {
+            throw new Exception("Operation 'reconstruct' - Erreur : le paramètre GPG Resign n'est pas défini");
+            exit;
+        }
+        $targetGpgResign = $operation['targetGpgResign'];
+
+        /**
+         *  Création d'une nouvelle opération
+         */
+        $op = new Operation();
+        $op->setAction('reconstruct');
+        $op->setType('manual');
+        /**
+         * 	Création d'un objet Repo avec les infos du repo source
+         */
+        $op->repo = new Repo();
+        $op->repo->setId($repoId);
+        /**
+         *  On récupère toutes les infos du repo en base de données
+         */
+        $op->repo->db_getAllById('active');
+        /**
+         *  Set de GPG Resign
+         */
+        $op->repo->setTargetGpgResign($targetGpgResign);
+        /**
+         * 	Exécution de l'opération
+         */
+        $op->exec_reconstruct();
+    }
 }
-
-if ($opAction == "reconstruct") {
-
-    $options = getopt(null, ["id:", "gpgResign:"]);
-
-    /**
-     *  Vérification que les paramètres obligatoires ne sont pas vides
-     */
-    if (empty($options['id']))          throw new Exception("Erreur : id du repo non défini");
-    if (empty($options['gpgResign']))   throw new Exception("Erreur : gpg resign non défini");
-
-    /**
-     * Création d'une nouvelle opération
-     */
-    $op = new Operation(array('op_action' => 'reconstruct', 'op_type' => 'manual'));
-
-    /**
-     * 	Création d'un objet Repo avec les infos du repo à reconstruire
-     *  On n'inclut pas gpgResign à la construction de l'objet car sa valeur va être écrasée par db_getAllById() puis rectifiée plus bas avant d'exécuter l'opération
-     */
-    $op->repo = new Repo(array('repoId' => $options['id']));
-
-    /**
-     * 	On vérifie que l'ID passé en paramètre existe en BDD
-     */
-    if ($op->repo->existsId() === false) throw new Exception("Erreur : l'id du repo renseigné n'existe pas");
-
-    /**
-     * 	On récupère toutes les infos du repo en BDD
-     */
-    $op->repo->db_getAllById();
-
-    /**
-     * 	On écrase la propriété $op->repo->gpgResign et $op->repo->signed (set par db_getAllById juste au dessus) par la valeur de $options['gpgResign'] transmise, pour éviter par exemple de signer le repo alors qu'on a transmis $options['gpgResign'] = no
-     */
-    $op->repo->gpgResign = $options['gpgResign'];
-    $op->repo->signed = $options['gpgResign'];
-
-    /**
-     * 	Exécution de la fonction
-     */
-    $op->exec_reconstruct();
-}
-
 exit(0);
 ?>
