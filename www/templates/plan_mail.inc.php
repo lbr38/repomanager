@@ -340,7 +340,7 @@ $template = "<!doctype html>
           <br>
         </td>
         <td>
-          <br><img src=\"https://".WWW_HOSTNAME."/templates/repomanager.png\" />
+          <br><img src=\"https://".WWW_HOSTNAME."/ressources/images/repomanager.png\" />
         </td>
       </tr>
       <tr>

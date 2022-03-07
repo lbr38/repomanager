@@ -218,7 +218,6 @@ function hideGroupDiv() {
 }
 
 
-
 /**
  *  Events listeners
  */
@@ -455,8 +454,18 @@ $(document).on('click','#packagesInstalledButton',function(){
  *  Event : afficher tous les évènements
  */
 $(document).on('click','#print-all-events-btn',function(){
-	$(".hidden-event").show();		// On affiche les évènements masqués
-	$("#print-all-events-btn").hide();	// On masque le bouton "Afficher tout"
+    /**
+     *  On affiche les évènements masqués de type 'event'
+     */
+    $("div.header-container.event").show();
+    /**
+     *  On affiche les évènements masqués de type 'update-request' (si il y en a)
+     */
+    $("div.header-container.update-request").show();
+    /**
+     *  On masque le bouton "Afficher tout"
+     */
+	$("#print-all-events-btn").hide();
 });
 
 /**
@@ -514,6 +523,28 @@ $(document).on('click','.packageDetails-close',function(){
     $(".packageDetails").hide('200');
     $(".packageDetails").remove();
 });
+
+/**
+ *  Event : affichage ou non des demandes de mises à jour dans l'historique
+ */
+$(document).on('click','#showUpdateRequests',function(){
+    /**
+     *  Si le slide est coché alors on affiche
+     */
+    if (this.checked) {
+        document.cookie = "showUpdateRequests=yes";
+
+    /**
+     *  Si le slide est décoché alors on masque
+     */
+    } else {
+        document.cookie = "showUpdateRequests=no";
+    }
+
+    $("#eventsContainer").load(" #eventsContainer > *");
+});
+
+
 
 /**
  * Ajax: Créer un nouveau groupe

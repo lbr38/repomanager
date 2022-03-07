@@ -963,16 +963,39 @@ class Repo extends Model {
     }
 
 
-/**
- *  GENERATION DE CONF
- */
+    /**
+     *  Génération d'un fichier de configuration de repo (.repo ou .list)
+     */
     public function generateConf(string $destination) {
-        // On peut préciser à la fonction le répertoire de destination des fichiers. Si on précise une valeur vide ou bien "default", alors les fichiers seront générés dans le répertoire par défaut
+        /**
+         *  On vérifie que le nom a été spécifié
+         */
+        if (empty($this->name)) {
+            return false;
+        }
+        /**
+         *  Sur Debian on vérifie également qu'on a bien fourni le nom de la distribution et de la section
+         */
+        if (OS_FAMILY == 'Debian') {
+            if (empty($this->dist)) {
+                return false;
+            }
+
+            if (empty($this->section)) {
+                return false;
+            }
+        }
+
+        /**
+         *  On peut préciser à la fonction le répertoire de destination des fichiers. Si on précise une valeur vide ou bien "default", alors les fichiers seront générés dans le répertoire par défaut
+         */
         if (empty($destination) OR $destination == "default") {
             $destination = REPOS_PROFILES_CONF_DIR;
         }
 
-        // Génération du fichier pour Redhat/Centos
+        /**
+         *  Génération du fichier pour Redhat/Centos
+         */
         if (OS_FAMILY == "Redhat") {
             $content = "# Repo {$this->name} sur ".WWW_HOSTNAME;
             $content = "${content}\n[".REPO_CONF_FILES_PREFIX."{$this->name}___ENV__]";
@@ -986,50 +1009,90 @@ class Repo extends Model {
             } else {
             $content = "${content}\ngpgcheck=0";
             }
-            // Création du fichier si n'existe pas déjà
+
+            /**
+             *  Création du fichier si n'existe pas déjà
+             */
             if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
                 touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
             }
-            // Ecriture du contenu dans le fichier
+
+            /**
+             *  Ecriture du contenu dans le fichier
+             */
             file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo", $content);
         }
-        // Génération du fichier pour Debian
+
+        /**
+         *  Génération du fichier pour Debian
+         */
         if (OS_FAMILY == "Debian") {
             $content = "# Repo {$this->name}, distribution {$this->dist}, section {$this->section} sur ".WWW_HOSTNAME;
             $content = "${content}\ndeb https://".WWW_HOSTNAME."/repo/{$this->name}/{$this->dist}/{$this->section}___ENV__ {$this->dist} {$this->section}";
             
-            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
-            //$checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
-            //if (!empty($checkIfDistContainsSlash)) {
+            /**
+             *  Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
+             */
             if (preg_match('#/#', $this->dist)) {
                 $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
             } else {
                 $repoDistFormatted = $this->dist;
             }
-            // Création du fichier si n'existe pas déjà
+
+            /**
+             *  Création du fichier si n'existe pas déjà
+             */
             if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
                 touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
             }
-            // Ecriture du contenu dans le fichier
+
+            /**
+             *  Ecriture du contenu dans le fichier
+             */
             file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list", $content);
         }
 
         unset($content);
-        return 0;
+        
+        return true;
     }
 
-/**
- *  SUPPRESSION DE CONF
- */
+    /**
+     *  Suppression d'un fichier de configuration de repo (.repo ou .list)
+     */
     public function deleteConf() {
+        /**
+         *  On vérifie que le nom a été spécifié
+         */
+        if (empty($this->name)) {
+            return false;
+        }
+        /**
+         *  Sur Debian on vérifie également qu'on a bien fourni le nom de la distribution et de la section
+         */
+        if (OS_FAMILY == 'Debian') {
+            if (empty($this->dist)) {
+                return false;
+            }
+
+            if (empty($this->section)) {
+                return false;
+            }
+        }
+
         if (OS_FAMILY == "Redhat") {
-            // Suppression du fichier si existe
+            /**
+             *  Suppression du fichier si existe
+             */
             if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
                 unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
             }
 
-            // Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils 
-            $profilesNames = scandir(PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
+            /**
+             *  Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils
+             */ 
+            $profilesNames = scandir(PROFILES_MAIN_DIR);
+
             foreach($profilesNames as $profileName) {
                 if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
                     if (is_link(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
@@ -1040,21 +1103,27 @@ class Repo extends Model {
         }
 
         if (OS_FAMILY == "Debian") {
-            // Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
-            $checkIfDistContainsSlash = exec("echo $this->dist | grep '/'");
-            if (!empty($checkIfDistContainsSlash)) {
+            /**
+             *  Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
+             */
+            if (preg_match('#/#', $this->dist)) {
                 $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
             } else {
                 $repoDistFormatted = $this->dist;
             }
 
-            // Suppression du fichier si existe
+            /**
+             *  Suppression du fichier si existe
+             */
             if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
                 unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
             }
             
-            // Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils 
-            $profilesNames = scandir(PROFILES_MAIN_DIR); // Récupération de tous les noms de profils
+            /**
+             *  Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils
+             */ 
+            $profilesNames = scandir(PROFILES_MAIN_DIR);
+
             foreach($profilesNames as $profileName) {
                 if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
                     if (is_link(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {

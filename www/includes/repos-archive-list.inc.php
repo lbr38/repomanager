@@ -4,7 +4,7 @@ $repoStatus = 'archived';
 $myrepo = new Repo();
 $reposList = $myrepo->listAll_archived();
 
-echo '<div class="repos-list-group">';
+echo '<div class="repos-list-group div-generic-gray">';
 
     if (!empty($reposList)) {
 
@@ -16,7 +16,7 @@ echo '<div class="repos-list-group">';
         processList($reposList);
 
     } else {
-        echo '<p>Il n\'y a aucun repo archivé</p>';
+        echo '<span class="lowopacity">(vide)</span>';
     }
 echo '</div>';
 ?>

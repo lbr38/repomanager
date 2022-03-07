@@ -13,7 +13,7 @@ $groupsList = $mygroup->listAllWithDefault();
  */
 if (!empty($groupsList)) {
     foreach($groupsList as $groupName) {
-        echo '<div class="repos-list-group" group="'.$groupName.'">';
+        echo '<div class="repos-list-group div-generic-gray" group="'.$groupName.'">';
             /**
              *  Bouton permettant de masquer le contenu de ce groupe
              */
@@ -34,7 +34,7 @@ if (!empty($groupsList)) {
                  */
                 processList($reposList);
             } else {
-                echo '<p>Il n\'y a aucun repo dans ce groupe</p>';
+                echo '<span class="lowopacity">(vide)</span>';
             }
         echo '</div>';
     }

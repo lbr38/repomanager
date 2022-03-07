@@ -11,7 +11,6 @@ class Planification extends Model {
 
     private $type;
     private $day = null;
-    //private $date;
     private $date = null;
     private $time = null;
     private $frequency = null;
@@ -121,44 +120,7 @@ class Planification extends Model {
 
     public function setMailRecipient(string $mailRecipient)
     {
-        $mailRecipient = Common::validateData($mailRecipient);
-
-        /**
-         *  On vérifie que la/les adresses renseignées sont valides
-         *  Si la chaine contient une virgule alors il y a plusieurs adresses renseignées
-         */
-        if (preg_match('/,/', $mailRecipient)) {
-            $mailRecipient_formatted = '';
-
-            $mailRecipient = explode(',', $mailRecipient);
-
-            foreach ($mailRecipient as $mail) {
-                $mail = Common::validateData($mail);
-                /**
-                 *  On vérifie que l'adresse email en est bien une
-                 */
-                if (Common::validateMail($mail) === false) {
-                    throw new Exception("Adresse email invalide : $mail");
-                }
-
-                /**
-                 *  On concatène toutes les adresses en les séparant par un espace
-                 */
-                $mailRecipient_formatted .= "$mail ";
-            }
-
-            $mailRecipient = $mailRecipient_formatted;
-
-        /**
-         *  Cas où 1 seule adresse mail a été renseignée
-         */
-        } else {
-            if (Common::validateMail($mailRecipient) === false) {
-                throw new Exception("Adresse email invalide : $mail");
-            }
-        }
-
-        $this->mailRecipient = $mailRecipient;
+        $this->mailRecipient = Common::validateData($mailRecipient);
     }
 
     public function setReminder($reminders)
@@ -248,6 +210,37 @@ class Planification extends Model {
         return $this->action;
     }
 
+    public function getMailRecipient()
+    {
+        return $this->mailRecipient;
+    }
+
+    public function getMailRecipientFormatted()
+    {
+        /**
+         *  Lorsque plusieurs adresses mail sont resneignées, on formatte le résultat retourné pour un meilleur affichage et sans virgule séparant les adresses
+         *  Si une seule adresse mail est renseignée, on ne fait rien
+         */
+        if (preg_match('/,/', $this->mailRecipient)) {
+            $mailRecipientFormatted = '';
+
+            $mailRecipient = explode(',', $this->mailRecipient);
+
+            foreach ($mailRecipient as $mail) {
+                $mailRecipientFormatted .= $mail.'<br>';
+            }
+            /**
+             *  Suppression du dernier saut de ligne
+             */
+            $mailRecipientFormatted = rtrim($mailRecipientFormatted, '<br>');
+
+            return $mailRecipientFormatted;
+        }
+
+        return $this->mailRecipient;
+    }
+
+
     /**
      *  Ajout d'une nouvelle planification en BDD
      */
@@ -286,7 +279,7 @@ class Planification extends Model {
         }
 
         /**
-         * Vvérification de l'heure (dans le cas où il s'agit d'une planification ou d'une tâche récurrente "tous les jours" ou "toutes les semaines")
+         *  Vérification de l'heure (dans le cas où il s'agit d'une planification ou d'une tâche récurrente "tous les jours" ou "toutes les semaines")
          */
         if ($this->type == 'plan' OR ($this->type == 'regular' AND $this->frequency == 'every-day') OR ($this->type == 'regular' AND $this->frequency == 'every-week')) {
             if (empty($this->time)) {
@@ -343,6 +336,41 @@ class Planification extends Model {
             if ($mygroup->existsId() === false) {
                 throw new Exception("Le groupe spécifié n'existe pas");
             }
+        }
+
+        /**
+         *  On vérifie que la/les adresses renseignées sont valides
+         *  Si la chaine contient une virgule alors il y a plusieurs adresses renseignées
+         *  On va devoir exploser la chaine pour pouvoir tester chaque adresse mail, puis reconstruire la chaine en ne conservant que les adresses valides
+         */
+        if (!empty($this->mailRecipient)) {
+            if (preg_match('/,/', $this->mailRecipient)) {
+                $mailRecipientTest = explode(',', $this->mailRecipient);
+
+                foreach ($mailRecipientTest as $mail) {
+                    $mail = Common::validateData($mail);
+                    /**
+                     *  On vérifie que l'adresse email est valide
+                     */
+                    if (Common::validateMail($mail) === false) {
+                        throw new Exception("Adresse email invalide : $mail");
+                    }
+                }
+
+            /**
+             *  Cas où 1 seule adresse mail a été renseignée
+             */
+            } else {
+                if (Common::validateMail($this->mailRecipient) === false) {
+                    throw new Exception("Adresse email invalide : $mail");
+                }
+            }
+        } else {
+            /**
+             *  Si aucune adresse mail de contact n'a été fournie, on passe les paramètres de notifications à 'no'
+             */
+            $this->setNotification('on-error', 'no');
+            $this->setNotification('on-success', 'no');
         }
 
         /**

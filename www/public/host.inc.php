@@ -21,19 +21,30 @@ if (!empty($_GET['id'])) {
     $hostProperties = $myhost->db_getAll();
 
     if (!empty($hostProperties)) {
-        $id           = $hostProperties['Id'];
-        $hostname     = $hostProperties['Hostname'];
-        $ip           = $hostProperties['Ip'];
-        $os           = $hostProperties['Os'];
-        $os_version   = $hostProperties['Os_version'];
-        $profile      = $hostProperties['Profile'];
-        $env          = $hostProperties['Env'];
-        $onlineStatus = $hostProperties['Online_status'];
+        $id               = $hostProperties['Id'];
+        $hostname         = $hostProperties['Hostname'];
+        $ip               = $hostProperties['Ip'];
+        $os               = $hostProperties['Os'];
+        $os_version       = $hostProperties['Os_version'];
+        $profile          = $hostProperties['Profile'];
+        $env              = $hostProperties['Env'];
+        $onlineStatus     = $hostProperties['Online_status'];
+        $onlineStatusDate = $hostProperties['Online_status_date'];
+        $onlineStatusTime = $hostProperties['Online_status_time'];
+        $status           = $hostProperties['Status'];
 
         /**
-         *  Si on a pu récupérer les informations de l'hôte alors on ouvre sa base de données (lecture seule)
+         *  Si l'hôte est en status 'deleted' alors on ne l'affiche pas 
          */
-        $myhost->openHostDb($id);
+        if ($status == 'deleted') {
+            $idError++;
+
+        } else {
+            /**
+             *  On ouvre la base de données de l'hôte
+             */
+            $myhost->openHostDb($id);
+        }
 
     } else {
         $idError++;
@@ -44,7 +55,7 @@ if (!empty($_GET['id'])) {
 }
 
 if ($idError != 0) {
-    echo '<span class="yellowtext">Erreur : l\'id renseigné est invalide</span>';
+    echo '<span class="yellowtext">L\'Id d\'hôte renseigné est invalide</span>';
     die();
 }
 
@@ -90,8 +101,6 @@ if (Common::isadmin()) { ?>
 </div>
 <?php } ?>
 
-<!-- <article> -->
-    <!-- <section class="main"> -->
             <div class="div-flex">
                 <div class="flex-div-100">
 
@@ -324,8 +333,6 @@ if (Common::isadmin()) { ?>
 
                 <div class="flex-div-50">
                     <h4>HISTORIQUE</h4>
-                    
-                    <!--<span class="host-update-request-btn btn-medium-blue"><img src="../ressources/icons/update.png" class="icon" /><b>Mettre à jour</b></span>-->
 
                     <div id="eventsContainer">
                         
@@ -334,43 +341,125 @@ if (Common::isadmin()) { ?>
                             if (empty($allEventsList)) {
                                 echo '<p>Aucun historique</p>';
                 
-                            } else {
+                            } else { ?>
+                                <span>Afficher les demandes de transfert</span>
+                                <label class="onoff-switch-label">
+                                    <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php if (!empty($_COOKIE['showUpdateRequests']) AND $_COOKIE['showUpdateRequests'] == "yes") echo 'checked';?> />
+                                    <span class="onoff-switch-slider"></span>
+                                </label>
+
+                                <?php
                                 /**
                                  * 	Nombre maximal d'évènements qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
                                  * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
                                  */
                                 $i = 0;
-                                $printMaxItems = 5;
-                                
-                                foreach ($allEventsList as $event) { 
+                                $printMaxItems = 10;
+
+                                foreach ($allEventsList as $event) {
+                                    /**
+                                     *  Si le nombre maximal d'évènement à afficher n'est pas encore atteint alors on affiche l'évènement
+                                     *  Sinon le masque
+                                     */
+
+                                    /**
+                                     *  Cas où on masque l'évènement
+                                     */
                                     if ($i > $printMaxItems) {
-                                        echo '<div class="header-container hidden-event hide">';
+                                        /**
+                                         *  Si l'évènement est une demande de mise à jour
+                                         */
+                                        if ($event['Event_type'] == "update_request") {
+                                            /**
+                                             *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
+                                             */
+                                            if (empty($_COOKIE['showUpdateRequests']) OR $_COOKIE['showUpdateRequests'] == "no") {
+                                                continue;
+                                            }
+
+                                            echo '<div class="header-container update-request hide">';
+                                        }                                 
+                                        /**
+                                         *  Si l'évènement est un 'event'
+                                         */
+                                        if ($event['Event_type'] == "event") {
+                                            echo '<div class="header-container event hide">';
+                                        }
+                                    /**
+                                     *  Cas où on affiche l'évènement
+                                     */
                                     } else {
-                                        echo '<div class="header-container">';
+                                        /**
+                                         *  Si l'évènement est une demande de mise à jour
+                                         */
+                                        if ($event['Event_type'] == "update_request") {
+                                            /**
+                                             *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
+                                             */
+                                            if (empty($_COOKIE['showUpdateRequests']) OR $_COOKIE['showUpdateRequests'] == "no") {
+                                                continue;
+                                            }
+
+                                            echo '<div class="header-container update-request">';
+                                        }                                 
+                                        /**
+                                         *  Si l'évènement est un 'event'
+                                         */
+                                        if ($event['Event_type'] == "event") {
+                                            echo '<div class="header-container event">';
+                                        }
                                     } ?>
 	                                    <div class="header-blue">
                                             <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
                                             <?php 
                                             if ($event['Event_type'] == "update_request") {
-                                                if ($event['Type'] == 'general-status-update') {
-                                                    echo '<span>Demande de maj des informations générales</span>';
-                                                }
-
-                                                if ($event['Type'] == 'available-packages-status-update') {
-                                                    echo '<span>Demande de maj de la liste des paquets disponibles</span>';
-                                                }
-
-                                                if ($event['Type'] == 'installed-packages-status-update') {
-                                                    echo '<span>Demande de maj de la liste des paquets installés</span>';
-                                                }
-
-                                                if ($event['Type'] == 'full-history-update') {
-                                                    echo '<span>Demande de maj de l\'historique des évènements</span>';
-                                                }
-
-                                                if ($event['Type'] == 'packages-update') {
-                                                    echo '<span>Demande de mise à jour des paquets</span>';
-                                                } 
+                                                echo '<span>';
+                                                    /**
+                                                     *  Affichage d'une icone en fonction du status
+                                                     */
+                                                    if ($event['Status'] == 'done') {
+                                                        echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
+                                                    }
+                                                    if ($event['Status'] == 'error') {
+                                                        echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
+                                                    }
+                                                    if ($event['Status'] == 'running') {
+                                                        echo '<img src="ressources/images/loading.gif" class="icon" />';
+                                                    }
+                                                    /**
+                                                     *  Affichage du type de demande
+                                                     */
+                                                    if ($event['Type'] == 'general-status-update') {
+                                                        echo 'Transfert des informations générales';
+                                                    }
+                                                    if ($event['Type'] == 'available-packages-status-update') {
+                                                        echo 'Transfert de la liste des paquets disponibles';
+                                                    }
+                                                    if ($event['Type'] == 'installed-packages-status-update') {
+                                                        echo 'Transfert de la liste des paquets installés';
+                                                    }
+                                                    if ($event['Type'] == 'full-history-update') {
+                                                        echo 'Transfert de l\'historique des évènements';
+                                                    }
+                                                    if ($event['Type'] == 'packages-update') {
+                                                        echo 'Mise à jour des paquets';
+                                                    }
+                                                    /**
+                                                     *  Affichage du status
+                                                     */
+                                                    if ($event['Status'] == 'done') {
+                                                        echo ' terminé';
+                                                    }
+                                                    if ($event['Status'] == 'error') {
+                                                        echo ' en erreur';
+                                                    }
+                                                    if ($event['Status'] == 'running') {
+                                                        echo ' en cours';
+                                                    }
+                                                    if ($event['Status'] == 'requested') {
+                                                        echo ' demandé';
+                                                    }
+                                                echo '</span>';
                                             }
 
                                             if ($event['Event_type'] == "event") {
@@ -444,9 +533,6 @@ if (Common::isadmin()) { ?>
                     </div>
                 </div>
             </div>
-    <!-- </section> -->
-<!-- </article> -->
-
 <?php 
 /**
  *  On ferme la connexion à la BDD dédiée de l'hôte

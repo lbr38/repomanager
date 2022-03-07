@@ -99,7 +99,7 @@ if (isset($_GET['auto'])) {
 
         <?php if (Common::isadmin()) { ?>
             <section id="groupsHostDiv" class="section-center hide">
-                <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity" src="ressources/icons/close.png" />
+                <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
                 <h3>GROUPES</h3>
                 <p><b>Créer un groupe :</b></p>
                 <form id="newGroupForm" autocomplete="off">
@@ -177,19 +177,28 @@ if (isset($_GET['auto'])) {
                 </div>
 
                 <?php
-                if (!empty($groupsList)) { ?>
-                    <div class="searchInput-container">
-                        <div class="searchInput-subcontainer">
-                            <div>
-                                <p>Rechercher un hôte :</p>
-                                <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Nom d'hôte, IP" />
-                            </div>
-                            <div>
-                                <p>Rechercher un paquet :</p>
-                                <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Nom du paquet" />
+                if (!empty($groupsList)) {
+                    /**
+                     *  Si il y a au moins 1 hôte actif alors on fait apparaitre les champs de recherche
+                     */
+                    if ($totalHosts != 0) { ?>
+                        <div class="searchInput-container">
+                            <div class="searchInput-subcontainer">
+                                <div>
+                                    <p>Rechercher un hôte :</p>
+                                    <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Nom d'hôte, IP" />
+                                </div>
+                                <div>
+                                    <p>Rechercher un paquet :</p>
+                                    <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Nom du paquet" />
+                                </div>
                             </div>
                         </div>
-                    </div>
+            <?php   } else {
+
+                        echo '<p>Il n\'y a aucun hote configuré</p>';
+
+                    } ?>
                     
                     <div class="groups-container">
 
@@ -340,7 +349,7 @@ if (isset($_GET['auto'])) {
                                                             $updateStatus = 'demandée';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'running') {
-                                                            $updateStatus = 'en cours';
+                                                            $updateStatus = 'en cours<img src="ressources/images/loading.gif" class="icon" />';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'done') {
                                                             $updateStatus = 'terminée';
@@ -371,7 +380,7 @@ if (isset($_GET['auto'])) {
                                         echo '</tbody>';
                                     echo '</table>';
                                 } else {
-                                    echo '<table class="hosts-table-empty"><tr class="host-tr"><td>Il n\'y a aucun hôte dans ce groupe</td></tr></table>';
+                                    echo '<table class="hosts-table-empty"><tr class="host-tr"><td class="lowopacity">(vide)</td></tr></table>';
                                 }
     
                             echo '</div>';

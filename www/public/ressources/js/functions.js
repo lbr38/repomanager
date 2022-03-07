@@ -12,8 +12,8 @@ setInterval(function(){
 /** 
  *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
  */
-$(document).on('click','#ReposListDisplayToggleButton, #displayCloseButton',function(){
-    $("#divReposListDisplay").slideToggle('slow');
+$(document).on('click','#ReposListDisplayToggleButton, #displayDivCloseButton',function(){
+    $("#displayDiv").slideToggle('slow');
 });
 
 /**
@@ -119,3 +119,16 @@ function reloadNewRepoDiv(){
         $(".type_local_input").show();
     }
 }
+
+/**
+ *  Copie du contenu d'un élement dans le presse-papier
+ *  @param {*} containerid 
+ */
+function copyToClipboard(containerid) {
+    var range = document.createRange();
+    range.selectNode(containerid);
+    window.getSelection().removeAllRanges(); 
+    window.getSelection().addRange(range); 
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+  }

@@ -153,155 +153,36 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 			 * 	Affichage des données en cours d'exécution
 			 */
 			if (!empty($totalRunning)) {
-				
-				echo '<p>En cours :</p>';
+				echo '<div class="div-generic-gray">';
+					echo '<p><b>En cours</b></p>';
 
-				foreach ($totalRunning as $itemRunning) {
-					if (array_key_exists('Reminder', $itemRunning)) {
-						/**
-						 * 	1. Récupération de toutes des informations concernant cette planification
-						 */
-						$planId = $itemRunning['Id'];
-						$planType = $itemRunning['Type'];
-						if (!empty($itemRunning['Frequency'])) $planFrequency = $itemRunning['Frequency'];
-						if (!empty($itemRunning['Date']))      $planDate = DateTime::createFromFormat('Y-m-d', $itemRunning['Date'])->format('d-m-Y');
-						if (!empty($itemRunning['Time']))      $planTime = $itemRunning['Time'];
-						$planAction = $itemRunning['Action'];
-						$planStatus = $itemRunning['Status'];
-						$planLogfile = $itemRunning['Logfile'];
-
-						/**
-						 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
-						 */
-						try {
-							$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status=:status");
-							$stmt->bindValue(':id_plan', $planId);
-							$stmt->bindValue(':status', 'running');
-							$result = $stmt->execute();
-						} catch(Exception $e) {
-							Common::dbError($e);
-						}
-						while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsRunning[] = $row;
-
-						try {
-							$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
-							$stmt->bindValue(':id_plan', $planId);
-							$result = $stmt->execute();
-						} catch(Exception $e) {
-							Common::dbError($e);
-						}
-						while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
-
-						/**
-						 * 	3. Affichage de l'en-tête de la planification
-						 */
-						echo '<div class="header-container">';
-							echo '<div class="header-blue">';
-							echo '<table>';
-								echo '<tr>';
-								echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
-								/**
-								 * 	On affiche un lien vers le fichier de log de la planification si il y en a un
-								 */
-								if ($planType == "plan") {
-									if (!empty($planLogfile)) {
-										echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
-									} else {
-										echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
-									}
-								}
-								if ($planType == "regular") {
-									echo "<td>Planification récurrente</b></td>";
-								}
-								echo '<td class="td-fit">en cours <img class="icon" src="ressources/images/loading.gif" title="En cours d\'exécution" /></td>';
-								echo '</tr>';
-							echo '</table>';
-							echo '</div>';
-						echo '</div>';
-
-						/**
-						 * 	Si il y a des opérations en cours pour cette planification alors on l'affiche
-						 */
-						if (!empty($plan_opsRunning)) {
-							foreach ($plan_opsRunning as $plan_opRunning) {
-								printOp($plan_opRunning, 'plan');
-							}
-						}
-
-						/**
-						 * 	Si il y a des opérations terminées pour cette planification alors on l'affiche
-						 */
-						if (!empty($plan_opsDone)) {
-							foreach ($plan_opsDone as $plan_opDone) {
-								printOp($plan_opDone, 'plan');
-							}
-						}
-
-					} else {
-
-						printOp($itemRunning);
-						
-					}
-
-					unset($plan_opsRunning, $plan_opsDone);
-				}
-			}
-
-			/**
-			 * 	Affichage des données terminées
-			 */
-			if (!empty($totalDone) OR !empty($opsFromRegularPlanDone)) {
-
-				/**
-				 * 	Affichage des tâches terminées
-				 */
-				if (!empty($totalDone)) {
-
-					echo '<p>Terminé :</p>';
-
-					/**
-					 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
-					 * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
-					 */
-					$i = 0;
-					$printMaxItems = 2;
-
-					/**
-					 * 	Traitement de toutes les opérations terminées
-					 */
-					foreach ($totalDone as $itemDone) {
-						/**
-						 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
-						 * 	Sauf si le cookie printAllOp = yes, dans ce cas on affiche tout
-						 */
-						if ($i > $printMaxItems) {
-							if (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] == "yes")
-								echo '<div class="hidden-op">';
-							else
-								echo '<div class="hidden-op hide">';
-						}
-
-						/**
-						 * 	Si l'élément comporte une colonne 'Reminder' alors l'élément est une planification.
-						 * 	On va donc récupérer toutes les opérations liées à cette planification
-						 */
-						if (array_key_exists('Reminder', $itemDone)) {
-
+					foreach ($totalRunning as $itemRunning) {
+						if (array_key_exists('Reminder', $itemRunning)) {
 							/**
 							 * 	1. Récupération de toutes des informations concernant cette planification
 							 */
-							$planId = $itemDone['Id'];
-							$planType = $itemDone['Type'];
-							if (!empty($itemDone['Frequency'])) $planFrequency = $itemDone['Frequency'];
-							if (!empty($itemDone['Date']))      $planDate = DateTime::createFromFormat('Y-m-d', $itemDone['Date'])->format('d-m-Y');
-							if (!empty($itemDone['Time']))      $planTime = $itemDone['Time'];
-							$planAction = $itemDone['Action'];
-							$planStatus = $itemDone['Status'];
-							$planLogfile = $itemDone['Logfile'];
+							$planId = $itemRunning['Id'];
+							$planType = $itemRunning['Type'];
+							if (!empty($itemRunning['Frequency'])) $planFrequency = $itemRunning['Frequency'];
+							if (!empty($itemRunning['Date']))      $planDate = DateTime::createFromFormat('Y-m-d', $itemRunning['Date'])->format('d-m-Y');
+							if (!empty($itemRunning['Time']))      $planTime = $itemRunning['Time'];
+							$planAction = $itemRunning['Action'];
+							$planStatus = $itemRunning['Status'];
+							$planLogfile = $itemRunning['Logfile'];
 
 							/**
 							 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
 							 */
+							try {
+								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status=:status");
+								$stmt->bindValue(':id_plan', $planId);
+								$stmt->bindValue(':status', 'running');
+								$result = $stmt->execute();
+							} catch(Exception $e) {
+								Common::dbError($e);
+							}
+							while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsRunning[] = $row;
+
 							try {
 								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
 								$stmt->bindValue(':id_plan', $planId);
@@ -310,7 +191,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 								Common::dbError($e);
 							}
 							while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
-						
+
 							/**
 							 * 	3. Affichage de l'en-tête de la planification
 							 */
@@ -319,20 +200,33 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 								echo '<table>';
 									echo '<tr>';
 									echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
+									/**
+									 * 	On affiche un lien vers le fichier de log de la planification si il y en a un
+									 */
 									if ($planType == "plan") {
-										if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
+										if (!empty($planLogfile)) {
 											echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
 										} else {
 											echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
 										}
-										if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" /></td>';
-										if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" /></td>';
-										if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
 									}
+									if ($planType == "regular") {
+										echo "<td>Planification récurrente</b></td>";
+									}
+									echo '<td class="td-fit">en cours <img class="icon" src="ressources/images/loading.gif" title="En cours d\'exécution" /></td>';
 									echo '</tr>';
 								echo '</table>';
 								echo '</div>';
 							echo '</div>';
+
+							/**
+							 * 	Si il y a des opérations en cours pour cette planification alors on l'affiche
+							 */
+							if (!empty($plan_opsRunning)) {
+								foreach ($plan_opsRunning as $plan_opRunning) {
+									printOp($plan_opRunning, 'plan');
+								}
+							}
 
 							/**
 							 * 	Si il y a des opérations terminées pour cette planification alors on l'affiche
@@ -345,25 +239,133 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 
 						} else {
 
-							printOp($itemDone);
-
+							printOp($itemRunning);
+							
 						}
 
-						unset($plan_opsDone);
-
-						if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hidden-op hide">
-
-						++$i;
+						unset($plan_opsRunning, $plan_opsDone);
 					}
+				echo '</div>';
+			}
 
-					if ($i > $printMaxItems) {
+			/**
+			 * 	Affichage des données terminées
+			 */
+			if (!empty($totalDone) OR !empty($opsFromRegularPlanDone)) {
+
+				/**
+				 * 	Affichage des tâches terminées
+				 */
+				if (!empty($totalDone)) {
+					echo '<div class="div-generic-gray">';
+						echo '<p><b>Terminé</b></p>';
+
 						/**
-						 * 	On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
+						 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
+						 * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
 						 */
-						if (!isset($_COOKIE['printAllOp']) OR (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] != "yes")) {
-							echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
+						$i = 0;
+						$printMaxItems = 2;
+
+						/**
+						 * 	Traitement de toutes les opérations terminées
+						 */
+						foreach ($totalDone as $itemDone) {
+							/**
+							 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
+							 * 	Sauf si le cookie printAllOp = yes, dans ce cas on affiche tout
+							 */
+							if ($i > $printMaxItems) {
+								if (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] == "yes")
+									echo '<div class="hidden-op">';
+								else
+									echo '<div class="hidden-op hide">';
+							}
+
+							/**
+							 * 	Si l'élément comporte une colonne 'Reminder' alors l'élément est une planification.
+							 * 	On va donc récupérer toutes les opérations liées à cette planification
+							 */
+							if (array_key_exists('Reminder', $itemDone)) {
+
+								/**
+								 * 	1. Récupération de toutes des informations concernant cette planification
+								 */
+								$planId = $itemDone['Id'];
+								$planType = $itemDone['Type'];
+								if (!empty($itemDone['Frequency'])) $planFrequency = $itemDone['Frequency'];
+								if (!empty($itemDone['Date']))      $planDate = DateTime::createFromFormat('Y-m-d', $itemDone['Date'])->format('d-m-Y');
+								if (!empty($itemDone['Time']))      $planTime = $itemDone['Time'];
+								$planAction = $itemDone['Action'];
+								$planStatus = $itemDone['Status'];
+								$planLogfile = $itemDone['Logfile'];
+
+								/**
+								 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
+								 */
+								try {
+									$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
+									$stmt->bindValue(':id_plan', $planId);
+									$result = $stmt->execute();
+								} catch(Exception $e) {
+									Common::dbError($e);
+								}
+								while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
+							
+								/**
+								 * 	3. Affichage de l'en-tête de la planification
+								 */
+								echo '<div class="header-container">';
+									echo '<div class="header-blue">';
+									echo '<table>';
+										echo '<tr>';
+										echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
+										if ($planType == "plan") {
+											if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
+												echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
+											} else {
+												echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
+											}
+											if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" /></td>';
+											if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" /></td>';
+											if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
+										}
+										echo '</tr>';
+									echo '</table>';
+									echo '</div>';
+								echo '</div>';
+
+								/**
+								 * 	Si il y a des opérations terminées pour cette planification alors on l'affiche
+								 */
+								if (!empty($plan_opsDone)) {
+									foreach ($plan_opsDone as $plan_opDone) {
+										printOp($plan_opDone, 'plan');
+									}
+								}
+
+							} else {
+
+								printOp($itemDone);
+
+							}
+
+							unset($plan_opsDone);
+
+							if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hidden-op hide">
+
+							++$i;
 						}
-					}
+
+						if ($i > $printMaxItems) {
+							/**
+							 * 	On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
+							 */
+							if (!isset($_COOKIE['printAllOp']) OR (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] != "yes")) {
+								echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
+							}
+						}
+					echo '</div>';
 				}
 
 
@@ -371,44 +373,45 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 				 * 	Affichage des tâches récurrentes terminées
 				 */
 				if (!empty($opsFromRegularPlanDone)) {
-					
-					echo '<p>Tâches récurrentes :</p>';
+					echo '<div class="div-generic-gray">';
+						echo '<p><b>Tâches récurrentes</b></p>';
 
-					/**
-					 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
-					 * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
-					 */
-					$i = 0;
-					$printMaxItems = 2;
-
-
-					foreach ($opsFromRegularPlanDone as $itemDone) {
 						/**
-						 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
-						 * 	Sauf si le cookie printAllRegularOp = yes, dans ce cas on affiche tout
+						 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
+						 * 	Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
 						 */
+						$i = 0;
+						$printMaxItems = 2;
+
+
+						foreach ($opsFromRegularPlanDone as $itemDone) {
+							/**
+							 * 	Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
+							 * 	Sauf si le cookie printAllRegularOp = yes, dans ce cas on affiche tout
+							 */
+							if ($i > $printMaxItems) {
+								if (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] == "yes")
+									echo '<div class="hidden-regular-op">';
+								else
+									echo '<div class="hidden-regular-op hide">';
+							}
+
+							printOp($itemDone);
+
+							if ($i > $printMaxItems) echo '</div>';
+
+							++$i;
+						}
+
 						if ($i > $printMaxItems) {
-							if (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] == "yes")
-								echo '<div class="hidden-regular-op">';
-							else
-								echo '<div class="hidden-regular-op hide">';
+							/**
+							 * 	On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
+							 */
+							if (!isset($_COOKIE['printAllRegularOp']) OR (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] != "yes")) {
+								echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
+							}
 						}
-
-						printOp($itemDone);
-
-						if ($i > $printMaxItems) echo '</div>'; // clôture de <div class="hidden-regular-op hide">
-
-						++$i;
-					}
-
-					if ($i > $printMaxItems) {
-						/**
-						 * 	On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
-						 */
-						if (!isset($_COOKIE['printAllRegularOp']) OR (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] != "yes")) {
-							echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
-						}
-					}
+					echo '</div>';
 				}
 			} ?>
 	</section>

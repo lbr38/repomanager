@@ -13,8 +13,8 @@ Autoloader::loadFromApi();
  *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
-    http_response_code(503);
-    echo json_encode(["return" => "503", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
     exit;
 }
 
@@ -44,9 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          *  D'abord on vérifie que l'ID et le token transmis sont valides
          */
         if (!$myhost->checkIdToken()) {
-            $message_error[] = "L'authentification a échouée.";
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message_error" => $message_error]);
+            $message_error[] = "Hôte inconnu.";
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
 
@@ -145,21 +145,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         }
 
         /**
-         *  Si il y a eu des messages d'erreur alors on retourne un code d'erreur 503, sinon 201
+         *  Si il y a eu des messages d'erreur alors on retourne un code d'erreur 400, sinon 201
          */
         /**
-         *  Cas où il y a eu des erreurs et des success (503)
+         *  Cas où il y a eu des erreurs et des success (400)
          */
         if (!empty($message_error) AND !empty($message_success)) {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message_success" => $message_success, "message_error" => $message_error]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message_success" => $message_success, "message_error" => $message_error]);
             exit;
         /**
-         *  Cas où il y a eu des erreurs (503)
+         *  Cas où il y a eu des erreurs (400)
          */
         } else if (!empty($message_error)) {
-            http_response_code(503);
-            echo json_encode(["return" => "503", "message_error" => $message_error]);
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         /**
          *  Cas où il y a eu des success (201)
@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             echo json_encode(["return" => "201", "message_success" => $message_success]);
             exit;
         }
- 
+
     } else {
         http_response_code(400);
         $message_error[] = "Les données transmises sont invalides.";

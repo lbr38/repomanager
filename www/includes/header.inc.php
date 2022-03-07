@@ -292,7 +292,7 @@ if (DEBUG_MODE == "enabled") {
                         if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                         if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Mise à jour ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }
-                    if ($planAction == "env" OR strpos(htmlspecialchars_decode($planAction), '->') !== false) {
+                    if ($planAction == "changeEnv" OR strpos(htmlspecialchars_decode($planAction), '->') !== false) {
                         if (OS_FAMILY == "Redhat") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                         if (OS_FAMILY == "Debian") echo "<li><span class=\"li-operation-running\"><a href=\"run.php?logfile=$opLogfile\">Nouvel env. ($name - $dist - $section)</a> | <a href=\"run.php?stop=${opPid}\">Stop</a></span></li>";
                     }

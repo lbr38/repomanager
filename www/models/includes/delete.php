@@ -88,6 +88,8 @@ trait delete {
                 if ($result != 0) {
                     throw new Exception('impossible de supprimer le miroir');
                 }
+
+                $this->log->steplogOK();
             }
 
             /**
@@ -120,6 +122,8 @@ trait delete {
                          *  Suppression du fichier de conf repo en local (ces fichiers sont utilisés pour les profils)
                          */
                         $this->repo->deleteConf();
+
+                        $this->log->steplogOK();
                     }
                 }
 
@@ -133,14 +137,14 @@ trait delete {
                             throw new Exception('impossible de supprimer le miroir');
                         }
 
-                        $this->log->steplogOK();
-
                         /**
                          *  Si il n'y a plus du tout de trace de la section en BDD, alors on peut supprimer son fichier de conf .list
                          */
                         if ($this->repo->section_exists($name, $dist, $section) === false) {
                             $this->repo->deleteConf();
                         }
+                        
+                        $this->log->steplogOK();
 
                     } else {
                         $this->log->steplogOK("La version du miroir de cette section est toujours utilisée pour d'autres environnements. Le miroir du <b>{$dateFormatted}</b> n'est donc pas supprimé");
@@ -153,8 +157,6 @@ trait delete {
                 $group = new Group('repo');
                 $group->cleanRepos();
             }
-
-            $this->log->steplogOK();
 
             /**
              *  Passage du status de l'opération en done

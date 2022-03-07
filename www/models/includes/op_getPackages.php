@@ -132,11 +132,10 @@ trait op_getPackages {
         }
 
         if (OS_FAMILY == "Debian") {
-            echo 'Clonage avec debmirror :';
             /**
              *  Dans le cas où on a précisé de ne pas vérifier les signatures GPG
              */
-            if ($targetGpgCheck == "no") {           
+            if ($targetGpgCheck == "no") {
                 $process = proc_open("exec /usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --rsync-extra=none --root=${rootUrl} --dist=${dist} --host=${hostUrl} --section=${section} --arch=amd64 ".REPOS_DIR."/${name}/${dist}/".DATE_DMY."_${section} --getcontents --ignore-release-gpg --progress --i18n --include='Translation-fr.*\.bz2' --postcleanup", $descriptors, $pipes);
             
             /**

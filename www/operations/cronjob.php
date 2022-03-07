@@ -66,7 +66,7 @@ else
 if (CRON_SAVE_CONF == "yes") {
     if (is_dir(BACKUP_DIR)) {
         /**
-         *  Sauvegarde de la db
+         *  Sauvegarde de la base de données
          */
         if (!is_dir(BACKUP_DIR."/db")) {
             if (!mkdir(BACKUP_DIR."/db", 0770, true)) {
@@ -79,14 +79,19 @@ if (CRON_SAVE_CONF == "yes") {
         }
 
         /**
-         *  Sauvegarde des fichiers de configuration
+         *  Création du répertoire de sauvegarde
          */
         if (!is_dir(BACKUP_DIR."/configurations")) {
             if (!mkdir(BACKUP_DIR."/configurations", 0770, true)) {
                 ++$backupError;
             }
         }
-        if (is_dir(BACKUP_DIR."/configurations")) copy(ROOT."/configurations/repomanager.conf", BACKUP_DIR."/configurations/".DATE_YMD."_".TIME."_repomanager.conf");
+        /**
+         *  Sauvegarde des fichiers de configuration
+         */
+        if (is_dir(BACKUP_DIR."/configurations")) {
+            copy(ROOT."/configurations/repomanager.conf", BACKUP_DIR."/configurations/".DATE_YMD."_".TIME."_repomanager.conf");
+        }
     }
 }
 
@@ -97,18 +102,18 @@ if (CRON_SAVE_CONF == "yes") {
  */
 if (MANAGE_PROFILES == "yes" AND CRON_GENERATE_REPOS_CONF == "yes") {
 
-    $repo = new Repo();
+    $myrepo = new Repo();
 
     /**
      *  Création du répertoire des configurations de profils si n'existe pas
      */
     if (!file_exists(REPOS_PROFILES_CONF_DIR))     mkdir(REPOS_PROFILES_CONF_DIR, 0770, true);
-    if (!is_dir(TEMP_DIR."/cronjob_daily/files")) mkdir(TEMP_DIR."/cronjob_daily/files", 0770, true);
+    if (!is_dir(TEMP_DIR."/cronjob_daily/files"))  mkdir(TEMP_DIR."/cronjob_daily/files", 0770, true);
 
     /**
      *  On récupère toute la liste des repos actifs
      */
-    $reposList = $repo->listAll();
+    $reposList = $myrepo->listAll();
 
     if (!empty($reposList)) {
         foreach($reposList as $repo) {
@@ -122,10 +127,15 @@ if (MANAGE_PROFILES == "yes" AND CRON_GENERATE_REPOS_CONF == "yes") {
                 /**
                  *  On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
                  */
-                if (OS_FAMILY == "Redhat") $repo = new Repo(compact('repoName'));
-                if (OS_FAMILY == "Debian") $repo = new Repo(compact('repoName', 'repoDist', 'repoSection'));
+                $myrepo->setName($repoName);
+                if (OS_FAMILY == "Debian") {
+                    $myrepo->setDist($repoDist);
+                    $myrepo->setSection($repoSection);
+                }
 
-                $repo->generateConf(TEMP_DIR."/cronjob_daily/files");
+                if ($myrepo->generateConf(TEMP_DIR."/cronjob_daily/files") === false) {
+                    ++$generateConfError;
+                }
 
                 /**
                  *  Enfin on copie les fichiers générés dans le répertoire temporaire dans le répertoire habituel des fichiers de conf, en copiant uniquement les différences et en supprimant les fichiers inutilisés

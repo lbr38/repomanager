@@ -36,7 +36,7 @@ $(document).on('click','.planDetailsBtn',function(){
     /**
      *  Affichage du div portant cet Id
      */
-    $('.planDetailsDiv[plan-id='+planId+']').slideToggle(100);
+    $('.detailsDiv[plan-id='+planId+']').slideToggle(100);
 });
 
 /**
