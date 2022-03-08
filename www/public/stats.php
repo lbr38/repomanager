@@ -63,8 +63,8 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                 }
 
                 if ($repoError === 0) {
-                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) echo "<p>Statistiques du repo <b>".$myrepo->getName()."</b> " . Common::envtag($myrepo->getEnv()) . "</p>";
-                    if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) echo "<p>Statistiques de la section <b>".$myrepo->getSection()."</b> " . Common::envtag($myrepo->getEnv()) . " du repo <b>".$myrepo->getName()."</b> (distribution <b>".$myrepo->getDist()."</b>).</p>";
+                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) echo '<p>Statistiques du repo <span class="label-white">'.$myrepo->getName().'</span> ' . Common::envtag($myrepo->getEnv()) . '</p>';
+                    if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) echo '<p>Statistiques de la section <span class="label-white">'.$myrepo->getName(). ' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection()."</span> " . Common::envtag($myrepo->getEnv()) . '</p>';
                 }
 
                 echo '<br>';

@@ -69,6 +69,8 @@ class History {
 
     static function set(string $username, string $action, string $state = null)
     {
+        date_default_timezone_set('Europe/Paris');
+
         $username = Common::validateData($username);
         $action   = Common::validateData($action);
         $state    = Common::validateData($state);

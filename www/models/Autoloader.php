@@ -123,8 +123,8 @@ class Autoloader
      */
     static function loadAll()
     {
-        Autoloader::loadSession();
         Autoloader::register();
+        Autoloader::loadSession();
         Autoloader::loadSystem();
         Autoloader::loadConfiguration();
         Autoloader::loadDirs();
@@ -144,6 +144,23 @@ class Autoloader
         if(!isset($_SESSION)){
             session_start();
         }
+
+        /**
+         *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
+         */
+        if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
+            History::set($_SESSION['username'], "Session expirée, déconnexion", 'success');
+            header('Location: logout.php');
+            exit();
+        }
+
+        /**
+         *  On défini l'heure de création de la session (ou on la renouvelle si la session est toujours en cours)
+         */
+        // if (empty($_SESSION['start_time'])) {
+        //     $_SESSION['start_time'] = time();
+        // }
+        $_SESSION['start_time'] = time();
 
         /**
          *  Si les variables de session username ou role sont vides alors on redirige vers la page de login

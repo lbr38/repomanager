@@ -1,6 +1,6 @@
 <?php
-if (OS_FAMILY == 'Redhat') echo '<p>Dupliquer <b>'.$myrepo->getName().'</b> '.Common::envtag($myrepo->getEnv()).'</p>';
-if (OS_FAMILY == 'Debian') echo '<p>Dupliquer <b>'.$myrepo->getName().'</b> ('.$myrepo->getDist().' - '.$myrepo->getSection().') '.Common::envtag($myrepo->getEnv()).'</p>';
+if (OS_FAMILY == 'Redhat') echo '<p>Dupliquer <span class="label-white">'.$myrepo->getName().' '.Common::envtag($myrepo->getEnv()).'</p>';
+if (OS_FAMILY == 'Debian') echo '<p>Dupliquer <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
 ?>
 
 <span>Nouveau nom du repo :</span><input type="text" class="operation_param" param-name="targetName" required />

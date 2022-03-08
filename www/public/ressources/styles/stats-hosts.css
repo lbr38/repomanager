@@ -7,7 +7,8 @@
 .stats-info-requests {
     display: none;
     position: absolute;
-    z-index: 1; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
+    font-size: 13px !important;
+    z-index: 10; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
     width: 1300px;
     margin-top: 10px;
     padding:5px;
@@ -160,6 +161,7 @@
     max-height: 100vh;
     overflow: scroll;
     padding-bottom: 30px;
+    z-index: 10;
 }
 .hostDetails-close, .packageDetails-close {
     position: fixed;

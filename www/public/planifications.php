@@ -166,18 +166,14 @@ require_once('../common.php');
                                                  *  Formatage
                                                  */
                                                 if (OS_FAMILY == "Redhat") {
-                                                    $repo = '<span class="label-black">'.$planName.'</span>';
+                                                    $repo = '<span class="label-white">'.$planName.'</span>';
                                                 }
                                                 if (OS_FAMILY == "Debian") {
                                                     $planDist = $repo->getDist();
                                                     $planSection = $repo->getSection();
-
-                                                    $repo = '<span class="label-black">'.$planName.
-                                                    '<img src="ressources/icons/link.png" class="icon"> '.$planDist.
-                                                    '<img src="ressources/icons/link.png" class="icon"> '.$planSection.
-                                                    '</span>';
+                                                    $repo = '<span class="label-white">'.$planName.' ❯ '.$planDist.' ❯ '.$planSection.'</span>';
                                                 }
-                                                $planDate = '<span class="label-black">'.$planDate.'</span>';
+                                                $planDate = '<span class="label-white">'.$planDate.'</span>';
                                             }
 
                                             echo $repo;
@@ -224,8 +220,8 @@ require_once('../common.php');
                                     $envTarget = $envs[0];
                                     $envSource = $envs[1];
                                     if (!empty($planGroup)) {
-                                        if (OS_FAMILY == "Redhat") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget)."⟶<span class=\"label-black\">xx-xx-xxxx</span> pour les repos du groupe <b>$planGroup</b></p>";
-                                        if (OS_FAMILY == "Debian") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget)."⟶<span class=\"label-black\">xx-xx-xxxx</span> pour les sections de repos du groupe <b>$planGroup</b></p>";
+                                        if (OS_FAMILY == "Redhat") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget).'⟶<span class="label-black">xx-xx-xxxx</span> pour les repos du groupe <span class="label-white">'.$planGroup.'</span></p>';
+                                        if (OS_FAMILY == "Debian") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget).'⟶<span class="label-black">xx-xx-xxxx</span> pour les sections de repos du groupe <span class="label-white">'.$planGroup.'</span></p>';
                                     } else {
                                         if (OS_FAMILY == "Redhat") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget)."⟶$planDate pour le repo $repo</p>";
                                         if (OS_FAMILY == "Debian") echo "<p>Nouvel environnement ".Common::envtag($envSource)."⟶".Common::envtag($envTarget)."⟶$planDate pour le repo $repo</p>";
