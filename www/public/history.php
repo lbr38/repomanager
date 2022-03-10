@@ -38,7 +38,7 @@ if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty(
 
             <div class="div-flex">
                 <div class="flex-div-100">
-                    <h4>HISTORIQUE</h4>
+                    <h4>ACTIONS EXÉCUTÉES</h4>
                     <form action="history.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="filterByUser" />
                         <p>Filtrer par utilisateur :</p>
@@ -96,7 +96,7 @@ if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty(
                                 foreach ($historyLines as $historyLine) {
                                     echo '<tr>';
                                         echo '<td class="td-100"><b>'.$historyLine['Date'].'</b> à <b>'.$historyLine['Time'].'</b></td>';
-                                        echo '<td class="td-100">'.$historyLine['Action'].'</td>';
+                                        echo '<td class="td-100">'.htmlspecialchars_decode($historyLine['Action']).'</td>';
                                         echo '<td class="td-100">'.$historyLine['Username'].'</td>';
                                         if ($historyLine['State'] == "success") {
                                             echo '<td><img src="ressources/icons/greencircle.png" class="icon-small" />Succès</td>';

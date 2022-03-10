@@ -779,11 +779,6 @@ class Host extends Model {
              */
             if ($action == 'update') {
                 /**
-                 *  Envoi d'un ping avec le message 'r-update-pkgs' en hexadecimal pour ordonner à l'hôte de se mettre à jour
-                 */
-                exec("ping -W2 -c 1 -p 722d7570646174652d706b6773 $this->ip");
-
-                /**
                  *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
                  */
                 try {
@@ -794,6 +789,11 @@ class Host extends Model {
                 } catch(Exception $e) {
                     Common::dbError($e);
                 }
+
+                /**
+                 *  Envoi d'un ping avec le message 'r-update-pkgs' en hexadecimal pour ordonner à l'hôte de se mettre à jour
+                 */
+                exec("ping -W2 -c 1 -p 722d7570646174652d706b6773 $this->ip");
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -1964,7 +1964,9 @@ class Host extends Model {
         return '';
     }
 
-
+    /**
+     *  Récupère le status de la dernière demande de mise à jour de l'hôte
+     */
     public function getLastRequestedUpdateStatus()
     {
         /**

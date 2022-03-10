@@ -1,6 +1,6 @@
 <?php
-if (OS_FAMILY == 'Redhat') echo '<p>Pointer un environnement sur <span class="label-black">'.$myrepo->getName().'</span> '.Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span></p>';
-if (OS_FAMILY == 'Debian') echo '<p>Pointer un environnement sur <span class="label-black">'.$myrepo->getName().' <img src="ressources/icons/link.png" class="icon" />'.$myrepo->getDist().' <img src="ressources/icons/link.png" class="icon" />'.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span></p>';
+if (OS_FAMILY == 'Redhat') echo '<p>Pointer un environnement sur <span class="label-white">'.$myrepo->getName().'</span> '.Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span></p>';
+if (OS_FAMILY == 'Debian') echo '<p>Pointer un environnement sur <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span></p>';
 ?>
 
 <span>Environnement cible :</span>

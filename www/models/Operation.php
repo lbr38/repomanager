@@ -808,7 +808,17 @@ class Operation extends Model {
              *  Vérification de l'id du repo, sauf lorsque l'action est 'new'
              */
             if ($action !== 'new') {
-                $this->chk_param_id($operation_params['repoId'], $operation_params['repoStatus']);
+                $this->chk_param_id($repoId, $operation_params['repoStatus']);
+            }
+
+            /**
+             *  Récupération de toutes les informations du repo à partir de son Id, sauf quand l'action est 'new'
+             *  Ces informations seront surtout utiles pour donner plus de précisions à la fonction History::set()
+             */
+            if ($action !== 'new') {
+                $myrepo = new Repo();
+                $myrepo->setId($repoId);
+                $myrepo->db_getAllById($operation_params['repoStatus']);
             }
 
             /**
@@ -821,7 +831,9 @@ class Operation extends Model {
                     $this->chk_param_section($operation_params['section']);
                 }
                 $this->chk_param_description($operation_params['targetDescription']);
-                $this->chk_param_group($operation_params['targetGroup']);
+                if (!empty($operation_params['targetGroup'])) {
+                    $this->chk_param_group($operation_params['targetGroup']);
+                }
                 /**
                  *  Si le type de repo sélectionné est 'local' alors on vérifie qu'un nom a été fourni (peut rester vide dans le cas d'un miroir)
                  */
@@ -866,6 +878,9 @@ class Operation extends Model {
                         }
                     }
                 }
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : création d\'un nouveau repo '.$operation_params['alias'].' ('.$operation_params['type'].')', 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : création d\'une nouvelle section de repo '.$operation_params['alias'].' - '.$operation_params['dist'].' - '.$operation_params['section'].' ('.$operation_params['type'].')', 'success');
             }
 
             /**
@@ -874,6 +889,9 @@ class Operation extends Model {
             if ($action == 'update') {
                 $this->chk_param_gpgCheck($operation_params['targetGpgCheck']);
                 $this->chk_param_gpgResign($operation_params['targetGpgResign']);
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">'.$myrepo->getName().'</span> ('.$myrepo->getType().')', 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour de la section de repo <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> ('.$myrepo->getType().')', 'success');
             }
 
             /**
@@ -882,18 +900,22 @@ class Operation extends Model {
             if ($action == 'duplicate') {
                 $this->chk_param_targetName($operation_params['targetName']);
                 $this->chk_param_description($operation_params['targetDescription']);
-                $this->chk_param_group($operation_params['targetGroup']);
+                if (!empty($operation_params['targetGroup'])) {
+                    $this->chk_param_group($operation_params['targetGroup']);
+                }
                 /**
                  *  On vérifie qu'un repo du même nom n'existe pas déjà
                  */
                 if ($this->repo->exists($operation_params['targetName']) === true) {
                     throw new Exception('Un repo <b>'.$operation_params['targetName'].' existe déjà');
                 }
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">'.$myrepo->getName().'</span>'.Common::envtag($myrepo->getEnv()).' ➡ <span class="label-white">'.$operation_params['targetName'].'</span>', 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'une section de repo <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>'.Common::envtag($myrepo->getEnv()).' ➡ <span class="label-white">'.$operation_params['targetName'].' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>', 'success');
             }
 
             /**
              *  Si l'action est 'delete'
-             *  Aucun paramètre supplémentaire à vérifier puisque l'utilisateur n'a pas de paramètres à saisir
              */
             if ($action == 'delete') {
                 /**
@@ -901,6 +923,15 @@ class Operation extends Model {
                  */
                 if ($this->repo->existsId($operation_params['repoId'], $operation_params['repoStatus']) === false) {
                     throw new Exception("Il n'existe aucun Id de repo ".$operation_params['repoId']);
+                }
+
+                if ($operation_params['repoStatus'] == 'active') {
+                    if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du repo <span class="label-white">'.$myrepo->getName().'</span>⟶'.Common::envtag($myrepo->getEnv()).'⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span>', 'success');
+                    if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : suppression de la section de repo <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>⟶'.Common::envtag($myrepo->getEnv()).'⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span>', 'success');
+                }
+                if ($operation_params['repoStatus'] == 'archived') {
+                    if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du repo archivé <span class="label-white">'.$myrepo->getName().'</span>⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span>', 'success');
+                    if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : suppression de la section de repo archivée <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span>', 'success');
                 }
             }
 
@@ -910,6 +941,9 @@ class Operation extends Model {
             if ($action == 'env') {
                 $this->chk_param_env($operation_params['targetEnv']);
                 $this->chk_param_description($operation_params['targetDescription']);
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement '.Common::envtag($operation_params['targetEnv']).'⟶'.Common::envtag($myrepo->getEnv()).'⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span> pour le repo <span class="label-white">'.$myrepo->getName().'</span>', 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement '.Common::envtag($operation_params['targetEnv']).'⟶'.Common::envtag($myrepo->getEnv()).'⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span> pour la section de repo <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>', 'success');
             }
 
             /**
@@ -917,6 +951,9 @@ class Operation extends Model {
              */
             if ($action == 'reconstruct') {
                 $this->chk_param_gpgResign($operation_params['targetGpgResign']);
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">'.$myrepo->getName().'</span>'.Common::envtag($myrepo->getEnv()), 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées de la section de repo <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span>'.Common::envtag($myrepo->getEnv()), 'success');
             }
 
             /**
@@ -931,6 +968,9 @@ class Operation extends Model {
                 if ($this->repo->existsId($operation_params['repoId'], 'archived') === false) {
                     throw new Exception("Il n'existe aucun Id de repo archivé ".$operation_params['repoId']);
                 }
+
+                if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : restauration du repo archivé <span class="label-white">'.$myrepo->getName().'</span> sur'.Common::envtag($operation_params['targetEnv']), 'success');
+                if (OS_FAMILY == 'Debian') History::set($_SESSION['username'], 'Lancement d\'une opération : restauration de la section de repo archivée <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> sur'.Common::envtag($operation_params['targetEnv']), 'success');
             }
         }
     }

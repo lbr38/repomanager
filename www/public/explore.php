@@ -289,13 +289,13 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
 
                 if ($pathError === 0) {
                     if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) {
-                        if ($state == "active")   echo "<p>Explorer le contenu du repo <b>".$myrepo->getName()."</b> " . Common::envtag($myrepo->getEnv()) . "</p>";
-                        if ($state == "archived") echo "<p>Explorer le contenu du repo archivé <b>".$myrepo->getName()."</b>.</p>";
+                        if ($state == "active")   echo '<p>Explorer le contenu du repo <span class="label-white">'.$myrepo->getName()."</span> ".Common::envtag($myrepo->getEnv()).'</p>';
+                        if ($state == "archived") echo '<p>Explorer le contenu du repo archivé <span class="label-white">'.$myrepo->getName().'</span></p>';
                     }
 
                     if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) {
-                        if ($state == "active")   echo "<p>Explorer le contenu de la section <b>".$myrepo->getSection()."</b> " . Common::envtag($myrepo->getEnv()) . " du repo <b>".$myrepo->getName()."</b> (distribution <b>".$myrepo->getDist()."</b>).</p>";
-                        if ($state == "archived") echo "<p>Explorer le contenu de la section archivée <b>".$myrepo->getSection()."</b> du repo <b>".$myrepo->getName()."</b> (distribution <b>".$myrepo->getDist()."</b>).</p>";
+                        if ($state == "active")   echo '<p>Explorer le contenu de la section <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
+                        if ($state == "archived") echo '<p>Explorer le contenu de la section archivée <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span></p>';
                     }
 
                     if (is_dir($repoPath.'/my_uploaded_packages')) {
