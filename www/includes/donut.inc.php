@@ -1,6 +1,59 @@
-<svg class="donut" width="160" viewBox="0 0 100 100">
-    <circle style="stroke-dasharray: <?=$diskUsedSpacePercent?> 100;" cx="50" cy="50" r="40" stroke="<?=$donutColor?>" stroke-width="6" fill="none" pathLength="100" transform="rotate(-90 50 50)"/>
-    <circle cx="50" cy="50" r="43" stroke="rgb(139, 138, 175)" stroke-width="0.2" fill="none" />
-    <circle cx="50" cy="50" r="37" stroke="rgb(139, 138, 175)" stroke-width="0.2" fill="none" />
-    <text aria-hidden="true" tabindex="-1" x="50" y="50"><?=$diskUsedSpacePercent?>%</text>
-</svg>
+<?php
+if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
+    $donutColor = "'rgb(92, 184, 92, 0.80)',";
+}
+if ($diskUsedSpace > 30 && $diskUsedSpace <= 50) {
+    $donutColor = "'rgb(240, 173, 78, 0.80)',";
+}
+if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
+    $donutColor = "'rgb(240, 116, 78, 0.80)',";
+}
+if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
+    $donutColor = "'rgb(217, 83, 79, 0.80)',";
+} 
+$donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacité 0) (espace libre)
+?>
+
+<canvas id="diskSpaceChart-<?=$donutChartName?>" class="donut-chart"></canvas>
+
+<script>
+// Données
+var doughnutChartData = {
+    datasets: [{
+        labels: ['Espace utilisé', 'Espace libre'],
+        borderWidth: 3,
+        data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
+        backgroundColor: [<?=$donutColor?>
+    ],
+    borderColor: [
+        'gray',
+        'gray'
+    ],
+        borderWidth: 0.4
+    }]
+};
+
+// Options
+var doughnutChartOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false
+        },
+    },
+    cutout: 59,
+    elements: {
+        point: {
+            radius: 0
+        }
+    },
+}
+
+// Affichage du chart
+var ctx = document.getElementById('diskSpaceChart-<?=$donutChartName?>').getContext("2d");
+window.myDoughnut = new Chart(ctx, {
+    type: "doughnut",
+    data: doughnutChartData,
+    options: doughnutChartOptions
+});
+</script>

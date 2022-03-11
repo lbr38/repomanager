@@ -215,7 +215,7 @@ class Profile extends Model {
                  *  Certains nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
                  */
                 if (OS_FAMILY == "Debian") {
-                    if (Common::is_alphanumdash($addProfileRepoDist, array('/') === false) OR Common::is_alphanumdash($addProfileRepoSection) === false) {
+                    if (Common::is_alphanumdash($addProfileRepoDist, array('/')) === false OR Common::is_alphanumdash($addProfileRepoSection) === false) {
                         throw new Exception("Une ou plusieurs distribution(s) de repo sélectionnée(s) contient des caractères invalides");
                     }
                 }
@@ -398,7 +398,8 @@ class Profile extends Model {
     /**
      *  Vérifier qu'un nom de package est présent dans la table profile_package
      */
-    private function db_packageExists(string $package) {
+    private function db_packageExists(string $package)
+    {
         try {
             $stmt = $this->db->prepare("SELECT * FROM profile_package WHERE Name=:name");
             $stmt->bindValue(':name', $package);
@@ -418,7 +419,8 @@ class Profile extends Model {
     /**
      *  Vérifier qu'un nom de service est présent dans la table profile_service
      */
-    private function db_serviceExists(string $service) {
+    private function db_serviceExists(string $service)
+    {
         try {
             $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
             $stmt->bindValue(':name', $service);
@@ -438,7 +440,8 @@ class Profile extends Model {
     /**
      *  Ajout d'un nouveau nom de paquet dans la table profile_package
      */
-    private function db_addPackage(string $package) {
+    private function db_addPackage(string $package)
+    {
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères interdits sinon on renvoie false
          */
@@ -458,7 +461,8 @@ class Profile extends Model {
     /**
      *  Ajout d'un nouveau nom de service dans la table profile_service
      */
-    private function db_addService(string $service) {
+    private function db_addService(string $service)
+    {
         /**
          *  On vérifie que le nom du service ne contient pas de caractères interdits sinon on renvoie false
          */
@@ -478,7 +482,8 @@ class Profile extends Model {
     /**
      *  Récupère la liste des paquets dans la table profile_package
      */
-    public function db_getPackages() {
+    public function db_getPackages()
+    {
         $result = $this->db->query("SELECT Name FROM profile_package");
         
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $packages[] = $datas['Name'];
@@ -492,7 +497,8 @@ class Profile extends Model {
     /**
      *  Récupère la liste des services dans la table profile_service
      */
-    public function db_getServices() {
+    public function db_getServices()
+    {
         $result = $this->db->query("SELECT Name FROM profile_service");
         
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $services[] = $datas['Name'];

@@ -1562,12 +1562,19 @@ class Host extends Model {
         if (empty($this->id)) return false;
 
         /**
+         *  On vérifie que le nom du paquet ne contient pas de caractères invalides
+         */
+        if (Common::is_alphanumdash($packageName, array('*')) === false) {
+            throw new Exception('Le nom du paquet contient des caractères invalides');
+        }
+
+        /**
          *  Ouverture de la BDD dédiée de l'hôte
          */
         $this->openHostDb($this->id);
 
         try {
-            $stmt = $this->host_db->prepare("SELECT Version FROM packages WHERE Name LIKE :name");
+            $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
             $stmt->bindValue(':name', "${packageName}%");
             $result = $stmt->execute();
         } catch(Exception $e) {
@@ -1582,9 +1589,18 @@ class Host extends Model {
         /**
          *  Sinon on récupère les données
          */
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $version = $row['Version'];
+        $packages = array();
 
-        return $version;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $packageName = $row['Name'];
+            $packageVersion = $row['Version'];
+            $packages += [$packageName => $packageVersion];
+        }
+
+        /**
+         *  Le résultat sera traité par js donc on transmets un array au format JSON
+         */
+        return json_encode($packages);
     }
 
     /**

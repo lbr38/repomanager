@@ -481,6 +481,10 @@ table {
     font-size: 13px;
 }
 
+.item-dist {
+    padding-right: 0 !important;
+}
+
 .item-date span {
     color: white;
     background-color: #333333;
@@ -1070,10 +1074,59 @@ footer p { color: gray; }
     background-color: #b14440;
 }
 
-.chart { /* largeur des graphiques chartjs */
-    width: 110px;
-    margin: auto; /* centrer les graphiques */
-    padding: 15px;
+.server-properties {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    grid-row-gap: 75px;
+    margin-bottom: 30px;
+}
+.server-properties .round-div,
+.server-properties [class^="round-div-medium"],
+.server-properties svg {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.donut-chart-container {
+    width: 136px;
+    height: 136px;
+    position: relative;
+    margin: auto;
+}
+
+.donut-chart {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.donut-chart-container .donut-legend {
+    position: absolute;
+    text-align: center;
+    font-size: 13px;
+    top: 40%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.donut-legend-title {
+    position: absolute;
+    text-align: center;
+    top: 20%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.donut-legend-content {
+    position: absolute;
+    text-align: center;
+    font-size: 24px;
+    top: 65%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 #newRepoToggleButton:hover .hide {
@@ -1308,18 +1361,4 @@ footer p { color: gray; }
 }
 .round-div-container:hover span.stats-info-requests {
     display: inline-block;
-}
-
-.server-properties {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-content: space-between;
-    align-items: center;
-    grid-gap: 20px;
-}
-.server-properties .round-div,
-.server-properties [class^="round-div-medium"],
-.server-properties svg {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
 }

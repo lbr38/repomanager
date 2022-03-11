@@ -105,7 +105,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
                     </div>
                 </div>
     <?php   } ?>
-            <div>
+            <div class="donut-chart-container">
                 <?php
                 $diskTotalSpace = disk_total_space('/');
                 $diskFreeSpace = disk_free_space('/');
@@ -118,21 +118,15 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
                 $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
                 $diskFreeSpacePercent = $diskFreeSpace;
                 $diskUsedSpace = round(100 - ($diskFreeSpace));
-                $diskUsedSpacePercent = round(100 - ($diskFreeSpace));
+                $diskUsedSpacePercent = round(100 - ($diskFreeSpace)); ?>
 
-                if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
-                    $donutColor = "rgb(92, 184, 92, 0.80)";
-                }
-                if ($diskUsedSpace > 30 && $diskUsedSpace <= 50) {
-                    $donutColor = "rgb(240, 173, 78, 0.80)";
-                }
-                if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
-                    $donutColor = "rgb(240, 116, 78, 0.80)";
-                }
-                if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
-                    $donutColor = "rgb(217, 83, 79, 0.80)";
-                }
+           
+                <p class="donut-legend-title lowopacity"><b>/</b></p>
+                <span class="donut-legend-content"><?=$diskUsedSpace.'%'?></span>
+           
 
+                <?php
+                $donutChartName = 'donut-chart-1';
                 include(ROOT.'/includes/donut.inc.php'); ?>
             </div>
 
@@ -161,8 +155,8 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
                 </div>
     <?php   } ?>
             
-            <div>
-                <?php 
+            <div class="donut-chart-container">
+                <?php
                 $diskTotalSpace = disk_total_space(REPOS_DIR);
                 $diskFreeSpace = disk_free_space(REPOS_DIR);
                 $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
@@ -174,8 +168,13 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
                 $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
                 $diskFreeSpacePercent = $diskFreeSpace;
                 $diskUsedSpace = round(100 - ($diskFreeSpace));
-                $diskUsedSpacePercent = round(100 - ($diskFreeSpace));
+                $diskUsedSpacePercent = round(100 - ($diskFreeSpace));?>
 
+                <p class="donut-legend-title lowopacity"><?=REPOS_DIR?></p>
+                <span class="donut-legend-content"><?=$diskUsedSpace.'%'?></span>
+
+                <?php
+                $donutChartName = 'donut-chart-2';
                 include(ROOT.'/includes/donut.inc.php');
                 ?>
             </div>

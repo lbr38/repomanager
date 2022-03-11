@@ -545,7 +545,6 @@ $(document).on('click','#showUpdateRequests',function(){
 });
 
 
-
 /**
  * Ajax: Créer un nouveau groupe
  * @param {string} name 
@@ -713,10 +712,19 @@ function searchPackage(hostid, package){
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             /**
+             *  On parse l'array JSON retourné avec le(s) paquet(s) trouvé(s) et leur version
+             *  Puis on construit la liste des paquets à afficher, séparés par un retour à la ligne
+             */
+            result = jQuery.parseJSON(jsonValue.message);
+            packagesFound = '';
+            for(var package in result) {
+                packagesFound += package+' : '+result[package]+'<br>';
+            }
+            /**
              *  Si le paquet est présent alors on affiche l'hôte dans le résultat de recherche, avec le nom du paquet et sa version dans un <td> prévu à cet effet
              */
             $('.host-tr[hostid='+hostid+']').show();
-            $('.host-tr[hostid='+hostid+']').find('td.host-additionnal-info').html('<span class="yellowtext">'+package+' : '+jsonValue.message+' </span>');
+            $('.host-tr[hostid='+hostid+']').find('td.host-additionnal-info').html('<span class="yellowtext">'+packagesFound+' </span>');
             /**
              *  Masquage des div de groupes dont tous les hôtes ont été masqués
              */
@@ -724,6 +732,12 @@ function searchPackage(hostid, package){
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            /**
+             *  Si une exception a été retournée (paquet invalide par ex) alors on affiche l'erreur
+             */
+            if (jsonValue.message !== '') {
+                printAlert(jsonValue.message, 'error');
+            }
             /**
              *  Si le paquet n'est pas présent alors on masque la ligne de l'hôte dans le résultat de recherche
              */

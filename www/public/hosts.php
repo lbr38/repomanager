@@ -413,7 +413,7 @@ $(document).ready(function(){
         },
         options: {
             aspectRatio: 1,
-            responsive: false
+            responsive: true
         }
     });
 });

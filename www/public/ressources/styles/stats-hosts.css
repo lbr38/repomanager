@@ -121,7 +121,6 @@
     height: 350px;
     margin: auto;
     margin-top: 30px;
-    padding-bottom: 40px;
 }
 
 .searchInput-container {
@@ -156,7 +155,7 @@
     overflow: scroll;
 }
 .packageDetails {
-    width: 70%;
+    width: 50%;
     height:fit-content;
     max-height: 100vh;
     overflow: scroll;
