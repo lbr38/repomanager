@@ -23,7 +23,8 @@
     <script src="ressources/js/jquery/select2.js"></script>
     <link rel="stylesheet" type='text/css' href="ressources/styles/select2.css">
     <!-- ChartJS -->
-    <script src="ressources/js/chartjs/Chart.bundle.min.js"></script>    
+    <!-- <script src="ressources/js/chartjs/Chart.bundle.min.js"></script>     -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
     <link rel="icon" href="ressources/favicon.ico" />
     <title>Repomanager</title>

@@ -161,10 +161,10 @@ function printRepoLine($repoData = []) {
             echo '<div class="item-dist-section">';
                 echo '<div class="item-dist-section-sub">';
                     if ($printRepoDist == 'yes') {
-                        echo '<span class="item-dist"><img src="ressources/icons/link.png" class="icon" />'.$repoDist.'</span>';
+                        echo '<span class="item-dist">'.$repoDist.'</span>';
                     }
                     if ($printRepoSection == 'yes') {
-                        echo '<span class="item-section"><img src="ressources/icons/link.png" class="icon" />'.$repoSection.'</span>';
+                        echo '<span class="item-section">❯ '.$repoSection.'</span>';
                     }
                 echo '</div>';
             echo '</div>';
