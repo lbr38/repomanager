@@ -5,16 +5,16 @@ class Source extends Model {
 
     public function __construct() {
         /**
-         *  Ouverture d'une connexion à la base de données
+         *  Open a new database connection
          */
         $this->getConnection('main');
     }
 
     /**
-     *  Ajouter un nouveau repo source
+     *  Add a new source repo
      */
-    public function new(string $name, string $urlType = null, string $url, string $existingGpgKey = null, string $gpgKeyURL = null, string $gpgKeyText = null) {
-
+    public function new(string $name, string $urlType = null, string $url, string $existingGpgKey = null, string $gpgKeyURL = null, string $gpgKeyText = null)
+    {
         $name = Common::validateData($name);
 
         /**
@@ -33,7 +33,7 @@ class Source extends Model {
         /**
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
-        if (!Common::is_alphanumdash($url, array('=', ':', '/', '.', '?', '$', '&'))) {
+        if (!Common::is_alphanumdash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
             throw new Exception('L\'URL du repo source contient des caractères invalides');
         }
         if (!preg_match('#^https?://#', $url)) {
@@ -258,9 +258,10 @@ class Source extends Model {
     }
 
     /**
-     *  Supprimer un repo source
+     *  Remove a source repo
      */
-    public function delete(string $name) {
+    public function delete(string $name)
+    {
         $name = Common::validateData($name);
 
         if (OS_FAMILY == "Redhat") {
@@ -282,9 +283,10 @@ class Source extends Model {
     }
 
     /**
-     *  Renommer un repo source
+     *  Rename a source repo
      */
-    public function rename(string $name, string $newName) {
+    public function rename(string $name, string $newName)
+    {
         $name = Common::validateData($name);
         $newName = Common::validateData($newName);
 
@@ -361,7 +363,7 @@ class Source extends Model {
     }
 
     /**
-     *  Modification de l'url du repo source (Debian uniquement)
+     *  Edit source repo URL (Debian only)
      */
     public function editUrl(string $sourceName, string $url)
     {
@@ -399,9 +401,10 @@ class Source extends Model {
     }
 
     /**
-     *  Modifier la configuration d'un repo source (Redhat uniquement)
+     *  Edit source repo(s configuration (Redhat only)
      */
-    public function configureSource(string $sourceName, array $options, string $comments = null) {
+    public function configureSource(string $sourceName, array $options, string $comments = null)
+    {
         $sourceName = Common::validateData($sourceName);
         $sourceFile = REPOMANAGER_YUM_DIR."/${sourceName}.repo"; // Le fichier dans lequel on va écrire
 
@@ -461,7 +464,7 @@ class Source extends Model {
                 if ($optionName == 'baseurl' OR $optionName == 'mirrorlist' OR $optionName == 'metalink') {
                     $optionValue = trim($optionValue);          // Suppression des espaces si il y en a (ça ne devrait pas)
                     $optionValue = stripslashes($optionValue);  // Suppression des anti-slash
-                    if (Common::is_alphanumdash($optionValue, array(':', '/', '.', '?', '$', '&', '=')) === false) {
+                    if (Common::is_alphanumdash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -565,7 +568,15 @@ class Source extends Model {
     }
 
     /**
-     *  Supprimer une clé GPG
+     *  Add a new GPG key
+     */
+    public function addGpgKey(string $gpgKey, string $type)
+    {
+        // WIP
+    }
+
+    /**
+     *  Delete a GPG key
      */
     public function removeGpgKey(string $gpgkey)
     {
@@ -601,7 +612,7 @@ class Source extends Model {
     }
 
     /**
-     *  Vérifie si le nom de source spécifié existe en base de données
+     *  Check if source repo (name) exists in database
      */
     public function exists(string $source)
     {
@@ -620,17 +631,15 @@ class Source extends Model {
         return true;
     }
 
-/**
- *  LISTER TOUS LES REPOS SOURCES
- */
-    public function listAll() {
+    /**
+     *  List all source repos
+     */
+    public function listAll()
+    {
         $query = $this->db->query("SELECT * FROM sources");
 
         while ($datas = $query->fetchArray(SQLITE3_ASSOC)) $sources[] = $datas;
 
-        /**
-         *  Retourne un array avec les noms des groupes
-         */
         if (!empty($sources)) return $sources;
     }
 }

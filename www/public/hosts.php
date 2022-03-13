@@ -250,7 +250,7 @@ if (isset($_GET['auto'])) {
                                             <tr>
                                                 <td></td>
                                                 <td>Hôte</td>
-                                                <td title="Paquets disponibles pour installation"><img src="../ressources/icons/products/package.png" class="icon" />Disp.</td>
+                                                <td title="Paquets disponibles pour installation"><img src="../ressources/icons/products/package.png" class="icon" />Dispo.</td>
                                                 <td></td>
                                                 <?php if (Common::isadmin()) { ?>
                                                     <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>

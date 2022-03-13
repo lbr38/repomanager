@@ -48,9 +48,11 @@
                         <option value="">Choisir une clé GPG...</option>
                         <?php
                         $gpgFiles = scandir(RPM_GPG_DIR);
-                        foreach($gpgFiles as $gpgFile) {
-                            if (($gpgFile != "..") AND ($gpgFile != ".")) {
-                                echo '<option value="'.$gpgFile.'">'.$gpgFile.'</option>';
+                        if (!empty($gpgFiles)) {
+                            foreach($gpgFiles as $gpgFile) {
+                                if (($gpgFile != "..") AND ($gpgFile != ".")) {
+                                    echo '<option value="'.$gpgFile.'">'.$gpgFile.'</option>';
+                                }
                             }
                         } ?>
                     </select>
