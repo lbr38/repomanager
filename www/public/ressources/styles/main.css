@@ -303,6 +303,7 @@ section.left, section.right, .section-center, section.missing-param-alert, #newR
     box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
 }
+
 /* Paramètres supplémentaires pour les class ci-dessus */
 .section-center {
     width: 99%;
@@ -685,11 +686,8 @@ input[type=text], input[type=date], input[type=time], input[type=number], input[
 }
 
 input[type=color].color-xsmall { width: 50px; vertical-align: middle; }
-/* input[type=text].input-small, .select-small { width: 100px; } */
 input[type].input-small, .select-small { width: 100px; }
-/* input[type=text].input-medium, .select-medium { width: 150px; } */
 input[type].input-medium, .select-medium { width: 150px; }
-/*input[type=text].input-large, input[type=email].input-large, .select-large { width: 250px; }*/
 input[type].input-large, .select-large { width: 250px; }
 input:checked { opacity: 1; }
 .select-xxlarge {
@@ -1178,14 +1176,23 @@ footer p { color: gray; }
 }
 
 .sourceDivs input[type=text].input-small {
-    background-color: #2b2b2b;
+    background-color: #262525;
     border: none;
     margin-right: 5px;
     margin-bottom: 2px;
 }
 
 .sourceDivs input[type=text].input-large {
-    width: 80%;
+    width: 78%;
+}
+
+.sourceDivs textarea {
+    width: 99%;
+    margin: auto;
+    display: block;
+    margin-bottom: 15px;
+    background-color: #474747;
+    border: none;
 }
 
 /* Gif de chargement caché par défaut */

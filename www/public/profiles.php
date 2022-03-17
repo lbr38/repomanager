@@ -71,7 +71,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
     <!-- REPOS ACTIFS -->
     <section id="profilesDiv" class="left">
         <h3>PROFILS</h3>
-        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <a href="https://github.com/lbr38/linupdate">linupdate</a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
         <br>
         <p>Créer un nouveau profil :</p>
         <form id="newProfileForm" action="profiles.php" method="post" autocomplete="off">

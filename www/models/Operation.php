@@ -921,9 +921,9 @@ class Operation extends Model {
                 /**
                  *  On vérifie que le repo mentionné existe
                  */
-                if ($this->repo->existsId($operation_params['repoId'], $operation_params['repoStatus']) === false) {
-                    throw new Exception("Il n'existe aucun Id de repo ".$operation_params['repoId']);
-                }
+                // if ($this->repo->existsId($operation_params['repoId'], $operation_params['repoStatus']) === false) {
+                //     throw new Exception("Il n'existe aucun Id de repo ".$operation_params['repoId']);
+                // }
 
                 if ($operation_params['repoStatus'] == 'active') {
                     if (OS_FAMILY == 'Redhat') History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du repo <span class="label-white">'.$myrepo->getName().'</span>⟶'.Common::envtag($myrepo->getEnv()).'⟶<span class="label-black">'.$myrepo->getDateFormatted().'</span>', 'success');

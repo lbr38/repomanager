@@ -6,37 +6,7 @@ Autoloader::load();
 include_once('../includes/head.inc.php');
 require_once('../functions/repo.functions.php');
 require_once('../common.php');
-
-/**
- *  Cas où on souhaite retirer une div ServerInfo de la page d'accueil
- */
-if (!empty($_GET['serverInfoSlideDivClose'])) {
-    /**
-     *  On récupère le nom de la div qu'on souhaite retirer
-     */
-    $divToClose = Common::validateData($_GET['serverInfoSlideDivClose']);
-
-    /**
-     *  On récupère le contenu actuel de display.ini
-     */
-    $displayConfiguration = parse_ini_file(DISPLAY_CONF, true);
-    if ($divToClose === "reposInfo")      $displayConfiguration['serverinfo']['display_serverInfo_reposInfo'] = 'no';
-    if ($divToClose === "rootSpace")      $displayConfiguration['serverinfo']['display_serverInfo_rootSpace'] = 'no';
-    if ($divToClose === "reposDirSpace")  $displayConfiguration['serverinfo']['display_serverInfo_reposDirSpace'] = 'no';
-    if ($divToClose === "planInfo")       $displayConfiguration['serverinfo']['display_serverInfo_planInfo'] = 'no';
-    if ($divToClose === "connectionInfo") $displayConfiguration['serverinfo']['display_serverInfo_connectionInfo'] = 'no';
-
-    /**
-     *  On écrit les modifications dans le fichier display.ini
-     */
-    Common::write_ini_file(DISPLAY_CONF, $displayConfiguration);
-
-    /**
-     *  Rechargement de la page pour appliquer les modifications d'affichage
-     */
-    header('Location: index.php');
-    exit;
-} ?>
+?>
 
 <body>
 <?php include_once('../includes/header.inc.php'); ?>
@@ -98,7 +68,7 @@ if (!empty($_GET['serverInfoSlideDivClose'])) {
                     $lastPlan = '-';
                 } ?>
 
-                <div class="<?php if ($planStatus == 'done') echo 'round-div-medium'; else echo 'round-div-medium-red';?>">
+                <div class="<?php if (!empty($planStatus) AND $planStatus == 'error') echo 'round-div-medium-red'; else echo 'round-div-medium';?>">
                     <p class="lowopacity">Dernière planification</p>
                     <div class="round-div-container">
                         <span><?=$lastPlan?></span>

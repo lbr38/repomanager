@@ -220,7 +220,7 @@ permissions() {
             fi
             # permissions sur /etc/pki/rpm-gpg/repomanager
             if [ -d "$RPM_GPG_DIR" ];then
-                chown -R root:repomanager "$RPM_GPG_DIR"
+                chown -R nginx:repomanager "$RPM_GPG_DIR"
                 find ${RPM_GPG_DIR}/ -type f -exec chmod 0664 {} \;
                 chmod 770 "$RPM_GPG_DIR"
             fi

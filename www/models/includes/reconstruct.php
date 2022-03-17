@@ -20,7 +20,6 @@ trait reconstruct {
         if (OS_FAMILY == 'Redhat') $params = compact('id', 'name', 'source', 'date', 'dateFormatted', 'targetGpgResign');
         if (OS_FAMILY == 'Debian') $params = compact('id', 'name', 'source', 'dist', 'section', 'date', 'dateFormatted', 'targetGpgResign');
 
-
         /**
          *  Création d'une opération en BDD, on indique également si on a activé ou non gpgCheck et gpgResign
          *  Si cette fonction est appelée par une planification, alors l'id de cette planification est stockée dans $this->id_plan, on l'indique également à startOperation()

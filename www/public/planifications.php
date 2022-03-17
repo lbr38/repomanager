@@ -16,7 +16,10 @@ require_once('../common.php');
     <!-- On charge la section de droite avant celle de gauche car celle-ci peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionRight">
         <?php if (Common::isadmin()) { ?>
+            <!-- GERER L'AFFICHAGE -->
+            <?php include_once('../includes/display.inc.php'); ?>
 
+            <!-- EXECUTER DES OPERATIONS -->
             <?php include_once('../includes/operation.inc.php'); ?> 
 
             <!-- GERER LES GROUPES -->
@@ -30,7 +33,7 @@ require_once('../common.php');
             <div class="div-flex">
                 <h3>PLANIFICATIONS</h3>
                 <div id="planCronStatus">
-                <?php
+                    <?php
                     // on commence par vérifier si une tache cron est déjà présente ou non :
                     if (CRON_PLAN_REMINDERS_ENABLED == "yes") {
                         $cronStatus = Common::checkCronReminder();
@@ -747,8 +750,8 @@ require_once('../common.php');
                         echo '</div>';
                     }
                 echo '</div>';
-            echo '</section>';
-        } ?>
+            } ?>
+        </section>
     </section>
 
     <!-- section 'conteneur' principal englobant toutes les sections de gauche -->

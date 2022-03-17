@@ -1,6 +1,6 @@
 <?php
 /**
- *  Fonctions basées sur : https://phpfog.com/directory-trees-with-php-and-jquery/
+ *  Based on : https://phpfog.com/directory-trees-with-php-and-jquery/
  */
 function tree($path) {
     global $repoPath;
@@ -9,16 +9,19 @@ function tree($path) {
         echo "<ul>";
 
         /**
-         *  Initialisation d'un tableau qui contiendra la liste des fichiers du répertoire
+         *  Initialiation d'un array qui contiendra la liste de tous les fichiers et sous-répertoire dans le répertoire actuel
+         *  Initialize array which will contain a list of the files inside the actual directory
          */
         $queue = array();
 
         /**
-         *  On scanne le contenu du répertoire puis on traite chaque fichier/répertoire
+         *  Scanne le répertoire spécifié et traite chaque fichier trouvé
+         *  Scan the specified directory then process each file found
          */
         foreach(scandir($path) as $file) {
             /**
              *  Cas où c'est un répertoire
+             *  Case it is a directory
              */
             if (is_dir($path.'/'.$file) && $file != '.' && $file !='..') {
                 printSubDir($file, $path, $queue);
@@ -27,9 +30,10 @@ function tree($path) {
 
             /**
              *  Cas où c'est un fichier
+             *  Case it is a file
              */
             if (is_file($path.'/'.$file) AND $file != '.' AND $file != '..') {
-                /**
+                /** 
                  *  Si c'est un fichier alors on l'ajoute à l'array queue qui contient toute la liste des fichiers du répertoire ou sous-répertoire en cours
                  *  On indexe le nom du fichier $file ainsi que son chemin $path/$file auquel on retire le début du chemin complet afin qu'il ne soit pas visible dans le code source
                  */

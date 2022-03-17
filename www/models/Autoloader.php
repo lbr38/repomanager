@@ -157,9 +157,6 @@ class Autoloader
         /**
          *  On défini l'heure de création de la session (ou on la renouvelle si la session est toujours en cours)
          */
-        // if (empty($_SESSION['start_time'])) {
-        //     $_SESSION['start_time'] = time();
-        // }
         $_SESSION['start_time'] = time();
 
         /**
@@ -820,8 +817,7 @@ class Autoloader
          */
         if (UPDATE_AUTO == "yes" AND UPDATE_AVAILABLE == "yes") {
             if (!file_exists(ROOT."/update-running")) {
-                exec('curl '.$_SERVER['HTTP_HOST'].'configuration.php?action=update &');
-                sleep(1);
+                Common::repomanagerUpdate();
             }
         }
     }

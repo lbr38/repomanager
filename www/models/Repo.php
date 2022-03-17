@@ -251,15 +251,15 @@ class Repo extends Model {
         $this->rootUrl = $root;
     }
 
-    public function setGpgResign(string $gpgResign)
-    {
-        if ($gpgResign != 'yes' AND $gpgResign != 'no') {
-            throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
-        }
+    // public function setGpgResign(string $gpgResign)
+    // {
+    //     if ($gpgResign != 'yes' AND $gpgResign != 'no') {
+    //         throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
+    //     }
 
-        $this->gpgResign = Common::validateData($gpgResign);
-        $this->signed = Common::validateData($gpgResign);
-    }
+    //     $this->gpgResign = Common::validateData($gpgResign);
+    //     $this->signed = Common::validateData($gpgResign);
+    // }
 
     public function setTargetName(string $name)
     {
@@ -822,7 +822,6 @@ class Repo extends Model {
             }
             $this->setType($row['Type']);
             $this->setSigned($row['Signed']);
-            //$this->setGpgResign($this->signed);
             $this->setDescription($row['Description']);
         }
     }

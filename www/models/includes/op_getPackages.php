@@ -118,16 +118,15 @@ trait op_getPackages {
         );
 
         if (OS_FAMILY == "Redhat") {
-            echo 'Clonage avec reposync :';
             /**
              *  Note : pour reposync il faut impérativement rediriger la sortie standard vers la sortie d'erreur car c'est uniquement cette dernière qui est capturée par proc_open. On fait ça pour avoir non seulement les erreurs mais aussi tout le déroulé normal de reposync.
              */
             if ($targetGpgCheck == "no") {
-                if (OS_VERSION == "7") $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
-                if (OS_VERSION == "8") $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --nogpgcheck --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '7') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '8') === 0 OR strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --nogpgcheck --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
             } else { // Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
-                if (OS_VERSION == "7") $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --gpgcheck -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
-                if (OS_VERSION == "8") $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '7') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --gpgcheck -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '8') === 0 OR strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
             }
         }
 

@@ -27,7 +27,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === 'rec
      */
     $myrepo = new Repo();
     $myrepo->setId($repoId);
-    $myrepo->setGpgResign($repoGpgResign);
+    // $myrepo->setTargetGpgResign($repoGpgResign);
 
     /**
      *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan

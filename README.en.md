@@ -1,84 +1,89 @@
-[[English version]](README.en.md)
+**ENGLISH VERSION**
+
+:warning: **Warning : there is no english version for the web UI which is actually in french.** :warning:
+
+:warning: **Code is actually in english (functions, class names, variables...) but the comments remains in french.** :warning:
+
+:warning: **Help for traduction is much appreciated!** :warning:
+
 
 <h1>REPOMANAGER</h1>
 
-Repomanager est un gestionnaire de repos de paquets.
+Repomanager is a web mirroring tool for .rpm or .deb packages repository, based on reposync (Redhat/CentOS) & debmirror (Debian).
 
-Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à jours sur d'importants parcs de serveurs Linux, il permet de créer facilement des miroirs de repos publics (ex: repos Debian, CentOS, ou autres éditeurs tiers) et d'en gérer plusieurs versions par environnements.
+Designed for an enterprise usage and to help deployment of packages updates on large Linux servers farms, it can create mirrors of public repos (eg. Debian or CentOS official repos or third-party editors) and manage several versions and environments.
 
-<b>Principales fonctionnalités :</b>
+<b>Main features:</b>
 
-- Créer des miroirs de repos, les mettre à jour, les dupliquer
-- Signer ses repos de paquets avec GPG
-- Système d'environnements (ex: preprod, prod...) permettant de rendre accessible les miroirs à des environnements de serveurs particuliers
-- Planifications automatiques permettant d'exécuter les actions ci-dessus à une date/heure souhaitée.
+- Create mirrors, update them, duplicate them
+- Sign packages/mirror with GPG
+- Create environments (eg. preprod, prod...) and make your mirrors availables only for specific envs.
+- Automatic tasks plans
 
 ![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-4.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-2.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-3.png?raw=true)
 
+<b>Features</b>
 
-<b>Fonctionnalités</b>
-
-| **Fonctions** | **Stable** |
+| **Functions** | **Stable** |
 |----------|---------------|
-| Créer des miroirs de repos publics | ✅ |
-| Créer des repos locaux | ✅ |
-| Signer les repos ou les paquets avec GPG | ✅ |
-| Archiver / restaurer des miroirs | ✅ |
-| Charger des paquets dans des repos (ex: patchs zero-day) | ✅ |
-| **Automatisation** | **Stable** |
-| Créer des tâches planifiées sur les miroirs (mise à jour...) | ✅ |
-| Rappels de planifications (mail) | ✅ |
-| **Statistiques** | **Stable** |
-| Graphiques sur l'utilisation et l'évolution des repos | ✅ |
-| **Gestion du parc** | **Stable** |
-| Analyser et gérer les paquets installés sur un parc de serveurs "clients" | ✅ |
-| **Général** | **Stable** |
-| Création d'utilisateurs (administrateurs ou "lecture-seule") | ✅ |
-| Historique des actions effectuées par utilisateur | ✅ |
-| Mise à jour automatique ou manuelle de repomanager | ✅ |
+| Create mirrors from public repos | ✅ |
+| Create local repos | ✅ |
+| Sign repos or packages with GPG key | ✅ |
+| Archive / restore mirrors | ✅ |
+| Load custom packages into repos (eg: patch zero-day) | ✅ |
+| **Automatisation** |
+| Create automatic tasks on mirrors (update mirror...) | ✅ |
+| Send automatic task reminder (mail) | ✅ |
+| **Stats** |
+| Visualize graphs on repos' evolution and utilisation | ✅ |
+| **Hosts management** |
+| Analyze et manage installed packages on clients hosts (linupdate agent needed) | ✅ |
+| **General** |
+| Create users (ro-user or admin) | ✅ |
+| See history of actions taken by users | ✅ |
+| Automatic or manual update of repomanager | ✅ |
 
 
-<h2>Ressources</h2>
+<h2>Requirements</h2>
 
-Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
+Runs on following Redhat/CentOS or Debian/Ubuntu systems:
 - Debian 10, Ubuntu bionic
-- CentOS 7, 8, CentOS Stream, Rocky Linux, Fedora 33
+- CentOS 7, 8, Fedora 33
 
-Repomanager ne nécessite qu'un service web + PHP (7 minimum) et SQLite.
+Repomanager only needs a web service + PHP (7 min.) and SQLite.
 
-Le CPU et la RAM sont essentiellement sollicités lors de la création de miroirs et si la signature avec GPG est activée.
-L'espace disque est à adapter en fonction de la taille des repos distants à cloner.
+CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
+Disk space required depends on the size of the repos you need to clone.
 
+<b>Dependencies</b>
 
-<b>Dépendances</b>
-
-Pour fonctionner repomanager requiert la présence de certains logiciels couramment installés sur les distributions Linux, tels que :
+Repomanager requires packages commonly found on every Linux distributions such as:
 <pre>
 rsync, curl, wget, gnupg2
 </pre>
 
-Ainsi que certains logiciels spécifiques nécessaires pour créer des miroirs de repo tels que :
+And specific packages needed to build mirrors such as:
 <pre>
-yum-utils et createrepo (CentOS/Redhat)
-rpmresign (module perl RPM4) pour la signature des repos (CentOS/Redhat)
+yum-utils and createrepo (CentOS/Redhat)
+rpmresign (perl RPM4 module) to sign repos (CentOS/Redhat)
 debmirror (Debian)
 </pre>
 
-Repomanager installera lui même ces dépendances si il détecte qu'elles ne sont pas présentes sur le système. Veillez donc à ce que le serveur ait au moins accès aux dépôts de base de son OS.
+Repomanager will automatically install those dependencies if there are not present. Please check that the server has at least access to its OS base repositories to be able to install those deps.
 
 
 <h2>Installation</h2>
 
-<b>Serveur web + PHP</b>
+<b>Web service + PHP</b>
 
-Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
+You must install a web service + PHP then configure a dedicated vhost.
 
-Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x) mais une compatibilité avec apache n'est pas exclue.
+Repomanager has been only tested with nginx+php-fpm (PHP 7.x) but an apache/httpd compatibility is not excluded.
 
-Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et faire en sorte qu'il n'empêche pas la bonne exécution de PHP.
+Note for Redhat/CentOS systems: you may adapt SELinux configuration to make sure it will not prevent PHP execution.
 
 <pre>
 # Redhat / CentOS
@@ -90,7 +95,7 @@ apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlit
 
 <b>SQLite</b>
 
-S'assurer que le module sqlite pour php est activée :
+Be sure that sqlite module for php is enabled:
 
 <pre>
 # Debian
@@ -104,12 +109,12 @@ extension=sqlite3.so
 
 <b>Vhost</b>
 
-Exemple de vhost pour nginx.
+eg. vhost for nginx below.
 
-Adapter les valeurs :
- - du chemin vers le socket unix php
- - des deux variables $WWW_DIR et $REPOS_DIR
- - des directives server_name, access_log, error_log, ssl_certificate, ssl_certificate_key
+Adapt the following values:
+ - path to php's unix socket
+ - $WWW_DIR and $REPOS_DIR variables
+ - server_name, access_log, error_log, ssl_certificate and ssl_certificate_key directives
 
 <pre>
 #### Repomanager vhost ####
@@ -252,34 +257,26 @@ server {
 
 <b>Repomanager</b>
 
-Le programme nécessite 2 répertoires choisis par l'utilisateur au moment de l'installation :
+The program will need two directories chosen by the user during installation:
 <pre>
-Répertoire d'installation (par défaut /var/www/repomanager/)
-Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
+Main installation directory (default is /var/www/repomanager/)
+Repos directory (default is /home/repo/)
 </pre>
 
-L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes permissions soient correctement établies sur les répertoires utilisés par repomanager.
+Installation script must be executed by root or sudo user to make sure that correct permissions are applied on the directories used by repomanager.
 
-Télécharger la dernière release disponible au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
+Download last available release (.tar.gz) (all releases are visible here: https://github.com/lbr38/repomanager/releases):
 
 <pre>
-RELEASE="v2.5.1-beta" # choix de la release
+RELEASE="v2.5.1-beta" # release choosen
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
 tar xzf repomanager_$RELEASE.tar.gz
 cd /tmp/repomanager/
 </pre>
 
-Lancer l'installation de repomanager :
+Proceed the installation:
 <pre>
 chmod 700 repomanager
 sudo ./repomanager --install
 </pre>
-
-<h1>Linupdate et Repomanager</h1>
-
-<b>linupdate</b> est un utilitaire de mise à jour de paquets systèmes pour les hôtes basés sur Debian ou Redhat/CentOS, et qui possède un module capable de communiquer avec Repomanager au travers de son api.
-
-Sur Repomanager, l'onglet 'Gestion des hôtes' et 'Gestion des profils' permet de gérer et de configurer des serveurs/hôtes Linux exécutant linupdate et d'avoir une visualisation globale de l'état de leurs paquets systèmes.
-
-Voir le projet [[linupdate]](https://github.com/lbr38/linupdate) pour plus d'informations.
