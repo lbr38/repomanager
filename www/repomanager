@@ -589,7 +589,7 @@ firstInstall() {
 	echo -e "\n[UPDATE]" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "UPDATE_AUTO = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
-	echo "UPDATE_BRANCH = \"beta\"" >> ${WWW_DIR}/configurations/repomanager.conf
+	echo "UPDATE_BRANCH = \"stable\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
 	echo -e "\n[WWW]" >> ${WWW_DIR}/configurations/repomanager.conf
 	echo "WWW_USER = \"$WWW_USER\"" >> ${WWW_DIR}/configurations/repomanager.conf

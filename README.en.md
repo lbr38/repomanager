@@ -20,10 +20,10 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 - Create environments (eg. preprod, prod...) and make your mirrors availables only for specific envs.
 - Automatic tasks plans
 
-![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager.png?raw=true)
-![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-4.png?raw=true)
-![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-2.png?raw=true)
-![alt text](https://github.com/lbr38/repomanager/blob/beta/screenshots/repomanager-3.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-4.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-2.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-3.png?raw=true)
 
 <b>Features</b>
 

@@ -569,8 +569,8 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 <td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Choisir quelle version de mise à jour recevoir" />Branche de mise à jour</td>
                 <td>
                 <select name="updateBranch">
-                <option value="alpha" <?php if (UPDATE_BRANCH == "alpha") { echo 'selected'; } ?>>alpha</option>
-                <option value="beta" <?php if (UPDATE_BRANCH == "beta") { echo 'selected'; } ?>>beta</option>
+                <option value="beta" <?php if (UPDATE_BRANCH == "beta") echo 'selected'; ?>>beta</option>
+                <option value="stable" <?php if (UPDATE_BRANCH == "stable") echo 'selected'; ?>>stable</option>
                 </td>
                 <?php
                 if (UPDATE_AVAILABLE == "yes") {
