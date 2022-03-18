@@ -21,7 +21,7 @@ if (DEBUG_MODE == "enabled") {
     <ul class="menu">
         <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
-        if (__ACTUAL_URI__ == '/' OR __ACTUAL_URI__ == '/index.php' OR __ACTUAL_URI__ == '/operation.php' OR __ACTUAL_URI__ == '/explore.php') {
+        if (__ACTUAL_URI__ == '/' OR __ACTUAL_URI__ == '/index.php' OR __ACTUAL_URI__ == '/explore.php') {
             echo '<li><a href="index.php"><span class="underline">Accueil</span></a></li>';
         } else {
             echo '<li><a href="index.php"><span>Accueil</span></a></li>';

@@ -23,14 +23,14 @@ var doughnutChartData = {
         labels: ['Espace utilisé', 'Espace libre'],
         borderWidth: 3,
         data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
-        backgroundColor: [<?=$donutColor?>
-    ],
-    borderColor: [
-        'gray',
-        'gray'
-    ],
+        backgroundColor: [<?=$donutColor?>],
+        borderColor: [
+            'gray',
+            'gray'
+        ],
         borderWidth: 0.4
-    }]
+    }],
+    labels: ['Espace utilisé %', 'Espace libre %']
 };
 
 // Options

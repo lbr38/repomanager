@@ -37,7 +37,7 @@ if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty(
             <h3>HISTORIQUE</h3>
 
             <div class="div-flex">
-                <div class="flex-div-100">
+                <div class="flex-div-100 div-generic-gray">
                     <h4>ACTIONS EXÉCUTÉES</h4>
                     <form action="history.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="filterByUser" />

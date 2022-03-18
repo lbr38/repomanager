@@ -540,7 +540,6 @@ class Autoloader
             }
         }
 
-
         /**
          *  Paramètres web
          */
@@ -845,30 +844,30 @@ class Autoloader
          */
         if (defined('__ACTUAL_URI__')) {
             if (__ACTUAL_URI__ == "/" OR 
-                __ACTUAL_URI__ == "/index.php" OR 
-                __ACTUAL_URI__ == "/operation.php" OR 
+                __ACTUAL_URI__ == "/index.php" OR
                 __ACTUAL_URI__ == "/planifications.php"
             ) {
-            
                 /**
-                 *  Emplacement du fichier de conf
+                 *  Ouverture d'une connexion à la base de données
                  */
-                define('DISPLAY_CONF', ROOT."/configurations/display.ini");
+                $myconn = new Connection('main');
 
                 /**
-                 *  Récupération de tous les paramètres définis dans le fichier display.ini
+                 *  Récupération des paramètres en base de données
                  */
-                $display_ini_array = parse_ini_file(ROOT."/configurations/display.ini");
+                try {
+                    $result = $myconn->query("SELECT * FROM repos_list_settings");
+                    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {       
+                        define('PRINT_REPO_SIZE', $row['print_repo_size']);
+                        define('PRINT_REPO_TYPE', $row['print_repo_type']);
+                        define('PRINT_REPO_SIGNATURE', $row['print_repo_signature']);
+                        define('CACHE_REPOS_LIST', $row['cache_repos_list']);
+                    }
+                } catch(Exception $e) {
+                    Common::dbError($e);
+                }
 
-                /**
-                 *  Chargement des paramètres d'affichage de la liste des repos
-                 */
-                define('PRINT_REPO_SIZE', $display_ini_array['printRepoSize']);
-                define('PRINT_REPO_TYPE', $display_ini_array['printRepoType']);
-                define('PRINT_REPO_SIGNATURE', $display_ini_array['printRepoSignature']);
-                define('CACHE_REPOS_LIST', $display_ini_array['cache_repos_list']);
-
-                unset($display_ini_array);
+                $myconn->close();
             }
         }
     }

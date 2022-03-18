@@ -80,6 +80,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         }
 
         /**
+         *  Si la famille d'OS a été transmise alors on la met à jour en BDD
+         */
+        if (!empty($datas->os_family)) {
+            $myhost->setOS_family($datas->os_family);
+
+            if ($myhost->db_updateOS_family())
+                $message_success[] = "Mise à jour de la famille d'OS effectuée.";
+            else
+                $message_error[] = "Mise à jour de la famille d'OS échouée.";
+        }
+
+        /**
+         *  Si le kernel a été transmis alors on le met à jour en BDD
+         */
+        if (!empty($datas->kernel)) {
+            $myhost->setKernel($datas->kernel);
+
+            if ($myhost->db_updateKernel())
+                $message_success[] = "Mise à jour du kernel effectuée.";
+            else
+                $message_error[] = "Mise à jour du kernel échouée.";
+        }
+
+        /**
+         *  Si l'architecture a été transmis alors on la met à jour en BDD
+         */
+        if (!empty($datas->arch)) {
+            $myhost->setArch($datas->arch);
+
+            if ($myhost->db_updateArch())
+                $message_success[] = "Mise à jour de l'arch effectuée.";
+            else
+                $message_error[] = "Mise à jour de l'arch échouée.";
+        }
+
+        /**
          *  Si le profil a été transmis alors on le met à jour en BDD
          */
         if (!empty($datas->profile)) {

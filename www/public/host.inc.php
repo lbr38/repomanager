@@ -66,7 +66,7 @@ if ($idError != 0) {
  *  Récupération de la liste des paquets installés sur l'hôte et le total
  */
 $packagesInventored = $myhost->getPackagesInventory();
-$packagesInstalledCount = $myhost->getPackagesInstalledCount();
+$packagesInstalledCount = count($myhost->getPackagesInstalled());
 /**
  *  Récupération de la liste des paquets disponibles pour installation sur l'hôte et le total
  */
@@ -84,9 +84,59 @@ $eventsList = $myhost->getEventsHistory();
  *  On merge les demandes de mises à jour et les évènement dans un même tableau et on les trie par date et heure
  */
 $allEventsList = array_merge($eventsList, $updatesRequestsList);
-array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($allEventsList, 'Time'), SORT_DESC, $allEventsList); ?>
+array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($allEventsList, 'Time'), SORT_DESC, $allEventsList); 
 
-<?php echo '<h3>'.strtoupper($hostname).'</h3>';
+/**
+ *  Génération des valeurs pour le Chart 'line'
+ */
+
+/**
+ *  D'abord on crée une liste de dates sur une période de 15 jours
+ */
+$dates = array();
+$dateStart = date_create(date('Y-m-d'))->modify("-15 days")->format('Y-m-d');
+$period = new DatePeriod(
+    new DateTime($dateStart),
+    new DateInterval('P1D'),
+    new DateTime(date('Y-m-d'))
+);
+/**
+ *  On peuple l'array à partir de la période de dates précédemment générée, on initialise chaque date à 0
+ */
+foreach ($period as $key => $value) {
+    $dates[$value->format('Y-m-d')] = 0;
+}
+
+/**
+ *  Récupération du nombre de paquet installés ces 15 derniers jours, triés par date
+ */
+$lastInstalledPackagesArray = $myhost->getLastPackagesStatusCount('installed', '15');
+/**
+ *  Récupération du nombre de paquets mis à jour ces 15 derniers jours, triés par date
+ */
+$lastUpgradedPackagesArray = $myhost->getLastPackagesStatusCount('upgraded', '15');
+/**
+ *  Récupération du nombre de paquets supprimés ces 15 derniers jours, triés par date
+ */
+$lastRemovedPackagesArray = $myhost->getLastPackagesStatusCount('removed', '15');
+
+/**
+ *  On se sert de l'array de dates initialisés à 0 avec l'array retourné par getLastInstalledPackagesCount();
+ */
+$lastInstalledPackagesArray = array_merge($dates, $lastInstalledPackagesArray);
+$lastUpgradedPackagesArray  = array_merge($dates, $lastUpgradedPackagesArray);
+$lastRemovedPackagesArray   = array_merge($dates, $lastRemovedPackagesArray);
+
+/**
+ *  Formattage des valeurs retournées au format ChartJS
+ *  Formattage de l'array de dates au format ChartJS
+ */
+$lineChartInstalledPackagesCount = "'".implode("','",$lastInstalledPackagesArray)."'";
+$lineChartUpgradedPackagesCount  = "'".implode("','",$lastUpgradedPackagesArray)."'";
+$lineChartRemovedPackagesCount   = "'".implode("','",$lastRemovedPackagesArray)."'";
+$lineChartDates = "'".implode("','",array_keys($dates))."'";
+
+echo '<h3>'.strtoupper($hostname).'</h3>';
 
 if (Common::isadmin()) { ?>
 <div class="hostActionBtn-container">
@@ -102,9 +152,9 @@ if (Common::isadmin()) { ?>
 <?php } ?>
 
             <div class="div-flex">
-                <div class="flex-div-100">
+                <div class="flex-div-100 div-generic-gray">
 
-                    <table class="table-generic table-small opacity-80">
+                    <table class="table-generic table-small host-table opacity-80">
                         <tr>
                             <td>IP</td>
                             <td><?php echo $ip; ?></td>
@@ -161,10 +211,14 @@ if (Common::isadmin()) { ?>
                             } ?>
                         </tr>
                     </table>
+
+                    <div class="host-line-chart-container">
+                        <canvas id="packages-status-chart"></canvas>
+                    </div>
                 </div>
             </div>
             <div class="div-flex">
-                <div class="flex-div-50">
+                <div class="flex-div-50 div-generic-gray">
                                    
                     <h4>ETATS DES PAQUETS</h4>
 
@@ -172,8 +226,8 @@ if (Common::isadmin()) { ?>
                         <thead>
                             <tr>
                                 <td></td>
-                                <td>À mettre à jour</td>
-                                <td>Total installés</td>
+                                <th>À mettre à jour</th>
+                                <th>Total installés</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -331,7 +385,7 @@ if (Common::isadmin()) { ?>
                     </div>
                 </div>               
 
-                <div class="flex-div-50">
+                <div class="flex-div-50 div-generic-gray">
                     <h4>HISTORIQUE</h4>
 
                     <div id="eventsContainer">
@@ -538,3 +592,66 @@ if (Common::isadmin()) { ?>
  *  On ferme la connexion à la BDD dédiée de l'hôte
  */
 $myhost->closeHostDb(); ?>
+
+<script>
+$(document).ready(function(){
+    /**
+     *  Graphique chartjs type line
+     */
+    // Données
+    var lineChartData = {
+        labels: [<?=$lineChartDates?>],
+        datasets: [
+            {
+                label: 'Paquets installés',
+                data: [<?=$lineChartInstalledPackagesCount?>],
+                borderColor: '#489f4d',
+                fill: false
+            },
+            {
+                label: 'Paquets mis à jour',
+                data: [<?=$lineChartUpgradedPackagesCount?>],
+                borderColor: '#3e95cd',
+                fill: false
+            },
+            {
+                label: 'Paquets désinstallés',
+                data: [<?=$lineChartRemovedPackagesCount?>],
+                borderColor: '#d9534f',
+                fill: false
+            }
+        ],
+    };
+    // Options
+    var lineChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        borderWidth: 1.5,
+        scales: {
+            x: {
+                display: false // ne pas afficher les dates sur l'axe x
+            },
+            y: {
+                beginAtZero: true
+            }      
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Evolution des paquets (7 jours)',
+                }
+            },
+        },
+    }
+    // Affichage du chart
+    var ctx = document.getElementById('packages-status-chart').getContext("2d");
+    window.myLine = new Chart(ctx, {
+        type: "line",
+        data: lineChartData,
+        options: lineChartOptions
+    });
+});
+</script>

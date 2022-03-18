@@ -53,9 +53,9 @@ function deleteConfirm(message, myfunction) {
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
      */
-     $("#newdeletealert").remove();
+     $("#newDeleteAlert").remove();
 
-    var $content = '<div id="newdeletealert" class="deleteAlert"><span class="deleteAlert-message">'+message+'</span><div class="deleteAlert-buttons-container"><span class="pointer btn-doDelete">Supprimer</span><span class="pointer btn-cancelDelete">Annuler</span></div></div>';
+    var $content = '<div id="newDeleteAlert" class="deleteAlert"><span class="deleteAlert-message">'+message+'</span><div class="deleteAlert-buttons-container"><span class="pointer btn-doDelete">Supprimer</span><span class="pointer btn-cancelDelete">Annuler</span></div></div>';
 
     $('footer').append($content);
 
@@ -71,8 +71,8 @@ function deleteConfirm(message, myfunction) {
         /**
          *  Puis suppression de l'alerte
          */
-        $("#newdeletealert").slideToggle(150, function () {
-            $("#newdeletealert").remove();
+        $("#newDeleteAlert").slideToggle(150, function () {
+            $("#newDeleteAlert").remove();
         });
     });
 
@@ -83,8 +83,8 @@ function deleteConfirm(message, myfunction) {
         /**
          *  Suppression de l'alerte
          */
-        $("#newdeletealert").slideToggle(150, function () {
-            $("#newdeletealert").remove();
+        $("#newDeleteAlert").slideToggle(150, function () {
+            $("#newDeleteAlert").remove();
         });
     });
 }
@@ -131,4 +131,4 @@ function copyToClipboard(containerid) {
     window.getSelection().addRange(range); 
     document.execCommand("copy");
     window.getSelection().removeAllRanges();
-  }
+}

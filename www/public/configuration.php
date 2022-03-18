@@ -402,7 +402,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
  */
 function save(array $array) {
     /**
-     *  On écrit toutes les modifications dans le fichier display.ini
+     *  On écrit toutes les modifications dans le fichier repomanager.conf
      */
     Common::write_ini_file(REPOMANAGER_CONF, $array);
 
@@ -1048,7 +1048,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 $cronError = shell_exec("cat ".CRON_LOG." | grep -v 'Status='");
                 echo '<tr>';
                 echo '<td colspan="100%">';
-                echo "<div id=\"cronjobStatusDiv\" class=\"hide background-gray\">$cronError</div>";
+                echo "<div id=\"cronjobStatusDiv\" class=\"hide\">$cronError</div>";
                 echo '<script>';
                 echo '$(document).ready(function(){';
                 echo "$(\"#cronjobStatusButton\").click(function(){";

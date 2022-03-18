@@ -75,9 +75,9 @@ hr {
 }
 
 /* Classes génériques */
-.is-inline { display: inline; }
-.is-block { display: block; }
-.is-inline-block { display: inline-block; }
+.inline { display: inline; }
+.block { display: block; }
+.inline-block { display: inline-block; }
 .float-left { float: left; }
 .float-right { float: right; }
 .align-top { vertical-align: top; }
@@ -96,18 +96,20 @@ hr {
 .verylowopacity { opacity: 0.08; }
 .opacity-80 { opacity: 0.80; }
 /* Classes génériques permettant de créer des images de couleurs à partir d'images blanches https://codepen.io/sosuke/pen/Pjoqqp */
-.yellowimg { /* #f0ad4e */
+.yellowimg {
     filter: brightness(0) saturate(100%) invert(73%) sepia(30%) saturate(901%) hue-rotate(347deg) brightness(97%) contrast(93%);
 }
-
-/* Classes génériques permettant de créer des div ou autres block avec un fond défini et des bords arrondis */
-.background-gray {
-    border-radius: 5px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-     background-color: #252525;
-     padding: 2px;
+.bkg-green {
+    background-color: #489f4d !important;
+    color: white !important;
+}
+.bkg-yellow {
+    background-color: #f0ad4e !important;
+    color: white !important;
+}
+.bkg-red {
+    background-color: #d9534f !important;
+    color: white !important;
 }
 .no-bkg {
     background: none !important;
@@ -240,8 +242,6 @@ section.main {
     width: 100%;
     padding-left: 15px;
     padding-right: 15px;
-    /* width: 99%; */
-    /*margin: auto; /* pour recentrer tout le bloc section */
 }
 
 .div-28 { width: 28%; padding: 10px; }.div-29 { width: 29%; padding: 10px; }.div-30 { width: 30%; padding: 10px; }
@@ -249,25 +249,19 @@ section.main {
 .div-49 { width: 49%; padding: 10px; }.div-50 { width: 50%; padding: 10px; }.div-65 { width: 65%; padding: 10px; }
 .div-67 { width: 67%; padding: 10px; }.div-68 { width: 68%; padding: 10px; }.div-69 { width: 69%; padding: 10px; }
 .div-70 { width: 70%; padding: 10px; }
+.flex { display: flex; }
 .flex-div-15 { flex: 0 0 14%; }
 .flex-div-20 { flex: 0 0 19%; }
+.flex-div-25 { flex: 0 0 24%; }
+.flex-div-30 { flex: 0 0 29%; }
+.flex-div-33 { flex: 0 0 32%; }
+.flex-div-40 { flex: 0 0 39%; }
 .flex-div-50 { flex: 0 0 47%; }
 .flex-div-60 { flex: 0 0 59%; }
 .flex-div-65 { flex: 0 0 64%; }
 .flex-div-68 { flex: 0 0 67%; }
 .flex-div-80 { flex: 0 0 79%; }
 .flex-div-100 { flex: 0 0 98%; }
-.flex-div-20, .flex-div-50, .flex-div-60, .flex-div-65, .flex-div-68, .flex-div-80, .flex-div-100 {
-    position: relative;
-    margin: 5px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 2px;
-    border: 1px solid #403f3f;
-    background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
-    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
-}
 
 /* Les articles constituent le container principal des sections mainSectionLeft et mainSectionRight. */
 article {
@@ -386,6 +380,7 @@ table {
 .table-generic-red tr  { background-color: #d9534f; }
 
 .div-generic-gray {
+    position: relative;
     margin: 5px;
     padding: 15px;
     margin-bottom: 20px;
@@ -410,6 +405,8 @@ table {
     padding: 4px;
     vertical-align: middle;
     align-items: center;
+    box-shadow: 0px 0.5px 0px 0px rgb(0 0 0 / 50%) inset,
+    0px 0px 0px 0px rgb(109 109 109 / 20%);
 }
 
 .repos-list-type-redhat {
@@ -984,7 +981,7 @@ footer p { color: gray; }
 #planCronStatus img { width: 8px; }
 
 /* Boutons au sommet de la liste des repos permettant d'afficher les div cachées (groupes, repos sources) */
-#ReposListDisplayToggleButton, #ReposSourcesToggleButton, #GroupsListToggleButton {
+#ReposListDisplayToggleButton, #ReposSourcesToggleButton, #GroupsListToggleButton, #settingsToggleButton {
     padding-left: 8px;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -1002,7 +999,7 @@ footer p { color: gray; }
     background-color: #263859;
 }
 
-#ReposListDisplayToggleButton:hover, #ReposSourcesToggleButton:hover, #GroupsListToggleButton:hover {
+#ReposListDisplayToggleButton:hover, #ReposSourcesToggleButton:hover, #GroupsListToggleButton:hover, #settingsToggleButton:hover {
     padding-left: 8px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -1118,6 +1115,7 @@ footer p { color: gray; }
     transform: translate(-50%, -50%);
 }
 .donut-legend-content {
+    width: 100%;
     position: absolute;
     text-align: center;
     font-size: 24px;

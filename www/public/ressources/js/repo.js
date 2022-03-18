@@ -293,7 +293,7 @@ $(document).on('submit','.operation-form-container',function(){
 /**
  *  Event : génération de la configuration du repo à installer sur la machine cliente
  */
-$(document).on('click','.client-configuration-button',function(){
+$(document).on('click','.client-configuration-btn',function(){
     /**
      *  Suppression de tout autre éventuel div déjà affiché
      */
@@ -344,6 +344,40 @@ $(document).on('click','.client-configuration-button',function(){
  */
 $(document).on('click','.divReposConf-close',function(){
     $(".divReposConf").remove();
+});
+
+/**
+ *  Event : modifier les paramètres d'affichage de la liste des repos
+ */
+$(document).on('click','#repos-display-conf-btn',function(){
+    /**
+     *  Récupération des paramètres (checkbox)
+     */
+    if ($("input[type=checkbox][name=printRepoSize]").is(":checked")) {
+        var printRepoSize = 'yes';
+    } else {
+        var printRepoSize = 'no';
+    }
+
+    if ($("input[type=checkbox][name=printRepoType]").is(":checked")) {
+        var printRepoType = 'yes';
+    } else {
+        var printRepoType = 'no';
+    }
+
+    if ($("input[type=checkbox][name=printRepoSignature]").is(":checked")) {
+        var printRepoSignature = 'yes';
+    } else {
+        var printRepoSignature = 'no';
+    }
+
+    if ($("input[type=checkbox][name=cacheReposList]").is(":checked")) {
+        var cacheReposList = 'yes';
+    } else {
+        var cacheReposList = 'no';
+    }
+
+    configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList);
 });
 
 
@@ -430,3 +464,35 @@ function validateExecuteForm(operation_params_json) {
         },
     });
 }
+
+/**
+ *  Ajax : Modifier les paramètres d'affichage de la liste des repos
+ *  @param {string} printRepoSize 
+ *  @param {string} printRepoType 
+ *  @param {string} printRepoSignature 
+ *  @param {string} cacheReposList 
+ */
+function configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList) {
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax.php",
+        data: {
+            action: "configureReposListDisplay",
+            printRepoSize: printRepoSize,
+            printRepoType: printRepoType,
+            printRepoSignature: printRepoSignature,
+            cacheReposList: cacheReposList
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+            reloadContentByClass('reposList');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+

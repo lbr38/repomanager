@@ -15,11 +15,6 @@ if (__ACTUAL_URI__ == "/index.php" OR __ACTUAL_URI__ == "/") {
     echo '<script src="ressources/js/group.js"></script>';
     echo '<script src="ressources/js/source.js"></script>';
 }
-if (__ACTUAL_URI__ == "/operation.php") {
-    echo '<script src="ressources/js/repo.js"></script>';
-    echo '<script src="ressources/js/group.js"></script>';
-    echo '<script src="ressources/js/source.js"></script>';
-}
 if (__ACTUAL_URI__ == "/planifications.php") {
     echo '<script src="ressources/js/repo.js"></script>';
     echo '<script src="ressources/js/group.js"></script>';

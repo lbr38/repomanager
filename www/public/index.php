@@ -5,7 +5,6 @@ require_once('../models/Autoloader.php');
 Autoloader::load();
 include_once('../includes/head.inc.php');
 require_once('../functions/repo.functions.php');
-require_once('../common.php');
 ?>
 
 <body>
