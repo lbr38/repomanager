@@ -56,7 +56,7 @@ Runs on following Redhat/CentOS or Debian/Ubuntu systems:
 Repomanager only needs a web service + PHP (7 min.) and SQLite.
 
 CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
-Disk space required depends on the size of the repos you need to clone.
+Required disk space depends on the size of the repos you need to clone.
 
 <b>Dependencies</b>
 
