@@ -248,8 +248,8 @@ function printRepoLine($repoData = []) {
          *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
          */
         if ($repoStatus == 'active') {
-            if (OS_FAMILY == "Redhat") echo "<img class=\"client-configuration-button icon-lowopacity\" os_family=\"Redhat\" repo=\"$repoName\" env=\"$repoEnv\" repo_dir_url=\"".WWW_REPOS_DIR_URL."\" repo_conf_files_prefix=\"".REPO_CONF_FILES_PREFIX."\" www_hostname=\"".WWW_HOSTNAME."\" src=\"ressources/icons/code.png\" title=\"Afficher la configuration client\" />";
-            if (OS_FAMILY == "Debian") echo "<img class=\"client-configuration-button icon-lowopacity\" os_family=\"Debian\" repo=\"$repoName\" dist=\"$repoDist\" section=\"$repoSection\" env=\"$repoEnv\" repo_dir_url=\"".WWW_REPOS_DIR_URL."\" repo_conf_files_prefix=\"".REPO_CONF_FILES_PREFIX."\" www_hostname=\"".WWW_HOSTNAME."\" src=\"ressources/icons/code.png\" title=\"Afficher la configuration client\" />";
+            if (OS_FAMILY == "Redhat") echo "<img class=\"client-configuration-btn icon-lowopacity\" os_family=\"Redhat\" repo=\"$repoName\" env=\"$repoEnv\" repo_dir_url=\"".WWW_REPOS_DIR_URL."\" repo_conf_files_prefix=\"".REPO_CONF_FILES_PREFIX."\" www_hostname=\"".WWW_HOSTNAME."\" src=\"ressources/icons/code.png\" title=\"Afficher la configuration client\" />";
+            if (OS_FAMILY == "Debian") echo "<img class=\"client-configuration-btn icon-lowopacity\" os_family=\"Debian\" repo=\"$repoName\" dist=\"$repoDist\" section=\"$repoSection\" env=\"$repoEnv\" repo_dir_url=\"".WWW_REPOS_DIR_URL."\" repo_conf_files_prefix=\"".REPO_CONF_FILES_PREFIX."\" www_hostname=\"".WWW_HOSTNAME."\" src=\"ressources/icons/code.png\" title=\"Afficher la configuration client\" />";
         }
         /**
          *  Affichage de l'icone "statistiques"

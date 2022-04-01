@@ -671,6 +671,31 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             response(HTTP_OK, $content);
         }
 
+        /**
+         *  Modifier les paramètres d'affichage de la liste des repos
+         */
+        if ($_POST['action'] == "configureReposListDisplay"
+            AND !empty($_POST['printRepoSize'])
+            AND !empty($_POST['printRepoType'])
+            AND !empty($_POST['printRepoSignature']) 
+            AND !empty($_POST['cacheReposList'])) {
+
+            /**
+             *  Tentative de modification des paramètres d'affichage
+             */
+            try {
+                Common::configureReposListDisplay($_POST['printRepoSize'], $_POST['printRepoType'], $_POST['printRepoSignature'], $_POST['cacheReposList']);
+
+            } catch(Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, "Les paramètres d'affichage ont été pris en compte");
+        }
+
 
         /**
          *  Si l'action ne correspond à aucune action valide

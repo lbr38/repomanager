@@ -75,6 +75,44 @@
     border-bottom-right-radius: 2px;
 }
 
+.hosts-table thead th {
+    text-align: left;
+    vertical-align: bottom;
+}
+.hosts-table thead th.rotate {
+    height: 130px;
+    white-space: nowrap;
+    vertical-align: inherit;
+}
+.hosts-table thead th.rotate > div {
+    transform: 
+    translate(5px, 51px) /* Magic Numbers */
+    rotate(315deg);     /* 45 is really 360 - 45 */
+    width: 30px;
+}
+.hosts-table thead th.rotate > div > span {
+    padding: 5px 10px;
+}
+.hosts-table .hostDetails-td {
+    padding-left: 25px;
+}
+.hosts-table .packagesCount-td {
+    width: 30px;
+    padding: 0 5px 0 5px;
+}
+.hosts-table .packagesCount-td span {
+    background: whitesmoke;
+    color: black;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 100%;
+    display: block;
+    text-align: center;
+    border-radius: 2px;
+    font-size: 11px;
+    box-shadow: 0px 1px 1px 0px rgb(0 0 0 / 50%) inset, 0px 2px 2px 0px rgb(109 109 109 / 20%);
+}
+
 .stats-access-table-request {
     white-space: normal;
 }
@@ -93,7 +131,6 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: repeat(3, 1fr);
-    /* grid-auto-rows: minmax(0, auto); */
 }
 
 .groups-container .header-container {
@@ -116,11 +153,8 @@
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
-.hosts-stats-chart {
-    width: 350px;
-    height: 350px;
-    margin: auto;
-    margin-top: 30px;
+#settingsDiv div {
+    width: 47.7%;
 }
 
 .searchInput-container {
@@ -166,10 +200,36 @@
     position: fixed;
     right: 8px;
 }
+
 .host-update-request-btn {
-    position:absolute;
+    position: absolute;
     top: 4px;
     right: 10px;
+}
+
+.host-table {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.hosts-charts-container {
+    display: grid;
+    grid-template-columns: repeat(3, 350px);
+    row-gap: 20px;
+    justify-content: space-evenly;
+}
+
+.hosts-chart-sub-container {
+    position: relative;
+    height: 120px;
+}
+
+.host-line-chart-container {
+    position: absolute;
+    right: 10px;
+    width: 1000px;
+    height: 190px;
+    display: inline-block;
 }
 
 #packagesContainer, #eventsContainer {

@@ -208,7 +208,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         </div>
                     </div>
 
-                    <div id="repo-access-chart-div" class="flex-div-65">
+                    <div id="repo-access-chart-div" class="flex-div-65 div-generic-gray">
                     <?php 
                         /**
                          *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
@@ -284,20 +284,16 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     },
                                     options: {
                                         scales: {
-                                            xAxes: [{
-                                                    display: true,
-                                                    scaleLabel: {
-                                                        display: true
-                                                    }
-                                                }],
-                                            yAxes: [{
-                                                    display: true,
-                                                    ticks: {
-                                                        beginAtZero: true,
-                                                        steps: 10,
-                                                        stepValue: 5,
-                                                    }
-                                                }]
+                                            x: {
+                                                display: true,
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                                display: true,
+                                                ticks: {
+                                                    stepSize: 1
+                                                }
+                                            }
                                         },
                                     }
                                 });
@@ -309,7 +305,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Tableau des derniers logs d'accès
                      */
-                    echo '<div class="flex-div-100">';
+                    echo '<div class="flex-div-100 div-generic-gray">';
                         echo '<p class="center lowopacity">Dernières requêtes d\'accès</p>';
                         echo '<table class="stats-access-table">';
                             if (!empty($lastAccess)) {
@@ -406,7 +402,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                          *  Affichage du graphique taille du repo/section
                          */
                         if (!empty($dateLabels) AND !empty($sizeData)) { ?>
-                            <div class="flex-div-50">
+                            <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoSizeChart"></canvas>
                                 <script>
                                     var ctx = document.getElementById('repoSizeChart').getContext('2d');
@@ -423,20 +419,15 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         },
                                         options: {
                                             scales: {
-                                                xAxes: [{
-                                                        display: true,
-                                                        scaleLabel: {
-                                                            display: true,
-                                                            labelString: 'Valeurs sur 6 mois'
-                                                        }
-                                                    }],
-                                                yAxes: [{
-                                                        display: true,
-                                                        ticks: {
-                                                            steps: 10,
-                                                            stepValue: 5,
-                                                        }
-                                                    }]
+                                                x: {
+                                                    display: true,
+                                                },
+                                                y: {
+                                                    display: true,
+                                                    ticks: {
+                                                        stepSize: 1
+                                                    }
+                                                }
                                             },
                                             title: {
                                                 display: true,
@@ -453,7 +444,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                          *  Affichage du graphique nombre de paquets du repo/section
                          */
                         if (!empty($dateLabels) AND !empty($countData)) { ?>
-                            <div class="flex-div-50">
+                            <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoPackagesCountChart"></canvas>
                                 <script>
                                     var ctx = document.getElementById('repoPackagesCountChart').getContext('2d');
@@ -470,20 +461,15 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         },
                                         options: {
                                             scales: {
-                                                xAxes: [{
-                                                        display: true,
-                                                        scaleLabel: {
-                                                            display: true,
-                                                            labelString: 'Valeurs sur 6 mois'
-                                                        }
-                                                    }],
-                                                yAxes: [{
-                                                        display: true,
-                                                        ticks: {
-                                                            steps: 10,
-                                                            stepValue: 5,
-                                                        }
-                                                    }]
+                                                x: {
+                                                    display: true,
+                                                },
+                                                y: {
+                                                    display: true,
+                                                    ticks: {
+                                                        stepSize: 1,
+                                                    }
+                                                }
                                             },
                                             title: {
                                                 display: true,

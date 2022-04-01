@@ -81,10 +81,15 @@ function countTotalCheckboxInGroup(group) {
  *  Rechercher un hôte dans la liste des hôtes
  */
 function searchHost() {
-    var input, filter, div, tr, td, i, txtValue;
+    var div, tr, td, txtValue;
+    var filter_os = '';
+    var filter_os_version = '';
+    var filter_os_family = '';
+    var filter_kernel = '';
+    var filter_arch = '';
 
     /**
-     *  A chaque saisie on (ré)-affiche tous les éléments masquées
+     *  A chaque saisie on (ré)-affiche tous les éléments masqués
      */
     $(".hosts-group-container").show();
     $(".host-tr").show();
@@ -98,31 +103,126 @@ function searchHost() {
 
     /**
      *  Récupération du terme recherché dans l'input
-     *  On converti tout en majuscule
+     *  On converti tout en majuscule afin d'ignorer la casse lors de la recherche
      */
     search = $("#searchHostInput").val().toUpperCase();
 
     /**
-     *  On recherche tous les 'host-tr' à l'intérieur de 'hostsDiv'
+     *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
+     *  les différents filtres possibles sont :
+     *  os:
+     *  os_version:
+     *  kernel:
+     *  arch:
+     * 
+     *  Comme la saisie récupérée a été convertie en majuscule, on recherche la présence d'un filtre en majuscules
+     */
+    
+    /**
+     *  On récupère tous les 'host-tr' à l'intérieur de 'hostsDiv'
      */
     div = document.getElementById("hostsDiv");
     tr = div.getElementsByClassName("host-tr");
 
     /**
-     *  Pour tous les 'host-tr' trouvés on vérifie si le contenu de leur td[1] contient le contenu saisi.
-     *  Si ce n'est pas le cas alors on masque le tr
+     *  Si la recherche contient le filtre 'os:', 
      */
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[1];
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(search) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
+    if (search.includes("OS:")) {
+        // On récupère l'os recherché en récupérant le terme qui suit 'os:'
+        filter_os = search.split('OS:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('OS:'+filter_os, '');
+    }
+    if (search.includes("OS_VERSION:")) {
+        // On récupère la version d'os recherchée en récupérant le terme qui suit 'os_version:'
+        filter_os_version = search.split('OS_VERSION:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('OS_VERSION:'+filter_os_version, '');
+    }
+    if (search.includes("OS_FAMILY:")) {
+        // On récupère la famille d'os recherchée en récupérant le terme qui suit 'os_family:'
+        filter_os_family = search.split('OS_FAMILY:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('OS_FAMILY:'+filter_os_family, '');
+    }
+    if (search.includes("KERNEL:")) {
+        // On récupère le kernel recherché en récupérant le terme qui suit 'kernel:'
+        filter_kernel = search.split('KERNEL:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('KERNEL:'+filter_kernel, '');
+    }
+    if (search.includes("ARCH:")) {
+        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        filter_arch = search.split('ARCH:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('ARCH:'+filter_arch, '');
+    }
+
+    /**
+     *  L'utilisation de filtre peut laisser des espaces blancs
+     *  Suppression de tous les espaces blancs de la recherche globale
+     */
+    search = search.replaceAll(' ', '');
+
+    /**
+     *  On traite chaque tr
+     */
+    $(".host-tr").each(function() {
+        /**
+         *  Si un filtre os a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
+         */
+        if (filter_os != "") {
+            if ($(this).attr('os').toUpperCase().indexOf(filter_os) == -1) {
+                $(this).hide();
             }
         }
-    }
+        /**
+         *  Si un filtre os_version a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
+         */
+        if (filter_os_version != "") {
+            if ($(this).attr('os_version').toUpperCase().indexOf(filter_os_version) == -1) {
+                $(this).hide();
+            }
+        }
+        /**
+         *  Si un filtre os_family a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
+         */
+        if (filter_os_family != "") {
+            if ($(this).attr('os_family').toUpperCase().indexOf(filter_os_family) == -1) {
+                $(this).hide();
+            }
+        }
+        /**
+         *  Si un filtre kernel a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
+         */
+        if (filter_kernel != "") {
+            if ($(this).attr('kernel').toUpperCase().indexOf(filter_kernel) == -1) {
+                $(this).hide();
+            }
+        }
+        /**
+         *  Si un filtre kernel a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
+         */
+        if (filter_arch != "") {
+            if ($(this).attr('arch').toUpperCase().indexOf(filter_arch) == -1) {
+                $(this).hide();
+            }
+        }
+        /**
+         *  Enfin, si après tous les filtres il reste un terme global à rechercher (un nom d'hôte par ex.) alors on masque les tr qui ne correspondent pas à cette recherche
+         */
+        if ($(this).is(":visible")) {
+            td = $(this).find("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(search) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            }
+        }
+    });
 
     /**
      *  Masquage des div de groupes dont tous les hôtes ont été masqués
@@ -162,6 +262,9 @@ function searchHostPackage() {
         return;
     }
 
+    /**
+     *  On utilise un setTimeout pour laisser le temps à l'utilisateur de terminer sa saisie avant de rechercher
+     */
     setTimeout(function(){
         /**
          *  Récupération du terme recherché dans l'input
@@ -217,22 +320,34 @@ function hideGroupDiv() {
     });
 }
 
-
 /**
  *  Events listeners
  */
 
 /**
- *  Affichage du div permettant de gérer les groupes
+ *  Event : Affichage du div permettant de gérer les groupes
  */
 $(document).on('click',"#GroupsListToggleButton",function(){
     $("#groupsHostDiv").show('200');
 });
 /**
- *  Masquage du div permettant de gérer les groupes
+ *  Event : Masquage du div permettant de gérer les groupes
  */
 $(document).on('click',"#groupsDivCloseButton",function(){
     $("#groupsHostDiv").hide('200');
+});
+
+/**
+ *  Event : Affichage du div permettant de gérer les paramètres
+ */
+$(document).on('click',"#settingsToggleButton",function(){
+    $("#settingsDiv").show('200');
+});
+/**
+ *  Event : Masquage du div permettant de gérer les paramètres
+ */
+$(document).on('click',"#settingsDivCloseButton",function(){
+    $("#settingsDiv").hide('200');
 });
 
 /**

@@ -24,7 +24,6 @@ BACKUP_CONF_DIR="/tmp/repomanager-update_${GITHUB_VERSION}/backup-conf"
 # Sauvegarde des configurations actuelles
 cp ${WWW_DIR}/ressources/styles/colors.php ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/configurations/repomanager.conf ${BACKUP_CONF_DIR}/
-cp ${WWW_DIR}/configurations/display.ini ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
 cp -r ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
@@ -62,22 +61,9 @@ if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
 if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
 
-# display.ini
-# Copie du fichier /tmp/repomanager-update_${GITHUB_VERSION}/repomanager/configurations/display.ini vers un fichier temporaire dans lequel on va travailler
-cp configurations/display.ini configurations/display.ini.tmp
-# On récupère tous les paramètres du nouveau fichier display.ini
-# Puis pour chaque paramètres, on récupère sa valeur côté display.ini actuellement en place, ceci afin de ne pas écraser la conf actuelle de l'utilisateur
-PARAMETERS=$(egrep "^.*=" configurations/display.ini | awk '{print $1}')
-for PARAM in $PARAMETERS;do
-    ACTUAL_VALUE=$(egrep "^$PARAM" ${WWW_DIR}/configurations/display.ini | awk '{print $3}')
-    sed -i "s/${PARAM}.*/${PARAM} = ${ACTUAL_VALUE}/g" configurations/display.ini.tmp
-done &&
-\cp configurations/display.ini.tmp ${WWW_DIR}/configurations/display.ini
-
 # Remise en place des configurations sauvegardées
 \cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/ressources/styles/colors.php
 \cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf
-\cp ${BACKUP_CONF_DIR}/display.ini ${WWW_DIR}/configurations/display.ini
 \cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db
 \cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db
 \cp -r ${BACKUP_CONF_DIR}/logs ${WWW_DIR}/
@@ -112,6 +98,7 @@ rm -f "${WWW_DIR}/configurations/repos.list"
 rm -f "${WWW_DIR}/configurations/repos-archive.list"
 rm -f "${WWW_DIR}/operations/cronjob_daily.php"
 rm -f "${WWW_DIR}/configurations/envs.conf"
+rm -f "${WWW_DIR}/configurations/display.ini"
 
 # Suppression du répertoire de mise à jour
 rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf

@@ -8,7 +8,8 @@ class Common
     /**
      *  Fonction de vérification / conversion des données envoyées par formulaire
      */
-    static function validateData($data) {
+    static function validateData($data)
+    {
         $data = trim($data);
         $data = stripslashes($data);
         $data = htmlspecialchars($data);
@@ -18,7 +19,8 @@ class Common
     /**
      *  Fonction de vérification du format d'une adresse email
      */
-    static function validateMail(string $mail) {
+    static function validateMail(string $mail)
+    {
         $mail = trim($mail);
 
         if (filter_var($mail, FILTER_VALIDATE_EMAIL)) return true;
@@ -29,7 +31,8 @@ class Common
     /**
      *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres
      */
-    static function is_alphanum(string $data, array $additionnalValidCaracters = []) {
+    static function is_alphanum(string $data, array $additionnalValidCaracters = [])
+    {
         /**
          *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ignore dans le test en les remplacant temporairement par du vide
          */
@@ -54,7 +57,8 @@ class Common
      *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
      *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
      */
-    static function is_alphanumdash(string $data, array $additionnalValidCaracters = []) {
+    static function is_alphanumdash(string $data, array $additionnalValidCaracters = [])
+    {
         /**
          *  Si une chaine vide a été transmise alors c'est valide
          */
@@ -87,7 +91,8 @@ class Common
      *  il s'agit d'un répertoire classique sur le disque
      *  ou il s'agit d'un lien symbolique vers /dev/smh (en ram)
      */
-    static function clearCache() {
+    static function clearCache()
+    {
         if (file_exists(WWW_CACHE."/repomanager-repos-list.html")) unlink(WWW_CACHE."/repomanager-repos-list.html");
         if (file_exists(WWW_CACHE."/repomanager-repos-archived-list.html")) unlink(WWW_CACHE."/repomanager-repos-archived-list.html");
     }
@@ -95,7 +100,8 @@ class Common
     /**
      *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
      */
-    static function printAlert(string $message, string $alertType = '') {
+    static function printAlert(string $message, string $alertType = '')
+    {
         if ($alertType == "error")   echo '<div class="alert-error">';
         if ($alertType == "success") echo '<div class="alert-success">';
         if (empty($alertType))       echo '<div class="alert">';
@@ -125,7 +131,8 @@ class Common
      *  $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
      *  $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
      */
-    static function deleteConfirm(string $message, string $url, $divID, $aID) {
+    static function deleteConfirm(string $message, string $url, $divID, $aID)
+    {
         echo "<div id=\"$divID\" class=\"hide deleteAlert\">";
             echo "<span class=\"deleteAlert-message\">$message</span>";
             echo '<div class="deleteAlert-buttons-container">';
@@ -149,7 +156,8 @@ class Common
      *  Affiche une erreur générique ou personnalisée lorsqu'il y a eu une erreur d'exécution d'une requête dans la base de données
      *  Ajoute une copie de l'erreur dans le fichier de logs 'exceptions'
      */
-    static function dbError(string $exception = null) {
+    static function dbError(string $exception = null)
+    {
         /**
          *  Date et heure de l'évènement
          */
@@ -185,7 +193,8 @@ class Common
     /**
      *  Colore l'environnement d'une étiquette rouge ou blanche
      */
-    static function envtag($env, $css = null) {
+    static function envtag($env, $css = null)
+    {
         if ($env == LAST_ENV)
             $class = 'last-env';
         else
@@ -201,7 +210,8 @@ class Common
     /**
      *  Vérifie que la tâche cron des rappels de planifications est en place
      */
-    static function checkCronReminder() {
+    static function checkCronReminder()
+    {
         $cronStatus = shell_exec("crontab -l | grep 'send-reminders' | grep -v '#'");
         if (empty($cronStatus))
             return 'Off';
@@ -209,7 +219,8 @@ class Common
             return 'On';
     }
 
-    static function write_ini_file($file, $array = []) {
+    static function write_ini_file($file, $array = [])
+    {
         // check first argument is string
         if (!is_string($file)) {
             throw new \InvalidArgumentException('Function argument 1 must be a string.');
@@ -277,8 +288,8 @@ class Common
     /**
      *  Inscrit les tâches cron dans la crontab de WWW_USER
      */
-    static function enableCron() {
-
+    static function enableCron()
+    {
         // Récupération du contenu de la crontab actuelle dans un fichier temporaire
         shell_exec("crontab -l > ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
     
@@ -432,5 +443,55 @@ class Common
         if (file_exists(ROOT."/update-running")) unlink(ROOT."/update-running");
 
         return $updateStatus;
+    }
+
+    static function configureReposListDisplay(string $printRepoSize, string $printRepoType, string $printRepoSignature, string $cacheReposList)
+    {
+        /**
+         *  On vérifie que la valeur des paramètres est 'yes' ou 'no'
+         */
+        if ($printRepoSize != 'yes' AND $printRepoSize != 'no') {
+            throw new Exception("Le paramètre d'affichage de la taille du repo est invalide");
+        }
+
+        if ($printRepoType != 'yes' AND $printRepoType != 'no') {
+            throw new Exception("Le paramètre d'affichage du type du repo est invalide");
+        }
+
+        if ($printRepoSignature != 'yes' AND $printRepoSignature != 'no') {
+            throw new Exception("Le paramètre d'affichage de la signature du repo est invalide");
+        }
+
+        if ($cacheReposList != 'yes' AND $cacheReposList != 'no') {
+            throw new Exception('Le paramètre de mise en cache est invalide');
+        }
+
+        /**
+         *  Ouverture d'une connexion à la base de données
+         */
+        $myconn = new Connection('main');
+
+        /**
+         *  Modification des paramètres en base de données
+         */
+        try {
+            $stmt = $myconn->prepare("UPDATE repos_list_settings SET print_repo_size = :printRepoSize, print_repo_type = :printRepoType, print_repo_signature = :printRepoSignature, cache_repos_list = :cacheReposList");
+            $stmt->bindValue(':printRepoSize', $printRepoSize);
+            $stmt->bindValue(':printRepoType', $printRepoType);
+            $stmt->bindValue(':printRepoSignature', $printRepoSignature);
+            $stmt->bindValue(':cacheReposList', $cacheReposList);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        $myconn->close();
+
+        /**
+         *  On supprime le cache
+         */
+        Common::clearCache();
+
+        return true;
     }
 }

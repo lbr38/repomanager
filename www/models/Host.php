@@ -12,6 +12,9 @@ class Host extends Model {
     protected $hostname;
     protected $os;
     protected $os_version;
+    protected $os_family;
+    protected $kernel;
+    protected $arch;
     protected $env;
     protected $authId;
     protected $token;
@@ -56,6 +59,21 @@ class Host extends Model {
     public function setOS_version(string $os_version)
     {
         $this->os_version = Common::validateData($os_version);
+    }
+
+    public function setOS_family(string $os_family)
+    {
+        $this->os_family = Common::validateData($os_family);
+    }
+
+    public function setKernel(string $kernel)
+    {
+        $this->kernel = Common::validateData($kernel);
+    }
+
+    public function setArch(string $arch)
+    {
+        $this->arch = Common::validateData($arch);
     }
 
     public function setProfile(string $profile)
@@ -302,7 +320,7 @@ class Host extends Model {
     public function db_updateOS()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os=:os WHERE AuthId=:authId AND Token=:token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE AuthId = :authId AND Token = :token");
             $stmt->bindValue(':os', $this->os);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
@@ -320,8 +338,62 @@ class Host extends Model {
     public function db_updateOS_version()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_version=:os_version WHERE AuthId=:authId AND Token=:token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE AuthId = :authId AND Token = :token");
             $stmt->bindValue(':os_version', $this->os_version);
+            $stmt->bindValue(':authId', $this->authId);
+            $stmt->bindValue(':token', $this->token);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        return true;
+    }
+
+    /**
+     *  Mise à jour de la famille d'OS en BDD
+     */
+    public function db_updateOS_family()
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE AuthId = :authId AND Token = :token");
+            $stmt->bindValue(':os_family', $this->os_family);
+            $stmt->bindValue(':authId', $this->authId);
+            $stmt->bindValue(':token', $this->token);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        return true;
+    }
+
+    /**
+     *  Mise à jour de la version du kernel de l'hôte en BDD
+     */
+    public function db_updateKernel()
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE AuthId = :authId AND Token = :token");
+            $stmt->bindValue(':kernel', $this->kernel);
+            $stmt->bindValue(':authId', $this->authId);
+            $stmt->bindValue(':token', $this->token);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        return true;
+    }
+
+    /**
+     *  Mise à jour de l'architecture de l'hôte en BDD
+     */
+    public function db_updateArch()
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE AuthId = :authId AND Token = :token");
+            $stmt->bindValue(':arch', $this->arch);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
@@ -1473,6 +1545,81 @@ class Host extends Model {
         return $datas;
     }
 
+    /**
+     *  Fonction qui liste tous les noms d'OS référencés en les comptant
+     *  Retourne le nom des Os et leur nombre
+     */
+    public function listCountOS()
+    {
+        $os = array();
+
+        $result = $this->db->query("SELECT Os, Os_version, COUNT(*) as Os_count FROM hosts WHERE Status = 'active' GROUP BY Os, Os_version");
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $os[] = $row;
+
+        return $os;
+    }
+
+    /**
+     *  Fonction qui liste tous les kernel d'hôtes référencés en les comptant
+     *  Retourne la version des kernels et leur nombre
+     */
+    public function listCountKernel()
+    {
+        $kernel = array();
+
+        $result = $this->db->query("SELECT Kernel, COUNT(*) as Kernel_count FROM hosts WHERE Status = 'active' GROUP BY Kernel");
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $kernel[] = $row;
+
+        return $kernel;
+    }
+
+    /**
+     *  Fonction qui liste tous les arch d'hôtes référencés en les comptant
+     *  Retourne la version des arch et leur nombre
+     */
+    public function listCountArch()
+    {
+        $arch = array();
+
+        $result = $this->db->query("SELECT Arch, COUNT(*) as Arch_count FROM hosts WHERE Status = 'active' GROUP BY Arch");
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $arch[] = $row;
+
+        return $arch;
+    }
+
+    /**
+     *  Fonction qui liste tous les env d'hôtes référencés en les comptant
+     *  Retourne le nom des env et leur nombre
+     */
+    public function listCountEnv()
+    {
+        $env = array();
+
+        $result = $this->db->query("SELECT Env, COUNT(*) as Env_count FROM hosts WHERE Status = 'active' GROUP BY Env");
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $env[] = $row;
+
+        return $env;
+    }
+
+    /**
+     *  Fonction qui liste tous les profils d'hôtes référencés en les comptant
+     *  Retourne le nom des profils et leur nombre
+     */
+    public function listCountProfile()
+    {
+        $profile = array();
+
+        $result = $this->db->query("SELECT Profile, COUNT(*) as Profile_count FROM hosts WHERE Status = 'active' GROUP BY Profile");
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $profile[] = $row;
+
+        return $profile;
+    }
+
 /**
  *  
  *  Vérifications de l'existence de données en base de données
@@ -1646,6 +1793,61 @@ class Host extends Model {
  * 
  */
     /**
+     *  Récupération des paramètres généraux (table settings)
+     */
+    public function getSettings()
+    {
+        $settings = array();
+
+        try {
+            $result = $this->db->query("SELECT * FROM settings");
+        
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $settings = $row;
+
+        return $settings;
+    }
+
+    /**
+     *  Modifie les paramètres d'affichage sur hosts.php
+     */
+    public function setSettings(string $pkgs_considered_outdated, string $pkgs_considered_critical)
+    {
+        /**
+         *  Les paramètres suivants doivent être des chiffres
+         */
+        if (!is_numeric($pkgs_considered_outdated) OR !is_numeric($pkgs_considered_critical)) {
+            Common::printAlert('Les paramètres doivent être numériques', 'error');
+            return;
+        }
+
+        /**
+         *  Les paramètres doivent être supérieurs à 0
+         */
+        if ($pkgs_considered_outdated <= 0 OR $pkgs_considered_critical <= 0) {
+            Common::printAlert('Les paramètres doivent être supérieurs à 0', 'error');
+            return;
+        }
+
+        /**
+         *  Modification des paramètres en base de données
+         */
+        try {
+            $stmt = $this->db->prepare("UPDATE settings SET pkgs_count_considered_outdated = :pkgs_considered_outdated, pkgs_count_considered_critical = :pkgs_considered_critical");
+            $stmt->bindValue(':pkgs_considered_outdated', $pkgs_considered_outdated);
+            $stmt->bindValue(':pkgs_considered_critical', $pkgs_considered_critical);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::printAlert('Les paramètres ont été pris en compte', 'success');
+    }
+
+    /**
      *  Récupère la liste des paquets présents sur l'hôte
      */
     public function getPackagesInventory()
@@ -1660,7 +1862,11 @@ class Host extends Model {
          */
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
+        try {
+            $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
@@ -1668,9 +1874,9 @@ class Host extends Model {
     }
 
     /**
-     *  Retourne le nombre de paquets installés sur l'hôte
+     *  Retourne les paquets installés sur l'hôte
      */
-    public function getPackagesInstalledCount()
+    public function getPackagesInstalled()
     {
         /**
          *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
@@ -1682,11 +1888,15 @@ class Host extends Model {
          */
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' OR State = 'installed' OR State = 'upgraded' OR State = 'downgraded'");
+        try {
+            $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' OR State = 'installed' OR State = 'upgraded' OR State = 'downgraded'");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
-        return count($datas);
+        return $datas;
     }
 
     /**
@@ -1704,7 +1914,12 @@ class Host extends Model {
          */
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM packages_available");
+        try {
+            $result = $this->host_db->query("SELECT * FROM packages_available");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
         return $datas;
@@ -1722,7 +1937,12 @@ class Host extends Model {
 
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM updates_requests ORDER BY Date DESC, Time DESC");
+        try {
+            $result = $this->host_db->query("SELECT * FROM updates_requests ORDER BY Date DESC, Time DESC");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             /**
              *  On ajoute une colonne Event_type au résultat afin de définir qu'il s'agit d'une 'update_request'. Sera utile au moment de l'affichage des données.
@@ -1746,7 +1966,11 @@ class Host extends Model {
 
         $datas = array();
 
-        $result = $this->host_db->query("SELECT * FROM events ORDER BY Date DESC, Time DESC");
+        try {
+            $result = $this->host_db->query("SELECT * FROM events ORDER BY Date DESC, Time DESC");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             /**
@@ -1961,10 +2185,20 @@ class Host extends Model {
 
         $datas = array();
 
-        $result = $this->host_db->query("SELECT Date, Time, Status FROM events ORDER BY Id DESC LIMIT 1");
+        try {
+            $result = $this->host_db->query("SELECT Date, Time, Status FROM events ORDER BY Id DESC LIMIT 1");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
-        $result = $this->host_db->query("SELECT Date, Time, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
+        try {
+            $result = $this->host_db->query("SELECT Date, Time, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
 
         /**
@@ -1992,9 +2226,56 @@ class Host extends Model {
 
         $datas = array();
 
-        $result = $this->host_db->query("SELECT Date, Time, Type, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
+        try {
+            $result = $this->host_db->query("SELECT Date, Time, Type, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
 
         return $datas;
+    }
+
+    /**
+     *  Compte le nombre de paquets installés, mis à jour, désinstallés... au cours des X derniers jours.
+     *  Retourne un array contenant les dates => nombre de paquet
+     *  Fonction utilisées notamment pour la création du graphique ChrtJS de type 'line' sur la page d'un hôte
+     */
+    public function getLastPackagesStatusCount(string $status, string $days)
+    {
+        /**
+         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
+         */
+        if (empty($this->host_db)) return false;
+
+        if ($status != 'installed' AND $status != 'upgraded' AND $status != 'removed') return false;
+
+        $dateEnd   = date('Y-m-d'); 
+        $dateStart = date_create($dateEnd)->modify("-${days} days")->format('Y-m-d');
+
+        try {
+            $stmt = $this->host_db->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status AND Date BETWEEN :dateStart AND :dateEnd GROUP BY Date
+                                            UNION
+                                            SELECT Date, COUNT(*) as date_count FROM packages_history WHERE State = :status AND Date BETWEEN :dateStart AND :dateEnd GROUP BY Date");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':dateStart', $dateStart);
+            $stmt->bindValue(':dateEnd', $dateEnd);
+            $result = $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        $array = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (!array_key_exists($row['Date'], $array)) {
+                $array[$row['Date']] = $row['date_count'];
+            } else {
+                $array[$row['Date']] += $row['date_count'];
+            }
+        }
+
+        return $array;
     }
 }

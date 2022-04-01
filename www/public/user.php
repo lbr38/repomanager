@@ -59,7 +59,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
         <section class="section-center">
             <h3><?php echo strtoupper($_SESSION['username']);?></h3>
 
-            <div class="div-flex">
+            <div class="div-flex div-generic-gray">
                 <div class="flex-div-100">
                     <table class="table-generic table-small opacity-80">
                         <tr>
@@ -75,7 +75,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
             </div>
 
             <div class="div-flex">
-                <div class="flex-div-50">
+                <div class="flex-div-50 div-generic-gray">
                     <h4>INFORMATIONS PERSONNELLES</h4>
                     <form action="user.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="editPersonnalInfos" />
@@ -89,11 +89,12 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
                         <input type="email" class="input-large" name="email" value="<?php if (!empty($_SESSION['email'])) echo $_SESSION['email'];?>" />
 
                         <br>
+                        <br>
                         <button class="btn-medium-blue">Enregistrer</button>
                     </form>
                 </div>
 
-                <div class="flex-div-50">
+                <div class="flex-div-50 div-generic-gray">
                     <h4>MODIFIER LE MOT DE PASSE</h4>
                     <form action="user.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="changePassword" />
@@ -107,6 +108,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty
                         <p>Nouveau mot de passe (saisir de nouveau) :</p>
                         <input type="password" class="input-large" name="new_password2" required />
 
+                        <br>
                         <br>
                         <button class="btn-medium-blue">Enregistrer</button>
                     </form>                    

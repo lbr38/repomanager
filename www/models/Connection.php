@@ -159,7 +159,8 @@ class Connection extends SQLite3 {
         OR name='profile_service'
         OR name='users'
         OR name='user_role'
-        OR name='history'");
+        OR name='history'
+        OR name='repos_list_settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -190,7 +191,8 @@ class Connection extends SQLite3 {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
         AND name='hosts'
         OR name='groups'
-        OR name='group_members'");
+        OR name='group_members'
+        OR name='settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -204,15 +206,15 @@ class Connection extends SQLite3 {
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 13 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 14 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 13) {
+        if ($this->countMainTables() != 14) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 13) return false;
+            if ($this->countMainTables() != 14) return false;
         }
 
         return true;
@@ -244,15 +246,15 @@ class Connection extends SQLite3 {
     public function checkHostsTables()
     {
         /**
-         *  Si le nombre de tables présentes != 3 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 4 alors on tente de regénérer les tables
          */
-        if ($this->countHostsTables() != 3) {
+        if ($this->countHostsTables() != 4) {
             $this->generateHostsTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countHostsTables() != 3) return false;
+            if ($this->countHostsTables() != 4) return false;
         }
 
         return true;
@@ -496,6 +498,21 @@ class Connection extends SQLite3 {
          */
         $result = $this->query("SELECT Id FROM profile_service");
         if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
+
+        /**
+         *  Crée la table repos_list_settings si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS repos_list_settings (
+        print_repo_size CHAR(3) NOT NULL,
+        print_repo_type CHAR(3) NOT NULL,
+        print_repo_signature CHAR(3) NOT NULL,
+        cache_repos_list CHAR(3) NOT NULL)");
+
+        /**
+         *  Si la table repos_list_settings est vide (vient d'être créée) alors on la peuple
+         */
+        $result = $this->query("SELECT print_repo_size FROM repos_list_settings");
+        if ($this->isempty($result) === true) $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
     }
 
     /**
@@ -525,6 +542,11 @@ class Connection extends SQLite3 {
         IP VARCHAR(16) NOT NULL,
         Request VARCHAR(255) NOT NULL,
         Request_result VARCHAR(8) NOT NULL)");
+
+        /**
+         *  Crée un index sur certaines colonnes de la table access
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS request_index ON access (Date, Time, Request)");
     }
 
     /**
@@ -544,6 +566,10 @@ class Connection extends SQLite3 {
         Hostname VARCHAR(255) NOT NULL,
         Os VARCHAR(255),
         Os_version VARCHAR(255),
+        Os_family VARCHAR(255),
+        Kernel VARCHAR(255),
+        Arch CHAR(10),
+        Type VARCHAR(255),
         Profile VARCHAR(255),
         Env VARCHAR(255),
         AuthId VARCHAR(255),
@@ -552,14 +578,14 @@ class Connection extends SQLite3 {
         Online_status_date,
         Online_status_time,
         Status VARCHAR(8) NOT NULL)");
-    
+
         /** 
          *  Crée la table groups si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
-        
+
         /**
          *  Crée la table group_members si n'existe pas
          */
@@ -567,6 +593,19 @@ class Connection extends SQLite3 {
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_host INTEGER NOT NULL,
         Id_group INTEGER NOT NULL);");
+
+        /**
+         *  Crée la table settings si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS settings (
+        pkgs_count_considered_outdated INTEGER NOT NULL,
+        pkgs_count_considered_critical INTEGER NOT NULL)");
+
+        /**
+         *  Si la table settings est vide (vient d'être créée) alors on la peuple
+         */
+        $result = $this->query("SELECT pkgs_count_considered_outdated FROM settings");
+        if ($this->isempty($result) === true) $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
     }
 
     /**
