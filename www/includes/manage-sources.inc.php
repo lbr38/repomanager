@@ -8,7 +8,7 @@
     <br>
 
     <div class="div-generic-gray">
-        <p><b>Ajouter un nouveau repo source :</b></p> 
+        <h5>Ajouter un nouveau repo source</h5>
         <form id="sourceAddForm" autocomplete="off">
             <p>Nom :</p>
             <input type="text" class="input-large" name="addSourceName" required />
@@ -103,48 +103,38 @@
 
     if (!empty($gpgKeys)) {
         echo '<div class="div-generic-gray">';
-            echo '<p><b>Liste des clés GPG du trousseau de repomanager :</b></p>';
-            echo '<table class="table-large">';
-                foreach($gpgKeys as $gpgKey) {
-                    if (OS_FAMILY == "Redhat") {
-                        if (($gpgKey != "..") AND ($gpgKey != ".")) { ?>
-                            <tr>
-                                <td>
-                                    <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKey;?>" title="Supprimer la clé GPG <?php echo $gpgKey;?>" />
-                                </td>
-                                <td>
-                                    <?php echo $gpgKey;?>
-                                </td>
-                            </tr>
-                <?php   }
-                    }
-                    if (OS_FAMILY == "Debian") {
-                        // On récup uniquement l'ID de la clé GPG
-                        $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
-                        // Retire tous les espaces blancs
-                        $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
-                        // Récupère le nom de la clé GPG
-                        $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-                        if (!empty($gpgKeyID) AND !empty($gpgKeyName)) { ?>
-                            <tr>
-                                <td>
-                                    <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKeyID;?>" title="Supprimer la clé GPG <?php echo $gpgKeyID;?>" />
-                                </td>
-                                <td>
-                                    <?php echo $gpgKeyName." ($gpgKeyID)";?>
-                                </td>
-                            </tr>
-                <?php   }
-                    }
+            echo '<h5>Liste des clés GPG du trousseau de repomanager</h5>';
+            foreach($gpgKeys as $gpgKey) {
+                if (OS_FAMILY == "Redhat") {
+                    if (($gpgKey != "..") AND ($gpgKey != ".")) { ?>
+                        <p>
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKey;?>" title="Supprimer la clé GPG <?php echo $gpgKey;?>" />
+                            <?php echo $gpgKey;?>
+                        </p>
+<?php               }
                 }
-            echo '</table>';
+                if (OS_FAMILY == "Debian") {
+                    // On récup uniquement l'ID de la clé GPG
+                    $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
+                    // Retire tous les espaces blancs
+                    $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
+                    // Récupère le nom de la clé GPG
+                    $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+                    if (!empty($gpgKeyID) AND !empty($gpgKeyName)) { ?>
+                        <p>
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKeyID;?>" title="Supprimer la clé GPG <?php echo $gpgKeyID;?>" />
+                            <?php echo $gpgKeyName." ($gpgKeyID)";?>
+                        </p>
+<?php               }
+                }
+            }
         echo '</div>';
     } ?>
 
         <?php
         /**
          *  AFFICHAGE DES REPOS SOURCES ACTUELS
-        */
+         */
 
         /**
          *  1. Récupération de tous les noms de sources
@@ -157,7 +147,7 @@
          */
         if (!empty($sourcesList)) {
             echo '<div class="div-generic-gray">';
-                echo "<p><b>Repos sources actuels :</b></p>";
+                echo "<h5>Repos sources actuels</h5>";
 
                 foreach($sourcesList as $source) {
                     if (OS_FAMILY == "Redhat") {

@@ -2,20 +2,6 @@
 include_once(ROOT."/models/includes/cleanArchives.php");
 
 class Repo extends Model {
-    // public $id; // l'id en BDD du repo
-    // public $name;
-    // public $source;
-    // public $dist;
-    // public $section;
-    // public $date;
-    // public $dateFormatted;
-    // public $time;
-    // public $env;
-    // public $description;
-    // public $signed; // yes ou no
-    // public $type; // miroir ou local
-    // public $status;
-
     private $id; // l'id en BDD du repo
     private $name;
     private $source;
@@ -34,8 +20,6 @@ class Repo extends Model {
     // Variable supplémentaires utilisées lors d'opérations sur le repo
     public $group;
     public $log;
-    // public $newName;
-    // public $newEnv;
     private $sourceFullUrl;
     private $hostUrl;
     private $rootUrl;
@@ -512,23 +496,23 @@ class Repo extends Model {
      *  Retourne true si existe
      *  Retourne false si n'existe pas
      */
-    public function existsId(string $id, string $status = null)
+    public function existsId(string $id, string $targetTable = null)
     {
         /** 
          *  Si on a renseigné $table (active ou archived) alors on interroge soit la table repos soit la table repos_archived
          *  Sinon on interroge la table par défaut 'repos'
          */
-        if (empty($status)) {
+        if (empty($targetTable)) {
             $table = 'repos';
         } else {
-            if ($status != 'active' AND $status != 'archived') {
+            if ($targetTable != 'active' AND $targetTable != 'archived') {
                 return false;
             }
 
-            if ($status == 'active') {
+            if ($targetTable == 'active') {
                 $table = 'repos';
             }
-            if ($status == 'archived') {
+            if ($targetTable == 'archived') {
                 $table = 'repos_archived';
             }
         }

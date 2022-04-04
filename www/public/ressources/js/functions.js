@@ -131,4 +131,6 @@ function copyToClipboard(containerid) {
     window.getSelection().addRange(range); 
     document.execCommand("copy");
     window.getSelection().removeAllRanges();
+
+    printAlert('Copié', 'success');
 }

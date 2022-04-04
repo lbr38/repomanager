@@ -160,25 +160,26 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                             <br><p class="lowopacity">Temps réel</p><br>
                             <div class="round-div-container pointer">
                                 <span><?php echo $realTimeAccessCount;?></span>
-                                <?php if (!empty($realTimeAccess)) {
-                                    echo '<span class="stats-info-requests">';
-                                        foreach ($realTimeAccess as $line) {
-                                            /**
-                                             *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
-                                             */
-                                            if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
-                                                echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
-                                            else
-                                                echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
-                                            /**
-                                             *  Affichage des détails de la/les requête(s)
-                                             */
-                                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y').' à '.$line['Time'].' - '.$line['Source']. '('.$line['IP'].') - '.$line['Request'];
-                                            echo '<br>';
-                                        }
-                                    echo '</span>';
-                                } ?>
                             </div>
+
+                            <?php if (!empty($realTimeAccess)) {
+                                echo '<span class="stats-info-requests">';
+                                    foreach ($realTimeAccess as $line) {
+                                        /**
+                                         *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
+                                         */
+                                        if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
+                                            echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        else
+                                            echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        /**
+                                         *  Affichage des détails de la/les requête(s)
+                                         */
+                                        echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y').' à '.$line['Time'].' - '.$line['Source']. '('.$line['IP'].') - '.$line['Request'];
+                                        echo '<br>';
+                                    }
+                                echo '</span>';
+                            } ?>
                         </div>
 
                         <!-- 5 dernières minutes -->
@@ -186,25 +187,26 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                             <br><p class="lowopacity" title="5 dernières minutes">Dernières minutes</p><br>
                             <div class="round-div-container">
                                 <span class="pointer"><?php echo $lastMinutesAccessCount;?></span>
-                                <?php if (!empty($lastMinutesAccess)) {
-                                    echo '<span class="stats-info-requests">';
-                                        foreach ($lastMinutesAccess as $line) {
-                                            /**
-                                             *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
-                                             */
-                                            if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
-                                                echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
-                                            else
-                                                echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
-                                            /**
-                                             *  Affichage des détails de la/les requête(s)
-                                             */
-                                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y').' à '.$line['Time'].' - '.$line['Source']. '('.$line['IP'].') - '.$line['Request'];
-                                            echo '<br>';
-                                        }
-                                    echo '</span>';
-                                } ?>
                             </div>
+
+                            <?php if (!empty($lastMinutesAccess)) {
+                                echo '<span class="stats-info-requests">';
+                                    foreach ($lastMinutesAccess as $line) {
+                                        /**
+                                         *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
+                                         */
+                                        if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
+                                            echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        else
+                                            echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        /**
+                                         *  Affichage des détails de la/les requête(s)
+                                         */
+                                        echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y').' à '.$line['Time'].' - '.$line['Source']. '('.$line['IP'].') - '.$line['Request'];
+                                        echo '<br>';
+                                    }
+                                echo '</span>';
+                            } ?>
                         </div>
                     </div>
 

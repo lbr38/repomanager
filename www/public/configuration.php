@@ -896,7 +896,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
         </table>
 
         <br><h3>BASES DE DONNÉES</h3>
-        <table class="table-large">
+        <table class="table-generic-blue table-large">
             <tr>
                 <td class="td-fit">
                     <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données principale de repomanager. L'application ne peut fonctionner si la base de données est en erreur." />
@@ -1019,25 +1019,25 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td>
-                    <?php
-                    if (CRON_DAILY_ENABLED == "yes") {
-                        /**
-                         *  Si un fichier de log existe, on récupère l'état
-                         */
-                        if (file_exists(CRON_LOG)) {
-                            $cronStatus = exec("grep 'Status=' ".CRON_LOG." | cut -d'=' -f2 | sed 's/\"//g'");
-                            if ($cronStatus === "OK") {
-                                echo '<span title="OK">Status <img src="ressources/icons/greencircle.png" class="icon-small" /></span>';
+                        <?php
+                        if (CRON_DAILY_ENABLED == "yes") {
+                            /**
+                             *  Si un fichier de log existe, on récupère l'état
+                             */
+                            if (file_exists(CRON_LOG)) {
+                                $cronStatus = exec("grep 'Status=' ".CRON_LOG." | cut -d'=' -f2 | sed 's/\"//g'");
+                                if ($cronStatus === "OK") {
+                                    echo '<span title="OK">Status <img src="ressources/icons/greencircle.png" class="icon-small" /></span>';
+                                }
+                                if ($cronStatus === "KO") {
+                                    echo '<span title="Erreur">Status <img src="ressources/icons/redcircle.png" class="icon-small" /></span>';
+                                    echo '<img id="cronjobStatusButton" src="ressources/icons/search.png" class="icon-lowopacity pointer" title="Afficher les détails" />';
+                                }
                             }
-                            if ($cronStatus === "KO") {
-                                echo '<span title="Erreur">Status <img src="ressources/icons/redcircle.png" class="icon-small" /></span>';
-                                echo '<img id="cronjobStatusButton" src="ressources/icons/search.png" class="icon-lowopacity pointer" title="Afficher les détails" />';
+                            if (!file_exists(CRON_LOG)) {
+                                echo "<span>Status : inconnu</span>";
                             }
-                        }
-                        if (!file_exists(CRON_LOG)) {
-                            echo "<span>Status : inconnu</span>";
-                        }
-                    } ?>
+                        } ?>
                     </td>
                     <td class="td-fit">
                         <?php if (empty(CRON_DAILY_ENABLED)) { echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />'; } ?>

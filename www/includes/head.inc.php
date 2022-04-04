@@ -1,7 +1,8 @@
 <head>
     <meta charset="utf-8">
     <!-- CSS -->
-    <!-- <link rel="stylesheet" type="text/css" href="ressources/styles/reset.css"> -->
+    <link rel="stylesheet" type="text/css" href="ressources/styles/reset.css">
+    <link rel="stylesheet" type="text/css" href="ressources/styles/normalize.css">
     <link rel="stylesheet" type="text/css" href="ressources/styles/main.css">
     <?php
         /**
@@ -26,5 +27,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
     <link rel="icon" href="ressources/favicon.ico" />
+
+    <?php
+    if     (__ACTUAL_URI__ == "/index.php")          echo '<title>Repomanager - accueil</title>';
+    elseif (__ACTUAL_URI__ == "/planifications.php") echo '<title>Repomanager - planifications</title>';
+    elseif (__ACTUAL_URI__ == "/run.php")            echo '<title>Repomanager - journal</title>';
+    elseif (__ACTUAL_URI__ == "/explore.php")        echo '<title>Repomanager - explorer</title>';
+    elseif (__ACTUAL_URI__ == "/stats.php")          echo '<title>Repomanager - statistiques</title>';
+    elseif (__ACTUAL_URI__ == "/hosts.php")          echo '<title>Repomanager - gestion des hôtes</title>';
+    elseif (__ACTUAL_URI__ == "/host.php")           echo '<title>Repomanager - gestion des hôtes</title>';
+    elseif (__ACTUAL_URI__ == "/profiles.php")       echo '<title>Repomanager - gestion des profils</title>';
+    elseif (__ACTUAL_URI__ == "/configuration.php")  echo '<title>Repomanager - configuration</title>';
+    elseif (__ACTUAL_URI__ == "/history.php")        echo '<title>Repomanager - historique</title>';
+    elseif (__ACTUAL_URI__ == "/user.php")           echo '<title>Repomanager - espace utilisateur</title>';
+    else echo '<title>Repomanager</title>';
+    ?>
     <title>Repomanager</title>
 </head>

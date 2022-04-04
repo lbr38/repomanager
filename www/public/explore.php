@@ -383,7 +383,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                          *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                          */
                         if (empty($opRunning)) { ?>
-                            <p>Uploader des packages :</p>
+                            <h5>Uploader des packages</h5>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="action" value="uploadPackage" />
                                 <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
@@ -399,9 +399,11 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                             if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
                             if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
                             ?>
+                            <br>
                             <hr>
+                            <br>
                     
-                            <p><span id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</span></p>
+                            <h5 id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
                             <form id="hidden-form" class="hide" action="" method="post">
                                 <input type="hidden" name="action" value="reconstruct">
                                 <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
@@ -411,7 +413,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                                 <span class="onoff-switch-slider"></span>
                                 </label>
                                 <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
-                                <br>
+                                <br><br>
                                 <button type="submit" class="btn-medium-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
                             </form>
                         <?php

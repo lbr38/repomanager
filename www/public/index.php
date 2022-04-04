@@ -19,7 +19,7 @@ require_once('../functions/repo.functions.php');
 
         <!-- AJOUTER UN NOUVEAU REPO/SECTION -->
         <?php include_once('../templates/forms/op-form-new.inc.php'); ?> 
-        
+
         <!-- EXECUTER DES OPERATIONS -->
         <?php include_once('../includes/operation.inc.php'); ?> 
 
@@ -32,7 +32,8 @@ require_once('../functions/repo.functions.php');
 
     <section class="right">
         <h3>PROPRIÉTÉS</h3>
-        <div class="server-properties">
+
+        <div class="div-generic-gray server-properties-container">
             <?php
             /**
              *  Récupération du total des repos actifs et repos archivés
@@ -41,89 +42,30 @@ require_once('../functions/repo.functions.php');
             $totalRepos = $repo->countActive();
             $totalReposArchived = $repo->countArchived(); ?>
 
-            <div class="round-div-medium">
-                <p class="lowopacity">Repos</p>
-                <div class="round-div-container">
-                    <span><?=$totalRepos?></span>
-                </div>
-            </div>
-
-    <?php   if (AUTOMATISATION_ENABLED == "yes") {
-                $plan = new Planification();
-                $lastPlan = $plan->listLast();
-
-                if (!empty($lastPlan)) {
-                    $planDate = $lastPlan['Date'];
-                    $planTime = $lastPlan['Time'];
-                    $planStatus = $lastPlan['Status'];
-                    $lastPlan = '<a href="planifications.php" title="'.$planDate.' à '.$planTime.'">';
-                    if ($planStatus == 'done') {
-                        $lastPlan .= 'Terminée';
-                    } else {
-                        $lastPlan .= 'Erreur';
-                    }
-                    $lastPlan .= '</a>';
-                } else {
-                    $lastPlan = '-';
-                } ?>
-
-                <div class="<?php if (!empty($planStatus) AND $planStatus == 'error') echo 'round-div-medium-red'; else echo 'round-div-medium';?>">
-                    <p class="lowopacity">Dernière planification</p>
-                    <div class="round-div-container">
-                        <span><?=$lastPlan?></span>
+            <div>
+                <div class="server-properties">
+                    <div class="server-properties-count">
+                        <span>
+                            <?php echo $totalRepos ?>
+                        </span>
+                    </div>
+                    <div>
+                        <span>Repos</span>
                     </div>
                 </div>
-    <?php   } ?>
-            <div class="donut-chart-container">
-                <?php
-                $diskTotalSpace = disk_total_space('/');
-                $diskFreeSpace = disk_free_space('/');
-                $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
-                $diskTotalSpace = $diskTotalSpace / 1073741824;
-                $diskUsedSpace = $diskUsedSpace / 1073741824;
-                /**
-                 *  Formattage des données pour avoir un résultat sans virgule et un résultat en pourcentage
-                 */
-                $diskFreeSpace = round(100 - (($diskUsedSpace / $diskTotalSpace) * 100));
-                $diskFreeSpacePercent = $diskFreeSpace;
-                $diskUsedSpace = round(100 - ($diskFreeSpace));
-                $diskUsedSpacePercent = round(100 - ($diskFreeSpace)); ?>
 
-           
-                <p class="donut-legend-title lowopacity"><b>/</b></p>
-                <span class="donut-legend-content"><?=$diskUsedSpace.'%'?></span>
-           
-
-                <?php
-                $donutChartName = 'donut-chart-1';
-                include(ROOT.'/includes/donut.inc.php'); ?>
-            </div>
-
-            <div class="round-div-medium">
-                <p class="lowopacity">Repos archivés</p>
-                <div class="round-div-container">
-                    <span><?=$totalReposArchived?></span>
-                </div>
-            </div>
-      
-    <?php   if (AUTOMATISATION_ENABLED == "yes") {
-                $plan = new Planification();
-                $nextPlan = $plan->listNext();
-
-                if (!empty($nextPlan)) {
-                    $nextPlan = '<a href="planifications.php">'.$nextPlan['Date'].' ('.$nextPlan['Time'].')</a>';
-                } else {
-                    $nextPlan = '-';
-                } ?>
-
-                <div class="round-div-medium">
-                    <p class="lowopacity">Prochaine planification</p>
-                    <div class="round-div-container">
-                        <span><?=$nextPlan?></span>
+                <div class="server-properties">
+                    <div class="server-properties-count">
+                        <span>
+                            <?php echo $totalReposArchived ?>
+                        </span>
+                    </div>
+                    <div>
+                        <span>Repos archivés</span>
                     </div>
                 </div>
-    <?php   } ?>
-            
+            </div>
+
             <div class="donut-chart-container">
                 <?php
                 $diskTotalSpace = disk_total_space(REPOS_DIR);
@@ -144,10 +86,55 @@ require_once('../functions/repo.functions.php');
 
                 <?php
                 $donutChartName = 'donut-chart-2';
-                include(ROOT.'/includes/donut.inc.php');
+                include(ROOT.'/includes/index-donut.inc.php');
                 ?>
             </div>
         </div>
+
+        <?php
+        if (AUTOMATISATION_ENABLED == "yes") {
+            $plan = new Planification();
+            $lastPlan = $plan->listLast();
+            $nextPlan = $plan->listNext();
+
+            if (!empty($lastPlan OR !empty($nextPlan))) { ?>
+                <div class="div-generic-gray">
+                <?php
+                if (!empty($lastPlan)) {
+                    if ($lastPlan['Status'] == 'done') {
+                        $planStatus = 'OK';
+                        $borderColor = '-green';
+                    } else {
+                        $planStatus = 'Erreur';
+                        $borderColor = '-red';
+                    } ?>
+                    <div class="server-properties">
+                        <div class="server-properties-count<?=$borderColor?>">
+                            <span>
+                                <?php echo $planStatus; ?>
+                            </span>
+                        </div>
+
+                        <div>
+                            <span><a href="planifications.php">Dernière planification (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y').' à '.$lastPlan['Time']?>)</a></span>
+                        </div>
+                    </div>
+<?php           }
+                    
+                if (!empty($nextPlan)) { ?>
+                    <div class="server-properties">
+                        <div class="server-properties-count">
+                            <span>
+                                <?php echo '13j'; ?>
+                            </span>
+                        </div>
+                        <div>
+                            <span><a href="planifications.php">Prochaine planification (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y').' à '.$nextPlan['Time']?>)</a></span>
+                        </div>
+                    </div>
+<?php           }
+            }
+        } ?>
     </section>
 </section>
 

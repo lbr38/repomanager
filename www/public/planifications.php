@@ -357,7 +357,7 @@ require_once('../functions/repo.functions.php');
 
             <?php if (Common::isadmin()) { ?>
                 <form id="newPlanForm" class="div-generic-gray" autocomplete="off">
-                    <p><b><img src="ressources/icons/plus.png" class="icon" />Créer une planification</b></p>
+                    <h5><img src="ressources/icons/plus.png" class="icon" />Créer une planification</h5>
                     <table class="table-large">
                         <tr>
                             <td>Type</td>
@@ -557,7 +557,7 @@ require_once('../functions/repo.functions.php');
 
             if (!empty($plansDone)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<p><img src="ressources/icons/history.png" class="icon" /><b>Historique des planifications</b></p>';
+                    echo '<h5><img src="ressources/icons/history.png" class="icon" />Historique des planifications</h5>';
 
                     foreach($plansDone as $plan) {
                         $planId                    = $plan['Id'];
@@ -591,63 +591,74 @@ require_once('../functions/repo.functions.php');
                         echo '<div class="header-container">';
                             echo '<div class="header-blue">';
                                 echo '<table>';
-                                echo '<tr>';
-                                echo '<td class="td-fit">';
-                                if ($planAction == "update")
-                                    echo "<img class=\"icon\" src=\"ressources/icons/update.png\" title=\"Type d'opération : $planAction\" />";
-                                else
-                                    echo "<img class=\"icon\" src=\"ressources/icons/link.png\" title=\" Type d'opération : $planAction\" />";
-                                echo '</td>';
-                                echo "<td class=\"td-small\">Le <b>$planDate</b> à <b>$planTime</b></td>";
+                                    echo '<tr>';
+                                        echo '<td class="td-fit">';
+                                            if ($planAction == "update")
+                                                echo "<img class=\"icon\" src=\"ressources/icons/update.png\" title=\"Type d'opération : $planAction\" />";
+                                            else
+                                                echo "<img class=\"icon\" src=\"ressources/icons/link.png\" title=\" Type d'opération : $planAction\" />";
+                                        echo '</td>';
+                                        echo "<td class=\"td-small\">Le <b>$planDate</b> à <b>$planTime</b></td>";
 
-                                /**
-                                 *  Affichage du repo ou du groupe
-                                 */
-                                echo '<td>';
-                                if (!empty($planGroupId)) {
-                                    $group = new Group('repo');
-                                    $group->setId($planGroupId);
-                                    $group->db_getName();
-                                    $planGroup = $group->name;
-                                    echo "Groupe $planGroup";
-                                    unset($group);
-                                }
-                                if (!empty($planRepoId)) {
-                                    $repo = new Repo();
-                                    $repo->setId($planRepoId);
-                                    $repo->db_getAllById();     // Récupération de toutes les infos concernant le repo
-                                    $planName = $repo->getName();
-                                    echo $planName;
+                                        /**
+                                         *  Affichage du repo ou du groupe
+                                         */
+                                        echo '<td>';
+                                            if (!empty($planGroupId)) {
+                                                $group = new Group('repo');
+                                                $group->setId($planGroupId);
+                                                $group->db_getName();
+                                                $planGroup = $group->name;
+                                                echo "Groupe $planGroup";
+                                                unset($group);
+                                            }
+                                            if (!empty($planRepoId)) {
+                                                $repo = new Repo();
+                                                $repo->setId($planRepoId);
 
-                                    /**
-                                     *  Dans le cas de Debian, on affiche également la distribution et la section
-                                     */
-                                    if (OS_FAMILY == "Debian") {
-                                        $planDist = $repo->getDist();
-                                        $planSection = $repo->getSection();
-                                        echo " - $planDist";
-                                        echo " - $planSection";
-                                    }
-                                    unset($repo);
-                                }
-                                echo '</td>';
-                                echo '<td class="td-fit">';
-                                /**
-                                 *  Affichage d'une pastille verte ou rouge en fonction du status de la planification
-                                 */
-                                if ($planStatus == "done") {
-                                    echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Planification terminée" />';
-                                } elseif ($planStatus == "error") {
-                                    echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification en erreur" />';
-                                } elseif ($planStatus == "stopped") {
-                                    echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification stoppée par l\'utilisateur" />';
-                                }
-                                /**
-                                 *  Affichage de l'icone 'loupe' pour afficher les détails de la planification
-                                 */
-                                echo '<img class="planDetailsBtn icon-lowopacity" plan-id="'.$planId.'" title="Afficher les détails" src="ressources/icons/search.png" />';
-                                echo '</td>';
-                                echo '</tr>';
+                                                /**
+                                                 *  Récupération de toutes les infos concernant le repo
+                                                 */
+                                                $repo->db_getAllById();
+                                                $planName = $repo->getName();
+                                                if (OS_FAMILY == "Debian") {
+                                                    $planDist = $repo->getDist();
+                                                    $planSection = $repo->getSection();
+                                                }
+
+                                                /**
+                                                 *  Formatage
+                                                 */
+                                                if (OS_FAMILY == "Redhat") {
+                                                    $repo = '<span class="label-white">'.$planName.'</span>';
+                                                }
+                                                if (OS_FAMILY == "Debian") {
+                                                    $planDist = $repo->getDist();
+                                                    $planSection = $repo->getSection();
+                                                    $repo = '<span class="label-white">'.$planName.' ❯ '.$planDist.' ❯ '.$planSection.'</span>';
+                                                }
+
+                                                echo $repo;
+                                            }
+
+                                        echo '</td>';
+                                        echo '<td class="td-fit">';
+                                            /**
+                                             *  Affichage d'une pastille verte ou rouge en fonction du status de la planification
+                                             */
+                                            if ($planStatus == "done") {
+                                                echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Planification terminée" />';
+                                            } elseif ($planStatus == "error") {
+                                                echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification en erreur" />';
+                                            } elseif ($planStatus == "stopped") {
+                                                echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification stoppée par l\'utilisateur" />';
+                                            }
+                                            /**
+                                             *  Affichage de l'icone 'loupe' pour afficher les détails de la planification
+                                             */
+                                            echo '<img class="planDetailsBtn icon-lowopacity" plan-id="'.$planId.'" title="Afficher les détails" src="ressources/icons/search.png" />';
+                                        echo '</td>';
+                                    echo '</tr>';
                                 echo '</table>';
                             echo '</div>';
 

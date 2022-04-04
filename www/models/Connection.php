@@ -21,11 +21,6 @@ class Connection extends SQLite3 {
                 $this->open(ROOT."/db/repomanager.db");
 
                 /**
-                 *  Activation du mode WAL
-                 */
-                $this->enableWAL();
-
-                /**
                  *  Activation des exception pour SQLite
                  */
                 $this->enableExceptions(true);
@@ -38,11 +33,6 @@ class Connection extends SQLite3 {
                 $this->open(ROOT."/db/repomanager-stats.db");
 
                 /**
-                 *  Activation du mode WAL
-                 */
-                $this->enableWAL();
-
-                /**
                  *  Activation des exception pour SQLite
                  */
                 $this->enableExceptions(true);
@@ -53,11 +43,6 @@ class Connection extends SQLite3 {
             } elseif ($database == "hosts") {
 
                 $this->open(ROOT."/db/repomanager-hosts.db");
-
-                /**
-                 *  Activation du mode WAL
-                 */
-                $this->enableWAL();
 
                 /**
                  *  Activation des exception pour SQLite
@@ -513,6 +498,11 @@ class Connection extends SQLite3 {
          */
         $result = $this->query("SELECT print_repo_size FROM repos_list_settings");
         if ($this->isempty($result) === true) $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
+
+        /**
+         *  Activation du mode WAL
+         */
+        $this->enableWAL();
     }
 
     /**
@@ -547,6 +537,11 @@ class Connection extends SQLite3 {
          *  Crée un index sur certaines colonnes de la table access
          */
         $this->exec("CREATE INDEX IF NOT EXISTS request_index ON access (Date, Time, Request)");
+
+        /**
+         *  Activation du mode WAL
+         */
+        $this->enableWAL();
     }
 
     /**
@@ -606,6 +601,11 @@ class Connection extends SQLite3 {
          */
         $result = $this->query("SELECT pkgs_count_considered_outdated FROM settings");
         if ($this->isempty($result) === true) $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
+
+        /**
+         *  Activation du mode WAL
+         */
+        $this->enableWAL();
     }
 
     /**
@@ -669,6 +669,11 @@ class Connection extends SQLite3 {
         Time TIME NOT NULL,
         Type CHAR(32), /* packages-update, general-status-update, available-packages-status-update */
         Status VARCHAR(10))"); /* running, done, error */
+
+        /**
+         *  Activation du mode WAL
+         */
+        $this->enableWAL();
     }
 
     /**
