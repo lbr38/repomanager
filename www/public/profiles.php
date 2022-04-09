@@ -94,7 +94,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
         if (!empty($profilesNames)) {
             $repo = new Repo();
 
-            echo '<p><b>PROFILS ACTIFS</b></p>';
+            echo '<h5>PROFILS ACTIFS</h5>';
             echo '<div class="profileDivContainer">';
                 /**
                  *  Affichage des profils et leur configuration
@@ -190,7 +190,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                         $profileConf_allowOverwrite = exec("grep '^ALLOW_OVERWRITE=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
                                         $profileConf_allowReposFilesOverwrite = exec("grep '^ALLOW_REPOSFILES_OVERWRITE=' ".PROFILES_MAIN_DIR."/${profileName}/config | cut -d'=' -f2 | sed 's/\"//g'");
 
-                                        echo '<p>Paquets à exclure en cas de version majeure :</p>';
+                                        echo '<h5>Paquets à exclure en cas de version majeure :</h5>';
                                         $profileConf_excludeMajor = explode(',', $profileConf_excludeMajor);
                                         $profileConf_exclude = explode(',', $profileConf_exclude);
                                         $profileConf_needRestart = explode(',', $profileConf_needRestart);
@@ -223,7 +223,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                             } ?>
                                         </select>
                                         <br>
-                                        <p>Paquets à exclure (toute version) :</p>
+                                        <h5>Paquets à exclure (toute version) :</h5>
                                         <select class="excludeSelectList" profilename="<?php echo $profileName;?>" name="profileConf_exclude[]" multiple>
                                 <?php       foreach($listPackages as $package) {
                                                 if (in_array($package, $profileConf_exclude)) {
@@ -242,7 +242,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                             } ?>
                                         </select>
                                         <br>
-                                        <p>Services à redémarrer en cas de mise à jour :</p>
+                                        <h5>Services à redémarrer en cas de mise à jour :</h5>
                                         <?php
                                         /**
                                          *  Liste des services sélectionnables dans la liste des services à redémarrer

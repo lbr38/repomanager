@@ -93,8 +93,14 @@ class Common
      */
     static function clearCache()
     {
-        if (file_exists(WWW_CACHE."/repomanager-repos-list.html")) unlink(WWW_CACHE."/repomanager-repos-list.html");
-        if (file_exists(WWW_CACHE."/repomanager-repos-archived-list.html")) unlink(WWW_CACHE."/repomanager-repos-archived-list.html");
+        /**
+         *  Suppression de tous les fichiers commencant par 'repomanager-repos-list' dans le répertoire de cache
+         */
+        $files = glob(WWW_CACHE.'/repomanager-repos-list*');
+
+        foreach ($files as $file) {
+            if (file_exists($file)) unlink($file);
+        }
     }
 
     /**

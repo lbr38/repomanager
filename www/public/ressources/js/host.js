@@ -81,6 +81,7 @@ function countTotalCheckboxInGroup(group) {
  *  Rechercher un hôte dans la liste des hôtes
  */
 function searchHost() {
+
     var div, tr, td, txtValue;
     var filter_os = '';
     var filter_os_version = '';
@@ -89,15 +90,14 @@ function searchHost() {
     var filter_arch = '';
 
     /**
-     *  A chaque saisie on (ré)-affiche tous les éléments masqués
-     */
-    $(".hosts-group-container").show();
-    $(".host-tr").show();
-
-    /**
      *  Si l'input est vide, on quitte
      */
     if (!$("#searchHostInput").val()) {
+        /**
+         *  On ré-affiche tout avant de quitter
+         */
+        $(".hosts-group-container").show();
+        $(".host-tr").show();
         return;
     }
 
@@ -106,6 +106,16 @@ function searchHost() {
      *  On converti tout en majuscule afin d'ignorer la casse lors de la recherche
      */
     search = $("#searchHostInput").val().toUpperCase();
+
+    /**
+     *  On affiche tous les containers de groupes (au cas où ils auraient été masqués lors d'une précédente recherche)
+     */
+    $(".hosts-group-container").show();
+
+    /**
+     *  On masque toutes les lignes de serveurs, seulles celles correspondant à la recherche seront ré-affichées
+     */
+    $(".host-tr").hide();
 
     /**
      *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
@@ -118,12 +128,6 @@ function searchHost() {
      *  Comme la saisie récupérée a été convertie en majuscule, on recherche la présence d'un filtre en majuscules
      */
     
-    /**
-     *  On récupère tous les 'host-tr' à l'intérieur de 'hostsDiv'
-     */
-    div = document.getElementById("hostsDiv");
-    tr = div.getElementsByClassName("host-tr");
-
     /**
      *  Si la recherche contient le filtre 'os:', 
      */
@@ -157,7 +161,6 @@ function searchHost() {
         // On supprime le filtre de la recherche globale
         search = search.replaceAll('ARCH:'+filter_arch, '');
     }
-
     /**
      *  L'utilisation de filtre peut laisser des espaces blancs
      *  Suppression de tous les espaces blancs de la recherche globale
@@ -165,67 +168,52 @@ function searchHost() {
     search = search.replaceAll(' ', '');
 
     /**
-     *  On traite chaque tr
+     *  Si un filtre a été précisé alors on récupère uniquement les tr '.host-tr' correspondant à ce filtre
      */
-    $(".host-tr").each(function() {
-        /**
-         *  Si un filtre os a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
-         */
-        if (filter_os != "") {
-            if ($(this).attr('os').toUpperCase().indexOf(filter_os) == -1) {
+    if (filter_os != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('os').toUpperCase().indexOf(filter_os) > -1;
+        });
+    } else if (filter_os_version != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('os_version').toUpperCase().indexOf(filter_os_version) > -1;
+        });
+    } else if (filter_os_family != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
+        });
+    } else if (filter_kernel != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('kernel').toUpperCase().indexOf(filter_kernel) > -1;
+        });
+    } else if (filter_arch != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
+        });
+    /**
+     *  Si aucun filtre n'a été précisé alors on récupère tous les tr .host-tr
+     */
+    } else {
+        tr = $(".host-tr");
+    }
+
+    /**
+     *  Puis on traite chaque tr récupéré et on affiche uniquement ceux correspondant à la recherche
+     */
+    $.each(tr, function(){
+        td = $(this).find("td")[1];
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(search) > -1) {
+                $(this).show();
+            } else {
                 $(this).hide();
-            }
-        }
-        /**
-         *  Si un filtre os_version a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
-         */
-        if (filter_os_version != "") {
-            if ($(this).attr('os_version').toUpperCase().indexOf(filter_os_version) == -1) {
-                $(this).hide();
-            }
-        }
-        /**
-         *  Si un filtre os_family a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
-         */
-        if (filter_os_family != "") {
-            if ($(this).attr('os_family').toUpperCase().indexOf(filter_os_family) == -1) {
-                $(this).hide();
-            }
-        }
-        /**
-         *  Si un filtre kernel a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
-         */
-        if (filter_kernel != "") {
-            if ($(this).attr('kernel').toUpperCase().indexOf(filter_kernel) == -1) {
-                $(this).hide();
-            }
-        }
-        /**
-         *  Si un filtre kernel a été renseigné, on masque les tr qui ne correspondent pas à ce filtre
-         */
-        if (filter_arch != "") {
-            if ($(this).attr('arch').toUpperCase().indexOf(filter_arch) == -1) {
-                $(this).hide();
-            }
-        }
-        /**
-         *  Enfin, si après tous les filtres il reste un terme global à rechercher (un nom d'hôte par ex.) alors on masque les tr qui ne correspondent pas à cette recherche
-         */
-        if ($(this).is(":visible")) {
-            td = $(this).find("td")[1];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(search) > -1) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
             }
         }
     });
 
     /**
-     *  Masquage des div de groupes dont tous les hôtes ont été masqués
+     *  Masquage des div de groupes dont tous les tr ont été masqués
      */
     hideGroupDiv();
 }
@@ -233,17 +221,17 @@ function searchHost() {
 /**
  *  Rechercher les hôtes possédant un paquet
  */
-var locked = false;
+var searchPackage_locked = false;
 
 function searchHostPackage() {
     /**
      *  Si une recherche est déjà en cours, on sort
      */
-    if (locked === true) {
+    if (searchPackage_locked === true) {
         return;
     }
 
-    locked = true;
+    searchPackage_locked = true;
 
     /**
      *  A chaque saisie on (ré)-affiche tous les éléments masquées
@@ -253,19 +241,19 @@ function searchHostPackage() {
     $(".host-tr").show();
     $("td.host-update-status").show();
     $("td.host-additionnal-info").html('');
- 
-    /**
-     *  Si l'input est vide, on quitte
-     */
-    if (!$("#searchHostPackageInput").val()) {
-        locked = false;
-        return;
-    }
 
     /**
      *  On utilise un setTimeout pour laisser le temps à l'utilisateur de terminer sa saisie avant de rechercher
      */
     setTimeout(function(){
+        /**
+             *  Si l'input est vide, on quitte
+             */
+        if (!$("#searchHostPackageInput").val()) {
+            searchPackage_locked = false;
+            return;
+        }
+
         /**
          *  Récupération du terme recherché dans l'input
          */
@@ -285,7 +273,7 @@ function searchHostPackage() {
             searchPackage(hostid, package);
         });
         
-        locked = false;
+        searchPackage_locked = false;
 
     },1000);   
 }

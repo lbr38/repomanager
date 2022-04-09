@@ -95,10 +95,11 @@ array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($a
  */
 $dates = array();
 $dateStart = date_create(date('Y-m-d'))->modify("-15 days")->format('Y-m-d');
+$dateEnd = date_create(date('Y-m-d'))->modify("+1 days")->format('Y-m-d');
 $period = new DatePeriod(
     new DateTime($dateStart),
     new DateInterval('P1D'),
-    new DateTime(date('Y-m-d'))
+    new DateTime($dateEnd)
 );
 /**
  *  On peuple l'array à partir de la période de dates précédemment générée, on initialise chaque date à 0
@@ -464,113 +465,130 @@ if (Common::isadmin()) { ?>
                                         }
                                     } ?>
 	                                    <div class="header-blue">
-                                            <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
-                                            <?php 
-                                            if ($event['Event_type'] == "update_request") {
-                                                echo '<span>';
-                                                    /**
-                                                     *  Affichage d'une icone en fonction du status
-                                                     */
-                                                    if ($event['Status'] == 'done') {
-                                                        echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
+                                                    </td>
+                                                    <?php
+                                                    if ($event['Event_type'] == "update_request") {
+                                                        echo '<td colspan="5">';
+                                                            echo '<span>';
+                                                                /**
+                                                                 *  Affichage d'une icone en fonction du status
+                                                                 */
+                                                                if ($event['Status'] == 'done') {
+                                                                    echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
+                                                                }
+                                                                if ($event['Status'] == 'error') {
+                                                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
+                                                                }
+                                                                if ($event['Status'] == 'running') {
+                                                                    echo '<img src="ressources/images/loading.gif" class="icon" />';
+                                                                }
+                                                                /**
+                                                                 *  Affichage du type de demande
+                                                                 */
+                                                                if ($event['Type'] == 'general-status-update') {
+                                                                    echo 'Transfert des informations générales';
+                                                                }
+                                                                if ($event['Type'] == 'available-packages-status-update') {
+                                                                    echo 'Transfert de la liste des paquets disponibles';
+                                                                }
+                                                                if ($event['Type'] == 'installed-packages-status-update') {
+                                                                    echo 'Transfert de la liste des paquets installés';
+                                                                }
+                                                                if ($event['Type'] == 'full-history-update') {
+                                                                    echo 'Transfert de l\'historique des évènements';
+                                                                }
+                                                                if ($event['Type'] == 'packages-update') {
+                                                                    echo 'Mise à jour des paquets';
+                                                                }
+                                                                /**
+                                                                 *  Affichage du status
+                                                                 */
+                                                                if ($event['Status'] == 'done') {
+                                                                    echo ' terminé';
+                                                                }
+                                                                if ($event['Status'] == 'error') {
+                                                                    echo ' en erreur';
+                                                                }
+                                                                if ($event['Status'] == 'running') {
+                                                                    echo ' en cours';
+                                                                }
+                                                                if ($event['Status'] == 'requested') {
+                                                                    echo ' demandé';
+                                                                }
+                                                            echo '</span>';
+                                                        echo '</td>';
                                                     }
-                                                    if ($event['Status'] == 'error') {
-                                                        echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
-                                                    }
-                                                    if ($event['Status'] == 'running') {
-                                                        echo '<img src="ressources/images/loading.gif" class="icon" />';
-                                                    }
-                                                    /**
-                                                     *  Affichage du type de demande
-                                                     */
-                                                    if ($event['Type'] == 'general-status-update') {
-                                                        echo 'Transfert des informations générales';
-                                                    }
-                                                    if ($event['Type'] == 'available-packages-status-update') {
-                                                        echo 'Transfert de la liste des paquets disponibles';
-                                                    }
-                                                    if ($event['Type'] == 'installed-packages-status-update') {
-                                                        echo 'Transfert de la liste des paquets installés';
-                                                    }
-                                                    if ($event['Type'] == 'full-history-update') {
-                                                        echo 'Transfert de l\'historique des évènements';
-                                                    }
-                                                    if ($event['Type'] == 'packages-update') {
-                                                        echo 'Mise à jour des paquets';
-                                                    }
-                                                    /**
-                                                     *  Affichage du status
-                                                     */
-                                                    if ($event['Status'] == 'done') {
-                                                        echo ' terminé';
-                                                    }
-                                                    if ($event['Status'] == 'error') {
-                                                        echo ' en erreur';
-                                                    }
-                                                    if ($event['Status'] == 'running') {
-                                                        echo ' en cours';
-                                                    }
-                                                    if ($event['Status'] == 'requested') {
-                                                        echo ' demandé';
-                                                    }
-                                                echo '</span>';
-                                            }
 
-                                            if ($event['Event_type'] == "event") {
-                                                /**
-                                                 *  Récupération des paquets installés par cet évènement
-                                                 */
-                                                $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
-                                                $packagesInstalled_count = count($packagesInstalled);
-                                                /**
-                                                 *  Récupération des paquets mis à jour par cet évènement
-                                                 */
-                                                $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
-                                                $packagesUpdated_count = count($packagesUpdated);
-                                                /**
-                                                 *  Récupération des paquets rétrogradés (downgrade) par cet évènement
-                                                 */
-                                                $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
-                                                $packagesDowngraded_count = count($packagesDowngraded);
-                                                /**
-                                                 *  Récupération des paquets supprimés par cet évènement
-                                                 */
-                                                $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
-                                                $packagesRemoved_count = count($packagesRemoved);
-                                                /**
-                                                 *  Récupération des dépendances installées par cet évènement
-                                                 */
-                                                /*$dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], '');
-                                                $dependenciesInstalled_count = count($dependenciesInstalled);*/
-                                                $dependenciesInstalled_count = 0;
+                                                    if ($event['Event_type'] == "event") {
+                                                        /**
+                                                         *  Récupération des paquets installés par cet évènement
+                                                         */
+                                                        $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
+                                                        $packagesInstalled_count = count($packagesInstalled);
+                                                        /**
+                                                         *  Récupération des paquets mis à jour par cet évènement
+                                                         */
+                                                        $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
+                                                        $packagesUpdated_count = count($packagesUpdated);
+                                                        /**
+                                                         *  Récupération des paquets rétrogradés (downgrade) par cet évènement
+                                                         */
+                                                        $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
+                                                        $packagesDowngraded_count = count($packagesDowngraded);
+                                                        /**
+                                                         *  Récupération des paquets supprimés par cet évènement
+                                                         */
+                                                        $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
+                                                        $packagesRemoved_count = count($packagesRemoved);
+                                                        /**
+                                                         *  Récupération des dépendances installées par cet évènement
+                                                         */
+                                                        /*$dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], '');
+                                                        $dependenciesInstalled_count = count($dependenciesInstalled);*/
+                                                        $dependenciesInstalled_count = 0;
 
-                                                if ($packagesInstalled_count == 0) {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets installés">'.$packagesInstalled_count.'</i>';
-                                                } else {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="installed">'.$packagesInstalled_count.'</i>';
-                                                }
-                                                if ($packagesUpdated_count == 0) {
-                                                    echo '<img src="../ressources/icons/update.png" class="icon" /><i title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
-                                                } else {
-                                                    echo '<img src="../ressources/icons/update.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="upgraded">'.$packagesUpdated_count.'</i>';
-                                                }
-                                                if ($packagesDowngraded_count == 0) {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
-                                                } else {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="downgraded">'.$packagesDowngraded_count.'</i>';
-                                                }
-                                                if ($dependenciesInstalled_count == 0) {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
-                                                } else {
-                                                    echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer">'.$dependenciesInstalled_count.'</i>';
-                                                }
-                                                if ($packagesRemoved_count == 0) {
-                                                    echo '<img src="../ressources/icons/bin.png" class="icon" /><i title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
-                                                } else {
-                                                    echo '<img src="../ressources/icons/bin.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="removed">'.$packagesRemoved_count.'</i>';
-                                                }
-                                            }
-                                            ?>
+                                                        echo '<td>';
+                                                            if ($packagesInstalled_count == 0) {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets installés">'.$packagesInstalled_count.'</i>';
+                                                            } else {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="installed">'.$packagesInstalled_count.'</i>';
+                                                            }
+                                                        echo '</td>';
+                                                        echo '<td>';
+                                                            if ($packagesUpdated_count == 0) {
+                                                                echo '<img src="../ressources/icons/update.png" class="icon" /><i title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
+                                                            } else {
+                                                                echo '<img src="../ressources/icons/update.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="upgraded">'.$packagesUpdated_count.'</i>';
+                                                            }
+                                                        echo '</td>';
+                                                        echo '<td>';
+                                                            if ($packagesDowngraded_count == 0) {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
+                                                            } else {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="downgraded">'.$packagesDowngraded_count.'</i>';
+                                                            }
+                                                        echo '</td>';
+                                                        echo '<td>';
+                                                            if ($dependenciesInstalled_count == 0) {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
+                                                            } else {
+                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer">'.$dependenciesInstalled_count.'</i>';
+                                                            }
+                                                        echo '</td>';
+                                                        echo '<td>';
+                                                            if ($packagesRemoved_count == 0) {
+                                                                echo '<img src="../ressources/icons/bin.png" class="icon" /><i title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
+                                                            } else {
+                                                                echo '<img src="../ressources/icons/bin.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="removed">'.$packagesRemoved_count.'</i>';
+                                                            }
+                                                        echo '</td>';
+                                                    } ?>
+                                                </tr>
+                                            </table>
                                         </div>
                                     </div>
                                 <?php

@@ -96,65 +96,67 @@ function printOp($myop, $optype = '') {
 	}
 	echo '<div class="header-blue">';
 		echo '<table>';
-		echo '<tr>';
-		echo '<td class="td-fit">';
-		if ($opAction == "new") echo '<img class="icon" src="ressources/icons/plus.png" title="Nouveau" />';
-		if ($opAction == "update") echo '<img class="icon" src="ressources/icons/update.png" title="Mise à jour" />';
-		if ($opAction == "reconstruct") echo '<img class="icon" src="ressources/icons/update.png" title="Reconstruction des métadonnées" />';
-		if ($opAction == "env" OR strpos(htmlspecialchars_decode($opAction), '->') !== false) echo '<img class="icon" src="ressources/icons/link.png" title="Créat. d\'environnement" />';
-		if ($opAction == "duplicate") echo '<img class="icon" src="ressources/icons/duplicate.png" title="Duplication" />';
-		if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression" />';
-		if ($opAction == "deleteArchive") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression d\'une archive" />';
-		if ($opAction == "restore") echo '<img class="icon" src="ressources/icons/arrow-circle-up.png" title="Restauration d\'une archive" />';
+			echo '<tr>';
+				echo '<td class="td-fit">';
+					if ($opAction == "new") echo '<img class="icon" src="ressources/icons/plus.png" title="Nouveau" />';
+					if ($opAction == "update") echo '<img class="icon" src="ressources/icons/update.png" title="Mise à jour" />';
+					if ($opAction == "reconstruct") echo '<img class="icon" src="ressources/icons/update.png" title="Reconstruction des métadonnées" />';
+					if ($opAction == "env" OR strpos(htmlspecialchars_decode($opAction), '->') !== false) echo '<img class="icon" src="ressources/icons/link.png" title="Créat. d\'environnement" />';
+					if ($opAction == "duplicate") echo '<img class="icon" src="ressources/icons/duplicate.png" title="Duplication" />';
+					if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression" />';
+					if ($opAction == "deleteArchive") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression d\'une archive" />';
+					if ($opAction == "restore") echo '<img class="icon" src="ressources/icons/arrow-circle-up.png" title="Restauration d\'une archive" />';
 
-		echo '</td>';
-		echo "<td class=\"td-small\"><a href=\"run.php?logfile=${opLogfile}\">Le <b>$opDate</b> à <b>$opTime</b></a></td>";
+				echo '</td>';
+				echo "<td class=\"td-small\"><a href=\"run.php?logfile=${opLogfile}\">Le <b>$opDate</b> à <b>$opTime</b></a></td>";
 
-		/**
-		 * 	Affichage du repo ou du groupe concerné par cette opération
-		 * 	Il s'agit soit du repo source, soit du repo cible
-		 */
-		echo '<td>';
-		if (!empty($opGroup)) echo "Groupe $opGroup";
+				/**
+				 * 	Affichage du repo ou du groupe concerné par cette opération
+				 * 	Il s'agit soit du repo source, soit du repo cible
+				 */
+				echo '<td>';
+					if (!empty($opGroup)) echo 'Groupe <span class="label-white">'.$opGroup.'</span>';
 
-		/**
-		 * 	On affiche le repo source uniquement si il n'y a pas de repo cible renseigné. Sinon on se contentera d'afficher uniquement le repo cible.
-		 */
-		if (empty($opRepoTargetName)) {
-			
-			if (!empty($opRepoSourceName)) echo $opRepoSourceName;
+					echo '<span class="label-white">';
+						/**
+						 * 	On affiche le repo source uniquement si il n'y a pas de repo cible renseigné. Sinon on se contentera d'afficher uniquement le repo cible.
+						 */
+						if (empty($opRepoTargetName)) {
+							
+							if (!empty($opRepoSourceName)) echo $opRepoSourceName;
+							
+							/**
+							 * 	Dans le cas de Debian, on affiche aussi la distribution et la section
+							 */
+							if (OS_FAMILY == "Debian") {
+								// Affichage de la distribution
+								if (!empty($opRepoSourceDist)) echo " ❯ $opRepoSourceDist";
+								// Affichage de la section
+								if (!empty($opRepoSourceSection)) echo " ❯ $opRepoSourceSection";
+							}
+						}
 
-			/**
-			 * 	Dans le cas de Debian, on affiche aussi la distribution et la section
-			 */
-			if (OS_FAMILY == "Debian") {
-				// Affichage de la distribution
-				if (!empty($opRepoSourceDist)) echo " - $opRepoSourceDist";
-				// Affichage de la section
-				if (!empty($opRepoSourceSection)) echo " - $opRepoSourceSection";
-			}
-		}
+						if (!empty($opRepoTargetName)) echo $opRepoTargetName;
 
-		if (!empty($opRepoTargetName)) echo $opRepoTargetName;
+						if (OS_FAMILY == "Debian") {
+							// Affichage de la distribution
+							if (!empty($opRepoTargetDist)) echo " ❯ $opRepoTargetDist";
+							// Affichage de la section
+							if (!empty($opRepoTargetSection)) echo " ❯ $opRepoTargetSection";
+						}
+					echo '</span>';
+				echo '</td>';
 
-		if (OS_FAMILY == "Debian") {
-			// Affichage de la distribution
-			if (!empty($opRepoTargetDist)) echo " - $opRepoTargetDist";
-			// Affichage de la section
-			if (!empty($opRepoTargetSection)) echo " - $opRepoTargetSection";
-		}
-		echo '</td>';
-
-		/**
-		 * 	Affichage de l'icone en cours ou terminée ou en erreur
-		 */
-		echo '<td class="td-fit">';
-		if ($opStatus == "running") echo 'en cours <img src="ressources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
-		if ($opStatus == "done")    echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" />';
-		if ($opStatus == "error")   echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" />';
-		if ($opStatus == "stopped") echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
-		echo '</td>';
-		echo '</tr>';
+				/**
+				 * 	Affichage de l'icone en cours ou terminée ou en erreur
+				 */
+				echo '<td class="td-fit">';
+					if ($opStatus == "running") echo 'en cours <img src="ressources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
+					if ($opStatus == "done")    echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" />';
+					if ($opStatus == "error")   echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" />';
+					if ($opStatus == "stopped") echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
+				echo '</td>';
+			echo '</tr>';
 		echo '</table>';
 	echo '</div>';
 	echo '</div>';

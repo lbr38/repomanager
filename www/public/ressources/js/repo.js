@@ -331,7 +331,7 @@ $(document).on('click','.client-configuration-btn',function(){
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="ressources/icons/close.png" /></span><h3>INSTALLATION</h3><p>Installer ce repo sur une machine cliente</p><div id="divReposConfCommands-container"><pre id="divReposConfCommands">'+commands+'</pre><img src="ressources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="ressources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">'+commands+'</pre><img src="ressources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage

@@ -172,12 +172,20 @@ function printRepoLine($repoData = []) {
             echo '<div class="item-dist-section"></div>';
         } 
     } ?>
-    
-    <div class="item-checkbox">
-        <input type="checkbox" name="checkbox-repo[]" repo-id="<?= $repoId ?>" is-updatable="<?= $is_updatable ?>" <?php if ($printRepoEnv == 'yes') echo 'repo-env="'.$repoEnv.'"';?> repo-status="<?= $repoStatus ?>" class="icon-verylowopacity">
-    </div>
-        
-    <?php
+
+    <?php if (Common::isadmin()) { 
+        /**
+         *  Les checkbox sont affichées uniquement pour les utilisateurs administrateurs
+         */
+        ?>
+        <div class="item-checkbox">
+            <input type="checkbox" name="checkbox-repo[]" repo-id="<?= $repoId ?>" is-updatable="<?= $is_updatable ?>" <?php if ($printRepoEnv == 'yes') echo 'repo-env="'.$repoEnv.'"';?> repo-status="<?= $repoStatus ?>" class="icon-verylowopacity">
+        </div>   
+<?php
+    } else {
+        echo '<div class="item-checkbox"></div>';
+    }
+
     /**
      *  Affichage de l'environnement
      */

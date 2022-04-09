@@ -6,6 +6,11 @@ Autoloader::load();
 include_once('../includes/head.inc.php');
 
 /**
+ *  Instancie un nouvel objet Group en précisant qu'il faut utiliser la BDD repomanager-hosts.db
+ */
+$group = new Group('host'); 
+
+/**
  *  Cas où le formulaire de modification des paramètres est validé
  */
 if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['settings-pkgs-considered-critical'])) {
@@ -26,6 +31,8 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
             <h3>GESTION DU PARC</h3>
 
             <p>Gérez les mises à jour de vos hôtes et consultez leur état.</p>
+
+            <br>
 
             <div class="hosts-container">
                 <?php
@@ -147,17 +154,15 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
             <section id="groupsHostDiv" class="section-center hide">
                 <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
                 <h3>GROUPES</h3>
-                <p><b>Créer un groupe :</b></p>
+                <h5>Créer un groupe</h5>
                 <form id="newGroupForm" autocomplete="off">
                     <input id="newGroupInput" type="text" class="input-medium" /></td>
                     <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button></td>
                 </form>
-                <?php
-                /**
-                 *  Instancie un nouvel objet Group en précisant qu'il faut utiliser la BDD repomanager-hosts.db
-                 */
-                $group = new Group('host'); 
+                
+                <br>
 
+                <?php
                 /**
                  *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
                  */
@@ -167,7 +172,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                  *  2. Affichage des groupes si il y en a
                  */
                 if (!empty($groupsList)) {
-                    echo '<p><b>Groupes actuels :</b></p>';
+                    echo '<h5>Groupes actuels</h5>';
                     echo '<div class="groups-list-container">';
                         foreach($groupsList as $groupName) { ?>
                             <div class="header-container">
@@ -300,16 +305,16 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                     <table class="hosts-table">
                                         <thead>
                                             <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th title="Nombre total de paquets installés"><span>Inst.</span></th>
-                                                <th title="Nombre total de mises à jour disponibles pour installation"><span>Disp.</span></th>
-                                                <th class="hostDetails-td"></th>
+                                                <td></td>
+                                                <td></td>
+                                                <td title="Nombre total de paquets installés"><span>Inst.</span></td>
+                                                <td title="Nombre total de mises à jour disponibles pour installation"><span>Disp.</span></td>
+                                                <td class="hostDetails-td"></td>
                                                 <?php if (Common::isadmin()) { ?>
-                                                    <th><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></th>
+                                                    <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
                                                 <?php } ?>
-                                                <th class="td-fit"></th>
-                                                <th class="td-fit"></th>
+                                                <td class="td-fit"></td>
+                                                <td class="td-fit"></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -649,11 +654,18 @@ if (!empty($envsList)) {
             $envNameList .= "'".$env['Env']."',";
         }
         $envCountList .= "'".$env['Env_count']."',";
-        
+
         /**
-         *  On sélectionne une couleur au hasard dans l'array
+         *  Si l'environnement correspond au dernier env de la chaine alors celui-ci sera en rouge
          */
-        $envBackgroundColor .= "'".$validHexColors[$randomHexColor]."',";
+        if ($env['Env'] == LAST_ENV) {
+            $envBackgroundColor .= "'#FF9AA2',";
+        } else {
+            /**
+             *  On sélectionne une couleur au hasard dans l'array
+             */
+            $envBackgroundColor .= "'".$validHexColors[$randomHexColor]."',";
+        }
     }
     $labels = rtrim($envNameList, ',');
     $datas = rtrim($envCountList, ',');

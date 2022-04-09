@@ -41,7 +41,7 @@ var doughnutChartOptions = {
             display: false
         },
     },
-    cutout: 59,
+    cutout: 55,
     elements: {
         point: {
             radius: 0

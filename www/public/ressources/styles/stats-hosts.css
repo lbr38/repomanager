@@ -7,6 +7,7 @@
 .stats-info-requests {
     display: none;
     position: absolute;
+    top: 110px;
     font-size: 13px !important;
     z-index: 10; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
     width: 1300px;
@@ -21,12 +22,17 @@
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
+.round-div:hover span.stats-info-requests {
+    display: inline-block;
+}
+
 .stats-access-table, .hosts-table, .packages-table {
     width: 100%;
     margin: auto;
     margin-bottom: 15px;
     /* supprimer les espaces entres les cellules */
     border-spacing : 0 4px;
+    border-collapse: separate;
     table-layout: auto !important;
     white-space: nowrap;
 }
@@ -57,8 +63,6 @@
 .hosts-table td,
 .packages-table td {
     padding-left: 5px;
-    padding-top: 11px;
-    padding-bottom: 11px;   
 }
 
 .stats-access-table tr td:first-child,
@@ -226,9 +230,10 @@
 
 .host-line-chart-container {
     position: absolute;
+    top: 15px;
     right: 10px;
     width: 1000px;
-    height: 190px;
+    height: 200px;
     display: inline-block;
 }
 

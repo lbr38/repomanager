@@ -154,7 +154,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 			 */
 			if (!empty($totalRunning)) {
 				echo '<div class="div-generic-gray">';
-					echo '<p><b>En cours</b></p>';
+					echo '<h5>En cours</h5>';
 
 					foreach ($totalRunning as $itemRunning) {
 						if (array_key_exists('Reminder', $itemRunning)) {
@@ -258,7 +258,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 				 */
 				if (!empty($totalDone)) {
 					echo '<div class="div-generic-gray">';
-						echo '<p><b>Terminé</b></p>';
+						echo '<h5>Terminé</h5>';
 
 						/**
 						 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
@@ -319,17 +319,17 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 									echo '<div class="header-blue">';
 									echo '<table>';
 										echo '<tr>';
-										echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
-										if ($planType == "plan") {
-											if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
-												echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
-											} else {
-												echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
+											echo '<td class="td-fit"><img class="icon" src="ressources/icons/calendar.png" title="Planification" /></td>';
+											if ($planType == "plan") {
+												if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
+													echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
+												} else {
+													echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
+												}
+												if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" /></td>';
+												if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" /></td>';
+												if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
 											}
-											if ($planStatus == "done") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" /></td>';
-											if ($planStatus == "error") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" /></td>';
-											if ($planStatus == "stopped") echo '<td class="td-fit"><img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
-										}
 										echo '</tr>';
 									echo '</table>';
 									echo '</div>';
@@ -374,7 +374,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 				 */
 				if (!empty($opsFromRegularPlanDone)) {
 					echo '<div class="div-generic-gray">';
-						echo '<p><b>Tâches récurrentes</b></p>';
+						echo '<h5>Tâches récurrentes</h5>';
 
 						/**
 						 * 	Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
@@ -428,7 +428,7 @@ $(document).ready(function(){
 	 */
 	setInterval(function(){
 		$(".mainSectionRight").load("run.php?reload .mainSectionRight > *");
-		$(".mainSectionLeft").load(" .mainSectionLeft > *");
+		$(".mainSectionLeft").load("run.php?reload .mainSectionLeft > *");
 	}, 3000);
 
 	/**

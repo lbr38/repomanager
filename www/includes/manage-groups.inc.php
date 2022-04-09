@@ -4,12 +4,13 @@
 	<p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
 	<br>
 
-	<p><b>Ajouter un nouveau groupe :</b></p>
+	<h5>Créer un groupe</h5>
+
 	<form id="newGroupForm" autocomplete="off">
 		<input id="newGroupInput" type="text" class="input-medium" />
 		<button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
 	</form>
-
+<br>
 	<br>
   	<?php
   	/**
@@ -27,7 +28,7 @@
      */
     if (!empty($groupsList)) {
 		echo '<div class="div-generic-gray">';
-			echo "<p><b>Groupes actuels :</b></p>";
+			echo "<h5>Groupes actuels</h5>";
 
 			foreach($groupsList as $groupName) {?>
 				<div class="header-container">
@@ -52,8 +53,8 @@
 						<form class="groupReposForm" groupname="<?php echo $groupName;?>" autocomplete="off">
 							<div class="detailsDiv">
 								<?php
-								if (OS_FAMILY == "Redhat") echo '<p><b>Repos</b></p>';
-								if (OS_FAMILY == "Debian") echo '<p><b>Sections de repos</b></p>'; ?>
+								if (OS_FAMILY == "Redhat") echo '<h5>Repos</h5>';
+								if (OS_FAMILY == "Debian") echo '<h5>Sections de repos</h5>'; ?>
 
 								<?php $group->selectRepos($groupName); ?>
 

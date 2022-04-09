@@ -559,6 +559,38 @@ class Host extends Model {
     }
 
     /**
+     *  Récupère l'état actuel (table packages) d'un paquet
+     */
+    public function db_getPackageState(string $packageName, string $packageVersion = null)
+    {
+        try {
+            /**
+             *  Cas où on a précisé un numéro de version
+             */
+            if (!empty($packageVersion)) {
+                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name AND Version = :version");
+                $stmt->bindValue(':version', $packageVersion);
+            
+            /**
+             *  Cas où on n'a pas précisé un numéro de version
+             */
+            } else {
+                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name");
+            }
+
+            $stmt->bindValue(':name', $packageName);
+            $result = $stmt->execute();
+
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $state = $row['State'];
+    
+        return $state;
+    }
+
+    /**
      *  Ajoute un nouvel hôte en BDD
      *  Depuis l'interface web ou depuis l'API
      */
@@ -1292,6 +1324,27 @@ class Host extends Model {
                     } catch(Exception $e) {
                         Common::dbError($e);
                     }
+                } else {
+                    /**
+                     *  Si le paquet existe, on va effectuer des actions différentes selon son état en BDD
+                     */
+
+                    /**
+                     *  D'abord on récupère l'état actuel du paquet
+                     */
+                    $packageState = $this->db_getPackageState($this->packageName);
+
+                    /**
+                     *  Si le paquet est en état 'installed' ou 'inventored', on ne fait rien
+                     * 
+                     *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
+                     */
+                    if ($packageState == 'removed' OR $packageState == 'upgraded') {
+                        /**
+                         *  Ajout du paquet en base de données en état 'inventored'
+                         */
+                        $this->db_setPackageState($this->packageName, $this->packageVersion, 'inventored', date('Y-m-d'), date('H:i:s'));
+                    } 
                 }
             }
 
