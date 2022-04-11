@@ -92,6 +92,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         }
 
         /**
+         *  Si le type a été transmis alors on le met à jour en BDD
+         */
+        if (!empty($datas->type)) {
+            $myhost->setType($datas->type);
+
+            if ($myhost->db_updateType())
+                $message_success[] = "Mise à jour du type effectuée.";
+            else
+                $message_error[] = "Mise à jour du type échouée.";
+        }
+
+        /**
          *  Si le kernel a été transmis alors on le met à jour en BDD
          */
         if (!empty($datas->kernel)) {
@@ -142,9 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Si les noms des paquets installés sur l'hôte (inventaire) ont été transmis alors on le met à jour en BDD
          */
-        if (!empty($datas->packages_installed)) {
+        if (!empty($datas->installed_packages)) {
 
-            if ($myhost->db_setPackagesInventory($datas->packages_installed))
+            if ($myhost->db_setPackagesInventory($datas->installed_packages))
                 $message_success[] = "Mise à jour des informations relatives aux paquets installés effectuée.";
             else
                 $message_error[] = "Mise à jour des informations relatives aux paquets installés a échouée.";

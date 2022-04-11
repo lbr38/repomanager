@@ -204,6 +204,12 @@
     position: fixed;
     right: 8px;
 }
+.hostType-td span {
+    font-size: 10px;
+    border: 1px solid whitesmoke;
+    padding: 1px 3px 1px 3px;
+    border-radius: 4px;
+}
 
 .host-update-request-btn {
     position: absolute;

@@ -86,6 +86,7 @@ function searchHost() {
     var filter_os = '';
     var filter_os_version = '';
     var filter_os_family = '';
+    var filter_type = '';
     var filter_kernel = '';
     var filter_arch = '';
 
@@ -149,6 +150,12 @@ function searchHost() {
         // On supprime le filtre de la recherche globale
         search = search.replaceAll('OS_FAMILY:'+filter_os_family, '');
     }
+    if (search.includes("TYPE:")) {
+        // On récupère le type recherché en récupérant le terme qui suit 'type:'
+        filter_type = search.split('TYPE:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('TYPE:'+filter_type, '');
+    }
     if (search.includes("KERNEL:")) {
         // On récupère le kernel recherché en récupérant le terme qui suit 'kernel:'
         filter_kernel = search.split('KERNEL:')[1].split(" ")[0];
@@ -181,6 +188,10 @@ function searchHost() {
     } else if (filter_os_family != "") {
         tr = $('.host-tr').filter(function() {
             return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
+        });
+    } else if (filter_type != "") {
+        tr = $('.host-tr').filter(function() {
+            return $(this).attr('type').toUpperCase().indexOf(filter_type) > -1;
         });
     } else if (filter_kernel != "") {
         tr = $('.host-tr').filter(function() {

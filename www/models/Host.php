@@ -13,8 +13,10 @@ class Host extends Model {
     protected $os;
     protected $os_version;
     protected $os_family;
+    protected $type;
     protected $kernel;
     protected $arch;
+    protected $profile;
     protected $env;
     protected $authId;
     protected $token;
@@ -64,6 +66,11 @@ class Host extends Model {
     public function setOS_family(string $os_family)
     {
         $this->os_family = Common::validateData($os_family);
+    }
+
+    public function setType(string $type)
+    {
+        $this->type = Common::validateData($type);
     }
 
     public function setKernel(string $kernel)
@@ -369,6 +376,24 @@ class Host extends Model {
     }
 
     /**
+     *  Mise à jour du type de virtualisation
+     */
+    public function db_updateType()
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE AuthId = :authId AND Token = :token");
+            $stmt->bindValue(':type', $this->type);
+            $stmt->bindValue(':authId', $this->authId);
+            $stmt->bindValue(':token', $this->token);
+            $stmt->execute();
+        } catch(Exception $e) {
+            Common::dbError($e);
+        }
+
+        return true;
+    }
+
+    /**
      *  Mise à jour de la version du kernel de l'hôte en BDD
      */
     public function db_updateKernel()
@@ -655,9 +680,9 @@ class Host extends Model {
 
         /**
          *  On tente un premier ping pour déterminer si l'hôte est accessible ou non
-         *  Timeout de 2 secondes max
+         *  Timeout de 1 seconde max
          */
-        $testPing = exec("ping -c 1 -W 2 $this->hostname", $output, $testPingResult);
+        $testPing = exec("ping -c 1 -W1 $this->hostname", $output, $testPingResult);
         if ($testPingResult == 0)
             $this->onlineStatus = 'online';
         else
@@ -769,7 +794,8 @@ class Host extends Model {
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
          */
-        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update' AND $type != 'full-history-update') {
+        //if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update' AND $type != 'full-history-update') {
+        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'packages-status-update' AND $type != 'full-history-update') {
             return false;
         }
 
@@ -812,8 +838,7 @@ class Host extends Model {
             $action != 'reset' AND 
             $action != 'update' AND 
             $action != 'general-status-update' AND
-            $action != 'available-packages-status-update' AND
-            $action != 'installed-packages-status-update' AND
+            $action != 'packages-status-update' AND
             $action != 'full-history-update') {
             throw new Exception("L'action à exécuter est invalide");
         }
@@ -827,10 +852,8 @@ class Host extends Model {
         $hostDeleteOK                     = array();
         $hostGeneralUpdateError           = array();
         $hostGeneralUpdateOK              = array();
-        $hostAvailPackagesUpdateError     = array();
-        $hostAvailPackagesUpdateOK        = array();
-        $hostInstalledPackagesUpdateError = array();
-        $hostInstalledPackagesUpdateOK    = array();
+        $hostPackagesStatusUpdateError     = array();
+        $hostPackagesStatusUpdateOK        = array();
         $hostFullHistoryUpdateError       = array();
         $hostFullHistoryUpdateOK          = array();
 
@@ -897,7 +920,7 @@ class Host extends Model {
                 /**
                  *  Envoi d'un ping avec le message 'r-update-pkgs' en hexadecimal pour ordonner à l'hôte de se mettre à jour
                  */
-                exec("ping -W2 -c 1 -p 722d7570646174652d706b6773 $this->ip");
+                exec("ping -W1 -c 1 -p 722d7570646174652d706b6773 $this->ip");
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -978,8 +1001,7 @@ class Host extends Model {
              *  Si l'action correspond à l'une des suivantes, on ajoute une entrée dans la base de données de l'hôte
              */
             if ($action == 'general-status-update' OR
-                $action == 'available-packages-status-update' OR
-                $action == 'installed-packages-status-update' OR
+                $action == 'packages-status-update' OR
                 $action == 'full-history-update') {
 
                 /**
@@ -1003,7 +1025,7 @@ class Host extends Model {
                 /**
                  *  Envoi d'un ping avec le message 'r-general-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
                  */
-                exec("ping -W2 -c 1 -p 722d67656e6572616c2d737461747573 $this->ip");
+                exec("ping -W1 -c 1 -p 722d67656e6572616c2d737461747573 $this->ip");
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -1016,40 +1038,21 @@ class Host extends Model {
             }
 
             /**
-             *  Si l'action est une demande de mise à jour des informations concernant les paquets disponibles sur l'hôte
+             *  Si l'action est une demande de mise à jour des informations concernant les paquets sur l'hôte
              */
-            if ($action == 'available-packages-status-update') {
+            if ($action == 'packages-status-update') {
                 /**
-                 *  Envoi d'un ping avec le message 'r-avail-pkgs' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
+                 *  Envoi d'un ping avec le message 'r-pkgs-status' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
                  */
-                exec("ping -W2 -c 1 -p 722d617661696c2d706b6773 $this->ip");
+                exec("ping -W1 -c 1 -p 722d706b67732d737461747573 $this->ip");
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
                  */
                 if (!empty($this->hostname)) {
-                    $hostAvailPackagesUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
+                    $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
                 } else {
-                    $hostAvailPackagesUpdateOK[] = array('ip' => $this->ip);
-                }
-            }
-
-            /**
-             *  Si l'action est une demande de mise à jour des informations concernant les paquets installés sur l'hôte
-             */
-            if ($action == 'installed-packages-status-update') {
-                /**
-                 *  Envoi d'un ping avec le message 'r-installed-pkgs' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
-                 */
-                exec("ping -W2 -c 1 -p 722d696e7374616c6c65642d706b6773 $this->ip");
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostInstalledPackagesUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostInstalledPackagesUpdateOK[] = array('ip' => $this->ip);
+                    $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip);
                 }
             }
 
@@ -1060,7 +1063,7 @@ class Host extends Model {
                 /**
                  *  Envoi d'un ping avec le message 'r-full-history' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
                  */
-                exec("ping -W2 -c 1 -p 722d66756c6c2d686973746f7279 $this->ip");
+                exec("ping -W1 -c 1 -p 722d66756c6c2d686973746f7279 $this->ip");
 
                 /**
                  *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
@@ -1167,37 +1170,19 @@ class Host extends Model {
         }
 
         /**
-         *  Génération des messages pour une action de type 'available-packages-status-update'
+         *  Génération des messages pour une action de type 'packages-status-update' 
          */
-        if (!empty($hostAvailPackagesUpdateError)) {
+        if (!empty($hostPackagesStatusUpdateError)) {
             $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
 
-            foreach ($hostAvailPackagesUpdateError as $host) {
+            foreach ($hostPackagesStatusUpdateError as $host) {
                 $message .= $host['hostname'].' ('.$host['ip'].')<br>';
             }
         }
-        if (!empty($hostAvailPackagesUpdateOK)) {
+        if (!empty($hostPackagesStatusUpdateOK)) {
             $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
 
-            foreach ($hostAvailPackagesUpdateOK as $host) {
-                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
-            }
-        }
-
-        /**
-         *  Génération des messages pour une action de type 'installed-packages-status-update'
-         */
-        if (!empty($hostInstalledPackagesUpdateError)) {
-            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
-
-            foreach ($hostInstalledPackagesUpdateError as $host) {
-                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
-            }
-        }
-        if (!empty($hostInstalledPackagesUpdateOK)) {
-            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
-
-            foreach ($hostInstalledPackagesUpdateOK as $host) {
+            foreach ($hostPackagesStatusUpdateOK as $host) {
                 $message .= $host['hostname'].' ('.$host['ip'].')<br>';
             }
         }

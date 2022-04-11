@@ -898,10 +898,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
         <br><h3>BASES DE DONNÉES</h3>
         <table class="table-generic-blue table-large">
             <tr>
-                <td class="td-fit">
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données principale de repomanager. L'application ne peut fonctionner si la base de données est en erreur." />
-                </td>
-                <td class="td-50">Principale</td>
+                <td class="td-50"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données principale de repomanager. L'application ne peut fonctionner si la base de données est en erreur." /> Principale</td>
                 <td>
                     <?php
                     /**
@@ -931,10 +928,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
             <?php
             if (CRON_STATS_ENABLED == "yes") { ?>
             <tr>
-                <td class="td-fit">
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données des statistiques des repos." />
-                </td>
-                <td class="td-50">Stats</td>
+                <td class="td-50"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données des statistiques des repos." /> Stats</td>
                 <td>
                     <?php
                     /**
@@ -963,10 +957,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
         <?php }
             if (MANAGE_HOSTS == "yes") { ?>
             <tr>
-                <td class="td-fit">
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données des hôtes." />
-                </td>
-                <td class="td-50">Hosts</td>
+                <td class="td-50"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Base de données des hôtes." /> Hosts</td>
                 <td>
                     <?php
                     /**

@@ -131,8 +131,9 @@ td {
 .center { text-align: center; }
 .baseline { vertical-align: baseline; }
 .lowopacity { opacity: 0.33; }
-.lowopacity:hover { opacity: 1; }
+.mediumopacity { opacity: 0.55 }
 .verylowopacity { opacity: 0.08; }
+.lowopacity:hover, .mediumopacity:hover, .verylowopacity:hover { opacity: 1 }
 .opacity-80 { opacity: 0.80; }
 /* Classes génériques permettant de créer des images de couleurs à partir d'images blanches https://codepen.io/sosuke/pen/Pjoqqp */
 .yellowimg {
@@ -1202,6 +1203,12 @@ footer p { color: gray; }
 .profileDiv table {
     padding-top: 2px;
     padding-bottom: 2px;
+}
+.profileDiv table td span {
+    vertical-align: bottom;
+}
+.profileDiv table span.hosts-count {
+    font-size: 10px;
 }
 
 .profileDivConf {

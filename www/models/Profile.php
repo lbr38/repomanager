@@ -507,5 +507,25 @@ class Profile extends Model {
         
         return '';
     }
+
+    /**
+     *  Compte le nombre d'hôtes utilisant le profil spécifié
+     */
+    public function countHosts(string $profile)
+    {
+        $hosts_db = new Connection('hosts');
+
+        $hosts = array();
+
+        $stmt = $hosts_db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
+        $stmt->bindValue(':profile', $profile);
+        $result = $stmt->execute();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $hosts[] = $row;
+
+        $hosts_db->close();
+
+        return count($hosts);
+    }
 }
 ?>

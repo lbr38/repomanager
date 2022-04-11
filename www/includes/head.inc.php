@@ -29,17 +29,17 @@
     <link rel="icon" href="ressources/favicon.ico" />
 
     <?php
-    if     (__ACTUAL_URI__ == "/index.php")          echo '<title>Repomanager - accueil</title>';
-    elseif (__ACTUAL_URI__ == "/planifications.php") echo '<title>Repomanager - planifications</title>';
-    elseif (__ACTUAL_URI__ == "/run.php")            echo '<title>Repomanager - journal</title>';
-    elseif (__ACTUAL_URI__ == "/explore.php")        echo '<title>Repomanager - explorer</title>';
-    elseif (__ACTUAL_URI__ == "/stats.php")          echo '<title>Repomanager - statistiques</title>';
-    elseif (__ACTUAL_URI__ == "/hosts.php")          echo '<title>Repomanager - gestion des hôtes</title>';
-    elseif (__ACTUAL_URI__ == "/host.php")           echo '<title>Repomanager - gestion des hôtes</title>';
-    elseif (__ACTUAL_URI__ == "/profiles.php")       echo '<title>Repomanager - gestion des profils</title>';
-    elseif (__ACTUAL_URI__ == "/configuration.php")  echo '<title>Repomanager - configuration</title>';
-    elseif (__ACTUAL_URI__ == "/history.php")        echo '<title>Repomanager - historique</title>';
-    elseif (__ACTUAL_URI__ == "/user.php")           echo '<title>Repomanager - espace utilisateur</title>';
+    if     (__ACTUAL_URI__ == "/index.php")          echo '<title>Repomanager - Accueil</title>';
+    elseif (__ACTUAL_URI__ == "/planifications.php") echo '<title>Repomanager - Planifications</title>';
+    elseif (__ACTUAL_URI__ == "/run.php")            echo '<title>Repomanager - Journal</title>';
+    elseif (__ACTUAL_URI__ == "/explore.php")        echo '<title>Repomanager - Explorer</title>';
+    elseif (__ACTUAL_URI__ == "/stats.php")          echo '<title>Repomanager - Statistiques</title>';
+    elseif (__ACTUAL_URI__ == "/hosts.php")          echo '<title>Repomanager - Gestion des hôtes</title>';
+    elseif (__ACTUAL_URI__ == "/host.php")           echo '<title>Repomanager - Gestion des hôtes</title>';
+    elseif (__ACTUAL_URI__ == "/profiles.php")       echo '<title>Repomanager - Gestion des profils</title>';
+    elseif (__ACTUAL_URI__ == "/configuration.php")  echo '<title>Repomanager - Configuration</title>';
+    elseif (__ACTUAL_URI__ == "/history.php")        echo '<title>Repomanager - Historique</title>';
+    elseif (__ACTUAL_URI__ == "/user.php")           echo '<title>Repomanager - Espace utilisateur</title>';
     else echo '<title>Repomanager</title>';
     ?>
     <title>Repomanager</title>

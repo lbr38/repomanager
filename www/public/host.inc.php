@@ -142,11 +142,10 @@ echo '<h3>'.strtoupper($hostname).'</h3>';
 if (Common::isadmin()) { ?>
 <div class="hostActionBtn-container">
     <span class="btn-large-blue"><img src="../ressources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="general-status-update" title="Rafraichir les informations générales">Rafraichir les informations générales</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="available-packages-status-update" title="Rafraichir les paquets disponibles">Rafraichir les paquets disponibles</span>
-    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="installed-packages-status-update" title="Rafraichir les paquets installés">Rafraichir les paquets installés</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="general-status-update" title="Rafraichir les informations générales">Demander l'envoir des informations générales</span>
+    <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="packages-status-update" title="Rafraichir les paquets disponibles">Demander l'envoi des informations concernant les paquets</span>
     <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="full-history-update" title="Rafraichir l'historique des évènements">Rafraichir l'historique des évènements</span>
-    <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Mettre à jour les paquets</span>
+    <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Demander la mise à jour des paquets</span>
     <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="reset" title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
     <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="delete" title="Supprimer cet hôte">Supprimer cet hôte</span>
 </div>
@@ -490,16 +489,13 @@ if (Common::isadmin()) { ?>
                                                                  *  Affichage du type de demande
                                                                  */
                                                                 if ($event['Type'] == 'general-status-update') {
-                                                                    echo 'Transfert des informations générales';
+                                                                    echo 'Demande d\'envoi des informations générales';
                                                                 }
-                                                                if ($event['Type'] == 'available-packages-status-update') {
-                                                                    echo 'Transfert de la liste des paquets disponibles';
-                                                                }
-                                                                if ($event['Type'] == 'installed-packages-status-update') {
-                                                                    echo 'Transfert de la liste des paquets installés';
+                                                                if ($event['Type'] == 'packages-status-update') {
+                                                                    echo 'Demande d\'envoi des informations sur les paquets';
                                                                 }
                                                                 if ($event['Type'] == 'full-history-update') {
-                                                                    echo 'Transfert de l\'historique des évènements';
+                                                                    echo 'Demande d\'envoi de l\'historique des évènements';
                                                                 }
                                                                 if ($event['Type'] == 'packages-update') {
                                                                     echo 'Mise à jour des paquets';
