@@ -121,11 +121,36 @@ require_once('../functions/repo.functions.php');
                     </div>
 <?php           }
                     
-                if (!empty($nextPlan)) { ?>
+                if (!empty($nextPlan)) { 
+                    /**
+                     *  Calcul du nombre de jours restants avant la prochaine planification
+                     */
+                    $date_now = new DateTime(DATE_YMD);
+                    $date_plan = new DateTime($nextPlan['Date']);
+                    $time_now = new DateTime(date('H:i'));
+                    $time_plan = new DateTime($nextPlan['Time']);
+
+                    $days_left = $date_plan->diff($date_now);
+                    $time_left = $time_plan->diff($time_now); ?>
                     <div class="server-properties">
                         <div class="server-properties-count">
                             <span>
-                                <?php echo '13j'; ?>
+                                <?php
+                                /**
+                                 *  Si le nombre de jours restants = 0 (jour même) alors on affiche le nombre d'heures restantes
+                                 */
+                                if ($days_left->days == 0) {
+                                    /**
+                                     *  Si le nombre d'heures restantes = 0 alors on affiche les minutes restantes
+                                     */
+                                    if ($time_left->format('%h') == 0) {
+                                        echo $time_left->format('%im');
+                                    } else {
+                                        echo $time_left->format('%hh%im');
+                                    }
+                                } else {
+                                    echo $days_left->days.'j'; 
+                                } ?>
                             </span>
                         </div>
                         <div>

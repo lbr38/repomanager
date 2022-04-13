@@ -59,7 +59,7 @@ require_once('../functions/repo.functions.php');
              */
             if(!empty($planList)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<p><img src="ressources/icons/calendar.png" class="icon" /><b>Planifications actives</b></p>';
+                    echo '<h5><img src="ressources/icons/calendar.png" class="icon" />Planifications actives</h5>';
 
                     foreach($planList as $plan) {
                         $planGroup     = '';

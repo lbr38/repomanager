@@ -569,6 +569,7 @@ class Group extends Model {
                 hosts.Os,
                 hosts.Os_version,
                 hosts.Os_family,
+                hosts.Type,
                 hosts.Kernel,
                 hosts.Arch,
                 hosts.Profile,

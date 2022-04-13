@@ -289,11 +289,15 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                      *  Boutons d'actions sur les checkbox sélectionnées
                                      */ ?>
                                     <div class="js-buttons-<?php echo $group->name;?> hide">
-                                    <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer ses informations générales."><img src="ressources/icons/update.png" class="icon" /><b>Informations générales</b></button>
-                                        <button class="hostsActionBtn pointer btn-fit-blue" action="available-packages-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer les paquets disponibles pour mise à jour."><img src="ressources/icons/update.png" class="icon" /><b>Paquets disponibles</b></button>
-                                        <button class="hostsActionBtn pointer btn-fit-blue" action="installed-packages-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer la liste des paquets installés."><img src="ressources/icons/update.png" class="icon" /><b>Paquets installés</b></button>
+                                        
+                                        <h5>Demander à l'hôte l'envoi d'informations :</h5>
+                                        <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer ses informations générales."><img src="ressources/icons/update.png" class="icon" /><b>Informations générales</b></button>
+                                        <button class="hostsActionBtn pointer btn-fit-blue" action="packages-status-update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'envoyer les informations concernant ses paquets (disponibles, installés, mis à jours...)."><img src="ressources/icons/update.png" class="icon" /><b>Informations concernant les paquets</b></button>
+
+                                        <h5>Demander à l'hôte l'exécution d'une action :</h5>
                                         <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'exécuter une mise à jour de ses paquets."><img src="ressources/icons/update.png" class="icon" /><b>Mettre à jour les paquets</b></button>
-                                        <br>
+                                        
+                                        <h5>Supprimer ou réinitialiser l'hôte :</h5>
                                         <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?php echo $group->name;?>" title="Supprimer l'hôte."><img src="ressources/icons/bin.png" class="icon" /><b>Supprimer</b></button>
                                         <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?php echo $group->name;?>" title="Réinitialiser les données connues de l'hôte. Cette action est irréversible."><img src="ressources/icons/update.png" class="icon" /><b>Reset</b></button>
                                     </div>
@@ -306,15 +310,16 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                         <thead>
                                             <tr>
                                                 <td></td>
-                                                <td></td>
+                                                <td class="td-fit"></td>
+                                                <td class="td-10"></td>
                                                 <td title="Nombre total de paquets installés"><span>Inst.</span></td>
                                                 <td title="Nombre total de mises à jour disponibles pour installation"><span>Disp.</span></td>
                                                 <td class="hostDetails-td"></td>
                                                 <?php if (Common::isadmin()) { ?>
-                                                    <td><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
+                                                    <td class="td-fit"><span class='js-select-all-button pointer' group='<?php echo $group->name; ?>'>Tout sélec.</span></td>
                                                 <?php } ?>
-                                                <td class="td-fit"></td>
-                                                <td class="td-fit"></td>
+                                                <td class="td-10"></td>
+                                                <td class="td-10"></td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -324,10 +329,20 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                          *  Ici on va afficher le détails de chaque hôte et on en profites pour récupérer certaines informations supplémentaires en base de données
                                          */
                                         foreach ($hostsList as $host) {
+                                            $id = $host['Id'];
+                                            if (!empty($host['Hostname']))   $hostname   = $host['Hostname'];   else $hostname = 'unknow';
+                                            if (!empty($host['Ip']))         $ip         = $host['Ip'];         else $ip = 'unknow';
+                                            if (!empty($host['Os']))         $os         = $host['Os'];         else $os = 'unknow';
+                                            if (!empty($host['Os_version'])) $os_version = $host['Os_version']; else $os_version = 'unknow';
+                                            if (!empty($host['Os_family']))  $os_family  = $host['Os_family'];  else $os_family = 'unknow';
+                                            if (!empty($host['Type']))       $type       = $host['Type'];       else $type = 'unknow';
+                                            if (!empty($host['Kernel']))     $kernel     = $host['Kernel'];     else $kernel = 'unknow';
+                                            if (!empty($host['Arch']))       $arch       = $host['Arch'];       else $arch = 'unknow';
+
                                             /**
                                              *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
                                              */
-                                            $myhost->openHostDb($host['Id']);
+                                            $myhost->openHostDb($id);
 
                                             /**
                                              *  Récupération des paquets disponibles pour installation
@@ -362,28 +377,38 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                              *  Affichage des informations de l'hôte
                                              *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
                                              */
-                                            echo '<tr class="host-tr" hostid="'.$host['Id'].'" hostname="'.$host['Hostname'].'" os="'.$host['Os'].'" os_version="'.$host['Os_version'].'" os_family="'.$host['Os_family'].'" kernel="'.$host['Kernel'].'" arch="'.$host['Arch'].'">';
+                                            echo '<tr class="host-tr" hostid="'.$id.'" hostname="'.$hostname.'" os="'.$os.'" os_version="'.$os_version.'" os_family="'.$os_family.'" type="'.$type.'" kernel="'.$kernel.'" arch="'.$arch.'">';
                                                 /**
                                                  *  Status ping
                                                  */
-                                                if ($host['Online_status'] == "online")
-                                                    echo '<td><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" /></td>';
-                                                if ($host['Online_status'] == "unknown")
-                                                    echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" /></td>';
-                                                if ($host['Online_status'] == "unreachable")
-                                                    echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" /></td>';
+                                                echo '<td>';
+                                                    if ($host['Online_status'] == "online")
+                                                        echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" />';
+                                                    if ($host['Online_status'] == "unknown")
+                                                        echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />';
+                                                    if ($host['Online_status'] == "unreachable")
+                                                        echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" />';
+                                                echo '</td>';
+
                                                 /**
                                                  *  Nom de l'hôte + ip
                                                  */
-                                                if ($host['Os'] == "Centos" OR $host['Os'] == "centos" OR $host['Os'] == "CentOS") {
-                                                    echo '<td><img src="ressources/icons/centos.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                                } elseif ($host['Os'] == "Debian" OR $host['Os'] == "debian") {
-                                                    echo '<td><img src="ressources/icons/debian.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                                } elseif ($host['Os'] == "Ubuntu" OR $host['Os'] == "ubuntu" OR $host['Os'] == "linuxmint") {
-                                                    echo '<td><img src="ressources/icons/ubuntu.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                                } else {
-                                                    echo '<td><img src="ressources/icons/tux.png" class="icon" /> '.$host['Hostname'].' ('.$host['Ip'].')</td>';
-                                                } ?>
+                                                echo '<td class="td-fit">';
+                                                    if (preg_match('/centos/i', $os)) {
+                                                        echo '<img src="ressources/icons/centos.png" class="icon" />';
+                                                    } elseif (preg_match('/debian/i', $os)) {
+                                                        echo '<img src="ressources/icons/debian.png" class="icon" />';
+                                                    } elseif (preg_match('/ubuntu/i', $os) OR preg_match('/mint/i', $os)) {
+                                                        echo '<img src="ressources/icons/ubuntu.png" class="icon" />';
+                                                    } else {
+                                                        echo '<img src="ressources/icons/tux.png" class="icon" />';
+                                                    }
+                                                    echo $host['Hostname'].' ('.$ip.')';
+                                                echo '</td>'; ?>
+
+                                                <td class="hostType-td td-10 lowopacity">
+                                                    <span title="Type d'hôte"><?=$type?></span>
+                                                </td>
                                                 <td class="packagesCount-td">
                                                     <span><?=$packagesInstalledTotal?></span>
                                                 </td>                                           
@@ -398,10 +423,10 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                     } ?>
                                                 </td>
                                                 <td class="hostDetails-td">
-                                                    <span class="printHostDetails pointer" host_id="<?php echo $host['Id']; ?>">Détails</span><a href="host.php?id=<?php echo $host['Id']; ?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a>
+                                                    <span class="printHostDetails pointer" host_id="<?=$id?>">Détails</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a>
                                                 </td>
                                                 <?php if (Common::isadmin()) { ?>
-                                                    <td><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?php echo $group->name; ?>" value="<?php echo $host['Id']; ?>"></td>
+                                                    <td class="td-fit"><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$group->name?>" value="<?=$id?>"></td>
                                                 <?php } ?>
                                                 <td class="host-update-status td-10">
                                                     <?php
@@ -413,25 +438,22 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                             $updateType = 'Mise à jour des paquets';
                                                         }
                                                         if ($lastRequestedUpdate['Type'] == 'general-status-update') {
-                                                            $updateType = 'Maj des infos. générales';
+                                                            $updateType = 'Envoi des infos. générales';
                                                         }
-                                                        if ($lastRequestedUpdate['Type'] == 'available-packages-status-update') {
-                                                            $updateType = 'Maj des paquets disponibles';
-                                                        }
-                                                        if ($lastRequestedUpdate['Type'] == 'installed-packages-status-update') {
-                                                            $updateType = 'Maj des paquets installés';
+                                                        if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
+                                                            $updateType = 'Envoi de l\'état des paquets';
                                                         }
                                                         if ($lastRequestedUpdate['Type'] == 'full-history-update') {
-                                                            $updateType = 'Maj de l\'historique des évènements';
+                                                            $updateType = 'Envoi de l\'historique des évènements';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'requested') {
-                                                            $updateStatus = 'demandée';
+                                                            $updateStatus = 'demandé(e)';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'running') {
                                                             $updateStatus = 'en cours<img src="ressources/images/loading.gif" class="icon" />';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'done') {
-                                                            $updateStatus = 'terminée';
+                                                            $updateStatus = 'terminé(e)';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'error') {
                                                             $updateStatus = 'en erreur';
@@ -442,7 +464,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                          */
                                                         if ($lastRequestedUpdate['Status'] == 'requested' OR $lastRequestedUpdate['Status'] == 'running') {
                                                             if ($lastRequestedUpdate['Date'] != DATE_YMD OR $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 10 minutes'))) {
-                                                                echo '<span class="yellowtext" title="La demande de mise à jour semble ne pas avoir été prise en compte par l\'hôte (demandée le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].')">'.$updateType.' '.$updateStatus.'</span>';
+                                                                echo '<span class="yellowtext" title="La demande ne semble ne pas avoir été prise en compte par l\'hôte (demandée le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].')">'.$updateType.' '.$updateStatus.'</span>';
                                                             } else {
                                                                 echo '<span title="Le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].'">'.$updateType.' '.$updateStatus.'</span>';
                                                             }
@@ -481,7 +503,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
 /**
  *  Couleurs disponibles pour les graphiques
  */
-$validHexColors = ['#FF9AA2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA', '#F2E3CF', '#F5F8DA', '#B5DDC2', '#DCF0F4', '#D472A1', '#F7799B', '#E58EB1', '#FFA1AD', '#5FE6D0', '#D8F3C6', '#F4F4E0', '#CDD7EF', '#EEDBF2', '#a3c4f3', '#a2d2ff', '#f08080', '#fbc4ab', '#b8e0d2', '#d6eadf', '#d4a373', '#e7c8a0', '#f2a8ff', '#ffc9ff', '#B983FF', '#90f3ff', '#dffdff'];
+$validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f', '#24d794'];
 
 /**
  *  Graph des hôtes
@@ -659,7 +681,7 @@ if (!empty($envsList)) {
          *  Si l'environnement correspond au dernier env de la chaine alors celui-ci sera en rouge
          */
         if ($env['Env'] == LAST_ENV) {
-            $envBackgroundColor .= "'#FF9AA2',";
+            $envBackgroundColor .= "'rgb(255, 99, 132)',";
         } else {
             /**
              *  On sélectionne une couleur au hasard dans l'array
