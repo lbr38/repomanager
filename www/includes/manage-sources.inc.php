@@ -76,7 +76,7 @@
 
             <br>
             <br>
-            <button type="submit" class="btn-medium-blue" title="Ajouter">Ajouter</button>
+            <button type="submit" class="btn-large-blue" title="Ajouter">Ajouter</button>
 
         </form>
     </div>

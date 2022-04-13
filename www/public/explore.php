@@ -383,39 +383,43 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                          *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                          */
                         if (empty($opRunning)) { ?>
-                            <h5>Uploader des packages</h5>
-                            <form action="" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="action" value="uploadPackage" />
-                                <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
-                                <button type="submit" class="btn-medium-blue">Ajouter</button>
-                            </form>
+                            <div class="div-generic-gray">
+                                <h5><img src="ressources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
+                                
+                                <p>Sélectionnez des paquets à intégrer au repo.</p>
+                                <br>
+                                <form action="" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="action" value="uploadPackage" />
+                                    <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
+                                    <button type="submit" class="btn-large-blue">Ajouter</button>
+                                </form>
 
-                            <?php
-                            /**
-                             *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
-                             */
-                            if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
-                            if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
-                            if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
-                            if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
-                            ?>
-                            <br>
-                            <hr>
-                            <br>
-                    
-                            <h5 id="rebuild-button" class="pointer"><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
-                            <form id="hidden-form" class="hide" action="" method="post">
-                                <input type="hidden" name="action" value="reconstruct">
-                                <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
-                                <span>Signer avec GPG </span>
-                                <label class="onoff-switch-label">
-                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
-                                <span class="onoff-switch-slider"></span>
-                                </label>
-                                <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
-                                <br><br>
-                                <button type="submit" class="btn-medium-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
-                            </form>
+                                <?php
+                                    /**
+                                     *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                                     */
+                                    if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
+                                    if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
+                                    if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
+                                    if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
+                                ?>
+                            </div>
+                            
+                            <div class="div-generic-gray">
+                                <h5><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
+                                <form id="hidden-form" action="" method="post">
+                                    <input type="hidden" name="action" value="reconstruct">
+                                    <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
+                                    <span>Signer avec GPG </span>
+                                    <label class="onoff-switch-label">
+                                    <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
+                                    <span class="onoff-switch-slider"></span>
+                                    </label>
+                                    <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
+                                    <br><br>
+                                    <button type="submit" class="btn-large-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
+                                </form>
+                            </div>
                         <?php
                         }
                     
