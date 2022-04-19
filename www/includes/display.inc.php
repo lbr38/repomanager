@@ -45,7 +45,7 @@
             <span> Mettre en cache dans /dev/shm</span><br>
 
             <br>
-            <button id="repos-display-conf-btn" type="submit" class="btn-medium-blue">Enregistrer</button>
+            <button id="repos-display-conf-btn" type="submit" class="btn-large-blue">Enregistrer</button>
 <?php } ?>
     </div>
 </section>

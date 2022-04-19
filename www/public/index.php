@@ -85,7 +85,7 @@ require_once('../functions/repo.functions.php');
                 <span class="donut-legend-content"><?=$diskUsedSpace.'%'?></span>
 
                 <?php
-                $donutChartName = 'donut-chart-2';
+                $donutChartName = 'donut-chart';
                 include(ROOT.'/includes/index-donut.inc.php');
                 ?>
             </div>

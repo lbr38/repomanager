@@ -794,7 +794,6 @@ class Host extends Model {
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
          */
-        //if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'available-packages-status-update' AND $type != 'installed-packages-status-update' AND $type != 'full-history-update') {
         if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'packages-status-update' AND $type != 'full-history-update') {
             return false;
         }
@@ -838,8 +837,7 @@ class Host extends Model {
             $action != 'reset' AND 
             $action != 'update' AND 
             $action != 'general-status-update' AND
-            $action != 'packages-status-update' AND
-            $action != 'full-history-update') {
+            $action != 'packages-status-update') {
             throw new Exception("L'action à exécuter est invalide");
         }
 
@@ -852,10 +850,8 @@ class Host extends Model {
         $hostDeleteOK                     = array();
         $hostGeneralUpdateError           = array();
         $hostGeneralUpdateOK              = array();
-        $hostPackagesStatusUpdateError     = array();
-        $hostPackagesStatusUpdateOK        = array();
-        $hostFullHistoryUpdateError       = array();
-        $hostFullHistoryUpdateOK          = array();
+        $hostPackagesStatusUpdateError    = array();
+        $hostPackagesStatusUpdateOK       = array();
 
         /**
          *  On traite l'array contenant les Id d'hôtes à traiter
@@ -1001,8 +997,7 @@ class Host extends Model {
              *  Si l'action correspond à l'une des suivantes, on ajoute une entrée dans la base de données de l'hôte
              */
             if ($action == 'general-status-update' OR
-                $action == 'packages-status-update' OR
-                $action == 'full-history-update') {
+                $action == 'packages-status-update') {
 
                 /**
                  *  Modification de l'état en BDD pour cet hôte (requested = demande envoyée, en attente)
@@ -1053,25 +1048,6 @@ class Host extends Model {
                     $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
                 } else {
                     $hostPackagesStatusUpdateOK[] = array('ip' => $this->ip);
-                }
-            }
-
-            /**
-             *  Si l'action est une demande de mise à jour de l'historique des évènements sur l'hôte
-             */
-            if ($action == 'full-history-update') {
-                /**
-                 *  Envoi d'un ping avec le message 'r-full-history' en hexadecimal pour ordonner à l'hôte d'envoyer les informations
-                 */
-                exec("ping -W1 -c 1 -p 722d66756c6c2d686973746f7279 $this->ip");
-
-                /**
-                 *  Si l'hôte a un Hostname, on le pousse dans l'array, sinon on pousse uniquement son adresse ip
-                 */
-                if (!empty($this->hostname)) {
-                    $hostFullHistoryUpdateOK[] = array('ip' => $this->ip, 'hostname' => $this->hostname);
-                } else {
-                    $hostFullHistoryUpdateOK[] = array('ip' => $this->ip);
                 }
             }
 
@@ -1183,24 +1159,6 @@ class Host extends Model {
             $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
 
             foreach ($hostPackagesStatusUpdateOK as $host) {
-                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
-            }
-        }
-
-        /**
-         *  Génération des messages pour une action de type 'full-history-update'
-         */
-        if (!empty($hostFullHistoryUpdateError)) {
-            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
-
-            foreach ($hostFullHistoryUpdateError as $host) {
-                $message .= $host['hostname'].' ('.$host['ip'].')<br>';
-            }
-        }
-        if (!empty($hostFullHistoryUpdateOK)) {
-            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
-
-            foreach ($hostFullHistoryUpdateOK as $host) {
                 $message .= $host['hostname'].' ('.$host['ip'].')<br>';
             }
         }
@@ -1358,9 +1316,19 @@ class Host extends Model {
         if (empty($this->id)) return false;
 
         /**
-         *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
+         *  2 possibilités :
+         *  - soit on a transmis "none", ce qui signifie qu'il n'y a aucun paquet disponible sur l'hôte
+         *  - soit on a transmis une liste de paquets séparés par une virgule
          */
-        $packagesList = array_filter(explode(",", Common::validateData($packagesAvailable)));
+        if ($packagesAvailable == "none") {
+            $packagesList = "none";
+
+        } else {
+            /**
+             *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
+             */
+            $packagesList = array_filter(explode(",", Common::validateData($packagesAvailable)));
+        }
 
         /**
          *  On traite si l'array n'est pas vide
@@ -1376,6 +1344,14 @@ class Host extends Model {
              *  On efface la liste des paquets actuellement dans packages_available
              */
             $this->host_db->exec("DELETE FROM packages_available");
+
+            /**
+             *  Si l'hôte a transmis "none" (aucun paquet disponible pour mise à jour) alors on s'arrête là
+             */
+            if ($packagesList == "none") {
+                return true;
+            }
+
             /**
              *  Nettoie l'espace inutilisé suite à la suppression du contenu de la table packages_available
              */
@@ -1516,6 +1492,14 @@ class Host extends Model {
             if (!empty($event->installed)) {
                 foreach ($event->installed as $package_installed) {
                     $this->db_setPackageState($package_installed->name, $package_installed->version, 'installed', $event->date_start, $event->time_start, $id_event);
+                }
+            }
+            /**
+             *  Si l'évènement comporte des dépendances installées
+             */
+            if (!empty($event->dep_installed)) {
+                foreach ($event->dep_installed as $dep_installed) {
+                    $this->db_setPackageState($dep_installed->name, $dep_installed->version, 'dep-installed', $event->date_start, $event->time_start, $id_event);
                 }
             }
             /**

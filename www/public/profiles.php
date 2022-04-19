@@ -71,7 +71,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
     <!-- REPOS ACTIFS -->
     <section id="profilesDiv" class="left">
         <h3>PROFILS</h3>
-        <p>Vous pouvez créer des profils de configuration pour vos serveurs clients utilisant <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+        <p>Vous pouvez créer des profils de configuration pour vos hôtes et serveurs clients utilisant <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
         <br>
         <p>Créer un nouveau profil :</p>
         <form id="newProfileForm" action="profiles.php" method="post" autocomplete="off">
@@ -101,10 +101,12 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                  */
                 foreach($profilesNames as $profileName) { 
                     /**
-                     *  On récupère le nombre d'hôtes utilisant ce profil, si il y en a
+                     *  On récupère le nombre d'hôtes utilisant ce profil, si il y en a, et si la gestion des hôtes est activée
                      */
-                    $myprofile = new Profile();
-                    $hostsCount = $myprofile->countHosts($profileName); ?>
+                    if (MANAGE_HOSTS == 'enabled') {
+                        $myprofile = new Profile();
+                        $hostsCount = $myprofile->countHosts($profileName);
+                    } ?>
 
                     <div class="profileDiv">
                         <form class="profileForm" profilename="<?php echo $profileName;?>" autocomplete="off">
@@ -115,8 +117,8 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                     </td>
                                     <td class="td-fit">
                                         <?php
-                                        if ($hostsCount > 0) {
-                                            echo '<span class="hosts-count mediumopacity" title="'.$hostsCount.' hôtes utilisant ce profil">'.$hostsCount.'<img src="ressources/icons/server.png" class="icon" /></span>';
+                                        if (MANAGE_HOSTS == 'enabled' AND $hostsCount > 0) {
+                                            echo '<span class="hosts-count mediumopacity" title="'.$hostsCount.' hôte(s) utilise(nt) ce profil">'.$hostsCount.'<img src="ressources/icons/server.png" class="icon" /></span>';
                                         } ?>
                                         <span><img src="ressources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?php echo $profileName;?>" title="Configuration de <?php echo $profileName;?>" /></span>
                                         <span><img src="ressources/icons/duplicate.png" class="duplicateProfileBtn icon-mediumopacity" profilename="<?php echo $profileName;?>" title="Créer un nouveau profil en dupliquant la configuration de <?php echo $profileName;?>" /></span>

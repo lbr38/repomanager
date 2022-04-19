@@ -504,9 +504,9 @@ $(document).on('click','.printHostDetails',function(){
     });
 
     /**
-     *  Le div est alors créé mais il est masqué par défaut (hide), ceci afin de pouvoir l'afficher avec une animation show
+     *  Le div est alors créé mais il est masqué par défaut (hide), ceci afin de pouvoir l'afficher
      */
-    $('.hostDetails').show('slow');
+    $('.hostDetails').show();
 });
 
 /**

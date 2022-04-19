@@ -186,12 +186,17 @@ nav {
     cursor: pointer;
     text-align: left;
 }
+.menu > li span#title {
+    font-size: 18px !important;
+}
 .menu > li span:not(.li-operation-not-running, .li-operation-running) {
-    font-size: 18px;
+    font-size: 14px;
+    vertical-align: baseline;
 }
 .menu > li span.underline {
     border-bottom: 2px solid #2b426e;
-    padding-bottom: 21px;
+    padding-bottom: 22px;
+    vertical-align: baseline;
 }
 .sub-menu {
     transform: scale(0);
@@ -711,6 +716,10 @@ input[type=text], input[type=date], input[type=time], input[type=number], input[
     font-size: 14px;
     color: whitesmoke;
     background-color:#474747;
+}
+
+input[type=file] {
+    background: none !important;
 }
 
 input[type=color].color-xsmall { width: 50px; vertical-align: middle; }

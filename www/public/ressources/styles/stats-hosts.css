@@ -224,8 +224,8 @@
 
 .hosts-charts-container {
     display: grid;
-    grid-template-columns: repeat(3, 350px);
-    row-gap: 20px;
+    grid-template-columns: repeat(3, 450px);
+    row-gap: 40px;
     justify-content: space-evenly;
 }
 

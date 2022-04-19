@@ -309,7 +309,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                     <table class="hosts-table">
                                         <thead>
                                             <tr>
-                                                <td></td>
+                                                <td class="td-fit"></td>
                                                 <td class="td-fit"></td>
                                                 <td class="td-10"></td>
                                                 <td title="Nombre total de paquets installés"><span>Inst.</span></td>
@@ -381,7 +381,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                 /**
                                                  *  Status ping
                                                  */
-                                                echo '<td>';
+                                                echo '<td class="td-fit">';
                                                     if ($host['Online_status'] == "online")
                                                         echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" />';
                                                     if ($host['Online_status'] == "unknown")
@@ -393,7 +393,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                 /**
                                                  *  Nom de l'hôte + ip
                                                  */
-                                                echo '<td class="td-fit">';
+                                                echo '<td class="td-fit" title="Distribution">';
                                                     if (preg_match('/centos/i', $os)) {
                                                         echo '<img src="ressources/icons/centos.png" class="icon" />';
                                                     } elseif (preg_match('/debian/i', $os)) {
@@ -407,12 +407,12 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                 echo '</td>'; ?>
 
                                                 <td class="hostType-td td-10 lowopacity">
-                                                    <span title="Type d'hôte"><?=$type?></span>
+                                                    <span title="Type <?=$type?>"><?=$type?></span>
                                                 </td>
-                                                <td class="packagesCount-td">
+                                                <td class="packagesCount-td" title="<?=$packagesInstalledTotal.' paquet(s) installé(s) sur cet hôte'?>">
                                                     <span><?=$packagesInstalledTotal?></span>
                                                 </td>                                           
-                                                <td class="packagesCount-td">
+                                                <td class="packagesCount-td" title="<?=$packagesAvailableTotal.' mise(s) à jour disponible(s) sur cet hôte'?>">
                                                     <?php
                                                     if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
                                                         echo '<span class="bkg-red">'.$packagesAvailableTotal.'</span>';
@@ -422,11 +422,13 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                         echo '<span>'.$packagesAvailableTotal.'</span>';
                                                     } ?>
                                                 </td>
-                                                <td class="hostDetails-td">
+                                                <td class="hostDetails-td" title="Voir les détails de cet hôte">
                                                     <span class="printHostDetails pointer" host_id="<?=$id?>">Détails</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a>
                                                 </td>
                                                 <?php if (Common::isadmin()) { ?>
-                                                    <td class="td-fit"><input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$group->name?>" value="<?=$id?>"></td>
+                                                    <td class="td-fit" title="Sélectionner <?=$hostname?>">
+                                                        <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$group->name?>" value="<?=$id?>">
+                                                    </td>
                                                 <?php } ?>
                                                 <td class="host-update-status td-10">
                                                     <?php
@@ -442,9 +444,6 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                         }
                                                         if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
                                                             $updateType = 'Envoi de l\'état des paquets';
-                                                        }
-                                                        if ($lastRequestedUpdate['Type'] == 'full-history-update') {
-                                                            $updateType = 'Envoi de l\'historique des évènements';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'requested') {
                                                             $updateStatus = 'demandé(e)';

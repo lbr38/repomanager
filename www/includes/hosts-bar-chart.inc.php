@@ -5,7 +5,7 @@ var barChartData = {
         data: [<?=$datas?>],
         backgroundColor: [<?=$backgrounds?>],
         borderWidth: 0.4,
-        barThickness: 20,
+        maxBarThickness: 20,
     }],
     labels: [<?=$labels?>],
 };

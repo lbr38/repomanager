@@ -22,29 +22,29 @@ if (DEBUG_MODE == "enabled") {
         <li><a href="index.php"><span id="title">Repomanager</span></a></li>
         <?php
         if (__ACTUAL_URI__ == '/' OR __ACTUAL_URI__ == '/index.php' OR __ACTUAL_URI__ == '/explore.php') {
-            echo '<li><a href="index.php"><span class="underline">Accueil</span></a></li>';
+            echo '<li><a href="index.php"><span class="underline"><img src="ressources/icons/menu.png" class="icon" />REPOS</span></a></li>';
         } else {
-            echo '<li><a href="index.php"><span>Accueil</span></a></li>';
+            echo '<li><a href="index.php"><span><img src="ressources/icons/menu.png" class="icon" />REPOS</span></a></li>';
         }
         if (AUTOMATISATION_ENABLED == "yes") {
             if (__ACTUAL_URI__ == '/planifications.php') {
-                echo '<li><a href="planifications.php"><span class="underline">Planifications</span></a></li>';
+                echo '<li><a href="planifications.php"><span class="underline"><img src="ressources/icons/calendar.png" class="icon" />PLANIFICATIONS</span></a></li>';
             } else {
-                echo '<li><a href="planifications.php"><span>Planifications</span></a></li>';
+                echo '<li><a href="planifications.php"><span><img src="ressources/icons/calendar.png" class="icon" />PLANIFICATIONS</span></a></li>';
             }
         }
         if (MANAGE_HOSTS == "yes") {
             if (__ACTUAL_URI__ == '/hosts.php') {
-                echo '<li><a href="hosts.php"><span class="underline">Gestion des hôtes</span></a></li>';
+                echo '<li><a href="hosts.php"><span class="underline"><img src="ressources/icons/server.png" class="icon" />GESTION DES HOTES</span></a></li>';
             } else {
-                echo '<li><a href="hosts.php"><span>Gestion des hôtes</span></a></li>';
+                echo '<li><a href="hosts.php"><span><img src="ressources/icons/server.png" class="icon" />GESTION DES HOTES</span></a></li>';
             }
         }
         if (Common::isadmin() AND MANAGE_PROFILES == "yes") {
             if (__ACTUAL_URI__ == '/profiles.php') {
-                echo '<li><a href="profiles.php"><span class="underline">Gestion des profils</span></a></li>';
+                echo '<li><a href="profiles.php"><span class="underline"><img src="ressources/icons/stack.png" class="icon" />GESTION DES PROFILS</span></a></li>';
             } else {
-                echo '<li><a href="profiles.php"><span>Gestion des profils</span></a></li>';
+                echo '<li><a href="profiles.php"><span><img src="ressources/icons/stack.png" class="icon" />GESTION DES PROFILS</span></a></li>';
             }
         }
         /**
@@ -52,9 +52,9 @@ if (DEBUG_MODE == "enabled") {
          */
         if (Common::isadmin()) {
             if (__ACTUAL_URI__ == '/configuration.php') {
-                echo '<li><a href="configuration.php"><span class="underline">Administration</span></a></li>';
+                echo '<li><a href="configuration.php"><span class="underline"><img src="ressources/icons/settings.png" class="icon" />ADMINISTRATION</span></a></li>';
             } else {
-                echo '<li><a href="configuration.php"><span>Administration</span></a></li>';
+                echo '<li><a href="configuration.php"><span><img src="ressources/icons/settings.png" class="icon" />ADMINISTRATION</span></a></li>';
             }
         }
 
