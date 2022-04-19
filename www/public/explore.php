@@ -9,7 +9,7 @@ require_once('../functions/explore.functions.php');
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === 'reconstruct' AND !empty($_POST['repoId'])) {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['repoId'])) {
     $repoId = Common::validateData($_POST['repoId']);
 
     /**
@@ -75,7 +75,7 @@ if (empty($_GET['state'])) {
 } else {
     $state = Common::validateData($_GET['state']);
 
-    if ($state != "active" AND $state != "archived") $pathError++;
+    if ($state != "active" and $state != "archived") $pathError++;
 }
 
 /**
@@ -114,7 +114,7 @@ if ($pathError == 0) {
 /**
  *  Cas où on upload un package dans un repo
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uploadPackage' AND !empty($_FILES['packages']) AND $pathError === 0 AND !empty($repoPath)) {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
     /**
      *  On définit le chemin d'upload comme étant le répertoire my_uploaded_packages à l'intérieur du répertoire du repo
      */
@@ -140,7 +140,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uplo
     $packageEmpty = ''; // contiendra la liste des paquets vides
     $packageInvalid = ''; // contiendra la liste des paquets dont le format est invalide
 
-    foreach($packages as $package) {
+    foreach ($packages as $package) {
         $uploadError = 0;
         $packageName  = $package['name'];
         $packageType  = $package['type'];
@@ -205,7 +205,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uplo
         /**
          *  Si on n'a pas eu d'erreur jusque là, alors on peut déplacer le fichier dans son emplacement définitif
          */
-        if ($uploadError === 0 AND file_exists($packageTmpName)) move_uploaded_file($packageTmpName, $targetDir ."/$packageName");
+        if ($uploadError === 0 and file_exists($packageTmpName)) move_uploaded_file($packageTmpName, $targetDir ."/$packageName");
     }
 
     if ($uploadError === 0) {
@@ -218,7 +218,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'uplo
 /**
  *  Cas où on supprime un ou plusieurs paquets d'un repo
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'deletePackages' AND !empty($_POST['packageName']) AND $pathError === 0 AND !empty($repoPath)) {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
 
     $packagesToDeleteNonExists = ''; // contiendra la liste des fichiers qui n'existent pas, si on tente de supprimer un fichier qui n'existe pas
     $packagesDeleted = array();
@@ -244,7 +244,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
             /**
              *  On vérifie que le fichier ciblé se termine par .deb ou .rpm sinon on passe au suivant
              */
-            if (!preg_match("#.deb$#", $packagePath) AND !preg_match("#.rpm$#", $packagePath)) {
+            if (!preg_match("#.deb$#", $packagePath) and !preg_match("#.rpm$#", $packagePath)) {
                 continue;
             }
 
@@ -288,18 +288,18 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
                 }
 
                 if ($pathError === 0) {
-                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) {
+                    if (OS_FAMILY == "Redhat" and !empty($myrepo->getName())) {
                         if ($state == "active")   echo '<p>Explorer le contenu du repo <span class="label-white">'.$myrepo->getName()."</span> ".Common::envtag($myrepo->getEnv()).'</p>';
                         if ($state == "archived") echo '<p>Explorer le contenu du repo archivé <span class="label-white">'.$myrepo->getName().'</span></p>';
                     }
 
-                    if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) {
+                    if (OS_FAMILY == "Debian" and !empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
                         if ($state == "active")   echo '<p>Explorer le contenu de la section <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
                         if ($state == "archived") echo '<p>Explorer le contenu de la section archivée <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span></p>';
                     }
 
                     if (is_dir($repoPath.'/my_uploaded_packages')) {
-                        if(!Common::dir_is_empty($repoPath."/my_uploaded_packages")) {
+                        if (!Common::dir_is_empty($repoPath."/my_uploaded_packages")) {
                             echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
                         }
                     }
@@ -357,15 +357,15 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'dele
             <section class="right">
                 <h3>ACTIONS</h3>
                 <?php
-                    if ($pathError === 0 AND $state == 'active') {
+                    if ($pathError === 0 and $state == 'active') {
                         /**
                          *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
                          */
                         try {
-                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE Id_repo_target = :id AND Status = 'running'");
+                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE Id_repo_target = :id and Status = 'running'");
                             $stmt->bindValue(':id', $myrepo->getId());
                             $result = $stmt->execute();
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             Common::dbError($e);
                         }
 

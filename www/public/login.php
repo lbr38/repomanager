@@ -3,10 +3,7 @@
 <?php
 if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
 require_once('../models/Autoloader.php');
-Autoloader::register();
-Autoloader::loadSystem();
-Autoloader::loadConfiguration();
-Autoloader::loadDirs();
+Autoloader::loadFromLogin();
 include_once('../includes/head.inc.php');
 
 $loginErrors = array();
@@ -16,11 +13,11 @@ $error = 0;
  *  Tentative de connexion
  *  Vérification de username et du mot de passe
  */
-if(!empty($_POST['username']) AND !empty($_POST['password']) AND !empty($_POST['authType'])) {
+if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST['authType'])) {
     /**
      *  Vérification du type de connexion sélectionné
      */
-    if ($_POST['authType'] != 'local' AND $_POST['authType'] != 'ldap') {
+    if ($_POST['authType'] != 'local' and $_POST['authType'] != 'ldap') {
         $error++;
         $loginErrors[] = 'Le type de connexion sélectionné est invalide';
     }
@@ -100,7 +97,7 @@ if(!empty($_POST['username']) AND !empty($_POST['password']) AND !empty($_POST['
                 /**
                  *  Si un cookie 'origin' existe alors celui-ci contient une URI vers laquelle on redirige l'utilisateur
                  */
-                if(!empty($_COOKIE['origin'])) {
+                if (!empty($_COOKIE['origin'])) {
                     header('Location: '.$_COOKIE['origin']);
                     exit();
                 }

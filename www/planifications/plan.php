@@ -17,7 +17,7 @@ Autoloader::loadFromApi();
 /**
  *  Si il y a eu un pb lors du chargement des constantes alors on quitte
  */
-if (defined('__LOAD_GENERAL_ERROR') AND __LOAD_GENERAL_ERROR > 0) {
+if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
     exit('Erreur lors du chargement des constantes');
 }
 
@@ -38,7 +38,7 @@ $plansQueued = $plan->listQueue();
 /**
  *  Si il y a des planifications dans le pool (status = 'queued') alors on traite
  */
-if(!empty($plansQueued)) {
+if (!empty($plansQueued)) {
     $reminder_msg = '';
     $planToExec = array();
     $planToReminder = array();
@@ -47,7 +47,7 @@ if(!empty($plansQueued)) {
      *  On traite chaque planification
      *  On récupère son id, sa date et son heure d'exécution ainsi que les rappels
      */
-    foreach($plansQueued as $planQueued) {
+    foreach ($plansQueued as $planQueued) {
         if (!empty($planQueued['Id']))        $planId        = $planQueued['Id'];
         if (!empty($planQueued['Type']))      $planType      = $planQueued['Type'];
         if (!empty($planQueued['Frequency'])) $planFrequency = $planQueued['Frequency'];
@@ -62,7 +62,7 @@ if(!empty($plansQueued)) {
          *  Si la date et l'heure de la planification correspond à la date et l'heure d'exécution de ce script ($dateNow et $timeNow) alors on exécute la planification
          */
         if ($argv[1] == "exec-plans") {
-            if ($planType == "plan" AND $planDate == $dateNow AND $planTime == $timeNow) {
+            if ($planType == "plan" and $planDate == $dateNow and $planTime == $timeNow) {
 
                 /**
                  *  On place l'Id de la planification dans l'array des planifications à exécuter
@@ -79,7 +79,7 @@ if(!empty($plansQueued)) {
                  *  Cas où la fréquence est 'toutes les heures'
                  *  Dans ce cas on exécute la tâche au tout début de l'heure en cours (xx:00 minutes)
                  */
-                if ($planFrequency == "every-hour" AND $minutesNow == "00") {
+                if ($planFrequency == "every-hour" and $minutesNow == "00") {
 
                     /**
                      *  On place l'Id de la planification dans l'array des planifications à exécuter
@@ -91,7 +91,7 @@ if(!empty($plansQueued)) {
                  *  Cas où la fréquence est 'tous les jours'
                  *  Dans ce cas l'utilisateur a également précisé l'heure à laquelle il faut que la planification soit exécutée chaque jour.
                  */
-                if ($planFrequency == "every-day" AND $timeNow == $planTime) {
+                if ($planFrequency == "every-day" and $timeNow == $planTime) {
 
                     /**
                      *  On place l'Id de la planification dans l'array des planifications à exécuter
@@ -113,7 +113,7 @@ if(!empty($plansQueued)) {
                         /**
                          *  Si le jour et l'heure correspond alors on exécute la planif
                          */
-                        if (($dayOfWeek == $dayNow) AND ($planTime == $timeNow)) {
+                        if (($dayOfWeek == $dayNow) and ($planTime == $timeNow)) {
 
                             /**
                              *  On place la planification dans l'array des planifications à exécuter
@@ -129,13 +129,13 @@ if(!empty($plansQueued)) {
          *  Traitement des rappels
          *  Si la date actuelle ($dateNow) correspond à la date de rappel de la planification, alors on envoi un rappel par mail
          */
-        if ($argv[1] == "send-reminders" AND !empty($planReminder) AND $planType == 'plan') {
+        if ($argv[1] == "send-reminders" and !empty($planReminder) and $planType == 'plan') {
             $planReminder = explode(",", $planReminder);
 
             /**
              *  Une planification peut avoir 1 ou plusiers rappels. Pour chaque rappel, on regarde si sa date correspond à la date du jour - le nb de jour du rappel
              */
-            foreach($planReminder as $reminder) {
+            foreach ($planReminder as $reminder) {
                 $reminderDate = date_create($planDate)->modify("-${reminder} days")->format('Y-m-d');
 
                 if ($reminderDate == $dateNow) {
@@ -153,7 +153,7 @@ if(!empty($plansQueued)) {
      *  Si il y a des planifications à exécuter
      */
     if (!empty($planToExec)) {
-        foreach($planToExec as $planId) {
+        foreach ($planToExec as $planId) {
             /**
              *  Exécution de la planification
              */

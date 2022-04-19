@@ -15,8 +15,8 @@ trait op_signPackages {
          *  Signature des paquets du repo avec GPG
          *  Redhat seulement car sur Debian c'est le fichier Release qui est signé ors de la création du repo
          */
-        // if (OS_FAMILY == "Redhat" AND ($signed == "yes" OR $gpgResign == "yes")) {
-        if (OS_FAMILY == "Redhat" AND $targetGpgResign == "yes") {
+        // if (OS_FAMILY == "Redhat" and ($signed == "yes" or $gpgResign == "yes")) {
+        if (OS_FAMILY == "Redhat" and $targetGpgResign == "yes") {
 
             $this->log->steplogInitialize('signPackages');
             $this->log->steplogTitle('SIGNATURE DES PAQUETS (GPG)');

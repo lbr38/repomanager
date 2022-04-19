@@ -105,7 +105,7 @@ class Host extends Model {
             $stmt = $this->db->prepare("SELECT * from hosts WHERE Id = :id");
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -207,7 +207,7 @@ class Host extends Model {
             $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Id = :packageId");
             $stmt->bindValue(':packageId', $packageId);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -238,7 +238,7 @@ class Host extends Model {
             $stmt->bindValue(':time', $packageTime);
             $stmt->bindValue(':id_event', $package_id_event);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -282,7 +282,7 @@ class Host extends Model {
              */
             try {
                 $stmt = $this->host_db->prepare("UPDATE packages SET Version = :version, Date = :date, Time = :time, State = :state, Id_event = :id_event WHERE Name = :name");
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -292,7 +292,7 @@ class Host extends Model {
              */
             try {
                 $stmt = $this->host_db->prepare("INSERT INTO packages ('Name', 'Version', 'State', 'Type', 'Date', 'Time', 'Id_event') VALUES (:name, :version, :state, 'package', :date, :time, :id_event)");
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -305,7 +305,7 @@ class Host extends Model {
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':id_event', $id_event);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -327,12 +327,12 @@ class Host extends Model {
     public function db_updateOS()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os', $this->os);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -345,12 +345,12 @@ class Host extends Model {
     public function db_updateOS_version()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os_version', $this->os_version);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -363,12 +363,12 @@ class Host extends Model {
     public function db_updateOS_family()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os_family', $this->os_family);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -381,12 +381,12 @@ class Host extends Model {
     public function db_updateType()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':type', $this->type);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -399,12 +399,12 @@ class Host extends Model {
     public function db_updateKernel()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':kernel', $this->kernel);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -417,12 +417,12 @@ class Host extends Model {
     public function db_updateArch()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':arch', $this->arch);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -435,12 +435,12 @@ class Host extends Model {
     public function db_updateProfile()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':profile', $this->profile);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -453,12 +453,12 @@ class Host extends Model {
     public function db_updateEnv()
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':env', $this->env);
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -476,11 +476,11 @@ class Host extends Model {
     public function db_deletePackageAvailable(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("DELETE FROM packages_available WHERE Name = :name AND Version = :version");
+            $stmt = $this->host_db->prepare("DELETE FROM packages_available WHERE Name = :name and Version = :version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -498,13 +498,13 @@ class Host extends Model {
         /**
          *  Récupération à partir d'un id d'hôte et du token
          */
-        if (!empty($this->authId) AND !empty($this->token)) {
+        if (!empty($this->authId) and !empty($this->token)) {
             try {
-                $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId=:authId AND Token=:token");
+                $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId=:authId and Token=:token");
                 $stmt->bindValue(':authId', $this->authId);
                 $stmt->bindValue(':token', $this->token);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -530,7 +530,7 @@ class Host extends Model {
             $stmt = $this->db->prepare("SELECT * from hosts WHERE Id = :id");
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -549,13 +549,13 @@ class Host extends Model {
         /**
          *  Récupération à partir du nom et de la version si les deux ont été fourni
          */
-        if (!empty($packageName) AND !empty($packageVersion)) {
+        if (!empty($packageName) and !empty($packageVersion)) {
             try {
-                $stmt = $this->host_db->prepare("SELECT Id FROM packages WHERE Name = :name AND Version = :version");
+                $stmt = $this->host_db->prepare("SELECT Id FROM packages WHERE Name = :name and Version = :version");
                 $stmt->bindValue(':name', $packageName);
                 $stmt->bindValue(':version', $packageVersion);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -571,7 +571,7 @@ class Host extends Model {
                 $stmt = $this->host_db->prepare("SELECT Id FROM packages WHERE Name = :name");
                 $stmt->bindValue(':name', $packageName);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -593,7 +593,7 @@ class Host extends Model {
              *  Cas où on a précisé un numéro de version
              */
             if (!empty($packageVersion)) {
-                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name AND Version = :version");
+                $stmt = $this->host_db->prepare("SELECT State FROM packages WHERE Name = :name and Version = :version");
                 $stmt->bindValue(':version', $packageVersion);
             
             /**
@@ -606,7 +606,7 @@ class Host extends Model {
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -631,7 +631,7 @@ class Host extends Model {
         /**
          *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
          */
-        if (empty($this->ip) OR empty($this->hostname)) return 1;
+        if (empty($this->ip) or empty($this->hostname)) return 1;
 
         /**
          *  On vérifie que le hostname n'existe pas déjà en base de données
@@ -647,7 +647,7 @@ class Host extends Model {
                 $stmt = $this->db->prepare("SELECT Status FROM hosts WHERE Hostname = :hostname");
                 $stmt->bindValue(':hostname', $this->hostname);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -697,7 +697,7 @@ class Host extends Model {
          *  Cas où l'hôte existe déjà et qu'il faut le réactiver
          *  On met à jour ses données (réactivation et nouvel id et token)
          */
-        if (!empty($host_exists_and_is_unactive) AND $host_exists_and_is_unactive = 'yes') {
+        if (!empty($host_exists_and_is_unactive) and $host_exists_and_is_unactive = 'yes') {
             try {
                 $stmt = $this->db->prepare("UPDATE hosts SET Ip = :ip, AuthId = :id, Token = :token, Online_status = :online_status, Online_status_date = :date, Online_status_time = :time, Status = 'active' WHERE Hostname = :hostname");
                 $stmt->bindValue(':ip', $this->ip);
@@ -708,7 +708,7 @@ class Host extends Model {
                 $stmt->bindValue(':date', date('Y-m-d'));
                 $stmt->bindValue(':time', date('H:i:s'));
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -726,7 +726,7 @@ class Host extends Model {
                 $stmt->bindValue(':date', date('Y-m-d'));
                 $stmt->bindValue(':time', date('H:i:s'));
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -775,11 +775,11 @@ class Host extends Model {
         }
 
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE AuthId = :authId AND Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':authId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -794,14 +794,14 @@ class Host extends Model {
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
          */
-        if ($type != 'packages-update' AND $type != 'general-status-update' AND $type != 'packages-status-update' AND $type != 'full-history-update') {
+        if ($type != 'packages-update' and $type != 'general-status-update' and $type != 'packages-status-update' and $type != 'full-history-update') {
             return false;
         }
 
         /**
          *  On vérifie que le status spécifié par l'hôte est valide
          */
-        if ($status != 'running' AND $status != 'done') {
+        if ($status != 'running' and $status != 'done') {
             return false;
         }
 
@@ -811,11 +811,11 @@ class Host extends Model {
         $this->openHostDb($this->id);
 
         try {
-            $stmt = $this->host_db->prepare("UPDATE updates_requests SET Status = :status WHERE Type = :type AND Status = 'requested' OR Status = 'running'");
+            $stmt = $this->host_db->prepare("UPDATE updates_requests SET Status = :status WHERE Type = :type and Status = 'requested' or Status = 'running'");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':type', $type);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -833,9 +833,9 @@ class Host extends Model {
         /**
          *  On vérifie que l'action est valide
          */
-        if ($action != 'delete' AND 
-            $action != 'reset' AND 
-            $action != 'update' AND 
+        if ($action != 'delete' and 
+            $action != 'reset' and 
+            $action != 'update' and 
             $action != 'general-status-update' AND
             $action != 'packages-status-update') {
             throw new Exception("L'action à exécuter est invalide");
@@ -874,7 +874,7 @@ class Host extends Model {
                 $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts WHERE Id = :id");
                 $stmt->bindValue(':id', $this->id);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -909,7 +909,7 @@ class Host extends Model {
                     $stmt->bindValue(':date', date('Y-m-d'));
                     $stmt->bindValue(':time', date('H:i:s'));
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -936,7 +936,7 @@ class Host extends Model {
                  *  Reset de certaines informations générales de l'hôte
                  */
                 try {
-                    $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null WHERE id = :id");
+                    $stmt = $this->db->prepare("UPDATE hosts SET Os = null, Os_version = null, Profile = null, Env = null, Kernel = null, Arch = null WHERE id = :id");
                     $stmt->bindValue(':id', $hostId);
                     $stmt->execute();
 
@@ -954,7 +954,7 @@ class Host extends Model {
                      */
                     $this->host_db->generateHostTables();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -979,7 +979,7 @@ class Host extends Model {
                     $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :id");
                     $stmt->bindValue(':id', $hostId);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -1008,7 +1008,7 @@ class Host extends Model {
                     $stmt->bindValue(':time', date('H:i:s'));
                     $stmt->bindValue(':action', $action);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -1174,18 +1174,18 @@ class Host extends Model {
         /**
          *  Si l'ID ou le token est manquant alors on quittes
          */
-        if (empty($this->authId) OR empty($this->token)) return false;
+        if (empty($this->authId) or empty($this->token)) return false;
 
         /**
          *  D'abord on vérifie qu'un hôte avec l'id et le token correspondant existe bien
          */
         try {
-            //$stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token");
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId AND Token = :token AND Status = 'active'");
+            //$stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId and Token = :token");
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId and Token = :token and Status = 'active'");
             $stmt->bindValue(':hostId', $this->authId);
             $stmt->bindValue(':token', $this->token);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1264,7 +1264,7 @@ class Host extends Model {
                         $stmt->bindValue(':date', date('Y-m-d'));
                         $stmt->bindValue(':time', date('H:i:s'));
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                 } else {
@@ -1282,7 +1282,7 @@ class Host extends Model {
                      * 
                      *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
                      */
-                    if ($packageState == 'removed' OR $packageState == 'upgraded') {
+                    if ($packageState == 'removed' or $packageState == 'upgraded') {
                         /**
                          *  Ajout du paquet en base de données en état 'inventored'
                          */
@@ -1391,7 +1391,7 @@ class Host extends Model {
                             $stmt->bindValue(':name', $this->packageName);
                             $stmt->bindValue(':version', $this->packageVersion);
                             $stmt->execute();
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             Common::dbError($e);
                         }
                     }
@@ -1405,7 +1405,7 @@ class Host extends Model {
                         $stmt->bindValue(':name', $this->packageName);
                         $stmt->bindValue(':version', $this->packageVersion);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                 }
@@ -1455,11 +1455,11 @@ class Host extends Model {
              *  On vérifie qu'un évènement de la même date et de la même heure n'existe pas déjà, sinon on l'ignore et on passe au suivant
              */
             try {
-                $stmt = $this->host_db->prepare("SELECT Id FROM events WHERE Date = :date_start AND Time = :time_start");
+                $stmt = $this->host_db->prepare("SELECT Id FROM events WHERE Date = :date_start and Time = :time_start");
                 $stmt->bindValue(':date_start', $event->date_start);
                 $stmt->bindValue(':time_start', $event->time_start);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -1477,7 +1477,7 @@ class Host extends Model {
                 $stmt->bindValue(':time_start', $event->time_start);
                 $stmt->bindValue(':time_end', $event->time_end);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -1653,10 +1653,10 @@ class Host extends Model {
     private function ipExists(string $ip)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Ip FROM hosts WHERE Ip = :ip and Status = 'active'");
             $stmt->bindValue(':ip', Common::validateData($ip));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1674,7 +1674,7 @@ class Host extends Model {
             $stmt = $this->db->prepare("SELECT Hostname FROM hosts WHERE Hostname = :hostname");
             $stmt->bindValue(':hostname', Common::validateData($hostname));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1692,7 +1692,7 @@ class Host extends Model {
             $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name = :name");
             $stmt->bindValue(':name', Common::validateData($packageName));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1707,11 +1707,11 @@ class Host extends Model {
     public function packageVersionExists(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name=:name AND Version=:version");
+            $stmt = $this->host_db->prepare("SELECT * FROM packages WHERE Name=:name and Version=:version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1746,7 +1746,7 @@ class Host extends Model {
             $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
             $stmt->bindValue(':name', "${packageName}%");
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1781,7 +1781,7 @@ class Host extends Model {
             $stmt = $this->host_db->prepare("SELECT * FROM packages_available WHERE Name = :name");
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1796,11 +1796,11 @@ class Host extends Model {
     public function packageVersionAvailableExists(string $packageName, string $packageVersion)
     {
         try {
-            $stmt = $this->host_db->prepare("SELECT * FROM packages_available WHERE Name = :name AND Version = :version");
+            $stmt = $this->host_db->prepare("SELECT * FROM packages_available WHERE Name = :name and Version = :version");
             $stmt->bindValue(':name', $packageName);
             $stmt->bindValue(':version', $packageVersion);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1824,7 +1824,7 @@ class Host extends Model {
         try {
             $result = $this->db->query("SELECT * FROM settings");
         
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1841,7 +1841,7 @@ class Host extends Model {
         /**
          *  Les paramètres suivants doivent être des chiffres
          */
-        if (!is_numeric($pkgs_considered_outdated) OR !is_numeric($pkgs_considered_critical)) {
+        if (!is_numeric($pkgs_considered_outdated) or !is_numeric($pkgs_considered_critical)) {
             Common::printAlert('Les paramètres doivent être numériques', 'error');
             return;
         }
@@ -1849,7 +1849,7 @@ class Host extends Model {
         /**
          *  Les paramètres doivent être supérieurs à 0
          */
-        if ($pkgs_considered_outdated <= 0 OR $pkgs_considered_critical <= 0) {
+        if ($pkgs_considered_outdated <= 0 or $pkgs_considered_critical <= 0) {
             Common::printAlert('Les paramètres doivent être supérieurs à 0', 'error');
             return;
         }
@@ -1862,7 +1862,7 @@ class Host extends Model {
             $stmt->bindValue(':pkgs_considered_outdated', $pkgs_considered_outdated);
             $stmt->bindValue(':pkgs_considered_critical', $pkgs_considered_critical);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1886,7 +1886,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT * FROM packages ORDER BY Name ASC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1911,8 +1911,8 @@ class Host extends Model {
         $datas = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' OR State = 'installed' OR State = 'upgraded' OR State = 'downgraded'");
-        } catch(Exception $e) {
+            $result = $this->host_db->query("SELECT * FROM packages WHERE State = 'inventored' or State = 'installed' or State = 'dep-installed' or State = 'upgraded' or State = 'downgraded'");
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1938,7 +1938,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT * FROM packages_available");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1961,7 +1961,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT * FROM updates_requests ORDER BY Date DESC, Time DESC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -1990,7 +1990,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT * FROM events ORDER BY Date DESC, Time DESC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -2018,14 +2018,14 @@ class Host extends Model {
 
         try {
             $stmt = $this->host_db->prepare("SELECT * FROM packages        
-            WHERE Id_event = :eventId AND State = :packageState
+            WHERE Id_event = :eventId and State = :packageState
             UNION
             SELECT * FROM packages_history       
-            WHERE Id_event = :eventId AND State = :packageState");
+            WHERE Id_event = :eventId and State = :packageState");
             $stmt->bindValue(':eventId', Common::validateData($eventId));
             $stmt->bindValue(':packageState', Common::validateData($packageState));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -2054,22 +2054,23 @@ class Host extends Model {
 
         try {
             $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages
-            WHERE Id_event = :id_event AND State = :state
+            WHERE Id_event = :id_event and State = :state
             UNION
             SELECT Name, Version FROM packages_history
-            WHERE Id_event = :id_event AND State = :state");
+            WHERE Id_event = :id_event and State = :state");
             $stmt->bindValue(':id_event', Common::validateData($eventId));
             $stmt->bindValue(':state', Common::validateData($packageState));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             throw new Exception('');
         }
 
         $packageState = Common::validateData($packageState);
-        if ($packageState == 'installed')  $content = '<span><b>Installé(s) :</b></span><br>';
-        if ($packageState == 'upgraded')   $content = '<span><b>Mis à jour :</b></span><br>';
-        if ($packageState == 'removed')    $content = '<span><b>Désinstallé(s) :</b></span><br>';
-        if ($packageState == 'downgraded') $content = '<span><b>Rétrogradé(s) :</b></span><br>';
+        if ($packageState == 'installed')      $content = '<span><b>Installé(s) :</b></span><br>';
+        if ($packageState == 'dep-installed')  $content = '<span><b>Dépendances installée(s) :</b></span><br>';
+        if ($packageState == 'upgraded')       $content = '<span><b>Mis à jour :</b></span><br>';
+        if ($packageState == 'removed')        $content = '<span><b>Désinstallé(s) :</b></span><br>';
+        if ($packageState == 'downgraded')     $content = '<span><b>Rétrogradé(s) :</b></span><br>';
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $content .= '<span>• <b>'.$row['Name']. '</b> ('.$row['Version'].')</span><br>';
@@ -2108,7 +2109,7 @@ class Host extends Model {
             ORDER BY Date DESC, Time DESC");
             $stmt->bindValue(':packagename', $packageName);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         
@@ -2135,15 +2136,19 @@ class Host extends Model {
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = 'Installé';
+                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Installé';
+            }
+            if ($event['State'] == "dep-installed") {
+                $content_color = 'green';
+                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Installé (en tant que dépendance)';
             }
             if ($event['State'] == "upgraded") {
-                $content_color = 'blue';
+                $content_color = 'yellow';
                 $content_text = '<img src="../ressources/icons/update.png" class="icon" /> Mis à jour';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = 'Désinstallé';
+                $content_text = '<img src="../ressources/icons/bin.png" class="icon" /> Désinstallé';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
@@ -2151,11 +2156,11 @@ class Host extends Model {
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Réinstallé';
+                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Réinstallé';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Purgé';
+                $content_text = '<img src="../ressources/icons/bin.png" class="icon" /> Purgé';
             }
             $content_version = $event['Version'];
 
@@ -2209,7 +2214,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT Date, Time, Status FROM events ORDER BY Id DESC LIMIT 1");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -2217,7 +2222,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT Date, Time, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -2250,7 +2255,7 @@ class Host extends Model {
 
         try {
             $result = $this->host_db->query("SELECT Date, Time, Type, Status FROM updates_requests ORDER BY Id DESC LIMIT 1");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -2271,20 +2276,20 @@ class Host extends Model {
          */
         if (empty($this->host_db)) return false;
 
-        if ($status != 'installed' AND $status != 'upgraded' AND $status != 'removed') return false;
+        if ($status != 'installed' and $status != 'upgraded' and $status != 'removed') return false;
 
         $dateEnd   = date('Y-m-d'); 
         $dateStart = date_create($dateEnd)->modify("-${days} days")->format('Y-m-d');
 
         try {
-            $stmt = $this->host_db->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status AND Date BETWEEN :dateStart AND :dateEnd GROUP BY Date
+            $stmt = $this->host_db->prepare("SELECT Date, COUNT(*) as date_count FROM packages WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date
                                             UNION
-                                            SELECT Date, COUNT(*) as date_count FROM packages_history WHERE State = :status AND Date BETWEEN :dateStart AND :dateEnd GROUP BY Date");
+                                            SELECT Date, COUNT(*) as date_count FROM packages_history WHERE State = :status and Date BETWEEN :dateStart and :dateEnd GROUP BY Date");
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':dateStart', $dateStart);
             $stmt->bindValue(':dateEnd', $dateEnd);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

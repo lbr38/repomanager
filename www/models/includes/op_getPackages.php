@@ -19,7 +19,7 @@ trait op_getPackages {
         if (empty($op_type)) {
             throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération inconnu (vide)</p>');
         }
-        if ($op_type != "new" AND $op_type != "update") {
+        if ($op_type != "new" and $op_type != "update") {
             throw new Exception('<p><span class="redtext">Erreur : </span>type d\'opération invalide</p>');
         }
 
@@ -123,10 +123,10 @@ trait op_getPackages {
              */
             if ($targetGpgCheck == "no") {
                 if (strpos(OS_VERSION, '7') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
-                if (strpos(OS_VERSION, '8') === 0 OR strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --nogpgcheck --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '8') === 0 or strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --nogpgcheck --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
             } else { // Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
                 if (strpos(OS_VERSION, '7') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --gpgcheck -l --repoid=${source} --norepopath --download_path='".$repoPath."/' 1>&2", $descriptors, $pipes);
-                if (strpos(OS_VERSION, '8') === 0 OR strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
+                if (strpos(OS_VERSION, '8') === 0 or strpos(OS_VERSION, '9') === 0) $process = proc_open("exec reposync --config=".REPOMANAGER_YUM_DIR."/repomanager.conf --repoid=${source} --download-path '".$repoPath."/' 1>&2", $descriptors, $pipes);
             }
         }
 

@@ -18,7 +18,7 @@ function tree($path) {
          *  Scanne le répertoire spécifié et traite chaque fichier trouvé
          *  Scan the specified directory then process each file found
          */
-        foreach(scandir($path) as $file) {
+        foreach (scandir($path) as $file) {
             /**
              *  Cas où c'est un répertoire
              *  Case it is a directory
@@ -32,7 +32,7 @@ function tree($path) {
              *  Cas où c'est un fichier
              *  Case it is a file
              */
-            if (is_file($path.'/'.$file) AND $file != '.' AND $file != '..') {
+            if (is_file($path.'/'.$file) and $file != '.' and $file != '..') {
                 /** 
                  *  Si c'est un fichier alors on l'ajoute à l'array queue qui contient toute la liste des fichiers du répertoire ou sous-répertoire en cours
                  *  On indexe le nom du fichier $file ainsi que son chemin $path/$file auquel on retire le début du chemin complet afin qu'il ne soit pas visible dans le code source
@@ -66,7 +66,7 @@ function printFile($file, $path) {
     /**
      *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
      */
-    if (substr($file, -4) == ".rpm" OR substr($file, -4) == ".deb") {
+    if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb") {
         echo "<li><span class=\"explorer-file-pkg\"><input type=\"checkbox\" class=\"packageName-checkbox\" name=\"packageName[]\" value=\"$path\" /><img src=\"ressources/icons/products/package.png\" class=\"icon\" />$file</span></li>";
     } else {
         echo "<li><span class=\"explorer-file\"><img src=\"ressources/icons/file.png\" class=\"icon\" />$file</span></li>";

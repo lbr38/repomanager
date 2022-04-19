@@ -1,6 +1,6 @@
 <section class="right" id="displayDiv">
-	<img id="displayDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
-	<h3>AFFICHAGE</h3>
+    <img id="displayDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
+    <h3>AFFICHAGE</h3>
 
     <div class="div-generic-gray">
         <?php

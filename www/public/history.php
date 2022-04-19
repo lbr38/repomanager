@@ -16,7 +16,7 @@ if (!Common::isadmin()) {
 /**
  *  Cas où on souhaite filtrer par Id utilisateur
  */
-if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty($_POST['userid'])) {
+if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty($_POST['userid'])) {
     $filterByUserId = Common::validateData($_POST['userid']);
 
     if (!is_numeric($filterByUserId)) {
@@ -54,7 +54,7 @@ if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty(
                             <option value="">Tous</option>
                             <?php
                             foreach ($users as $user) {
-                                if (!empty($filterByUser) AND $filterByUser == "yes" AND !empty($filterByUserId) AND $user['Id'] == $filterByUserId) {
+                                if (!empty($filterByUser) and $filterByUser == "yes" and !empty($filterByUserId) and $user['Id'] == $filterByUserId) {
                                     echo '<option value="'.$user['Id'].'" selected>'.$user['First_name'].' '.$user['Last_name'].' ('.$user['Username'].')</option>';
                                 } else {
                                     echo '<option value="'.$user['Id'].'">'.$user['First_name'].' '.$user['Last_name'].' ('.$user['Username'].')</option>';
@@ -70,7 +70,7 @@ if (!empty($_POST['action']) AND $_POST['action'] === "filterByUser" AND !empty(
                         /**
                          *  Si un filtrage par utilisateur a été sélectionné, on récupère uniquement les actions de l'utilisateur
                          */
-                        if (!empty($filterByUser) AND $filterByUser == "yes") {
+                        if (!empty($filterByUser) and $filterByUser == "yes") {
                             $historyLines = History::getByUser($filterByUserId);
 
                         /**

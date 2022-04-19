@@ -70,10 +70,10 @@ class Login extends Model {
     private function db_getHashedPassword(string $username)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Password FROM users WHERE username = :username AND State = 'active'");
+            $stmt = $this->db->prepare("SELECT Password FROM users WHERE username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -96,10 +96,10 @@ class Login extends Model {
     public function getAll(string $username)
     {
         try {
-            $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username AND State = 'active'");
+            $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', Common::validateData($username));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -120,7 +120,7 @@ class Login extends Model {
     {
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
@@ -150,7 +150,7 @@ class Login extends Model {
         /**
          *  On vérifie que le role est valide
          */
-        if ($role != "usage" AND $role != "administrator") {
+        if ($role != "usage" and $role != "administrator") {
             Common::printAlert("Le role sélectionné est invalide", 'error');
             return false;
         }
@@ -159,10 +159,10 @@ class Login extends Model {
          *  On vérifie que le nom d'utilisateur n'est pas déjà utilisé
          */
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username AND State = 'active'");
+            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -205,7 +205,7 @@ class Login extends Model {
             $stmt->bindValue(':first_name', $username);
             $stmt->bindValue(':role', $role);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -230,10 +230,10 @@ class Login extends Model {
          *  On récupère le username et le mot de passe haché en base de données correspondant à l'username fourni
          */
         try {
-            $stmt = $this->db->prepare("SELECT Username, Password FROM users WHERE Username = :username AND State = 'active' AND Type = 'local'");
+            $stmt = $this->db->prepare("SELECT Username, Password FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -319,13 +319,13 @@ class Login extends Model {
          *  Mise à jour en base de données
          */
         try {
-            $stmt = $this->db->prepare("UPDATE users SET First_name = :first_name, Last_name = :last_name, Email = :email WHERE Username = :username AND State = 'active'");
+            $stmt = $this->db->prepare("UPDATE users SET First_name = :first_name, Last_name = :last_name, Email = :email WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':first_name', $first_name);
             $stmt->bindValue(':last_name', $last_name);
             $stmt->bindValue(':email', $email);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -386,11 +386,11 @@ class Login extends Model {
          *  On modifie le mot de passe en base de données
          */
         try {
-            $stmt = $this->db->prepare("UPDATE users SET Password = :new_password WHERE username = :username AND State = 'active' AND Type = 'local'");
+            $stmt = $this->db->prepare("UPDATE users SET Password = :new_password WHERE username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':new_password', $new_password_hashed);
             $stmt->bindValue(':username', $username);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -410,10 +410,10 @@ class Login extends Model {
          *  Vérification de l'existance de l'utilisateur en base de données
          */
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username AND State = 'active' AND Type = 'local'");
+            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -440,11 +440,11 @@ class Login extends Model {
          *  Ajout du nouveau mot de passe hashé en base de données
          */
         try {
-            $stmt = $this->db->prepare("UPDATE users SET Password = :password WHERE Username = :username AND State = 'active' AND Type = 'local'");
+            $stmt = $this->db->prepare("UPDATE users SET Password = :password WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $password_hashed);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -466,10 +466,10 @@ class Login extends Model {
          *  On vérifie que l'utilisateur mentionné existe en base de données
          */
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username AND State = 'active' AND Type = 'local'");
+            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -484,10 +484,10 @@ class Login extends Model {
          *  On vide le Password de l'utilisateur pour ne plus le stocker en base
          */
         try {
-            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Username = :username AND Type = 'local'");
+            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Username = :username and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

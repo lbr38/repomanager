@@ -13,7 +13,7 @@ $group = new Group('host');
 /**
  *  Cas où le formulaire de modification des paramètres est validé
  */
-if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['settings-pkgs-considered-critical'])) {
+if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['settings-pkgs-considered-critical'])) {
     $pkgs_considered_outdated = Common::validateData($_POST['settings-pkgs-considered-outdated']);
     $pkgs_considered_critical = Common::validateData($_POST['settings-pkgs-considered-critical']);
 
@@ -174,7 +174,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                 if (!empty($groupsList)) {
                     echo '<h5>Groupes actuels</h5>';
                     echo '<div class="groups-list-container">';
-                        foreach($groupsList as $groupName) { ?>
+                        foreach ($groupsList as $groupName) { ?>
                             <div class="header-container">
                                 <div class="header-blue-min">
                                     <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
@@ -260,7 +260,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                     <div class="groups-container">
 
                     <?php
-                    foreach($groupsList as $groupName) {
+                    foreach ($groupsList as $groupName) {
                         $group->name = $groupName;
 
                         /**
@@ -271,7 +271,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                         /**
                          *  Si il s'agit du groupe par défaut 'Default' et que celui-ci ne possède aucun hôte alors on ignore son affichage
                          */
-                        if ($group->name == "Default" AND empty($hostsList)) continue;
+                        if ($group->name == "Default" and empty($hostsList)) continue;
                         ?>
                         <input type='hidden' name='groupname' value='<?php echo $group->name;?>'>
         
@@ -298,8 +298,8 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                         <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?php echo $group->name;?>" title="Demander à l'hôte d'exécuter une mise à jour de ses paquets."><img src="ressources/icons/update.png" class="icon" /><b>Mettre à jour les paquets</b></button>
                                         
                                         <h5>Supprimer ou réinitialiser l'hôte :</h5>
+                                        <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?php echo $group->name;?>" title="Réinitialiser les données connues de l'hôte. Cette action est irréversible."><img src="ressources/icons/update.png" class="icon" /><b>Réinitialiser</b></button>
                                         <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?php echo $group->name;?>" title="Supprimer l'hôte."><img src="ressources/icons/bin.png" class="icon" /><b>Supprimer</b></button>
-                                        <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?php echo $group->name;?>" title="Réinitialiser les données connues de l'hôte. Cette action est irréversible."><img src="ressources/icons/update.png" class="icon" /><b>Reset</b></button>
                                     </div>
                                 <?php }
                                 /**
@@ -398,7 +398,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                         echo '<img src="ressources/icons/centos.png" class="icon" />';
                                                     } elseif (preg_match('/debian/i', $os)) {
                                                         echo '<img src="ressources/icons/debian.png" class="icon" />';
-                                                    } elseif (preg_match('/ubuntu/i', $os) OR preg_match('/mint/i', $os)) {
+                                                    } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
                                                         echo '<img src="ressources/icons/ubuntu.png" class="icon" />';
                                                     } else {
                                                         echo '<img src="ressources/icons/tux.png" class="icon" />';
@@ -461,8 +461,8 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) AND !empty($_POST['setti
                                                         /**
                                                          *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +10min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
                                                          */
-                                                        if ($lastRequestedUpdate['Status'] == 'requested' OR $lastRequestedUpdate['Status'] == 'running') {
-                                                            if ($lastRequestedUpdate['Date'] != DATE_YMD OR $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 10 minutes'))) {
+                                                        if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
+                                                            if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s').' - 10 minutes'))) {
                                                                 echo '<span class="yellowtext" title="La demande ne semble ne pas avoir été prise en compte par l\'hôte (demandée le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].')">'.$updateType.' '.$updateStatus.'</span>';
                                                             } else {
                                                                 echo '<span title="Le '.DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y').' à '.$lastRequestedUpdate['Time'].'">'.$updateType.' '.$updateStatus.'</span>';

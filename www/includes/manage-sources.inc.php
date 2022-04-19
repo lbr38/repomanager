@@ -31,7 +31,7 @@
         <?php }
             if (OS_FAMILY == "Debian") { ?>
                 <input type="text" name="addSourceUrl" class="input-large" required><br>
-        <?php } 
+        <?php }
 
             if (OS_FAMILY == "Redhat") { ?>
                 <p>Ce repo source dispose d'une clé GPG : 
@@ -49,9 +49,9 @@
                         <?php
                         $gpgFiles = scandir(RPM_GPG_DIR);
                         if (!empty($gpgFiles)) {
-                            foreach($gpgFiles as $gpgFile) {
-                                if (($gpgFile != "..") AND ($gpgFile != ".")) {
-                                    echo '<option value="'.$gpgFile.'">'.$gpgFile.'</option>';
+                            foreach ($gpgFiles as $gpgFile) {
+                                if (($gpgFile != "..") and ($gpgFile != ".")) {
+                                    echo '<option value="' . $gpgFile . '">' . $gpgFile . '</option>';
                                 }
                             }
                         } ?>
@@ -63,7 +63,7 @@
                     <p>Importer une nouvelle clé GPG :</p>
                     <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
                 </div>
-            <?php
+<?php
             }
 
             /**
@@ -83,12 +83,12 @@
 
     <?php
     /**
-     *  LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
+     * LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
      */
 
     /**
      *  Dans le cas de rpm, les clés gpg sont stockées dans RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
-    */
+     */
     if (OS_FAMILY == "Redhat") {
         $gpgKeys = scandir(RPM_GPG_DIR);
     }
@@ -97,18 +97,18 @@
      *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
      */
     if (OS_FAMILY == "Debian") {
-        $gpgKeys = shell_exec("gpg --homedir ".GPGHOME." --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+        $gpgKeys = shell_exec("gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
         $gpgKeys = explode("\n\n", $gpgKeys);
     }
 
     if (!empty($gpgKeys)) {
         echo '<div class="div-generic-gray">';
             echo '<h5>Liste des clés GPG du trousseau de repomanager</h5>';
-            foreach($gpgKeys as $gpgKey) {
+            foreach ($gpgKeys as $gpgKey) {
                 if (OS_FAMILY == "Redhat") {
-                    if (($gpgKey != "..") AND ($gpgKey != ".")) { ?>
+                    if (($gpgKey != "..") and ($gpgKey != ".")) { ?>
                         <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKey;?>" title="Supprimer la clé GPG <?php echo $gpgKey;?>" />
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" title="Supprimer la clé GPG <?= $gpgKey ?>" />
                             <?php echo $gpgKey;?>
                         </p>
 <?php               }
@@ -120,10 +120,10 @@
                     $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
                     // Récupère le nom de la clé GPG
                     $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-                    if (!empty($gpgKeyID) AND !empty($gpgKeyName)) { ?>
+                    if (!empty($gpgKeyID) and !empty($gpgKeyName)) { ?>
                         <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?php echo $gpgKeyID;?>" title="Supprimer la clé GPG <?php echo $gpgKeyID;?>" />
-                            <?php echo $gpgKeyName." ($gpgKeyID)";?>
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
+                            <?php echo $gpgKeyName . " ($gpgKeyID)";?>
                         </p>
 <?php               }
                 }
@@ -149,7 +149,7 @@
             echo '<div class="div-generic-gray">';
                 echo "<h5>Repos sources actuels</h5>";
 
-                foreach($sourcesList as $source) {
+                foreach ($sourcesList as $source) {
                     if (OS_FAMILY == "Redhat") {
                         /**
                          *  Si le nom du fichier ne termine pas par '.repo' alors on passe au suivant
@@ -158,11 +158,11 @@
                             continue;
                         }
                         $sourceName = str_replace(".repo", "", $source);
-                        
+
                         /**
                          *  On récupère le contenu du fichier
                          */
-                        $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR."/${source}", true));
+                        $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR . "/${source}", true));
                     }
                     if (OS_FAMILY == "Debian") {
                         $sourceName = $source['Name'];
@@ -176,24 +176,24 @@
                         <div class="header-blue-min">
                             <?php
                             if (OS_FAMILY == "Debian") {
-                                echo '<input type="hidden" name="actualSourceUrl" value="'.$sourceUrl.'" />';
+                                echo '<input type="hidden" name="actualSourceUrl" value="' . $sourceUrl . '" />';
                             } ?>
 
                             <table class="table-large">
                                 <tr>
                                     <td>
-                                        <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?php echo $sourceName;?>" value="<?php echo $sourceName;?>" />
+                                        <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" />
                                     </td>
                                     <?php
                                     if (OS_FAMILY == "Debian") {
-                                        echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="'.$sourceName.'" value="'.$sourceUrl.'" /></td>';
+                                        echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="' . $sourceName . '" value="' . $sourceUrl . '" /></td>';
                                     } ?>
                                     <td class="td-fit">
                                         <?php
                                         if (OS_FAMILY == "Redhat") {
-                                            echo '<img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="'.$sourceName.'" title="Configuration de '.$sourceName.'" />';
+                                            echo '<img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="' . $sourceName . '" title="Configuration de ' . $sourceName . '" />';
                                         }
-                                        echo '<img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="'.$sourceName.'" title="Supprimer le repo source '.$sourceName.'" />';
+                                        echo '<img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="' . $sourceName . '" title="Supprimer le repo source ' . $sourceName . '" />';
                                         ?>
                                     </td>
                                 </tr>
@@ -204,11 +204,11 @@
                          *  4. La configuration des repos sources est placée dans un div caché
                          */
                         if (OS_FAMILY == "Redhat") { ?>
-                            <div id="sourceConfigurationDiv-<?php echo $sourceName;?>" class="hide detailsDiv">
+                            <div id="sourceConfigurationDiv-<?= $sourceName ?>" class="hide detailsDiv">
                         
                                 <p>Paramètres :</p>
         
-                                <form class="sourceConfForm" sourcename="<?php echo $sourceName;?>" autocomplete="off">
+                                <form class="sourceConfForm" sourcename="<?= $sourceName ?>" autocomplete="off">
                                     <?php
                                     $j = 0;
                                     $comments = '';
@@ -231,7 +231,7 @@
                                         } else {
                                             $optionName = '';
                                         }
-                                        if (isset($line[1]) AND $line[1] != "") {
+                                        if (isset($line[1]) and $line[1] != "") {
                                             $optionValue = $line[1];
                                         } else {
                                             $optionValue = '';
@@ -248,33 +248,31 @@
                                          *  Si l'option contient un dièse # alors il s'agit d'un commentaire
                                          *  On l'ajoute à la liste des commentaires
                                          */
-                                        //if (substr($optionName, 0, 1) === "#") {
                                         if (preg_match('/^#/', $optionName)) {
-                                            $comments .= str_replace('#', '', $optionName).PHP_EOL;
+                                            $comments .= str_replace('#', '', $optionName) . PHP_EOL;
                                             continue;
                                         }
 
                                         /**
                                          *  Affichage de l'option et de sa valeur
                                          */
-                                        echo '<input type="text" class="sourceConfForm-optionName input-small" name="option-name" option-id="'.$j.'" value="'.$optionName.'" readonly />';
-                                        
-                                        if ($optionValue == "1" OR $optionValue == "0" OR $optionValue == "yes" OR $optionValue == "no") {
-                                            if ($optionValue == "1" OR $optionValue == "yes") {
-                                                echo '<label class="onoff-switch-label">';
-                                                echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="'.$j.'" type="checkbox" value="yes" checked />';
-                                                echo '<span class="onoff-switch-slider"></span>';
-                                                echo '</label>';
-                                            }
-                                            if ($optionValue == "0" OR $optionValue == "no") {
-                                                echo '<label class="onoff-switch-label">';
-                                                echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="'.$j.'" type="checkbox" value="yes" />';
-                                                echo '<span class="onoff-switch-slider"></span>';
-                                                echo '</label>';
-                                            }
+                                        echo '<input type="text" class="sourceConfForm-optionName input-small" name="option-name" option-id="' . $j . '" value="' . $optionName . '" readonly />';
 
+                                        if ($optionValue == "1" or $optionValue == "0" or $optionValue == "yes" or $optionValue == "no") {
+                                            if ($optionValue == "1" or $optionValue == "yes") {
+                                                echo '<label class="onoff-switch-label">';
+                                                echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="' . $j . '" type="checkbox" value="yes" checked />';
+                                                echo '<span class="onoff-switch-slider"></span>';
+                                                echo '</label>';
+                                            }
+                                            if ($optionValue == "0" or $optionValue == "no") {
+                                                echo '<label class="onoff-switch-label">';
+                                                echo '<input class="sourceConfForm-optionValue onoff-switch-input" name="option-value" option-id="' . $j . '" type="checkbox" value="yes" />';
+                                                echo '<span class="onoff-switch-slider"></span>';
+                                                echo '</label>';
+                                            }
                                         } else {
-                                            echo '<input type="text" class="sourceConfForm-optionValue input-large" name="option-value" option-id="'.$j.'" value="'.$optionValue.'" />';
+                                            echo '<input type="text" class="sourceConfForm-optionValue input-large" name="option-value" option-id="' . $j . '" value="' . $optionValue . '" />';
                                         }
                                         echo '<br>';
                                         ++$j;
@@ -282,7 +280,12 @@
 
                                     <p>Notes :</p>
 
-                                    <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire..."><?php if (!empty($comments)) echo trim($comments);?></textarea>
+                                    <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire...">
+                                        <?php
+                                        if (!empty($comments)) {
+                                            echo trim($comments);
+                                        } ?>
+                                    </textarea>
 
                                     <button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>
                                 </form>
@@ -290,8 +293,6 @@
                             </div>
                 <?php   }
             echo '</div>';
-
-                // echo '</div>';
             }
         }
     ?>

@@ -15,7 +15,7 @@ Autoloader::loadFromApi();
 /**
  *  Si il y a eu un pb lors du chargement des constantes alors on quitte
  */
-if (defined('__LOAD_GENERAL_ERROR') AND __LOAD_GENERAL_ERROR > 0) {
+if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
     file_put_contents(CRON_LOG, 'Erreur lors du chargement des constantes');
     exit();
 }
@@ -100,7 +100,7 @@ if (CRON_SAVE_CONF == "yes") {
 /**
  *  Regénération de tous les fichiers de conf repo (.list ou .repo) utilisés par les profils, au cas où certains seraient manquants
  */
-if (MANAGE_PROFILES == "yes" AND CRON_GENERATE_REPOS_CONF == "yes") {
+if (MANAGE_PROFILES == "yes" and CRON_GENERATE_REPOS_CONF == "yes") {
 
     $myrepo = new Repo();
 
@@ -116,14 +116,14 @@ if (MANAGE_PROFILES == "yes" AND CRON_GENERATE_REPOS_CONF == "yes") {
     $reposList = $myrepo->listAll();
 
     if (!empty($reposList)) {
-        foreach($reposList as $repo) {
+        foreach ($reposList as $repo) {
             $repoName = $repo['Name'];
             if (OS_FAMILY == "Debian") {
                 $repoDist = $repo['Dist'];
                 $repoSection = $repo['Section'];
             }
 
-            if (MANAGE_PROFILES == "yes" AND CRON_GENERATE_REPOS_CONF == "yes") {
+            if (MANAGE_PROFILES == "yes" and CRON_GENERATE_REPOS_CONF == "yes") {
                 /**
                  *  On génère les fichiers à l'aide de la fonction generateConf et on les place dans un répertoire temporaire
                  */
@@ -186,7 +186,7 @@ if (CRON_APPLY_PERMS == "yes") {
 
 // Vérification des erreurs et ajout dans le fichier de log si c'est le cas
 // Si une erreur a eu lieu sur l'une des opérations alors on affiche un status KO
-if ($checkVersionError != 0 OR $generateConfError != 0 OR $permissionsError != 0 OR $backupError != 0)
+if ($checkVersionError != 0 or $generateConfError != 0 or $permissionsError != 0 or $backupError != 0)
 	file_put_contents(CRON_LOG, 'Status="KO"'.PHP_EOL);
 else // Si aucune erreur n'a eu lieu, on affiche un status OK
 	file_put_contents(CRON_LOG, 'Status="OK"'.PHP_EOL);

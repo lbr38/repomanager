@@ -101,9 +101,9 @@ function printOp($myop, $optype = '') {
 					if ($opAction == "new") echo '<img class="icon" src="ressources/icons/plus.png" title="Nouveau" />';
 					if ($opAction == "update") echo '<img class="icon" src="ressources/icons/update.png" title="Mise à jour" />';
 					if ($opAction == "reconstruct") echo '<img class="icon" src="ressources/icons/update.png" title="Reconstruction des métadonnées" />';
-					if ($opAction == "env" OR strpos(htmlspecialchars_decode($opAction), '->') !== false) echo '<img class="icon" src="ressources/icons/link.png" title="Créat. d\'environnement" />';
+					if ($opAction == "env" or strpos(htmlspecialchars_decode($opAction), '->') !== false) echo '<img class="icon" src="ressources/icons/link.png" title="Créat. d\'environnement" />';
 					if ($opAction == "duplicate") echo '<img class="icon" src="ressources/icons/duplicate.png" title="Duplication" />';
-					if ($opAction == "delete" OR $opAction == "deleteDist" OR $opAction == "deleteSection") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression" />';
+					if ($opAction == "delete" or $opAction == "deleteDist" or $opAction == "deleteSection") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression" />';
 					if ($opAction == "deleteArchive") echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression d\'une archive" />';
 					if ($opAction == "restore") echo '<img class="icon" src="ressources/icons/arrow-circle-up.png" title="Restauration d\'une archive" />';
 

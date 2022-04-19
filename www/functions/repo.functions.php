@@ -6,8 +6,8 @@
 function group_by($key, $data) {
     $result = array();
 
-    foreach($data as $val) {
-        if(array_key_exists($key, $val)){
+    foreach ($data as $val) {
+        if (array_key_exists($key, $val)){
             $result[$val[$key]][] = $val;
         }else{
             $result[""][] = $val;
@@ -25,7 +25,7 @@ function processList(array $reposList) {
     $repoLastSection = '';
     $repoLastEnv = '';
 
-    foreach($reposList as $repoArray) {
+    foreach ($reposList as $repoArray) {
 
         echo '<div class="repos-list-group-flex-div repos-list-type-'.strtolower(OS_FAMILY).'" status="'.$repoStatus.'">';
 
@@ -103,7 +103,7 @@ function printRepoLine($repoData = []) {
         if (OS_FAMILY == 'Debian') $repoPath = REPOS_DIR.'/'.$repoName.'/'.$repoDist.'/archived_'.$repoDate.'_'.$repoSection;
     }
 
-    if (is_dir($repoPath.'/my_uploaded_packages') AND !Common::dir_is_empty($repoPath.'/my_uploaded_packages')) {
+    if (is_dir($repoPath.'/my_uploaded_packages') and !Common::dir_is_empty($repoPath.'/my_uploaded_packages')) {
         $must_reconstruct = 'yes';
     }
 
@@ -119,13 +119,13 @@ function printRepoLine($repoData = []) {
     }
 
     if (OS_FAMILY == "Debian") {
-        if ($repoName == $repoLastName AND !empty($repoLastDist) AND $repoDist == $repoLastDist) {
+        if ($repoName == $repoLastName and !empty($repoLastDist) and $repoDist == $repoLastDist) {
             $printRepoDist = 'no';
         }
-        if ($repoName == $repoLastName AND !empty($repoLastDist) AND $repoDist == $repoLastDist AND !empty($repoLastSection) AND $repoSection == $repoLastSection) {
+        if ($repoName == $repoLastName and !empty($repoLastDist) and $repoDist == $repoLastDist and !empty($repoLastSection) and $repoSection == $repoLastSection) {
             $printRepoSection = 'no';
         }
-        if ($repoName == $repoLastName AND $repoLastDist != $repoDist) {
+        if ($repoName == $repoLastName and $repoLastDist != $repoDist) {
             $printEmptyLine = 'yes';
         }
     }
@@ -157,7 +157,7 @@ function printRepoLine($repoData = []) {
      *  Nom de la distribution et de la section (Debian)
      */
     if (OS_FAMILY == "Debian") {
-        if ($printRepoDist == 'yes' OR $printRepoSection == 'yes') {
+        if ($printRepoDist == 'yes' or $printRepoSection == 'yes') {
             echo '<div class="item-dist-section">';
                 echo '<div class="item-dist-section-sub">';
                     if ($printRepoDist == 'yes') {
@@ -215,8 +215,8 @@ function printRepoLine($repoData = []) {
             if (OS_FAMILY == "Debian") $repoSize = exec("du -hs ".REPOS_DIR."/${repoName}/${repoDist}/${repoDate}_${repoSection} | awk '{print $1}'");
         }
         if ($repoStatus == 'archived') {
-            if (OS_FAMILY == "Redhat" AND PRINT_REPO_SIZE == "yes") $repoSize = exec("du -hs ".REPOS_DIR."/archived_${repoDate}_${repoName} | awk '{print $1}'");
-            if (OS_FAMILY == "Debian" AND PRINT_REPO_SIZE == "yes") $repoSize = exec("du -hs ".REPOS_DIR."/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
+            if (OS_FAMILY == "Redhat" and PRINT_REPO_SIZE == "yes") $repoSize = exec("du -hs ".REPOS_DIR."/archived_${repoDate}_${repoName} | awk '{print $1}'");
+            if (OS_FAMILY == "Debian" and PRINT_REPO_SIZE == "yes") $repoSize = exec("du -hs ".REPOS_DIR."/${repoName}/${repoDist}/archived_${repoDate}_${repoSection} | awk '{print $1}'");
         }
     }
 
@@ -262,7 +262,7 @@ function printRepoLine($repoData = []) {
         /**
          *  Affichage de l'icone "statistiques"
          */
-        if (CRON_STATS_ENABLED == "yes" AND $repoStatus == 'active') {
+        if (CRON_STATS_ENABLED == "yes" and $repoStatus == 'active') {
             if (OS_FAMILY == "Redhat") echo "<a href=\"stats.php?id=${repoId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats du repo $repoName (${repoEnv})\" /></a>";
             if (OS_FAMILY == "Debian") echo "<a href=\"stats.php?id=${repoId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats de la section $repoSection (${repoEnv})\" /></a>";
         }

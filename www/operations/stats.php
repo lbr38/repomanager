@@ -17,7 +17,7 @@ if (CRON_STATS_ENABLED == "yes") {
     $reposList = $repo->listAll();
 
     if (!empty($reposList)) {
-        foreach($reposList as $repo) {
+        foreach ($reposList as $repo) {
             $repoId = $repo['Id'];
             $repoName = $repo['Name'];
             if (OS_FAMILY == "Debian") {
@@ -71,7 +71,7 @@ if (CRON_STATS_ENABLED == "yes") {
                     $stmt->bindValue(':size', $repoSize);
                     $stmt->bindValue(':packages_count', $packagesCount);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 

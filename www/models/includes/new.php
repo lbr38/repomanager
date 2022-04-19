@@ -83,7 +83,7 @@ trait newMirror {
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $this->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
 
             /**

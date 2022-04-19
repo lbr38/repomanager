@@ -90,8 +90,8 @@ trait env {
              */
             if (empty($targetDescription)) {
                 try {
-                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description FROM repos WHERE Name = :name AND Env = :targetenv AND Status = 'active'");
-                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :targetenv AND Status = 'active'");
+                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Description FROM repos WHERE Name = :name and Env = :targetenv and Status = 'active'");
+                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Description FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :targetenv and Status = 'active'");
                     $stmt->bindValue(':name', $name);
                     $stmt->bindValue(':targetenv', $targetEnv);
                     if (OS_FAMILY == "Debian") {
@@ -100,7 +100,7 @@ trait env {
                     }
                     $result = $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -170,7 +170,7 @@ trait env {
                         $stmt->bindValue(':signed', $signed);
                         $stmt->bindValue(':type', $type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                     unset($stmt);
@@ -210,11 +210,11 @@ trait env {
                      *  Pour cela on récupère la date et la description du repo qui va être archivé
                      */
                     try {
-                        $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name = :name AND Env = :newenv AND Status = 'active'");
+                        $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name = :name and Env = :newenv and Status = 'active'");
                         $stmt->bindValue(':name', $name);
                         $stmt->bindValue(':newenv', $targetEnv);
                         $result = $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -244,7 +244,7 @@ trait env {
                      *  Mise à jour de la BDD
                      */
                     try {
-                        $stmt = $this->db->prepare("UPDATE repos SET Date = :date, Time = :time, Description = :description, Signed = :signed WHERE Name = :name AND Env = :newenv AND Date = :to_archive_date AND Status = 'active'");
+                        $stmt = $this->db->prepare("UPDATE repos SET Date = :date, Time = :time, Description = :description, Signed = :signed WHERE Name = :name and Env = :newenv and Date = :to_archive_date and Status = 'active'");
                         $stmt->bindValue(':date', $date);
                         $stmt->bindValue(':time', $time);
                         $stmt->bindValue(':description', $targetDescription);
@@ -253,7 +253,7 @@ trait env {
                         $stmt->bindValue(':newenv', $targetEnv);
                         $stmt->bindValue(':to_archive_date', $to_archive_date);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -270,7 +270,7 @@ trait env {
                         $stmt->bindValue(':signed', $signed);
                         $stmt->bindValue(':type', $type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -323,7 +323,7 @@ trait env {
                         $stmt->bindValue(':signed', $signed);
                         $stmt->bindValue(':type', $type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -362,13 +362,13 @@ trait env {
                      *  Pour cela on récupère la date et la description du repo qui va être archivé
                      */
                     try {
-                        $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :newenv AND Status = 'active'");
+                        $stmt = $this->db->prepare("SELECT Date, Description FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :newenv and Status = 'active'");
                         $stmt->bindValue(':name', $name);
                         $stmt->bindValue(':dist', $dist);
                         $stmt->bindValue(':section', $section);
                         $stmt->bindValue(':newenv', $targetEnv);
                         $result = $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -398,7 +398,7 @@ trait env {
                      *  Mise à jour de la BDD
                      */
                     try {
-                        $stmt = $this->db->prepare("UPDATE repos SET Date = :date, Time = :time, Description = :description, Signed = :signed WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :newenv AND Date = :to_archive_date AND Status = 'active'");
+                        $stmt = $this->db->prepare("UPDATE repos SET Date = :date, Time = :time, Description = :description, Signed = :signed WHERE Name = :name and Dist = :dist and Section = :section and Env = :newenv and Date = :to_archive_date and Status = 'active'");
                         $stmt->bindValue(':date', $date);
                         $stmt->bindValue(':time', $time);
                         $stmt->bindValue(':description', $targetDescription);
@@ -409,7 +409,7 @@ trait env {
                         $stmt->bindValue(':newenv', $targetEnv);
                         $stmt->bindValue(':to_archive_date', $to_archive_date);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -428,7 +428,7 @@ trait env {
                         $stmt->bindValue(':signed', $signed);
                         $stmt->bindValue(':type', $type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -454,13 +454,13 @@ trait env {
              *  7. On ajoute le nouvel environnement de repo au même groupe que le repo sur $env 
              *  On traite ce cas uniquement si on est passé par le Cas n°1
              */
-            if (!empty($targetGroup) AND $case == 1) {
+            if (!empty($targetGroup) and $case == 1) {
                 try {
                     $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:repoid, :groupid)");
                     $stmt->bindValue(':repoid', $targetId);
                     $stmt->bindValue(':groupid', $targetGroup);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -486,11 +486,16 @@ trait env {
             $this->repo->cleanArchives();
 
             /**
+             *  Nettoyage du cache
+             */
+            Common::clearCache();
+
+            /**
              *  Passage du status de l'opération en done
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             /**
              *  On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
              */

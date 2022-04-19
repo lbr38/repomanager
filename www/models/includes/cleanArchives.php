@@ -47,7 +47,7 @@ trait cleanArchives {
         /**
          *  6. Avec cette liste, on va traiter chaque repo individuellement, en les triant par date puis en supprimant les plus vieux (on conserve X copie du repo, X étant défini par RETENTION)
          */
-        foreach($reposArchived as $repoArchived) {
+        foreach ($reposArchived as $repoArchived) {
             $dates = [];
             $repoName = $repoArchived['Name'];
             if (OS_FAMILY == "Debian") {
@@ -61,11 +61,11 @@ trait cleanArchives {
             if (!empty($repoName)) {
                 if (OS_FAMILY == "Redhat") {
                     try {
-                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name and Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
                         $stmt->bindValue(':name', $repoName);
                         $stmt->bindValue(':retention', RETENTION);
                         $result = $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -75,13 +75,13 @@ trait cleanArchives {
                 }
                 if (OS_FAMILY == "Debian") {
                     try {
-                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name AND Dist=:dist AND Section=:section AND Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+                        $stmt = $this->db->prepare("SELECT Date FROM repos_archived WHERE Name=:name and Dist=:dist and Section=:section and Status = 'active' ORDER BY Date DESC LIMIT -1 OFFSET :retention");
                         $stmt->bindValue(':name', $repoName);
                         $stmt->bindValue(':dist', $repoDist);
                         $stmt->bindValue(':section', $repoSection);
                         $stmt->bindValue(':retention', RETENTION);
                         $result = $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -95,7 +95,7 @@ trait cleanArchives {
                  */
                 while ($data = $result->fetchArray(SQLITE3_ASSOC)) $dates[] = $data;
 
-                foreach($dates as $date) {
+                foreach ($dates as $date) {
                     $repoDate = $date['Date'];
                     $repoDateFormatted = DateTime::createFromFormat('Y-m-d', $date['Date'])->format('d-m-Y');
                     if (!empty($repoDateFormatted)) {
@@ -116,8 +116,8 @@ trait cleanArchives {
                          *   9. Nettoyage de la BDD
                          */
                         try {
-                            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Date=:date");
-                            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name AND Dist=:dist AND Section=:section AND Date=:date");
+                            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name and Date=:date");
+                            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Name=:name and Dist=:dist and Section=:section and Date=:date");
                             $stmt->bindValue(':name', $repoName);
                             $stmt->bindValue(':date', $repoDate);
                             if (OS_FAMILY == "Debian") {
@@ -125,7 +125,7 @@ trait cleanArchives {
                                 $stmt->bindValue(':section', $repoSection);
                             }
                             $stmt->execute();
-                        } catch(Exception $e) {
+                        } catch (Exception $e) {
                             Common::dbError($e);
                         }
                     }

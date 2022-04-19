@@ -27,8 +27,8 @@
                     <?php
                     if (OS_FAMILY == "Redhat") {
                         $reposFiles = scandir(REPOMANAGER_YUM_DIR);
-                        foreach($reposFiles as $repoFileName) {
-                            if (($repoFileName != "..") AND ($repoFileName != ".") AND ($repoFileName != "repomanager.conf")) {
+                        foreach ($reposFiles as $repoFileName) {
+                            if (($repoFileName != "..") and ($repoFileName != ".") and ($repoFileName != "repomanager.conf")) {
                                 /**
                                  *  On retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
                                  */
@@ -41,7 +41,7 @@
                         $source = new Source();
                         $sourcesList = $source->listAll();
                         if (!empty($sourcesList)) {
-                            foreach($sourcesList as $source) {
+                            foreach ($sourcesList as $source) {
                                 $sourceName = $source['Name'];
                                 $sourceUrl = $source['Url'];
                                 echo '<option value="'.$sourceName.'">'.$sourceName.' ('.$sourceUrl.')</option>';
@@ -87,7 +87,7 @@
                 <select class="operation_param" param-name="targetGroup">
                     <option value="">Sélectionner un groupe...</option>
                     <?php
-                    foreach($groupList as $groupName) {
+                    foreach ($groupList as $groupName) {
                         echo '<option value="'.$groupName.'">'.$groupName.'</option>';
                     } ?>
                 </select>

@@ -1,7 +1,7 @@
 <span>Environnement cible :</span>
 <select class="operation_param" param-name="targetEnv" required>
     <?php
-    foreach(ENVS as $env) {
+    foreach (ENVS as $env) {
         /**
          *  On ne réaffiche pas l'env source
          */

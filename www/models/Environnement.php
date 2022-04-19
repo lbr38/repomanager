@@ -31,7 +31,7 @@ class Environnement extends Model {
             $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
             $stmt->bindValue(':name', $this->name);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -50,7 +50,7 @@ class Environnement extends Model {
             $stmt = $this->db->prepare("DELETE FROM env WHERE Name=:name");
             $stmt->bindValue(':name', Common::validateData($_GET['deleteEnv']));
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -84,7 +84,7 @@ class Environnement extends Model {
              */
             $this->db->exec("DELETE FROM env");
 
-            foreach($envsToInsert as $env) {
+            foreach ($envsToInsert as $env) {
                 if (!Common::is_alphanumdash($env)) {
                     Common::printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
                     return;
@@ -97,7 +97,7 @@ class Environnement extends Model {
                     $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
                     $stmt->bindValue(':name', $env);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -169,7 +169,7 @@ class Environnement extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
             $stmt->bindValue(':env', Common::validateData($env));
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

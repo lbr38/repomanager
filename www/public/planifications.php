@@ -57,11 +57,11 @@ require_once('../functions/repo.functions.php');
             /**
              *  2. Affichage des planifications si il y en a
              */
-            if(!empty($planList)) {
+            if (!empty($planList)) {
                 echo '<div class="div-generic-gray">';
                     echo '<h5><img src="ressources/icons/calendar.png" class="icon" />Planifications actives</h5>';
 
-                    foreach($planList as $plan) {
+                    foreach ($planList as $plan) {
                         $planGroup     = '';
                         $planId        = $plan['Id'];
                         if (!empty($plan['Day']))       $planDay = $plan['Day'];
@@ -433,7 +433,7 @@ require_once('../functions/repo.functions.php');
                                     $repo = new Repo();
                                     $reposList = $repo->listAll_distinct_byEnv(DEFAULT_ENV);
                                     if (!empty($reposList)) {
-                                        foreach($reposList as $myrepo) {
+                                        foreach ($reposList as $myrepo) {
                                             $repoId = $myrepo['Id'];
                                             $repoName = $myrepo['Name'];
                                             if (OS_FAMILY == "Debian") {
@@ -460,7 +460,7 @@ require_once('../functions/repo.functions.php');
                                     $group = new Group('repo');
                                     $groupsList = $group->listAll();
                                     if (!empty($groupsList)) {
-                                        foreach($groupsList as $group) {
+                                        foreach ($groupsList as $group) {
                                             $groupId = $group['Id'];
                                             $groupName = $group['Name'];
                                             echo "<option value=\"${groupId}\">${groupName}</option>";
@@ -559,7 +559,7 @@ require_once('../functions/repo.functions.php');
                 echo '<div class="div-generic-gray">';
                     echo '<h5><img src="ressources/icons/history.png" class="icon" />Historique des planifications</h5>';
 
-                    foreach($plansDone as $plan) {
+                    foreach ($plansDone as $plan) {
                         $planId                    = $plan['Id'];
                         $planDay                   = $plan['Day'];
                         $planDate                  = DateTime::createFromFormat('Y-m-d', $plan['Date'])->format('d-m-Y');

@@ -97,7 +97,7 @@ require_once('../functions/repo.functions.php');
             $lastPlan = $plan->listLast();
             $nextPlan = $plan->listNext();
 
-            if (!empty($lastPlan OR !empty($nextPlan))) { ?>
+            if (!empty($lastPlan or !empty($nextPlan))) { ?>
                 <div class="div-generic-gray">
                 <?php
                 if (!empty($lastPlan)) {

@@ -483,7 +483,18 @@ $(document).on('click','.hostsActionBtn',function(){
         }
     });
 
-    execAction(action, hosts_array);
+    /**
+     *  Selon l'action on demande une confirmation
+     */
+    if (action == 'update') {
+        deleteConfirm('Demander aux hôtes sélectionnés de se mettre à jour ?', function(){execAction(action, hosts_array)}, 'Mettre à jour');
+    } else if (action == 'delete') {
+        deleteConfirm('Supprimer les hôtes sélectionnés ?', function(){execAction(action, hosts_array)});
+    } else if (action == 'reset') {
+        deleteConfirm('Réinitialiser les hôtes sélectionnés ?', function(){execAction(action, hosts_array)}, 'Réinitialiser');
+    } else {
+        execAction(action, hosts_array);
+    }
 });
 
 /**
@@ -571,11 +582,11 @@ $(document).on('click','#print-all-events-btn',function(){
     /**
      *  On affiche les évènements masqués de type 'event'
      */
-    $("div.header-container.event").show();
+    $("tr.event").show();
     /**
      *  On affiche les évènements masqués de type 'update-request' (si il y en a)
      */
-    $("div.header-container.update-request").show();
+    $("tr.update-request").show();
     /**
      *  On masque le bouton "Afficher tout"
      */
@@ -787,6 +798,7 @@ function editGroupHosts(name, hostsList) {
  * @param {array} hosts_array
  */
 function execAction(action, hosts_array){
+    printAlert('Demande en cours d\'envoi <img src="ressources/images/loading.gif" class="icon" />');
     $.ajax({
         type: "POST",
         url: "controllers/ajax.php",

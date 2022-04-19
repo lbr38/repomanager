@@ -16,7 +16,7 @@ if (!Common::isadmin()) {
 /**
  *  Cas où on souhaite modifier la conf serveur
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyServerConfiguration") {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === "applyServerConfiguration") {
     if (!empty($_POST['serverConf_manageClientsConf'])) { $serverConf_manageClientsConf = Common::validateData($_POST['serverConf_manageClientsConf']); } else { $serverConf_manageClientsConf = 'no'; }
     if (!empty($_POST['serverConf_manageClients_reposConf'])) { $serverConf_manageClients_reposConf = Common::validateData($_POST['serverConf_manageClients_reposConf']); } else { $serverConf_manageClients_reposConf = 'no'; }
 
@@ -38,7 +38,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
      *  Si c'est le cas, (RELEASEVER différent de la version d'OS_VERSION alors il faut indiquer aux serveurs clients que ce serveur gère des paquets de version RELEASEVER)
      */
     if (OS_FAMILY == "Redhat") {
-        if (!empty(RELEASEVER) AND RELEASEVER !== OS_VERSION) {
+        if (!empty(RELEASEVER) and RELEASEVER !== OS_VERSION) {
             $conf .= 'PACKAGES_OS_VERSION="'.RELEASEVER.'"'.PHP_EOL;
         }
     }
@@ -99,11 +99,11 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                 /**
                  *  Affichage des profils et leur configuration
                  */
-                foreach($profilesNames as $profileName) { 
+                foreach ($profilesNames as $profileName) { 
                     /**
                      *  On récupère le nombre d'hôtes utilisant ce profil, si il y en a, et si la gestion des hôtes est activée
                      */
-                    if (MANAGE_HOSTS == 'enabled') {
+                    if (MANAGE_HOSTS == 'yes') {
                         $myprofile = new Profile();
                         $hostsCount = $myprofile->countHosts($profileName);
                     } ?>
@@ -117,7 +117,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                     </td>
                                     <td class="td-fit">
                                         <?php
-                                        if (MANAGE_HOSTS == 'enabled' AND $hostsCount > 0) {
+                                        if (MANAGE_HOSTS == 'yes' and $hostsCount > 0) {
                                             echo '<span class="hosts-count mediumopacity" title="'.$hostsCount.' hôte(s) utilise(nt) ce profil">'.$hostsCount.'<img src="ressources/icons/server.png" class="icon" /></span>';
                                         } ?>
                                         <span><img src="ressources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?php echo $profileName;?>" title="Configuration de <?php echo $profileName;?>" /></span>
@@ -144,7 +144,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                                      *  Puis pour chaque repos, on regarde si celui-ci est déjà présent dans le profil, si c'est le cas il sera affiché sélectionné dans la liste déroulante, si ce n'est pas le cas il sera disponible dans la liste déroulante 
                                                      */
                                                     $reposList = $repo->listAll_distinct();
-                                                    foreach($reposList as $myrepo) {
+                                                    foreach ($reposList as $myrepo) {
                                                         $repoName = $myrepo['Name'];
                                                         if (OS_FAMILY == "Debian") {
                                                             $repoDist = $myrepo['Dist'];
@@ -217,7 +217,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                      *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConf_excludeMajor alors on l'affiche comme sélectionné "selected"
                                      */ ?>
                                     <select class="excludeMajorSelectList" profilename="<?php echo $profileName;?>" name="profileConf_excludeMajor[]" multiple>
-                            <?php       foreach($listPackages as $package) {
+                            <?php       foreach ($listPackages as $package) {
                                             if (in_array($package, $profileConf_excludeMajor)) {
                                                 echo "<option value=\"$package\" selected>${package}</option>";
                                             } else {
@@ -236,7 +236,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                     <br>
                                     <h5>Paquets à exclure (toute version) :</h5>
                                     <select class="excludeSelectList" profilename="<?php echo $profileName;?>" name="profileConf_exclude[]" multiple>
-                            <?php       foreach($listPackages as $package) {
+                            <?php       foreach ($listPackages as $package) {
                                             if (in_array($package, $profileConf_exclude)) {
                                                 echo "<option value=\"$package\" selected>${package}</option>";
                                             } else {
@@ -262,7 +262,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                     $listServices = $myprofile->db_getServices();
                                     sort($listServices); ?>
                                     <select class="needRestartSelectList" profilename="<?php echo $profileName;?>" name="profileConf_needRestart[]" multiple>
-                            <?php       foreach($listServices as $service) {
+                            <?php       foreach ($listServices as $service) {
                                             if (in_array($service, $profileConf_needRestart)) {
                                                 echo "<option value=\"$service\" selected>${service}</option>";
                                             } else {
@@ -305,7 +305,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                                 /**
                                  *  On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no
                                  */
-                                if ($serverConf_manageClients_reposConf == "yes" OR $serverConf_manageClientsConf == "yes") {
+                                if ($serverConf_manageClients_reposConf == "yes" or $serverConf_manageClientsConf == "yes") {
                                     echo '<button type="submit" class="btn-large-green">Enregistrer</button>';
                                 } ?>
                             </form>
@@ -333,7 +333,7 @@ $serverConf_manageClients_reposConf = exec("grep '^MANAGE_CLIENTS_REPOSCONF=' ".
                 <input type="text" class="td-medium" value="<?php echo OS_VERSION;?>" readonly />
 
                 <?php
-                if (OS_FAMILY == "Redhat" AND defined('RELEASEVER') AND RELEASEVER !== OS_VERSION) {
+                if (OS_FAMILY == "Redhat" and defined('RELEASEVER') and RELEASEVER !== OS_VERSION) {
                     echo '<span><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version d\'OS des paquets récupérés lors de la création de miroirs." />Version de paquets gérée</span>';
                     echo '<input type="text" class="td-medium" value="'.RELEASEVER.'" readonly />';
                 }

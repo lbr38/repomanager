@@ -5,7 +5,7 @@
 
 class Autoloader
 {
-    static function register()
+    private static function register()
     {
         /**
          *  Fait appel à la classe Autoloader (cette même classe) et à sa fonction autoload
@@ -13,7 +13,7 @@ class Autoloader
         spl_autoload_register(array('Autoloader', 'autoload'));
     }
 
-    static function autoload($class)
+    private static function autoload($class)
     {
         require ROOT . '/models/' . $class . '.php';
     }
@@ -24,7 +24,7 @@ class Autoloader
      *  - constantes
      *  - vérifications de la présence de tous les répertoires et fichiers nécessaires
      */
-    static function load()
+    public static function load()
     {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
@@ -79,10 +79,21 @@ class Autoloader
     }
 
     /**
+     *  Chargement du minimum nécessaire pour la page login.php
+     */
+    public static function loadFromLogin()
+    {
+        Autoloader::register();
+        Autoloader::loadSystem();
+        Autoloader::loadConfiguration();
+        Autoloader::loadDirs();
+    }
+
+    /**
      *  Chargement de tous les paramètres nécessaires pour le fonctionnement de l'api
      *  Charge moins de fonctions que load() notamment les sessions ne sont par démarrées car empêcheraient le bon fonctionnement de l'api
      */
-    static function loadFromApi()
+    public static function loadFromApi()
     {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
@@ -121,7 +132,7 @@ class Autoloader
     /**
      *  Exécution de toutes les fonctions
      */
-    static function loadAll()
+    private static function loadAll()
     {
         Autoloader::register();
         Autoloader::loadSession();
@@ -133,15 +144,16 @@ class Autoloader
         Autoloader::startStats();
         Autoloader::loadReposListDisplayConf();
     }
-    
+
     /**
      *  Démarrage et vérification de la session en cours
      */
-    static function loadSession() {
+    private static function loadSession()
+    {
         /**
          *  On démarre la session
          */
-        if(!isset($_SESSION)){
+        if (!isset($_SESSION)){
             session_start();
         }
 
@@ -162,7 +174,7 @@ class Autoloader
         /**
          *  Si les variables de session username ou role sont vides alors on redirige vers la page de login
          */
-        if(empty($_SESSION['username']) OR empty($_SESSION['role'])) {
+        if (empty($_SESSION['username']) or empty($_SESSION['role'])) {
             header('Location: login.php');
             exit();
         }
@@ -172,7 +184,7 @@ class Autoloader
      *  Chargement des chemins vers les répertoires et fichiers de base
      *  Création si n'existent pas
      */
-    static function loadDirs()
+    private static function loadDirs()
     {
         /**
          *  Emplacement des répertoires de bases
@@ -278,7 +290,7 @@ class Autoloader
          *  Vérification de la présence de la base de données
          *  Si aucun fichier de base de données n'existe ou bien si on a précisé le paramètre ?initialize
          */
-        if (!file_exists(DB) OR isset($_GET['initialize'])) {
+        if (!file_exists(DB) or isset($_GET['initialize'])) {
             /**
              *  On va vérifier la présence des tables et les créer si nécessaire
              */
@@ -295,7 +307,7 @@ class Autoloader
         /**
          *  Si la clé de signature GPG n'existe pas alors on l'exporte
          */
-        if (GPG_SIGN_PACKAGES == "yes" AND !file_exists(REPOS_DIR."/gpgkeys/".WWW_HOSTNAME.".pub")) {
+        if (GPG_SIGN_PACKAGES == "yes" and !file_exists(REPOS_DIR."/gpgkeys/".WWW_HOSTNAME.".pub")) {
             if (!is_dir(REPOS_DIR."/gpgkeys")) {
                 mkdir(REPOS_DIR."/gpgkeys", 0770, true);
             }
@@ -306,7 +318,7 @@ class Autoloader
     /**
      *  Chargement des informations du système et de l'OS
      */
-    static function loadSystem()
+    private static function loadSystem()
     {
         /**
          *  Protocol (http ou https)
@@ -331,16 +343,20 @@ class Autoloader
         /**
          *  URL + URI complètes
          */
-        if (!empty($_SERVER['HTTP_HOST']) AND !empty($_SERVER['REQUEST_URI'])) {
+        if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
             if (!defined('__ACTUAL_URL__')) define('__ACTUAL_URL__', "$__SERVER_PROTOCOL__://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
         }
         /**
          *  URI
          */
         if (!empty($_SERVER['REQUEST_URI'])) {
-            if (!defined('__ACTUAL_URI__')) {
-                if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
-            }
+            if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        }
+        /**
+         *  Paramètres
+         */
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            if (!defined('__QUERY_STRING__')) define('__QUERY_STRING__', parse_url($_SERVER["QUERY_STRING"], PHP_URL_PATH));
         }
 
         /**
@@ -368,17 +384,17 @@ class Autoloader
          *  Puis à partir de l'array OS_INFO on détermine la famille d'os, son nom et sa version
          */
         if (!empty(OS_INFO['id_like'])) {
-            if(preg_match('(rhel|centos|fedora)', OS_INFO['id_like']) === 1) {
+            if (preg_match('(rhel|centos|fedora)', OS_INFO['id_like']) === 1) {
                 if (!defined('OS_FAMILY')) define('OS_FAMILY', "Redhat");
             }
-            if(preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id_like']) === 1) { 
+            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id_like']) === 1) { 
                 if (!defined('OS_FAMILY')) define('OS_FAMILY', "Debian");
             }
         } else if (!empty(OS_INFO['id'])) {
-            if(preg_match('(rhel|centos|fedora)', OS_INFO['id']) === 1) {
+            if (preg_match('(rhel|centos|fedora)', OS_INFO['id']) === 1) {
                 if (!defined('OS_FAMILY')) define('OS_FAMILY', "Redhat");
             }
-            if(preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id']) === 1) { 
+            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id']) === 1) { 
                 if (!defined('OS_FAMILY')) define('OS_FAMILY', "Debian");
             }
         }
@@ -407,7 +423,7 @@ class Autoloader
     /**
      *  Chargement de la configuration de repomanager
      */
-    static function loadConfiguration()
+    private static function loadConfiguration()
     {
         $__LOAD_MAIN_CONF_ERROR = 0;
         $__LOAD_MAIN_CONF_MESSAGES = array();
@@ -433,8 +449,8 @@ class Autoloader
         /**
          *  Si certains paramètres sont vides alors on incrémente $EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alertes
          */
-        foreach($repomanager_conf_array as $key => $value) {
-            if(empty($value)) {
+        foreach ($repomanager_conf_array as $key => $value) {
+            if (empty($value)) {
                 ++$__LOAD_MAIN_CONF_ERROR;
             }
         }
@@ -582,7 +598,7 @@ class Autoloader
             }
         }
 
-        if (defined('AUTOMATISATION_ENABLED') AND AUTOMATISATION_ENABLED == "yes") {
+        if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
             if (!defined('ALLOW_AUTOUPDATE_REPOS')) {
                 if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'])) {
                     define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
@@ -760,7 +776,7 @@ class Autoloader
     /**
      *  Chargement des environnements
      */
-    static function loadEnvs()
+    private static function loadEnvs()
     {
         /**
          *  Récupération des environnements en base de données
@@ -774,7 +790,7 @@ class Autoloader
         /**
          *  Si il n'y a aucun environnement configuré alors __LOAD_ERROR_EMPTY_ENVS = 1
          */
-        if(empty(ENVS)) {
+        if (empty(ENVS)) {
             if (!defined('__LOAD_ERROR_EMPTY_ENVS')) define('__LOAD_ERROR_EMPTY_ENVS', 1);
         } else {
             if (!defined('__LOAD_ERROR_EMPTY_ENVS')) define('__LOAD_ERROR_EMPTY_ENVS', 0);
@@ -785,14 +801,14 @@ class Autoloader
      *  Vérification des nouvelles versions disponibles
      *  Vérification si une mise à jour est en cours ou non
      */
-    static function checkForUpdate()
+    private static function checkForUpdate()
     {
         /**
          *  Version actuelle et version disponible sur github
          */
         if (!defined('VERSION')) define('VERSION', file_get_contents(ROOT.'/version'));
         if (!defined('GIT_VERSION')) define('GIT_VERSION', file_get_contents(ROOT.'/cron/github.version'));
-        if (defined('VERSION') AND defined('GIT_VERSION')) {
+        if (defined('VERSION') and defined('GIT_VERSION')) {
             if (VERSION !== GIT_VERSION) {
                 if (!defined('UPDATE_AVAILABLE')) define('UPDATE_AVAILABLE', 'yes');
             } else {
@@ -814,7 +830,7 @@ class Autoloader
          *  L'action est effectuée uniquement si une mise à jour n'est pas déjà en cours (présence du fichier update-running)
          *  La mise à jour mettra en place une page de maintenance automatiquement
          */
-        if (UPDATE_AUTO == "yes" AND UPDATE_AVAILABLE == "yes") {
+        if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
             if (!file_exists(ROOT."/update-running")) {
                 Common::repomanagerUpdate();
             }
@@ -824,12 +840,12 @@ class Autoloader
     /**
      *  Démarrage du script de parsage des logs, pour les statistiques
      */
-    static function startStats()
+    private static function startStats()
     {
         /**
          *  Si les stats sont activées mais que le parser de log ne tourne pas, alors on le lance en arrière-plan
          */
-        if (CRON_STATS_ENABLED == "yes" AND empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {  
+        if (CRON_STATS_ENABLED == "yes" and empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {  
             exec("bash ".ROOT."/tools/stats-log-parser '".WWW_STATS_LOG_PATH."' >/dev/null 2>/dev/null &");
         }
     }
@@ -837,13 +853,13 @@ class Autoloader
     /**
      *  Chargement de la configuration de l'affichage de la liste des repos
      */
-    static function loadReposListDisplayConf()
+    private static function loadReposListDisplayConf()
     {
         /**
          *  On ne charge ces paramètres uniquement sur certaines pages
          */
         if (defined('__ACTUAL_URI__')) {
-            if (__ACTUAL_URI__ == "/" OR 
+            if (__ACTUAL_URI__ == "/" or 
                 __ACTUAL_URI__ == "/index.php" OR
                 __ACTUAL_URI__ == "/planifications.php"
             ) {
@@ -863,7 +879,7 @@ class Autoloader
                         define('PRINT_REPO_SIGNATURE', $row['print_repo_signature']);
                         define('CACHE_REPOS_LIST', $row['cache_repos_list']);
                     }
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 

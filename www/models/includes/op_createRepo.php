@@ -85,7 +85,7 @@ trait op_createRepo {
              *  Création du fichier "distributions"
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
-            //if ($signed == "yes" OR $targetGpgResign == "yes")
+            //if ($signed == "yes" or $targetGpgResign == "yes")
             if ($targetGpgResign == "yes")
                 $file_distributions_content = "Origin: Repo ${name} sur ".WWW_HOSTNAME."\nLabel: apt repository\nCodename: ${dist}\nArchitectures: i386 amd64\nComponents: ${section}\nDescription: Repo ${name}, miroir du repo ${source}, distribution ${dist}, section ${section}\nSignWith: ".GPG_KEYID."\nPull: $section";
             else
@@ -99,7 +99,7 @@ trait op_createRepo {
              *  Création du fichier "options"
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
-            //if ($signed == "yes" OR $targetGpgResign == "yes")
+            //if ($signed == "yes" or $targetGpgResign == "yes")
             if ($targetGpgResign == "yes")
                 $file_options_content = "basedir $sectionPath\nask-passphrase";
             else 
@@ -126,7 +126,7 @@ trait op_createRepo {
                 /**
                  *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
                  */
-                //if ($signed == "yes" OR $targetGpgResign == "yes") {
+                //if ($signed == "yes" or $targetGpgResign == "yes") {
                 if ($targetGpgResign == "yes") {
                     $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ --gnupghome ".GPGHOME." includedeb ${dist} \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
                 } else {
@@ -166,7 +166,7 @@ trait op_createRepo {
                 /**
                  *  Suppression du répertoire temporaire
                  */
-                if (OS_FAMILY == "Debian" AND is_dir($TMP_DIR)) {
+                if (OS_FAMILY == "Debian" and is_dir($TMP_DIR)) {
                     exec("rm -rf '$TMP_DIR'");
                 }
 

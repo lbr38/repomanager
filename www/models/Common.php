@@ -8,7 +8,7 @@ class Common
     /**
      *  Fonction de vérification / conversion des données envoyées par formulaire
      */
-    static function validateData($data)
+    public static function validateData($data)
     {
         $data = trim($data);
         $data = stripslashes($data);
@@ -19,7 +19,7 @@ class Common
     /**
      *  Fonction de vérification du format d'une adresse email
      */
-    static function validateMail(string $mail)
+    public static function validateMail(string $mail)
     {
         $mail = trim($mail);
 
@@ -31,7 +31,7 @@ class Common
     /**
      *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres
      */
-    static function is_alphanum(string $data, array $additionnalValidCaracters = [])
+    public static function is_alphanum(string $data, array $additionnalValidCaracters = [])
     {
         /**
          *  Si on a passé en argument des caractères supplémentaires à autoriser alors on les ignore dans le test en les remplacant temporairement par du vide
@@ -57,7 +57,7 @@ class Common
      *  Vérifie que la chaine passée ne contient que des chiffres ou des lettres, un underscore ou un tiret
      *  Retire temporairement les tirets et underscore de la chaine passée afin qu'elle soit ensuite testée par la fonction PHP ctype_alnum
      */
-    static function is_alphanumdash(string $data, array $additionnalValidCaracters = [])
+    public static function is_alphanumdash(string $data, array $additionnalValidCaracters = [])
     {
         /**
          *  Si une chaine vide a été transmise alors c'est valide
@@ -78,7 +78,7 @@ class Common
             $validCaracters = array_merge($validCaracters, $additionnalValidCaracters);
         }
     
-        if(!ctype_alnum(str_replace($validCaracters, '', $data))) {
+        if (!ctype_alnum(str_replace($validCaracters, '', $data))) {
             return false;
         }
     
@@ -91,12 +91,12 @@ class Common
      *  il s'agit d'un répertoire classique sur le disque
      *  ou il s'agit d'un lien symbolique vers /dev/smh (en ram)
      */
-    static function clearCache()
+    public static function clearCache()
     {
         /**
          *  Suppression de tous les fichiers commencant par 'repomanager-repos-list' dans le répertoire de cache
          */
-        $files = glob(WWW_CACHE.'/repomanager-repos-list*');
+        $files = glob(WWW_CACHE.'/repomanager-repos-*');
 
         foreach ($files as $file) {
             if (file_exists($file)) unlink($file);
@@ -106,7 +106,7 @@ class Common
     /**
      *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
      */
-    static function printAlert(string $message, string $alertType = '')
+    public static function printAlert(string $message, string $alertType = '')
     {
         if ($alertType == "error")   echo '<div class="alert-error">';
         if ($alertType == "success") echo '<div class="alert-success">';
@@ -118,7 +118,7 @@ class Common
         echo '<script type="text/javascript">';
         echo '$(document).ready(function () {';
         echo 'window.setTimeout(function() {';
-        if ($alertType == "error" OR $alertType == "success") {
+        if ($alertType == "error" or $alertType == "success") {
             echo "$('.alert-${alertType}').fadeTo(1000, 0).slideUp(1000, function(){";
         } else {
             echo "$('.alert').fadeTo(1000, 0).slideUp(1000, function(){";
@@ -137,13 +137,13 @@ class Common
      *  $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
      *  $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
      */
-    static function deleteConfirm(string $message, string $url, $divID, $aID)
+    public static function deleteConfirm(string $message, string $url, $divID, $aID)
     {
-        echo "<div id=\"$divID\" class=\"hide deleteAlert\">";
-            echo "<span class=\"deleteAlert-message\">$message</span>";
-            echo '<div class="deleteAlert-buttons-container">';
-                echo "<a href=\"$url\"><span class=\"btn-doDelete\">Supprimer</span></a>";
-                echo "<span class=\"$aID btn-cancelDelete pointer\">Annuler</span>";
+        echo "<div id=\"$divID\" class=\"hide confirmAlert\">";
+            echo "<span class=\"confirmAlert-message\">$message</span>";
+            echo '<div class="confirmAlert-buttons-container">';
+                echo "<a href=\"$url\"><span class=\"btn-doConfirm\">Supprimer</span></a>";
+                echo "<span class=\"$aID btn-doCancel pointer\">Annuler</span>";
             echo '</div>';
 
         echo "<script>";
@@ -162,7 +162,7 @@ class Common
      *  Affiche une erreur générique ou personnalisée lorsqu'il y a eu une erreur d'exécution d'une requête dans la base de données
      *  Ajoute une copie de l'erreur dans le fichier de logs 'exceptions'
      */
-    static function dbError(string $exception = null)
+    public static function dbError(string $exception = null)
     {
         /**
          *  Date et heure de l'évènement
@@ -189,7 +189,7 @@ class Common
          *  Lancement d'une exception qui sera catchée par printAlert
          *  Si le mode debug est activé alors on affiche l'exception dans le message d'erreur
          */
-        if (!empty($exception) AND DEBUG_MODE == 'enabled') {
+        if (!empty($exception) and DEBUG_MODE == 'enabled') {
             throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>'.$exception.'<br>');
         } else {
             throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>');
@@ -199,7 +199,7 @@ class Common
     /**
      *  Colore l'environnement d'une étiquette rouge ou blanche
      */
-    static function envtag($env, $css = null)
+    public static function envtag($env, $css = null)
     {
         if ($env == LAST_ENV)
             $class = 'last-env';
@@ -216,7 +216,7 @@ class Common
     /**
      *  Vérifie que la tâche cron des rappels de planifications est en place
      */
-    static function checkCronReminder()
+    public static function checkCronReminder()
     {
         $cronStatus = shell_exec("crontab -l | grep 'send-reminders' | grep -v '#'");
         if (empty($cronStatus))
@@ -225,7 +225,7 @@ class Common
             return 'On';
     }
 
-    static function write_ini_file($file, $array = [])
+    public static function write_ini_file($file, $array = [])
     {
         // check first argument is string
         if (!is_string($file)) {
@@ -294,7 +294,7 @@ class Common
     /**
      *  Inscrit les tâches cron dans la crontab de WWW_USER
      */
-    static function enableCron()
+    public static function enableCron()
     {
         // Récupération du contenu de la crontab actuelle dans un fichier temporaire
         shell_exec("crontab -l > ".TEMP_DIR."/".WWW_USER."_crontab.tmp");
@@ -322,7 +322,7 @@ class Common
         }
     
         // si on a activé l'automatisation et les envois de rappels de planifications alors on ajoute la tâche cron d'envoi des rappels
-        if (AUTOMATISATION_ENABLED == "yes" AND CRON_PLAN_REMINDERS_ENABLED == "yes") {
+        if (AUTOMATISATION_ENABLED == "yes" and CRON_PLAN_REMINDERS_ENABLED == "yes") {
             file_put_contents(TEMP_DIR."/".WWW_USER."_crontab.tmp", "0 0 * * * php ".ROOT."/planifications/plan.php send-reminders".PHP_EOL, FILE_APPEND);
         }
     
@@ -336,7 +336,7 @@ class Common
     /**
      *  Indique si un répertoire est vide ou non
      */
-    static function dir_is_empty($dir)
+    public static function dir_is_empty($dir)
     {
         $handle = opendir($dir);
         while (false !== ($entry = readdir($handle))) {
@@ -352,7 +352,7 @@ class Common
     /**
      *  Stoppe le process bash de génération des statistiques
      */
-    static function kill_stats_log_parser()
+    public static function kill_stats_log_parser()
     {
         exec("/usr/bin/pkill -9 -u ".WWW_USER." -f 'tail -n0 -F ".WWW_STATS_LOG_PATH."'");
     }
@@ -360,9 +360,9 @@ class Common
     /**
      *  Renvoi si la session utilisateur en cours est administrateur ou non
      */
-    static function isadmin()
+    public static function isadmin()
     {
-        if ($_SESSION['role'] === 'super-administrator' OR $_SESSION['role'] === 'administrator') {
+        if ($_SESSION['role'] === 'super-administrator' or $_SESSION['role'] === 'administrator') {
             return true;
         }
 
@@ -372,7 +372,7 @@ class Common
     /**
      *  Génère un nombre aléatoire en 1000 et 99999
      */
-    static function generateRandom()
+    public static function generateRandom()
     {
         return mt_rand(1000, 99999);
     }
@@ -380,7 +380,7 @@ class Common
     /**
      *  Mise à jour de repomanager
      */
-    static function repomanagerUpdate()
+    public static function repomanagerUpdate()
     {
         $error = 0;
 
@@ -451,24 +451,24 @@ class Common
         return $updateStatus;
     }
 
-    static function configureReposListDisplay(string $printRepoSize, string $printRepoType, string $printRepoSignature, string $cacheReposList)
+    public static function configureReposListDisplay(string $printRepoSize, string $printRepoType, string $printRepoSignature, string $cacheReposList)
     {
         /**
          *  On vérifie que la valeur des paramètres est 'yes' ou 'no'
          */
-        if ($printRepoSize != 'yes' AND $printRepoSize != 'no') {
+        if ($printRepoSize != 'yes' and $printRepoSize != 'no') {
             throw new Exception("Le paramètre d'affichage de la taille du repo est invalide");
         }
 
-        if ($printRepoType != 'yes' AND $printRepoType != 'no') {
+        if ($printRepoType != 'yes' and $printRepoType != 'no') {
             throw new Exception("Le paramètre d'affichage du type du repo est invalide");
         }
 
-        if ($printRepoSignature != 'yes' AND $printRepoSignature != 'no') {
+        if ($printRepoSignature != 'yes' and $printRepoSignature != 'no') {
             throw new Exception("Le paramètre d'affichage de la signature du repo est invalide");
         }
 
-        if ($cacheReposList != 'yes' AND $cacheReposList != 'no') {
+        if ($cacheReposList != 'yes' and $cacheReposList != 'no') {
             throw new Exception('Le paramètre de mise en cache est invalide');
         }
 
@@ -487,7 +487,7 @@ class Common
             $stmt->bindValue(':printRepoSignature', $printRepoSignature);
             $stmt->bindValue(':cacheReposList', $cacheReposList);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

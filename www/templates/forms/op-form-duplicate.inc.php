@@ -1,6 +1,6 @@
 <?php
-if (OS_FAMILY == 'Redhat') echo '<p>Dupliquer <span class="label-white">'.$myrepo->getName().' '.Common::envtag($myrepo->getEnv()).'</p>';
-if (OS_FAMILY == 'Debian') echo '<p>Dupliquer <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
+if (OS_FAMILY == 'Redhat') echo '<p>Dupliquer <span class="label-white">' . $myrepo->getName() . '</span> ' . Common::envtag($myrepo->getEnv()) . '</p>';
+if (OS_FAMILY == 'Debian') echo '<p>Dupliquer <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> ' . Common::envtag($myrepo->getEnv()) . '</p>';
 ?>
 
 <span>Nouveau nom du repo :</span><input type="text" class="operation_param" param-name="targetName" required />
@@ -12,13 +12,14 @@ if (OS_FAMILY == 'Debian') echo '<p>Dupliquer <span class="label-white">'.$myrep
  */
 $group = new Group('repo');
 $groupList = $group->listAllName();
+
 if (!empty($groupList)) { ?>
     <span>Ajouter à un groupe (fac.)</span>
     <select class="operation_param" param-name="targetGroup">
         <option value="">Sélectionner un groupe...</option>
         <?php
-        foreach($groupList as $groupName) {
-            echo '<option value="'.$groupName.'">'.$groupName.'</option>';
+        foreach ($groupList as $groupName) {
+            echo '<option value="' . $groupName . '">' . $groupName . '</option>';
         } ?>
     </select>
 <?php

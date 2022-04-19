@@ -51,7 +51,7 @@ class Source extends Model {
             /**
              *  On récupère la clé GPG, il s'agit soit une clé existante, soit au format url, soit au format texte à importer. Si les deux sont renseignés on affiche une erreur (c'est l'un ou l'autre)
              */
-            if (!empty($existingGpgKey) AND !empty($gpgKeyURL) AND !empty($gpgKeyText)) {
+            if (!empty($existingGpgKey) and !empty($gpgKeyURL) and !empty($gpgKeyText)) {
                 throw new Exception('Vous ne pouvez pas renseigner plusieurs types de clé GPG à la fois');
 
             /**
@@ -89,7 +89,7 @@ class Source extends Model {
                 /**
                  *  Si l'URL ne commence pas par http(s) ou par file:// (pour désigner un fichier sur le serveur) alors elle est invalide
                  */
-                if (!preg_match('#^https?://#', $gpgKeyURL) AND !preg_match('/^file:\/\/\//', $gpgKeyURL)) {
+                if (!preg_match('#^https?://#', $gpgKeyURL) and !preg_match('/^file:\/\/\//', $gpgKeyURL)) {
                     throw new Exception('L\'URL de la clé GPG est invalide');
                 }
 
@@ -129,7 +129,7 @@ class Source extends Model {
              *  Récupération du type d'URL
              */
             $urlType = Common::validateData($urlType);
-            if ($urlType != 'baseurl' AND $urlType != 'mirrorlist' AND $urlType != 'metalink') {
+            if ($urlType != 'baseurl' and $urlType != 'mirrorlist' and $urlType != 'metalink') {
                 throw new Exception('Le type d\'URL renseigné est invalide');
             }
 
@@ -148,7 +148,7 @@ class Source extends Model {
             /**
              *  Si on a renseigné une clé GPG alors on active gpgcheck
              */
-            if (!empty($existingGpgKey) OR !empty($gpgKeyURL) OR !empty($gpgKeyText)) {
+            if (!empty($existingGpgKey) or !empty($gpgKeyURL) or !empty($gpgKeyText)) {
                 $newRepoFileConf .= "gpgcheck=1".PHP_EOL;
             }
 
@@ -189,7 +189,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("SELECT Name FROM Sources WHERE Name=:name");
                 $stmt->bindValue(':name', $name);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -251,7 +251,7 @@ class Source extends Model {
                 $stmt->bindValue(':name', $name);
                 $stmt->bindValue(':url', $url);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -276,7 +276,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("DELETE FROM sources WHERE Name = :name");
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -344,7 +344,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("SELECT Name FROM sources WHERE Name = :newname");
                 $stmt->bindValue(':newname', $newName);
                 $result = $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
             if ($this->db->isempty($result) === false) {
@@ -356,7 +356,7 @@ class Source extends Model {
                 $stmt->bindValue(':newname', $newName);
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -395,7 +395,7 @@ class Source extends Model {
             $stmt->bindValue(':url', $url);
             $stmt->bindValue(':name', $sourceName);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -461,7 +461,7 @@ class Source extends Model {
                  *  Dans le cas où le paramètre se nomme baseurl, mirrorlist ou metalink, on accepte + de caractères spéciaux car sa valeur est souvent une url pouvant comporter des slashs, des ? et des $
                  *  Note : ne pas autoriser les parenthèses pour éviter l'injection de code et la tentative d'utilisation de la fonction exec() par exemple. Si possible voir pour échapper le caractère $
                  */
-                if ($optionName == 'baseurl' OR $optionName == 'mirrorlist' OR $optionName == 'metalink') {
+                if ($optionName == 'baseurl' or $optionName == 'mirrorlist' or $optionName == 'metalink') {
                     $optionValue = trim($optionValue);          // Suppression des espaces si il y en a (ça ne devrait pas)
                     $optionValue = stripslashes($optionValue);  // Suppression des anti-slash
                     if (Common::is_alphanumdash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
@@ -489,7 +489,7 @@ class Source extends Model {
                     /**
                      *  Si la valeur ne commence pas par http(s):// ou par file:/// alors le paramètre est invalide
                      */
-                    if (!preg_match('#^https?://#', $optionValue) AND !preg_match('/^file:\/\/\//', $optionValue)) {
+                    if (!preg_match('#^https?://#', $optionValue) and !preg_match('/^file:\/\/\//', $optionValue)) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> doit commencer par http(s):// ou file:///");
                     }
                 
@@ -505,7 +505,7 @@ class Source extends Model {
                  *  Paramètres sslcacert, sslclientcert, sslclientkey
                  *  Le paramètre doit être un chemin vers un fichier
                  */
-                } elseif ($optionName == 'sslcacert' OR $optionName == 'sslclientcert' OR $optionName == 'sslclientkey') {
+                } elseif ($optionName == 'sslcacert' or $optionName == 'sslclientcert' or $optionName == 'sslclientkey') {
                     /**
                      *  Vérifie que le fichier existe
                      */
@@ -622,7 +622,7 @@ class Source extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
             $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

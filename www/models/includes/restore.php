@@ -61,8 +61,8 @@ trait restore {
              *  3. On récupère des informations du repo du même nom actuellement en place (si il y en a un) et qui va être remplacé
              */
             try {
-                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name = :name AND Env = :targetEnv AND Status = 'active'");
-                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :targetEnv AND Status = 'active'");
+                if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name = :name and Env = :targetEnv and Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :targetEnv and Status = 'active'");
                 $stmt->bindValue(':name', $name);
                 $stmt->bindValue(':targetEnv', $targetEnv);
                 if (OS_FAMILY == "Debian") {
@@ -71,7 +71,7 @@ trait restore {
                 }
                 $result = $stmt->execute();
 
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -103,8 +103,8 @@ trait restore {
                  *  Sinon on archive
                  */
                 try {
-                    if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :actual_name AND Date = :actual_date AND Env != :actual_env AND Status = 'active'");
-                    if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :actual_name AND Dist = :actual_dist AND Section = :actual_section AND Date = :actual_date AND Env != :actual_env AND Status = 'active'");
+                    if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :actual_name and Date = :actual_date and Env != :actual_env and Status = 'active'");
+                    if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT Id FROM repos WHERE Name = :actual_name and Dist = :actual_dist and Section = :actual_section and Date = :actual_date and Env != :actual_env and Status = 'active'");
                     $stmt->bindValue(':actual_name', $actual_name);
                     $stmt->bindValue(':actual_env', $actual_env);
                     $stmt->bindValue(':actual_date', $actual_date);
@@ -114,7 +114,7 @@ trait restore {
                     }
                     $result = $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -192,7 +192,7 @@ trait restore {
                     $stmt->bindValue(':type', $actual_type);
                     $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -240,7 +240,7 @@ trait restore {
              *  Dans les cas 1 et 2 il y a déjà une entrée en base de données qu'on met à jour
              *  Dans le cas 3 il n'y a aucune entrée en base de données (puisqu'il n'y a aucun repo actuellement en place sur l'environnement ciblé), donc on ajoute une ligne
              */
-            if ($case == 1 OR $case == 2) {
+            if ($case == 1 or $case == 2) {
                 try {
                     $stmt = $this->repo->db->prepare("UPDATE repos SET Date = :date, Time = :time, Source = :source, Env = :env, Description = :description, Signed = :signed, Type = :type WHERE Id = :id");
                     $stmt->bindValue(':id', $actual_id);
@@ -253,7 +253,7 @@ trait restore {
                     $stmt->bindValue(':type', $type);
                     $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -276,7 +276,7 @@ trait restore {
                     }
                     $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -284,7 +284,7 @@ trait restore {
             /**
              *  9. Enfin pour les cas 2 et 3 on passe la ligne du repos restauré en 'restored'
              */
-            if ($case == 2 OR $case == 3) {
+            if ($case == 2 or $case == 3) {
                 /**
                  *  Maj de la table repos_archived
                  */
@@ -293,7 +293,7 @@ trait restore {
                     $stmt->bindValue(':id', $id);
                     $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -308,7 +308,7 @@ trait restore {
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             /**
              *  On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
              */

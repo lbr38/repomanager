@@ -19,7 +19,7 @@ class History {
         try {
             $result = $db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
             return;
         }
@@ -55,7 +55,7 @@ class History {
             $stmt->bindValue(':userid', $userId);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
             return;
         }
@@ -96,7 +96,7 @@ class History {
              */
             if (empty($user_id)) throw new Exception();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
             return;
         }
@@ -109,7 +109,7 @@ class History {
             $stmt->bindValue(':action', $action);
             $stmt->bindValue(':state', $state);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
             return;
         }

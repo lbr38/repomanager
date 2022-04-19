@@ -13,7 +13,7 @@ class Group extends Model {
          *  Sinon par défaut on utilise la base principale de repomanager
          */
 
-        if ($type != 'repo' AND $type != 'host') {
+        if ($type != 'repo' and $type != 'host') {
             throw new Exception("Le type de groupe est invalide");
         }
 
@@ -74,7 +74,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("INSERT INTO groups (Name) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -104,7 +104,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :newname");
             $stmt->bindValue(':newname', $newName);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -123,7 +123,7 @@ class Group extends Model {
             $stmt->bindValue(':newname', $newName);
             $stmt->bindValue(':actualname', $actualName);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -143,7 +143,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -166,7 +166,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group IN (SELECT Id FROM groups WHERE Name = :name)");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -177,7 +177,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("DELETE FROM groups WHERE Name = :name");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -196,12 +196,12 @@ class Group extends Model {
         if ($groupName == 'Default') {
             if (OS_FAMILY == "Redhat") {
                 $reposInGroup = $this->db->query("SELECT * FROM repos
-                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                WHERE Status = 'active' and Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Env ASC");
             }
             if (OS_FAMILY == "Debian") {
                 $reposInGroup = $this->db->query("SELECT * FROM repos
-                WHERE Status = 'active' AND Id NOT IN (SELECT Id_repo FROM group_members)
+                WHERE Status = 'active' and Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
             }
             
@@ -216,11 +216,11 @@ class Group extends Model {
                     INNER JOIN groups
                         ON groups.Id = group_members.Id_group
                     WHERE groups.Name=:groupname
-                    AND repos.Status = 'active'
+                    and repos.Status = 'active'
                     ORDER BY repos.Name ASC, repos.Env ASC");
                     $stmt->bindValue(':groupname', $groupName);
                     $reposInGroup = $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -234,11 +234,11 @@ class Group extends Model {
                     INNER JOIN groups
                         ON groups.Id = group_members.Id_group
                     WHERE groups.Name=:groupname
-                    AND repos.Status = 'active'
+                    and repos.Status = 'active'
                     ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos.Env ASC");
                     $stmt->bindValue(':groupname', $groupName);
                     $reposInGroup = $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -266,8 +266,8 @@ class Group extends Model {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                AND repos.Env=:env
-                AND repos.Status = 'active'
+                and repos.Env=:env
+                and repos.Status = 'active'
                 ORDER BY repos.Name ASC");
             }
             if (OS_FAMILY == "Debian") {
@@ -278,14 +278,14 @@ class Group extends Model {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                AND repos.Env=:env
-                AND repos.Status = 'active'
+                and repos.Env=:env
+                and repos.Status = 'active'
                 ORDER BY repos.Name ASC, repos.Dist ASC");
             }
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':groupname', $groupName);
             $reposInGroup = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -312,7 +312,7 @@ class Group extends Model {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                AND repos.Status = 'active'");
+                and repos.Status = 'active'");
                 $stmt->bindValue(':groupname', $groupName);
                 $reposInGroup = $stmt->execute();
 
@@ -326,7 +326,7 @@ class Group extends Model {
 
                 $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name
                 FROM repos
-                WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+                WHERE repos.Status = 'active' and repos.Id NOT IN (SELECT Id_repo FROM group_members);");
             }
             if (OS_FAMILY == "Debian") {
                 $stmt = $this->db->prepare("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
@@ -336,7 +336,7 @@ class Group extends Model {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                AND repos.Status = 'active'");
+                and repos.Status = 'active'");
                 $stmt->bindValue(':groupname', $groupName);
                 $reposInGroup = $stmt->execute();
 
@@ -350,9 +350,9 @@ class Group extends Model {
 
                 $reposNotInAnyGroup = $this->db->query("SELECT DISTINCT repos.Name, repos.Dist, repos.Section
                 FROM repos
-                WHERE repos.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members);");
+                WHERE repos.Status = 'active' and repos.Id NOT IN (SELECT Id_repo FROM group_members);");
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -363,7 +363,7 @@ class Group extends Model {
         
         echo '<select class="reposSelectList" groupname="'.$groupName.'" name="groupAddRepoName[]" multiple>';
         if (!empty($reposIn)) {
-            foreach($reposIn as $repo) {
+            foreach ($reposIn as $repo) {
                 $repoName = $repo['Name'];
                 if (OS_FAMILY == "Debian") {
                     $repoDist = $repo['Dist'];
@@ -374,7 +374,7 @@ class Group extends Model {
             }
         }
         if (!empty($reposNotIn)) {
-            foreach($reposNotIn as $repo) {
+            foreach ($reposNotIn as $repo) {
                 $repoName = $repo['Name'];
                 if (OS_FAMILY == "Debian") {
                     $repoDist = $repo['Dist'];
@@ -406,7 +406,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM groups WHERE Name=:name");
             $stmt->bindValue(':name', $groupName);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -454,18 +454,18 @@ class Group extends Model {
                  */
                 try {
                     if (OS_FAMILY == "Redhat") {
-                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Status = 'active'");
+                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame and Status = 'active'");
                         $stmt->bindValue(':reponame', $repoName);
                     }
                     if (OS_FAMILY == "Debian") {
-                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame AND Dist=:repodist AND Section=:reposection AND Status = 'active'");
+                        $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name=:reponame and Dist=:repodist and Section=:reposection and Status = 'active'");
                         $stmt->bindValue(':reponame', $repoName);
                         $stmt->bindValue(':repodist', $repoDist);
                         $stmt->bindValue(':reposection', $repoSection);
                     }
                     $result = $stmt->execute();
 
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -478,11 +478,11 @@ class Group extends Model {
                      */
                     try {
                         $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group)
-                        SELECT :idrepo, :idgroup WHERE not exists(SELECT * from group_members where Id_repo=:idrepo AND Id_group=:idgroup)");
+                        SELECT :idrepo, :idgroup WHERE not exists(SELECT * from group_members where Id_repo=:idrepo and Id_group=:idgroup)");
                         $stmt->bindValue(':idrepo', $repoId);
                         $stmt->bindValue(':idgroup', $groupId);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
 
@@ -501,7 +501,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT Id_repo FROM group_members WHERE Id_group=:idgroup");
             $stmt->bindValue(':idgroup', $groupId);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -515,11 +515,11 @@ class Group extends Model {
         foreach ($actualReposId as $actualRepoId) {
             if (!in_array($actualRepoId, $reposId)) {
                 try {
-                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo=:idrepo AND Id_group=:idgroup");
+                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo=:idrepo and Id_group=:idgroup");
                     $stmt->bindValue(':idrepo', $actualRepoId);
                     $stmt->bindValue(':idgroup', $groupId);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }
@@ -541,7 +541,7 @@ class Group extends Model {
             $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -557,7 +557,7 @@ class Group extends Model {
             if ($this->name == 'Default') {
                 $hostsInGroup = $this->db->query("SELECT * FROM hosts
                 WHERE Id NOT IN (SELECT Id_host FROM group_members)
-                AND Status = 'active'
+                and Status = 'active'
                 ORDER BY hosts.Hostname ASC");
                 
             } else {
@@ -584,13 +584,13 @@ class Group extends Model {
                 INNER JOIN groups
                     ON groups.Id = group_members.Id_group
                 WHERE groups.Name=:groupname
-                AND hosts.Status = 'active'
+                and hosts.Status = 'active'
                 ORDER BY hosts.Hostname ASC");
                 $stmt->bindValue(':groupname', $this->name);
                 $hostsInGroup = $stmt->execute();
                 unset($stmt);
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -624,7 +624,7 @@ class Group extends Model {
             $hostsNotInAnyGroup = $this->db->query("SELECT DISTINCT hosts.Id, hosts.Hostname, hosts.Ip
             FROM hosts
             WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");    
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -636,14 +636,14 @@ class Group extends Model {
         
         echo '<select class="hostsSelectList" groupname="'.$groupName.'" name="groupAddServerId[]" multiple>';
         if (!empty($hostsIn)) {
-            foreach($hostsIn as $host) {
+            foreach ($hostsIn as $host) {
                 $hostIp   = $host['Ip'];
                 
                 echo '<option value="'.$host['Id'].'" selected>'.$host['Hostname'].' ('.$host['Ip'].')</option>';
             }
         }
         if (!empty($hostsNotIn)) {
-            foreach($hostsNotIn as $host) {
+            foreach ($hostsNotIn as $host) {
                 $hostName = $host['Hostname'];
                 $hostIp   = $host['Ip'];
 
@@ -700,7 +700,7 @@ class Group extends Model {
                  */
                 try {
                     $stmt = $this->db->prepare("INSERT INTO group_members (Id_host, Id_group)
-                    SELECT :idhost, :idgroup WHERE not exists(SELECT * from group_members where Id_host = :idhost AND Id_group = :idgroup)");
+                    SELECT :idhost, :idgroup WHERE not exists(SELECT * from group_members where Id_host = :idhost and Id_group = :idgroup)");
                     $stmt->bindValue(':idhost', $hostId);
                     $stmt->bindValue(':idgroup', $groupId);
                     $stmt->execute();
@@ -730,7 +730,7 @@ class Group extends Model {
         foreach ($actualHostsId as $actualHostId) {
             if (!in_array($actualHostId, $hostsId)) {
                 try {
-                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_host = :idhost AND Id_group = :idgroup");
+                    $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_host = :idhost and Id_group = :idgroup");
                     $stmt->bindValue(':idhost', $actualHostId);
                     $stmt->bindValue(':idgroup', $groupId);
                     $stmt->execute();
@@ -769,7 +769,7 @@ class Group extends Model {
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -792,7 +792,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT Name from groups WHERE Id=:id");
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -865,7 +865,7 @@ class Group extends Model {
             $stmt = $this->db->prepare("SELECT * FROM groups WHERE Id=:id");
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -888,7 +888,7 @@ class Group extends Model {
                 $stmt->bindValue(':name', $this->name);
             }
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

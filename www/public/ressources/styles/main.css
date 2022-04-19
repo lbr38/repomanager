@@ -126,7 +126,7 @@ td {
 /* Classes génériques permettant de créer des textes de couleurs */
 .greentext { color: #489f4d; }
 .redtext { color: #d9534f; }
-.yellowtext { color: #f0ad4e; }
+.yellowtext { color: #cc9951; }
 .graytext { color : gray; }
 .center { text-align: center; }
 .baseline { vertical-align: baseline; }
@@ -144,7 +144,7 @@ td {
     color: white !important;
 }
 .bkg-yellow {
-    background-color: #f0ad4e !important;
+    background-color: #cc9951 !important;
     color: white !important;
 }
 .bkg-red {
@@ -163,124 +163,77 @@ header {
 header li span:not(#title, #version, .underline, .li-operation-not-running, .li-operation-running) {
     opacity: 0.55;
 }
-nav {
+
+#menu {
     width: 100%;
-    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto 1fr;
+    font-size: 14px;
     -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
 }
-.menu {
+#title {
+    margin-left: 20px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 22px 25px 22px 0px !important;
     display: inline-block;
-    list-style-type: none;
-    margin: 0;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 0;
+    color: whitesmoke;
 }
-.menu > li {
-    float: left;
-    margin-right: 70px;
-    height: 40px;
-    line-height: 40px;
-    cursor: pointer;
-    text-align: left;
+#title span {
+    font-family: 'ethnocentric';
+    font-size: 18px;
 }
-.menu > li span#title {
-    font-size: 18px !important;
+#menu > div {
+    padding: 22px 25px 22px 25px;
 }
-.menu > li span:not(.li-operation-not-running, .li-operation-running) {
-    font-size: 14px;
-    vertical-align: baseline;
+#menu div span {
+    vertical-align: baseline !important;
 }
-.menu > li span.underline {
+#menu div span.header-link {
+    opacity: 0.50;
+}
+#menu div span.header-link:hover {
+    opacity: 1;
+}
+#menu div span.underline {
     border-bottom: 2px solid #2b426e;
     padding-bottom: 22px;
     vertical-align: baseline;
 }
-.sub-menu {
-    transform: scale(0);
-    transform-origin: top center;
-    transition: all 100ms ease-in-out;
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 8px;
+#header-refresh-container {
+    position: relative;
 }
-.sub-menu li {
-    width: 100%;
-    color: white;
-    transform: scale(0);
-    transform-origin: top center;
-    transition: all 100ms ease-in-out;
-    line-height: 1px;
-    height: 29px;
-}
-.sub-menu li:last-child {
-    border-bottom: 0;
-}
-/*.menu > li:hover .sub-menu li {*/
-.menu > li .li-op-subdiv:hover .sub-menu li, .menu > li .li-plan-subdiv:hover .sub-menu li {
-    transform: scale(1);
-}
-/*.menu > li:hover .sub-menu {*/
-.menu > li .li-op-subdiv:hover .sub-menu, .menu > li .li-plan-subdiv:hover .sub-menu {
-    transform: scale(1);
-}
-.li-op-subdiv, .li-plan-subdiv {
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 20px;
-}
-.li-operation-running {
-    background-color: #d9534f;
+.op-total-running {
+    position: absolute;
+    top: 6px;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
-    padding: 6px 10px;
+    padding: 2px 3px;
     text-align: center;
-}
-.li-operation-running:hover {
-    transition-duration: 0.4s;
-    background-color: #b14440;
-}
-.li-operation-running a {
-    font-size: 14px;
+    font-size: 12px;
     text-decoration: none;
 }
-.li-operation-not-running {
-    background-color: #489f4d;
-    border: none;
-    border-radius: 2px;
-    color: whitesmoke;
-    padding: 6px 10px;
-    text-align: center;
-    font-size: 14px;
-    text-decoration: none;
+.header-op-container {
+    display: none;
+    position: absolute;
+    margin-top: 10px;
 }
-.li-operation-not-running:hover {
-    transition-duration: 0.4s;
-    background-color: #3e8e41;
+.header-op-subdiv {
+    min-width: max-content;
+    margin-bottom: 3px;
+    text-align: left !important;
 }
-.li-operation-not-running a {
-    font-size: 14px;
-    text-decoration: none;
+.header-op-subdiv span {
+    line-height: 1.5em !important;
+}
+#header-refresh-container:hover .header-op-container {
+    display: block;
 }
 #userspace {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 15px;
-}
-
-#title {
-    font-family: 'ethnocentric';
-    margin-left: 20px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    display: inline-block;
-    color: whitesmoke;
+    text-align: right;
 }
 
 section.main {
@@ -809,20 +762,12 @@ input:checked { opacity: 1; }
 
 /* Menu gestion des profils */
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
-input[type=text].invisibleInput, input[type=text].invisibleInput2, input[type=text].invisibleInput-green, input[type=text].invisibleInput-blue {
+input[type=text].invisibleInput, input[type=text].invisibleInput-blue {
     border: none;
 }
 
 input[type=text].invisibleInput {
     background-color: #2b2b2b;
-}
-
-input[type=text].invisibleInput2 { /* 2eme type de input invisible, couleur différent */
-    background-color: #2b2b2b;
-}
-
-input[type=text].invisibleInput-green {
-    background-color: #489f4d;
 }
 
 input[type=text].invisibleInput-blue {
@@ -955,7 +900,7 @@ input[type=text].invisibleInput-blue {
     color: whitesmoke;
     background-color: #d9534f;
 }
-.label-black, .label-white {
+.label-black, .label-white, .label-green, .label-red, .label-yellow {
     font-size: 13px;
     vertical-align: middle;
     display: inline-block;
@@ -972,10 +917,23 @@ input[type=text].invisibleInput-blue {
     background-color: #ffffffc7;
     color: #000000d9;
 }
+.label-green {
+    background-color: #3e8e41;
+    color: whitesmoke;
+}
+.label-red {
+    background-color: #d9534f;
+    color: whitesmoke;
+}
+.label-yellow {
+    background-color: #cc9951;
+    color: white;
+}
+
 /**
  *  Si le label se trouve dans un td, il faut spécifier un padding top et bottom
  */
-td .label-white, td .label-black {
+td .label-white, td .label-black, td .label-green, td .label-red, td .label-yellow {
     padding-top: 4px;
     padding-bottom: 4px;
     vertical-align: middle;
@@ -1056,9 +1014,8 @@ footer p { color: gray; }
     top: -20px;
 }
 
-.action, .alert, .alert-success, .alert-error, .deleteAlert { /* div affichant une alerte au milieu de la page */
+.action, .alert, .alert-success, .alert-error, .confirmAlert { /* div affichant une alerte au milieu de la page */
     width: 100%;
-    /* height: fit-content; */
     height: 18px;
     padding-top: 30px;
     padding-bottom: 30px;
@@ -1075,15 +1032,15 @@ footer p { color: gray; }
     text-align: center;
     vertical-align: middle;
 }
-/* .deleteAlert {
+/* .confirmAlert {
     height: 18px;
 } */
 .alert-success { background-color: #489f4d; }
 .alert-error { background-color: firebrick; }
-.alert span, .alert-success span, .alert-error span, .deleteAlert span {
+.alert span, .alert-success span, .alert-error span, .confirmAlert span {
     font-size: 16px;
 }
-.deleteAlert-message, .alert-message {
+.confirmAlert-message, .alert-message {
     font-size: 18px;
     position: absolute;
     left: 50%;
@@ -1092,23 +1049,23 @@ footer p { color: gray; }
     -moz-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
 }
-.deleteAlert-buttons-container {
+.confirmAlert-buttons-container {
     position: absolute;
     right: 0px;
     top: 50%;
     transform: translateY(-50%);
 }
-.btn-doDelete, .btn-cancelDelete {
+.btn-doConfirm, .btn-doCancel {
     margin-left: 15px;
     margin-right: 15px;
     padding: 20px;
     border-radius: 4px;
     border: 1px solid black;
 }
-.btn-doDelete {
+.btn-doConfirm {
     background-color: #d9534f;
 }
-.btn-doDelete:hover {
+.btn-doConfirm:hover {
     background-color: #b14440;
 }
 
