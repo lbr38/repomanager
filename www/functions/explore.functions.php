@@ -1,8 +1,10 @@
 <?php
+
 /**
  *  Based on : https://phpfog.com/directory-trees-with-php-and-jquery/
  */
-function tree($path) {
+function tree($path)
+{
     global $repoPath;
 
     if (is_dir($path)) {
@@ -23,7 +25,7 @@ function tree($path) {
              *  Cas où c'est un répertoire
              *  Case it is a directory
              */
-            if (is_dir($path.'/'.$file) && $file != '.' && $file !='..') {
+            if (is_dir($path . '/' . $file) && $file != '.' && $file != '..') {
                 printSubDir($file, $path, $queue);
                 continue;
             }
@@ -32,8 +34,8 @@ function tree($path) {
              *  Cas où c'est un fichier
              *  Case it is a file
              */
-            if (is_file($path.'/'.$file) and $file != '.' and $file != '..') {
-                /** 
+            if (is_file($path . '/' . $file) and $file != '.' and $file != '..') {
+                /**
                  *  Si c'est un fichier alors on l'ajoute à l'array queue qui contient toute la liste des fichiers du répertoire ou sous-répertoire en cours
                  *  On indexe le nom du fichier $file ainsi que son chemin $path/$file auquel on retire le début du chemin complet afin qu'il ne soit pas visible dans le code source
                  */
@@ -49,7 +51,8 @@ function tree($path) {
 /**
  *  Affichage de tous les fichiers d'un répertoire
  */
-function printQueue($queue) {
+function printQueue($queue)
+{
     /**
      *  D'abord on trie la liste par ordre alphabétique
      */
@@ -62,7 +65,8 @@ function printQueue($queue) {
 /**
  *  Affichage d'un fichier
  */
-function printFile($file, $path) {
+function printFile($file, $path)
+{
     /**
      *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
      */
@@ -76,7 +80,8 @@ function printFile($file, $path) {
 /**
  *  Affichage d'un sous-dossier
  */
-function printSubDir($dir, $path) {
+function printSubDir($dir, $path)
+{
     if ($dir == "my_uploaded_packages") { // Si le nom du répertoire est 'my_uploaded_packages' alors on l'affiche en jaune
         echo "<li><span class=\"explorer-toggle yellowtext\"><img src=\"ressources/icons/folder.png\" class=\"icon\" />$dir</span>";
     } else {
@@ -90,12 +95,13 @@ function printSubDir($dir, $path) {
  *  Fonction permettant de reconstruire l'array $_FILES['packages'] qui est assez mal foutu et donc compliqué à parcourir
  *  https://www.php.net/manual/fr/features.file-upload.multiple.php
  */
-function reArrayFiles(&$file_post) {
+function reArrayFiles(&$file_post)
+{
     $file_array = array();
     $file_count = count($file_post['name']);
     $file_keys = array_keys($file_post);
 
-    for ($i=0; $i<$file_count; $i++) {
+    for ($i = 0; $i < $file_count; $i++) {
         foreach ($file_keys as $key) {
             $file_array[$i][$key] = $file_post[$key][$i];
         }
@@ -103,4 +109,3 @@ function reArrayFiles(&$file_post) {
 
     return $file_array;
 }
-?>

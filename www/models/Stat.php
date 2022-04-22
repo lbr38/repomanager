@@ -1,96 +1,159 @@
 <?php
 
-class Stat extends Model {
+namespace Models;
+
+use Exception;
+
+class Stat extends Model
+{
+    public function __construct()
+    {
+        /**
+         *  Ouverture d'une connexion à la base de données
+         */
+        $this->getConnection('stats');
+    }
 
     /**
-     *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
+     *  Ajoute de nouvelles statistiques à la table stats
      */
-    public function get_lastAccess(array $parameters = [])
+    public function add(string $date, string $time, string $repoSize, string $packagesCount, string $envId)
     {
-        extract($parameters);
-
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :likeRequest ORDER BY Date DESC, Time DESC LIMIT 50");
-            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
+            $stmt = $this->db->prepare("INSERT INTO stats (Date, Time, Size, Packages_count, Id_env) VALUES (:date, :time, :size, :packages_count, :envId)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':size', $repoSize);
+            $stmt->bindValue(':packages_count', $packagesCount);
+            $stmt->bindValue(':envId', $envId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Retourne tout le contenu de la table stats
+     */
+    public function getAll(string $envId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM stats WHERE Id_env = :envId");
+            $stmt->bindValue('envId', $envId);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
         $datas = array();
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
-        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
+        return $datas;
+    }
+
+    /**
+     *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
+     */
+    public function getLastAccess(string $name, string $dist = null, string $section = null, string $env)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :request ORDER BY Date DESC, Time DESC LIMIT 50");
+
+            if (!empty($dist) and !empty($section)) {
+                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
+            } else {
+                $stmt->bindValue(':request', "%/${name}_${env}/%");
+            }
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
         return $datas;
     }
 
     /**
      *  Retourne le détail des requêtes sur le repo/section spécifié, des 5 dernières minutes
      */
-    public function get_lastMinutesAccess(array $parameters = [])
+    public function getLastMinutesAccess(string $name, string $dist = null, string $section = null, string $env)
     {
-        extract($parameters);
-
         $timeEnd   = date("H:i:s");
-        $timeStart = date('H:i:s',strtotime('-5 minutes',strtotime($timeEnd)));
-
-        $datas = array();
+        $timeStart = date('H:i:s', strtotime('-5 minutes', strtotime($timeEnd)));
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' and Time BETWEEN '$timeStart' and '$timeEnd' and Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
-            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '" . DATE_YMD . "' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :request ORDER BY Date DESC LIMIT 30");
+            if (!empty($dist) and !empty($section)) {
+                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
+            } else {
+                $stmt->bindValue(':request', "%/${name}_${env}/%");
+            }
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
-        
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
         return $datas;
     }
 
     /**
      *  Retourne le détail des requêtes en temps réel (date et heure actuelles +/- 5sec) sur le repo/section spécifié
      */
-    public function get_realTimeAccess(array $parameters = [])
+    public function getRealTimeAccess(string $name, string $dist = null, string $section = null, string $env)
     {
-        extract($parameters);
-
         $timeEnd   = date("H:i:s");
-        $timeStart = date('H:i:s',strtotime('-5 seconds',strtotime($timeEnd)));
+        $timeStart = date('H:i:s', strtotime('-5 seconds', strtotime($timeEnd)));
 
-        $datas = array();
-        
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' and Time BETWEEN '$timeStart' and '$timeEnd' and Request LIKE :likeRequest ORDER BY Date DESC");
-            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '" . DATE_YMD . "' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :request ORDER BY Date DESC");
+            if (!empty($dist) and !empty($section)) {
+                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
+            } else {
+                $stmt->bindValue(':request', "%/${name}_${env}/%");
+            }
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
-        
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
         return $datas;
     }
 
     /**
      *  Compte le nombre de requêtes d'accès au repo/section spécifié, sur une date donnée
      */
-    public function get_dailyAccess_count(array $parameters = [])
+    public function getDailyAccessCount(string $name, string $dist = null, string $section = null, string $env, string $date)
     {
-        extract($parameters);
-
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date and Request LIKE :likeRequest");
-            if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
-            if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = :date AND Request LIKE :request");
+            if (!empty($dist) and !empty($section)) {
+                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
+            } else {
+                $stmt->bindValue(':request', "%/${name}_${env}/%");
+            }
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -104,5 +167,12 @@ class Stat extends Model {
          */
         return $count;
     }
+
+    /**
+     *  Fermeture de la connexion à la base de données
+     */
+    public function closeConnection()
+    {
+        $this->db->close();
+    }
 }
-?>

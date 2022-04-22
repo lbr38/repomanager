@@ -9,24 +9,25 @@ loadProfilesSelect2();
 /**
  *  Chargement de tous les Select2 de la pages des profils
  */
-function loadProfilesSelect2() {
+function loadProfilesSelect2()
+{
     $('.reposSelectList').select2({
         closeOnSelect: false,
         placeholder: 'Ajouter un repo ✎'
     });
     $('.excludeMajorSelectList').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un paquet ✎',
+        placeholder: 'Sélectionner un paquet 🖉',
         tags: true
     });
     $('.excludeSelectList').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un paquet ✎',
+        placeholder: 'Sélectionner un paquet 🖉',
         tags: true
     });
     $('.needRestartSelectList').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un service ✎',
+        placeholder: 'Sélectionner un service 🖉',
         tags: true
     });
 }
@@ -35,8 +36,9 @@ function loadProfilesSelect2() {
  *  Rechargement de la div des profils
  *  Recharge les menus select2 en même temps
  */
- function reloadProfileDiv(){
-    $("#profilesDiv").load(" #profilesDiv > *",function(){
+function reloadProfileDiv()
+{
+    $("#profilesDiv").load(" #profilesDiv > *",function () {
         /**
          *  Rechargement de tous les menus Select2
          */
@@ -51,7 +53,7 @@ function loadProfilesSelect2() {
 /**
  *  Event : Création d'un nouveau profil
  */
-$(document).on('submit','#newProfileForm',function(){
+$(document).on('submit','#newProfileForm',function () {
     event.preventDefault();
     /**
      *  Récupération du nom de profil à créer dans l'input prévu à cet effet
@@ -65,21 +67,22 @@ $(document).on('submit','#newProfileForm',function(){
 /**
  *  Event : Suppression d'un profil
  */
-$(document).on('click','.deleteProfileBtn',function(){
+$(document).on('click','.deleteProfileBtn',function () {
      var name = $(this).attr('profilename');
-    deleteConfirm('Êtes vous sûr de vouloir supprimer le profil <b>'+name+'</b> ?', function(){deleteProfile(name)});
+    deleteConfirm('Êtes vous sûr de vouloir supprimer le profil <b>' + name + '</b> ?', function () {
+        deleteProfile(name)});
 });
 
 /**
  *  Event : Renommage d'un profil
  */
-$(document).on('submit','.profileForm',function(){
+$(document).on('submit','.profileForm',function () {
     event.preventDefault();
     /**
      *  Récupération du nom actuel (dans <form>) et du nouveau nom (dans <input> contenant l'attribut profilename="name")
      */
     var name = $(this).attr('profilename');
-    var newname = $('input[profilename='+name+'].profileFormInput').val();
+    var newname = $('input[profilename=' + name + '].profileFormInput').val();
     renameProfile(name, newname);
 
     return false;
@@ -88,24 +91,54 @@ $(document).on('submit','.profileForm',function(){
 /**
  *  Event : duplication d'un profil
  */
-$(document).on('click','.duplicateProfileBtn',function(){
+$(document).on('click','.duplicateProfileBtn',function () {
     var name = $(this).attr('profilename');
-   
+
     duplicateProfile(name);
 });
 
 /**
  *  Event : Afficher la configuration d'un profil
  */
-$(document).on('click','.profileConfigurationBtn',function(){
+$(document).on('click','.profileConfigurationBtn',function () {
     var name = $(this).attr('profilename');
-    $("#profileConfigurationDiv-"+name).slideToggle(150);
+    $("#profileConfigurationDiv-" + name).slideToggle(150);
+});
+
+/**
+ *  Event : modifier la configuration serveur
+ */
+$(document).on('submit','#applyServerConfigurationForm',function () {
+    event.preventDefault();
+
+    var serverOsFamily = $('#serverOsFamilyInput').val();
+    var serverOsName = $('#serverOsNameInput').val();
+    var serverOsVersion = $('#serverOsVersionInput').val();
+    var serverPackageType = $('#serverPackageTypeInput').val();
+    var serverPackageOsVersion = $('#serverPackageOsVersionInput').val();
+    var repoConfPrefix = $('#repoConfPrefix').val();
+
+    if ($('#serverManageClientConf').is(':checked')) {
+        var serverManageClientConf = 'yes';
+    } else {
+        var serverManageClientConf = 'no';
+    }
+
+    if ($('#serverManageClientRepos').is(':checked')) {
+        var serverManageClientRepos = 'yes';
+    } else {
+        var serverManageClientRepos = 'no';
+    }
+
+    applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
+
+    return false;
 });
 
 /**
  *  Event : modifier la configuration d'un profil (repos, exclusions...)
  */
- $(document).on('submit','.profileConfigurationForm',function(){
+$(document).on('submit','.profileConfigurationForm',function () {
     event.preventDefault();
     /**
      *  Récupération du nom du groupe (dans <form>)
@@ -116,41 +149,72 @@ $(document).on('click','.profileConfigurationBtn',function(){
      */
     var name = $(this).attr('profilename');
 
-    var reposList = $('select[profilename='+name+'].reposSelectList').val();
-    var packagesMajorExcluded = $('select[profilename='+name+'].excludeMajorSelectList').val();
-    var packagesExcluded = $('select[profilename='+name+'].excludeSelectList').val();
-    var serviceNeedRestart = $('select[profilename='+name+'].needRestartSelectList').val();
+    var reposList = $('select[profilename=' + name + '].reposSelectList').val();
+    var packagesMajorExcluded = $('select[profilename=' + name + '].excludeMajorSelectList').val();
+    var packagesExcluded = $('select[profilename=' + name + '].excludeSelectList').val();
+    var serviceNeedRestart = $('select[profilename=' + name + '].needRestartSelectList').val();
 
-    if ($('#profileConf_keepCron[profilename='+name+']').is(':checked')) {
-        var keepCron = 'yes';
-    } else {
-        var keepCron = 'no';
-    }
-    if ($('#profileConf_allowOverwrite[profilename='+name+']').is(':checked')) {
+    if ($('#profileConf_allowOverwrite[profilename=' + name + ']').is(':checked')) {
         var allowOverwrite = 'yes';
     } else {
         var allowOverwrite = 'no';
     }
-    if ($('#profileConf_allowReposFilesOverwrite[profilename='+name+']').is(':checked')) {
+    if ($('#profileConf_allowReposFilesOverwrite[profilename=' + name + ']').is(':checked')) {
         var allowReposFilesOverwrite = 'yes';
     } else {
         var allowReposFilesOverwrite = 'no';
     }
 
-    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, keepCron, allowOverwrite, allowReposFilesOverwrite);
+    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite);
 
     return false;
 });
 
 
 /**
- * Ajax: Créer un nouveau profil
- * @param {string} name 
+ * Ajax: Modifier la configuration serveur
  */
- function newProfile(name) {
+function applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/profiles/ajax.php",
+        data: {
+            action: "applyServerConfiguration",
+            serverOsFamily: serverOsFamily,
+            serverOsName: serverOsName,
+            serverOsVersion: serverOsVersion,
+            serverPackageType: serverPackageType,
+            serverPackageOsVersion: serverPackageOsVersion,
+            serverManageClientConf: serverManageClientConf,
+            serverManageClientRepos: serverManageClientRepos,
+            repoConfPrefix: repoConfPrefix
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            /**
+             *  Affichage d'une alerte success et rechargement des profils
+             */
+            printAlert(jsonValue.message, 'success');
+            reloadProfileDiv();
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: Créer un nouveau profil
+ * @param {string} name
+ */
+function newProfile(name)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/profiles/ajax.php",
         data: {
             action: "newProfile",
             name: name
@@ -173,12 +237,13 @@ $(document).on('click','.profileConfigurationBtn',function(){
 
 /**
  * Ajax : Supprimer un profil
- * @param {string} name 
+ * @param {string} name
  */
- function deleteProfile(name) {
+function deleteProfile(name)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/profiles/ajax.php",
         data: {
             action: "deleteProfile",
             name: name
@@ -196,17 +261,18 @@ $(document).on('click','.profileConfigurationBtn',function(){
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
-    });   
+    });
 }
 
 /**
  * Ajax: Renommer un profil
- * @param {string} name 
+ * @param {string} name
  */
- function renameProfile(name, newname) {
+function renameProfile(name, newname)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/profiles/ajax.php",
         data: {
             action: "renameProfile",
             name: name,
@@ -225,46 +291,18 @@ $(document).on('click','.profileConfigurationBtn',function(){
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
-    });   
-}
-
-/**
- * Ajax: Renommer un profil
- * @param {string} name 
- */
- function renameProfile(name, newname) {
-    $.ajax({
-        type: "POST",
-        url: "controllers/ajax.php",
-        data: {
-            action: "renameProfile",
-            name: name,
-            newname : newname
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
-            printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
-        },
-        error : function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });   
+    });
 }
 
 /**
  * Ajax: Dupliquer un profil
- * @param {string} name 
+ * @param {string} name
  */
- function duplicateProfile(name) {
+function duplicateProfile(name)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/profiles/ajax.php",
         data: {
             action: "duplicateProfile",
             name: name
@@ -282,16 +320,17 @@ $(document).on('click','.profileConfigurationBtn',function(){
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
-    });   
+    });
 }
 
 /**
  * Ajax: Modifier la configuration d'un profil
  */
- function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, keepCron, allowOverwrite, allowReposFilesOverwrite) {
+function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/profiles/ajax.php",
         data: {
             action: "configureProfile",
             name: name,
@@ -299,7 +338,6 @@ $(document).on('click','.profileConfigurationBtn',function(){
             packagesMajorExcluded: packagesMajorExcluded,
             packagesExcluded: packagesExcluded,
             serviceNeedRestart: serviceNeedRestart,
-            keepCron: keepCron,
             allowOverwrite: allowOverwrite,
             allowReposFilesOverwrite: allowReposFilesOverwrite
         },
@@ -315,5 +353,5 @@ $(document).on('click','.profileConfigurationBtn',function(){
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
-    });   
+    });
 }

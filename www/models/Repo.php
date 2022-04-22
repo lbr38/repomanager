@@ -1,921 +1,530 @@
 <?php
-include_once(ROOT."/models/includes/cleanArchives.php");
 
-class Repo extends Model {
-    private $id; // l'id en BDD du repo
-    private $name;
-    private $source;
-    private $dist;
-    private $section;
-    private $date;
-    private $dateFormatted;
-    private $time;
-    private $env;
-    private $description;
-    private $signed; // yes ou no
-    private $type; // miroir ou local
-    private $status;
+namespace Models;
 
+use DateTime;
+use Exception;
 
-    // Variable supplémentaires utilisées lors d'opérations sur le repo
-    public $group;
-    public $log;
-    private $sourceFullUrl;
-    private $hostUrl;
-    private $rootUrl;
-    private $gpgCheck;
-    private $gpgResign;
-
-    private $targetName;
-    private $targetEnv;
-    private $targetGroup;
-    private $targetDescription;
-    private $targetGpgCheck;
-    private $targetGpgResign;
-
-    /**
-     *  Import des traits nécessaires pour les opérations sur les repos/sections
-     */
-    use cleanArchives;
-
-    public function __construct(array $variables = []) {
-
-        // extract($variables);
+class Repo extends Model
+{
+    public function __construct(array $variables = [])
+    {
 
         /**
          *  Ouverture d'une connexion à la base de données
          */
         $this->getConnection('main');
-        
-        // /* Id */
-        // if (!empty($repoId)) $this->id = $repoId;
-        // /* Type */
-        // if (!empty($repoType)) $this->type = $repoType;
-        // /* Nom */
-        // if (!empty($repoName)) $this->name = $repoName;
-        // /* Nouveau nom */
-        // if (!empty($repoNewName)) $this->newName = $repoNewName;
-        // /* Distribution (Debian) */
-        // if (!empty($repoDist)) $this->dist = $repoDist;
-        // /* Section (Debian) */
-        // if (!empty($repoSection)) $this->section = $repoSection;
-        // /* Env */
-        // if (empty($repoEnv)) { $this->env = DEFAULT_ENV; } else { $this->env = $repoEnv; }
-        // /* New env */
-        // if (!empty($repoNewEnv)) $this->newEnv = $repoNewEnv;
-        // /* Groupe */
-        // if (!empty($repoGroup)) { 
-        //     if ($repoGroup == 'nogroup') {
-        //         $this->group = ''; 
-        //     } else {
-        //         $this->group = $repoGroup;
-        //     }
-        // } else { 
-        //     $this->group = '';
-        // }
-        // /* Description */
-        // if (!empty($repoDescription)) {
-        //     if ($repoDescription == "nodescription") {
-        //         $this->description = '';
-        //     } else {
-        //         $this->description = $repoDescription;
-        //     }
-        // } else {
-        //     $this->description = '';
-        // }
-        // /* Date */
-        // if (empty($repoDate)) {
-        //     // Si aucune date n'a été transmise alors on prend la date du jour
-        //     $this->date = DATE_YMD;
-        //     $this->dateFormatted = DATE_DMY;
-        // } else {
-        //     /**
-        //      *  A TESTER : nouvelle façon d'initialiser la date si elle a été transmise
-        //      *  Pas encore eu l'occasion de tester ce cas
-        //      */
-        //     /**
-        //      *  Si la date transmise est au format Y-m-d
-        //      */
-        //     $d = DateTime::createFromFormat('Y-m-d', $repoDate);
-        //     if ($d === $repoDate) {
-        //         $this->date = $repoDate;
-        //         $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $repoDate)->format('d-m-Y');
-        //     }
-
-        //     /**
-        //      *  Si la date transmise est au format d-m-Y
-        //      */
-        //     $d = DateTime::createFromFormat('d-m-Y', $repoDate);
-        //     if ($d === $repoDate) {
-        //         $this->date = DateTime::createFromFormat('d-m-Y', $repoDate)->format('Y-m-d');
-        //         $this->dateFormatted = $repoDate;
-        //     }
-
-        //     unset($d);
-        // }
-
-        // /* Time */
-        // if (empty($repoTime)) {
-        //     //$this->time = exec("date +%H:%M");
-        //     $this->time = date("H:i:s");
-        // } else {
-        //     $this->time = $repoTime;
-        // }
-
-        // /* Source */
-        // if (!empty($repoSource)) {
-        //     $this->source = $repoSource;
-
-        //     /**
-        //      *  On récupère au passage l'url source complète
-        //      */
-        //     if (OS_FAMILY == "Debian" and $this->type == "mirror") $this->getFullSource();
-        // }
-        // /* Signed */
-        // if (!empty($repoSigned)) $this->signed = $repoSigned;
-        // /* Gpg resign */
-        // if (!empty($repoGpgResign)) {
-        //     $this->signed    = $repoGpgResign;
-        //     $this->gpgResign = $repoGpgResign;
-        // }
-        // /* gpg check */
-        // if (!empty($repoGpgCheck)) $this->gpgCheck = $repoGpgCheck;
-        // /* status */
-        // if (!empty($repoStatus)) $this->status = $repoStatus;
     }
-
-    public function setId(string $id)
-    {
-        $this->id = Common::validateData($id);
-    }
-
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function setDist(string $dist)
-    {
-        $this->dist = $dist;
-    }
-
-    public function setSection(string $section)
-    {
-        $this->section = $section;
-    }
-
-    public function setEnv(string $env)
-    {
-        $this->env = $env;
-    }
-
-    public function setDate(string $date)
-    {
-        $this->date = $date;
-    }
-
-    public function setDateFormatted(string $date)
-    {
-        $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $date)->format('d-m-Y');
-    }
-
-    public function setTime(string $time)
-    {
-        $this->time = $time;
-    }
-
-    public function setType(string $type)
-    {
-        $this->type = $type;
-    }
-
-    public function setSigned(string $signed)
-    {
-        $this->signed = $signed;
-    }
-
-    public function setStatus(string $status)
-    {
-        $status = Common::validateData($status);
-        
-        /**
-         *  Le status ne peut qu'être 'active' ou 'archived'
-         */
-        if ($status != "active" and $status != "archived") {
-            throw new Exception("Le status renseigné est invalide : $status");
-        }
-
-        $this->status = $status;
-    }
-
-    public function setDescription($description = '')
-    {
-        if ($description == 'nodescription') $description = '';
-
-        $this->description = Common::validateData($description);
-    }
-
-    public function setSource(string $source)
-    {
-        $this->source = $source;
-    }
-
-    public function setSourceFullUrl(string $fullUrl)
-    {
-        $this->sourceFullUrl = $fullUrl;
-    }
-
-    public function setSourceHostUrl($hostUrl)
-    {
-        $this->hostUrl = $hostUrl;
-    }
-
-    public function setSourceRoot($root)
-    {
-        $this->rootUrl = $root;
-    }
-
-    // public function setGpgResign(string $gpgResign)
-    // {
-    //     if ($gpgResign != 'yes' and $gpgResign != 'no') {
-    //         throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
-    //     }
-
-    //     $this->gpgResign = Common::validateData($gpgResign);
-    //     $this->signed = Common::validateData($gpgResign);
-    // }
-
-    public function setTargetName(string $name)
-    {
-        $this->targetName = $name;    
-    }
-
-    public function setTargetEnv(string $env)
-    {
-        $this->targetEnv = $env;
-    }
-
-    public function setTargetGroup(string $group)
-    {
-        if ($group == 'nogroup') {
-            $this->targetGroup = '';
-        } else {
-            $this->targetGroup = $group;
-        }
-    }
-
-    public function setTargetDescription(string $description)
-    {
-        if ($description == 'nodescription') {
-            $this->targetDescription = '';
-        } else {
-            $this->targetDescription = $description;
-        }
-    }
-
-    public function setTargetGpgCheck(string $gpgCheck)
-    {
-        $this->targetGpgCheck = $gpgCheck;
-    }
-
-    public function setTargetGpgResign(string $gpgResign)
-    {
-        $this->targetGpgResign = $gpgResign;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function getDist()
-    {
-        return $this->dist;
-    }
-
-    public function getSection()
-    {
-        return $this->section;
-    }
-
-    public function getEnv()
-    {
-        return $this->env;
-    }
-
-    public function getTargetEnv()
-    {
-        return $this->targetEnv;
-    }
-
-    public function getDate()
-    {
-        return $this->date;
-    }
-
-    public function getDateFormatted()
-    {
-        return DateTime::createFromFormat('Y-m-d', $this->date)->format('d-m-Y');
-    }
-
-    public function getTime()
-    {
-        return $this->time;
-    }
-
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    public function getHostUrl()
-    {
-        return $this->hostUrl;
-    }
-
-    public function getRootUrl()
-    {
-        return $this->rootUrl;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function getSigned()
-    {
-        return $this->signed;
-    }
-
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function getTargetName()
-    {
-        return $this->targetName;
-    }
-
-    public function getTargetGroup()
-    {
-        return $this->targetGroup;
-    }
-
-    public function getTargetDescription()
-    {
-        return $this->targetDescription;
-    }
-
-    public function getTargetGpgCheck()
-    {
-        return $this->targetGpgCheck;
-    }
-
-    public function getTargetGpgResign()
-    {
-        return $this->targetGpgResign;
-    }
-
-
-/**
- *  LISTAGE
- */
 
     /**
-     *  Retourne un array de tous les repos/sections
+     *  Remplace la fonction commentée ci-dessus
      */
-    public function listAll()
+    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
     {
         try {
-            if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Env ASC");
-            if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
-        
-        return $repos;
-    }
-
-    /**
-     *  Retourne un array de tous les repos/sections archivé(e)s
-     */
-    public function listAll_archived()
-    {    
-        try {
-            if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC");
-            if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
-        
-        return $repos;
-    }
-
-    /**
-     *  Retourne un array de tous les repos/sections (nom seulement)
-     */
-    public function listAll_distinct() {
-        try {
-            if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC");
-            if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        $repos = array();
-        
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
-        
-        return $repos;
-    }
-
-    /**
-     *  Retourne un array de tous les repos/sections (nom seulement), sur un environnement en particulier
-     */
-    public function listAll_distinct_byEnv(string $env) {
-        try {
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env and Status = 'active' ORDER BY Name ASC");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env and Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-        
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $repos[] = $datas;
-        
-        return $repos;
-    }
-
-    /**
-     *  Compter le nombre total de repos/sections
-     */
-    public function countActive()
-    {
-        if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active'");
-        if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active'");
-
-        return $this->db->count($result);
-    }
-
-    /**
-     *  Compter le nombre total de repos/sections archivé(e)s
-     */
-    public function countArchived()
-    {
-        if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos_archived WHERE Status = 'active'");
-        if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos_archived WHERE Status = 'active'");
-
-        return $this->db->count($result);
-    }
-
-
-/**
- *  VERIFICATIONS
- */
-
-    /**
-     *  Vérifie que l'Id du repo existe en BDD
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function existsId(string $id, string $targetTable = null)
-    {
-        /** 
-         *  Si on a renseigné $table (active ou archived) alors on interroge soit la table repos soit la table repos_archived
-         *  Sinon on interroge la table par défaut 'repos'
-         */
-        if (empty($targetTable)) {
-            $table = 'repos';
-        } else {
-            if ($targetTable != 'active' and $targetTable != 'archived') {
-                return false;
+            if (!empty($repoId) and !empty($snapId) and !empty($envId)) {
+                $stmt = $this->db->prepare("SELECT
+                repos.Id AS repoId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_snap.Id AS snapId,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Type,
+                repos_snap.Status,
+                repos_snap.Id_repo,
+                repos_env.Id AS envId,
+                repos_env.Env,
+                repos_env.Description,
+                repos_env.Id_snap
+                FROM repos 
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                INNER JOIN repos_env
+                    ON repos_env.Id_snap = repos_snap.Id
+                WHERE repos.Id = :repoId
+                AND repos_snap.Id = :snapId
+                AND repos_env.Id = :envId");
+                $stmt->bindValue(':repoId', $repoId);
+                $stmt->bindValue(':snapId', $snapId);
+                $stmt->bindValue(':envId', $envId);
+            } elseif (!empty($repoId) and !empty($snapId)) {
+                $stmt = $this->db->prepare("SELECT
+                repos.Id AS repoId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_snap.Id AS snapId,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Type,
+                repos_snap.Status,
+                repos_snap.Id_repo
+                FROM repos 
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos.Id = :repoId
+                AND repos_snap.Id = :snapId");
+                $stmt->bindValue(':repoId', $repoId);
+                $stmt->bindValue(':snapId', $snapId);
+            } elseif (!empty($repoId)) {
+                $stmt = $this->db->prepare("SELECT *
+                FROM repos
+                WHERE repos.Id = :repoId");
+                $stmt->bindValue(':repoId', $repoId);
+            } elseif (!empty($snapId)) {
+                $stmt = $this->db->prepare("SELECT
+                repos.Id AS repoId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_snap.Id AS snapId,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Type,
+                repos_snap.Status,
+                repos_snap.Id_repo
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos_snap.Id = :snapId");
+                $stmt->bindValue(':snapId', $snapId);
+            } elseif (!empty($envId)) {
+                $stmt = $this->db->prepare("SELECT
+                repos.Id AS repoId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_snap.Id AS snapId,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Type,
+                repos_snap.Status,
+                repos_snap.Id_repo,
+                repos_env.Id AS envId,
+                repos_env.Env,
+                repos_env.Description,
+                repos_env.Id_snap
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                INNER JOIN repos_env
+                    ON repos_env.Id_snap = repos_snap.Id
+                WHERE repos_env.Id = :envId");
+                $stmt->bindValue(':envId', $envId);
             }
-
-            if ($targetTable == 'active') {
-                $table = 'repos';
-            }
-            if ($targetTable == 'archived') {
-                $table = 'repos_archived';
-            }
-        }
-
-        try {
-            $stmt = $this->db->prepare("SELECT Id FROM $table WHERE Id = :id and Status = 'active'");
-            $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-        
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
-        
-        return true;      
-    }
-
-    /**
-     *  Vérifie que le repo existe à partir de son nom
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function exists(string $name)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-
-        return true;
-    }
-
-    /**
-     *  Vérifie que le repo existe, sur un environnement en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function existsEnv(string $name, string $env)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name and Env=:env and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-        
-        return true;
-    }
-
-    /**
-     *  Vérifie que le repo existe, à une date en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function existsDate(string $name, string $date, string $status)
-    {
-        if ($status == 'active') {
-            $table = 'repos';
-        }
-        if ($status == 'archived') {
-            $table = 'repos_archived';
-        }
-
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name and Date = :date and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-        
-        return true;
-    }
-
-    /**
-     *  Vérifie que le repo existe, à une date et à un environnement en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function existsDateEnv(string $name, string $date, string $env)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Date = :date and Env = :env and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-
-        return true;
-    }
-
-    /**
-     *  Vérifie que la section existe
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function section_exists(string $name, string $dist, string $section)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-
-        return true;
-    }
-
-    /**
-     *  Vérifie que la section existe, sur un environnement en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function section_existsEnv(string $name, string $dist, string $section, string $env)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :env and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-
-        return true;
-    }
-
-    /**
-     *  Vérifie que la section existe, à une date en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function section_existsDate(string $name, string $dist, string $section, string $date, string $status)
-    {
-        if ($status == 'active') {
-            $table = 'repos';
-        }
-        if ($status == 'archived') {
-            $table = 'repos_archived';
-        }
-
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name and Dist = :dist and Section = :section and Date = :date and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $stmt->bindValue(':date', $date);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-        
-        return true;
-    }
-
-    /**
-     *  Vérifie que la section existe, à une date et à un environnement en particulier
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    public function section_existsDateEnv(string $name, string $dist, string $section, string $date, string $env)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Date = :date and Env = :env and Status = 'active'");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $stmt->bindValue(':date', $date);
-            $stmt->bindValue(':env', $env);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        if ($this->db->isempty($result) === true) return false;
-
-        return true;
-    }
-
-/**
- *  RECUPERATION D'INFOS EN BDD
- */
-
-    /**
-     *  Récupère l'ID du repo/de la section en BDD
-     */
-    public function db_getId()
-    {
-        try {
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name and Env = :env and Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :env and Status = 'active'");
-            $stmt->bindValue(':name', $this->name);
-            if (OS_FAMILY == "Debian") {
-                $stmt->bindValue(':dist', $this->dist);
-                $stmt->bindValue(':section', $this->section);
-            }
-            $stmt->bindValue(':env', $this->env);
-            $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray()) $this->id = $row['Id'];
-
-        unset($stmt, $result);
-    }
-
-    /**
-     *  Recupère toutes les information du repo/de la section en BDD à partir de son ID et de son état (active ou archived)
-     */
-    public function db_getAllById(string $state = 'active')
-    {
-        /**
-         *  Si on a précisé un state en argument et qu'il est égal à 'archived' alors on interroge la table des repos archivé
-         *  Sinon dans tous les autres cas on interroge la table par défaut càd les repos actifs
-         */
-        try {
-            if ($state == 'active') {
-                $stmt = $this->db->prepare("SELECT * from repos WHERE Id = :id");
-            }
-            if ($state == 'archived') {
-                $stmt = $this->db->prepare("SELECT * from repos_archived WHERE Id = :id");
-            }
-            $stmt->bindValue(':id', $this->id);
-            $result = $stmt->execute();
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
         /**
          *  Si rien n'a été trouvé en BDD avec l'ID fourni alors on quitte
          */
-        if ($this->db->isempty($result) === true) throw new Exception("Erreur : aucun repo portant l'ID $this->id n'a été trouvé en BDD");
+        if ($this->db->isempty($result) === true) {
+            throw new Exception("Erreur : impossible de trouver le repo correspondant aux Id spécifiés");
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $this->setName($row['Name']);
-            if (OS_FAMILY == 'Debian') {
-                $this->setDist($row['Dist']);
-                $this->setSection($row['Section']);
-            }
-            $this->setSource($row['Source']);
-            if (OS_FAMILY == "Debian" and $this->type == "mirror") {
-                $this->getFullSource();
-            }
-            $this->setDate($row['Date']);
-            $this->setDateFormatted($row['Date']);
-            $this->setTime($row['Time']);
-            /**
-             *  Dans le cas où on a précisé $state == 'archived' il n'y a pas d'env pour les repo archivés, d'où la condition
-             */
-            if (!empty($row['Env'])) {
-                $this->setEnv($row['Env']);
-            }
-            $this->setType($row['Type']);
-            $this->setSigned($row['Signed']);
-            $this->setDescription($row['Description']);
+            $data = $row;
         }
+
+        /**
+         *  Retourne un array contenant toutes les données trouvées concernant le repo / snapshot / env
+         */
+        return $data;
+    }
+
+    /**
+     *  Retourne l'Id du repo en base de données à partir de son nom
+     */
+    public function getIdByName(string $name, string $dist = null, string $section = null)
+    {
+        try {
+            /**
+             *  Cas où on a seulement spécifié le nom du repo
+             */
+            if (empty($dist) or empty($section)) {
+                $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name");
+
+            /**
+             *  Cas où la distribution et la section ont été spécifié
+             */
+            } else {
+                $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name and Dist = :dist and Section = :section");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
+    }
+
+    public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
+    {
+        try {
+            if (empty($dist) and empty($section)) {
+                $stmt = $this->db->prepare("SELECT repos_env.Id
+                FROM repos_env
+                INNER JOIN repos_snap
+                    ON repos_snap.Id = repos_env.Id_snap
+                INNER JOIN repos
+                    ON repos.Id = repos_snap.Id_repo
+                WHERE repos.Name = :name
+                AND repos_env.Env = :env");
+            } else {
+                $stmt = $this->db->prepare("SELECT repos_env.Id
+                FROM repos_env
+                INNER JOIN repos_snap
+                    ON repos_snap.Id = repos_env.Id_snap
+                INNER JOIN repos
+                    ON repos.Id = repos_snap.Id_repo
+                WHERE repos.Name = :name
+                AND repos.Dist = :dist
+                AND repos.Section = :section
+                AND repos_env.Env = :env");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $id = '';
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
+    }
+
+    public function getEnvIdBySnapId(string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id_snap = :snapId");
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $envId = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $envId[] = $row['Id'];
+        }
+
+        return $envId;
+    }
+
+    /**
+     *  Retourne tous les Id de repos
+     */
+    public function getAllRepoId()
+    {
+        try {
+            $result = $this->db->query("SELECT Id FROM repos");
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $id = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id[] = $row;
+        }
+
+        return $id;
+    }
+
+    /**
+     *  Retourne les snapshots d'un repos
+     */
+    public function getSnapByRepoId(string $repoId, string $status = null)
+    {
+        try {
+            /**
+             *  Si un status a été spécifié
+             */
+            if (!empty($status)) {
+                $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId AND Status = :status");
+                $stmt->bindValue(':status', $status);
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM repos_snap WHERE Id_repo = :repoId");
+            }
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $snapshots = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $snapshots[] = $row;
+        }
+
+        return $snapshots;
+    }
+
+    /**
+     *  Retourne l'Id du snapshot le + récent du repo
+     */
+    public function getLastSnapshotId(string $repoId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT
+            repos_snap.Id AS snapId,
+            repos_snap.Date
+            FROM repos_snap
+            INNER JOIN repos
+                ON repos.Id = repos_snap.Id_repo
+            WHERE repos.Id = :repoId
+            AND repos_snap.Status = 'active'
+            ORDER BY repos_snap.Date DESC
+            LIMIT 1;");
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $id = '';
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['snapId'];
+        }
+
+        return $id;
+    }
+
+    public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
+    {
+        try {
+            if (empty($dist) and empty($section)) {
+                $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
+                INNER JOIN repos_snap
+                    ON repos_snap.Id = repos_env.Id_snap
+                INNER JOIN repos
+                    ON repos.Id = repos_snap.Id_repo
+                WHERE repos.Name = :name
+                AND repos_env.Env = :env");
+            } else {
+                $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
+                INNER JOIN repos_snap
+                    ON repos_snap.Id = repos_env.Id_snap
+                INNER JOIN repos
+                    ON repos.Id = repos_snap.Id_repo
+                WHERE repos.Name = :name
+                AND repos.Dist = :dist
+                AND repos.Section = :section
+                AND repos_env.Env = :env");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        /**
+         *  Si aucune description n'existe ou si aucun environnement n'existe alors on renvoie une description vide
+         */
+        if ($this->db->isempty($result) === true) {
+            return '';
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $description = $row['Description'];
+        }
+
+        return $description;
+    }
+
+    /**
+     *  Retourne les repos membres d'un groupe à partir de son Id
+     */
+    public function getReposGroupMembers(string $groupId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT DISTINCT
+            repos.Id AS repoId,
+            repos.Name,
+            repos.Dist,
+            repos.Section,
+            repos.Source,
+            repos.Package_type
+            FROM group_members 
+            INNER JOIN repos
+                ON repos.Id = group_members.Id_repo
+            INNER JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            WHERE repos_snap.Status = 'active' 
+            AND Id_group = :idgroup");
+            $stmt->bindValue(':idgroup', $groupId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $row;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne les repos qui ne sont membres d'aucun groupe
+     */
+    public function getReposNotMembersOfAnyGroup()
+    {
+        $result = $this->db->query("SELECT DISTINCT
+        repos.Id AS repoId,
+        repos.Name,
+        repos.Dist,
+        repos.Section,
+        repos.Source,
+        repos.Package_type
+        FROM repos
+        INNER JOIN repos_snap
+            ON repos_snap.Id_repo = repos.Id
+        WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)");
+
+        $repos = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $row;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne la date d'un snapshot en base de données, à partir de son Id
+     */
+    public function getSnapDateById(string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Date FROM repos_snap WHERE Id = :snapId");
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $date = $row['Date'];
+        }
+
+        return $date;
     }
 
     /**
      *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
      */
-    public function getFullSource()
+    public function getFullSource(string $sourceName)
     {
         /**
          *  Récupère l'url complète
          */
         try {
             $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name = :name");
-            $stmt->bindValue(':name', $this->source);
+            $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        while ($row = $result->fetchArray()) $fullUrl = $row['Url'];
-
-        /**
-         *  On retire http:// ou https:// du début de l'URL
-         */
-        $fullUrl = str_replace(array("http://", "https://"), '', $fullUrl);
-
-        if (empty($fullUrl)) {
-            throw new Exception('impossible de déterminer l\'URL du repo source');
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $fullUrl = $row['Url'];
         }
 
-        /**
-         *  Extraction de l'adresse de l'hôte (server.domain.net) à partir de l'url http
-         */
-        $hostUrl = exec("echo '$fullUrl' | cut -d'/' -f1");
-        
-        /**
-         *  Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian)
-         */
-        $root = str_replace($hostUrl, '', $fullUrl);
-
-        if (empty($hostUrl)) {
-            throw new Exception('impossible de déterminer l\'adresse du repo source');
-        }
-        if (empty($root)) {
-            throw new Exception('impossible de déterminer la racine de l\'URL du repo source');
-        }
-
-        $this->setSourceFullUrl($fullUrl);
-        $this->setSourceHostUrl($hostUrl);
-        $this->setSourceRoot($root);
+        return $fullUrl;
     }
 
     /**
-     *  Récupère l'Id de groupe dont est membre un repo (si il fait partie d'un groupe)
+     *  Liste les snapshots de repos inutilisés en fonction de l'Id de repo et du paramètre de retention spécifié
      */
-    public function db_getGroup(string $repoId)
+    public function getUnunsedSnapshot(string $repoId, string $retention)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id_group FROM group_members WHERE Id_repo = :idrepo");
-            $stmt->bindValue(':idrepo', $repoId);
-            $result = $stmt->execute();
+            $stmt = $this->db->prepare("SELECT
+            repos_snap.Id AS snapId,
+            repos_snap.Date
+            FROM repos
+            LEFT JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            LEFT JOIN repos_env
+                ON repos_env.Id_snap = repos_snap.Id
+            WHERE repos_snap.Id_repo = :repoId
+            AND repos_env.Id_snap IS NULL
+            AND repos_snap.Status = 'active'
+            ORDER BY Date DESC LIMIT -1 OFFSET :retention");
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->bindValue(':retention', $retention);
 
-        } catch (Exception $e) {
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        /**
-         *  Si le repo n'est membre d'aucun groupe on retourne une valeur vide
-         */
-        if ($this->db->isempty($result)) return '';
+        $data = array();
 
-        while ($row = $result->fetchArray()) $groupId = $row['Id_group'];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
 
-        return $groupId;
+        return $data;
     }
-
-/**
- *  ECRITURE EN BDD
- */
 
     /**
      *  Modification de la description
     */
-    public function db_setDescription(string $description)
+    public function envSetDescription(string $envId, string $description)
     {
-        /**
-         *  On accepte de modifier la description à certaines conditions
-         *  Il faut avoir transmis si le repo est actif ou archivé
-         *  Il faut que la description ne comporte pas de caractères interdits, on accepte certains caractères spéciaux (voir array ci-dessous)
-         */
-        if ($this->status != 'active' and $this->status != 'archived') {
-            throw new Exception('Le type de repo est invalide');
-        }
-
         /**
          *  Vérification des caractères de la description
          */
-        if (Common::is_alphanumdash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
+        if (Common::isAlphanumDash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
             throw new Exception("La description contient des caractères invalides");
         }
 
         try {
-            if ($this->status == 'active')   $stmt = $this->db->prepare("UPDATE repos SET Description = :description WHERE Id = :id");
-            if ($this->status == 'archived') $stmt = $this->db->prepare("UPDATE repos_archived SET Description = :description WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE repos_env SET Description = :description WHERE Id = :envId");
             $stmt->bindValue(':description', Common::validateData($description));
-            $stmt->bindValue(':id', $this->id);
+            $stmt->bindValue(':envId', $envId);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -926,17 +535,664 @@ class Repo extends Model {
     /**
      *  Modification de l'état de signature GPG
      */
-    public function db_setsigned(string $id, string $signed)
+    public function snapSetSigned(string $snapId, string $signed)
     {
         /**
          *  signed peut être égal à 'yes' ou 'no'
          */
-        if ($signed != "yes" and $signed != "no") return;
+        if ($signed != "yes" and $signed != "no") {
+            return;
+        }
 
         try {
-            $stmt = $this->db->prepare("UPDATE repos SET Signed = :signed WHERE Id = :id");
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Signed = :signed WHERE Id = :snapId");
             $stmt->bindValue(':signed', $signed);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Modification de la date d'un snapshot en base de données
+     */
+    public function snapSetDate(string $snapId, string $date)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Date = :date WHERE Id = :snapId");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Modification de l'heure d'un snapshot en base de données
+     */
+    public function snapSetTime(string $snapId, string $time)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Time = :time WHERE Id = :snapId");
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Modification de l'état du snapshot
+     */
+    public function snapSetStatus(string $snapId, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Status = :status WHERE Id = :snapId");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Retourne true si l'Id de repo existe en base de données
+     */
+    public function existsId(string $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Id = :id");
             $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie que l'Id du snapshot existe en base de données
+     */
+    public function existsSnapId(string $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id = :id AND Status = 'active'");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie que l'Id d'environnement existe en base de données
+     */
+    public function existsEnvId(string $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_env WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie que le repo existe à partir de son nom
+     *  Retourne true si existe
+     *  Retourne false si n'existe pas
+     */
+    public function exists(string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie qu'un environnement de repo existe
+     *  Retourne true si existe
+     *  Retourne false si n'existe pas
+     */
+    public function existsEnv(string $name, string $dist = null, string $section = null, string $env)
+    {
+        try {
+            if (empty($dist) and empty($section)) {
+                $stmt = $this->db->prepare("SELECT repos.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                INNER JOIN repos_env
+                    ON repos_env.Id_snap = repos_snap.Id
+                WHERE repos.Name = :name
+                AND repos_env.Env = :env
+                AND repos_snap.Status = 'active'");
+            } else {
+                $stmt = $this->db->prepare("SELECT repos.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                INNER JOIN repos_env
+                    ON repos_env.Id_snap = repos_snap.Id
+                WHERE repos.Name = :name
+                AND repos.Dist = :dist
+                AND repos.Section = :section
+                AND repos_env.Env = :env
+                AND repos_snap.Status = 'active'");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie si un snapshot de repo existe à une date spécifique en base de données, à partir du nom du repo et de la date recherchée
+     */
+    public function existsRepoSnapDate(string $date, string $name, string $dist = null, string $section = null)
+    {
+        try {
+            if (empty($dist) and empty($section)) {
+                $stmt = $this->db->prepare("SELECT repos_snap.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos.Name = :name           
+                AND repos_snap.Date = :date
+                AND repos_snap.Status = 'active'");
+            } else {
+                $stmt = $this->db->prepare("SELECT repos_snap.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos.Name = :name
+                AND repos.Dist = :dist
+                AND repos.Section = :section            
+                AND repos_snap.Date = :date
+                AND repos_snap.Status = 'active'");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':date', $date);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie que la section existe
+     *  Retourne true si existe
+     *  Retourne false si n'existe pas
+     */
+    public function sectionExists(string $name, string $dist, string $section)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':section', $section);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie si un environnement existe à partir de son nom et de l'Id de snapshot vers lequel il pointe
+     */
+    public function existsSnapIdEnv(string $snapId, string $env)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT repos_snap.Id
+            FROM repos_snap
+            INNER JOIN repos_env
+                ON repos_env.Id_snap = repos_snap.Id
+            WHERE repos_snap.Id = :snapId
+            AND repos_env.Env = :env");
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->bindValue(':env', $env);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Vérifie si un repo existe et est actif (contient des snapshots actifs)
+     */
+    public function isActive(string $name, string $dist = null, string $section = null)
+    {
+        try {
+            if (empty($dist) and empty($section)) {
+                $stmt = $this->db->prepare("SELECT repos.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos.Name = :name
+                AND repos_snap.Status = 'active'");
+            } else {
+                $stmt = $this->db->prepare("SELECT repos.Id
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos.Name = :name
+                AND repos.Dist = :dist
+                AND repos.Section = :section
+                AND repos_snap.Status = 'active'");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        /**
+         *  Si le résultat est vide alors le repo n'existe pas où alors il ne contient aucun snapshot actif
+         */
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Retourne la liste des repos, leurs snapshots et leur environnements
+     *  N'affiche pas les repos qui n'ont aucun environnement actif
+     */
+    public function listWithEnv()
+    {
+        try {
+            $result = $this->db->query("SELECT
+            repos.Id AS repoId,
+            repos_snap.Id AS snapId,
+            repos_env.Id AS envId,
+            repos.Name,
+            repos.Dist,
+            repos.Section,
+            repos.Source,
+            repos.Package_type,
+            repos_env.Env,
+            repos_snap.Date,
+            repos_snap.Time,
+            repos_snap.Signed,
+            repos_snap.Type,
+            repos_env.Description
+            FROM repos 
+            INNER JOIN repos_snap
+                ON repos.Id = repos_snap.Id_repo
+            INNER JOIN repos_env 
+                ON repos_snap.Id = repos_env.Id_snap
+            WHERE repos_snap.Status = 'active'
+            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $datas;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne la liste des repos éligibles aux planifications
+     *  Il s'agit des repos ayant au moins 1 snapshot actif
+     */
+    public function listForPlan()
+    {
+        try {
+            $result = $this->db->query("SELECT
+            repos.Id AS repoId,
+            repos_snap.Id AS snapId,
+            repos.Name,
+            repos.Dist,
+            repos.Section,
+            repos.Source,
+            repos.Package_type,
+            repos_snap.Date,
+            repos_snap.Time,
+            repos_snap.Signed,
+            repos_snap.Type
+            FROM repos
+            LEFT JOIN repos_snap
+                ON repos.Id = repos_snap.Id_repo
+            WHERE repos_snap.Status = 'active'
+            AND repos_snap.Type = 'mirror'
+            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $datas;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne un array de tous les noms de repos, sans informations des snapshots et environnements associés
+     *  Si le paramètre 'true' est passé alors la fonction renverra uniquement les noms des repos qui ont un snapshot actif rattaché
+     *  Si le paramètre 'false' est passé alors la fonction renverra tous les noms de repos avec ou sans snapshot rattaché
+     */
+    public function listNameOnly(bool $bool)
+    {
+        try {
+            if ($bool == false) {
+                $result = $this->db->query("SELECT DISTINCT *
+                FROM repos
+                ORDER BY Name ASC, Dist ASC, Section ASC");
+            }
+
+            if ($bool == true) {
+                $result = $this->db->query("SELECT DISTINCT
+                repos.Id,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type
+                FROM repos
+                INNER JOIN repos_snap
+                    ON repos_snap.Id_repo = repos.Id
+                WHERE repos_snap.Id_repo NOT NULL
+                AND repos_snap.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
+            }
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $datas;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne la liste des repos actifs, par groupe
+     */
+    public function listByGroup(string $groupName)
+    {
+        /**
+         *  Si le groupe == 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe
+         */
+        try {
+            if ($groupName == 'Default') {
+                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Status, repos_env.Description
+                FROM repos 
+                LEFT JOIN repos_snap
+                    ON repos.Id = repos_snap.Id_repo
+                LEFT JOIN repos_env 
+                    ON repos_env.Id_snap = repos_snap.Id
+                WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
+                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
+            } else {
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Status, repos_env.Description
+                FROM repos 
+                LEFT JOIN repos_snap
+                    ON repos.Id = repos_snap.Id_repo
+                LEFT JOIN repos_env 
+                    ON repos_env.Id_snap = repos_snap.Id
+                LEFT JOIN group_members
+                    ON repos.Id = group_members.Id_repo
+                LEFT JOIN groups
+                    ON groups.Id = group_members.Id_group
+                WHERE groups.Name = :groupname
+                AND repos_snap.Status = 'active'
+                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
+
+                $stmt->bindValue(':groupname', $groupName);
+                $reposInGroup = $stmt->execute();
+            }
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $reposIn = array();
+
+        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) {
+            $reposIn[] = $datas;
+        }
+
+        return $reposIn;
+    }
+
+    /**
+     *  Retourne le liste des noms de repos actifs, par groupe
+     *  Utilisée notamment pour les planifications de groupes
+     */
+    public function listNameByGroup(string $groupName)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT DISTINCT
+            repos.Id AS repoId,
+            repos.Name,
+            repos.Dist,
+            repos.Section
+            FROM repos
+            LEFT JOIN group_members
+                ON repos.Id = group_members.Id_repo
+            LEFT JOIN groups
+                ON groups.Id = group_members.Id_group
+            WHERE groups.Name = :groupname
+            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
+            $stmt->bindValue(':groupname', $groupName);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $row;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne le nombre total de repos
+     */
+    public function count(string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT repos_env.Id FROM repos 
+            INNER JOIN repos_snap
+                ON repos.Id = repos_snap.Id_repo
+            INNER JOIN repos_env 
+                ON repos_snap.Id = repos_env.Id_snap
+            WHERE repos_snap.Status = :status");
+            $stmt->bindValue(':status', $status);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        return $this->db->count($result);
+    }
+
+    /**
+     *  Ajouter un nouveau nom de repo à la table repos
+     */
+    public function add(string $source, string $packageType, string $name, string $dist = null, string $section = null)
+    {
+        try {
+            /**
+             *  Cas où seul le nom a été renseigné
+             */
+            if (empty($dist) or empty($section)) {
+                $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Source', 'Package_type') VALUES (:name, :source, :packageType)");
+
+            /**
+             *  Cas où une distribution et une section ont été renseignés
+             */
+            } else {
+                $stmt = $this->db->prepare("INSERT INTO repos ('Name', 'Dist', 'Section', 'Source', 'Package_type') VALUES (:name, :dist, :section, :source, :packageType)");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            }
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':source', $source);
+            $stmt->bindValue(':packageType', $packageType);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     * Ajout d'un nouveau snapshot de repo en base de données, lié à un Id de repo
+     */
+    public function addSnap(string $date, string $time, string $gpgSignature, string $type, string $status, string $repoId)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :type, :status, :repoId)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':signed', $gpgSignature);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Déclaration d'un nouvel environnement en base de données, associé à un Id de snapshot
+     */
+    public function addEnv(string $env, string $description, string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
+            $stmt->bindValue(':env', $env);
+            $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
+     *  Ajout du repo au groupe spécifié en base de données
+     */
+    public function addToGroup(string $repoId, string $groupId)
+    {
+        /**
+         *  On vérifie d'abord que le repo n'est pas déjà membre du groupe
+         *  Le raffraichissement du <select> peut provoquer deux fois l'ajout du repo dans le groupe, donc on fait cette vérification pour palier à ce bug
+         */
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM group_members WHERE Id_repo = :repoId AND Id_group = :groupId");
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->bindValue(':groupId', $groupId);
+            $result = $stmt->execute();
+        } catch (Exception $e) {
+            Common::dbError($e);
+        }
+
+        /**
+         *  Si le repo est déjà présent on ne fait rien
+         */
+        if ($this->db->isempty($result) === false) {
+            return;
+        }
+
+        try {
+            $stmt = $this->db->prepare("INSERT INTO group_members (Id_repo, Id_group) VALUES (:id_repo, :id_group)");
+            $stmt->bindValue(':id_repo', $repoId);
+            $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
         } catch (Exception $e) {
             Common::dbError($e);
@@ -945,193 +1201,44 @@ class Repo extends Model {
         Common::clearCache();
     }
 
-
     /**
-     *  Génération d'un fichier de configuration de repo (.repo ou .list)
+     *  Retrait d'un repo du groupe spécifié
      */
-    public function generateConf(string $destination) {
-        /**
-         *  On vérifie que le nom a été spécifié
-         */
-        if (empty($this->name)) {
-            return false;
-        }
-        /**
-         *  Sur Debian on vérifie également qu'on a bien fourni le nom de la distribution et de la section
-         */
-        if (OS_FAMILY == 'Debian') {
-            if (empty($this->dist)) {
-                return false;
-            }
-
-            if (empty($this->section)) {
-                return false;
-            }
-        }
-
-        /**
-         *  On peut préciser à la fonction le répertoire de destination des fichiers. Si on précise une valeur vide ou bien "default", alors les fichiers seront générés dans le répertoire par défaut
-         */
-        if (empty($destination) or $destination == "default") {
-            $destination = REPOS_PROFILES_CONF_DIR;
-        }
-
-        /**
-         *  Génération du fichier pour Redhat/Centos
-         */
-        if (OS_FAMILY == "Redhat") {
-            $content = "# Repo {$this->name} sur ".WWW_HOSTNAME;
-            $content = "${content}\n[".REPO_CONF_FILES_PREFIX."{$this->name}___ENV__]";
-            $content = "${content}\nname=Repo {$this->name} sur ".WWW_HOSTNAME;
-            $content = "${content}\ncomment=Repo {$this->name} sur ".WWW_HOSTNAME;
-            $content = "${content}\nbaseurl=https://".WWW_HOSTNAME."/repo/{$this->name}___ENV__";
-            $content = "${content}\nenabled=1";
-            if (GPG_SIGN_PACKAGES == "yes") {
-            $content = "${content}\ngpgcheck=1";
-            $content = "${content}\ngpgkey=https://".WWW_HOSTNAME."/repo/".WWW_HOSTNAME.".pub";
-            } else {
-            $content = "${content}\ngpgcheck=0";
-            }
-
-            /**
-             *  Création du fichier si n'existe pas déjà
-             */
-            if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
-                touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
-            }
-
-            /**
-             *  Ecriture du contenu dans le fichier
-             */
-            file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo", $content);
-        }
-
-        /**
-         *  Génération du fichier pour Debian
-         */
-        if (OS_FAMILY == "Debian") {
-            $content = "# Repo {$this->name}, distribution {$this->dist}, section {$this->section} sur ".WWW_HOSTNAME;
-            $content = "${content}\ndeb https://".WWW_HOSTNAME."/repo/{$this->name}/{$this->dist}/{$this->section}___ENV__ {$this->dist} {$this->section}";
-            
-            /**
-             *  Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
-             */
-            if (preg_match('#/#', $this->dist)) {
-                $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
-            } else {
-                $repoDistFormatted = $this->dist;
-            }
-
-            /**
-             *  Création du fichier si n'existe pas déjà
-             */
-            if (!file_exists("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                touch("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
-            }
-
-            /**
-             *  Ecriture du contenu dans le fichier
-             */
-            file_put_contents("${destination}/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list", $content);
-        }
-
-        unset($content);
-        
-        return true;
-    }
-
-    /**
-     *  Suppression d'un fichier de configuration de repo (.repo ou .list)
-     */
-    public function deleteConf() {
-        /**
-         *  On vérifie que le nom a été spécifié
-         */
-        if (empty($this->name)) {
-            return false;
-        }
-        /**
-         *  Sur Debian on vérifie également qu'on a bien fourni le nom de la distribution et de la section
-         */
-        if (OS_FAMILY == 'Debian') {
-            if (empty($this->dist)) {
-                return false;
-            }
-
-            if (empty($this->section)) {
-                return false;
-            }
-        }
-
-        if (OS_FAMILY == "Redhat") {
-            /**
-             *  Suppression du fichier si existe
-             */
-            if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
-                unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
-            }
-
-            /**
-             *  Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils
-             */ 
-            $profilesNames = scandir(PROFILES_MAIN_DIR);
-
-            foreach ($profilesNames as $profileName) {
-                if (($profileName != "..") and ($profileName != ".") and ($profileName != "_configurations") and ($profileName != "_reposerver") and ($profileName != PROFILE_SERVER_CONF)) {
-                    if (is_link(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
-                        unlink(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
-                    }
-                }
-            }
-        }
-
-        if (OS_FAMILY == "Debian") {
-            /**
-             *  Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list 
-             */
-            if (preg_match('#/#', $this->dist)) {
-                $repoDistFormatted = str_replace("/", "--slash--", $this->dist);
-            } else {
-                $repoDistFormatted = $this->dist;
-            }
-
-            /**
-             *  Suppression du fichier si existe
-             */
-            if (file_exists(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                unlink(REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
-            }
-            
-            /**
-             *  Suppression des liens symboliques pointant vers ce repo dans les répertoires de profils
-             */ 
-            $profilesNames = scandir(PROFILES_MAIN_DIR);
-
-            foreach ($profilesNames as $profileName) {
-                if (($profileName != "..") and ($profileName != ".") and ($profileName != "_configurations") and ($profileName != "_reposerver") and ($profileName != PROFILE_SERVER_CONF)) {
-                    if (is_link(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
-                        unlink(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     *  Ajout du repo au groupe spécifié
-     */
-    public function addToGroup(string $id, string $group)
+    public function removeFromGroup(string $repoId, string $groupId = null)
     {
-        /**
-         *  On vérifie que le groupe existe et on récupère son Id
-         */
-        $mygroup = new Group('repo');
-        $mygroup->db_getId($group);
+        try {
+            /**
+             *  Si on a précisé l'Id du groupe
+             */
+            if (!empty($groupId)) {
+                $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo = :repoId AND Id_group = :groupId");
+                $stmt->bindValue(':groupId', $groupId);
+            } else {
+                $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_repo = :repoId");
+            }
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
 
-        /**
-         *  Insertion du repo dans le groupe
-         */
-        $mygroup->addRepoById($id, $mygroup->getId());
+        Common::clearCache();
+    }
+
+    /**
+     *  Suppression d'un environnement en base de données
+     */
+    public function deleteEnv(string $envId)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM repos_env WHERE Id = :envId");
+            $stmt->bindValue(':envId', $envId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+        unset($stmt);
+
+        Common::clearCache();
     }
 }
-?>

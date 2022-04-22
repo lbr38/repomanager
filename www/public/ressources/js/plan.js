@@ -1,7 +1,13 @@
-$(document).ready(function(){
+$(document).ready(function () {
     /**
      *  Script Select2 pour transformer un select multiple en liste déroulante
      */
+    $('#planActionSelect').select2({
+        closeOnSelect: true,
+        placeholder: 'Sélectionner...',
+        minimumResultsForSearch: Infinity
+    });
+
     $('#planReminderSelect, #planDayOfWeekSelect').select2({
         closeOnSelect: false,
         placeholder: 'Sélectionner...'
@@ -12,8 +18,9 @@ $(document).ready(function(){
  *  Rechargement de la div des planifications
  *  Recharge les menus select2 en même temps
  */
-function reloadPlanDiv(){
-    $("#planDiv").load(" #planDiv > *",function(){
+function reloadPlanDiv()
+{
+    $("#planDiv").load(" #planDiv > *",function () {
         $('#planReminderSelect, #planDayOfWeekSelect').select2({
             closeOnSelect: false,
             placeholder: 'Sélectionner...'
@@ -28,7 +35,7 @@ function reloadPlanDiv(){
 /**
  *  Event : affichage des détails d'une planification
  */
-$(document).on('click','.planDetailsBtn',function(){
+$(document).on('click','.planDetailsBtn',function () {
     /**
      *  Récupération de l'Id de la planification
      */
@@ -36,13 +43,13 @@ $(document).on('click','.planDetailsBtn',function(){
     /**
      *  Affichage du div portant cet Id
      */
-    $('.detailsDiv[plan-id='+planId+']').slideToggle(100);
+    $('.detailsDiv[plan-id=' + planId + ']').slideToggle(100);
 });
 
 /**
  *  Premier chargement de la page planification : Affiche les inputs supplémentaires en fonction du type de planification sélectionné par défaut
  */
-$(document).ready(function(){
+$(document).ready(function () {
     $(".__plan_input").show();
     $(".__regular_plan_input").hide();
 });
@@ -50,14 +57,14 @@ $(document).ready(function(){
 /**
  *  Event : Puis à chaque changement d'état, affiche ou masque les inputs supplémentaires en fonction de ce qui est coché
  */
-$(document).on('change','input:radio[name="planType"]',function(){
+$(document).on('change','input:radio[name="planType"]',function () {
     /**
      *  Cas où il s'agit d'une planification
      */
-    if ($("#addPlanType-plan").is(":checked")) {       
+    if ($("#addPlanType-plan").is(":checked")) {
         $(".__plan_hour_input").show();
         $(".__regular_plan_input").hide();
-        $(".__plan_input").show(); 
+        $(".__plan_input").show();
     /**
      *  Cas où il s'agit d'une tâche récurrente
      */
@@ -71,7 +78,7 @@ $(document).on('change','input:radio[name="planType"]',function(){
 /**
  *  Event : Si on a sélectionné : planification récurrente tous les jours, alors on fait apparaitre l'input de l'heure pour pouvoir renseigner l'heure
  */
-$(document).on('change','#planFrequencySelect',function(){
+$(document).on('change','#planFrequencySelect',function () {
     /**
      *  Si la fréquence sélectionnée est "toutes les heures"
      */
@@ -100,7 +107,7 @@ $(document).on('change','#planFrequencySelect',function(){
 /**
  *   Event : Afficher des boutons radio supplémentaires si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
  */
-$(document).on('change','#planActionSelect',function(){
+$(document).on('change','#planActionSelect',function () {
     if ($("#updateRepoSelect").is(":selected")) {
         $(".__plan_gpg_input").show();
     } else {
@@ -111,7 +118,7 @@ $(document).on('change','#planActionSelect',function(){
 /**
  *  Event : Création d'une planification
  */
-$(document).on('submit','#newPlanForm',function(){
+$(document).on('submit','#newPlanForm',function () {
     event.preventDefault();
     /**
      *  Récupération des paramètres de la planification
@@ -126,8 +133,9 @@ $(document).on('submit','#newPlanForm',function(){
     var time = $("#addPlanTime").val();
     var frequency = $("#planFrequencySelect").val();
     var action = $("#planActionSelect").val();
-    var repo = $("#addPlanRepoId").val();
-    var group = $("#addPlanGroupId").val();
+    var snapId = $("#addPlanSnapId").val();
+    var groupId = $("#addPlanGroupId").val();
+    var targetEnv = $("#addPlanTargetEnv").val();
     var mailRecipient = $("#addPlanMailRecipient").val();
     var reminder = $("#planReminderSelect").val();
     if ($("#addPlanGpgCheck").is(':checked')) {
@@ -151,7 +159,7 @@ $(document).on('submit','#newPlanForm',function(){
         var notificationOnSuccess = 'no';
     }
 
-    newPlan(type, day, date, time, frequency, action, repo, group, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess);
+    newPlan(type, day, date, time, frequency, action, snapId, groupId, targetEnv, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess);
 
     return false;
 });
@@ -160,27 +168,30 @@ $(document).on('submit','#newPlanForm',function(){
 /**
  *  Event : Suppression d'une planification
  */
-$(document).on('click','.deletePlanButton',function(){
+$(document).on('click','.deletePlanButton',function () {
     var planId = $(this).attr('plan-id');
     var planType = $(this).attr('plan-type');
 
     if (planType == 'plan') {
-        deleteConfirm('Êtes vous sûr de vouloir supprimer cette planification ?', function(){deletePlan(planId)});
+        deleteConfirm('Êtes vous sûr de vouloir supprimer cette planification ?', function () {
+            deletePlan(planId)});
     }
     if (planType == 'regular') {
-        deleteConfirm('Êtes vous sûr de vouloir supprimer cette tâche récurrente ?', function(){deletePlan(planId)});
+        deleteConfirm('Êtes vous sûr de vouloir supprimer cette tâche récurrente ?', function () {
+            deletePlan(planId)});
     }
 });
 
 
 /**
  * Ajax: Créer une nouvelle planification
- * @param {string} type 
+ * @param {string} type
  */
-function newPlan(type, day, date, time, frequency, planAction, repo, group, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess) {
+function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, targetEnv, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/planifications/ajax.php",
         data: {
             action: "newPlan",
             type: type,
@@ -189,8 +200,9 @@ function newPlan(type, day, date, time, frequency, planAction, repo, group, gpgC
             time: time,
             frequency: frequency,
             planAction: planAction,
-            repo: repo,
-            group: group,
+            snapId: snapId,
+            groupId: groupId,
+            targetEnv: targetEnv,
             gpgCheck: gpgCheck,
             gpgResign: gpgResign,
             mailRecipient: mailRecipient,
@@ -216,12 +228,13 @@ function newPlan(type, day, date, time, frequency, planAction, repo, group, gpgC
 
 /**
  * Ajax : Supprimer une planification
- * @param {string} id 
+ * @param {string} id
  */
-function deletePlan(id) {
+function deletePlan(id)
+{
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "controllers/planifications/ajax.php",
         data: {
             action: "deletePlan",
             id: id
@@ -239,5 +252,5 @@ function deletePlan(id) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
-    });   
+    });
 }

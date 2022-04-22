@@ -13,6 +13,7 @@
 <br>
     <br>
     <?php
+
     /**
      *  AFFICHAGE DES GROUPES ACTUELS
      */
@@ -20,7 +21,7 @@
     /**
      *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
      */
-    $group = new Group('repo');
+    $group = new \Controllers\Group('repo');
     $groupsList = $group->listAllName();
 
     /**
@@ -30,7 +31,9 @@
         echo '<div class="div-generic-gray">';
             echo "<h5>Groupes actuels</h5>";
 
-            foreach ($groupsList as $groupName) {?>
+            $myrepo = new \Controllers\Repo();
+
+        foreach ($groupsList as $groupName) {?>
                 <div class="header-container">
                     <div class="header-blue-min">
                         <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
@@ -52,11 +55,9 @@
                     <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide">
                         <form class="groupReposForm" groupname="<?php echo $groupName;?>" autocomplete="off">
                             <div class="detailsDiv">
-                                <?php
-                                if (OS_FAMILY == "Redhat") echo '<h5>Repos</h5>';
-                                if (OS_FAMILY == "Debian") echo '<h5>Sections de repos</h5>'; ?>
+                                <h5>Repos</h5>
 
-                                <?php $group->selectRepos($groupName); ?>
+                                <?php $myrepo->selectRepoByGroup($groupName); ?>
 
                                 <br>
                                 <br>

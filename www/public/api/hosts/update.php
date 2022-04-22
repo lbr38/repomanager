@@ -1,4 +1,5 @@
 <?php
+
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: PUT");
@@ -6,8 +7,8 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 define("ROOT", dirname(__FILE__, 4));
-require_once(ROOT.'/models/Autoloader.php');
-Autoloader::loadFromApi();
+require_once(ROOT . '/controllers/Autoloader.php');
+\Controllers\Autoloader::loadFromApi();
 
 /**
  *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Instanciation d'un objet Host
          */
-        $myhost = new Host();
+        $myhost = new \Controllers\Host();
         $myhost->setAuthId($datas->id);
         $myhost->setToken($datas->token);
         $myhost->setFromApi();
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Récupération de l'ID en BDD de l'hôte, il sera utile pour certaines opérations.
          */
-        $myhost->db_getId();
+        $myhost->setId($myhost->getIdByAuth());
 
         /**
          *  Si l'OS a été transmis alors on le met à jour en BDD
@@ -61,34 +62,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->os)) {
             $myhost->setOS($datas->os);
 
-            if ($myhost->db_updateOS())
+            if ($myhost->updateOS()) {
                 $message_success[] = "Mise à jour de l'OS effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de l'OS échouée.";
+            }
         }
 
         /**
          *  Si la version d'OS a été transmise alors on la met à jour en BDD
          */
         if (!empty($datas->os_version)) {
-            $myhost->setOS_version($datas->os_version);
+            $myhost->setOsVersion($datas->os_version);
 
-            if ($myhost->db_updateOS_version())
+            if ($myhost->updateOsVersion()) {
                 $message_success[] = "Mise à jour de la version d'OS effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de la version d'OS échouée.";
+            }
         }
 
         /**
          *  Si la famille d'OS a été transmise alors on la met à jour en BDD
          */
         if (!empty($datas->os_family)) {
-            $myhost->setOS_family($datas->os_family);
+            $myhost->setOsFamily($datas->os_family);
 
-            if ($myhost->db_updateOS_family())
+            if ($myhost->updateOsFamily()) {
                 $message_success[] = "Mise à jour de la famille d'OS effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de la famille d'OS échouée.";
+            }
         }
 
         /**
@@ -97,10 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->type)) {
             $myhost->setType($datas->type);
 
-            if ($myhost->db_updateType())
+            if ($myhost->updateType()) {
                 $message_success[] = "Mise à jour du type effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour du type échouée.";
+            }
         }
 
         /**
@@ -109,10 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->kernel)) {
             $myhost->setKernel($datas->kernel);
 
-            if ($myhost->db_updateKernel())
+            if ($myhost->updateKernel()) {
                 $message_success[] = "Mise à jour du kernel effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour du kernel échouée.";
+            }
         }
 
         /**
@@ -121,10 +127,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->arch)) {
             $myhost->setArch($datas->arch);
 
-            if ($myhost->db_updateArch())
+            if ($myhost->updateArch()) {
                 $message_success[] = "Mise à jour de l'arch effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de l'arch échouée.";
+            }
         }
 
         /**
@@ -133,10 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->profile)) {
             $myhost->setProfile($datas->profile);
 
-            if ($myhost->db_updateProfile())
+            if ($myhost->updateProfile()) {
                 $message_success[] = "Mise à jour du profil effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour du profile échouée.";
+            }
         }
 
         /**
@@ -145,50 +153,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->env)) {
             $myhost->setEnv($datas->env);
 
-            if ($myhost->db_updateEnv())
+            if ($myhost->updateEnv()) {
                 $message_success[] = "Mise à jour de l'environnement effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de l'environnement échouée.";
+            }
         }
 
         /**
          *  Si les noms des paquets installés sur l'hôte (inventaire) ont été transmis alors on le met à jour en BDD
          */
         if (!empty($datas->installed_packages)) {
-
-            if ($myhost->db_setPackagesInventory($datas->installed_packages))
+            if ($myhost->setPackagesInventory($datas->installed_packages)) {
                 $message_success[] = "Mise à jour des informations relatives aux paquets installés effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour des informations relatives aux paquets installés a échouée.";
+            }
         }
 
         /**
          *  Si la liste des paquets disponibles pour mise à jour a été transmis alors on le met à jour en BDD
          */
         if (!empty($datas->available_packages)) {
-            
-            if ($myhost->db_setPackagesAvailable($datas->available_packages))
+            if ($myhost->setPackagesAvailable($datas->available_packages)) {
                 $message_success[] = "Mise à jour des informations relatives aux paquets disponibles effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour des informations relatives aux paquets disponibles échouée.";
+            }
         }
 
         /**
          *  Ajout en base de données de l'historique des évènements passés sur l'hôte
          */
         if (!empty($datas->events)) {
-            if ($myhost->setEventsFullHistory($datas->events) === true)
+            if ($myhost->setEventsFullHistory($datas->events) === true) {
                 $message_success[] = "Mise à jour de l'historique effectuée.";
-            else
+            } else {
                 $message_error[] = "Mise à jour de l'historique a échouée.";
+            }
         }
 
         /**
-         *  Mise à jour du status d'une requête 
+         *  Mise à jour du status d'une requête
          */
         if (!empty($datas->set_update_request_type) and !empty($datas->set_update_request_status)) {
-            if ($myhost->api_setUpdateRequestStatus($datas->set_update_request_type, $datas->set_update_request_status) === false) {
+            if ($myhost->setUpdateRequestStatus($datas->set_update_request_type, $datas->set_update_request_status) === false) {
                 $message_error[] = "Impossible d'acquitter la demande auprès du serveur repomanager.";
+            } else {
+                $message_success[] = "L'acquittement a été pris en compte";
             }
         }
 
@@ -217,10 +229,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             echo json_encode(["return" => "201", "message_success" => $message_success]);
             exit;
         }
-
     } else {
+        $message_error[] = "Erreur d'authentification.";
         http_response_code(400);
-        $message_error[] = "Les données transmises sont invalides.";
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
     }
@@ -231,9 +242,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
 /**
  *  Cas où on tente d'utiliser une autre méthode que PUT
  */
-http_response_code(405);
 $message_error[] = "La méthode n'est pas autorisée.";
+http_response_code(405);
 echo json_encode(["return" => "405", "message_error" => $message_error]);
 
 exit(1);
-?>

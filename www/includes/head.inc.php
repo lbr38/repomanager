@@ -5,17 +5,33 @@
     <link rel="stylesheet" type="text/css" href="ressources/styles/normalize.css">
     <link rel="stylesheet" type="text/css" href="ressources/styles/main.css">
     <?php
+
         /**
          *  Chargement de CSS suplémentaires
          */
-        if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
 
-        if (__ACTUAL_URI__ == "/index.php")   echo '<link rel="stylesheet" type="text/css" href="ressources/styles/donut.css">';
-        if (__ACTUAL_URI__ == "/run.php")     echo '<link rel="stylesheet" type="text/css" href="ressources/styles/run.css">';
-        if (__ACTUAL_URI__ == "/explore.php") echo '<link rel="stylesheet" type="text/css" href="ressources/styles/explore.css">';
-        if (__ACTUAL_URI__ == "/stats.php")   echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
-        if (__ACTUAL_URI__ == "/hosts.php")   echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
-        if (__ACTUAL_URI__ == "/host.php")    echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
+    if (!defined('__ACTUAL_URI__')) {
+        define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+    }
+
+    if (__ACTUAL_URI__ == "/index.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/donut.css">';
+    }
+    if (__ACTUAL_URI__ == "/run.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/run.css">';
+    }
+    if (__ACTUAL_URI__ == "/explore.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/explore.css">';
+    }
+    if (__ACTUAL_URI__ == "/stats.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
+    }
+    if (__ACTUAL_URI__ == "/hosts.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
+    }
+    if (__ACTUAL_URI__ == "/host.php") {
+        echo '<link rel="stylesheet" type="text/css" href="ressources/styles/stats-hosts.css">';
+    }
     ?>
 
     <!-- jQuery -->
@@ -29,18 +45,31 @@
     <link rel="icon" href="ressources/favicon.ico" />
 
     <?php
-    if     (__ACTUAL_URI__ == "/index.php")          echo '<title>Repomanager - Accueil</title>';
-    elseif (__ACTUAL_URI__ == "/planifications.php") echo '<title>Repomanager - Planifications</title>';
-    elseif (__ACTUAL_URI__ == "/run.php")            echo '<title>Repomanager - Journal</title>';
-    elseif (__ACTUAL_URI__ == "/explore.php")        echo '<title>Repomanager - Explorer</title>';
-    elseif (__ACTUAL_URI__ == "/stats.php")          echo '<title>Repomanager - Statistiques</title>';
-    elseif (__ACTUAL_URI__ == "/hosts.php")          echo '<title>Repomanager - Gestion des hôtes</title>';
-    elseif (__ACTUAL_URI__ == "/host.php")           echo '<title>Repomanager - Gestion des hôtes</title>';
-    elseif (__ACTUAL_URI__ == "/profiles.php")       echo '<title>Repomanager - Gestion des profils</title>';
-    elseif (__ACTUAL_URI__ == "/configuration.php")  echo '<title>Repomanager - Configuration</title>';
-    elseif (__ACTUAL_URI__ == "/history.php")        echo '<title>Repomanager - Historique</title>';
-    elseif (__ACTUAL_URI__ == "/user.php")           echo '<title>Repomanager - Espace utilisateur</title>';
-    else echo '<title>Repomanager</title>';
+    if (__ACTUAL_URI__ == "/index.php") {
+        echo '<title>Repomanager - Accueil</title>';
+    } elseif (__ACTUAL_URI__ == "/planifications.php") {
+        echo '<title>Repomanager - Planifications</title>';
+    } elseif (__ACTUAL_URI__ == "/run.php") {
+        echo '<title>Repomanager - Journal</title>';
+    } elseif (__ACTUAL_URI__ == "/explore.php") {
+        echo '<title>Repomanager - Explorer</title>';
+    } elseif (__ACTUAL_URI__ == "/stats.php") {
+        echo '<title>Repomanager - Statistiques</title>';
+    } elseif (__ACTUAL_URI__ == "/hosts.php") {
+        echo '<title>Repomanager - Gestion des hôtes</title>';
+    } elseif (__ACTUAL_URI__ == "/host.php") {
+        echo '<title>Repomanager - Gestion des hôtes</title>';
+    } elseif (__ACTUAL_URI__ == "/profiles.php") {
+        echo '<title>Repomanager - Gestion des profils</title>';
+    } elseif (__ACTUAL_URI__ == "/configuration.php") {
+        echo '<title>Repomanager - Configuration</title>';
+    } elseif (__ACTUAL_URI__ == "/history.php") {
+        echo '<title>Repomanager - Historique</title>';
+    } elseif (__ACTUAL_URI__ == "/user.php") {
+        echo '<title>Repomanager - Espace utilisateur</title>';
+    } else {
+        echo '<title>Repomanager</title>';
+    }
     ?>
     <title>Repomanager</title>
 </head>

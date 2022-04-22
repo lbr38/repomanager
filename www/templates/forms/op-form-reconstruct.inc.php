@@ -1,10 +1,21 @@
-<?php
-if (OS_FAMILY == 'Redhat') echo '<p>L\'opération va reconstruire les metadonnées du repo <span class="label-white">'.$myrepo->getName().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
-if (OS_FAMILY == 'Debian') echo '<p>L\'opération va reconstruire les metadonnées de la section <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
-?>
+<tr>
+    <td colspan="100%">
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') {
+            echo 'L\'opération va reconstruire les metadonnées de : <br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+        }
+        if ($myrepo->getPackageType() == 'deb') {
+            echo 'L\'opération va reconstruire les metadonnées de : <br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+        } ?>
+    </td>
+</tr>
 
-<span class="op_span">Signer avec GPG</span>
-<label class="onoff-switch-label">
-    <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") echo 'checked'; ?> />
-    <span class="onoff-switch-slider"></span>
-</label><br>
+<tr>
+    <td class="td-30">Signer avec GPG</td>
+    <td>
+        <label class="onoff-switch-label">
+            <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+            <span class="onoff-switch-slider"></span>
+        </label>
+    </td>
+</tr>

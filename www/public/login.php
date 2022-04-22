@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <?php
-if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
-require_once('../models/Autoloader.php');
-Autoloader::loadFromLogin();
-include_once('../includes/head.inc.php');
+if (!defined('ROOT')) {
+    define('ROOT', dirname(__FILE__, 2));
+}
+require_once(ROOT . '/controllers/Autoloader.php');
+\Controllers\Autoloader::loadFromLogin();
+include_once(ROOT . '/includes/head.inc.php');
 
 $loginErrors = array();
 $error = 0;
@@ -26,10 +28,9 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
      *  On continue si il n'y a pas eu d'erreur
      */
     if ($error == 0) {
+        $username = \Models\Common::validateData($_POST['username']);
 
-        $username = Common::validateData($_POST['username']);
-
-        $mylogin = new Login();
+        $mylogin = new \Models\Login();
 
         /**
          *  Cas où la connexion est avec un compte LDAP
@@ -98,7 +99,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                  *  Si un cookie 'origin' existe alors celui-ci contient une URI vers laquelle on redirige l'utilisateur
                  */
                 if (!empty($_COOKIE['origin'])) {
-                    header('Location: '.$_COOKIE['origin']);
+                    header('Location: ' . $_COOKIE['origin']);
                     exit();
                 }
 
@@ -145,11 +146,11 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
             </form>
 
             <?php
-                if (!empty($loginErrors)) {
-                    foreach ($loginErrors as $loginError) {
-                        echo '<p>'.$loginError.'</p>';
-                    }
+            if (!empty($loginErrors)) {
+                foreach ($loginErrors as $loginError) {
+                    echo '<p>' . $loginError . '</p>';
                 }
+            }
             ?>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <section class="right" id="sourcesDiv">
-    <?php $source = new Source(); ?>
+    <?php $source = new \Models\Source(); ?>
 
     <img id="reposSourcesDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
     <h3>REPOS SOURCES</h3>
@@ -28,10 +28,10 @@
                     <input type="text" name="addSourceUrl" class="input-large" required>
                 </span>
                 <br>
-        <?php }
+            <?php }
             if (OS_FAMILY == "Debian") { ?>
                 <input type="text" name="addSourceUrl" class="input-large" required><br>
-        <?php }
+            <?php }
 
             if (OS_FAMILY == "Redhat") { ?>
                 <p>Ce repo source dispose d'une clé GPG : 
@@ -63,7 +63,7 @@
                     <p>Importer une nouvelle clé GPG :</p>
                     <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
                 </div>
-<?php
+                <?php
             }
 
             /**
@@ -82,6 +82,7 @@
     </div>
 
     <?php
+
     /**
      * LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
      */
@@ -103,31 +104,31 @@
 
     if (!empty($gpgKeys)) {
         echo '<div class="div-generic-gray">';
-            echo '<h5>Liste des clés GPG du trousseau de repomanager</h5>';
-            foreach ($gpgKeys as $gpgKey) {
-                if (OS_FAMILY == "Redhat") {
-                    if (($gpgKey != "..") and ($gpgKey != ".")) { ?>
+            echo '<h5>Clés GPG importées</h5>';
+        foreach ($gpgKeys as $gpgKey) {
+            if (OS_FAMILY == "Redhat") {
+                if (($gpgKey != "..") and ($gpgKey != ".")) { ?>
                         <p>
                             <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" title="Supprimer la clé GPG <?= $gpgKey ?>" />
                             <?php echo $gpgKey;?>
                         </p>
-<?php               }
-                }
-                if (OS_FAMILY == "Debian") {
-                    // On récup uniquement l'ID de la clé GPG
-                    $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
-                    // Retire tous les espaces blancs
-                    $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
-                    // Récupère le nom de la clé GPG
-                    $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-                    if (!empty($gpgKeyID) and !empty($gpgKeyName)) { ?>
+                <?php               }
+            }
+            if (OS_FAMILY == "Debian") {
+                // On récup uniquement l'ID de la clé GPG
+                $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
+                // Retire tous les espaces blancs
+                $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
+                // Récupère le nom de la clé GPG
+                $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+                if (!empty($gpgKeyID) and !empty($gpgKeyName)) { ?>
                         <p>
                             <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
                             <?php echo $gpgKeyName . " ($gpgKeyID)";?>
                         </p>
-<?php               }
-                }
+                <?php               }
             }
+        }
         echo '</div>';
     } ?>
 
@@ -139,8 +140,12 @@
         /**
          *  1. Récupération de tous les noms de sources
          */
-        if (OS_FAMILY == "Redhat") $sourcesList = scandir(REPOMANAGER_YUM_DIR);
-        if (OS_FAMILY == "Debian") $sourcesList = $source->listAll();
+        if (OS_FAMILY == "Redhat") {
+            $sourcesList = scandir(REPOMANAGER_YUM_DIR);
+        }
+        if (OS_FAMILY == "Debian") {
+            $sourcesList = $source->listAll();
+        }
 
         /**
          *  2. Affichage des groupes si il y en a
@@ -149,45 +154,45 @@
             echo '<div class="div-generic-gray">';
                 echo "<h5>Repos sources actuels</h5>";
 
-                foreach ($sourcesList as $source) {
-                    if (OS_FAMILY == "Redhat") {
-                        /**
-                         *  Si le nom du fichier ne termine pas par '.repo' alors on passe au suivant
-                         */
-                        if (!preg_match('/.repo$/i', $source)) {
-                            continue;
-                        }
-                        $sourceName = str_replace(".repo", "", $source);
-
-                        /**
-                         *  On récupère le contenu du fichier
-                         */
-                        $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR . "/${source}", true));
+            foreach ($sourcesList as $source) {
+                if (OS_FAMILY == "Redhat") {
+                    /**
+                     *  Si le nom du fichier ne termine pas par '.repo' alors on passe au suivant
+                     */
+                    if (!preg_match('/.repo$/i', $source)) {
+                        continue;
                     }
-                    if (OS_FAMILY == "Debian") {
-                        $sourceName = $source['Name'];
-                        $sourceUrl = $source['Url'];
-                    }
+                    $sourceName = str_replace(".repo", "", $source);
 
                     /**
-                     *  Affichage des sources
-                     */ ?>
+                     *  On récupère le contenu du fichier
+                     */
+                    $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR . "/${source}", true));
+                }
+                if (OS_FAMILY == "Debian") {
+                    $sourceName = $source['Name'];
+                    $sourceUrl = $source['Url'];
+                }
+
+                /**
+                 *  Affichage des sources
+                 */ ?>
                     <div class="header-container sourceDivs">
                         <div class="header-blue-min">
-                            <?php
-                            if (OS_FAMILY == "Debian") {
-                                echo '<input type="hidden" name="actualSourceUrl" value="' . $sourceUrl . '" />';
-                            } ?>
+                        <?php
+                        if (OS_FAMILY == "Debian") {
+                            echo '<input type="hidden" name="actualSourceUrl" value="' . $sourceUrl . '" />';
+                        } ?>
 
                             <table class="table-large">
                                 <tr>
                                     <td>
                                         <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" />
                                     </td>
-                                    <?php
-                                    if (OS_FAMILY == "Debian") {
-                                        echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="' . $sourceName . '" value="' . $sourceUrl . '" /></td>';
-                                    } ?>
+                                <?php
+                                if (OS_FAMILY == "Debian") {
+                                    echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="' . $sourceName . '" value="' . $sourceUrl . '" /></td>';
+                                } ?>
                                     <td class="td-fit">
                                         <?php
                                         if (OS_FAMILY == "Redhat") {
@@ -226,11 +231,13 @@
                                          *  On indique une limite de 2 afin de n'obtenir pas plus de 2 termes (la valeur et son paramètre)
                                          */
                                         $line = explode('=', $line, 2);
+
                                         if (!empty($line[0])) {
                                             $optionName = $line[0];
                                         } else {
                                             $optionName = '';
                                         }
+
                                         if (isset($line[1]) and $line[1] != "") {
                                             $optionValue = $line[1];
                                         } else {
@@ -291,10 +298,10 @@
                                 </form>
                                 <br>
                             </div>
-                <?php   }
-            echo '</div>';
+                        <?php   }
+                        echo '</div>';
             }
         }
-    ?>
+        ?>
     </table>
 </section>

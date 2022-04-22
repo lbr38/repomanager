@@ -1,10 +1,12 @@
 <?php
+
 /**
  *  Import des variables nécessaires
  */
+
 define("ROOT", dirname(__FILE__, 2));
-require_once(ROOT."/models/Autoloader.php");
-Autoloader::loadFromApi();
+require_once(ROOT . "/controllers/Autoloader.php");
+\Controllers\Autoloader::loadFromApi();
 
 /**
  *  1. Récupération de l'argument : type d'opération à exécuter
@@ -14,7 +16,7 @@ Autoloader::loadFromApi();
  *      update
  *      duplicate
  *      reconstruct
- * 
+ *
  *  Le premier paramètre passé à getopt est null : on ne souhaites pas travailler avec des options courtes.
  *  Plus d'infos sur getopt() : https://blog.pascal-martin.fr/post/php-5.3-getopt-parametres-ligne-de-commande/
  */
@@ -33,25 +35,42 @@ $id = $getOptions['id'];
 /**
  *  Récupération des détails de l'opération à traiter, sous forme d'array
  */
-if (!file_exists(POOL."/${id}.json")) {
+if (!file_exists(POOL . "/${id}.json")) {
     throw new Exception("Erreur : impossible de récupérer les détails de l'opération (id $id) : le fichier est introuvable");
     exit(1);
 }
 
-$operation_params = json_decode(file_get_contents(POOL."/${id}.json"), true);
+$operation_params = json_decode(file_get_contents(POOL . "/${id}.json"), true);
 
 /**
  *  Traitement de chaque opération
  */
 foreach ($operation_params as $operation) {
-    $action     = $operation['action'];
-    $repoStatus = $operation['repoStatus'];
+    $action = $operation['action'];
 
     /**
      *  Un Id de repo a été renseigné seulement dans le cas où l'action n'est pas 'new'
      */
     if ($action !== 'new') {
-        $repoId = $operation['repoId'];
+        // $repoId = $operation['repoId'];
+        $snapId = $operation['snapId'];
+    }
+    if ($action == 'new') {
+        $packageType = $operation['packageType'];
+    }
+
+    /**
+     *  Si un Id d'environnement a été spécifié
+     */
+    if (!empty($operation['envId'])) {
+        $envId  = $operation['envId'];
+    }
+
+    /**
+     *  Si un environnement devra pointer sur le nouveau snapshot
+     */
+    if (!empty($operation['targetEnv'])) {
+        $targetEnv = $operation['targetEnv'];
     }
 
     /**
@@ -62,6 +81,7 @@ foreach ($operation_params as $operation) {
     } else {
         $targetGroup = $operation['targetGroup'];
     }
+
     if (empty($operation['targetDescription'])) {
         $targetDescription = 'nodescription';
     } else {
@@ -81,8 +101,7 @@ foreach ($operation_params as $operation) {
         }
         $type = $operation['type'];
 
-
-        if (OS_FAMILY == 'Debian') {
+        if ($packageType == 'deb') {
             /**
              *  Si le paramètre Dist n'est pas défini, on quitte
              */
@@ -151,40 +170,41 @@ foreach ($operation_params as $operation) {
                 continue;
             } else {
                 $alias = $operation['alias'];
-            }        
+            }
         }
 
         /**
-         *  Création d'une nouvelle opération
+         *  Création d'un objet Repo avec les infos spécifiées par l'utilisateur
          */
-        $op = new Operation();
-        $op->setAction('new');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos spécifiées par l'utilisateur
-         */
-        $op->repo = new Repo();
-        $op->repo->setType($type);
-        $op->repo->setName($alias);
-        $op->repo->setTargetGroup($targetGroup);
-        $op->repo->setTargetDescription($targetDescription);
-        if (OS_FAMILY == 'Debian') {
-            $op->repo->setDist($dist);
-            $op->repo->setSection($section);
+        $repo = new \Controllers\Repo();
+        $repo->setType($type);
+        $repo->setName($alias);
+        $repo->setTargetGroup($targetGroup);
+        $repo->setTargetDescription($targetDescription);
+        $repo->setPackageType($packageType);
+        if (!empty($dist)) {
+            $repo->setDist($dist);
+        }
+        if (!empty($section)) {
+            $repo->setSection($section);
         }
         if ($type === 'mirror') {
-            $op->repo->setSource($source);
-            $op->repo->setTargetGpgCheck($targetGpgCheck);
-            $op->repo->setTargetGpgResign($targetGpgResign);
+            $repo->setSource($source);
+            $repo->setTargetGpgCheck($targetGpgCheck);
+            $repo->setTargetGpgResign($targetGpgResign);
         }
+        if (!empty($targetEnv)) {
+            $repo->setTargetEnv($targetEnv);
+        }
+
         /**
-         * 	Exécution de l'opération
+         *  Exécution de l'opération
          */
         if ($type === 'mirror') {
-            $op->exec_new();
+            $repo->new();
         }
         if ($type === 'local') {
-            $op->exec_newLocalRepo();
+            $repo->newLocalRepo();
         }
     }
     /**
@@ -210,32 +230,39 @@ foreach ($operation_params as $operation) {
         $targetGpgResign = $operation['targetGpgResign'];
 
         /**
-         *  Création d'une nouvelle opération
+         *  Création d'un objet Repo avec les infos du repo source
          */
-        $op = new Operation();
-        $op->setAction('update');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos du repo source
-         */
-        $op->repo = new Repo();
-        $op->repo->setId($repoId);
+        $repo = new \Controllers\Repo();
+        // $repo->setRepoId($repoId);
+        $repo->setSnapId($snapId);
+
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $op->repo->db_getAllById('active');
+        // $repo->getAllById($repoId, $snapId);
+        $repo->getAllById('', $snapId);
+
+        /**
+         *  Si un environnement devra pointer sur le nouveau snapshot
+         */
+        if (!empty($targetEnv)) {
+            $repo->setTargetEnv($targetEnv);
+        }
+
         /**
          *  Set de GPG Check
          */
-        $op->repo->setTargetGpgCheck($targetGpgCheck);
+        $repo->setTargetGpgCheck($targetGpgCheck);
+
         /**
          *  Set de GPG Resign
          */
-        $op->repo->setTargetGpgResign($targetGpgResign);
+        $repo->setTargetGpgResign($targetGpgResign);
+
         /**
-         * 	Exécution de l'opération
+         *  Exécution de l'opération
          */
-        $op->exec_update();
+        $repo->update();
     }
     /**
      *  Si l'action est 'duplicate'
@@ -249,54 +276,65 @@ foreach ($operation_params as $operation) {
             continue;
         }
         $targetName = $operation['targetName'];
-        
+
         /**
-         *  Création d'une nouvelle opération
+         *  Création d'un objet Repo avec les infos du repo à dupliquer
          */
-        $op = new Operation();
-        $op->setAction('duplicate');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos du repo à dupliquer
-         */
-        $op->repo = new Repo();
-        $op->repo->setId($repoId);
+        $repo = new \Controllers\Repo();
+        // $repo->setRepoId($repoId);
+        $repo->setSnapId($snapId);
+
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $op->repo->db_getAllById('active');
+        // $repo->getAllById($repoId, $snapId);
+        $repo->getAllById('', $snapId);
+
         /**
          *  Set du nouveau nom du repo cible
          */
-        $op->repo->setTargetName($targetName);
+        $repo->setTargetName($targetName);
+
         /**
          *  Set du groupe cible
          */
-        $op->repo->setTargetGroup($targetGroup);
+        $repo->setTargetGroup($targetGroup);
+
         /**
          *  Set de la description cible
          */
-        $op->repo->setTargetDescription($targetDescription);
+        if (!empty($targetDescription)) {
+            $repo->setTargetDescription($targetDescription);
+        }
+
+        if (!empty($targetEnv)) {
+            $repo->setTargetEnv($targetEnv);
+        }
+
         /**
-         * 	Exécution de l'opération
+         *  Exécution de l'opération
          */
-        $op->exec_duplicate();
+        $repo->duplicate();
     }
     /**
      *  Si l'action est 'delete'
      */
     if ($action == 'delete') {
-        /**
-         *  Création d'une nouvelle opération
+         /**
+         *  Création d'un objet Repo avec les infos du repo à dupliquer
          */
-        $op = new Operation();
-        if ($repoStatus == 'active')   $op->setAction('delete');
-        if ($repoStatus == 'archived') $op->setAction('deleteArchive');
-        $op->setType('manual');
+        $repo = new \Controllers\Repo();
+        $repo->setSnapId($snapId);
+
         /**
-         * 	Exécution de l'opération
+         *  On récupère toutes les infos du repo en base de données
          */
-        $op->exec_delete($repoId, $repoStatus);
+        $repo->getAllById('', $snapId);
+
+        /**
+         *  Exécution de l'opération
+         */
+        $repo->delete();
     }
     /**
      *  Si l'action est 'env'
@@ -310,71 +348,34 @@ foreach ($operation_params as $operation) {
             continue;
         }
         $targetEnv = $operation['targetEnv'];
-        
+
         /**
-         *  Création d'une nouvelle opération
+         *  Création d'un objet Repo avec les infos du repo source
          */
-        $op = new Operation();
-        $op->setAction('env');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos du repo source
-         */
-        $op->repo = new Repo();
-        $op->repo->setId($repoId);
+        $repo = new \Controllers\Repo();
+        // $repo->setRepoId($repoId);
+        $repo->setSnapId($snapId);
+
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $op->repo->db_getAllById('active');
+        // $repo->getAllById($repoId, $snapId);
+        $repo->getAllById('', $snapId);
+
         /**
          *  Set de l'env cible
          */
-        $op->repo->setTargetEnv($targetEnv);
+        $repo->setTargetEnv($targetEnv);
+
         /**
          *  Set de la description cible
          */
-        $op->repo->setTargetDescription($targetDescription);
+        $repo->setTargetDescription($targetDescription);
+
         /**
-         * 	Exécution de l'opération
+         *  Exécution de l'opération
          */
-        $op->exec_env();
-    }
-    /**
-     *  Si l'action est 'restore'
-     */
-    if ($action == 'restore') {
-        /**
-         *  Si le l'environnement cible n'est pas défini on quitte
-         */
-        if (empty($operation['targetEnv'])) {
-            throw new Exception("Operation 'env' - Erreur : l'env cible n'est pas défini");
-            continue;
-        }
-        $targetEnv = $operation['targetEnv'];
-        
-        /**
-         *  Création d'une nouvelle opération
-         */
-        $op = new Operation();
-        $op->setAction('restore');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos du repo source
-         */
-        $op->repo = new Repo();
-        $op->repo->setId($repoId);
-        /**
-         *  On récupère toutes les infos du repo en base de données
-         */
-        $op->repo->db_getAllById('archived');
-        /**
-         *  Set de l'env cible
-         */
-        $op->repo->setTargetEnv($targetEnv);
-        /**
-         * 	Exécution de l'opération
-         */
-        $op->exec_restore();
+        $repo->env();
     }
     /**
      *  Si l'action est 'reconstruct'
@@ -390,29 +391,26 @@ foreach ($operation_params as $operation) {
         $targetGpgResign = $operation['targetGpgResign'];
 
         /**
-         *  Création d'une nouvelle opération
+         *  Création d'un objet Repo avec les infos du repo source
          */
-        $op = new Operation();
-        $op->setAction('reconstruct');
-        $op->setType('manual');
-        /**
-         * 	Création d'un objet Repo avec les infos du repo source
-         */
-        $op->repo = new Repo();
-        $op->repo->setId($repoId);
+        $repo = new \Controllers\Repo();
+        $repo->setSnapId($snapId);
+
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $op->repo->db_getAllById('active');
+        $repo->getAllById('', $snapId);
+
         /**
          *  Set de GPG Resign
          */
-        $op->repo->setTargetGpgResign($targetGpgResign);
+        $repo->setTargetGpgResign($targetGpgResign);
+
         /**
-         * 	Exécution de l'opération
+         *  Exécution de l'opération
          */
-        $op->exec_reconstruct();
+        $repo->reconstruct();
     }
 }
+
 exit(0);
-?>

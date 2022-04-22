@@ -6,30 +6,30 @@
 }
 
 #explorer ul {
-	list-style-type: none;
+    list-style-type: none;
 }
 
 #explorer a, #explorer li {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 #explorer li span {
-	background-color: #2b426e;
-	margin-top: 4px;
-	margin-bottom: 4px;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	padding-left: 8px !important;
-	border-radius: 2px;
-	display: block;
+    background-color: #2b426e;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 8px !important;
+    border-radius: 2px;
+    display: block;
 }
 
 #explorer li span:hover {
-	background-color: #263859;
+    background-color: #263859;
 }
 
 #explorer ul {
-	padding-left: 15px;
+    padding-left: 15px;
 }
 
 #explorer span.explorer-file-pkg {
@@ -41,6 +41,6 @@
 }
 
 input[type=file] {
-	background-color: #2b2b2b;
-	padding-left: 0;
+    background-color: #2b2b2b;
+    padding-left: 0;
 }
