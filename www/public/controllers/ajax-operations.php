@@ -5,7 +5,7 @@ const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;
 const HTTP_METHOD_NOT_ALLOWED = 405;
 
-if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest"){
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest"){
 
     require_once(ROOT."/models/Autoloader.php");
     Autoloader::load();
@@ -15,7 +15,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
         /**
          *  Demande d'un formulaire d'opération
          */
-        if ($_POST['action'] == "getForm" AND !empty($_POST['operationAction']) AND !empty($_POST['repos_array'])) {
+        if ($_POST['action'] == "getForm" and !empty($_POST['operationAction']) and !empty($_POST['repos_array'])) {
             $operation_action = Common::validateData($_POST['operationAction']);
             $repos_array = json_decode($_POST['repos_array'], true);
 
@@ -27,7 +27,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
             try {
                 $content = $myop->getForm($operation_action, $repos_array);
 
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
@@ -40,7 +40,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
         /**
          *  Validation et exécution d'un formulaire d'opération
          */
-        if ($_POST['action'] == "validateForm" AND !empty($_POST['operation_params'])) {
+        if ($_POST['action'] == "validateForm" and !empty($_POST['operation_params'])) {
             $operation_params = json_decode($_POST['operation_params'], true);
 
             $myop = new Operation();
@@ -52,7 +52,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) AND $_SERVER['HTTP_X_REQUESTED_WITH
                 $myop->validateForm($operation_params);
                 $op_id = $myop->execute($operation_params);
 
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 

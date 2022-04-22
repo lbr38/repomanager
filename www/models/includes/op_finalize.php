@@ -16,7 +16,7 @@ trait op_finalize {
          *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
          */
         if (empty($op_type)) throw new Exception("type d'opération inconnu (vide)");
-        if ($op_type != "new" AND $op_type != "update") throw new Exception("type d'opération invalide");
+        if ($op_type != "new" and $op_type != "update") throw new Exception("type d'opération invalide");
 
         /**
          *  1. Mise à jour de la BDD 
@@ -40,7 +40,7 @@ trait op_finalize {
                     $stmt->bindValue(':section', $section);
                 }
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -51,8 +51,8 @@ trait op_finalize {
         if ($op_type == "new") {
             if (!empty($targetGroup)) {
                 try {
-                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name AND repos.Status = 'active' AND groups.Name = :groupname");
-                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name AND repos.Dist = :dist AND repos.Section = :section AND repos.Status = 'active' AND groups.Name = :groupname");
+                    if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name and repos.Status = 'active' and groups.Name = :groupname");
+                    if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name = :name and repos.Dist = :dist and repos.Section = :section and repos.Status = 'active' and groups.Name = :groupname");
                     $stmt->bindValue(':name', $name);
                     $stmt->bindValue(':groupname', $targetGroup);
                     if (OS_FAMILY == "Debian") {
@@ -60,7 +60,7 @@ trait op_finalize {
                         $stmt->bindValue(':section', $section);
                     }
                     $result = $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -84,7 +84,7 @@ trait op_finalize {
                     $stmt->bindValue(':idrepo', $repoId);
                     $stmt->bindValue(':idgroup', $groupId);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
             }

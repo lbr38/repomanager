@@ -9,7 +9,7 @@ require_once('../functions/run.functions.php');
 /**
  * 	Bouton 'Stop' pour arrêter une opération en cours
  */
-if(!empty($_GET['stop'])) {
+if (!empty($_GET['stop'])) {
 	$opToStop = new Operation();
 	$opToStop->kill(Common::validateData($_GET['stop'])); // $_GET['stop'] contient le pid de l'opération
 }
@@ -36,7 +36,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 						/**
 						 * 	Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
 						 */
-						if (!empty($_COOKIE['displayFullLogs']) AND $_COOKIE['displayFullLogs'] == "yes") {
+						if (!empty($_COOKIE['displayFullLogs']) and $_COOKIE['displayFullLogs'] == "yes") {
 							echo '<button id="displayFullLogs-no" class="button-top-down-details pointer" title="Masquer les détails"><img src="ressources/icons/search.png" /></button>';
 							echo '<style>';
 							echo '.getPackagesDiv { display: block; }';
@@ -103,7 +103,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 			/**
 			 * 	Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
 			 */
-			if (!empty($plansRunning) AND !empty($opsRunning)) {
+			if (!empty($plansRunning) and !empty($opsRunning)) {
 				
 				$totalRunning = array_merge($plansRunning, $opsRunning);
 				array_multisort(array_column($totalRunning, 'Date'), SORT_DESC, array_column($totalRunning, 'Time'), SORT_DESC, $totalRunning); // On tri par date pour avoir le + récent en haut
@@ -135,7 +135,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 			/**
 			 * 	Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
 			 */
-			if (!empty($plansDone) AND !empty($opsDone)) {
+			if (!empty($plansDone) and !empty($opsDone)) {
 				
 				$totalDone = array_merge($plansDone, $opsDone);
 				array_multisort(array_column($totalDone, 'Date'), SORT_DESC, array_column($totalDone, 'Time'), SORT_DESC, $totalDone); // On tri par date pour avoir le + récent en haut
@@ -174,20 +174,20 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
 							 */
 							try {
-								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status=:status");
+								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan and status=:status");
 								$stmt->bindValue(':id_plan', $planId);
 								$stmt->bindValue(':status', 'running');
 								$result = $stmt->execute();
-							} catch(Exception $e) {
+							} catch (Exception $e) {
 								Common::dbError($e);
 							}
 							while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsRunning[] = $row;
 
 							try {
-								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
+								$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan and status IN ('done', 'error', 'stopped')");
 								$stmt->bindValue(':id_plan', $planId);
 								$result = $stmt->execute();
-							} catch(Exception $e) {
+							} catch (Exception $e) {
 								Common::dbError($e);
 							}
 							while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
@@ -251,7 +251,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 			/**
 			 * 	Affichage des données terminées
 			 */
-			if (!empty($totalDone) OR !empty($opsFromRegularPlanDone)) {
+			if (!empty($totalDone) or !empty($opsFromRegularPlanDone)) {
 
 				/**
 				 * 	Affichage des tâches terminées
@@ -276,7 +276,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							 * 	Sauf si le cookie printAllOp = yes, dans ce cas on affiche tout
 							 */
 							if ($i > $printMaxItems) {
-								if (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] == "yes")
+								if (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] == "yes")
 									echo '<div class="hidden-op">';
 								else
 									echo '<div class="hidden-op hide">';
@@ -304,10 +304,10 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 								 * 	2. Puis récupération des opérations qui ont été exécutées par cette planification
 								 */
 								try {
-									$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan AND status IN ('done', 'error', 'stopped')");
+									$stmt = $myop->db->prepare("SELECT * FROM operations WHERE id_plan=:id_plan and status IN ('done', 'error', 'stopped')");
 									$stmt->bindValue(':id_plan', $planId);
 									$result = $stmt->execute();
-								} catch(Exception $e) {
+								} catch (Exception $e) {
 									Common::dbError($e);
 								}
 								while ($row = $result->fetchArray(SQLITE3_ASSOC)) $plan_opsDone[] = $row;
@@ -361,7 +361,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							/**
 							 * 	On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
 							 */
-							if (!isset($_COOKIE['printAllOp']) OR (!empty($_COOKIE['printAllOp']) AND $_COOKIE['printAllOp'] != "yes")) {
+							if (!isset($_COOKIE['printAllOp']) or (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] != "yes")) {
 								echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
 							}
 						}
@@ -390,7 +390,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							 * 	Sauf si le cookie printAllRegularOp = yes, dans ce cas on affiche tout
 							 */
 							if ($i > $printMaxItems) {
-								if (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] == "yes")
+								if (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] == "yes")
 									echo '<div class="hidden-regular-op">';
 								else
 									echo '<div class="hidden-regular-op hide">';
@@ -407,7 +407,7 @@ if (!empty($_GET['logfile'])) $logfile = Common::validateData($_GET['logfile']);
 							/**
 							 * 	On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
 							 */
-							if (!isset($_COOKIE['printAllRegularOp']) OR (!empty($_COOKIE['printAllRegularOp']) AND $_COOKIE['printAllRegularOp'] != "yes")) {
+							if (!isset($_COOKIE['printAllRegularOp']) or (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] != "yes")) {
 								echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
 							}
 						}

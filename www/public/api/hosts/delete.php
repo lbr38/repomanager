@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
      */
     $datas = json_decode(file_get_contents("php://input"));
 
-    if (!empty($datas->id) AND !empty($datas->token)) {
+    if (!empty($datas->id) and !empty($datas->token)) {
 
         /**
          *  Instanciation d'un objet Host

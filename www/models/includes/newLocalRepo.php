@@ -96,7 +96,7 @@ trait newLocalRepo {
                     $stmt->bindValue(':section', $section);
                 }
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
             unset($stmt);
@@ -120,8 +120,8 @@ trait newLocalRepo {
                 $this->log->steplogLoading();
 
                 try {
-                    if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Status = 'active' AND groups.Name=:groupname");
-                    if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name AND repos.Dist=:dist AND repos.Section=:section AND repos.Status = 'active' AND groups.Name=:groupname");
+                    if (OS_FAMILY == "Redhat") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name and repos.Status = 'active' and groups.Name=:groupname");
+                    if (OS_FAMILY == "Debian") $stmt = $this->repo->db->prepare("SELECT repos.Id AS repoId, groups.Id AS groupId FROM repos, groups WHERE repos.Name=:name and repos.Dist=:dist and repos.Section=:section and repos.Status = 'active' and groups.Name=:groupname");
                     $stmt->bindValue(':name', $name);
                     if (OS_FAMILY == "Debian") {
                         $stmt->bindValue(':dist', $dist);
@@ -129,7 +129,7 @@ trait newLocalRepo {
                     }
                     $stmt->bindValue(':groupname', $targetGroup);
                     $result = $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -146,7 +146,7 @@ trait newLocalRepo {
                     $stmt->bindValue(':repoId', $repoId);
                     $stmt->bindValue(':groupId', $groupId);
                     $stmt->execute();
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -163,7 +163,7 @@ trait newLocalRepo {
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             /**
              *  On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
              */

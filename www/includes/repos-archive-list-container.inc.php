@@ -6,7 +6,7 @@
 </div>
 
 <div class="repos-list-container">
-    <?php 
+    <?php
     /**
      *  Génération de la page en html et stockage en ram
      */

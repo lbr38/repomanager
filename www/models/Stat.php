@@ -14,7 +14,7 @@ class Stat extends Model {
             if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
             if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/${repo}/${dist}/${section}_${env}/%");
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -38,11 +38,11 @@ class Stat extends Model {
         $datas = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' and Time BETWEEN '$timeStart' and '$timeEnd' and Request LIKE :likeRequest ORDER BY Date DESC LIMIT 30");
             if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
             if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -64,11 +64,11 @@ class Stat extends Model {
         $datas = array();
         
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :likeRequest ORDER BY Date DESC");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '".DATE_YMD."' and Time BETWEEN '$timeStart' and '$timeEnd' and Request LIKE :likeRequest ORDER BY Date DESC");
             if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
             if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -85,12 +85,12 @@ class Stat extends Model {
         extract($parameters);
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date AND Request LIKE :likeRequest");
+            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date=:date and Request LIKE :likeRequest");
             if (OS_FAMILY == "Redhat") $stmt->bindValue(':likeRequest', "%/${repo}_${env}/%");
             if (OS_FAMILY == "Debian") $stmt->bindValue(':likeRequest', "%/$repo/$dist/${section}_${env}/%");
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

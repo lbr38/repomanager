@@ -245,7 +245,7 @@ $template = "<!doctype html>
       }
 
       /* -------------------------------------
-          RESPONSIVE AND MOBILE FRIENDLY STYLES
+          RESPONSIVE and MOBILE FRIENDLY STYLES
       ------------------------------------- */
       @media only screen and (max-width: 620px) {
         table[class=body] h1 {

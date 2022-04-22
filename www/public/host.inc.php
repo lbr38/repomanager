@@ -60,6 +60,19 @@ if ($idError != 0) {
 }
 
 /**
+ *  Récupération des seuils généraux des hôtes
+ */
+$hosts_settings = $myhost->getSettings();
+/**
+ *  Seuil du nombre de mises à jour disponibles à partir duquel on considère un hôte comme 'non à jour'
+ */
+$pkgs_count_considered_outdated = $hosts_settings['pkgs_count_considered_outdated'];
+/**
+ *  Seuil du nombre de mises à jour disponibles à partir duquel on considère un hôte comme 'non à jour' (critique)
+ */
+$pkgs_count_considered_critical = $hosts_settings['pkgs_count_considered_critical'];
+
+/**
  *  Récupération d'informations dans la BDD dédiée de l'hôte
  */
 /**
@@ -71,7 +84,7 @@ $packagesInstalledCount = count($myhost->getPackagesInstalled());
  *  Récupération de la liste des paquets disponibles pour installation sur l'hôte et le total
  */
 $packagesAvailable = $myhost->getPackagesAvailable();
-$packagesAvailableCount = count($packagesAvailable);
+$packagesAvailableTotal = count($packagesAvailable);
 /**
  *  Récupération de la liste des mises à jour demandées par repomanager à l'hôte
  */
@@ -154,7 +167,7 @@ if (Common::isadmin()) { ?>
                     <table class="table-generic table-small host-table opacity-80">
                         <tr>
                             <td>IP</td>
-                            <td><?php echo $ip; ?></td>
+                            <td><?= $ip ?></td>
                         </tr>
                         <tr>
                             <td>STATUS</td>
@@ -172,13 +185,13 @@ if (Common::isadmin()) { ?>
                         <tr>
                             <td>OS</td>
                             <?php
-                            if (!empty($os) AND !empty($os_version)) {
+                            if (!empty($os) and !empty($os_version)) {
                                 echo '<td>';
-                                if ($os == "Centos" OR $os == "centos" OR $os == "CentOS") {
+                                if ($os == "Centos" or $os == "centos" or $os == "CentOS") {
                                     echo '<img src="ressources/icons/centos.png" class="icon" />';
-                                } elseif ($os == "Debian" OR $os == "debian") {
+                                } elseif ($os == "Debian" or $os == "debian") {
                                     echo '<img src="ressources/icons/debian.png" class="icon" />';
-                                } elseif ($os == "Ubuntu" OR $os == "ubuntu" OR $os == "linuxmint") {
+                                } elseif ($os == "Ubuntu" or $os == "ubuntu" or $os == "linuxmint") {
                                     echo '<img src="ressources/icons/ubuntu.png" class="icon" />';
                                 } else {
                                     echo '<img src="ressources/icons/tux.png" class="icon" />';
@@ -231,25 +244,25 @@ if (Common::isadmin()) { ?>
                             <tr>
                                 <td></td>
                                 <td>
-                                <?php 
-                                if ($packagesAvailableCount < "10") {
-                                    echo '<span>'.$packagesAvailableCount.'</span>';
-                                } elseif ($packagesAvailableCount >= "10" AND $packagesAvailableCount < "20") {
-                                    echo '<span class="yellowtext">'.$packagesAvailableCount.'</span>';
-                                } elseif ($packagesAvailableCount > "20") {
-                                    echo '<span class="redtext">'.$packagesAvailableCount.'</span>';
-                                } 
+                                <?php
+                                if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
+                                    echo '<span class="label-red">' . $packagesAvailableTotal . '</span>';
+                                } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
+                                    echo '<span class="label-yellow">' . $packagesAvailableTotal . '</span>';
+                                } else {
+                                    echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
+                                }
                                 /**
                                  *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet disponible
                                  */
-                                if ($packagesAvailableCount > 0) {
+                                if ($packagesAvailableTotal > 0) {
                                     echo ' <img src="ressources/icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
                                 }
                                 ?>
                                 </td>
                                 <td>
                                     <?php 
-                                    echo '<span>'.$packagesInstalledCount.'</span>';
+                                    echo '<span class="label-white">'.$packagesInstalledCount.'</span>';
                                     /**
                                      *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet installé
                                      */
@@ -336,43 +349,42 @@ if (Common::isadmin()) { ?>
                                     if (!empty($packagesInventored)) {
                                         foreach ($packagesInventored as $package) {
                                             echo '<tr class="pkg-row">';
-                                            echo '<td>';
-                                            if (preg_match('/python/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/python.png" class="icon" />';
-                                            } elseif (preg_match('/^code$/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
-                                            } elseif (preg_match('/^firefox/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
-                                            } elseif (preg_match('/^chrome-/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
-                                            } elseif (preg_match('/^chromium-/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
-                                            } elseif (preg_match('/^brave-/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
-                                            } elseif (preg_match('/^filezilla/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
-                                            } elseif (preg_match('/^java/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/java.png" class="icon" />';
-                                            } elseif (preg_match('/^teams$/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
-                                            } elseif (preg_match('/^teamviewer$/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
-                                            } elseif (preg_match('/^thunderbird/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
-                                            } elseif (preg_match('/^vlc/i', $package['Name'])) { 
-                                                echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
-                                            } else {
-                                                echo '<img src="../ressources/icons/products/package.png" class="icon" />';
-                                            }
-                                            if ($package['State'] == "inventored" OR $package['State'] == "installed" OR $package['State'] == "reinstalled" OR $package['State'] == "upgraded") {
-                                                echo $package['Name'];
-                                            }
-                                            if ($package['State'] == "removed" OR $package['State'] == "purged") {
-                                                echo '<span class="redtext">'.$package['Name'].' (désinstallé)</span>';
-                                            }
-                                            echo '</td>';
-                                            echo '<td>'.$package['Version'].'</td>';
-                                            echo '<td><span class="getPackageTimeline pointer" hostid="'.$id.'" packagename="'.$package['Name'].'">Historique</span></td>';
+                                                echo '<td>';
+                                                    if (preg_match('/python/i', $package['Name'])) {
+                                                        echo '<img src="../ressources/icons/products/python.png" class="icon" />';
+                                                    } elseif (preg_match('/^code$/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
+                                                    } elseif (preg_match('/^firefox/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
+                                                    } elseif (preg_match('/^chrome-/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
+                                                    } elseif (preg_match('/^chromium-/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
+                                                    } elseif (preg_match('/^brave-/i', $package['Name'])) {
+                                                        echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
+                                                    } elseif (preg_match('/^filezilla/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
+                                                    } elseif (preg_match('/^java/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/java.png" class="icon" />';
+                                                    } elseif (preg_match('/^teams$/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
+                                                    } elseif (preg_match('/^teamviewer$/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
+                                                    } elseif (preg_match('/^thunderbird/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
+                                                    } elseif (preg_match('/^vlc/i', $package['Name'])) { 
+                                                        echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
+                                                    } else {
+                                                        echo '<img src="../ressources/icons/products/package.png" class="icon" />';
+                                                    }
+                                                    if ($package['State'] == "removed" or $package['State'] == "purged") {
+                                                        echo '<span class="redtext">'.$package['Name'].' (désinstallé)</span>';
+                                                    } else {
+                                                        echo $package['Name'];
+                                                    }
+                                                echo '</td>';
+                                                echo '<td>'.$package['Version'].'</td>';
+                                                echo '<td><span class="getPackageTimeline pointer" hostid="'.$id.'" packagename="'.$package['Name'].'">Historique</span></td>';
                                             echo '</tr>';
                                         }
                                     } ?>
@@ -385,19 +397,22 @@ if (Common::isadmin()) { ?>
                 <div class="flex-div-50 div-generic-gray">
                     <h4>HISTORIQUE</h4>
 
+                    <p>Historique des évènements (installation, mise à jour, désintallation de paquets...)</p>
+                    <br>
+
                     <div id="eventsContainer">
-                        
-                        <div id="eventsDiv">
                             <?php
                             if (empty($allEventsList)) {
                                 echo '<p>Aucun historique</p>';
                 
                             } else { ?>
-                                <span>Afficher les demandes de transfert</span>
+                                <span>Afficher les demandes de transfert </span>
                                 <label class="onoff-switch-label">
-                                    <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php if (!empty($_COOKIE['showUpdateRequests']) AND $_COOKIE['showUpdateRequests'] == "yes") echo 'checked';?> />
+                                    <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php if (!empty($_COOKIE['showUpdateRequests']) and $_COOKIE['showUpdateRequests'] == "yes") echo 'checked';?> />
                                     <span class="onoff-switch-slider"></span>
                                 </label>
+
+                                <table class="table-generic-blue">
 
                                 <?php
                                 /**
@@ -424,17 +439,17 @@ if (Common::isadmin()) { ?>
                                             /**
                                              *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
                                              */
-                                            if (empty($_COOKIE['showUpdateRequests']) OR $_COOKIE['showUpdateRequests'] == "no") {
+                                            if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
                                                 continue;
                                             }
 
-                                            echo '<div class="header-container update-request hide">';
+                                            echo '<tr class="update-request hide">';
                                         }                                 
                                         /**
                                          *  Si l'évènement est un 'event'
                                          */
                                         if ($event['Event_type'] == "event") {
-                                            echo '<div class="header-container event hide">';
+                                            echo '<tr class="event hide">';
                                         }
                                     /**
                                      *  Cas où on affiche l'évènement
@@ -447,145 +462,145 @@ if (Common::isadmin()) { ?>
                                             /**
                                              *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
                                              */
-                                            if (empty($_COOKIE['showUpdateRequests']) OR $_COOKIE['showUpdateRequests'] == "no") {
+                                            if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
                                                 continue;
                                             }
 
-                                            echo '<div class="header-container update-request">';
+                                            echo '<tr class="update-request">';
                                         }                                 
                                         /**
                                          *  Si l'évènement est un 'event'
                                          */
                                         if ($event['Event_type'] == "event") {
-                                            echo '<div class="header-container event">';
+                                            echo '<tr class="event">';
                                         }
                                     } ?>
-	                                    <div class="header-blue">
-                                            <table>
-                                                <tr>
-                                                    <td>
-                                                        <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
-                                                    </td>
-                                                    <?php
-                                                    if ($event['Event_type'] == "update_request") {
-                                                        echo '<td colspan="5">';
-                                                            echo '<span>';
-                                                                /**
-                                                                 *  Affichage d'une icone en fonction du status
-                                                                 */
-                                                                if ($event['Status'] == 'done') {
-                                                                    echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
-                                                                }
-                                                                if ($event['Status'] == 'error') {
-                                                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
-                                                                }
-                                                                if ($event['Status'] == 'running') {
-                                                                    echo '<img src="ressources/images/loading.gif" class="icon" />';
-                                                                }
-                                                                /**
-                                                                 *  Affichage du type de demande
-                                                                 */
-                                                                if ($event['Type'] == 'general-status-update') {
-                                                                    echo 'Demande d\'envoi des informations générales';
-                                                                }
-                                                                if ($event['Type'] == 'packages-status-update') {
-                                                                    echo 'Demande d\'envoi des informations sur les paquets';
-                                                                }
-                                                                if ($event['Type'] == 'packages-update') {
-                                                                    echo 'Mise à jour des paquets';
-                                                                }
-                                                                /**
-                                                                 *  Affichage du status
-                                                                 */
-                                                                if ($event['Status'] == 'done') {
-                                                                    echo ' terminé';
-                                                                }
-                                                                if ($event['Status'] == 'error') {
-                                                                    echo ' en erreur';
-                                                                }
-                                                                if ($event['Status'] == 'running') {
-                                                                    echo ' en cours';
-                                                                }
-                                                                if ($event['Status'] == 'requested') {
-                                                                    echo ' demandé';
-                                                                }
-                                                            echo '</span>';
-                                                        echo '</td>';
-                                                    }
 
-                                                    if ($event['Event_type'] == "event") {
-                                                        /**
-                                                         *  Récupération des paquets installés par cet évènement
-                                                         */
-                                                        $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
-                                                        $packagesInstalled_count = count($packagesInstalled);
-                                                        /**
-                                                         *  Récupération des dépendances installées par cet évènement
-                                                         */
-                                                        $dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], 'dep-installed');
-                                                        $dependenciesInstalled_count = count($dependenciesInstalled);
-                                                        // $dependenciesInstalled_count = 0;
-                                                        /**
-                                                         *  Récupération des paquets mis à jour par cet évènement
-                                                         */
-                                                        $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
-                                                        $packagesUpdated_count = count($packagesUpdated);
-                                                        /**
-                                                         *  Récupération des paquets rétrogradés (downgrade) par cet évènement
-                                                         */
-                                                        $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
-                                                        $packagesDowngraded_count = count($packagesDowngraded);
-                                                        /**
-                                                         *  Récupération des paquets supprimés par cet évènement
-                                                         */
-                                                        $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
-                                                        $packagesRemoved_count = count($packagesRemoved);                                                        
+                                        <td class="td-fit">
+                                            <span><?php echo 'Le <b>'.DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y').'</b> à <b>'.$event['Time']; ?></b></span>
+                                        </td>
+                                    
+                                        <?php
+                                        if ($event['Event_type'] == "update_request") {
+                                            echo '<td class="td-10">';
+                                                /**
+                                                 *  Affichage d'une icone en fonction du status
+                                                 */
+                                                if ($event['Status'] == 'done') {
+                                                    echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
+                                                }
+                                                if ($event['Status'] == 'error') {
+                                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
+                                                }
+                                                if ($event['Status'] == 'running') {
+                                                    echo '<img src="ressources/images/loading.gif" class="icon" />';
+                                                }
+                                                /**
+                                                 *  Affichage du type de demande
+                                                 */
+                                                if ($event['Type'] == 'general-status-update') {
+                                                    echo 'Envoi des informations générales';
+                                                }
+                                                if ($event['Type'] == 'packages-status-update') {
+                                                    echo 'Envoi de l\'état des paquets';
+                                                }
+                                                if ($event['Type'] == 'packages-update') {
+                                                    echo 'Mise à jour des paquets';
+                                                }
+                                                /**
+                                                 *  Affichage du status
+                                                 */
+                                                if ($event['Status'] == 'done') {
+                                                    echo ' terminé';
+                                                }
+                                                if ($event['Status'] == 'error') {
+                                                    echo ' en erreur';
+                                                }
+                                                if ($event['Status'] == 'running') {
+                                                    echo ' en cours';
+                                                }
+                                                if ($event['Status'] == 'requested') {
+                                                    echo ' demandé(e)';
+                                                }
+                                            echo '</td>';
+                                        }
 
-                                                        echo '<td>';
-                                                            if ($packagesInstalled_count == 0) {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets installés">'.$packagesInstalled_count.'</i>';
-                                                            } else {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="installed">'.$packagesInstalled_count.'</i>';
-                                                            }
-                                                        echo '</td>';
-                                                        echo '<td>';
-                                                            if ($packagesUpdated_count == 0) {
-                                                                echo '<img src="../ressources/icons/update.png" class="icon" /><i title="Paquets mis à jour">'.$packagesUpdated_count.'</i>';
-                                                            } else {
-                                                                echo '<img src="../ressources/icons/update.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="upgraded">'.$packagesUpdated_count.'</i>';
-                                                            }
-                                                        echo '</td>';
-                                                        echo '<td>';
-                                                            if ($packagesDowngraded_count == 0) {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Paquets rétrogradés">'.$packagesDowngraded_count.'</i>';
-                                                            } else {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="downgraded">'.$packagesDowngraded_count.'</i>';
-                                                            }
-                                                        echo '</td>';
-                                                        echo '<td>';
-                                                            if ($dependenciesInstalled_count == 0) {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon" /><i title="Dépendances installées">'.$dependenciesInstalled_count.'</i>';
-                                                            } else {
-                                                                echo '<img src="../ressources/icons/products/package.png" class="icon yellowimg" /><i class="yellowtext pointer">'.$dependenciesInstalled_count.'</i>';
-                                                            }
-                                                        echo '</td>';
-                                                        echo '<td>';
-                                                            if ($packagesRemoved_count == 0) {
-                                                                echo '<img src="../ressources/icons/bin.png" class="icon" /><i title="Paquets supprimés">'.$packagesRemoved_count.'</i>';
-                                                            } else {
-                                                                echo '<img src="../ressources/icons/bin.png" class="icon yellowimg" /><i class="yellowtext pointer showEventDetailsBtn" host-id="'.$id.'" event-id="'.$event['Id'].'" package-state="removed">'.$packagesRemoved_count.'</i>';
-                                                            }
-                                                        echo '</td>';
-                                                    } ?>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                <?php
-                                    ++$i;
-                                }
+                                        if ($event['Event_type'] == "event") {
+                                            /**
+                                             *  Récupération des paquets installés par cet évènement
+                                             */
+                                            $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
+                                            $packagesInstalledCount = count($packagesInstalled);
+                                            /**
+                                             *  Récupération des dépendances installées par cet évènement
+                                             */
+                                            $dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], 'dep-installed');
+                                            $dependenciesInstalledCount = count($dependenciesInstalled);
+                                            /**
+                                             *  Récupération des paquets mis à jour par cet évènement
+                                             */
+                                            $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
+                                            $packagesUpdatedCount = count($packagesUpdated);
+                                            /**
+                                             *  Récupération des paquets rétrogradés (downgrade) par cet évènement
+                                             */
+                                            $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
+                                            $packagesDowngradedCount = count($packagesDowngraded);
+                                            /**
+                                             *  Récupération des paquets supprimés par cet évènement
+                                             */
+                                            $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
+                                            $packagesRemovedCount = count($packagesRemoved); ?>
 
-                                if ($i > $printMaxItems) {
+                                            <?php
+                                            if ($packagesInstalledCount > 0) { ?>
+                                                <td class="td-10">
+                                                    <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="installed">
+                                                    <span class="label-green">Installé(s)</span>
+                                                    <span class="label-green"><?= $packagesInstalledCount ?></span>
+                                                </td>
+<?php                                       }
+
+                                            if ($dependenciesInstalledCount > 0) { ?>
+                                                <td class="td-10">
+                                                    <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="dep-installed">
+                                                    <span class="label-green">Dép. Installé(s)</span>
+                                                    <span class="label-green"><?= $dependenciesInstalledCount ?></span>
+                                                </td>
+<?php                                       }
+
+                                            if ($packagesUpdatedCount > 0) { ?>
+                                                <td class="td-10">
+                                                    <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="upgraded">
+                                                    <span class="label-yellow">Mis à jour</span>
+                                                    <span class="label-yellow"><?= $packagesUpdatedCount ?></span>
+                                                </td>
+<?php                                       }
+
+                                            if ($packagesDowngradedCount > 0) { ?>
+                                                <td class="td-10">
+                                                    <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="downgraded">
+                                                    <span class="label-red">Rétrogradé(s)</span>
+                                                    <span class="label-red"><?= $packagesDowngradedCount ?></span>
+                                                </td>
+<?php                                       }
+
+                                            if ($packagesRemovedCount > 0) { ?>
+                                                <td class="td-10">
+                                                    <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="removed">
+                                                    <span class="label-red">Désintallé(s)</span>
+                                                    <span class="label-red"><?= $packagesRemovedCount ?></span>
+                                                </td>
+<?php                                       }
+                                        } ?>
+                                        <td colspan="100%"></td>
+                                    </tr>
+<?php                               ++$i;
+                                } ?>
+
+                                </table>
+                                
+<?php                           if ($i > $printMaxItems) {
                                     /**
                                      * 	Affichage du bouton Afficher tout
                                      */
@@ -619,7 +634,7 @@ $(document).ready(function(){
             {
                 label: 'Paquets mis à jour',
                 data: [<?=$lineChartUpgradedPackagesCount?>],
-                borderColor: '#3e95cd',
+                borderColor: '#cc9951',
                 fill: false
             },
             {

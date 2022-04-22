@@ -63,8 +63,8 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                 }
 
                 if ($repoError === 0) {
-                    if (OS_FAMILY == "Redhat" AND !empty($myrepo->getName())) echo '<p>Statistiques du repo <span class="label-white">'.$myrepo->getName().'</span> ' . Common::envtag($myrepo->getEnv()) . '</p>';
-                    if (OS_FAMILY == "Debian" AND !empty($myrepo->getName()) AND !empty($myrepo->getDist()) AND !empty($myrepo->getSection())) echo '<p>Statistiques de la section <span class="label-white">'.$myrepo->getName(). ' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection()."</span> " . Common::envtag($myrepo->getEnv()) . '</p>';
+                    if (OS_FAMILY == "Redhat" and !empty($myrepo->getName())) echo '<p>Statistiques du repo <span class="label-white">'.$myrepo->getName().'</span> ' . Common::envtag($myrepo->getEnv()) . '</p>';
+                    if (OS_FAMILY == "Debian" and !empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) echo '<p>Statistiques de la section <span class="label-white">'.$myrepo->getName(). ' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection()."</span> " . Common::envtag($myrepo->getEnv()) . '</p>';
                 }
 
                 echo '<br>';
@@ -168,7 +168,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         /**
                                          *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                          */
-                                        if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
+                                        if ($line['Request_result'] == "200" or $line['Request_result'] == "304")
                                             echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                         else
                                             echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
@@ -195,7 +195,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         /**
                                          *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                          */
-                                        if ($line['Request_result'] == "200" OR $line['Request_result'] == "304")
+                                        if ($line['Request_result'] == "200" or $line['Request_result'] == "304")
                                             echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                         else
                                             echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
@@ -257,7 +257,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
                         $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
 
-                        if (!empty($repoAccessChartLabels) AND !empty($repoAccessChartData)) { ?>
+                        if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) { ?>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="1week">1 semaine</span>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="1month">1 mois</span>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="3months">3 mois</span>
@@ -338,7 +338,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
                                         echo '<tr>';
                                             echo '<td class="td-10">';
-                                            if ($access['Request_result'] == "200" OR $access['Request_result'] == "304")
+                                            if ($access['Request_result'] == "200" or $access['Request_result'] == "304")
                                                 echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
                                             else
                                                 echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="'.$access['Request_result'].'" />';
@@ -364,7 +364,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         $stmt = $mystats->db->prepare("SELECT * FROM stats WHERE Id_repo=:id_repo");
                         $stmt->bindValue('id_repo', $myrepo->getId());
                         $result = $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                     
@@ -403,7 +403,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Affichage du graphique taille du repo/section
                          */
-                        if (!empty($dateLabels) AND !empty($sizeData)) { ?>
+                        if (!empty($dateLabels) and !empty($sizeData)) { ?>
                             <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoSizeChart"></canvas>
                                 <script>
@@ -445,7 +445,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Affichage du graphique nombre de paquets du repo/section
                          */
-                        if (!empty($dateLabels) AND !empty($countData)) { ?>
+                        if (!empty($dateLabels) and !empty($countData)) { ?>
                             <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoPackagesCountChart"></canvas>
                                 <script>

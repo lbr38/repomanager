@@ -96,12 +96,12 @@ trait delete {
              *  4. Mise à jour de la BDD
              */
             try {
-                if ($status == 'active')   $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Id = :id AND Status = 'active'");
-                if ($status == 'archived') $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Id = :id AND Status = 'active'");
+                if ($status == 'active')   $stmt = $this->repo->db->prepare("UPDATE repos SET status = 'deleted' WHERE Id = :id and Status = 'active'");
+                if ($status == 'archived') $stmt = $this->repo->db->prepare("UPDATE repos_archived SET Status = 'deleted' WHERE Id = :id and Status = 'active'");
                 $stmt->bindValue(':id', $id);
                 $stmt->execute();
                 
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -163,7 +163,7 @@ trait delete {
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             /**
              *  On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
              */

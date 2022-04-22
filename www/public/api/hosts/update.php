@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
      */
     $datas = json_decode(file_get_contents("php://input"));
 
-    if (!empty($datas->id) AND !empty($datas->token)) {
+    if (!empty($datas->id) and !empty($datas->token)) {
 
         /**
          *  Instanciation d'un objet Host
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Mise à jour du status d'une requête 
          */
-        if (!empty($datas->set_update_request_type) AND !empty($datas->set_update_request_status)) {
+        if (!empty($datas->set_update_request_type) and !empty($datas->set_update_request_status)) {
             if ($myhost->api_setUpdateRequestStatus($datas->set_update_request_type, $datas->set_update_request_status) === false) {
                 $message_error[] = "Impossible d'acquitter la demande auprès du serveur repomanager.";
             }
@@ -198,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Cas où il y a eu des erreurs et des success (400)
          */
-        if (!empty($message_error) AND !empty($message_success)) {
+        if (!empty($message_error) and !empty($message_success)) {
             http_response_code(400);
             echo json_encode(["return" => "400", "message_success" => $message_success, "message_error" => $message_error]);
             exit;

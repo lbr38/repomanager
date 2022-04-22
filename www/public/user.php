@@ -8,7 +8,7 @@ include_once('../includes/head.inc.php');
 /**
  *  Modification des informations personnelles
  */
-if (!empty($_POST['action']) AND $_POST['action'] == 'editPersonnalInfos') {
+if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
     $username = $_SESSION['username'];
 
     /**
@@ -45,7 +45,7 @@ if (!empty($_POST['action']) AND $_POST['action'] == 'editPersonnalInfos') {
 /**
  *  Modification du mot de passe de l'utilisateur
  */
-if (!empty($_POST['action']) AND $_POST['action'] == 'changePassword' AND !empty($_POST['actual_password']) AND !empty($_POST['new_password']) AND !empty($_POST['new_password2'])) {
+if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty($_POST['actual_password']) and !empty($_POST['new_password']) and !empty($_POST['new_password2'])) {
     $mylogin = new Login();
     $mylogin->changePassword($_SESSION['username'], $_POST['actual_password'], $_POST['new_password'], $_POST['new_password2']);
 }

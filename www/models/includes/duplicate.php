@@ -153,7 +153,7 @@ trait duplicate {
                     $stmt->bindValue(':section', $section);
                 }
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -205,7 +205,7 @@ trait duplicate {
              */
             $this->setStatus('done');
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             /**
              *  On transmets l'erreur à $this->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
              */

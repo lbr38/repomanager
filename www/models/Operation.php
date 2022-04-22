@@ -61,7 +61,7 @@ class Operation extends Model {
 
     public function setType(string $type)
     {
-        if ($type !== 'manual' AND $type !== 'plan') {
+        if ($type !== 'manual' and $type !== 'plan') {
             throw new Exception("Le type d'opération est invalide");
         }
 
@@ -122,9 +122,11 @@ class Operation extends Model {
          *  Si le type est laissé vide alors on affiche tous les types d'opérations.
          *  Sinon on affiche les opérations selon le type souhaité (manuelles ou planifiées)
          */
-        if (!empty($type) AND $type != 'manual' AND $type != 'plan') {
+        if (!empty($type) and $type != 'manual' and $type != 'plan') {
             throw new Error("Type d'opération non reconnu");
         }
+
+        $operations = array();
 
         /**
          *  Cas où on souhaite tous les types
@@ -137,19 +139,17 @@ class Operation extends Model {
              *  Cas où souhaite filtrer par un type en particulier
              */
             } else {
-                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' AND Type=:type ORDER BY Date DESC, Time DESC");
+                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' and Type=:type ORDER BY Date DESC, Time DESC");
                 $stmt->bindValue(':type', $type);
             }
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
         while ($datas = $result->fetchArray()) $operations[] = $datas;
 
-        if (!empty($operations)) return $operations;
-
-        return false;
+        return $operations;
     }
 
     /**
@@ -161,7 +161,7 @@ class Operation extends Model {
         /**
          *  Si le type est laissé vide alors on affiche tous les types d'opérations. Sinon on affiche les opérations selon le type souhaité (manuelles ou planifiées)
          */
-        if (!empty($type) AND $type != 'manual' AND $type != 'plan') {
+        if (!empty($type) and $type != 'manual' and $type != 'plan') {
             throw new Error("Type d'opération non reconnu");
         }
 
@@ -169,16 +169,16 @@ class Operation extends Model {
             /**
              *  Cas où on souhaite tous les types
              */
-            if (empty($type) AND empty($planType)) {
-                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'error' OR Status = 'done' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
+            if (empty($type) and empty($planType)) {
+                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'error' or Status = 'done' or Status = 'stopped' ORDER BY Date DESC, Time DESC");
             }
 
             /**
              *  Cas où on filtre par type d'opération seulement
              */
-            if (!empty($type) AND empty($planType)) {
+            if (!empty($type) and empty($planType)) {
                 $stmt = $this->db->prepare("SELECT * FROM operations
-                WHERE Type = :type AND (Status = 'error' OR Status = 'done' OR Status = 'stopped')
+                WHERE Type = :type and (Status = 'error' or Status = 'done' or Status = 'stopped')
                 ORDER BY Date DESC, Time DESC");
                 $stmt->bindValue(':type', $type);
             }
@@ -186,11 +186,11 @@ class Operation extends Model {
             /**
              *  Cas où on filtre par type de planification seulement
              */
-            if (empty($type) AND !empty($planType)) {
+            if (empty($type) and !empty($planType)) {
                 $stmt = $this->db->prepare("SELECT * FROM operations 
                 INNER JOIN planifications
                 ON operations.Id_plan = planifications.Id
-                WHERE planifications.Type = :plantype AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
+                WHERE planifications.Type = :plantype and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
                 ORDER BY operations.Date DESC, operations.Time DESC");
                 $stmt->bindValue(':plantype', $planType);
             }
@@ -198,7 +198,7 @@ class Operation extends Model {
             /**
              *  Cas où on filtre par type d'opération ET par type de planification
              */
-            if (!empty($type) AND !empty($planType)) {
+            if (!empty($type) and !empty($planType)) {
                 $stmt = $this->db->prepare("SELECT
                 operations.Id,
                 operations.Date,
@@ -218,14 +218,14 @@ class Operation extends Model {
                 INNER JOIN planifications
                 ON operations.Id_plan = planifications.Id
                 WHERE operations.Type = :type
-                AND planifications.Type = :plantype
-                AND (operations.Status = 'error' OR operations.Status = 'done' OR operations.Status = 'stopped')
+                and planifications.Type = :plantype
+                and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
                 ORDER BY operations.Date DESC, operations.Time DESC");
                 $stmt->bindValue(':type', $type);
                 $stmt->bindValue(':plantype', $planType);
             }
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -253,7 +253,7 @@ class Operation extends Model {
              */
             if (!empty($subpids)) {
                 $subpids = explode("\n", trim($subpids));
-                foreach($subpids as $subpid) {
+                foreach ($subpids as $subpid) {
                     exec("kill -9 $subpid");
                 }
             }
@@ -269,10 +269,10 @@ class Operation extends Model {
          *  On récupère d'abord l'ID de la planification
          */
         try {
-            $stmt = $this->db->prepare("SELECT Id_plan FROM operations WHERE Pid=:pid AND Status = 'running'");
+            $stmt = $this->db->prepare("SELECT Id_plan FROM operations WHERE Pid=:pid and Status = 'running'");
             $stmt->bindValue(':pid', $pid);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -282,10 +282,10 @@ class Operation extends Model {
          *  Mise à jour de l'opération en BDD, on la passe en status = stopped
          */
         try {
-            $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid=:pid AND Status = 'running'");
+            $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid=:pid and Status = 'running'");
             $stmt->bindValue(':pid', $pid);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -294,10 +294,10 @@ class Operation extends Model {
          */
         if (!empty($planId)) {
             try {
-                $stmt = $this->db->prepare("UPDATE planifications SET Status = 'stopped' WHERE Id=:id AND Status = 'running'");
+                $stmt = $this->db->prepare("UPDATE planifications SET Status = 'stopped' WHERE Id=:id and Status = 'running'");
                 $stmt->bindValue(':id', $planId);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -326,7 +326,7 @@ class Operation extends Model {
         if (empty($status)) {
             throw new Exception("L'état du repo n'est pas renseigné");
         }
-        if ($status !== "active" AND $status !== "archived") {
+        if ($status !== "active" and $status !== "archived") {
             throw new Exception("L'état du repo est invalide");
         }
 
@@ -358,7 +358,7 @@ class Operation extends Model {
             throw new Exception("Le type du repo ne peut pas être vide");
         }
 
-        if ($type !== "mirror" AND $type !== "local") {
+        if ($type !== "mirror" and $type !== "local") {
             throw new Exception('Le type du repo est invalide');
         }
     }
@@ -417,14 +417,14 @@ class Operation extends Model {
 
     private function chk_param_gpgCheck(string $gpgCheck)
     {
-        if ($gpgCheck !== "yes" AND $gpgCheck !== "no") {
+        if ($gpgCheck !== "yes" and $gpgCheck !== "no") {
             throw new Exception('Le paramètre de vérification des signatures GPG est invalide');
         }
     }
 
     private function chk_param_gpgResign(string $gpgResign)
     {
-        if ($gpgResign !== "yes" AND $gpgResign !== "no") {
+        if ($gpgResign !== "yes" and $gpgResign !== "no") {
             throw new Exception('Le paramètre de signature avec GPG est invalide');
         }
     }
@@ -494,7 +494,7 @@ class Operation extends Model {
             $stmt->bindValue(':logfile', $this->log->name);
             $stmt->bindValue(':status', $this->status);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -558,7 +558,7 @@ class Operation extends Model {
             $stmt->bindValue(':id_plan', $id_plan);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -570,7 +570,7 @@ class Operation extends Model {
             $stmt->bindValue(':id_repo_source', $id_repo_source);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -582,7 +582,7 @@ class Operation extends Model {
             $stmt->bindValue(':id_repo_target', $id_repo_target);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -593,7 +593,7 @@ class Operation extends Model {
             $stmt->bindValue(':id_group', $id_group);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -605,7 +605,7 @@ class Operation extends Model {
             $stmt->bindValue(':gpgCheck', $gpgCheck);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -617,7 +617,7 @@ class Operation extends Model {
             $stmt->bindValue(':gpgResign', $gpgResign);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -638,7 +638,7 @@ class Operation extends Model {
             $stmt->bindValue(':duration', $this->duration);
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -683,7 +683,7 @@ class Operation extends Model {
             /**
              *  Vérification du status spécifié
              */
-            if ($status != 'active' AND $status != 'archived') {
+            if ($status != 'active' and $status != 'archived') {
                 throw new Exception('Le status du repo est invalide');
             }
 
@@ -762,7 +762,7 @@ class Operation extends Model {
         /**
          *  L'array contient tous les paramètres de l'opération sur le(s) repo(s) à vérifier : l'action, l'id du repo et les paramètres nécéssaires que l'utilisateur a complété par le formulaire
          */
-        foreach($operations_params as $operation_params) {
+        foreach ($operations_params as $operation_params) {
             /**
              *  Récupération de l'action à exécuter sur le repo
              */
@@ -782,7 +782,7 @@ class Operation extends Model {
             /**
              *  On vérifie qu'un id de repo a été spécifié, sauf dans le cas d'une action 'new'
              */
-            if ($action !== 'new' AND empty($repoId)) {
+            if ($action !== 'new' and empty($repoId)) {
                 throw new Exception("L'Id de repo spécifié est vide");
             }
             /**
@@ -851,10 +851,10 @@ class Operation extends Model {
                 /**
                  *  On vérifie qu'un/une repo/section du même nom n'existe pas déjà
                  */
-                if (OS_FAMILY == "Redhat" AND $this->repo->exists($operation_params['alias']) === true) {
+                if (OS_FAMILY == "Redhat" and $this->repo->exists($operation_params['alias']) === true) {
                     throw new Exception('Un repo du même nom existe déjà');
                 } 
-                if (OS_FAMILY == "Debian" AND $this->repo->section_exists($operation_params['alias'], $operation_params['dist'], $operation_params['section']) === true) {
+                if (OS_FAMILY == "Debian" and $this->repo->section_exists($operation_params['alias'], $operation_params['dist'], $operation_params['section']) === true) {
                     throw new Exception('Une section de repo du même nom existe déjà');
                 }
                 /**

@@ -1,0 +1,27 @@
+name: PHP_CodeSniffer
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.3'
+          coverage: none
+          tools: composer, cs2pr
+
+      - name: Install PHP_CodeSniffer
+        run: |
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+          php phpcs.phar --version
+
+      - name: Detect coding standard violations
+        run: php phpcs.phar --standard=PSR12 --colors -n $GITHUB_WORKSPACE

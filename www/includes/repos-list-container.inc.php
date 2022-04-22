@@ -10,7 +10,7 @@
         <span id="ReposSourcesToggleButton" class="pointer" title="Gérer les repos sources">Gérer les repos sources<img src="ressources/icons/world.png" class="icon"/></span>
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
-            if ((__ACTUAL_URI__ == "/index.php") OR (__ACTUAL_URI__ == "/")) {
+            if ((__ACTUAL_URI__ == "/index.php") or (__ACTUAL_URI__ == "/")) {
                 if (OS_FAMILY == "Redhat") echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer un nouveau repo<img class="icon" src="ressources/icons/plus.png" title="Créer un nouveau repo" /></span>';
                 if (OS_FAMILY == "Debian") echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer une nouvelle section<img class="icon" src="ressources/icons/plus.png" title="Créer une nouvelle section" /></span>';
             }

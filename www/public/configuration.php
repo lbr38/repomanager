@@ -16,12 +16,12 @@ if (!Common::isadmin()) {
 /**
  *  Mise à jour de Repomanager
  */
-if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "update") {
+if (!empty($_GET['action']) and Common::validateData($_GET['action']) == "update") {
     $updateStatus = Common::repomanagerUpdate();
 }
 
 // Si un des formulaires de la page a été validé alors on entre dans cette condition
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyConfiguration") {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === "applyConfiguration") {
 
     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
     $repomanager_conf_array = parse_ini_file(REPOMANAGER_CONF, true);
@@ -63,7 +63,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Si on souhaite activer ou non la gestion des hôtes
      */
-    if (!empty($_POST['manageHosts']) AND Common::validateData($_POST['manageHosts']) === "yes") {
+    if (!empty($_POST['manageHosts']) and Common::validateData($_POST['manageHosts']) === "yes") {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'yes';
     } else {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'no';
@@ -72,7 +72,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Si on souhaite activer ou non la gestion des profils
      */
-    if (!empty($_POST['manageProfiles']) AND Common::validateData($_POST['manageProfiles']) === "yes") {
+    if (!empty($_POST['manageProfiles']) and Common::validateData($_POST['manageProfiles']) === "yes") {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_PROFILES'] = 'yes';
     } else {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_PROFILES'] = 'no';
@@ -85,11 +85,11 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     $oldRepoFilesPrefix = REPO_CONF_FILES_PREFIX;
 
     // on ne traite que si on a renseigné un nouveau préfix :
-    if(!empty($_POST['symlinksPrefix']) AND ($oldRepoFilesPrefix !== Common::validateData($_POST['symlinksPrefix']))) {
+    if (!empty($_POST['symlinksPrefix']) and ($oldRepoFilesPrefix !== Common::validateData($_POST['symlinksPrefix']))) {
         $newRepoFilesPrefix = Common::validateData($_POST['symlinksPrefix']);
         $confFiles = scandir(REPOS_PROFILES_CONF_DIR);
-        foreach($confFiles as $confFile) {
-            if (($confFile != "..") AND ($confFile != ".")) {
+        foreach ($confFiles as $confFile) {
+            if (($confFile != "..") and ($confFile != ".")) {
                 // remplace les occurence de l'ancien préfix par le nouveau à l'intérieur du fichier
                 exec("sed -i 's/${oldRepoFilesPrefix}/${newRepoFilesPrefix}/g' $confFile");
                 // renomme le fichier en remplacant l'ancien prefix par le nouveau :
@@ -101,14 +101,14 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
 
         // renomme les liens symboliques des profils :
         $profilesNames = scandir(PROFILES_MAIN_DIR);
-        foreach($profilesNames as $profileName) {
-            if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "main")) {
+        foreach ($profilesNames as $profileName) {
+            if (($profileName != "..") and ($profileName != ".") and ($profileName != "_configurations") and ($profileName != "main")) {
                 $profileName_dir = PROFILES_MAIN_DIR."/$profileName";
                 $repoConfFiles = scandir($profileName_dir);
                 
                 // Pour chaque répertoire de profil sur le serveur, on récupère les noms de fichier de conf (.repo ou .list selon l'OS) :
-                foreach($repoConfFiles as $symlink) {
-                    if (($symlink != "..") AND ($symlink != ".") AND ($symlink != "config")) {
+                foreach ($repoConfFiles as $symlink) {
+                    if (($symlink != "..") and ($symlink != ".") and ($symlink != "config")) {
                         $pattern = "/^${oldRepoFilesPrefix}/";
                         $newSymlinkName = preg_replace($pattern, $newRepoFilesPrefix, $symlink);
                         
@@ -131,7 +131,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Releasever (Redhat/CentOS)
      */
-    if (!empty($_POST['releasever']) AND is_numeric($_POST['releasever'])) {
+    if (!empty($_POST['releasever']) and is_numeric($_POST['releasever'])) {
         $repomanager_conf_array['CONFIGURATION']['RELEASEVER'] = $_POST['releasever'];
         file_put_contents('/etc/yum/vars/releasever', $_POST['releasever']);
     }
@@ -144,7 +144,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer/désactiver la signature des paquets/des repos avec GPG
      */
-    if (!empty($_POST['gpgSignPackages']) AND Common::validateData($_POST['gpgSignPackages']) === "yes") {
+    if (!empty($_POST['gpgSignPackages']) and Common::validateData($_POST['gpgSignPackages']) === "yes") {
         $repomanager_conf_array['GPG']['GPG_SIGN_PACKAGES'] = 'yes';
     } else {
         $repomanager_conf_array['GPG']['GPG_SIGN_PACKAGES'] = 'no';
@@ -168,7 +168,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver la mise à jour automatique de repomanager
      */
-    if (!empty($_POST['updateAuto']) AND Common::validateData($_POST['updateAuto']) === "yes") {
+    if (!empty($_POST['updateAuto']) and Common::validateData($_POST['updateAuto']) === "yes") {
         $repomanager_conf_array['UPDATE']['UPDATE_AUTO'] = 'yes';
     } else {
         $repomanager_conf_array['UPDATE']['UPDATE_AUTO'] = 'no';
@@ -177,7 +177,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver le backup de repomanager avant mise à jour
      */
-    if (!empty($_POST['updateBackup']) AND Common::validateData($_POST['updateBackup']) === "yes") {
+    if (!empty($_POST['updateBackup']) and Common::validateData($_POST['updateBackup']) === "yes") {
         $repomanager_conf_array['UPDATE']['UPDATE_BACKUP_ENABLED'] = 'yes';
     } else {
         $repomanager_conf_array['UPDATE']['UPDATE_BACKUP_ENABLED'] = 'no';
@@ -187,7 +187,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Répertoire de destination des backups de repomanager sur le serveur si le paramètre UPDATE_BACKUP_ENABLED est activé
      */
-    if(!empty($_POST['updateBackupDir'])) {
+    if (!empty($_POST['updateBackupDir'])) {
         $updateBackupDir = Common::validateData($_POST['updateBackupDir']);
 
         if (Common::is_alphanumdash($updateBackupDir, array('/'))) {
@@ -198,7 +198,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Branche git de mise à jour 
      */
-    if(!empty($_POST['updateBranch'])) {
+    if (!empty($_POST['updateBranch'])) {
         $updateBranch = Common::validateData($_POST['updateBranch']);
 
         if (Common::is_alphanum($updateBranch, array('/'))) {
@@ -213,7 +213,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Utilisateur web exécutant le serveur web
      */
-    if(!empty($_POST['wwwUser'])) {
+    if (!empty($_POST['wwwUser'])) {
         $wwwUser = Common::validateData($_POST['wwwUser']);
 
         if (Common::is_alphanumdash($wwwUser)) {
@@ -225,7 +225,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
      *  Adresse web hôte de repomanager (https://xxxx)
      */
     $OLD_WWW_HOSTNAME = WWW_HOSTNAME; // On conserve le hostname actuel car on va s'en servir pour le remplacer dans les fichiers de conf ci dessous
-    if(!empty($_POST['wwwHostname']) AND $OLD_WWW_HOSTNAME !== Common::validateData($_POST['wwwHostname']) AND Common::is_alphanumdash(Common::validateData($_POST['wwwHostname']), array('.'))) {
+    if (!empty($_POST['wwwHostname']) and $OLD_WWW_HOSTNAME !== Common::validateData($_POST['wwwHostname']) and Common::is_alphanumdash(Common::validateData($_POST['wwwHostname']), array('.'))) {
 
         $NEW_WWW_HOSTNAME = trim(Common::validateData($_POST['wwwHostname']));
         $repomanager_conf_array['WWW']['WWW_HOSTNAME'] = "$NEW_WWW_HOSTNAME";
@@ -249,7 +249,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  URL d'accès aux repos. Exemple : https://xxxxxxx/repo
      */
-    if(!empty($_POST['wwwReposDirUrl'])) {
+    if (!empty($_POST['wwwReposDirUrl'])) {
         $wwwReposDirUrl = Common::validateData($_POST['wwwReposDirUrl']);
 
         if (Common::is_alphanumdash($wwwReposDirUrl, array('.', '/', ':'))) {
@@ -260,7 +260,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Chemin vers le fichier de log d'accès à analyser pour statistiques
      */
-    if(!empty($_POST['statsLogPath'])) {
+    if (!empty($_POST['statsLogPath'])) {
         $statsLogPath = Common::validateData($_POST['statsLogPath']);
         
         if (Common::is_alphanumdash($statsLogPath, array('.', '/'))) {
@@ -279,7 +279,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activation/désactivation de l'automatisation
      */
-    if (!empty($_POST['automatisationEnable']) AND Common::validateData($_POST['automatisationEnable']) === "yes") {
+    if (!empty($_POST['automatisationEnable']) and Common::validateData($_POST['automatisationEnable']) === "yes") {
         $repomanager_conf_array['AUTOMATISATION']['AUTOMATISATION_ENABLED'] = 'yes';
     } else {
         $repomanager_conf_array['AUTOMATISATION']['AUTOMATISATION_ENABLED'] = 'no';
@@ -288,7 +288,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Autoriser ou non la mise à jour des repos par l'automatisation
      */
-    if (!empty($_POST['allowAutoUpdateRepos']) AND Common::validateData($_POST['allowAutoUpdateRepos']) === "yes") {
+    if (!empty($_POST['allowAutoUpdateRepos']) and Common::validateData($_POST['allowAutoUpdateRepos']) === "yes") {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTOUPDATE_REPOS'] = 'yes';
     } else {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTOUPDATE_REPOS'] = 'no';
@@ -297,7 +297,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Autoriser ou non le changement d'environnement par l'automatisation
      */
-    if (!empty($_POST['allowAutoUpdateReposEnv']) AND Common::validateData($_POST['allowAutoUpdateReposEnv']) === "yes") {
+    if (!empty($_POST['allowAutoUpdateReposEnv']) and Common::validateData($_POST['allowAutoUpdateReposEnv']) === "yes") {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'yes';
     } else {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'no';
@@ -306,7 +306,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Autoriser ou non la suppression des repos archivés par l'automatisation
      */
-    if (!empty($_POST['allowAutoDeleteArchivedRepos']) AND Common::validateData($_POST['allowAutoDeleteArchivedRepos']) === "yes") {
+    if (!empty($_POST['allowAutoDeleteArchivedRepos']) and Common::validateData($_POST['allowAutoDeleteArchivedRepos']) === "yes") {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTODELETE_ARCHIVED_REPOS'] = 'yes';
     } else {
         $repomanager_conf_array['AUTOMATISATION']['ALLOW_AUTODELETE_ARCHIVED_REPOS'] = 'no';
@@ -315,7 +315,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Retention, nombre de repos à conserver avant suppression par l'automatisation
      */
-    if(!empty($_POST['retention'])) {
+    if (!empty($_POST['retention'])) {
         $retention = Common::validateData($_POST['retention']);
 
         if (is_numeric($retention)) {
@@ -326,7 +326,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver l'envoie de rappels de planifications futures (seul paramètre cron à ne pas être regroupé avec les autres paramètres cron)
      */
-    if (!empty($_POST['cronSendReminders']) AND Common::validateData($_POST['cronSendReminders']) === "yes") {
+    if (!empty($_POST['cronSendReminders']) and Common::validateData($_POST['cronSendReminders']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_PLAN_REMINDERS_ENABLED'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_PLAN_REMINDERS_ENABLED'] = 'no';
@@ -335,7 +335,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver les statistiques
      */
-    if (!empty($_POST['cronStatsEnable']) AND Common::validateData($_POST['cronStatsEnable']) === "yes") {
+    if (!empty($_POST['cronStatsEnable']) and Common::validateData($_POST['cronStatsEnable']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_STATS_ENABLED'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_STATS_ENABLED'] = 'no';
@@ -353,7 +353,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
  *  Section CRON
  *  Si un des formulaires de la page a été validé alors on entre dans cette condition
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyCronConfiguration") {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === "applyCronConfiguration") {
 
     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
     $repomanager_conf_array = parse_ini_file(REPOMANAGER_CONF, true);
@@ -361,7 +361,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activation des tâches cron
      */
-    if (!empty($_POST['cronDailyEnable']) AND Common::validateData($_POST['cronDailyEnable']) === "yes") {
+    if (!empty($_POST['cronDailyEnable']) and Common::validateData($_POST['cronDailyEnable']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_DAILY_ENABLED'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_DAILY_ENABLED'] = 'no';
@@ -370,7 +370,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver la regénération et le nettoyage régulier des fichiers de configuration des repos (.repo ou .list) téléchargeables par les clients
      */
-    if (!empty($_POST['cronGenerateReposConf']) AND Common::validateData($_POST['cronGenerateReposConf']) === "yes") {
+    if (!empty($_POST['cronGenerateReposConf']) and Common::validateData($_POST['cronGenerateReposConf']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_GENERATE_REPOS_CONF'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_GENERATE_REPOS_CONF'] = 'no';
@@ -379,7 +379,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver la ré-application régulière des permissions sur les répertoires de repos
      */
-    if (!empty($_POST['cronApplyPerms']) AND Common::validateData($_POST['cronApplyPerms']) === "yes") {
+    if (!empty($_POST['cronApplyPerms']) and Common::validateData($_POST['cronApplyPerms']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_APPLY_PERMS'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_APPLY_PERMS'] = 'no';
@@ -388,7 +388,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "app
     /**
      *  Activer / désactiver la sauvegarde régulière de la DB et des fichiers de configuration
      */
-    if (!empty($_POST['cronSaveConf']) AND Common::validateData($_POST['cronSaveConf']) === "yes") {
+    if (!empty($_POST['cronSaveConf']) and Common::validateData($_POST['cronSaveConf']) === "yes") {
         $repomanager_conf_array['CRON']['CRON_SAVE_CONF'] = 'yes';
     } else {
         $repomanager_conf_array['CRON']['CRON_SAVE_CONF'] = 'no';
@@ -421,7 +421,7 @@ function save(array $array) {
 /**
  * Deploiement des tâches cron
  */
-if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "enableCron") {
+if (!empty($_GET['action']) and Common::validateData($_GET['action']) == "enableCron") {
     Common::enableCron();
 }
 
@@ -430,7 +430,7 @@ if (!empty($_GET['action']) AND Common::validateData($_GET['action']) == "enable
  *  Récupère la liste des environnements envoyés sous forme de tableau actualEnv[]
  *  Valeurs retournées dans le cas du renommage d'un environnement par exemple
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "addNewEnv") {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === "addNewEnv") {
     
     /**
      *  Ajout d'un nouvel environnement
@@ -449,7 +449,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "add
 /**
  *  Renommage d'un environnement / changement de sens des environnements
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) === "applyEnvConfiguration") {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) === "applyEnvConfiguration") {
 
     if (!empty($_POST['actualEnv'])) {
         $myenv = new Environnement();
@@ -478,7 +478,7 @@ if (!empty($_GET['deleteEnv'])) {
 /**
  *  Création d'un nouvel utilisateur
  */
-if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'createUser' AND !empty($_POST['username']) AND !empty($_POST['role'])) {
+if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'createUser' and !empty($_POST['username']) and !empty($_POST['role'])) {
     $username = Common::validateData($_POST['username']);
     $role = Common::validateData($_POST['role']);
     $myuser = new Login();
@@ -498,7 +498,7 @@ if (!empty($_POST['action']) AND Common::validateData($_POST['action']) == 'crea
 /**
  *  Réinitialisation du mot de passe d'un utilisateur
  */
-if (isset($_GET['resetPassword']) AND !empty($_GET['username'])) {
+if (isset($_GET['resetPassword']) and !empty($_GET['username'])) {
     $mylogin = new Login();
 
     $result = $mylogin->resetPassword($_GET['username']);
@@ -516,7 +516,7 @@ if (isset($_GET['resetPassword']) AND !empty($_GET['username'])) {
 /**
  *  Suppression d'un utilisateur
  */
-if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
+if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
     $mylogin = new Login();
     $mylogin->deleteUser($_GET['username']);
 }
@@ -1035,7 +1035,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                     </td>
                 </tr>
             <?php
-            if (!empty($cronStatus) AND $cronStatus === "KO") {
+            if (!empty($cronStatus) and $cronStatus === "KO") {
                 $cronError = shell_exec("cat ".CRON_LOG." | grep -v 'Status='");
                 echo '<tr>';
                 echo '<td colspan="100%">';
@@ -1052,7 +1052,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 echo '</tr>';
             }
 
-            if (CRON_DAILY_ENABLED == "yes" AND MANAGE_PROFILES == "yes") { ?>
+            if (CRON_DAILY_ENABLED == "yes" and MANAGE_PROFILES == "yes") { ?>
                 <tr>
                     <td class="td-fit">
                         <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si la gestion des profils est activée. Regénère et nettoie les fichiers de configurations  if (OS_FAMILY == "Redhat") { .repo } if (OS_FAMILY == "Debian") { .list }  téléchargés par les serveurs clients." />
@@ -1109,7 +1109,7 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 </tr>
     <?php   }
             
-            if (AUTOMATISATION_ENABLED == "yes" AND CRON_PLAN_REMINDERS_ENABLED == "yes") {
+            if (AUTOMATISATION_ENABLED == "yes" and CRON_PLAN_REMINDERS_ENABLED == "yes") {
                 echo '<tr>';
                 echo '<td class="td-fit">';
                 echo '<img src="ressources/icons/info.png" class="icon-verylowopacity" title="Tâche cron envoyant des rappels automatiques des futures planifications" />';
@@ -1184,11 +1184,11 @@ if (isset($_GET['deleteUser']) AND !empty($_GET['username'])) {
                 </form>
                 <?php
                     // Cas où un nouveau mot de passe a été généré
-                    if (!empty($newUserUsername) AND !empty($newUserPassword)) {
+                    if (!empty($newUserUsername) and !empty($newUserPassword)) {
                         echo '<p class="greentext">Mot de passe temporaire généré pour <b>'.$newUserUsername.'</b> : '.$newUserPassword.'</p>';
                     }
                     // Cas où un mot de passe a été reseté
-                    if (!empty($newResetedPwdUsername) AND !empty($newResetedPwdPassword)) {
+                    if (!empty($newResetedPwdUsername) and !empty($newResetedPwdPassword)) {
                         echo '<p class="greentext">Un nouveau mot de passe a été généré pour <b>'.$newResetedPwdUsername.'</b> : '.$newResetedPwdPassword.'</p>';
                     }
 

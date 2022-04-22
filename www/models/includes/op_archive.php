@@ -21,11 +21,11 @@ trait op_archive {
          *  Si il y a 1 ou plusieurs occurences alors on ne peut pas archiver le repo/section à la date indiquée car il est toujours utilisé
          */
         try {
-            $stmt = $this->db->prepare("SELECT Date, Time, Source, Signed, Type, Description FROM repos WHERE Id = :id AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Date, Time, Source, Signed, Type, Description FROM repos WHERE Id = :id and Status = 'active'");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -38,7 +38,7 @@ trait op_archive {
         $actual_type          = $datas['Type'];
         $actual_description   = $datas['Description'];
 
-        if (empty($actual_date) OR empty($actual_dateFormatted)) {
+        if (empty($actual_date) or empty($actual_dateFormatted)) {
             /**
              *  Si il y eu une erreur on fait appel directement à steplogError pour afficher un message,
              *  On n'utilise pas throw new Exception qui aurait pour effet de mettre fin à l'opération. Or ici on peut se permettre de continuer même si l'ancienne version n'a pas pû être supprimée
@@ -62,8 +62,8 @@ trait op_archive {
              *  On exclu $env de la recherche car il apparaitra forcémment sinon.
              */
             try {            
-                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Date = :date AND Env != :env AND Status = 'active'");
-                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env != :env AND Date = :date AND Status = 'active'");
+                if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Date = :date and Env != :env and Status = 'active'");
+                if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env != :env and Date = :date and Status = 'active'");
                 $stmt->bindValue(':name', $name);
                 $stmt->bindValue(':date', $actual_date);
                 $stmt->bindValue(':env', $env);
@@ -73,7 +73,7 @@ trait op_archive {
                 }
                 $result = $stmt->execute();
 
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
 
@@ -100,7 +100,7 @@ trait op_archive {
             $stmt->bindValue(':id', $id);
             $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -130,7 +130,7 @@ trait op_archive {
                         $stmt->bindValue(':actual_signed', $actual_signed);
                         $stmt->bindValue(':actual_type', $actual_type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                 }
@@ -160,7 +160,7 @@ trait op_archive {
                         $stmt->bindValue(':actual_signed', $actual_signed);
                         $stmt->bindValue(':actual_type', $actual_type);
                         $stmt->execute();
-                    } catch(Exception $e) {
+                    } catch (Exception $e) {
                         Common::dbError($e);
                     }
                 }

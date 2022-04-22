@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
      */
     $datas = json_decode(file_get_contents("php://input"));
 
-    if (!empty($datas->ip) AND !empty($datas->hostname)) {
+    if (!empty($datas->ip) and !empty($datas->hostname)) {
 
         /**
          *  Instanciation d'un objet Host

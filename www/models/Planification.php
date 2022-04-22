@@ -8,7 +8,6 @@ class Planification extends Model {
     private $status;
     private $error;
     private $logfile;
-
     private $type;
     private $day = null;
     private $date = null;
@@ -22,9 +21,9 @@ class Planification extends Model {
     private $notificationOnError;
 
     private $log;       // pour instancier un objet Log
-    public  $repo;      // pour instancier un objet Repo
-    public  $op;        // pour instancier un objet Operation
-    public  $group;     // pour instancier un objet Group
+    public $repo;       // pour instancier un objet Repo
+    public $op;         // pour instancier un objet Operation
+    public $group;      // pour instancier un objet Group
 
     private $logList = array();
     private $groupList;
@@ -128,7 +127,7 @@ class Planification extends Model {
         /**
          *  Si la planification est de type 'regular' (planification récurrente) et que la fréquence est "every-day" ou "every-hour" alors on ne set pas de rappel
          */
-        if ($this->type == 'regular' AND ($this->frequency == "every-day" OR $this->frequency == "every-hour")) return;
+        if ($this->type == 'regular' and ($this->frequency == "every-day" or $this->frequency == "every-hour")) return;
 
         $planReminder = '';
 
@@ -155,7 +154,7 @@ class Planification extends Model {
         /**
          *  Si state est différent de yes et no alors c'est invalide
          */
-        if ($state != 'yes' AND $state != 'no') {
+        if ($state != 'yes' and $state != 'no') {
             throw new Exception('Erreur : type de notification invalide');
             die();
         }
@@ -174,7 +173,7 @@ class Planification extends Model {
         /**
          *  Si state est différent de yes et no alors c'est invalide
          */
-        if ($state != 'yes' AND $state != 'no') {
+        if ($state != 'yes' and $state != 'no') {
             throw new Exception('Erreur : état invalide');
             die();
         }
@@ -187,7 +186,7 @@ class Planification extends Model {
         /**
          *  Si state est différent de yes et no alors c'est invalide
          */
-        if ($state != 'yes' AND $state != 'no') {
+        if ($state != 'yes' and $state != 'no') {
             throw new Exception('Erreur : état invalide');
             die();
         }
@@ -260,28 +259,28 @@ class Planification extends Model {
         /**
          *  Vérification de la fréquence si il s'agit d'une tâche récurrente
          */
-        if ($this->type == "regular" AND empty($this->frequency))  {
+        if ($this->type == "regular" and empty($this->frequency))  {
             throw new Exception("Vous devez spécifiez une fréquence");
         }
 
         /**
          *  Vérification du/des jour(s) dans le cas où il s'agit d'une planification récurrente "toutes les semaines"
          */
-        if ($this->type == "regular" AND $this->frequency == "every-week" AND empty($this->day)) {
+        if ($this->type == "regular" and $this->frequency == "every-week" and empty($this->day)) {
             throw new Exception("Vous devez spécifiez le(s) jour(s) de la semaine");
         }
 
         /**
          *  Vérification de la date (dans le cas où il s'agit d'une planification)
          */
-        if ($this->type == 'plan' AND empty($this->date)) {
+        if ($this->type == 'plan' and empty($this->date)) {
             throw new Exception("Vous devez spécifier une date");
         }
 
         /**
          *  Vérification de l'heure (dans le cas où il s'agit d'une planification ou d'une tâche récurrente "tous les jours" ou "toutes les semaines")
          */
-        if ($this->type == 'plan' OR ($this->type == 'regular' AND $this->frequency == 'every-day') OR ($this->type == 'regular' AND $this->frequency == 'every-week')) {
+        if ($this->type == 'plan' or ($this->type == 'regular' and $this->frequency == 'every-day') or ($this->type == 'regular' and $this->frequency == 'every-week')) {
             if (empty($this->time)) {
                 throw new Exception("Vous devez spécifier une heure");
             }
@@ -290,14 +289,14 @@ class Planification extends Model {
         /**
          *  Si aucun repo et aucun groupe n'a été renseigné alors on quitte
          */
-        if (empty($this->repoId) AND empty($this->groupId)) {
+        if (empty($this->repoId) and empty($this->groupId)) {
             throw new Exception("Vous devez spéficier un repo ou un groupe");
         }
 
         /**
          *  Si un repo ET un groupe ont été renseignés alors on quitte
          */
-        if (!empty($this->repoId) AND !empty($this->groupId)) {
+        if (!empty($this->repoId) and !empty($this->groupId)) {
             throw new Exception("Vous devez spécifier soit un repo, soit un groupe mais pas les deux");
         }
 
@@ -393,7 +392,7 @@ class Planification extends Model {
             $stmt->bindValue(':mailrecipient', $this->mailRecipient);
             $stmt->bindValue(':reminder', $this->reminder);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -407,7 +406,7 @@ class Planification extends Model {
             $stmt = $this->db->prepare("UPDATE planifications SET Status = 'canceled' WHERE Id = :id");
             $stmt->bindValue(':id', $planId);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
     }
@@ -430,7 +429,7 @@ class Planification extends Model {
             $stmt = $this->db->prepare("UPDATE planifications SET Status = 'running' WHERE Id = :id");
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -469,16 +468,16 @@ class Planification extends Model {
              *  5. Si l'action est 'update' alors on vérifie que cette action est autorisée et on doit avoir renseigné gpgCheck et gpgResign
              */
             if ($this->op->getAction() == "update") {
-                $this->checkAction_update_allowed();
-                $this->checkAction_update_gpgCheck();
-                $this->checkAction_update_gpgResign();
+                $this->checkActionUpdateAllowed();
+                $this->checkActionUpdateGpgCheck();
+                $this->checkActionUpdateGpgResign();
             }
 
             /**
              *  6. Si l'action est '->' alors on vérifie que cette action est autorisée
              */
             if (strpos(htmlspecialchars_decode($this->op->getAction()), '->') !== false) {
-                $this->checkAction_env_allowed();
+                $this->checkActionEnvAllowed();
             }
 
             /**
@@ -519,7 +518,7 @@ class Planification extends Model {
         /**
          *  Clôture du try/catch pour la partie Vérifications
          */
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $this->close(1, $e->getMessage());
             return;
         }
@@ -534,7 +533,7 @@ class Planification extends Model {
         /**
          *  1. Cas où on traite 1 repo seulement
          */
-        if (!empty($this->op->repo->getName()) AND empty($this->op->group->getName())) {
+        if (!empty($this->op->repo->getName()) and empty($this->op->group->getName())) {
             /**
              *  Traitement
              *  On transmet l'ID de la planification dans $this->op->id_plan, ceci afin de déclarer une nouvelle opération en BDD avec l'id de la planification qui l'a lancée
@@ -584,7 +583,7 @@ class Planification extends Model {
                 $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
 
 
-                if (empty($this->op->repo->getEnv()) OR empty($this->op->repo->getTargetEnv())) {
+                if (empty($this->op->repo->getEnv()) or empty($this->op->repo->getTargetEnv())) {
                     /**
                      *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
                      */
@@ -621,7 +620,7 @@ class Planification extends Model {
         /**
          *  2. Cas où on traite un groupe de repos/sections
          */
-        if (!empty($this->op->group->getName()) AND !empty($this->groupList)) {
+        if (!empty($this->op->group->getName()) and !empty($this->groupList)) {
             /**
              *  Comme on boucle pour traiter plusieurs repos/sections, on ne peut pas tout quitter en cas d'erreur tant qu'on a pas bouclé sur tous les repos.
              *  Du coup on initialise une variable qu'on incrémentera en cas d'erreur.
@@ -643,7 +642,7 @@ class Planification extends Model {
             /**
              *  On traite chaque ligne de groupList
              */
-            foreach($this->groupList as $repo) {
+            foreach ($this->groupList as $repo) {
                 /**
                  *  Pour chaque ligne on récupère les infos du repo/section grace à son Id
                  *  Les paramètres GPG Check et GPG Resign récupérées seront écrasés par les paramètres fournis par l'utilisateur lors 
@@ -784,7 +783,7 @@ class Planification extends Model {
         /**
          *  Cloture du try/catch pour la partie Vérifications
          */
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
     
@@ -813,7 +812,7 @@ class Planification extends Model {
                 $this->op->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
                 $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
         
-                if (empty($this->op->repo->getEnv()) AND empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
+                if (empty($this->op->repo->getEnv()) and empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
         
                 if (OS_FAMILY == "Redhat") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") du repo <b>".$this->op->repo->getName()."</b>";
                 if (OS_FAMILY == "Debian") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") de la section <b>".$this->op->repo->getSection()."</b> du repo <b>".$this->op->repo->getName()."</b> (".$this->op->repo->getDist().")";
@@ -823,9 +822,9 @@ class Planification extends Model {
         /**
          *  Cas où la planif à rappeler concerne un groupe de repo
          */
-        if (!empty($this->op->group->getName()) AND !empty($this->groupList)) {
+        if (!empty($this->op->group->getName()) and !empty($this->groupList)) {
 
-            foreach($this->groupList as $line) {
+            foreach ($this->groupList as $line) {
 
                 /**
                  *  Pour chaque ligne on récupère les infos du repo/section
@@ -852,7 +851,7 @@ class Planification extends Model {
 
                     $this->op->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
                     $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
-                    if (empty($this->op->repo->getEnv()) AND empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
+                    if (empty($this->op->repo->getEnv()) and empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
 
                     if (OS_FAMILY == "Redhat") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") des repos du groupe <b>".$this->op->group->getName()."</b>";
                     if (OS_FAMILY == "Debian") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") des sections de repos du groupe <b>".$this->op->group->getName()."</b>";
@@ -905,7 +904,7 @@ class Planification extends Model {
                 }
             }
             $stmt->execute(); unset($stmt);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -960,7 +959,7 @@ class Planification extends Model {
         /**
          *  Cas où on traite un seul repo
          */
-        if (!empty($this->op->repo->getName()) AND empty($this->op->group->getName())) {
+        if (!empty($this->op->repo->getName()) and empty($this->op->group->getName())) {
             /**
              *  Si l'action est 'update', un sous-fichier de log sera créé par la fonction $repo->update(). Ce fichier de log existera uniquement si la fonction a pu se lancer (donc pas d'erreur lors des vérifications). On récupère donc le contenu de ce fichier uniquement si il n'y a pas eu d'erreur lors des vérifications ($planError != 1).
              */
@@ -1137,7 +1136,7 @@ class Planification extends Model {
         if (empty($this->op->getAction())) throw new Exception("Erreur (CP01) : Aucune action n'est spécifiée dans cette planification");
     }
 
-    private function checkAction_update_allowed()
+    private function checkActionUpdateAllowed()
     {
         /**
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
@@ -1145,17 +1144,17 @@ class Planification extends Model {
         if (ALLOW_AUTOUPDATE_REPOS != "yes") throw new Exception("Erreur (CP02) : La mise à jour des miroirs par planification n'est pas autorisée. Vous pouvez modifier ce paramètre depuis l'onglet Configuration");
     }
 
-    private function checkAction_update_gpgCheck()
+    private function checkActionUpdateGpgCheck()
     {
         if (empty($this->op->repo->getTargetGpgCheck())) throw new Exception("Erreur (CP03) : Vérification des signatures GPG non spécifié dans cette planification");
     }
 
-    private function checkAction_update_gpgResign()
+    private function checkActionUpdateGpgResign()
     {
         if (empty($this->op->repo->getTargetGpgResign())) throw new Exception("Erreur (CP04) : Signature des paquets avec GPG non spécifié dans cette planification");
     }
 
-    private function checkAction_env_allowed()
+    private function checkActionEnvAllowed()
     {
         /**
          *  Si le changement d'environnement n'est pas autorisé, on quitte
@@ -1168,12 +1167,12 @@ class Planification extends Model {
      */
     private function checkIfRepoOrGroup()
     {
-        if (empty($this->op->repo->getName()) AND empty($this->op->group->getName())) throw new Exception("Erreur (CP06) : Aucun repo ou groupe spécifié");
+        if (empty($this->op->repo->getName()) and empty($this->op->group->getName())) throw new Exception("Erreur (CP06) : Aucun repo ou groupe spécifié");
     
         /**
          *  On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que planRepo et planGroup ne sont pas tous les deux renseignés en même temps :
          */
-        if (!empty($this->op->repo->getName()) AND !empty($this->op->group->getName())) {
+        if (!empty($this->op->repo->getName()) and !empty($this->op->group->getName())) {
             if (OS_FAMILY == "Redhat") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois un repo et un groupe de repos");
             if (OS_FAMILY == "Debian") throw new Exception("Erreur (CP07) : Il n'est pas possible de traiter à la fois une section et un groupe de sections");
         }
@@ -1198,7 +1197,7 @@ class Planification extends Model {
          *  Pour chaque repo/section renseigné(e), on vérifie qu'il/elle existe
          */
         $msg_error = '';
-        foreach($this->groupList as $repo) {
+        foreach ($this->groupList as $repo) {
             $repoId   = $repo['Id'];
             $repoName = $repo['Name'];
             if (OS_FAMILY == "Debian") { // si Debian on récupère aussi la distrib et la section
@@ -1253,7 +1252,7 @@ class Planification extends Model {
     */
     public function listDone()
     {
-        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'done' OR Status = 'error' OR Status = 'stopped' ORDER BY Date DESC, Time DESC");
+        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'done' or Status = 'error' or Status = 'stopped' ORDER BY Date DESC, Time DESC");
         
         $plans = array();
 
@@ -1267,7 +1266,7 @@ class Planification extends Model {
      */
     public function listLast()
     {
-        $query = $this->db->query("SELECT Date, Time, Status FROM planifications WHERE Type = 'plan' AND (Status = 'done' OR Status = 'error') ORDER BY Date DESC, Time DESC LIMIT 1");
+        $query = $this->db->query("SELECT Date, Time, Status FROM planifications WHERE Type = 'plan' and (Status = 'done' or Status = 'error') ORDER BY Date DESC, Time DESC LIMIT 1");
         
         $plans = array();
 
@@ -1281,7 +1280,7 @@ class Planification extends Model {
      */
     public function listNext()
     {
-        $query  = $this->db->query("SELECT Date, Time FROM planifications WHERE Type = 'plan' AND Status = 'queued' ORDER BY Date ASC, Time ASC LIMIT 1");
+        $query  = $this->db->query("SELECT Date, Time FROM planifications WHERE Type = 'plan' and Status = 'queued' ORDER BY Date ASC, Time ASC LIMIT 1");
         
         $plans = array();
 
@@ -1307,7 +1306,7 @@ class Planification extends Model {
             $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 

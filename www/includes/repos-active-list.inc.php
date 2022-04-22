@@ -12,7 +12,7 @@ $groupsList = $mygroup->listAllWithDefault();
  *  On va afficher le tableau de repos seulement si la commande précédente a trouvé des groupes dans le fichier (résultat non vide)
  */
 if (!empty($groupsList)) {
-    foreach($groupsList as $groupName) {
+    foreach ($groupsList as $groupName) {
         echo '<div class="repos-list-group div-generic-gray" group="'.$groupName.'">';
             /**
              *  Bouton permettant de masquer le contenu de ce groupe
@@ -55,8 +55,8 @@ if (Common::isadmin()) {
          *  Bouton 'Dupliquer'
          */
         if (OS_FAMILY == 'Redhat') echo '<button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Dupliquer le(s) repo(s) sélectionné(s)"><img class="icon" src="ressources/icons/duplicate.png" />Dupliquer</button>';
-        if (OS_FAMILY == 'Debian') echo '<button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Dupliquer le(s) section(s) de repo(s) sélectionnée(s)"><img class="icon" src="ressources/icons/duplicate.png" />Dupliquer</button>';        
-        
+        if (OS_FAMILY == 'Debian') echo '<button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Dupliquer le(s) section(s) de repo(s) sélectionnée(s)"><img class="icon" src="ressources/icons/duplicate.png" />Dupliquer</button>';
+
         /**
          *  Bouton 'Nouvel env.'
          */
@@ -80,4 +80,4 @@ if (Common::isadmin()) {
         if (OS_FAMILY == 'Redhat') echo '<button class="repo-action-btn btn-medium-red" action="delete" type="active-btn archived-btn" title="Supprimer le(s) repo(s) sélectionné(s)"><img class="icon" src="ressources/icons/bin.png" />Supprimer</button>';
         if (OS_FAMILY == 'Debian') echo '<button class="repo-action-btn btn-medium-red" action="delete" type="active-btn archived-btn" title="Supprimer le(s) section(s) de repo(s) sélectionnée(s)"><img class="icon" src="ressources/icons/bin.png" />Supprimer</button>';
     echo '</div>';
-} ?>
+}

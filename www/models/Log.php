@@ -30,7 +30,7 @@ class Log {
         /**
          *  Seuls les types "main" ou "plan" sont valides
          */
-        if ($type == "repomanager" OR $type == "plan") {
+        if ($type == "repomanager" or $type == "plan") {
             $this->type = $type;
         } else {
             throw new Error('Erreur : le type de fichier de log est invalide');

@@ -84,7 +84,7 @@ class Connection extends SQLite3 {
                 throw new Exception("base de données inconnue : $database");
             }
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             die('Erreur lors de la connexion à la base de données : '.$e->getMessage());
         }
 
@@ -95,7 +95,7 @@ class Connection extends SQLite3 {
 
             $this->busyTimeout(10000);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
 
             die('Erreur lors de la configuration du timeout de la base de données : '.$e->getMessage());
         }        
@@ -132,20 +132,20 @@ class Connection extends SQLite3 {
     public function countMainTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        AND name='repos'
-        OR name='repos_archived'
-        OR name='env'
-        OR name='sources'
-        OR name='groups' 
-        OR name='group_members' 
-        OR name='operations' 
-        OR name='planifications'
-        OR name='profile_package'
-        OR name='profile_service'
-        OR name='users'
-        OR name='user_role'
-        OR name='history'
-        OR name='repos_list_settings'");
+        and name='repos'
+        or name='repos_archived'
+        or name='env'
+        or name='sources'
+        or name='groups' 
+        or name='group_members' 
+        or name='operations' 
+        or name='planifications'
+        or name='profile_package'
+        or name='profile_service'
+        or name='users'
+        or name='user_role'
+        or name='history'
+        or name='repos_list_settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -159,8 +159,8 @@ class Connection extends SQLite3 {
     public function countStatsTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        AND name='stats'
-        OR name='access'");
+        and name='stats'
+        or name='access'");
 
         /**
          *  On retourne le nombre de tables
@@ -174,10 +174,10 @@ class Connection extends SQLite3 {
     public function countHostsTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        AND name='hosts'
-        OR name='groups'
-        OR name='group_members'
-        OR name='settings'");
+        and name='hosts'
+        or name='groups'
+        or name='group_members'
+        or name='settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -385,7 +385,7 @@ class Connection extends SQLite3 {
                 $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 Common::dbError($e);
             }
         }

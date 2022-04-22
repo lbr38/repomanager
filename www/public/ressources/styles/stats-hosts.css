@@ -260,17 +260,6 @@
     z-index: 10;
 }
 
-#eventsDiv span {
-    padding-right: 30px;
-}
-
-#eventsDiv i {
-    display: inline-block;
-    width: 40px;
-    padding-right: 30px;
-    font-style: normal;
-}
-
 .showEventDetailsBtn:hover span.showEventDetails {
     display: inline-block;
 }
@@ -402,7 +391,7 @@
     background-color: #333333;
 }
 .timeline-container-content-green {
-    background-color: #489f4d;
+    background-color: #3e8e41;
 }
 .timeline-container-content-blue {
     background-color: #2b426e;

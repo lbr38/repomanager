@@ -129,7 +129,7 @@ class Repo extends Model {
         //     /**
         //      *  On récupère au passage l'url source complète
         //      */
-        //     if (OS_FAMILY == "Debian" AND $this->type == "mirror") $this->getFullSource();
+        //     if (OS_FAMILY == "Debian" and $this->type == "mirror") $this->getFullSource();
         // }
         // /* Signed */
         // if (!empty($repoSigned)) $this->signed = $repoSigned;
@@ -201,7 +201,7 @@ class Repo extends Model {
         /**
          *  Le status ne peut qu'être 'active' ou 'archived'
          */
-        if ($status != "active" AND $status != "archived") {
+        if ($status != "active" and $status != "archived") {
             throw new Exception("Le status renseigné est invalide : $status");
         }
 
@@ -237,7 +237,7 @@ class Repo extends Model {
 
     // public function setGpgResign(string $gpgResign)
     // {
-    //     if ($gpgResign != 'yes' AND $gpgResign != 'no') {
+    //     if ($gpgResign != 'yes' and $gpgResign != 'no') {
     //         throw new Exception('Erreur : le paramètre gpgResign doit être égal à yes ou à no');
     //     }
 
@@ -396,7 +396,7 @@ class Repo extends Model {
         try {
             if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Env ASC");
             if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT * FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC, Env ASC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -415,7 +415,7 @@ class Repo extends Model {
         try {
             if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC");
             if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT * FROM repos_archived WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -433,7 +433,7 @@ class Repo extends Model {
         try {
             if (OS_FAMILY == "Redhat") $result = $this->db->query("SELECT DISTINCT Name FROM repos WHERE Status = 'active' ORDER BY Name ASC");
             if (OS_FAMILY == "Debian") $result = $this->db->query("SELECT DISTINCT Name, Dist, Section FROM repos WHERE Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -449,11 +449,11 @@ class Repo extends Model {
      */
     public function listAll_distinct_byEnv(string $env) {
         try {
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env AND Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name FROM repos WHERE Env=:env and Status = 'active' ORDER BY Name ASC");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT DISTINCT Id, Name, Dist, Section FROM repos WHERE Env=:env and Status = 'active' ORDER BY Name ASC, Dist ASC, Section ASC");
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         
@@ -505,7 +505,7 @@ class Repo extends Model {
         if (empty($targetTable)) {
             $table = 'repos';
         } else {
-            if ($targetTable != 'active' AND $targetTable != 'archived') {
+            if ($targetTable != 'active' and $targetTable != 'archived') {
                 return false;
             }
 
@@ -518,11 +518,11 @@ class Repo extends Model {
         }
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM $table WHERE Id = :id AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Id FROM $table WHERE Id = :id and Status = 'active'");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         
@@ -541,11 +541,11 @@ class Repo extends Model {
     public function exists(string $name)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -562,11 +562,11 @@ class Repo extends Model {
     public function existsEnv(string $name, string $env)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name AND Env=:env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name=:name and Env=:env and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -590,12 +590,12 @@ class Repo extends Model {
         }
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name AND Date = :date AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name and Date = :date and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -612,13 +612,13 @@ class Repo extends Model {
     public function existsDateEnv(string $name, string $date, string $env)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Date = :date AND Env = :env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Date = :date and Env = :env and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -635,13 +635,13 @@ class Repo extends Model {
     public function section_exists(string $name, string $dist, string $section)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':dist', $dist);
             $stmt->bindValue(':section', $section);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -658,13 +658,13 @@ class Repo extends Model {
     public function section_existsEnv(string $name, string $dist, string $section, string $env)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :env and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':dist', $dist);
             $stmt->bindValue(':section', $section);
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -688,14 +688,14 @@ class Repo extends Model {
         }
 
         try {
-            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name AND Dist = :dist AND Section = :section AND Date = :date AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM $table WHERE Name = :name and Dist = :dist and Section = :section and Date = :date and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':dist', $dist);
             $stmt->bindValue(':section', $section);
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -712,7 +712,7 @@ class Repo extends Model {
     public function section_existsDateEnv(string $name, string $dist, string $section, string $date, string $env)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Date = :date AND Env = :env AND Status = 'active'");
+            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name and Dist = :dist and Section = :section and Date = :date and Env = :env and Status = 'active'");
             $stmt->bindValue(':name', $name);
             $stmt->bindValue(':dist', $dist);
             $stmt->bindValue(':section', $section);
@@ -720,7 +720,7 @@ class Repo extends Model {
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -739,8 +739,8 @@ class Repo extends Model {
     public function db_getId()
     {
         try {
-            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name AND Env = :env AND Status = 'active'");
-            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name AND Dist = :dist AND Section = :section AND Env = :env AND Status = 'active'");
+            if (OS_FAMILY == "Redhat") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name and Env = :env and Status = 'active'");
+            if (OS_FAMILY == "Debian") $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name and Dist = :dist and Section = :section and Env = :env and Status = 'active'");
             $stmt->bindValue(':name', $this->name);
             if (OS_FAMILY == "Debian") {
                 $stmt->bindValue(':dist', $this->dist);
@@ -748,7 +748,7 @@ class Repo extends Model {
             }
             $stmt->bindValue(':env', $this->env);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -776,7 +776,7 @@ class Repo extends Model {
             $stmt->bindValue(':id', $this->id);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -792,7 +792,7 @@ class Repo extends Model {
                 $this->setSection($row['Section']);
             }
             $this->setSource($row['Source']);
-            if (OS_FAMILY == "Debian" AND $this->type == "mirror") {
+            if (OS_FAMILY == "Debian" and $this->type == "mirror") {
                 $this->getFullSource();
             }
             $this->setDate($row['Date']);
@@ -823,7 +823,7 @@ class Repo extends Model {
             $stmt->bindValue(':name', $this->source);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -870,7 +870,7 @@ class Repo extends Model {
             $stmt->bindValue(':idrepo', $repoId);
             $result = $stmt->execute();
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -898,7 +898,7 @@ class Repo extends Model {
          *  Il faut avoir transmis si le repo est actif ou archivé
          *  Il faut que la description ne comporte pas de caractères interdits, on accepte certains caractères spéciaux (voir array ci-dessous)
          */
-        if ($this->status != 'active' AND $this->status != 'archived') {
+        if ($this->status != 'active' and $this->status != 'archived') {
             throw new Exception('Le type de repo est invalide');
         }
 
@@ -915,7 +915,7 @@ class Repo extends Model {
             $stmt->bindValue(':description', Common::validateData($description));
             $stmt->bindValue(':id', $this->id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
         unset($stmt);
@@ -931,14 +931,14 @@ class Repo extends Model {
         /**
          *  signed peut être égal à 'yes' ou 'no'
          */
-        if ($signed != "yes" AND $signed != "no") return;
+        if ($signed != "yes" and $signed != "no") return;
 
         try {
             $stmt = $this->db->prepare("UPDATE repos SET Signed = :signed WHERE Id = :id");
             $stmt->bindValue(':signed', $signed);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -972,7 +972,7 @@ class Repo extends Model {
         /**
          *  On peut préciser à la fonction le répertoire de destination des fichiers. Si on précise une valeur vide ou bien "default", alors les fichiers seront générés dans le répertoire par défaut
          */
-        if (empty($destination) OR $destination == "default") {
+        if (empty($destination) or $destination == "default") {
             $destination = REPOS_PROFILES_CONF_DIR;
         }
 
@@ -1076,8 +1076,8 @@ class Repo extends Model {
              */ 
             $profilesNames = scandir(PROFILES_MAIN_DIR);
 
-            foreach($profilesNames as $profileName) {
-                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
+            foreach ($profilesNames as $profileName) {
+                if (($profileName != "..") and ($profileName != ".") and ($profileName != "_configurations") and ($profileName != "_reposerver") and ($profileName != PROFILE_SERVER_CONF)) {
                     if (is_link(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo")) {
                         unlink(PROFILES_MAIN_DIR."/${profileName}/".REPO_CONF_FILES_PREFIX."{$this->name}.repo");
                     }
@@ -1107,8 +1107,8 @@ class Repo extends Model {
              */ 
             $profilesNames = scandir(PROFILES_MAIN_DIR);
 
-            foreach($profilesNames as $profileName) {
-                if (($profileName != "..") AND ($profileName != ".") AND ($profileName != "_configurations") AND ($profileName != "_reposerver") AND ($profileName != PROFILE_SERVER_CONF)) {
+            foreach ($profilesNames as $profileName) {
+                if (($profileName != "..") and ($profileName != ".") and ($profileName != "_configurations") and ($profileName != "_reposerver") and ($profileName != PROFILE_SERVER_CONF)) {
                     if (is_link(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list")) {
                         unlink(PROFILES_MAIN_DIR."/$profileName/".REPO_CONF_FILES_PREFIX."{$this->name}_${repoDistFormatted}_{$this->section}.list");
                     }

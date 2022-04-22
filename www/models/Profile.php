@@ -215,7 +215,7 @@ class Profile extends Model {
                  *  Certains nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
                  */
                 if (OS_FAMILY == "Debian") {
-                    if (Common::is_alphanumdash($addProfileRepoDist, array('/')) === false OR Common::is_alphanumdash($addProfileRepoSection) === false) {
+                    if (Common::is_alphanumdash($addProfileRepoDist, array('/')) === false or Common::is_alphanumdash($addProfileRepoSection) === false) {
                         throw new Exception("Une ou plusieurs distribution(s) de repo sélectionnée(s) contient des caractères invalides");
                     }
                 }
@@ -233,7 +233,7 @@ class Profile extends Model {
                     exec("cd ".PROFILES_MAIN_DIR."/${name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."${addProfileRepo}.repo");
                 }
         
-                if (OS_FAMILY == "Debian" AND !empty($addProfileRepoDist) AND !empty($addProfileRepoSection)) {
+                if (OS_FAMILY == "Debian" and !empty($addProfileRepoDist) and !empty($addProfileRepoSection)) {
                     /**
                      * 	On vérifie que la section repo existe, sinon on passe au suivant
                      */
@@ -404,7 +404,7 @@ class Profile extends Model {
             $stmt = $this->db->prepare("SELECT * FROM profile_package WHERE Name=:name");
             $stmt->bindValue(':name', $package);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -425,7 +425,7 @@ class Profile extends Model {
             $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
             $stmt->bindValue(':name', $service);
             $result = $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -451,7 +451,7 @@ class Profile extends Model {
             $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
             $stmt->bindValue(':name', $package);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
@@ -472,7 +472,7 @@ class Profile extends Model {
             $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
             $stmt->bindValue(':name', $service);
             $stmt->execute();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             Common::dbError($e);
         }
 
