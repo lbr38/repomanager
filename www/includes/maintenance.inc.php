@@ -11,7 +11,7 @@ if (UPDATE_RUNNING == "yes") {
                 <button class="btn-medium-blue" onClick="window.location.reload();">Actualiser</button>
             </div>
         </div>
-    <?php
+        <?php
     }
 }
 ?>

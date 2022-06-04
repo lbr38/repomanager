@@ -23,6 +23,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 ![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-4.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-2.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-5.png?raw=true)
 ![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager-3.png?raw=true)
 
 <b>Features</b>
@@ -204,6 +205,18 @@ server {
 
         location / {
                 rewrite ^ /index.php;
+        }
+
+        # API
+        location ~ ^/api/hosts$ {
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $WWW_DIR/public/api/hosts/index.php;
+                fastcgi_param HTTPS on;
+                # Avoid sending the security headers twice
+                fastcgi_param modHeadersAvailable true;
+                fastcgi_pass php-handler;
+                fastcgi_intercept_errors on;
+                fastcgi_request_buffering off;
         }
 
         location ~ \.php$ {

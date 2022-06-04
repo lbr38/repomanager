@@ -1,11 +1,13 @@
 <?php
 
-class Profile extends Model {
-    private $id;
-    private $name;
-    private $newName;
+namespace Models;
 
-    public function __construct() {
+use Exception;
+
+class Profile extends Model
+{
+    public function __construct()
+    {
         /**
          *  Ouverture d'une connexion à la base de données
          */
@@ -13,426 +15,319 @@ class Profile extends Model {
     }
 
     /**
-     * 	Création d'un nouveau profil
+     *  Retourne l'Id du profil en base de données, à partir de son nom
      */
-    function new(string $name)
-    {
-        $name = Common::validateData($name);
-
-        /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
-         */
-        if (Common::is_alphanumdash($name) === false) {
-            throw new Exception("Le profil <b>$name</b> contient des caractères invalides");
-        }
-
-        /**
-         * 	2. On vérifie qu'un profil du même nom n'existe pas déjà
-         */
-        if (file_exists(PROFILES_MAIN_DIR."/${name}")) {
-            throw new Exception("Le profil <b>$name</b> existe déjà");
-        }
-
-        /**
-         * 	3. Si pas d'erreur alors on peut créer le répertoire de profil
-         */
-        if (!is_dir(PROFILES_MAIN_DIR."/${name}")) { 
-            if (!mkdir(PROFILES_MAIN_DIR."/${name}", 0775, true)) {
-                throw new Exception("Impossible de créer le répertoire du profil <b>$name</b>");
-            }
-        }
-
-        /**
-         * 	4. Créer le fichier de config
-         */
-        if (!file_exists(PROFILES_MAIN_DIR."/${name}/config")) {
-            if (!touch(PROFILES_MAIN_DIR."/${name}/config")) {
-                throw new Exception("Impossible d'initialiser la configuration du profil <b>$name</b>");
-            }
-        }
-
-        /**
-         * 	5. Créer le fichier de config du profil avec des valeurs vides ou par défaut
-         */
-        if (!file_put_contents(PROFILES_MAIN_DIR."/${name}/config", "EXCLUDE_MAJOR=\"\"\nEXCLUDE=\"\"\nNEED_RESTART=\"\"\nKEEP_CRON=\"no\"\nALLOW_OVERWRITE=\"yes\"\nALLOW_REPOSFILES_OVERWRITE=\"yes\"")) {
-            throw new Exception("Impossible de configurer le profil <b>$name</b>");
-        }
-
-        History::set($_SESSION['username'], "Création d'un nouveau profil : $name", 'success');
-    }
-
-    /**
-     * 	Renommage d'un profil
-     */
-    function rename(string $name, string $newName)
-    {
-        $name = Common::validateData($name);
-        $newName = Common::validateData($newName);
-
-        /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
-         */
-        if (Common::is_alphanumdash($name) === false) {
-            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
-        }
-
-        if (Common::is_alphanumdash($newName) === false) {
-            throw new Exception("Le nom de profil <b>$newName</b> contient des caractères invalides");
-        }
-
-        /**
-         *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
-         */
-        if (is_dir(PROFILES_MAIN_DIR."/${newName}")) {
-            throw new Exception("Un profil du même nom (<b>{$newName}</b>) existe déjà");
-        }
-
-        /**
-         *  3. Si pas d'erreur alors on peut renommer le répertoire de profil
-         */
-        if (!rename(PROFILES_MAIN_DIR."/${name}", PROFILES_MAIN_DIR."/${newName}")) {
-            throw new Exception("Impossible de finaliser le renommage du profil <b>$name</b>");
-        }
-
-        History::set($_SESSION['username'], "Renommage du profil $name en $newName", 'success');
-    }
-
-    /**
-     *  Dupliquer un profil et sa configuration
-     */
-    public function duplicate(string $name)
-    {
-        $name = Common::validateData($name);
-
-        /**
-         *  1. On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
-         */
-        $newProfileName = $name.'-'.mt_rand(100000,200000);
-        
-        /**
-         *  2. On vérifie que le nouveau nom n'existe pas déjà sait-on jamais
-         */
-        if (file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) {
-            throw new Exception("Un profil du même nom (<b>$newProfileName</b>) existe déjà");
-        }
-
-        /**
-         *  3. Création du répertoire du nouveau profil
-         */
-        if (!file_exists(PROFILES_MAIN_DIR."/${newProfileName}")) {
-            mkdir(PROFILES_MAIN_DIR."/${newProfileName}", 0775, true);
-        }
-
-        /**
-         *  4. Copie du contenu du répertoire du profil dupliqué afin de copier sa config et ses fichiers de repo
-         */
-        exec("cp -rP ".PROFILES_MAIN_DIR."/${name}/* ".PROFILES_MAIN_DIR."/${newProfileName}/", $output, $result);
-        if ($result != 0) {
-            throw new Exception("Erreur lors de la duplication de <b>$name</b>");
-        }
-
-        History::set($_SESSION['username'], "Duplication d'u profil $name en $newProfileName", 'success');
-    }
-
-    /**
-     *  Supprimer un profil
-     */
-    public function delete(string $name)
-    {
-        $name = Common::validateData($name);
-
-        /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
-         */
-        if (Common::is_alphanumdash($name) === false) {
-            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
-        }
-
-        /**
-         * 	2. Suppression du répertoire du profil
-         */
-        exec("rm -fr ".PROFILES_MAIN_DIR."/${name}/", $output, $return);
-        if ($return != 0) {
-            throw new Exception("Impossible de supprimer le profil <b>$name</b>");
-        }
-
-        History::set($_SESSION['username'], "Suppression du profil $name", 'success');
-    }
-
-    /**
-     *  Configuration d'un profil
-     *  Gestion des repos du profil
-     *  Gestion des paquets à exclure
-     */
-    public function configure(string $name, $profileRepos = null, $packagesMajorExcluded = null, $packagesExcluded = null, $serviceNeedRestart = null, string $keepCron, string $allowOverwrite, string $allowReposFilesOverwrite)
-    {
-        $name = Common::validateData($name);
-
-        $error = 0;
-
-        /**
-         *  1.2. On vérifie que le nom du profil ne contient pas des caractères interdits
-         */
-        if (Common::is_alphanumdash($name) === false) {
-            throw new Exception("Le nom du profil <b>$name</b> contient des caractères invalides");
-        }
-        
-        /**
-         * 	1.3. D'abord on supprime tous les repos présents dans le répertoire du profil, avant de rajouter seulement ceux qui ont été sélectionnés dans la liste
-         */
-        if (is_dir(PROFILES_MAIN_DIR."/${name}/")) {
-            if (OS_FAMILY == "Redhat") exec("rm ".PROFILES_MAIN_DIR."/${name}/*.repo -f");
-            if (OS_FAMILY == "Debian") exec("rm ".PROFILES_MAIN_DIR."/${name}/*.list -f");
-        }
-    
-        /**
-         * 	1.4. Si l'array $profileRepos est vide alors on s'arrête là, le profil restera sans repo configuré. Sinon on continue.
-         * 	Ce n'est pas une erreur alors on retourne true
-         */
-        if (!empty($profileRepos)) {
-            /**
-             * 	On traite chaque repo sélectionné
-             */
-            foreach ($profileRepos as $profileRepo) {
-                $addProfileRepo = Common::validateData($profileRepo);
-        
-                if (OS_FAMILY == "Debian") {
-                    $addProfileRepoExplode = explode('|', $addProfileRepo);
-                    $addProfileRepo = $addProfileRepoExplode[0];
-                    $addProfileRepoDist = $addProfileRepoExplode[1];
-                    $addProfileRepoSection = $addProfileRepoExplode[2];
-                }
-        
-                /**
-                 *  On vérifie que le nom du repo ne contient pas des caractères interdits. Ici la fonction is_alphanumdash autorise de base les tirets et underscore ainsi que le point (qu'on a indiqué)
-                 *  Pour Debian, on vérifie également que la distribution et la section ne contiennent pas de caractères interdits
-                 */
-                if (Common::is_alphanumdash($addProfileRepo, array('.')) === false) {
-                    throw new Exception("Un ou plusieurs repo(s) sélectionné(s) contient des caractères invalides");
-                }
-
-                /**
-                 *  Certains nom de distribution peuvent contenir des slashs, donc ici on autorise l'utilisation d'un slash
-                 */
-                if (OS_FAMILY == "Debian") {
-                    if (Common::is_alphanumdash($addProfileRepoDist, array('/')) === false or Common::is_alphanumdash($addProfileRepoSection) === false) {
-                        throw new Exception("Une ou plusieurs distribution(s) de repo sélectionnée(s) contient des caractères invalides");
-                    }
-                }
-
-                $myRepo = new Repo();
-
-                if (OS_FAMILY == "Redhat") {
-                    /**
-                     *  On vérifie que le repo existe, sinon on passe au suivant
-                     */
-                    if ($myRepo->exists($addProfileRepo) === false) {
-                        continue;
-                    }
-        
-                    exec("cd ".PROFILES_MAIN_DIR."/${name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."${addProfileRepo}.repo");
-                }
-        
-                if (OS_FAMILY == "Debian" and !empty($addProfileRepoDist) and !empty($addProfileRepoSection)) {
-                    /**
-                     * 	On vérifie que la section repo existe, sinon on passe au suivant
-                     */
-                    if ($myRepo->section_exists($addProfileRepo, $addProfileRepoDist, $addProfileRepoSection) === false) {
-                        continue;
-                    }
-        
-                    /**
-                     * 	Si le nom de la distribution contient un slash, c'est le cas par exemple avec debian-security (buster/updates), alors il faudra remplacer ce slash par --slash-- dans le nom du fichier .list
-                     */
-                    if (preg_match('#/#', $addProfileRepoDist)) {
-                        $addProfileRepoDist = str_replace("/", "--slash--","$addProfileRepoDist");
-                    }
-                
-                    exec("cd ".PROFILES_MAIN_DIR."/${name}/ && ln -sfn ".REPOS_PROFILES_CONF_DIR."/".REPO_CONF_FILES_PREFIX."${addProfileRepo}_${addProfileRepoDist}_${addProfileRepoSection}.list");
-                }
-            }
-        }
-
-        /**
-         *  2. Gestion des exclusions, tâche cron et autres paramètres...
-         *
-         *  2.1. Pour chaque paramètre ci-dessous,
-         *  Si non-vide alors on implode l'array en string en séparant chaque valeurs par une virgule (car c'est comme ça qu'elles seront renseignées dans le fichier de conf) 
-         *  Si vide, alors on set une valeur vide
-         */
-
-        /**
-         *  Remise à zero du paramètre, il est ensuite peuplé par les options sélectionnées ou laissé vide si aucune n'a été sélectionnée
-         */
-        $profileConf_excludeMajor = '';
-
-        if (!empty($packagesMajorExcluded)) {
-            foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = Common::validateData($packageName);
-
-                /**
-                 *  Pour chaque packageName sélectionnées dans la liste déroulante, on vérifie que le paquet existe en BDD,
-                 *  Si ce n'est pas le cas on l'ajoute à condition qu'il respecte un certain format (pas de caractères spéciaux...)
-                 * 
-                 *  Si le package possède un wildcard .* alors on retire d'abord ce wildcard avant d'effectuer le test
-                 */
-                if (substr($packageName, -2) == ".*")
-                    $packageNameFormatted = rtrim($packageName, ".*");
-                else
-                    $packageNameFormatted = $packageName;
-
-                /**
-                 *  Vérif en BDD puis ajout en BDD si n'existe pas et si le format du nom est valide
-                 */
-                if ($this->db_packageExists($packageNameFormatted) === false) {
-                    /**
-                     *  Si l'ajout en BDD a échouée (à cause d'un caractère spécial par exemple) alors on passe au paquet suivant
-                     */
-                    if ($this->db_addPackage($packageNameFormatted) === false) continue;
-                }
-
-                /**
-                 *  Si le paquet est déjà connu ou qu'il a été ajouté en BDD sans erreur alors on l'ajoute à la liste des paquets à inclure dans le fichier de conf
-                 */
-                $profileConf_excludeMajor .= "${packageName},";
-            }
-
-            /**
-             *  Suppression de la dernière virgule de la liste
-             */
-            $profileConf_excludeMajor = rtrim($profileConf_excludeMajor, ",");
-        }
-
-        /**
-         *  Remise à zero du paramètre, il est ensuite peuplé par les options sélectionnées ou laissé vide si aucune n'a été sélectionnée
-         */
-        $profileConf_exclude = '';
-
-        if (!empty($packagesExcluded)) {
-            foreach ($packagesExcluded as $packageName) {
-                $packageName = Common::validateData($packageName);
-
-                /**
-                 *  Pour chaque packageName sélectionnées dans la liste déroulante, on vérifie que le paquet existe en BDD,
-                 *  Si ce n'est pas le cas on l'ajoute à condition qu'il respecte un certain format (pas de caractères spéciaux...)
-                 * 
-                 *  Si le package possède un wildcard .* alors on retire d'abord ce wildcard avant d'effectuer le test
-                 */
-                if (substr($packageName, -2) == ".*")
-                    $packageNameFormatted = rtrim($packageName, ".*");
-                else
-                    $packageNameFormatted = $packageName;
-
-                /**
-                 *  Vérif en BDD puis ajout en BDD si n'existe pas et si le format du nom est valide
-                 */
-                if ($this->db_packageExists($packageNameFormatted) === false) {
-                    /**
-                     *  Si l'ajout en BDD a échouée (à cause d'un caractère spécial par exemple) alors on passe au paquet suivant
-                     */
-                    if ($this->db_addPackage($packageNameFormatted) === false) continue;
-                }
-
-                /**
-                 *  Si le paquet est déjà connu ou qu'il a été ajouté en BDD sans erreur alors on l'ajoute à la liste des paquets à inclure dans le fichier de conf
-                 */
-                $profileConf_exclude .= "${packageName},";
-            }
-
-            /**
-             *  Suppression de la dernière virgule de la liste
-             */
-            $profileConf_exclude = rtrim($profileConf_exclude, ",");
-        }
-        
-        /**
-         *  Remise à zero du paramètre, il est ensuite peuplé par les options sélectionnées ou laissé vide si aucune n'a été sélectionnée
-         */
-        $profileConf_needRestart = '';
-
-        if (!empty($serviceNeedRestart)) {
-            foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = Common::validateData($serviceName);
-
-                /**
-                 *  Pour chaque serviceName sélectionnées dans la liste déroulante, on vérifie que le service existe en BDD,
-                 *  Si ce n'est pas le cas on l'ajoute à condition qu'il respecte un certain format (pas de caractères spéciaux...)
-                 */
-
-                /**
-                 *  Vérif en BDD puis ajout en BDD si n'existe pas et si le format du nom est valide
-                 */
-                if ($this->db_serviceExists($serviceName) === false) {
-                    /**
-                     *  Si l'ajout en BDD a échouée (à cause d'un caractère spécial par exemple) alors on passe au service suivant
-                     */
-                    if ($this->db_addService($serviceName) === false) continue;
-                }
-
-                /**
-                 *  Si le service est déjà connu ou qu'il a été ajouté en BDD sans erreur alors on l'ajoute à la liste des services à inclure dans le fichier de conf
-                 */
-                $profileConf_needRestart .= "${serviceName},";
-            }
-
-            /**
-             *  Suppression de la dernière virgule de la liste
-             */
-            $profileConf_needRestart = rtrim($profileConf_needRestart, ",");
-        }
-
-        /**
-         *  2.2. On écrit dans le fichier de conf les paramètres précédemment récupérées
-         */
-        $profileConfiguration = "EXCLUDE_MAJOR=\"${profileConf_excludeMajor}\"";
-        $profileConfiguration = "${profileConfiguration}\nEXCLUDE=\"${profileConf_exclude}\"";
-        $profileConfiguration = "${profileConfiguration}\nNEED_RESTART=\"${profileConf_needRestart}\"";
-        $profileConfiguration = "${profileConfiguration}\nKEEP_CRON=\"${keepCron}\"";
-        $profileConfiguration = "${profileConfiguration}\nALLOW_OVERWRITE=\"${allowOverwrite}\"";
-        $profileConfiguration = "${profileConfiguration}\nALLOW_REPOSFILES_OVERWRITE=\"${allowReposFilesOverwrite}\"";
-        file_put_contents(PROFILES_MAIN_DIR."/${name}/config", $profileConfiguration);
-
-        History::set($_SESSION['username'], "Modification de la configuration du profil $name", 'success');
-    }
-
-    /**
-     *  Vérifier qu'un nom de package est présent dans la table profile_package
-     */
-    private function db_packageExists(string $package)
+    public function getIdByName(string $name)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM profile_package WHERE Name=:name");
-            $stmt->bindValue(':name', $package);
+            $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $id = '';
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
+    }
+
+    /**
+     *  Retourne la liste des paquets dans la table profile_package
+     */
+    public function getPackages()
+    {
+        try {
+            $result = $this->db->query("SELECT Name FROM profile_package");
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $packages = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $packages[] = $datas['Name'];
+        }
+
+        return $packages;
+    }
+
+    /**
+     *  Retourne la liste des services dans la table profile_service
+     */
+    public function getServices()
+    {
+        try {
+            $result = $this->db->query("SELECT Name FROM profile_service");
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $services = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $services[] = $datas['Name'];
+        }
+
+        return $services;
+    }
+
+    /**
+     *  Retourne les informations d'un profil en base données
+     */
+    public function getProfileConfiguration(string $profileId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT
+            Package_exclude,
+            Package_exclude_major,
+            Service_restart,
+            Allow_overwrite,
+            Allow_repos_overwrite
+            FROM profile WHERE Id = :profileId");
+            $stmt->bindValue(':profileId', $profileId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $profile = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $profile = $row;
+        }
+
+        return $profile;
+    }
+
+    /**
+     *  Retourne la configuration générale du serveur pour la gestion des profils
+     */
+    public function getServerConfiguration()
+    {
+        $result = $this->db->query("SELECT * FROM profile_settings");
+
+        /**
+         *  Une première partie de la configuration concerne l'adresse IP et l'url du serveur qu'on peut obtenir à partir de constantes
+         */
+        $settings = array('Ip' => __SERVER_IP__, 'Url' => __SERVER_URL__);
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $profileSettings = $row;
+        }
+
+        $settings = array_merge($settings, $profileSettings);
+
+
+        return $settings;
+    }
+
+    /**
+     *  Modifie la configuration générale du serveur pour la gestion des profils
+     */
+    public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion, string $serverManageClientConf, string $serverManageClientRepos)
+    {
+        $stmt = $this->db->prepare("UPDATE profile_settings SET Os_family = :osFamily , Os_name = :osName, Os_id = :osId, Os_version = :osVersion, Package_type = :packageType, Package_os_version = :packageOsVersion, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
+        $stmt->bindValue(':osFamily', $serverOsFamily);
+        $stmt->bindValue(':osName', $serverOsName);
+        $stmt->bindValue(':osId', $serverOsId);
+        $stmt->bindValue(':osVersion', $serverOsVersion);
+        $stmt->bindValue(':packageType', $serverPackageType);
+        $stmt->bindValue(':packageOsVersion', $serverPackageOsVersion);
+        $stmt->bindValue(':manageClientConf', $serverManageClientConf);
+        $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
+        $stmt->execute();
+    }
+
+    /**
+     *  Retourne true si un profil existe en base de données
+     */
+    public function exists(string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
         }
 
         /**
-         *  Si le résultat obtenu est vide alors le package n'existe pas, on renvoie false
+         *  Si le résultat obtenu est vide alors le profil n'existe pas
          */
-        if ($this->db->isempty($result)) return false;
+        if ($this->db->isempty($result)) {
+            return false;
+        }
 
         return true;
     }
 
     /**
+     *  Ajout d'un nouveau profil en base de données
+     */
+    public function add(string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO profile (Name) VALUES (:name)");
+            $stmt->bindValue(':name', $name);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Renommage d'un profil en base de données
+     */
+    public function rename(string $name, string $newName)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE profile SET Name = :newName WHERE Name = :name");
+            $stmt->bindValue(':newName', $newName);
+            $stmt->bindValue(':name', $name);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Modification de la configuration d'un profil en base de données
+     */
+    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $allowOverwrite, string $allowReposOverwrite)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Allow_overwrite = :allowOverwrite, Allow_repos_overwrite = :allowReposOverwrite WHERE Id = :profileId");
+            $stmt->bindValue(':profileId', $profileId);
+            $stmt->bindValue(':packageExclude', $packageExclude);
+            $stmt->bindValue(':packageExcludeMajor', $packageExcludeMajor);
+            $stmt->bindValue(':serviceRestart', $serviceRestart);
+            $stmt->bindValue(':allowOverwrite', $allowOverwrite);
+            $stmt->bindValue(':allowReposOverwrite', $allowReposOverwrite);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Supprime un profil en base de données
+     */
+    public function delete(string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM profile WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Retourne la liste des profils en base de données
+     */
+    public function list()
+    {
+        try {
+            $result = $this->db->query("SELECT * FROM profile ORDER BY Name ASC");
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $profiles = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $profiles[] = $row;
+        }
+
+        return $profiles;
+    }
+
+    /**
+     *  Retourne un array contenant les nom de repos membres d'un profil
+     */
+    public function reposMembersList($profileId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT
+            repos.Id,
+            repos.Name,
+            repos.Dist,
+            repos.Section,
+            repos.Package_type
+            FROM profile_repo_members 
+            INNER JOIN repos
+                ON repos.Id = profile_repo_members.Id_repo
+            WHERE profile_repo_members.Id_profile = :profileId");
+            $stmt->bindValue(':profileId', $profileId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $row;
+        }
+
+        return $repos;
+    }
+
+    /**
+     *  Retourne un array contenant les Id de repos membres d'un profil
+     */
+    public function reposMembersIdList($profileId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT
+            repos.Id
+            FROM profile_repo_members 
+            INNER JOIN repos
+                ON repos.Id = profile_repo_members.Id_repo
+            WHERE profile_repo_members.Id_profile = :profileId");
+            $stmt->bindValue(':profileId', $profileId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            array_push($repos, $row['Id']);
+        }
+
+        /**
+         *  L'array retourné est au format array('Id', 'Id', 'Id'...)
+         */
+        return $repos;
+    }
+
+    /**
      *  Vérifier qu'un nom de service est présent dans la table profile_service
      */
-    private function db_serviceExists(string $service)
+    public function serviceExists(string $service)
     {
         try {
             $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
             $stmt->bindValue(':name', $service);
             $result = $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
         }
 
         /**
          *  Si le résultat obtenu est vide alors le service n'existe pas, on renvoie false
          */
-        if ($this->db->isempty($result)) return false;
+        if ($this->db->isempty($result)) {
+            return false;
+        }
 
         return true;
     }
@@ -440,19 +335,35 @@ class Profile extends Model {
     /**
      *  Ajout d'un nouveau nom de paquet dans la table profile_package
      */
-    private function db_addPackage(string $package)
+    public function addPackage(string $packageName)
     {
         /**
-         *  On vérifie que le nom du paquet ne contient pas de caractères interdits sinon on renvoie false
+         *  D'abord on vérifie que le paquet n'est pas déjà présent en base de données
          */
-        if (!Common::is_alphanumdash($package)) return false;
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM profile_package WHERE Name = :name");
+            $stmt->bindValue(':name', $packageName);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
 
+        /**
+         *  Si le paquet est déjà présent dans la table profile_package alors on ne fait rien
+         */
+        if ($this->db->isempty($result) === false) {
+            return;
+        }
+
+        /**
+         *  Ajout du paquet en base de données
+         */
         try {
             $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
-            $stmt->bindValue(':name', $package);
+            $stmt->bindValue(':name', $packageName);
             $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
         }
 
         return true;
@@ -461,71 +372,88 @@ class Profile extends Model {
     /**
      *  Ajout d'un nouveau nom de service dans la table profile_service
      */
-    private function db_addService(string $service)
+    public function addService(string $serviceName)
     {
         /**
-         *  On vérifie que le nom du service ne contient pas de caractères interdits sinon on renvoie false
+         *  D'abord on vérifie que le service n'est pas déjà présent en base de données
          */
-        if (!Common::is_alphanumdash($service)) return false;
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM profile_service WHERE Name = :name");
+            $stmt->bindValue(':name', $serviceName);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
 
+        /**
+         *  Si le service est déjà présent dans la table profile_service alors on ne fait rien
+         */
+        if ($this->db->isempty($result) === false) {
+            return;
+        }
+
+        /**
+         *  Ajout du service en base de données
+         */
         try {
             $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
-            $stmt->bindValue(':name', $service);
+            $stmt->bindValue(':name', $serviceName);
             $stmt->execute();
-        } catch (Exception $e) {
-            Common::dbError($e);
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
         }
 
         return true;
     }
 
     /**
-     *  Récupère la liste des paquets dans la table profile_package
+     *  Retire tous les repos membres d'un profil dans la table profile_repo_members (généralement avant d'en ajouter de nouveaux)
      */
-    public function db_getPackages()
+    public function cleanProfileRepoMembers(string $profileId)
     {
-        $result = $this->db->query("SELECT Name FROM profile_package");
-        
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $packages[] = $datas['Name'];
-
-        if (!empty($packages))
-            return $packages;
-        else
-            return '';
+        try {
+            $stmt = $this->db->prepare("DELETE FROM profile_repo_members WHERE Id_profile = :profileId");
+            $stmt->bindValue(':profileId', $profileId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
     }
 
     /**
-     *  Récupère la liste des services dans la table profile_service
+     *  Ajouter un repo membre à un profil
      */
-    public function db_getServices()
+    public function addRepoToProfile(string $profileId, string $repoId)
     {
-        $result = $this->db->query("SELECT Name FROM profile_service");
-        
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) $services[] = $datas['Name'];
-
-        if (!empty($services)) return $services;
-        
-        return '';
+        try {
+            $stmt = $this->db->prepare("INSERT INTO profile_repo_members (Id_profile, Id_repo) VALUES (:profileId, :repoId)");
+            $stmt->bindValue(':profileId', $profileId);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
     }
 
     /**
-     *  Compte le nombre d'hôtes utilisant le profil spécifié
+     *  Retourne le nombre d'hôtes utilisant le profil spécifié en base de données
      */
     public function countHosts(string $profile)
     {
-        $hosts_db = new Connection('hosts');
+        $myhost = new \Controllers\Host();
 
         $hosts = array();
 
-        $stmt = $hosts_db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
+        $stmt = $myhost->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
         $stmt->bindValue(':profile', $profile);
         $result = $stmt->execute();
-        
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $hosts[] = $row;
 
-        $hosts_db->close();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $hosts[] = $row;
+        }
+
+        $myhost->db->close();
 
         return count($hosts);
     }
 }
-?>

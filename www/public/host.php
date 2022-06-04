@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('../models/Autoloader.php');
-Autoloader::load();
+require_once('../controllers/Autoloader.php');
+\Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
 ?>
 

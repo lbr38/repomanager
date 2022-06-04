@@ -1,4 +1,9 @@
 <?php
+
+namespace Controllers;
+
+use Exception;
+
 /**
  *  Classe d'autochargement des classes et des constantes
  */
@@ -10,12 +15,16 @@ class Autoloader
         /**
          *  Fait appel à la classe Autoloader (cette même classe) et à sa fonction autoload
          */
-        spl_autoload_register(array('Autoloader', 'autoload'));
-    }
+        spl_autoload_register(function ($className) {
 
-    private static function autoload($class)
-    {
-        require ROOT . '/models/' . $class . '.php';
+            $className = str_replace('\\', '/', $className);
+            $className = str_replace('Models', 'models', $className);
+            $className = str_replace('Controllers', 'controllers', $className);
+
+            if (file_exists(ROOT . '/' . $className . '.php')) {
+                require_once(ROOT . '/' . $className . '.php');
+            }
+        });
     }
 
     /**
@@ -38,12 +47,14 @@ class Autoloader
             setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
         }
 
-        if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
+        if (!defined('ROOT')) {
+            define('ROOT', dirname(__FILE__, 2));
+        }
 
         /**
          *  Chargement de toutes les fonctions nécessaires
          */
-        Autoloader::loadAll();
+        \Controllers\Autoloader::loadAll();
 
         /**
          *  On récupère les éventuelles erreurs de chargement
@@ -61,19 +72,23 @@ class Autoloader
          *  Erreur liées au chargement des environnements
          */
         if (__LOAD_ERROR_EMPTY_ENVS > 0) {
-            $__LOAD_ERROR_MESSAGES[] = 'Vous devez configurer au moins 1 environnement.';
+            $__LOAD_ERROR_MESSAGES[] = 'Vous devez configurer au moins 1 environnement . ';
             ++$__LOAD_GENERAL_ERROR;
         }
 
         /**
          *  On définit une constante qui contient le nb d'erreur rencontrées
          */
-        if (!defined('__LOAD_GENERAL_ERROR')) define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
+        if (!defined('__LOAD_GENERAL_ERROR')) {
+            define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
+        }
 
         /**
          *  On définit une constante qui contient tous les messages d'erreurs récoltés
          */
-        if (!defined('__LOAD_ERROR_MESSAGES')) define('__LOAD_ERROR_MESSAGES', $__LOAD_ERROR_MESSAGES);
+        if (!defined('__LOAD_ERROR_MESSAGES')) {
+            define('__LOAD_ERROR_MESSAGES', $__LOAD_ERROR_MESSAGES);
+        }
 
         unset($__LOAD_GENERAL_ERROR, $__LOAD_ERROR_MESSAGES);
     }
@@ -83,10 +98,10 @@ class Autoloader
      */
     public static function loadFromLogin()
     {
-        Autoloader::register();
-        Autoloader::loadSystem();
-        Autoloader::loadConfiguration();
-        Autoloader::loadDirs();
+        \Controllers\Autoloader::register();
+        \Controllers\Autoloader::loadSystem();
+        \Controllers\Autoloader::loadConfiguration();
+        \Controllers\Autoloader::loadDirs();
     }
 
     /**
@@ -100,16 +115,18 @@ class Autoloader
 
         date_default_timezone_set('Europe/Paris');
 
-        if (!defined('ROOT')) define('ROOT', dirname(__FILE__, 2));
+        if (!defined('ROOT')) {
+            define('ROOT', dirname(__FILE__, 2));
+        }
 
         /**
          *  Chargement des fonctions nécessaires
          */
-        Autoloader::register();
-        Autoloader::loadSystem();
-        Autoloader::loadConfiguration();
-        Autoloader::loadDirs();
-        Autoloader::loadEnvs();
+        \Controllers\Autoloader::register();
+        \Controllers\Autoloader::loadSystem();
+        \Controllers\Autoloader::loadConfiguration();
+        \Controllers\Autoloader::loadDirs();
+        \Controllers\Autoloader::loadEnvs();
 
         /**
          *  On récupère les éventuelles erreurs de chargement
@@ -124,7 +141,9 @@ class Autoloader
         /**
          *  On définie une constante qui contient le nb d'erreur rencontrées
          */
-        if (!defined('__LOAD_GENERAL_ERROR')) define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
+        if (!defined('__LOAD_GENERAL_ERROR')) {
+            define('__LOAD_GENERAL_ERROR', $__LOAD_GENERAL_ERROR);
+        }
 
         unset($__LOAD_GENERAL_ERROR);
     }
@@ -134,15 +153,15 @@ class Autoloader
      */
     private static function loadAll()
     {
-        Autoloader::register();
-        Autoloader::loadSession();
-        Autoloader::loadSystem();
-        Autoloader::loadConfiguration();
-        Autoloader::loadDirs();
-        Autoloader::loadEnvs();
-        Autoloader::checkForUpdate();
-        Autoloader::startStats();
-        Autoloader::loadReposListDisplayConf();
+        \Controllers\Autoloader::register();
+        \Controllers\Autoloader::loadSession();
+        \Controllers\Autoloader::loadSystem();
+        \Controllers\Autoloader::loadConfiguration();
+        \Controllers\Autoloader::loadDirs();
+        \Controllers\Autoloader::loadEnvs();
+        \Controllers\Autoloader::checkForUpdate();
+        \Controllers\Autoloader::startStats();
+        \Controllers\Autoloader::loadReposListDisplayConf();
     }
 
     /**
@@ -153,23 +172,9 @@ class Autoloader
         /**
          *  On démarre la session
          */
-        if (!isset($_SESSION)){
+        if (!isset($_SESSION)) {
             session_start();
         }
-
-        /**
-         *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
-         */
-        if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
-            History::set($_SESSION['username'], "Session expirée, déconnexion", 'success');
-            header('Location: logout.php');
-            exit();
-        }
-
-        /**
-         *  On défini l'heure de création de la session (ou on la renouvelle si la session est toujours en cours)
-         */
-        $_SESSION['start_time'] = time();
 
         /**
          *  Si les variables de session username ou role sont vides alors on redirige vers la page de login
@@ -178,6 +183,20 @@ class Autoloader
             header('Location: login.php');
             exit();
         }
+
+        /**
+         *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
+         */
+        if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
+            \Models\History::set($_SESSION['username'], "Session expirée, déconnexion", 'success');
+            header('Location: logout.php');
+            exit();
+        }
+
+        /**
+         *  On défini l'heure de création de la session (ou on la renouvelle si la session est toujours en cours)
+         */
+        $_SESSION['start_time'] = time();
     }
 
     /**
@@ -191,69 +210,119 @@ class Autoloader
          */
 
         // Emplacement de la DB
-        if (!defined('DB_DIR')) define('DB_DIR', ROOT."/db");
-        if (!defined('DB')) define('DB', ROOT."/db/repomanager.db");
+        if (!defined('DB_DIR')) {
+            define('DB_DIR', ROOT . "/db");
+        }
+        if (!defined('DB')) {
+            define('DB', ROOT . "/db/repomanager.db");
+        }
         // Emplacement du répertoire de cache
-        if (!defined('WWW_CACHE')) define('WWW_CACHE', ROOT."/cache");
+        if (!defined('WWW_CACHE')) {
+            define('WWW_CACHE', ROOT . "/cache");
+        }
         // Emplacement du répertoire de clé GPG
-        if (!defined('GPGHOME')) define('GPGHOME', ROOT."/.gnupg");
+        if (!defined('GPGHOME')) {
+            define('GPGHOME', ROOT . "/.gnupg");
+        }
         // Répertoire des résultats de tâches cron
-        if (!defined('CRON_DIR')) define('CRON_DIR', ROOT."/cron");
+        if (!defined('CRON_DIR')) {
+            define('CRON_DIR', ROOT . "/cron");
+        }
         // Répertoire principal des logs
-        if (!defined('LOGS_DIR')) define('LOGS_DIR', ROOT."/logs");
+        if (!defined('LOGS_DIR')) {
+            define('LOGS_DIR', ROOT . "/logs");
+        }
         // Logs du programme
-        if (!defined('MAIN_LOGS_DIR')) define('MAIN_LOGS_DIR', LOGS_DIR.'/main');
-        if (!defined('EXCEPTIONS_LOG')) define('EXCEPTIONS_LOG', LOGS_DIR.'/exceptions');
+        if (!defined('MAIN_LOGS_DIR')) {
+            define('MAIN_LOGS_DIR', LOGS_DIR . '/main');
+        }
+        if (!defined('EXCEPTIONS_LOG')) {
+            define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
+        }
         // Logs des cron
-        if (!defined('CRON_LOGS_DIR')) define('CRON_LOGS_DIR', LOGS_DIR.'/cron');
-        if (!defined('CRON_LOG')) define('CRON_LOG', CRON_LOGS_DIR.'/cronjob-daily.log');
-        if (!defined('CRON_STATS_LOG')) define('CRON_STATS_LOG', CRON_LOGS_DIR.'/cronjob-stats.log');
+        if (!defined('CRON_LOGS_DIR')) {
+            define('CRON_LOGS_DIR', LOGS_DIR . '/cron');
+        }
+        if (!defined('CRON_LOG')) {
+            define('CRON_LOG', CRON_LOGS_DIR . '/cronjob-daily.log');
+        }
+        if (!defined('CRON_STATS_LOG')) {
+            define('CRON_STATS_LOG', CRON_LOGS_DIR . '/cronjob-stats.log');
+        }
         // Pool de taches asynchrones
-        if (!defined('POOL')) define('POOL', ROOT."/operations/pool");
+        if (!defined('POOL')) {
+            define('POOL', ROOT . "/operations/pool");
+        }
 
         // PIDs
-        if (!defined('PID_DIR')) define('PID_DIR', ROOT."/operations/pid");
-        // Répertoire contenant des fichiers temporaires
-        if (!defined('TEMP_DIR')) define('TEMP_DIR', ROOT."/.temp");
-        // Profils
-        if (!defined('PROFILES_MAIN_DIR')) define('PROFILES_MAIN_DIR', REPOS_DIR.'/profiles');
-        if (defined('__SERVER_URL__')) {
-            if (!defined('WWW_PROFILES_DIR_URL')) define('WWW_PROFILES_DIR_URL', __SERVER_URL__.'/profiles');
+        if (!defined('PID_DIR')) {
+            define('PID_DIR', ROOT . "/operations/pid");
         }
-        if (!defined('REPOS_PROFILES_CONF_DIR')) define('REPOS_PROFILES_CONF_DIR', PROFILES_MAIN_DIR.'/_configurations');
-        if (!defined('REPOSERVER_PROFILES_CONF_DIR')) define('REPOSERVER_PROFILES_CONF_DIR', PROFILES_MAIN_DIR.'/_reposerver');
-        if (!defined('PROFILE_SERVER_CONF')) define('PROFILE_SERVER_CONF', REPOSERVER_PROFILES_CONF_DIR.'/main.conf');
+        // Répertoire contenant des fichiers temporaires
+        if (!defined('TEMP_DIR')) {
+            define('TEMP_DIR', ROOT . "/.temp");
+        }
         // Hotes
-        if (!defined('HOSTS_DIR')) define('HOSTS_DIR', ROOT.'/hosts');
+        if (!defined('HOSTS_DIR')) {
+            define('HOSTS_DIR', ROOT . '/hosts');
+        }
         // Répertoires et fichiers supplémentaires pour Redhat
         if (OS_FAMILY == "Redhat") {
             // Emplacement de la conf yum
-            if (!defined('REPOMANAGER_YUM_DIR')) define('REPOMANAGER_YUM_DIR', "/etc/yum.repos.d/repomanager");
-            if (!defined('REPOMANAGER_YUM_CONF')) define('REPOMANAGER_YUM_CONF', "/etc/yum.repos.d/repomanager/repomanager.conf");
+            if (!defined('REPOMANAGER_YUM_DIR')) {
+                define('REPOMANAGER_YUM_DIR', "/etc/yum.repos.d/repomanager");
+            }
+            if (!defined('REPOMANAGER_YUM_CONF')) {
+                define('REPOMANAGER_YUM_CONF', "/etc/yum.repos.d/repomanager/repomanager.conf");
+            }
             // Emplacement des clés gpg importées par repomanager
-            if (!defined('RPM_GPG_DIR')) define('RPM_GPG_DIR', "/etc/pki/rpm-gpg/repomanager");
-            if (!defined('PASSPHRASE_FILE')) define('PASSPHRASE_FILE', GPGHOME.'/passphrase');
+            if (!defined('RPM_GPG_DIR')) {
+                define('RPM_GPG_DIR', "/etc/pki/rpm-gpg/repomanager");
+            }
+            if (!defined('PASSPHRASE_FILE')) {
+                define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
+            }
         }
 
         /**
          *  Création des fichiers et répertoires de base si n'existent pas
          */
-        if (!is_dir(DB_DIR))        mkdir(DB_DIR, 0770, true);
-        if (!is_dir(GPGHOME))       mkdir(GPGHOME, 0770, true);
-        if (!is_dir(LOGS_DIR))      mkdir(LOGS_DIR, 0770, true);
-        if (!is_dir(MAIN_LOGS_DIR)) mkdir(MAIN_LOGS_DIR, 0770, true);
-        if (!is_dir(CRON_LOGS_DIR)) mkdir(CRON_LOGS_DIR, 0770, true);
-        if (!is_dir(CRON_DIR))      mkdir(CRON_DIR, 0770, true);
-        if (!is_dir(POOL))          mkdir(POOL, 0770, true);
-        if (!is_dir(PID_DIR))       mkdir(PID_DIR, 0770, true);
-        if (!is_dir(TEMP_DIR))      mkdir(TEMP_DIR, 0770, true);
-        if (!is_dir(HOSTS_DIR))     mkdir(HOSTS_DIR, 0770, true);
+        if (!is_dir(DB_DIR)) {
+            mkdir(DB_DIR, 0770, true);
+        }
+        if (!is_dir(GPGHOME)) {
+            mkdir(GPGHOME, 0770, true);
+        }
+        if (!is_dir(LOGS_DIR)) {
+            mkdir(LOGS_DIR, 0770, true);
+        }
+        if (!is_dir(MAIN_LOGS_DIR)) {
+            mkdir(MAIN_LOGS_DIR, 0770, true);
+        }
+        if (!is_dir(CRON_LOGS_DIR)) {
+            mkdir(CRON_LOGS_DIR, 0770, true);
+        }
+        if (!is_dir(CRON_DIR)) {
+            mkdir(CRON_DIR, 0770, true);
+        }
+        if (!is_dir(POOL)) {
+            mkdir(POOL, 0770, true);
+        }
+        if (!is_dir(PID_DIR)) {
+            mkdir(PID_DIR, 0770, true);
+        }
+        if (!is_dir(TEMP_DIR)) {
+            mkdir(TEMP_DIR, 0770, true);
+        }
+        if (!is_dir(HOSTS_DIR)) {
+            mkdir(HOSTS_DIR, 0770, true);
+        }
         if (!file_exists(WWW_CACHE)) {
             // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
-            if (file_exists("/dev/shm")) { 
-                exec("cd ".ROOT." && ln -sfn /dev/shm cache"); 
-            } else { 
-                mkdir(ROOT."/cache", 0770, true); 
+            if (file_exists("/dev/shm")) {
+                exec('cd ' . ROOT . ' && ln -sfn /dev/shm cache');
+            } else {
+                mkdir(ROOT . '/cache', 0770, true);
             }
         }
 
@@ -262,29 +331,17 @@ class Autoloader
          */
         if (!is_dir(BACKUP_DIR)) {
             if (!mkdir(BACKUP_DIR, 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : '.$BACKUP_DIR;
+                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : ' . $BACKUP_DIR;
             }
         }
         /**
          *  Création du répertoire de mise à jour si n'existe pas
          */
-        if (!is_dir(ROOT."/update")) {
-            if (!mkdir(ROOT."/update", 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de mise à jour : '.ROOT.'/update';
+        if (!is_dir(ROOT . "/update")) {
+            if (!mkdir(ROOT . "/update", 0770, true)) {
+                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de mise à jour : ' . ROOT . '/update';
             }
         }
-
-        // Crée le répertoire principal des profils si n'existe pas
-        if (!file_exists(PROFILES_MAIN_DIR)) mkdir(PROFILES_MAIN_DIR, 0775, true);
-
-        // Crée le répertoire qui accueille les fichiers de conf .list ou .repo si n'existe pas
-        if (!file_exists(REPOS_PROFILES_CONF_DIR)) mkdir(REPOS_PROFILES_CONF_DIR, 0775, true);
-
-        // Crée le répertoire qui accueille le fichier de conf du serveur de repo
-        if (!file_exists(REPOSERVER_PROFILES_CONF_DIR)) mkdir(REPOSERVER_PROFILES_CONF_DIR, 0775, true);
-
-        // Crée le fichier de conf du serveur n'existe pas on le crée
-        if (!file_exists(PROFILE_SERVER_CONF)) touch(PROFILE_SERVER_CONF);
 
         /**
          *  Vérification de la présence de la base de données
@@ -294,7 +351,7 @@ class Autoloader
             /**
              *  On va vérifier la présence des tables et les créer si nécessaire
              */
-            $myconn = new Connection('main');
+            $myconn = new \Models\Connection('main');
 
             if (!$myconn->checkMainTables()) {
                 /**
@@ -307,11 +364,11 @@ class Autoloader
         /**
          *  Si la clé de signature GPG n'existe pas alors on l'exporte
          */
-        if (GPG_SIGN_PACKAGES == "yes" and !file_exists(REPOS_DIR."/gpgkeys/".WWW_HOSTNAME.".pub")) {
-            if (!is_dir(REPOS_DIR."/gpgkeys")) {
-                mkdir(REPOS_DIR."/gpgkeys", 0770, true);
+        if (GPG_SIGN_PACKAGES == "yes" and !file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . ".pub")) {
+            if (!is_dir(REPOS_DIR . '/gpgkeys')) {
+                mkdir(REPOS_DIR . '/gpgkeys', 0770, true);
             }
-            exec("gpg2 --no-permission-warning --homedir '".GPGHOME."' --export -a '".GPG_KEYID."' > ".REPOS_DIR."/gpgkeys/".WWW_HOSTNAME.".pub 2>/dev/null");
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
         }
     }
 
@@ -332,31 +389,41 @@ class Autoloader
          *  Url du serveur
          */
         if (!empty($_SERVER['SERVER_NAME'])) {
-            if (!defined('__SERVER_URL__')) define('__SERVER_URL__', "$__SERVER_PROTOCOL__://".$_SERVER['SERVER_NAME']);
+            if (!defined('__SERVER_URL__')) {
+                define('__SERVER_URL__', "$__SERVER_PROTOCOL__://" . $_SERVER['SERVER_NAME']);
+            }
         }
         /**
          *  Adresse IP du serveur
          */
         if (!empty($_SERVER['SERVER_ADDR'])) {
-            if (!defined('__SERVER_IP__')) define('__SERVER_IP__', $_SERVER['SERVER_ADDR']);
+            if (!defined('__SERVER_IP__')) {
+                define('__SERVER_IP__', $_SERVER['SERVER_ADDR']);
+            }
         }
         /**
          *  URL + URI complètes
          */
         if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
-            if (!defined('__ACTUAL_URL__')) define('__ACTUAL_URL__', "$__SERVER_PROTOCOL__://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+            if (!defined('__ACTUAL_URL__')) {
+                define('__ACTUAL_URL__', "$__SERVER_PROTOCOL__://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+            }
         }
         /**
          *  URI
          */
         if (!empty($_SERVER['REQUEST_URI'])) {
-            if (!defined('__ACTUAL_URI__')) define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+            if (!defined('__ACTUAL_URI__')) {
+                define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+            }
         }
         /**
          *  Paramètres
          */
         if (!empty($_SERVER['QUERY_STRING'])) {
-            if (!defined('__QUERY_STRING__')) define('__QUERY_STRING__', parse_url($_SERVER["QUERY_STRING"], PHP_URL_PATH));
+            if (!defined('__QUERY_STRING__')) {
+                define('__QUERY_STRING__', parse_url($_SERVER["QUERY_STRING"], PHP_URL_PATH));
+            }
         }
 
         /**
@@ -371,34 +438,44 @@ class Autoloader
         $listIds = $matchListIds[0];
         $listVal = preg_match_all('/=.*/', $os, $matchListVal);
         $listVal = $matchListVal[0];
-        array_walk($listIds, function(&$v, $k){
+        array_walk($listIds, function (&$v, $k) {
             $v = strtolower(str_replace('=', '', $v));
         });
-        array_walk($listVal, function(&$v, $k){
+        array_walk($listVal, function (&$v, $k) {
             $v = preg_replace('/=|"/', '', $v);
         });
 
-        if (!defined('OS_INFO')) define('OS_INFO', array_combine($listIds, $listVal));
+        if (!defined('OS_INFO')) {
+            define('OS_INFO', array_combine($listIds, $listVal));
+        }
 
         /**
          *  Puis à partir de l'array OS_INFO on détermine la famille d'os, son nom et sa version
          */
         if (!empty(OS_INFO['id_like'])) {
             if (preg_match('(rhel|centos|fedora)', OS_INFO['id_like']) === 1) {
-                if (!defined('OS_FAMILY')) define('OS_FAMILY', "Redhat");
+                if (!defined('OS_FAMILY')) {
+                    define('OS_FAMILY', "Redhat");
+                }
             }
-            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id_like']) === 1) { 
-                if (!defined('OS_FAMILY')) define('OS_FAMILY', "Debian");
+            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id_like']) === 1) {
+                if (!defined('OS_FAMILY')) {
+                    define('OS_FAMILY', "Debian");
+                }
             }
         } else if (!empty(OS_INFO['id'])) {
             if (preg_match('(rhel|centos|fedora)', OS_INFO['id']) === 1) {
-                if (!defined('OS_FAMILY')) define('OS_FAMILY', "Redhat");
+                if (!defined('OS_FAMILY')) {
+                    define('OS_FAMILY', "Redhat");
+                }
             }
-            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id']) === 1) { 
-                if (!defined('OS_FAMILY')) define('OS_FAMILY', "Debian");
+            if (preg_match('(debian|ubuntu|kubuntu|xubuntu|armbian|mint)', OS_INFO['id']) === 1) {
+                if (!defined('OS_FAMILY')) {
+                    define('OS_FAMILY', "Debian");
+                }
             }
         }
-        
+
         /**
          *  A partir d'ici si OS_FAMILY n'est pas défini alors le système sur lequel est installé Repomanager est incompatible
          */
@@ -406,9 +483,15 @@ class Autoloader
             die('Erreur : Repomanager est incompatible sur cet OS');
         }
 
-        if (!defined('OS_NAME')) define('OS_NAME', OS_INFO['name']);
-        if (!defined('OS_ID')) define('OS_ID', OS_INFO['id']);
-        if (!defined('OS_VERSION')) define('OS_VERSION', OS_INFO['version_id']);
+        if (!defined('OS_NAME')) {
+            define('OS_NAME', OS_INFO['name']);
+        }
+        if (!defined('OS_ID')) {
+            define('OS_ID', OS_INFO['id']);
+        }
+        if (!defined('OS_VERSION')) {
+            define('OS_VERSION', OS_INFO['version_id']);
+        }
 
         if (!defined('PACKAGE_TYPE')) {
             if (OS_FAMILY == "Redhat") {
@@ -431,13 +514,15 @@ class Autoloader
         /**
          *  Emplacements du fichier de conf
          */
-        if (!defined('REPOMANAGER_CONF')) define('REPOMANAGER_CONF', ROOT."/configurations/repomanager.conf");
+        if (!defined('REPOMANAGER_CONF')) {
+            define('REPOMANAGER_CONF', ROOT . "/configurations/repomanager.conf");
+        }
 
         /**
          *  Vérification de la présence de repomanager.conf
          */
         if (!file_exists(REPOMANAGER_CONF)) {
-            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.".ROOT;
+            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager." . ROOT;
             die();
         }
 
@@ -466,11 +551,11 @@ class Autoloader
                  */
                 if (!is_writable(REPOS_DIR)) {
                     ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de stockage des repos '".REPOS_DIR."' n'est pas accessible en écriture.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de stockage des repos '" . REPOS_DIR . "' n'est pas accessible en écriture.";
                 }
             } else {
                 define('REPOS_DIR', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'Le répertoire de stockage des repos n\'est pas renseigné.';
+                $__LOAD_MAIN_CONF_MESSAGES[] = 'Le répertoire de stockage des repos n\'est pas renseigné . ';
             }
         }
 
@@ -499,7 +584,7 @@ class Autoloader
                 define('EMAIL_DEST', $repomanager_conf_array['EMAIL_DEST']);
             } else {
                 define('EMAIL_DEST', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'Aucune adresse mail de contact n\'est renseignée.';
+                $__LOAD_MAIN_CONF_MESSAGES[] = 'Aucune adresse mail de contact n\'est renseignée . ';
             }
         }
 
@@ -539,7 +624,7 @@ class Autoloader
                      */
                     if (!is_writable(BACKUP_DIR)) {
                         ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de sauvegarde pre-mise à jour '".BACKUP_DIR."' n'est pas accessible en écriture.";
+                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de sauvegarde pre-mise à jour '" . BACKUP_DIR . "' n'est pas accessible en écriture.";
                     }
                 } else {
                     define('BACKUP_DIR', '');
@@ -567,7 +652,7 @@ class Autoloader
                 $__LOAD_MAIN_CONF_MESSAGES[] = "";
             }
         }
-        
+
         if (!defined('WWW_REPOS_DIR_URL')) {
             if (!empty($repomanager_conf_array['WWW_REPOS_DIR_URL'])) {
                 define('WWW_REPOS_DIR_URL', $repomanager_conf_array['WWW_REPOS_DIR_URL']);
@@ -627,11 +712,11 @@ class Autoloader
             }
 
             if (!defined('RETENTION')) {
-                if (!empty($repomanager_conf_array['RETENTION'])) {
+                if (isset($repomanager_conf_array['RETENTION']) and $repomanager_conf_array['RETENTION'] >= 0) {
                     define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
                 } else {
                     define('RETENTION', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune rétention de sauvegardes n'est configurée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune rétention de sauvegarde n'est configurée.";
                 }
             }
         }
@@ -647,7 +732,7 @@ class Autoloader
                 $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la gestion des hôtes n'est pas renseignée.";
             }
         }
-        
+
         /**
          *  Paramètres des profils
          */
@@ -665,7 +750,6 @@ class Autoloader
                 define('REPO_CONF_FILES_PREFIX', $repomanager_conf_array['REPO_CONF_FILES_PREFIX']);
             } else {
                 define('REPO_CONF_FILES_PREFIX', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
             }
         }
 
@@ -691,9 +775,8 @@ class Autoloader
                      */
                     if (!is_readable(WWW_STATS_LOG_PATH)) {
                         ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le fichier de log (access log) à analyser pour les statistiques n'est pas accessible en lecture : '".WWW_STATS_LOG_PATH."'";
+                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le fichier de log (access log) à analyser pour les statistiques n'est pas accessible en lecture : '" . WWW_STATS_LOG_PATH . "'";
                     }
-
                 } else {
                     define('WWW_STATS_LOG_PATH', '');
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Le chemin d'accès au fichier de log (access log) à analyser pour les statistiques n'est pas renseigné.";
@@ -707,15 +790,6 @@ class Autoloader
             } else {
                 define('CRON_DAILY_ENABLED', '');
                 $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation du cronjob régulier n'est pas renseignée.";
-            }
-        }
-
-        if (!defined('CRON_GENERATE_REPOS_CONF')) {
-            if (!empty($repomanager_conf_array['CRON_GENERATE_REPOS_CONF'])) {
-                define('CRON_GENERATE_REPOS_CONF', $repomanager_conf_array['CRON_GENERATE_REPOS_CONF']);
-            } else {
-                define('CRON_GENERATE_REPOS_CONF', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
             }
         }
 
@@ -763,12 +837,22 @@ class Autoloader
         /**
          *  Date et heure du jour
          */
-        if (!defined('DATE_DMY')) define('DATE_DMY', date("d-m-Y"));
-        if (!defined('DATE_YMD')) define('DATE_YMD', date("Y-m-d"));
-        if (!defined('TIME')) define('TIME', date("H-i"));
+        if (!defined('DATE_DMY')) {
+            define('DATE_DMY', date("d-m-Y"));
+        }
+        if (!defined('DATE_YMD')) {
+            define('DATE_YMD', date("Y-m-d"));
+        }
+        if (!defined('TIME')) {
+            define('TIME', date("H-i"));
+        }
 
-        if (!defined('__LOAD_MAIN_CONF_ERROR')) define('__LOAD_MAIN_CONF_ERROR', $__LOAD_MAIN_CONF_ERROR);
-        if (!defined('__LOAD_MAIN_CONF_MESSAGES')) define('__LOAD_MAIN_CONF_MESSAGES', $__LOAD_MAIN_CONF_MESSAGES);
+        if (!defined('__LOAD_MAIN_CONF_ERROR')) {
+            define('__LOAD_MAIN_CONF_ERROR', $__LOAD_MAIN_CONF_ERROR);
+        }
+        if (!defined('__LOAD_MAIN_CONF_MESSAGES')) {
+            define('__LOAD_MAIN_CONF_MESSAGES', $__LOAD_MAIN_CONF_MESSAGES);
+        }
 
         unset($repomanager_conf_array);
     }
@@ -781,19 +865,31 @@ class Autoloader
         /**
          *  Récupération des environnements en base de données
          */
-        $myenv = new Environnement();
-        if (!defined('ENVS')) define('ENVS', $myenv->listAll());
-        if (!defined('ENVS_TOTAL')) define('ENVS_TOTAL', $myenv->total());
-        if (!defined('DEFAULT_ENV')) define('DEFAULT_ENV', $myenv->default());
-        if (!defined('LAST_ENV')) define('LAST_ENV', $myenv->last());
+        $myenv = new \Models\Environnement();
+        if (!defined('ENVS')) {
+            define('ENVS', $myenv->listAll());
+        }
+        if (!defined('ENVS_TOTAL')) {
+            define('ENVS_TOTAL', $myenv->total());
+        }
+        if (!defined('DEFAULT_ENV')) {
+            define('DEFAULT_ENV', $myenv->default());
+        }
+        if (!defined('LAST_ENV')) {
+            define('LAST_ENV', $myenv->last());
+        }
 
         /**
          *  Si il n'y a aucun environnement configuré alors __LOAD_ERROR_EMPTY_ENVS = 1
          */
         if (empty(ENVS)) {
-            if (!defined('__LOAD_ERROR_EMPTY_ENVS')) define('__LOAD_ERROR_EMPTY_ENVS', 1);
+            if (!defined('__LOAD_ERROR_EMPTY_ENVS')) {
+                define('__LOAD_ERROR_EMPTY_ENVS', 1);
+            }
         } else {
-            if (!defined('__LOAD_ERROR_EMPTY_ENVS')) define('__LOAD_ERROR_EMPTY_ENVS', 0);
+            if (!defined('__LOAD_ERROR_EMPTY_ENVS')) {
+                define('__LOAD_ERROR_EMPTY_ENVS', 0);
+            }
         }
     }
 
@@ -806,23 +902,35 @@ class Autoloader
         /**
          *  Version actuelle et version disponible sur github
          */
-        if (!defined('VERSION')) define('VERSION', file_get_contents(ROOT.'/version'));
-        if (!defined('GIT_VERSION')) define('GIT_VERSION', file_get_contents(ROOT.'/cron/github.version'));
+        if (!defined('VERSION')) {
+            define('VERSION', file_get_contents(ROOT . '/version'));
+        }
+        if (!defined('GIT_VERSION')) {
+            define('GIT_VERSION', file_get_contents(ROOT . '/cron/github.version'));
+        }
         if (defined('VERSION') and defined('GIT_VERSION')) {
             if (VERSION !== GIT_VERSION) {
-                if (!defined('UPDATE_AVAILABLE')) define('UPDATE_AVAILABLE', 'yes');
+                if (!defined('UPDATE_AVAILABLE')) {
+                    define('UPDATE_AVAILABLE', 'yes');
+                }
             } else {
-                if (!defined('UPDATE_AVAILABLE')) define('UPDATE_AVAILABLE', 'no');
+                if (!defined('UPDATE_AVAILABLE')) {
+                    define('UPDATE_AVAILABLE', 'no');
+                }
             }
         }
 
         /**
          *  Vérification si une mise à jour de repomanager est en cours
          */
-        if (file_exists(ROOT."/update-running")) {
-            if (!defined('UPDATE_RUNNING')) define('UPDATE_RUNNING', 'yes');
+        if (file_exists(ROOT . "/update-running")) {
+            if (!defined('UPDATE_RUNNING')) {
+                define('UPDATE_RUNNING', 'yes');
+            }
         } else {
-            if (!defined('UPDATE_RUNNING')) define('UPDATE_RUNNING', 'no');
+            if (!defined('UPDATE_RUNNING')) {
+                define('UPDATE_RUNNING', 'no');
+            }
         }
 
         /**
@@ -831,7 +939,7 @@ class Autoloader
          *  La mise à jour mettra en place une page de maintenance automatiquement
          */
         if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
-            if (!file_exists(ROOT."/update-running")) {
+            if (!file_exists(ROOT . "/update-running")) {
                 Common::repomanagerUpdate();
             }
         }
@@ -845,8 +953,8 @@ class Autoloader
         /**
          *  Si les stats sont activées mais que le parser de log ne tourne pas, alors on le lance en arrière-plan
          */
-        if (CRON_STATS_ENABLED == "yes" and empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {  
-            exec("bash ".ROOT."/tools/stats-log-parser '".WWW_STATS_LOG_PATH."' >/dev/null 2>/dev/null &");
+        if (CRON_STATS_ENABLED == "yes" and empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {
+            exec("bash " . ROOT . "/tools/stats-log-parser '" . WWW_STATS_LOG_PATH . "' >/dev/null 2>/dev/null &");
         }
     }
 
@@ -859,27 +967,28 @@ class Autoloader
          *  On ne charge ces paramètres uniquement sur certaines pages
          */
         if (defined('__ACTUAL_URI__')) {
-            if (__ACTUAL_URI__ == "/" or 
-                __ACTUAL_URI__ == "/index.php" OR
+            if (
+                __ACTUAL_URI__ == "/" or
+                __ACTUAL_URI__ == "/index.php" or
                 __ACTUAL_URI__ == "/planifications.php"
             ) {
                 /**
                  *  Ouverture d'une connexion à la base de données
                  */
-                $myconn = new Connection('main');
+                $myconn = new \Models\Connection('main');
 
                 /**
                  *  Récupération des paramètres en base de données
                  */
                 try {
                     $result = $myconn->query("SELECT * FROM repos_list_settings");
-                    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {       
+                    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                         define('PRINT_REPO_SIZE', $row['print_repo_size']);
                         define('PRINT_REPO_TYPE', $row['print_repo_type']);
                         define('PRINT_REPO_SIGNATURE', $row['print_repo_signature']);
                         define('CACHE_REPOS_LIST', $row['cache_repos_list']);
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     Common::dbError($e);
                 }
 
@@ -888,4 +997,3 @@ class Autoloader
         }
     }
 }
-?>

@@ -18,7 +18,7 @@
     border-radius: 2px;
     border: 1px solid #403f3f;
     background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
@@ -59,7 +59,7 @@
     opacity: 1;
 }
 
-.stats-access-table td, 
+.stats-access-table td,
 .hosts-table td,
 .packages-table td {
     padding-left: 5px;
@@ -89,7 +89,7 @@
     vertical-align: inherit;
 }
 .hosts-table thead th.rotate > div {
-    transform: 
+    transform:
     translate(5px, 51px) /* Magic Numbers */
     rotate(315deg);     /* 45 is really 360 - 45 */
     width: 30px;
@@ -153,7 +153,7 @@
     border-radius: 2px;
     border: 1px solid #403f3f;
     background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
@@ -186,7 +186,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    -webkit-box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px 6px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#252525;
     color: whitesmoke;
@@ -231,7 +231,8 @@
 
 .hosts-chart-sub-container {
     position: relative;
-    height: 120px;
+    /* height: 120px; */
+    height: 200px;
 }
 
 .host-line-chart-container {
@@ -243,8 +244,12 @@
     display: inline-block;
 }
 
+.host-pie-chart {
+    max-height: 150px;
+}
+
 #packagesContainer, #eventsContainer {
-    position: relative;  
+    position: relative;
 }
 
 #packagesInstalledDiv {
@@ -275,11 +280,11 @@
     border-radius: 2px;
     border: 1px solid #403f3f;
     background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
-/* Timeline de l'historique d'un paquet 
+/* Timeline de l'historique d'un paquet
    Source : https://www.w3schools.com/howto/howto_css_timeline.asp
 */
 .timeline * {
@@ -292,7 +297,7 @@
     max-width: 1200px;
     margin: 0 auto;
 }
-  
+
 /* The actual timeline (the vertical ruler) */
 .timeline::after {
     content: '';
@@ -304,7 +309,7 @@
     left: 50%;
     margin-left: -3px;
 }
-  
+
 /* Container around content */
 .timeline-container {
     padding: 10px 40px;
@@ -312,7 +317,7 @@
     background-color: inherit;
     width: 50%;
 }
-  
+
 /* The circles on the timeline */
 .timeline-container::after {
     content: '';
@@ -326,7 +331,7 @@
     border-radius: 50%;
     z-index: 1;
 }
-  
+
 /* Place the container to the left */
 .timeline-container-gray-left, .timeline-container-blue-left, .timeline-container-green-left, .timeline-container-yellow-left, .timeline-container-red-left {
     left: 0;
@@ -336,7 +341,7 @@
 .timeline-container-gray-right, .timeline-container-blue-right, .timeline-container-green-right, .timeline-container-yellow-right, .timeline-container-red-right {
     left: 50%;
 }
-  
+
 /* Add arrows to the left container (pointing right) */
 .timeline-container-gray-left::before, .timeline-container-green-left::before, .timeline-container-blue-left::before, .timeline-container-yellow-left::before, .timeline-container-red-left::before {
     content: " ";
@@ -349,7 +354,7 @@
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
 }
-  
+
 /* Add arrows to the right container (pointing left) */
 .timeline-container-gray-right::before, .timeline-container-green-right::before, .timeline-container-blue-right::before, .timeline-container-yellow-right::before, .timeline-container-red-right::before {
     content: " ";
@@ -428,14 +433,14 @@
     .timeline::after {
         left: 31px;
     }
-  
+
     /* Full-width containers */
     .timeline-container {
         width: 100%;
         padding-left: 70px;
         padding-right: 25px;
     }
-  
+
     /* Make sure that all arrows are pointing leftwards */
     .timeline-container::before {
         left: 60px;
@@ -443,12 +448,12 @@
         border-width: 10px 10px 10px 0;
         border-color: transparent white transparent transparent;
     }
-  
+
     /* Make sure all circles are at the same spot */
     .timeline-container-left::after, .timeline-container-right::after {
         left: 15px;
     }
-  
+
     /* Make all right containers behave like the left ones */
     .timeline-container-right {
         left: 0%;

@@ -1,9 +1,9 @@
 <footer>
     <?php
-        echo '<p>'.VERSION.'</p>';
-        if (UPDATE_AVAILABLE == "yes") {
-            echo '<p class="yellowtext">Une nouvelle version est disponible</p>';
-        }
+        echo '<p>' . VERSION . '</p>';
+    if (UPDATE_AVAILABLE == "yes") {
+        echo '<p class="yellowtext">Une nouvelle version est disponible</p>';
+    }
     ?>
     <br>
     <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="ressources/images/GitHub-Mark-Light-64px.png" /></a>
@@ -33,4 +33,7 @@ if (__ACTUAL_URI__ == "/profiles.php") {
 }
 if (__ACTUAL_URI__ == "/stats.php") {
     echo '<script src="ressources/js/stats.js"></script>';
-}?>
+}
+if (__ACTUAL_URI__ == "/run.php") {
+    echo '<script src="ressources/js/run.js"></script>';
+} ?>

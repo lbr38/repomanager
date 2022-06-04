@@ -1,48 +1,47 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('../models/Autoloader.php');
-Autoloader::load();
+require_once('../controllers/Autoloader.php');
+\Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
 require_once('../functions/explore.functions.php');
 
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
  */
-if (!empty($_POST['action']) and Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['repoId'])) {
-    $repoId = Common::validateData($_POST['repoId']);
+if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['snapId'])) {
+    $snapId = \Models\Common::validateData($_POST['snapId']);
 
     /**
      *  Récupération de la valeur de GPG Resign
      *  Si on n'a rien transmis alors on set la valeur à 'no'
      *  Si on a transmis quelque chose alors on set la valeur à 'yes'
      */
-    if (empty($_POST['repoGpgResign']))
+    if (empty($_POST['repoGpgResign'])) {
         $repoGpgResign = 'no';
-    else
+    } else {
         $repoGpgResign = 'yes';
+    }
 
     /**
      *  On instancie un nouvel objet Repo avec les infos transmises, on va ensuite pouvoir vérifier que ce repo existe bien
      */
-    $myrepo = new Repo();
-    $myrepo->setId($repoId);
-    // $myrepo->setTargetGpgResign($repoGpgResign);
+    $myrepo = new \Controllers\Repo();
+    $myrepo->setSnapId($snapId);
 
     /**
      *  On vérifie que l'ID de repo transmis existe bien, si c'est le cas alors on lance l'opération en arrière plan
      */
-    if ($myrepo->existsId($repoId) === true) {
+    if ($myrepo->existsSnapId($snapId) === true) {
         /**
          *  Création d'un fichier json qui défini l'opération à exécuter
          */
         $params = array();
         $params['action'] = 'reconstruct';
-        $params['repoId'] = $repoId;
-        $params['repoStatus'] = 'active';
+        $params['snapId'] = $snapId;
         $params['targetGpgResign'] = $repoGpgResign;
 
-        $myop = new Operation();
+        $myop = new \Controllers\Operation();
         $myop->execute(array($params));
     }
 
@@ -50,7 +49,7 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) === 'rec
      *  Rafraichissement de la page
      */
     sleep(1);
-    header('Location: '.__ACTUAL_URL__);
+    header('Location: ' . __ACTUAL_URL__);
     exit;
 }
 
@@ -59,62 +58,56 @@ $pathError = 0;
 /**
  *  Récupération du repo transmis
  */
-if (empty($_GET['id'])) { 
+if (empty($_GET['id'])) {
     $pathError++;
 } else {
-    $repoId = Common::validateData($_GET['id']);
-}
-
-/**
- *  Récupération de l'état du repo passé en argument
- *  Soit il s'agit d'un repo actif, soit d'un repo archivé
- */
-if (empty($_GET['state'])) {
-    $pathError++;
-
-} else {
-    $state = Common::validateData($_GET['state']);
-
-    if ($state != "active" and $state != "archived") $pathError++;
+    $snapId = \Models\Common::validateData($_GET['id']);
 }
 
 /**
  *  Le repo transmis doit être un numéro car il s'agit de l'ID en BDD
  */
-if (!is_numeric($repoId)) $pathError++;
+if (!is_numeric($snapId)) {
+    $pathError++;
+}
 
 /**
  *  A partir de l'ID fourni, on récupère les infos du repo
  */
 if ($pathError == 0) {
-    $myrepo = new Repo();
-    $myrepo->setId($repoId);
-
-    if ($state == 'active')   $myrepo->db_getAllById();
-    if ($state == 'archived') $myrepo->db_getAllById('archived');
+    $myrepo = new \Controllers\Repo();
+    $myrepo->setSnapId($snapId);
+    $myrepo->getAllById('', $snapId, '');
+    $state = $myrepo->getStatus();
 
     /**
      *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
      */
     if ($state == 'active') {
-        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/".$myrepo->getName()."_".$myrepo->getEnv();
-        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/".$myrepo->getName()."/".$myrepo->getDist()."/".$myrepo->getSection()."_".$myrepo->getEnv();
+        if (OS_FAMILY == "Redhat") {
+            $repoPath = REPOS_DIR . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getName();
+        }
+        if (OS_FAMILY == "Debian") {
+            $repoPath = REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection();
+        }
     }
-    if ($state == 'archived') {
-        if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR."/archived_".$myrepo->getDateFormatted()."_".$myrepo->getName();
-        if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR."/".$myrepo->getName()."/".$myrepo->getDist()."/archived_".$myrepo->getDateFormatted()."_".$myrepo->getSection();
-    }
+    // if ($state == 'archived') {
+    //     if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR . "/archived_" . $myrepo->getDateFormatted() . "_" . $myrepo->getName();
+    //     if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/archived_" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection();
+    // }
 
     /**
      *  Si le chemin construit n'existe pas sur le serveur alors on incrémente pathError qui affichera une erreur et empêchera toute action
      */
-    if (!is_dir($repoPath)) $pathError++;
+    if (!is_dir($repoPath)) {
+        $pathError++;
+    }
 }
 
 /**
  *  Cas où on upload un package dans un repo
  */
-if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
+if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
     /**
      *  On définit le chemin d'upload comme étant le répertoire my_uploaded_packages à l'intérieur du répertoire du repo
      */
@@ -125,7 +118,7 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uplo
      */
     if (!is_dir($targetDir)) {
         if (!mkdir($targetDir, 0770, true)) {
-            Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
+            \Models\Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
             return;
         }
     }
@@ -150,9 +143,9 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uplo
 
         /**
          *  Le nom du paquet ne doit pas contenir de caractère spéciaux, sinon on passe au suivant
-         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
+         *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          */
-        if (!Common::is_alphanumdash($packageName, array('.'))) { 
+        if (!Models\Common::isAlphanumDash($packageName, array('.'))) {
             $uploadError++;
             $packageInvalid .= "$packageName, ";
             continue;
@@ -205,34 +198,35 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uplo
         /**
          *  Si on n'a pas eu d'erreur jusque là, alors on peut déplacer le fichier dans son emplacement définitif
          */
-        if ($uploadError === 0 and file_exists($packageTmpName)) move_uploaded_file($packageTmpName, $targetDir ."/$packageName");
+        if ($uploadError === 0 and file_exists($packageTmpName)) {
+            move_uploaded_file($packageTmpName, $targetDir . "/$packageName");
+        }
     }
 
     if ($uploadError === 0) {
-        Common::printAlert('Les fichiers ont été chargés', 'success');
+        \Models\Common::printAlert('Les fichiers ont été chargés', 'success');
     } else {
-        Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
+        \Models\Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
     }
 }
 
 /**
  *  Cas où on supprime un ou plusieurs paquets d'un repo
  */
-if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
-
+if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
     $packagesToDeleteNonExists = ''; // contiendra la liste des fichiers qui n'existent pas, si on tente de supprimer un fichier qui n'existe pas
     $packagesDeleted = array();
 
     foreach ($_POST['packageName'] as $packageToDelete) {
-        $packageName = Common::validateData($packageToDelete);
+        $packageName = \Models\Common::validateData($packageToDelete);
         $packagePath = "$repoPath/$packageName";
 
         /**
          *  Le nom du paquet ne doit pas contenir de caractères spéciaux
-         *  On autorise seulement les tirets et les underscores (voir fonction is_alphanumdash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
+         *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
          */
-        if (!Common::is_alphanumdash($packageName, array('.', '/', '+', '~'))) {
+        if (!Models\Common::isAlphanumDash($packageName, array('.', '/', '+', '~'))) {
             continue;
         }
 
@@ -240,7 +234,7 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
          *  On vérifie que le chemin du fichier commence bien par REPOS_DIR et on supprime
          *  Empeche une personne mal intentionnée de fournir un chemin qui n'a aucun rapport avec le répertoire de repos (par exemple /etc/... )
          */
-        if (preg_match("#^".REPOS_DIR."#", $packagePath)) {
+        if (preg_match("#^" . REPOS_DIR . "#", $packagePath)) {
             /**
              *  On vérifie que le fichier ciblé se termine par .deb ou .rpm sinon on passe au suivant
              */
@@ -282,28 +276,23 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
             <h3>EXPLORER</h3>
 
             <?php
-                if ($pathError !== 0) {
-                    if (OS_FAMILY == "Redhat") echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
-                    if (OS_FAMILY == "Debian") echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
+            if ($pathError !== 0) {
+                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+            }
+
+            if ($pathError === 0) {
+                if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
+                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+                } else {
+                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
                 }
 
-                if ($pathError === 0) {
-                    if (OS_FAMILY == "Redhat" and !empty($myrepo->getName())) {
-                        if ($state == "active")   echo '<p>Explorer le contenu du repo <span class="label-white">'.$myrepo->getName()."</span> ".Common::envtag($myrepo->getEnv()).'</p>';
-                        if ($state == "archived") echo '<p>Explorer le contenu du repo archivé <span class="label-white">'.$myrepo->getName().'</span></p>';
-                    }
-
-                    if (OS_FAMILY == "Debian" and !empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
-                        if ($state == "active")   echo '<p>Explorer le contenu de la section <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span> '.Common::envtag($myrepo->getEnv()).'</p>';
-                        if ($state == "archived") echo '<p>Explorer le contenu de la section archivée <span class="label-white">'.$myrepo->getName().' ❯ '.$myrepo->getDist().' ❯ '.$myrepo->getSection().'</span></p>';
-                    }
-
-                    if (is_dir($repoPath.'/my_uploaded_packages')) {
-                        if (!Common::dir_is_empty($repoPath."/my_uploaded_packages")) {
-                            echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
-                        }
+                if (is_dir($repoPath . '/my_uploaded_packages')) {
+                    if (!Models\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
+                        echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
                     }
                 }
+            }
             ?>
 
             <br>
@@ -313,30 +302,32 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
             <div id="explorer" class="hide">
 
                 <?php
+
                 /**
                  *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
                  */
+
                 if ($pathError === 0) {
                     echo '<form action="" method="post" />';
-                    if (Common::isadmin()) {
+                    if (Models\Common::isadmin()) {
                         echo '<input type="hidden" name="action" value="deletePackages" />';
                         echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
                     }
-                    
+
                     /**
                      *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
                      */
                     if (!empty($packagesToDeleteNonExists)) {
-                        echo "<br><span class=\"redtext\">Les paquets suivants n'existent pas et n'ont pas été supprimés : <b>".rtrim($packagesToDeleteNonExists, ', ')."</b></span>";
+                        echo '<br><span class="redtext">Les paquets suivants n\'existent pas et n\'ont pas été supprimés : <b>' . rtrim($packagesToDeleteNonExists, ', ') . '</b></span>';
                     }
 
                     /**
                      *  Si des paquets ont été supprimés alors on affiche la liste à cet endroit
                      */
                     if (!empty($packagesDeleted)) {
-                        echo "<br><span class=\"greentext\">Les paquets suivants ont été supprimés :</span>";
+                        echo '<br><span class="greentext">Les paquets suivants ont été supprimés :</span>';
                         foreach ($packagesDeleted as $packageDeleted) {
-                            echo "<br><span class=\"greentext\"><b>$packageDeleted</b></span>";
+                            echo '<br><span class="greentext"><b>' . $packageDeleted . '</b></span>';
                         }
                         unset($packagesDeleted, $packageDeleted);
                     }
@@ -352,37 +343,26 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
         </section>
     </section>
 
-    <?php if (Common::isadmin()) { ?>
+    <?php if (Models\Common::isadmin()) { ?>
         <section class="mainSectionRight">
             <section class="right">
                 <h3>ACTIONS</h3>
                 <?php
-                    if ($pathError === 0 and $state == 'active') {
-                        /**
-                         *  On vérifie qu'une opération n'est pas déjà en cours sur ce repo (mise à jour ou reconstruction du repo)
-                         */
-                        try {
-                            $stmt = $myrepo->db->prepare("SELECT * FROM operations WHERE Id_repo_target = :id and Status = 'running'");
-                            $stmt->bindValue(':id', $myrepo->getId());
-                            $result = $stmt->execute();
-                        } catch (Exception $e) {
-                            Common::dbError($e);
-                        }
+                if ($pathError === 0 and $state == 'active') {
+                    /**
+                     *  Si une opération est déjà en cours sur ce repo alors on affiche un message
+                     */
+                    if (!empty($opRunning)) {
+                        echo '<p>';
+                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                        echo 'Une opération est en cours sur ce repo.';
+                        echo '</p>';
+                    }
 
-                        while ($datas = $result->fetchArray()) $opRunning[] = $datas;
-
-                        if (!empty($opRunning)) {
-                            echo '<p>';
-                            echo '<img src="ressources/images/loading.gif" class="icon" /> ';
-                            if (OS_FAMILY == "Redhat") echo 'Une opération est en cours sur ce repo.';
-                            if (OS_FAMILY == "Debian") echo 'Une opération est en cours sur cette section.';
-                            echo '</p>';
-                        }
-
-                        /**
-                         *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
-                         */
-                        if (empty($opRunning)) { ?>
+                    /**
+                     *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
+                     */
+                    if (empty($opRunning)) { ?>
                             <div class="div-generic-gray">
                                 <h5><img src="ressources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
                                 
@@ -395,13 +375,21 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
                                 </form>
 
                                 <?php
-                                    /**
-                                     *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
-                                     */
-                                    if (!empty($packageExists))  echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>".rtrim($packageExists, ', ')."</b></span>";
-                                    if (!empty($packagesError))  echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>".rtrim($packagesError, ', ')."</b></span>";
-                                    if (!empty($packageEmpty))   echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>".rtrim($packageEmpty, ', ')."</b></span>";
-                                    if (!empty($packageInvalid)) echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>".rtrim($packageInvalid, ', ')."</b></span>";
+                                /**
+                                 *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
+                                 */
+                                if (!empty($packageExists)) {
+                                    echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>" . rtrim($packageExists, ', ') . "</b></span>";
+                                }
+                                if (!empty($packagesError)) {
+                                    echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>" . rtrim($packagesError, ', ') . "</b></span>";
+                                }
+                                if (!empty($packageEmpty)) {
+                                    echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>" . rtrim($packageEmpty, ', ') . "</b></span>";
+                                }
+                                if (!empty($packageInvalid)) {
+                                    echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>" . rtrim($packageInvalid, ', ') . "</b></span>";
+                                }
                                 ?>
                             </div>
                             
@@ -409,10 +397,10 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
                                 <h5><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
                                 <form id="hidden-form" action="" method="post">
                                     <input type="hidden" name="action" value="reconstruct">
-                                    <input type="hidden" name="repoId" value="<?php echo $repoId; ?>">
+                                    <input type="hidden" name="snapId" value="<?php echo $snapId; ?>">
                                     <span>Signer avec GPG </span>
                                     <label class="onoff-switch-label">
-                                    <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php if (GPG_SIGN_PACKAGES == "yes") { echo 'checked'; } ?> />
+                                    <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
                                     <span class="onoff-switch-slider"></span>
                                     </label>
                                     <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
@@ -421,13 +409,10 @@ if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'dele
                                 </form>
                             </div>
                         <?php
-                        }
-                    
-                    } else {
-
-                        echo '<p>Aucune action possible.</p>';
-
                     }
+                } else {
+                    echo '<p>Aucune action possible.</p>';
+                }
 
                 unset($myrepo); ?>
             </section>

@@ -1,4 +1,5 @@
 <?php
+
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: DELETE");
@@ -6,11 +7,11 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 define("ROOT", dirname(__FILE__, 4));
-require_once(ROOT.'/models/Autoloader.php');
-Autoloader::loadFromApi();
+require_once(ROOT . '/controllers/Autoloader.php');
+\Controllers\Autoloader::loadFromApi();
 
 /**
- *  Si il y a eu la moindre erreur ce chargement lors de l'autoload alors on quitte
+ *  Si il y a eu la moindre erreur de chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
@@ -30,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         /**
          *  Instanciation d'un objet Host
          */
-        $myhost = new Host();
+        $myhost = new \Controllers\Host();
         $myhost->setAuthId($datas->id);
         $myhost->setToken($datas->token);
         $myhost->setFromApi();
@@ -48,23 +49,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         /**
          *  Suppression de l'hôte en BDD
          */
-        $unregister = $myhost->api_unregister();
+        $unregister = $myhost->unregister();
 
         if ($unregister === true) {
+            $message_success[] = "L'hote a ete supprime.";
             http_response_code(201);
-            echo json_encode(["return" => "201", "message" => "L'hôte a été supprimé."]);
+            echo json_encode(["return" => "201", "message" => $message_success]);
             exit;
         }
 
         if ($unregister == "2") {
+            $message_error[] = "L'authentification a echoue.";
             http_response_code(400);
-            echo json_encode(["return" => "400", "message" => "L'authentification a échouée."]);
+            echo json_encode(["return" => "400", "message" => $message_error]);
             exit;
         }
-
     } else {
+        $message_error[] = "Erreur d'authentification.";
         http_response_code(400);
-        echo json_encode(["return" => "400", "message" => "Les données transmises sont invalides."]);
+        echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
     }
 
@@ -74,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 /**
  *  Cas où on tente d'utiliser une autre méthode que DELETE
  */
+$message_error[] = "La méthode n'est pas autorisée.";
 http_response_code(405);
-echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée."]);
+echo json_encode(["return" => "405", "message_error" => $message_error]);
 
 exit(1);
-?>

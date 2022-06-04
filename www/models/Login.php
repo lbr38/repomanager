@@ -1,6 +1,11 @@
 <?php
 
-class Login extends Model {
+namespace Models;
+
+use Exception;
+
+class Login extends Model
+{
     public $db;
     protected $username;
     protected $password;
@@ -67,17 +72,19 @@ class Login extends Model {
         return $this->role;
     }
 
-    private function db_getHashedPassword(string $username)
+    private function getHashedPasswordFromDb(string $username)
     {
         try {
             $stmt = $this->db->prepare("SELECT Password FROM users WHERE username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $password = $row['Password'];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $password = $row['Password'];
+        }
 
         return $password;
     }
@@ -87,7 +94,7 @@ class Login extends Model {
         $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$+-=%|{}[]&";
         $shuffle = str_shuffle($combinaison);
 
-        return substr($shuffle,0,16);
+        return substr($shuffle, 0, 16);
     }
 
     /**
@@ -99,7 +106,7 @@ class Login extends Model {
             $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', Common::validateData($username));
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -120,13 +127,15 @@ class Login extends Model {
     {
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
         $datas = array();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas[] = $row;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
 
         return $datas;
     }
@@ -142,7 +151,7 @@ class Login extends Model {
         /**
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
-        if (Common::is_alphanumdash($username) === false) {
+        if (Common::isAlphanumDash($username) === false) {
             Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
             return false;
         }
@@ -162,7 +171,7 @@ class Login extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -205,7 +214,7 @@ class Login extends Model {
             $stmt->bindValue(':first_name', $username);
             $stmt->bindValue(':role', $role);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -233,19 +242,23 @@ class Login extends Model {
             $stmt = $this->db->prepare("SELECT Username, Password FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
         /**
          *  Si le résultat est vide, cela signifie que l'username n'existe pas en BDD
          */
-        if ($this->db->isempty($result)) return false;
+        if ($this->db->isempty($result)) {
+            return false;
+        }
 
         /**
          *  Si le résultat est non-vide alors on vérifie que le mot de passe fourni correspond au hash en base de données
          */
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $password_hashed = $row['Password'];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $password_hashed = $row['Password'];
+        }
 
         /**
          *  Si les mots de passe ne correspondent pas on retourne false
@@ -256,7 +269,7 @@ class Login extends Model {
         }
 
         History::set($username, 'Authentification', 'success');
-        
+
         return true;
     }
 
@@ -281,7 +294,6 @@ class Login extends Model {
             or die("Impossible de se connecter au serveur LDAP.");
 
         if ($ldapconn) {
-
             // Connexion au serveur LDAP
             $ldapbind = ldap_bind($ldapconn, $ldaprdn, $ldappass);
 
@@ -291,7 +303,6 @@ class Login extends Model {
             } else {
                 echo "Connexion LDAP échouée...";
             }
-
         }
 
         return true;
@@ -306,8 +317,12 @@ class Login extends Model {
          *  Vérification des données renseignées
          */
         $username = Common::validateData($username);
-        if (!empty($first_name)) $first_name = Common::validateData($first_name);
-        if (!empty($last_name))  $last_name = Common::validateData($last_name);
+        if (!empty($first_name)) {
+            $first_name = Common::validateData($first_name);
+        }
+        if (!empty($last_name)) {
+            $last_name = Common::validateData($last_name);
+        }
         if (!empty($email)) {
             if (Common::validateMail($email) === false) {
                 Common::printAlert("L'adresse email est incorrecte", 'error');
@@ -325,7 +340,7 @@ class Login extends Model {
             $stmt->bindValue(':last_name', $last_name);
             $stmt->bindValue(':email', $email);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -354,12 +369,14 @@ class Login extends Model {
         /**
          *  On vérifie que le mot de passe actuel saisi correspond au mot de passe actuel en base de données
          */
-        $actual_password_hashed = $this->db_getHashedPassword($username);
+        $actual_password_hashed = $this->getHashedPasswordFromDb($username);
 
         /**
          *  Si le hash récupéré est vide alors il y a une erreur, on quitte
          */
-        if (empty($actual_password_hashed)) return;
+        if (empty($actual_password_hashed)) {
+            return;
+        }
 
         /**
          *  On vérifie que le nouveau mot de passe renseigné et sa re-saisie sont les mêmes
@@ -368,7 +385,7 @@ class Login extends Model {
             Common::printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
             return;
         }
-   
+
         /**
          *  On vérifie que le nouveau mot de passe renseigné et l'ancien (hashé en bdd) sont différents
          */
@@ -390,7 +407,7 @@ class Login extends Model {
             $stmt->bindValue(':new_password', $new_password_hashed);
             $stmt->bindValue(':username', $username);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -413,7 +430,7 @@ class Login extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -444,7 +461,7 @@ class Login extends Model {
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $password_hashed);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -469,7 +486,7 @@ class Login extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -487,7 +504,7 @@ class Login extends Model {
             $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Username = :username and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
@@ -496,4 +513,3 @@ class Login extends Model {
         Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
     }
 }
-?>

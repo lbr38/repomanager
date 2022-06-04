@@ -1,4 +1,5 @@
 <?php
+
 $template = "<!doctype html>
 <html>
   <head>
@@ -189,6 +190,18 @@ $template = "<!doctype html>
       /* -------------------------------------
           OTHER STYLES THAT MIGHT BE USEFUL
       ------------------------------------- */
+      .label-white {
+        font-size: 13px;
+        vertical-align: middle;
+        display: inline-block;
+        padding-left: 6px;
+        padding-right: 6px;
+        border-radius: 2px;
+        box-shadow: -1px -1px 1px 0px rgb(0 0 0 / 50%) inset, -1px -1px 1px 0px rgb(109 109 109 / 20%);
+        background-color: #ffffffc7;
+        color: #000000d9;
+      }
+
       .last {
         margin-bottom: 0; 
       }
@@ -339,7 +352,7 @@ $template = "<!doctype html>
           <br>
         </td>
         <td>
-          <br><img src=\"https://".WWW_HOSTNAME."/ressources/images/repomanager.png\" />
+          <br><img src=\"https://github.com/lbr38/repomanager/raw/stable/www/public/ressources/images/repomanager.png\" />
         </td>
       </tr>
       <tr>
@@ -366,7 +379,7 @@ $template = "<!doctype html>
                                 <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">
                                   <tbody>
                                     <tr>
-                                      <td> <a href=\"https://".WWW_HOSTNAME."/planifications.php\" target=\"_blank\">Planifications</a> </td>
+                                      <td> <a href=\"https://" . WWW_HOSTNAME . "/planifications.php\" target=\"_blank\">Planifications</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -408,4 +421,4 @@ $template = "<!doctype html>
       </tr>
     </table>
   </body>
-</html>";?>
+</html>";

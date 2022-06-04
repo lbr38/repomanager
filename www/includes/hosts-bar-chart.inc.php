@@ -27,12 +27,12 @@ var barChartOptions = {
             radius: 0
         }
     },
-    indexAxis: 'y',
+    // indexAxis: 'y',
     scales: {
-        y: {
-            beginAtZero: true,
+        // y: {
+        //     beginAtZero: true,
             
-        },
+        // },
         x: {
             ticks: {
                 stepSize: 1

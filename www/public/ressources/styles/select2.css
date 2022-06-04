@@ -14,7 +14,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     box-sizing: border-box;
     cursor: pointer;
     display: block;
-    /*height: 28px;*/
+    padding-top: 8px;
+    padding-bottom: 8px;
     user-select: none;
     -webkit-user-select: none; }
     .select2-container .select2-selection--single .select2-selection__rendered {
@@ -148,7 +149,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 .select2-container--default .select2-selection--single {
   background-color: #474747; /* modifié */
   /*background-color: #fff;*/
-  border: 1px solid #aaa;
+  /* border: 1px solid #aaa; */
   border-radius: 2px; }
   .select2-container--default .select2-selection--single .select2-selection__rendered {
     /*color: #444;*/

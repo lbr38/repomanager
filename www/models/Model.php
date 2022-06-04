@@ -1,8 +1,12 @@
 <?php
 
-abstract class Model {
+namespace Models;
 
-    public $db;
+use Exception;
+
+abstract class Model
+{
+    protected $db;
     protected $host_db;
 
     /**
@@ -15,8 +19,14 @@ abstract class Model {
         } else {
             $this->db = new Connection($database);
         }
+    }
 
-        return;
+    /**
+     *  Retourne l'Id de la dernière ligne insérée en base de données
+     */
+    public function getLastInsertRowID()
+    {
+        return $this->db->lastInsertRowID();
     }
 
     public function closeConnection()
@@ -24,4 +34,3 @@ abstract class Model {
         $this->db->close();
     }
 }
-?>

@@ -1,15 +1,15 @@
-$(document).ready(function(){
-	/**
-	 *	Autorechargement des stats en temps réel
-	 */
-	setInterval(function(){
-		$("#refresh-me").load(" #refresh-me > *");
-	}, 1000);
+$(document).ready(function () {
+    /**
+     *  Autorechargement des stats en temps réel
+     */
+    setInterval(function () {
+        $("#refresh-me").load(" #refresh-me > *");
+    }, 1000);
 
     /**
      *  Gestion des boutons de filtres sur le graphique principal
      */
-    $(".repo-access-chart-filter-button").click(function(){
+    $(".repo-access-chart-filter-button").click(function () {
         /**
          *  Affichage d'une icone "chargement"
          */
@@ -23,7 +23,7 @@ $(document).ready(function(){
         /**
          *  Rappel de l'url en cours en précisant le filtre souhaité et en récupérant le canvas #repo-access-chart qui contiendra les nouvelles valeurs en fonction du filtre choisi
          */
-        $('#repo-access-chart').load(window.location.href+'&repo_access_chart_filter='+filter+' #repo-access-chart', function() {
+        $('#repo-access-chart').load(window.location.href + '&repo_access_chart_filter=' + filter + ' #repo-access-chart', function () {
             /**
              *  On récupère alors les nouvelles valeurs :
              *  Pour les labels : dans l'attribut labels="" de #repo-access-chart-labels

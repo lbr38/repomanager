@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <?php
-require_once('../models/Autoloader.php');
-Autoloader::load();
+require_once('../controllers/Autoloader.php');
+\Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
 
 /**
@@ -16,21 +16,21 @@ if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
      */
     // Prénom
     if (!empty($_POST['first_name'])) {
-        $firstName = Common::validateData($_POST['first_name']);
+        $firstName = \Models\Common::validateData($_POST['first_name']);
     } else {
         $firstName = '';
     }
 
     // Nom
     if (!empty($_POST['last_name'])) {
-        $lastName = Common::validateData($_POST['last_name']);
+        $lastName = \Models\Common::validateData($_POST['last_name']);
     } else {
         $lastName = '';
     }
 
     // Email
     if (!empty($_POST['email'])) {
-        $email = Common::validateData($_POST['email']);
+        $email = \Models\Common::validateData($_POST['email']);
     } else {
         $email = '';
     }
@@ -38,7 +38,7 @@ if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
     /**
      *  Modification des informations en base de données
      */
-    $mylogin = new Login();
+    $mylogin = new \Models\Login();
     $mylogin->edit($username, $firstName, $lastName, $email);
 }
 
@@ -46,7 +46,7 @@ if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
  *  Modification du mot de passe de l'utilisateur
  */
 if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty($_POST['actual_password']) and !empty($_POST['new_password']) and !empty($_POST['new_password2'])) {
-    $mylogin = new Login();
+    $mylogin = new \Models\Login();
     $mylogin->changePassword($_SESSION['username'], $_POST['actual_password'], $_POST['new_password'], $_POST['new_password2']);
 }
 ?>
@@ -80,13 +80,13 @@ if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty
                     <form action="user.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="editPersonnalInfos" />
                         <p>Prénom :</p>
-                        <input type="text" class="input-large" name="first_name"  value="<?php if (!empty($_SESSION['first_name'])) echo $_SESSION['first_name'];?>" />
+                        <input type="text" class="input-large" name="first_name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>">
 
                         <p>Nom :</p>
-                        <input type="text" class="input-large" name="last_name" value="<?php if (!empty($_SESSION['last_name'])) echo $_SESSION['last_name'];?>" />
+                        <input type="text" class="input-large" name="last_name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>">
 
                         <p>Email :</p>
-                        <input type="email" class="input-large" name="email" value="<?php if (!empty($_SESSION['email'])) echo $_SESSION['email'];?>" />
+                        <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>">
 
                         <br>
                         <br>

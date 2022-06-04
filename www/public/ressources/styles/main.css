@@ -1,69 +1,71 @@
 @font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype'); }
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-/* Codes couleurs  
+/* Codes couleurs
 
 // boutons //
     boutons bleu :              #2b426e
     boutons bleu (hover) :      #263859
 
-    boutons vert :              #489f4d 
-    boutons vert (hover) :      #3e8e41 
+    boutons vert :              #489f4d
+    boutons vert (hover) :      #3e8e41
 
     boutons rouge :             #d9534f
     boutons rouge (hover) :     #b14440
 
     boutons gris :              #555555
-    boutons gris (hover) : 
+    boutons gris (hover) :
 
     boutons blanc :             #f7f7f7
     boutons blanc (hover) :
 */
 
 body {
-    /* Gestion de l'affichage 'fade-in' de chaque page, afin de rendre l'affichage des pages plus agréable 
+    /* Gestion de l'affichage 'fade-in' de chaque page, afin de rendre l'affichage des pages plus agréable
     Voir @keyframes fadeInAnimation en complément ci-dessous */
     animation: fadeInAnimation ease 0.00001s;
-    animation-iteration-count: 1; 
+    animation-iteration-count: 1;
     animation-fill-mode: forwards;
     font-family: 'Roboto', sans-serif !important;
     margin: 0px;
     padding: 0px;
-    background-color: #262525;
+    /* background-color: #262525; */
+    background-color: #202020;
     color: whitesmoke; /* couleur par défaut */
     overflow-x: hidden;
 }
 
-@keyframes fadeInAnimation { 
-    0% { 
-        opacity: 0; 
-    } 
-    100% { 
-        opacity: 1; 
-     } 
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 a {
     text-decoration: none;
     /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
-    text-shadow: -.25px -.25px 0 transparent, 
+    text-shadow: -.25px -.25px 0 transparent,
                   .25px .25px transparent;
 }
 
 a:hover {
     /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
-    text-shadow: -.25px -.25px 0 white, 
+    text-shadow: -.25px -.25px 0 white,
                   .25px .25px white;
 }
 
 p, label, a, i, span {
     font-size: 14px;
     color: whitesmoke;
-    vertical-align: middle;
+    /* vertical-align: middle; */
 }
 
 span {
     line-height: inherit !important;
+    vertical-align: middle;
 }
 
 b, strong {
@@ -71,7 +73,7 @@ b, strong {
 }
 
 h1, h2, h3, h4 {
-	color: whitesmoke;
+    color: whitesmoke;
     opacity: 0.50;
     margin-top: 20px;
     margin-bottom: 30px;
@@ -185,7 +187,7 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
     font-family: 'ethnocentric';
     font-size: 18px;
 }
-#menu > div {
+#menu .menu-sub-container > div {
     padding: 22px 25px 22px 25px;
 }
 #menu div span {
@@ -202,12 +204,13 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
     padding-bottom: 22px;
     vertical-align: baseline;
 }
-#header-refresh-container {
+#header-refresh {
     position: relative;
 }
 .op-total-running {
     position: absolute;
-    top: 6px;
+    top: -30px;
+    right: -15px;
     border: none;
     border-radius: 2px;
     color: whitesmoke;
@@ -219,9 +222,12 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
 .header-op-container {
     display: none;
     position: absolute;
-    margin-top: 10px;
+    margin-top: 15px;
+    z-index: 99;
 }
 .header-op-subdiv {
+    display: flex !important;
+    justify-content: space-between;
     min-width: max-content;
     margin-bottom: 3px;
     text-align: left !important;
@@ -229,6 +235,7 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
 .header-op-subdiv span {
     line-height: 1.5em !important;
 }
+
 #header-refresh-container:hover .header-op-container {
     display: block;
 }
@@ -292,7 +299,7 @@ section.left, section.right, .section-center, section.missing-param-alert, #newR
     padding: 10px;
     vertical-align: top;
     border-radius: 4px;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     background-color:#2b2b2b;
 }
@@ -385,7 +392,7 @@ table {
     border-radius: 2px;
     border: 1px solid #403f3f;
     background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
@@ -408,16 +415,18 @@ table {
 }
 
 .repos-list-type-redhat {
-    grid-template-columns: 200px auto auto auto auto 96px 1fr;
+    /* grid-template-columns: 200px auto auto auto auto 96px 1fr; */
+    grid-template-columns: 200px auto auto auto auto 70px 1fr;
 }
 
 .repos-list-type-debian {
-    grid-template-columns: 200px 250px auto auto auto auto 96px 1fr;
+    grid-template-columns: 200px 250px auto auto auto auto 70px 1fr;
     /* grid-auto-columns: 200px 250px auto auto auto auto 96px 1fr; */
 }
 
 .repos-list-group-flex-div [class^="item"] {
-    padding: 8px;
+    /* padding: 8px; */
+    padding: 4px 0px 4px 8px;
     position: relative;
 }
 
@@ -455,6 +464,29 @@ table {
     padding-right: 0 !important;
 }
 
+.item-arrow {
+    margin-right: 1px;
+    position: relative;
+    width: 25px;
+}
+
+.item-arrow span {
+    width: 100%;
+    position: absolute;
+    top: 4px;
+    border-top: 1px solid white;
+}
+
+.item-arrow-up span {
+    position: absolute;
+    top: -39px;
+    height: 43px;
+    width: 18px;
+    border-left: 1px solid white;
+    border-bottom: 1px solid white;
+    border-bottom-left-radius: 4px;
+}
+
 .item-env {
     min-width: 40px;
 }
@@ -481,6 +513,10 @@ table {
     padding-right: 0 !important;
 }
 
+.item-snapshot {
+    padding: 15px 0 0 0 !important;
+}
+
 .item-date span {
     color: white;
     background-color: #333333;
@@ -495,12 +531,10 @@ table {
 }
 
 .item-info {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: 8px;
+    padding: 2px 0 0 2px !important;
 }
 
-.item-info img {
+.item-info img, .item-env-info img {
     height: 12px;
     display: inline;
     margin-left: 2px !important;
@@ -509,7 +543,10 @@ table {
 
 .item-info span {
     font-size: 12px;
-    opacity: 0.80;
+}
+
+.item-env-info {
+    padding-left: 4px !important;
 }
 
 .item-desc {
@@ -519,6 +556,15 @@ table {
 
 .item-desc [type=text] {
     background-color: #2b426e;
+}
+
+.item-desc [type=text]::placeholder {
+    color: #dfdfdf7a;
+    visibility: hidden;
+}
+
+.item-desc [type=text]:hover::placeholder {
+    visibility: visible;
 }
 
 .td-white-bckg span, .td-red-bckg span {
@@ -563,6 +609,7 @@ td {
 .td-10, .td-30, .td-50, .td-100 {
     width: 0px;
     margin: 0px;
+    white-space: nowrap;
 }
 .td-10 { padding-right: 10px !important; }
 .td-30 { padding-right: 30px !important; }
@@ -617,7 +664,7 @@ td {
      0px 2px 2px 0px rgba(255, 255, 255, 0.2);
      background-color: #252525;
 }
-.divReposConf { 
+.divReposConf {
     width: 100%;
     padding-top: 15px;
     padding-left: 30px;
@@ -777,8 +824,8 @@ input[type=text].invisibleInput-blue {
 
 /* boutons switch-field */
 .switch-field {
-	display: flex;
-	overflow: hidden;
+    display: flex;
+    overflow: hidden;
     margin-top: 2px;
     margin-bottom: 2px;
 }
@@ -786,41 +833,41 @@ input[type=text].invisibleInput-blue {
 .switch-field input {
     position: absolute;
     clip: rect(0, 0, 0, 0);
-	width: 1px;
+    width: 1px;
     margin-left: 0;
     margin-right: 0;
-	border: 0;
-	overflow: hidden;
+    border: 0;
+    overflow: hidden;
 }
 
 .switch-field label {
-	background-color: whitesmoke;
+    background-color: whitesmoke;
     color: #3b3b3b;
-	line-height: 1;
-	text-align: center;
-	padding: 3px 7px;
-	margin-right: -1px;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
-	transition: all 0.1s ease-in-out;
+    line-height: 1;
+    text-align: center;
+    padding: 3px 7px;
+    margin-right: -1px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.1s ease-in-out;
 }
 
 .switch-field label:hover {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 .switch-field input:checked + label {
     background-color: #2b426e;
-	box-shadow: none;
+    box-shadow: none;
     color: whitesmoke;
 }
 
 .switch-field label:first-of-type {
-	border-radius: 2px 0 0 2px;
+    border-radius: 2px 0 0 2px;
 }
 
 .switch-field label:last-of-type {
-	border-radius: 0 2px 2px 0;
+    border-radius: 0 2px 2px 0;
 }
 
 /** Switchs On/Off */
@@ -886,7 +933,8 @@ input[type=text].invisibleInput-blue {
     padding-bottom: 3px;
     vertical-align: middle;
     border-radius: 2px;
-    box-shadow: 0px 1px 1px 0px rgb(0 0 0 / 50%) inset, 0px 2px 2px 0px rgb(109 109 109 / 20%);
+    /* box-shadow: 0px 1px 1px 0px rgb(0 0 0 / 50%) inset, 0px 2px 2px 0px rgb(109 109 109 / 20%); */
+    box-shadow: 0px -1px 0px 0px rgb(0 0 0 / 50%) inset, 0px -1px 0px 1px rgb(109 109 109 / 20%)
 }
 .env, .env-fit {
     background-color: #ffffffc7;
@@ -1008,10 +1056,10 @@ footer p { color: gray; }
     border-radius: 5px;
 }
 
-#hideActiveReposGroups, #hideArchivedReposGroups {
+#hideAllReposGroups {
     position: absolute;
     right: 8px;
-    top: -20px;
+    top: -24px;
 }
 
 .action, .alert, .alert-success, .alert-error, .confirmAlert { /* div affichant une alerte au milieu de la page */
@@ -1254,12 +1302,11 @@ footer p { color: gray; }
     margin-bottom: 4px;
 }
 /* rubans de couleurs */
-.header-green, .header-blue, .header-red {
+.header-green, .header-blue, .header-light-blue, .header-red {
     border-radius: 2px;
-    /* padding: 10px 8px 10px 8px; */
     padding: 0px 8px 0px 8px;
 }
-.header-green-min, .header-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
+.header-green-min, .header-blue-min, .header-light-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
     border-radius: 2px;
     /* pas de padding lorsqu'il y a un <input> */
     padding-bottom: 0px;
@@ -1268,6 +1315,7 @@ footer p { color: gray; }
 .header-green, .header-green-min { background-color: #489f4d; }
 .header-red,   .header-red-min   { background-color: #d9534f; }
 .header-blue,  .header-blue-min  { background-color: #2b426e; }
+.header-light-blue,  .header-light-blue-min  { background-color: #435e91; }
 
 .operation-form-container {
     margin: 5px;
@@ -1320,7 +1368,7 @@ footer p { color: gray; }
     border-radius: 2px;
     border: 1px solid #403f3f;
     background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
@@ -1358,7 +1406,7 @@ footer p { color: gray; }
     border: 8px solid #2b426e;
     border-radius: 50%;
     text-align: center;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15); 
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
     position: relative;
 }

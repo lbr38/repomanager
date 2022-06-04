@@ -1,7 +1,12 @@
 <?php
 
-class Connection extends SQLite3 {
+namespace Models;
 
+use SQLite3;
+use Exception;
+
+class Connection extends SQLite3
+{
     public function __construct(string $database, string $hostId = null)
     {
         /**
@@ -12,13 +17,12 @@ class Connection extends SQLite3 {
             /**
              *  Ouverture de la base de données
              */
-            
+
             /**
              *  Cas où la base de données renseignée est "main", il s'agit de la base de données principale repomanager.db
              */
             if ($database == "main") {
-                
-                $this->open(ROOT."/db/repomanager.db");
+                $this->open(ROOT . "/db/repomanager.db");
 
                 /**
                  *  Activation des exception pour SQLite
@@ -29,20 +33,18 @@ class Connection extends SQLite3 {
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
              */
             } elseif ($database == "stats") {
-
-                $this->open(ROOT."/db/repomanager-stats.db");
+                $this->open(ROOT . "/db/repomanager-stats.db");
 
                 /**
                  *  Activation des exception pour SQLite
                  */
                 $this->enableExceptions(true);
-                
+
             /**
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
              */
             } elseif ($database == "hosts") {
-
-                $this->open(ROOT."/db/repomanager-hosts.db");
+                $this->open(ROOT . "/db/repomanager-hosts.db");
 
                 /**
                  *  Activation des exception pour SQLite
@@ -52,14 +54,12 @@ class Connection extends SQLite3 {
             /**
              *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
              */
-
             } elseif ($database == "host") {
-
                 if (!defined('HOSTS_DIR')) {
-                    define('HOSTS_DIR', ROOT.'/hosts');
+                    define('HOSTS_DIR', ROOT . '/hosts');
                 }
 
-                $this->open(HOSTS_DIR."/$hostId/properties.db");
+                $this->open(HOSTS_DIR . "/$hostId/properties.db");
 
                 /**
                  *  Activation du mode WAL
@@ -83,22 +83,18 @@ class Connection extends SQLite3 {
             } else {
                 throw new Exception("base de données inconnue : $database");
             }
-
-        } catch (Exception $e) {
-            die('Erreur lors de la connexion à la base de données : '.$e->getMessage());
+        } catch (\Exception $e) {
+            die('Erreur lors de la connexion à la base de données : ' . $e->getMessage());
         }
 
         /**
          *  Ajout d'un timeout de 10sec pour l'ouverture de la base de données
          */
         try {
-
             $this->busyTimeout(10000);
-
-        } catch (Exception $e) {
-
-            die('Erreur lors de la configuration du timeout de la base de données : '.$e->getMessage());
-        }        
+        } catch (\Exception $e) {
+            die('Erreur lors de la configuration du timeout de la base de données : ' . $e->getMessage());
+        }
     }
 
     /**
@@ -121,9 +117,9 @@ class Connection extends SQLite3 {
     }
 
     /**
-     *  
+     *
      *  Fonctions de vérification des tables
-     * 
+     *
      */
 
     /**
@@ -132,20 +128,24 @@ class Connection extends SQLite3 {
     public function countMainTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
-        and name='repos'
-        or name='repos_archived'
-        or name='env'
-        or name='sources'
-        or name='groups' 
-        or name='group_members' 
-        or name='operations' 
-        or name='planifications'
-        or name='profile_package'
-        or name='profile_service'
-        or name='users'
-        or name='user_role'
-        or name='history'
-        or name='repos_list_settings'");
+        AND name='repos'
+        OR name='repos_env'
+        OR name='repos_snap'
+        OR name='env'
+        OR name='sources'
+        OR name='groups' 
+        OR name='group_members' 
+        OR name='operations' 
+        OR name='planifications'
+        OR name='profile'
+        OR name='profile_settings'
+        OR name='profile_repo_members'
+        OR name='profile_package'
+        OR name='profile_service'
+        OR name='users'
+        OR name='user_role'
+        OR name='history'
+        OR name='repos_list_settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -160,7 +160,7 @@ class Connection extends SQLite3 {
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
         and name='stats'
-        or name='access'");
+        OR name='access'");
 
         /**
          *  On retourne le nombre de tables
@@ -175,9 +175,9 @@ class Connection extends SQLite3 {
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
         and name='hosts'
-        or name='groups'
-        or name='group_members'
-        or name='settings'");
+        OR name='groups'
+        OR name='group_members'
+        OR name='settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -191,15 +191,17 @@ class Connection extends SQLite3 {
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 14 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 18 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 14) {
+        if ($this->countMainTables() != 18) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 14) return false;
+            if ($this->countMainTables() != 18) {
+                return false;
+            }
         }
 
         return true;
@@ -219,7 +221,9 @@ class Connection extends SQLite3 {
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countStatsTables() != 2) return false;
+            if ($this->countStatsTables() != 2) {
+                return false;
+            }
         }
 
         return true;
@@ -239,17 +243,18 @@ class Connection extends SQLite3 {
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countHostsTables() != 4) return false;
+            if ($this->countHostsTables() != 4) {
+                return false;
+            }
         }
 
         return true;
     }
 
-
     /**
-     *  
+     *
      *  Fonctions de génération des tables si n'existent pas
-     * 
+     *
      */
     /**
      *  Génération des tables dans la base de données repomanager.db
@@ -259,65 +264,34 @@ class Connection extends SQLite3 {
         /**
          *  Crée la table repos si n'existe pas
          */
-        if (OS_FAMILY == "Redhat") {
-            $this->exec("CREATE TABLE IF NOT EXISTS repos (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            Name VARCHAR(255) NOT NULL,
-            Source VARCHAR(255) NOT NULL,
-            Env VARCHAR(255) NOT NULL,
-            Date DATE NOT NULL,
-            Time TIME NOT NULL,
-            Description VARCHAR(255),
-            Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL,
-            Status CHAR(8) NOT NULL);");
-        }
-        if (OS_FAMILY == "Debian") {
-            $this->exec("CREATE TABLE IF NOT EXISTS repos (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            Name VARCHAR(255) NOT NULL,
-            Source VARCHAR(255) NOT NULL,
-            Dist VARCHAR(255) NOT NULL,
-            Section VARCHAR(255) NOT NULL,
-            Env VARCHAR(255) NOT NULL,
-            Date DATE NOT NULL,
-            Time TIME NOT NULL,
-            Description VARCHAR(255),
-            Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL,
-            Status CHAR(8) NOT NULL);");
-        }
+        $this->exec("CREATE TABLE IF NOT EXISTS repos (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Dist VARCHAR(255),
+        Section VARCHAR(255),
+        Source VARCHAR(255) NOT NULL,
+        Package_type VARCHAR(10) NOT NULL)");
 
         /**
-         *  Crée la table repos_archived si n'existe pas
+         *  Crée la table repos_snap si n'existe pas
          */
-        if (OS_FAMILY == "Redhat") {
-            $this->exec("CREATE TABLE IF NOT EXISTS repos_archived (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            Name VARCHAR(255) NOT NULL,
-            Source VARCHAR(255) NOT NULL,
-            Date DATE NOT NULL,
-            Time TIME NOT NULL,
-            Description VARCHAR(255),
-            Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL,
-            Status CHAR(8) NOT NULL);");
-        }
+        $this->exec("CREATE TABLE IF NOT EXISTS repos_snap (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Signed CHAR(3) NOT NULL,
+        Type CHAR(6) NOT NULL,
+        Status CHAR(8) NOT NULL,
+        Id_repo INTEGER NOT NULL)");
 
-        if (OS_FAMILY == "Debian") {
-            $this->exec("CREATE TABLE IF NOT EXISTS repos_archived (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            Name VARCHAR(255) NOT NULL,
-            Source VARCHAR(255) NOT NULL,
-            Dist VARCHAR(255) NOT NULL,
-            Section VARCHAR(255) NOT NULL,
-            Date DATE NOT NULL,
-            Time TIME NOT NULL,
-            Description VARCHAR(255),
-            Signed CHAR(3) NOT NULL,
-            Type CHAR(6) NOT NULL,
-            Status CHAR(8) NOT NULL);");
-        }
+        /**
+         *  Crée la table repos_env si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS repos_env (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Env VARCHAR(255),
+        Description VARCHAR(255),
+        Id_snap INTEGER NOT NULL)");
 
         /**
          *  Crée la table env si n'existe pas
@@ -385,7 +359,7 @@ class Connection extends SQLite3 {
                 $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -400,8 +374,8 @@ class Connection extends SQLite3 {
         Id_user INTEGER NOT NULL,
         Action VARCHAR(255) NOT NULL,
         State CHAR(7))"); /* success ou error */
-        
-        /** 
+
+        /**
          *  Crée la table groups si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
@@ -423,12 +397,16 @@ class Connection extends SQLite3 {
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
-        Action VARCHAR(255) NOT NULL,  /* update, env->env */
-        Type CHAR(6) NOT NULL,         /* manual, auto */
+        Action VARCHAR(255) NOT NULL,
+        Type CHAR(6) NOT NULL,         /* manual, plan */
         Id_repo_source VARCHAR(255),
+        Id_snap_source INTEGER,
+        Id_env_source INTEGER,
         Id_repo_target VARCHAR(255),
+        Id_snap_target INTEGER,
+        Id_env_target INTEGER,
         Id_group INTEGER,
-        Id_plan INTEGER,               /* si type = auto */
+        Id_plan INTEGER,
         GpgCheck CHAR(3),
         GpgResign CHAR(3),
         Pid INTEGER NOT NULL,
@@ -447,8 +425,9 @@ class Connection extends SQLite3 {
         Date DATE,
         Time TIME,
         Action VARCHAR(255) NOT NULL,
-        Id_repo INTEGER,
+        Id_snap INTEGER,
         Id_group INTEGER,
+        Target_env VARCHAR(255),
         Gpgcheck CHAR(3),
         Gpgresign CHAR(3),
         Reminder VARCHAR(255),
@@ -460,6 +439,46 @@ class Connection extends SQLite3 {
         Logfile VARCHAR(255))");
 
         /**
+         *  Crée la table profile_settings si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
+        Os_family VARCHAR(255),
+        Os_name VARCHAR(255),
+        Os_id VARCHAR(255),
+        Os_version VARCHAR(255),
+        Package_type VARCHAR(255),
+        Package_os_version VARCHAR(255),
+        Manage_client_conf CHAR(3),
+        Manage_client_repos CHAR(3))");
+
+        /**
+         *  Si la table profile_settings est vide (vient d'être créée) alors on la peuple
+         */
+        $result = $this->query("SELECT * FROM profile_settings");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO profile_settings (Os_family, Os_name, Os_id, Os_version, Manage_client_conf, Manage_client_repos) VALUES ('" . OS_FAMILY . "', '" . OS_NAME . "', '" . OS_ID . "', '" . OS_VERSION . "', 'no', 'no')");
+        }
+
+        /**
+         *  Crée la table profile si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS profile (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Package_exclude VARCHAR(255),
+        Package_exclude_major VARCHAR(255),
+        Service_restart VARCHAR(255),
+        Allow_overwrite CHAR(3),
+        Allow_repos_overwrite CHAR(3))");
+
+        /**
+         *  Crée la table profile_repo_members si n'existe pas
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS profile_repo_members (
+        Id_profile INTEGER NOT NULL,
+        Id_repo INTEGER NOT NULL)");
+
+        /**
          *  Crée la table profile_package si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_package (
@@ -469,7 +488,9 @@ class Connection extends SQLite3 {
          *  Si la table profile_package est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT Id FROM profile_package");
-        if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO profile_package (Name) VALUES ('apache'), ('httpd'), ('php'), ('php-fpm'), ('mysql'), ('fail2ban'), ('nrpe'), ('munin-node'), ('node'), ('newrelic'), ('nginx'), ('haproxy'), ('netdata'), ('nfs'), ('rsnapshot'), ('kernel'), ('java'), ('redis'), ('varnish'), ('mongo'), ('rabbit'), ('clamav'), ('clam'), ('gpg'), ('gnupg')");
+        }
 
         /**
          *  Crée la table profile_service si n'existe pas
@@ -482,7 +503,9 @@ class Connection extends SQLite3 {
          *  Si la table profile_service est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT Id FROM profile_service");
-        if ($this->isempty($result) === true) $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO profile_service (Name) VALUES ('apache'), ('httpd'), ('php-fpm'), ('mysqld'), ('fail2ban'), ('nrpe'), ('munin-node'), ('nginx'), ('haproxy'), ('netdata'), ('nfsd'), ('redis'), ('varnish'), ('mongod'), ('clamd')");
+        }
 
         /**
          *  Crée la table repos_list_settings si n'existe pas
@@ -497,7 +520,9 @@ class Connection extends SQLite3 {
          *  Si la table repos_list_settings est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT print_repo_size FROM repos_list_settings");
-        if ($this->isempty($result) === true) $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
+        }
 
         /**
          *  Activation du mode WAL
@@ -517,9 +542,9 @@ class Connection extends SQLite3 {
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
-        Id_repo INTEGER NOT NULL,
         Size INTEGER NOT NULL,
-        Packages_count INTEGER NOT NULL)");
+        Packages_count INTEGER NOT NULL,
+        Id_env INTEGER NOT NULL)");
 
         /**
          *  Crée la table access si n'existe pas
@@ -574,7 +599,7 @@ class Connection extends SQLite3 {
         Online_status_time,
         Status VARCHAR(8) NOT NULL)");
 
-        /** 
+        /**
          *  Crée la table groups si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
@@ -600,7 +625,9 @@ class Connection extends SQLite3 {
          *  Si la table settings est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT pkgs_count_considered_outdated FROM settings");
-        if ($this->isempty($result) === true) $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
+        }
 
         /**
          *  Activation du mode WAL
@@ -626,7 +653,7 @@ class Connection extends SQLite3 {
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Id_event INTEGER)");
-        
+
         /**
          *  Historique des paquets répertoriés (suppression, installation...)
          */
@@ -677,9 +704,9 @@ class Connection extends SQLite3 {
     }
 
     /**
-     * 
+     *
      *  Fonctions utiles
-     * 
+     *
      */
     /**
      *  Retourne true si le résultat est vide et false si il est non-vide.
@@ -691,9 +718,13 @@ class Connection extends SQLite3 {
          */
         $count = 0;
 
-        while ($row = $result->fetchArray()) $count++;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $count++;
+        }
 
-        if ($count == 0) return true;
+        if ($count == 0) {
+            return true;
+        }
 
         return false;
     }
@@ -705,7 +736,9 @@ class Connection extends SQLite3 {
     {
         $count = 0;
 
-        while ($row = $result->fetchArray()) $count++;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $count++;
+        }
 
         return $count;
     }
@@ -729,7 +762,9 @@ class Connection extends SQLite3 {
         /**
          *  Fetch le résultat puis retourne l'array créé
          */
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas = $row;
+        }
 
         return $datas;
     }
@@ -741,9 +776,12 @@ class Connection extends SQLite3 {
     {
         $result = $this->query($query);
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $datas = $row;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas = $row;
+        }
 
-        if (!empty($datas)) return $datas;
+        if (!empty($datas)) {
+            return $datas;
+        }
     }
 }
-?>

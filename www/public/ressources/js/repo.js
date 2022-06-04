@@ -5,7 +5,8 @@
 /**
  *  Fonction permettant de compter le nb de checkbox cochée
  */
-function countChecked() {
+function countChecked()
+{
     var countTotal = $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').length;
     return countTotal;
 };
@@ -17,21 +18,21 @@ function countChecked() {
 /**
  *  Event : affichage du div permettant de créer un nouveau repo/section
  */
-$(document).on('click','#newRepoToggleButton',function(){
+$(document).on('click','#newRepoToggleButton',function () {
     $("#newRepoDiv").slideToggle();
 });
 
 /**
  *  Event : masquage du div permettant de créer un nouveau repo/section
  */
-$(document).on('click','#newRepoCloseButton',function(){
+$(document).on('click','#newRepoCloseButton',function () {
     $("#newRepoDiv").slideToggle();
 });
 
 /**
  *  Event : masquage du div permettant d'exécuter un opération
  */
-$(document).on('click','#operationsDivCloseButton',function(){
+$(document).on('click','#operationsDivCloseButton',function () {
     /**
      *  Suppression du contenu de la div
      */
@@ -43,29 +44,22 @@ $(document).on('click','#operationsDivCloseButton',function(){
 /**
  *  Event : afficher/masquer le contenu de tous les groupes de repos actifs
  */
-$(document).on('click','#hideActiveReposGroups',function(){
-    $('.repos-list-group-flex-div[status=active]').slideToggle();
-});
-
-/**
- *  Event : afficher/masquer le contenu de tous les groupes de repos archivés
- */
-$(document).on('click','#hideArchivedReposGroups',function(){
-    $('.repos-list-group-flex-div[status=archived]').slideToggle();
+$(document).on('click','#hideAllReposGroups',function () {
+    $('.repos-list-group-flex-div').slideToggle();
 });
 
 /**
  *  Event : afficher/masquer le contenu d'un groupe de repos
  */
-$(document).on('click','.hideGroup',function(){
+$(document).on('click','.hideGroup',function () {
     var groupname = $(this).attr('group');
-    $('.repos-list-group[group='+groupname+']').find('.repos-list-group-flex-div').slideToggle();
+    $('.repos-list-group[group=' + groupname + ']').find('.repos-list-group-flex-div').slideToggle();
 });
 
 /**
  *  Event : affiche/masque des inputs en fonction du type de repo à créer ('miroir' ou 'local')
  */
-$(document).on('change','input:radio[name="repoType"]',function(){
+$(document).on('change','input:radio[name="repoType"]',function () {
     if ($("#repoType_mirror").is(":checked")) {
         $(".type_mirror_input").show();
         $(".type_local_input").hide();
@@ -76,22 +70,37 @@ $(document).on('change','input:radio[name="repoType"]',function(){
 });
 
 /**
+ *  Event : clic sur le bouton de suppression d'un environnement
+ */
+$(document).on('click','.delete-env-btn',function () {
+    /**
+     *  Récupération de l'Id du repo, du snapshot et de l'env
+     */
+    var repoId = $(this).attr('repo-id');
+    var snapId = $(this).attr('snap-id');
+    var envId = $(this).attr('env-id');
+    var envName = $(this).attr('env-name');
+
+    deleteConfirm('Supprimer l\'environnement ' + envName + ' ?', function () {
+        removeEnv(repoId, snapId, envId)});
+});
+
+/**
  *  Event : modification de la description d'un repo
  */
-$(document).on('keypress','.repoDescriptionInput',function(){
+$(document).on('keypress','.repoDescriptionInput',function () {
     var keycode = (event.keyCode ? event.keyCode : event.which);
-    if(keycode == '13'){
+    if (keycode == '13') {
         /**
          *  Récupération des valeurs suivantes :
          *   - L'Id du repo à modifier
          *   - Le status su repo
-         *   - La description 
+         *   - La description
          */
-        var id = $(this).attr('repo-id');
-        var status = $(this).attr('repo-status');
+        var envId = $(this).attr('env-id');
         var description = $(this).val();
 
-        setRepoDescription(id, status, description);            
+        setRepoDescription(envId, description);
     }
     event.stopPropagation();
 });
@@ -99,7 +108,7 @@ $(document).on('keypress','.repoDescriptionInput',function(){
 /**
  *  Event : lorsqu'une checkbox est cochée/décochée
  */
-$(document).on('click',"input[name=checkbox-repo\\[\\]]",function(){
+$(document).on('click',"input[name=checkbox-repo\\[\\]]",function () {
     /**
      *  On compte le nombre de checkbox cochées
      */
@@ -116,56 +125,28 @@ $(document).on('click',"input[name=checkbox-repo\\[\\]]",function(){
     } else {
         $('#repo-actions-btn-container').show();
     }
- 
-    /**
-     *  On récupère le type du repo (actif ou archivé)
-     */
-    var repo_status = $(this).attr('repo-status');
 
     /**
      *  A partir du moment où il y a au moins 1 checkbox cochée, on affiche toutes les autres
      *  Toutes les checkbox cochées sont passées en opacity = 1
      */
-    $('.reposList').find("input[repo-status="+repo_status+"]").css("visibility", "visible");
+    $('.reposList').find('input[name=checkbox-repo\\[\\]]').css("visibility", "visible");
     $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').css("opacity", "1");
 
     /**
-     *  Par contre on masque les checkbox correspondant à l'autre status
-     *  Ex: si on coche du 'active' alors on décoche les 'archived'
+     *  Si un repo 'local' est coché alors on masque le bouton 'mettre à jour'
      */
-    if (repo_status == 'active') {
-        $('.reposList').find("input[repo-status=archived]").prop("checked", false);
-    }
-    if (repo_status == 'archived') {
-        $('.reposList').find("input[repo-status=active]").prop("checked", false);
-    }
-
-    /**
-     *  Masquage de boutons en fonction du status de repo coché
-     */
-     if (repo_status == 'archived') {
-         $('.repo-action-btn[type=active-btn]').hide();
-         $('.repo-action-btn[type=archived-btn]').show();
-    }
-    if (repo_status == 'active') {
-        $('.repo-action-btn[type=archived-btn]').hide();
-        $('.repo-action-btn[type=active-btn]').show();
-
-        /**
-         *  Si un repo 'non-updatable' est coché alors on masque le bouton 'mettre à jour'
-         */
-        if ($('.reposList').find('input[name=checkbox-repo\\[\\]][is-updatable=no]:checked').length > 0) {
-            $('.repo-action-btn[action=update]').hide();
-        } else {
-            $('.repo-action-btn[action=update]').show();
-        }
+    if ($('.reposList').find('input[name=checkbox-repo\\[\\]][repo-type=local]:checked').length > 0) {
+        $('.repo-action-btn[action=update]').hide();
+    } else {
+        $('.repo-action-btn[action=update]').show();
     }
 });
 
 /**
  *  Event : Lorsqu'on clique sur un bouton d'action
  */
-$(document).on('click',".repo-action-btn",function(){
+$(document).on('click',".repo-action-btn",function () {
     var repos_array = [];
 
     /**
@@ -181,13 +162,15 @@ $(document).on('click',".repo-action-btn",function(){
     /**
      *  On parcourt toutes les checkbox sélectionnés et on récupère les id de repo correspondant
      */
-    $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').each(function(){
+    $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').each(function () {
         var obj = {};
 
         /**
          *  Récupération de l'id et du status du ou des repos sélectionnés
          */
         obj['repoId'] = $(this).attr('repo-id');
+        obj['snapId'] = $(this).attr('snap-id');
+        obj['envId'] = $(this).attr('env-id');
         obj['repoStatus'] = $(this).attr('repo-status');
 
         repos_array.push(obj);
@@ -201,7 +184,7 @@ $(document).on('click',".repo-action-btn",function(){
     /**
      *  Rechargement de operationsDiv, affichage et demande du formulaire correspondant à l'opération sélectionnée
      */
-    $("#operationsDiv").load(" #operationsDiv > *",function(){
+    $("#operationsDiv").load(" #operationsDiv > *",function () {
         getForm(action, repos_array);
         $('#operationsDiv').show();
     });
@@ -215,18 +198,18 @@ $(document).on('click',".repo-action-btn",function(){
 /**
  *  Event : validation / exécution d'une opération
  */
-$(document).on('submit','.operation-form-container',function(){
+$(document).on('submit','.operation-form-container',function () {
     event.preventDefault();
 
     /**
      *  Array principal qui contiendra tous les paramètres de chaque repo à traiter (1 ou plusieurs repos selon la sélection de l'utilisateur)
      */
     var operation_params = [];
-    
+
     /**
      *  Récupération des paramètres saisis dans le formulaire
      */
-    $(this).find('.operation-form').each(function(){
+    $(this).find('.operation-form').each(function () {
         var obj = {};
 
         /**
@@ -234,13 +217,15 @@ $(document).on('submit','.operation-form-container',function(){
          */
         obj['action'] = $(this).attr('action');
         obj['repoId'] = $(this).attr('repo-id');
+        obj['snapId'] = $(this).attr('snap-id');
+        obj['envId'] = $(this).attr('env-id');
         obj['repoStatus'] = $(this).attr('repo-status');
 
         /**
          *  Puis on récupère chaque paramètres saisis par l'utilisateur et on les poussent à la suite
          *  Il n'existe pas de tableau associatif en js donc on pousse un objet
          */
-        $(this).find('.operation_param').each(function(){
+        $(this).find('.operation_param').each(function () {
             /**
              *  Récupération du nom du paramètre (name de l'input) et sa valeur (saisie de l'input)
              */
@@ -293,7 +278,7 @@ $(document).on('submit','.operation-form-container',function(){
 /**
  *  Event : génération de la configuration du repo à installer sur la machine cliente
  */
-$(document).on('click','.client-configuration-btn',function(){
+$(document).on('click','.client-configuration-btn',function () {
     /**
      *  Suppression de tout autre éventuel div déjà affiché
      */
@@ -322,16 +307,16 @@ $(document).on('click','.client-configuration-btn',function(){
     var www_hostname = $(this).attr('www_hostname');
 
     if (os_family == "Redhat") {
-        var commands = 'echo -e "# Repo '+repoName+' ('+repoEnv+') sur '+www_hostname+'\n['+repo_conf_files_prefix+''+repoName+'_'+repoEnv+']\nname=Repo '+repoName+' sur '+www_hostname+'\ncomment=Repo '+repoName+' sur '+www_hostname+'\nbaseurl='+repo_dir_url+'/'+repoName+'_'+repoEnv+'\nenabled=1\ngpgkey='+repo_dir_url+'/gpgkeys/'+www_hostname+'.pub\ngpgcheck=1" > /etc/yum.repos.d/'+repo_conf_files_prefix+''+repoName+'.repo';
+        var commands = 'echo -e "# Repo ' + repoName + ' (' + repoEnv + ') sur ' + www_hostname + '\n[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=Repo ' + repoName + ' sur ' + www_hostname + '\ncomment=Repo ' + repoName + ' sur ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
     if (os_family == "Debian") {
-        var commands = 'wget -qO '+repo_dir_url+'/gpgkeys/'+www_hostname+'.pub | sudo apt-key add -\n\necho "deb '+repo_dir_url+'/'+repoName+'/'+repoDist+'/'+repoSection+'_'+repoEnv+' '+repoDist+' '+repoSection+'" > /etc/apt/sources.list.d/'+repo_conf_files_prefix+''+repoName+'_'+repoDistFormatted+'_'+repoSection+'.list';
+        var commands = 'wget -qO ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | sudo apt-key add -\n\necho "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
     }
-    
+
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="ressources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">'+commands+'</pre><img src="ressources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="ressources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="ressources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage
@@ -342,14 +327,14 @@ $(document).on('click','.client-configuration-btn',function(){
 /**
  *  Event : fermeture de la configuration client
  */
-$(document).on('click','.divReposConf-close',function(){
+$(document).on('click','.divReposConf-close',function () {
     $(".divReposConf").remove();
 });
 
 /**
  *  Event : modifier les paramètres d'affichage de la liste des repos
  */
-$(document).on('click','#repos-display-conf-btn',function(){
+$(document).on('click','#repos-display-conf-btn',function () {
     /**
      *  Récupération des paramètres (checkbox)
      */
@@ -380,119 +365,147 @@ $(document).on('click','#repos-display-conf-btn',function(){
     configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList);
 });
 
+/**
+ *  Ajax : Modifier la description d'un repo
+ *  @param {string} repoId
+ *  @param {string} repoDescription
+ */
+function removeEnv(repoId, snapId, envId)
+{
+     $.ajax({
+            type: "POST",
+            url: "controllers/ajax-operations.php",
+            data: {
+                action: "removeEnv",
+                repoId: repoId,
+                snapId: snapId,
+                envId: envId
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'success');
+            },
+            error : function (jqXHR, ajaxOptions, thrownError) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'error');
+            },
+        });
+}
 
 /**
  *  Ajax : Modifier la description d'un repo
  *  @param {string} repoId
- *  @param {string} repoStatus 
- *  @param {string} repoDescription 
+ *  @param {string} repoDescription
  */
-function setRepoDescription(repoId, repoStatus, repoDescription) {
-    $.ajax({
-        type: "POST",
-        url: "controllers/ajax.php",
-        data: {
-            action: "setRepoDescription",
-            id: repoId,
-            status: repoStatus,
-            description: repoDescription
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error : function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+function setRepoDescription(envId, repoDescription)
+{
+     $.ajax({
+            type: "POST",
+            url: "controllers/ajax.php",
+            data: {
+                action: "setRepoDescription",
+                envId: envId,
+                description: repoDescription
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'success');
+            },
+            error : function (jqXHR, ajaxOptions, thrownError) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'error');
+            },
+        });
 }
 
 /**
  *  Ajax : Récupération d'un formulaire d'opération
  *  @param {string} action
- *  @param {array} repos_array 
+ *  @param {array} repos_array
  */
- function getForm(action, repos_array) {
-    $.ajax({
-        type: "POST",
-        url: "controllers/ajax-operations.php",
-        data: {
-            action: "getForm",
-            operationAction: action,
-            repos_array: repos_array
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $("#operationsDiv").append(jsonValue.message);
-        },
-        error : function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+function getForm(action, repos_array)
+{
+     $.ajax({
+            type: "POST",
+            url: "controllers/ajax-operations.php",
+            data: {
+                action: "getForm",
+                operationAction: action,
+                repos_array: repos_array
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                $("#operationsDiv").append(jsonValue.message);
+            },
+            error : function (jqXHR, ajaxOptions, thrownError) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'error');
+            },
+        });
 }
 
 /**
  *  Ajax : Validation et exécution d'un formulaire d'opération
- *  @param {*} operation_params_json 
+ *  @param {*} operation_params_json
  */
-function validateExecuteForm(operation_params_json) {
-    $.ajax({
-        type: "POST",
-        url: "controllers/ajax-operations.php",
-        data: {
-            action: "validateForm",
-            operation_params: operation_params_json,
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
-             */
-            $("#newRepoDiv").hide();
-            $("#operationsDiv").hide();
-            reloadHeader();
-            printAlert(jsonValue.message, 'success');
-        },
-        error : function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+function validateExecuteForm(operation_params_json)
+{
+     $.ajax({
+            type: "POST",
+            url: "controllers/ajax-operations.php",
+            data: {
+                action: "validateForm",
+                operation_params: operation_params_json,
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+               /**
+                *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
+                */
+                $("#newRepoDiv").hide();
+                $("#operationsDiv").hide();
+                reloadHeader();
+                printAlert(jsonValue.message, 'success');
+            },
+            error : function (jqXHR, ajaxOptions, thrownError) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'error');
+            },
+        });
 }
 
 /**
  *  Ajax : Modifier les paramètres d'affichage de la liste des repos
- *  @param {string} printRepoSize 
- *  @param {string} printRepoType 
- *  @param {string} printRepoSignature 
- *  @param {string} cacheReposList 
+ *  @param {string} printRepoSize
+ *  @param {string} printRepoType
+ *  @param {string} printRepoSignature
+ *  @param {string} cacheReposList
  */
-function configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList) {
-    $.ajax({
-        type: "POST",
-        url: "controllers/ajax.php",
-        data: {
-            action: "configureReposListDisplay",
-            printRepoSize: printRepoSize,
-            printRepoType: printRepoType,
-            printRepoSignature: printRepoSignature,
-            cacheReposList: cacheReposList
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            reloadContentByClass('reposList');
-        },
-        error : function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
+function configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList)
+{
+     $.ajax({
+            type: "POST",
+            url: "controllers/ajax.php",
+            data: {
+                action: "configureReposListDisplay",
+                printRepoSize: printRepoSize,
+                printRepoType: printRepoType,
+                printRepoSignature: printRepoSignature,
+                cacheReposList: cacheReposList
+            },
+            dataType: "json",
+            success: function (data, textStatus, jqXHR) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'success');
+                reloadContentByClass('reposList');
+            },
+            error : function (jqXHR, ajaxOptions, thrownError) {
+                jsonValue = jQuery.parseJSON(jqXHR.responseText);
+                printAlert(jsonValue.message, 'error');
+            },
+        });
 }
-

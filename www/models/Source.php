@@ -1,9 +1,15 @@
 <?php
 
-class Source extends Model {
+namespace Models;
+
+use Exception;
+
+class Source extends Model
+{
     public $name;
 
-    public function __construct() {
+    public function __construct()
+    {
         /**
          *  Open a new database connection
          */
@@ -20,7 +26,7 @@ class Source extends Model {
         /**
          *  On vérifie que le nom du repo source ne contient pas de caractères invalides
          */
-        if (!Common::is_alphanumdash($name)) {
+        if (!Common::isAlphanumDash($name)) {
             throw new Exception('Le nom du repo source ne peut pas contenir de caractères spéciaux hormis le tiret - et l\'underscore _');
         }
 
@@ -33,7 +39,7 @@ class Source extends Model {
         /**
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
-        if (!Common::is_alphanumdash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
+        if (!Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
             throw new Exception('L\'URL du repo source contient des caractères invalides');
         }
         if (!preg_match('#^https?://#', $url)) {
@@ -44,7 +50,7 @@ class Source extends Model {
          *  Sur Redhat/Centos, on crée un fichier dans /etc/yum.repos.d/repomanager/
          */
         if (OS_FAMILY == "Redhat") {
-            if (file_exists(REPOMANAGER_YUM_DIR."/${name}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
                 throw new Exception("Un repo source <b>$name</b> existe déjà");
             }
 
@@ -63,7 +69,7 @@ class Source extends Model {
                 /**
                  *  Si la clé renseignée n'existe pas, on quitte
                  */
-                if (!file_exists(RPM_GPG_DIR."/$existingGpgKey")) {
+                if (!file_exists(RPM_GPG_DIR . "/$existingGpgKey")) {
                     throw new Exception('La clé GPG renseignée n\'existe pas');
                 }
 
@@ -80,9 +86,9 @@ class Source extends Model {
                 $gpgKeyURL = stripslashes($gpgKeyURL); // Suppression des anti-slash
 
                 /**
-                 *  Si l'URL contient des caractères invalide alors on quitte 
+                 *  Si l'URL contient des caractères invalide alors on quitte
                  */
-                if (!Common::is_alphanumdash($gpgKeyURL, array(':', '/', '.'))) {
+                if (!Common::isAlphanumDash($gpgKeyURL, array(':', '/', '.'))) {
                     throw new Exception('L\'URL de la clé GPG contient des caractères invalides');
                 }
 
@@ -103,7 +109,7 @@ class Source extends Model {
                  *  Si le 'pavé' de texte ASCII contient des caractères invalide alors on quitte
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
-                if (!Common::is_alphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+                if (!Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
                     throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
                 }
 
@@ -118,10 +124,10 @@ class Source extends Model {
                  *  On importe la clé gpg au format texte dans le répertoire par défaut où rpm stocke ses clés gpg importées (et dans un sous-répertoire repomanager)
                  */
                 $newGpgFile = "REPOMANAGER-RPM-GPG-KEY-${name}";
-                if (file_exists(RPM_GPG_DIR."/${newGpgFile}")) {
+                if (file_exists(RPM_GPG_DIR . "/${newGpgFile}")) {
                     throw new Exception("Un fichier GPG du même nom existe déjà dans le trousseau de repomanager");
                 } else {
-                    file_put_contents(RPM_GPG_DIR."/${newGpgFile}", $gpgKeyText); // ajout de la clé gpg à l'intérieur du fichier gpg
+                    file_put_contents(RPM_GPG_DIR . "/${newGpgFile}", $gpgKeyText); // ajout de la clé gpg à l'intérieur du fichier gpg
                 }
             }
 
@@ -136,45 +142,45 @@ class Source extends Model {
             /**
              *  On génère la conf qu'on va injecter dans le fichier de repo
              */
-            $newRepoFileConf  = "[$name]".PHP_EOL;
-            $newRepoFileConf .= 'enabled=1'.PHP_EOL;
-            $newRepoFileConf .= "name=Repo source $name sur ".WWW_HOSTNAME.PHP_EOL;
+            $newRepoFileConf  = "[$name]" . PHP_EOL;
+            $newRepoFileConf .= 'enabled=1' . PHP_EOL;
+            $newRepoFileConf .= "name=Repo source $name sur " . WWW_HOSTNAME . PHP_EOL;
 
             /**
              *  Forge l'url en fonction de son type (baseurl, mirrorlist...)
              */
-            $newRepoFileConf .= "${urlType}=${url}".PHP_EOL;
+            $newRepoFileConf .= "${urlType}=${url}" . PHP_EOL;
 
             /**
              *  Si on a renseigné une clé GPG alors on active gpgcheck
              */
             if (!empty($existingGpgKey) or !empty($gpgKeyURL) or !empty($gpgKeyText)) {
-                $newRepoFileConf .= "gpgcheck=1".PHP_EOL;
+                $newRepoFileConf .= "gpgcheck=1" . PHP_EOL;
             }
 
             /**
              *  On indique le chemin vers la clé GPG existante si indiqué
              */
             if (!empty($existingGpgKey)) {
-                $newRepoFileConf .= "gpgkey=file://".RPM_GPG_DIR."/${existingGpgKey}".PHP_EOL;
+                $newRepoFileConf .= "gpgkey=file://" . RPM_GPG_DIR . "/${existingGpgKey}" . PHP_EOL;
             }
             /**
              *  On indique l'url vers la clé GPG si indiqué
              */
             if (!empty($gpgKeyURL)) {
-                $newRepoFileConf .= "gpgkey=${gpgKeyURL}".PHP_EOL;
+                $newRepoFileConf .= "gpgkey=${gpgKeyURL}" . PHP_EOL;
             }
             /**
              *  On indique le chemin vers la clé GPG importée
              */
             if (!empty($gpgKeyText)) {
-                $newRepoFileConf .= "gpgkey=file://".RPM_GPG_DIR."/${newGpgFile}".PHP_EOL;
+                $newRepoFileConf .= "gpgkey=file://" . RPM_GPG_DIR . "/${newGpgFile}" . PHP_EOL;
             }
 
             /**
              *  Ecriture de la configuration dans le fichier de repo source
              */
-            file_put_contents(REPOMANAGER_YUM_DIR."/${name}.repo", $newRepoFileConf.PHP_EOL);
+            file_put_contents(REPOMANAGER_YUM_DIR . "/${name}.repo", $newRepoFileConf . PHP_EOL);
         }
 
 
@@ -189,7 +195,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("SELECT Name FROM Sources WHERE Name=:name");
                 $stmt->bindValue(':name', $name);
                 $result = $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
 
@@ -208,10 +214,10 @@ class Source extends Model {
                 $gpgKeyText = trim($gpgKeyText);
 
                 /**
-                 *  Si le 'pavé' de texte ASCII contient des caractères invalides alors on quitte 
+                 *  Si le 'pavé' de texte ASCII contient des caractères invalides alors on quitte
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
-                if (!Common::is_alphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+                if (!Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
                     throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
                 }
 
@@ -225,13 +231,13 @@ class Source extends Model {
                 /**
                  *  Création d'un fichier temporaire dans lequel on injecte la clé GPG à importer
                  */
-                $gpgTempFile = TEMP_DIR."/repomanager_newgpgkey.tmp";
+                $gpgTempFile = TEMP_DIR . "/repomanager_newgpgkey.tmp";
                 file_put_contents($gpgTempFile, $gpgKeyText);
 
                 /**
                  *  Import du fichier temporaire dans le trousseau de repomanager
                  */
-                exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --import $gpgTempFile", $output, $result);
+                exec("gpg --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --import $gpgTempFile", $output, $result);
 
                 /**
                  *  Suppression du fichier temporaire
@@ -242,8 +248,8 @@ class Source extends Model {
                  *  Si erreur lors de l'import, on affiche un message d'erreur
                  */
                 if ($result != 0) {
-                    throw new Exception("Erreur lors de l'import de la clé GPG");                    
-                }           
+                    throw new Exception("Erreur lors de l'import de la clé GPG");
+                }
             }
 
             try {
@@ -251,7 +257,7 @@ class Source extends Model {
                 $stmt->bindValue(':name', $name);
                 $stmt->bindValue(':url', $url);
                 $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -265,8 +271,8 @@ class Source extends Model {
         $name = Common::validateData($name);
 
         if (OS_FAMILY == "Redhat") {
-            if (file_exists(REPOMANAGER_YUM_DIR."/${name}.repo")) {
-                if (!unlink(REPOMANAGER_YUM_DIR."/${name}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
+                if (!unlink(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
                     throw new Exception("Erreur lors de la suppression du repo source <b>$name</b>");
                 }
             }
@@ -276,7 +282,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("DELETE FROM sources WHERE Name = :name");
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -300,10 +306,10 @@ class Source extends Model {
         /**
          *  On vérifie que le nom ainsi que le nouveau nom ne contiennent pas de caractères invalides
          */
-        if (Common::is_alphanumdash($name) === false) {
+        if (Common::isAlphanumDash($name) === false) {
             throw new Exception('Erreur : le nom du repo source contient des caractères invalides');
         }
-        if (Common::is_alphanumdash($newName) === false) {
+        if (Common::isAlphanumDash($newName) === false) {
             throw new Exception('Erreur : le nouveau nom du repo source contient des caractères invalides');
         }
 
@@ -314,21 +320,21 @@ class Source extends Model {
             /**
              *  Si un fichier portant le même nom que $newName existe déjà alors on ne peut pas renommer le fichier
              */
-            if (file_exists(REPOMANAGER_YUM_DIR."/${newName}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR . "/${newName}.repo")) {
                 throw new Exception("Erreur : un repo source du même nom <b>$newName<b> existe déjà");
             }
 
             /**
              *  Renommage
              */
-            if (file_exists(REPOMANAGER_YUM_DIR."/${name}.repo")) {
-                if (!rename(REPOMANAGER_YUM_DIR."/${name}.repo", REPOMANAGER_YUM_DIR."/${newName}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
+                if (!rename(REPOMANAGER_YUM_DIR . "/${name}.repo", REPOMANAGER_YUM_DIR . "/${newName}.repo")) {
                     throw new Exception('Impossible de renommer le repo source');
                 }
-                $content = file_get_contents(REPOMANAGER_YUM_DIR."/${newName}.repo");
+                $content = file_get_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo");
                 $content = str_replace("[$name]", "[$newName]", $content);
                 $content = str_replace("Repo source $name", "Repo source $newName", $content);
-                file_put_contents(REPOMANAGER_YUM_DIR."/${newName}.repo", $content);
+                file_put_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo", $content);
                 unset($content);
             }
         }
@@ -344,7 +350,7 @@ class Source extends Model {
                 $stmt = $this->db->prepare("SELECT Name FROM sources WHERE Name = :newname");
                 $stmt->bindValue(':newname', $newName);
                 $result = $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
             if ($this->db->isempty($result) === false) {
@@ -356,7 +362,7 @@ class Source extends Model {
                 $stmt->bindValue(':newname', $newName);
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Common::dbError($e);
             }
         }
@@ -379,7 +385,7 @@ class Source extends Model {
         /**
          *  On vérifie que l'url ne contient pas de caractères invalides
          */
-        if (Common::is_alphanumdash($url, array(':', '/', '.', '?', '&')) === false) {
+        if (Common::isAlphanumDash($url, array(':', '/', '.', '?', '&')) === false) {
             throw new Exception("L'URL saisie contient des caractères invalides");
         }
 
@@ -395,7 +401,7 @@ class Source extends Model {
             $stmt->bindValue(':url', $url);
             $stmt->bindValue(':name', $sourceName);
             $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
     }
@@ -406,12 +412,12 @@ class Source extends Model {
     public function configureSource(string $sourceName, array $options, string $comments = null)
     {
         $sourceName = Common::validateData($sourceName);
-        $sourceFile = REPOMANAGER_YUM_DIR."/${sourceName}.repo"; // Le fichier dans lequel on va écrire
+        $sourceFile = REPOMANAGER_YUM_DIR . "/${sourceName}.repo"; // Le fichier dans lequel on va écrire
 
         /**
          *  On initialise le contenu du fichier en mettant le nom du repo source en crochet (standard des fichiers .repo)
          */
-        $content = "[${sourceName}]".PHP_EOL;
+        $content = "[${sourceName}]" . PHP_EOL;
 
         foreach ($options as $option) {
             $optionName = Common::validateData($option['name']);
@@ -420,7 +426,7 @@ class Source extends Model {
             /**
              *  On vérifie que le nom de l'option est valide, càd qu'il ne contient pas de caractère spéciaux
              */
-            if (Common::is_alphanumdash($optionName) === false) {
+            if (Common::isAlphanumDash($optionName) === false) {
                 throw new Exception("Le paramètre <b>$optionName</b> contient des caractère invalides");
             }
 
@@ -428,32 +434,33 @@ class Source extends Model {
                 /**
                  *  Si le nom du paramètre est 'gpgcheck' ou 'enabled' ou pkg_gpgcheck ou etc... alors il faut set une valeur de 0, sinon on set la valeur à ''
                  */
-                if ($optionName == 'gpgcheck' OR
-                    $optionName == 'enabled' OR
-                    $optionName == 'pkg_gpgcheck' OR
-                    $optionName == 'sslverify' OR
-                    $optionName == 'repo_gpgcheck' OR
-                    $optionName == 'countme')
-                {
+                if (
+                    $optionName == 'gpgcheck' or
+                    $optionName == 'enabled' or
+                    $optionName == 'pkg_gpgcheck' or
+                    $optionName == 'sslverify' or
+                    $optionName == 'repo_gpgcheck' or
+                    $optionName == 'countme'
+                ) {
                     $optionValue = '0';
                 }
 
                 if ($optionName == 'autorefresh') {
                     $optionValue = 'no';
                 }
-
             } elseif (!empty($optionValue)) {
                 /**
                  *  Si le nom du paramètre est 'gpgcheck' ou 'enabled' ou pkg_gpgcheck ou etc... alors sa valeur ne peut être que '1' ou '0'
                  *  Si la valeur est non-vide et qu'elle vaut 'yes' alors on la set à '1' conformément à la syntaxe des fichiers .repo, sinon dans tous les autres cas on la set à '0' (fait plus haut)
                  */
-                if ($optionName == 'gpgcheck' OR
-                    $optionName == 'enabled' OR
-                    $optionName == 'pkg_gpgcheck' OR
-                    $optionName == 'sslverify' OR
-                    $optionName == 'repo_gpgcheck' OR
-                    $optionName == 'countme')
-                {
+                if (
+                    $optionName == 'gpgcheck' or
+                    $optionName == 'enabled' or
+                    $optionName == 'pkg_gpgcheck' or
+                    $optionName == 'sslverify' or
+                    $optionName == 'repo_gpgcheck' or
+                    $optionName == 'countme'
+                ) {
                     $optionValue = '1';
                 }
 
@@ -464,7 +471,7 @@ class Source extends Model {
                 if ($optionName == 'baseurl' or $optionName == 'mirrorlist' or $optionName == 'metalink') {
                     $optionValue = trim($optionValue);          // Suppression des espaces si il y en a (ça ne devrait pas)
                     $optionValue = stripslashes($optionValue);  // Suppression des anti-slash
-                    if (Common::is_alphanumdash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
+                    if (Common::isAlphanumDash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -483,7 +490,7 @@ class Source extends Model {
                     /**
                      *  La clé gpg peut être un fichier ou une url, donc on accepte certains caractères
                      */
-                    if (Common::is_alphanumdash($optionValue, array(':', '/', '.')) === false) {
+                    if (Common::isAlphanumDash($optionValue, array(':', '/', '.')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -492,7 +499,7 @@ class Source extends Model {
                     if (!preg_match('#^https?://#', $optionValue) and !preg_match('/^file:\/\/\//', $optionValue)) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> doit commencer par http(s):// ou file:///");
                     }
-                
+
                 /**
                  *  Paramètre metadata_expire
                  */
@@ -530,7 +537,7 @@ class Source extends Model {
                  *  Tous les autres types paramètres
                  */
                 } else {
-                    if (Common::is_alphanumdash($optionValue, array('.', ' ', ':', '/', '&', '?', '=')) === false) {
+                    if (Common::isAlphanumDash($optionValue, array('.', ' ', ':', '/', '&', '?', '=')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -555,14 +562,14 @@ class Source extends Model {
         if (!empty($comments)) {
             $comments = explode(PHP_EOL, Common::validateData($comments));
             foreach ($comments as $comment) {
-                $content .= "#".$comment.PHP_EOL;
+                $content .= "#" . $comment . PHP_EOL;
             }
         }
 
         /**
          *  Enfin, on écrit le contenu dans le fichier .repo
          */
-        file_put_contents(REPOMANAGER_YUM_DIR."/${sourceName}.repo", $content);
+        file_put_contents(REPOMANAGER_YUM_DIR . "/${sourceName}.repo", $content);
 
         unset($content);
     }
@@ -587,24 +594,24 @@ class Source extends Model {
          *  La clé GPG est située un fichier dans /etc/pki/rpm-gpg/repomanager/
          */
         if (OS_FAMILY == "Redhat") {
-            if (!file_exists('/etc/pki/rpm-gpg/repomanager/'.$gpgkey)) {
-                throw new Exception("La clé GPG <b>".$gpgkey."</b> n'existe pas");
+            if (!file_exists('/etc/pki/rpm-gpg/repomanager/' . $gpgkey)) {
+                throw new Exception("La clé GPG <b>" . $gpgkey . "</b> n'existe pas");
             }
 
-            if (!unlink('/etc/pki/rpm-gpg/repomanager/'.$gpgkey)) {
-                throw new Exception("Impossible de supprimer la clé GPG <b>".$gpgkey."</b>");
+            if (!unlink('/etc/pki/rpm-gpg/repomanager/' . $gpgkey)) {
+                throw new Exception("Impossible de supprimer la clé GPG <b>" . $gpgkey . "</b>");
             }
         }
 
         /**
          *  Cas Debian
-         *  La clé GPG est présente dans le trousseau gpg 
+         *  La clé GPG est présente dans le trousseau gpg
          */
         if (OS_FAMILY == "Debian") {
             /**
              *  On supprime la clé du trousseau, à partir de son ID
              */
-            exec("gpg --no-default-keyring --keyring ".GPGHOME."/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgkey", $output, $result);
+            exec("gpg --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgkey", $output, $result);
             if ($result != 0) {
                 throw new Exception("Erreur lors de la suppression de la clé GPG <b>$gpgkey</b>");
             }
@@ -622,11 +629,13 @@ class Source extends Model {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
             $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Common::dbError($e);
         }
 
-        if ($this->db->isempty($result)) return false;
+        if ($this->db->isempty($result)) {
+            return false;
+        }
 
         return true;
     }
@@ -638,9 +647,12 @@ class Source extends Model {
     {
         $query = $this->db->query("SELECT * FROM sources");
 
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) $sources[] = $datas;
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
+            $sources[] = $datas;
+        }
 
-        if (!empty($sources)) return $sources;
+        if (!empty($sources)) {
+            return $sources;
+        }
     }
 }
-?>
