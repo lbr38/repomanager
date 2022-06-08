@@ -1437,12 +1437,16 @@ class Host extends Model
      */
     public function getHostsNotMembersOfAnyGroup()
     {
-        $result = $this->db->query("SELECT
-        hosts.Id,
-        hosts.Hostname,
-        hosts.Ip
-        FROM hosts
-        WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");
+        try {
+            $result = $this->db->query("SELECT
+            hosts.Id,
+            hosts.Hostname,
+            hosts.Ip
+            FROM hosts
+            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
 
         $hosts = array();
 
@@ -1537,14 +1541,35 @@ class Host extends Model
     {
         $hosts = array();
 
-        $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
-        $stmt->bindValue(':profile', $profile);
-        $result = $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
+            $stmt->bindValue(':profile', $profile);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $hosts[] = $row;
         }
 
         return count($hosts);
+    }
+
+    /**
+     *  Mise à jour du status de l'agent en base de données
+     */
+    public function setAgentStatus(string $id, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :hostId");
+            $stmt->bindValue(':onlineStatus', $status);
+            $stmt->bindValue(':onlineStatusDate', date('Y-m-d'));
+            $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
+            $stmt->bindValue(':hostId', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
     }
 }

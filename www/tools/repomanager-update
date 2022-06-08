@@ -46,20 +46,24 @@ fi
 cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
 
 ## Création des répertories cibles si n'existent pas
-mkdir -p ${WWW_DIR}/public
-mkdir -p ${WWW_DIR}/ressources
-mkdir -p ${WWW_DIR}/tools
-mkdir -p ${WWW_DIR}/templates
-mkdir -p ${WWW_DIR}/api
-mkdir -p ${WWW_DIR}/db
+mkdir -p "${WWW_DIR}/public"
+mkdir -p "${WWW_DIR}/ressources"
+mkdir -p "${WWW_DIR}/tools"
+mkdir -p "${WWW_DIR}/templates"
+mkdir -p "${WWW_DIR}/api"
+mkdir -p "${WWW_DIR}/db"
 
 # Copie des fichiers au bon endroit
 # Copie de tous les fichiers
 rsync -a --quiet ./ ${WWW_DIR}/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+if [ $? -ne "0" ];then
+    (( UPDATE_ERROR++ ))
+fi
 # Seconde copie des fichiers .php uniquement en supprimant ceux inutilisés
 rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
-if [ $? -ne "0" ];then (( UPDATE_ERROR++ )); fi
+if [ $? -ne "0" ];then
+    (( UPDATE_ERROR++ ))
+fi
 
 # Remise en place des configurations sauvegardées
 \cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/ressources/styles/colors.php
@@ -101,6 +105,6 @@ rm -f "${WWW_DIR}/configurations/envs.conf"
 rm -f "${WWW_DIR}/configurations/display.ini"
 
 # Suppression du répertoire de mise à jour
-rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf
+rm "/tmp/repomanager-update_${GITHUB_VERSION}/" -rf
 
 exit 0

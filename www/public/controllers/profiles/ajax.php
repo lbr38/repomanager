@@ -16,9 +16,9 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
          */
         if (
             $_POST['action'] == "applyServerConfiguration"
-            and !empty($_POST['serverOsFamily'])
-            and !empty($_POST['serverOsName'])
-            and !empty($_POST['serverOsVersion'])
+            // and !empty($_POST['serverOsFamily'])
+            // and !empty($_POST['serverOsName'])
+            // and !empty($_POST['serverOsVersion'])
             and !empty($_POST['serverPackageType'])
             and !empty($_POST['serverManageClientConf'])
             and !empty($_POST['serverManageClientRepos'])
@@ -26,19 +26,19 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Récupération des paramètres envoyés
              */
-            $serverOsFamily = $_POST['serverOsFamily'];
-            $serverOsName = $_POST['serverOsName'];
-            $serverOsId = OS_ID;
-            $serverOsVersion = $_POST['serverOsVersion'];
+            // $serverOsFamily = $_POST['serverOsFamily'];
+            // $serverOsName = $_POST['serverOsName'];
+            // $serverOsId = OS_ID;
+            // $serverOsVersion = $_POST['serverOsVersion'];
             $serverPackageType = $_POST['serverPackageType'];
             /**
              *  Ce paramètre peut être vide dans la cas où le formulaire est validé sur un serveur Debian
              */
-            if (!empty($_POST['serverPackageOsVersion'])) {
-                $serverPackageOsVersion = $_POST['serverPackageOsVersion'];
-            } else {
-                $serverPackageOsVersion = '';
-            }
+            // if (!empty($_POST['serverPackageOsVersion'])) {
+            //     $serverPackageOsVersion = $_POST['serverPackageOsVersion'];
+            // } else {
+            //     $serverPackageOsVersion = '';
+            // }
             $serverManageClientConf = $_POST['serverManageClientConf'];
             $serverManageClientRepos = $_POST['serverManageClientRepos'];
 
@@ -51,7 +51,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
              *  Tentative de création du nouveau profil
              */
             try {
-                $myprofile->setServerConfiguration($serverOsFamily, $serverOsName, $serverOsId, $serverOsVersion, $serverPackageType, $serverPackageOsVersion, $serverManageClientConf, $serverManageClientRepos);
+                //$myprofile->setServerConfiguration($serverOsFamily, $serverOsName, $serverOsId, $serverOsVersion, $serverPackageType, $serverPackageOsVersion, $serverManageClientConf, $serverManageClientRepos);
+                $myprofile->setServerConfiguration($serverPackageType, $serverManageClientConf, $serverManageClientRepos);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }

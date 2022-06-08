@@ -500,7 +500,7 @@ class Repo
      *  Retourne la liste des repos, leurs snapshots et leur environnements
      *  N'affiche pas les repos qui n'ont aucun environnement actif
      */
-    public function listWithEnv()
+    public function list()
     {
         return $this->model->list();
     }

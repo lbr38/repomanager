@@ -370,6 +370,32 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                             } else {
                                                 $arch = 'unknow';
                                             }
+                                            /**
+                                             *  On défini le status de l'agent
+                                             *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
+                                             */
+                                            if ($host['Online_status'] == "running") {
+                                                $agentStatus = 'running';
+                                            }
+                                            if ($host['Online_status'] == "disabled") {
+                                                $agentStatus = 'disabled';
+                                            }
+                                            if ($host['Online_status'] == "stopped") {
+                                                $agentStatus = 'stopped';
+                                            }
+                                            if ($host['Online_status'] == "unknow") {
+                                                $agentStatus = 'unknow';
+                                            }
+                                            /**
+                                             *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h
+                                             */
+                                            if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 60 minutes'))) {
+                                                $agentStatus = 'seems-stopped';
+                                            }
+                                            /**
+                                             *  Message du dernier état connu
+                                             */
+                                            $agentLastSendStatusMsg = 'état au ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' à ' . $host['Online_status_time'];
 
                                             /**
                                              *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
@@ -415,14 +441,20 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                                  *  Status ping
                                                  */
                                                 echo '<td class="td-fit">';
-                                            if ($host['Online_status'] == "online") {
-                                                echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne" />';
+                                            if ($agentStatus == 'running') {
+                                                echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." />';
                                             }
-                                            if ($host['Online_status'] == "unknown") {
-                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />';
+                                            if ($agentStatus == "disabled") {
+                                                echo '<img src="ressources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." />';
                                             }
-                                            if ($host['Online_status'] == "unreachable") {
-                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable" />';
+                                            if ($agentStatus == "stopped") {
+                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." />';
+                                            }
+                                            if ($agentStatus == "seems-stopped") {
+                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." />';
+                                            }
+                                            if ($agentStatus == "unknow") {
+                                                echo '<img src="ressources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." />';
                                             }
                                                 echo '</td>';
 
@@ -445,9 +477,11 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                                 <td class="hostType-td td-10 lowopacity">
                                                     <span title="Type <?=$type?>"><?=$type?></span>
                                                 </td>
+
                                                 <td class="packagesCount-td" title="<?=$packagesInstalledTotal . ' paquet(s) installé(s) sur cet hôte'?>">
-                                                    <span><?=$packagesInstalledTotal?></span>
-                                                </td>                                           
+                                                    <span><?= $packagesInstalledTotal ?></span>
+                                                </td>
+
                                                 <td class="packagesCount-td" title="<?=$packagesAvailableTotal . ' mise(s) à jour disponible(s) sur cet hôte'?>">
                                                     <?php
                                                     if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
@@ -458,14 +492,17 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                                         echo '<span>' . $packagesAvailableTotal . '</span>';
                                                     } ?>
                                                 </td>
+
                                                 <td class="hostDetails-td" title="Voir les détails de cet hôte">
                                                     <span class="printHostDetails pointer" host_id="<?=$id?>">Détails</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="ressources/icons/external-link.png" class="icon-lowopacity" /></a>
                                                 </td>
-                                                <?php if (\Models\Common::isadmin()) { ?>
+
+                                                <?php if (\Models\Common::isadmin()) : ?>
                                                     <td class="td-fit" title="Sélectionner <?=$hostname?>">
                                                         <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$groupName?>" value="<?=$id?>">
                                                     </td>
-                                                <?php } ?>
+                                                <?php endif ?>
+
                                                 <td class="host-update-status td-10">
                                                     <?php
                                                     /**

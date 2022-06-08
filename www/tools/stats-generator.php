@@ -9,16 +9,24 @@ define('ROOT', dirname(__FILE__, 2));
 require_once(ROOT . '/controllers/Autoloader.php');
 \Controllers\Autoloader::loadFromApi();
 
-$repo = new \Controllers\Repo();
+$myrepo = new \Controllers\Repo();
 
 if (CRON_STATS_ENABLED == "yes") {
     /**
      *  On récupère toute la liste des repos actifs ayant au moins 1 environnement actif
      */
-    $reposList = $repo->listWithEnv();
+    $reposList = $myrepo->list();
 
     if (!empty($reposList)) {
         foreach ($reposList as $repo) {
+            /**
+             *  Si le snapshot de repo n'a aucun env rattaché alors on passe au suivant, car les
+             *  statistiques ne concernent que les environnements de snapshots
+             */
+            if (empty($repo['envId'])) {
+                continue;
+            }
+
             $repoId = $repo['repoId'];
             $snapId = $repo['snapId'];
             $envId = $repo['envId'];
@@ -28,8 +36,8 @@ if (CRON_STATS_ENABLED == "yes") {
             $repoEnv = $repo['Env'];
             $repoPackage_type = $repo['Package_type'];
 
-            if ($repoPackage_type == "rpm") {
-                if (file_exists(REPOS_DIR . "/${repoName}_${repoEnv}")) {
+            if ($repoPackage_type == 'rpm') {
+                if (file_exists(REPOS_DIR . '/' . $repoName . '_' . $repoEnv)) {
                     /**
                      *  Calcul de la taille du repo
                      */
@@ -42,7 +50,7 @@ if (CRON_STATS_ENABLED == "yes") {
                 }
             }
 
-            if ($repoPackage_type == "deb") {
+            if ($repoPackage_type == 'deb') {
                 if (file_exists(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $repoSection . '_' . $repoEnv)) {
                     /**
                      *  Calcul de la taille de la section
@@ -79,5 +87,7 @@ if (CRON_STATS_ENABLED == "yes") {
     }
 }
 
-// Vérification des erreurs et ajout dans le fichier de log
+/**
+ *  Vérification des erreurs et ajout dans le fichier de log
+ */
 file_put_contents(CRON_STATS_LOG, 'Status="OK"' . PHP_EOL);

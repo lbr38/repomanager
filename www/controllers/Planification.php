@@ -993,8 +993,11 @@ class Planification
             /**
              *  On met à jour l'Id du snapshot si celui-ci a changé (e.g. la planification a créé un nouveau snapshot à la date du jour)
              *  Cela permet à la planification de toujours mettre à jour le dernier snapshot en date
+             *  On fait cela dans le cas d'une mise à jour sur un repo (et pas sur un groupe)
              */
-            $this->model->setSnapId($this->id, $this->repo->getSnapId());
+            if (empty($this->group->getName())) {
+                $this->model->setSnapId($this->id, $this->repo->getSnapId());
+            }
         }
 
         /**
@@ -1005,18 +1008,18 @@ class Planification
             echo '<span class="redtext">' . $plan_msg_error . '</span>';
             echo '<p><b>Détails de la planification :</b></p>';
             echo '<table>';
-            echo '<tr><td><b>Action : </b></td><td>' . $this->op->getAction() . '</td></tr>';
-            if (!empty($this->op->group->getName())) {
-                echo "<tr><td><b>Groupe : </b></td><td>" . $this->op->group->getName() . "</td></tr>";
+            echo '<tr><td><b>Action : </b></td><td>' . $this->action . '</td></tr>';
+            if (!empty($this->group->getName())) {
+                echo "<tr><td><b>Groupe : </b></td><td>" . $this->group->getName() . "</td></tr>";
             }
-            if (!empty($this->op->repo->getName())) {
-                echo "<tr><td><b>Repo : </b></td><td>" . $this->op->repo->getName() . "</td></tr>";
+            if (!empty($this->repo->getName())) {
+                echo "<tr><td><b>Repo : </b></td><td>" . $this->repo->getName() . "</td></tr>";
             }
-            if (!empty($this->op->repo->getDist())) {
-                echo "<tr><td><b>Dist : </b></td><td>" . $this->op->repo->getDist() . "</td></tr>";
+            if (!empty($this->repo->getDist())) {
+                echo "<tr><td><b>Dist : </b></td><td>" . $this->repo->getDist() . "</td></tr>";
             }
-            if (!empty($this->op->repo->getSection())) {
-                echo "<tr><td><b>Section : </b></td><td>" . $this->op->repo->getSection() . "</td></tr>";
+            if (!empty($this->repo->getSection())) {
+                echo "<tr><td><b>Section : </b></td><td>" . $this->repo->getSection() . "</td></tr>";
             }
             echo '</table>';
         }
@@ -1105,7 +1108,7 @@ class Planification
             if ($this->action == 'update') {
                 $msg_processed_repos .= 'mise à jour';
             } //else {
-            //     $msg_processed_repos .= "pointage de l'env ".$this->op->getAction();
+            //     $msg_processed_repos .= "pointage de l'env ".$this->action;
             // }
 
             $msg_processed_repos .= '<br><br><b>Repos traités :</b><br>';

@@ -442,10 +442,10 @@ class Connection extends SQLite3
          *  Crée la table profile_settings si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
-        Os_family VARCHAR(255),
-        Os_name VARCHAR(255),
+        /*Os_family VARCHAR(255),*/
+        /*Os_name VARCHAR(255),
         Os_id VARCHAR(255),
-        Os_version VARCHAR(255),
+        Os_version VARCHAR(255), */
         Package_type VARCHAR(255),
         Package_os_version VARCHAR(255),
         Manage_client_conf CHAR(3),
@@ -594,9 +594,9 @@ class Connection extends SQLite3
         Env VARCHAR(255),
         AuthId VARCHAR(255),
         Token VARCHAR(255),
-        Online_status VARCHAR(11),
-        Online_status_date,
-        Online_status_time,
+        Online_status CHAR(8),
+        Online_status_date DATE,
+        Online_status_time TIME,
         Status VARCHAR(8) NOT NULL)");
 
         /**
@@ -612,7 +612,7 @@ class Connection extends SQLite3
         $this->exec("CREATE TABLE IF NOT EXISTS group_members (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Id_host INTEGER NOT NULL,
-        Id_group INTEGER NOT NULL);");
+        Id_group INTEGER NOT NULL)");
 
         /**
          *  Crée la table settings si n'existe pas
