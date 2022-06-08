@@ -109,7 +109,11 @@ class Profile extends Model
      */
     public function getServerConfiguration()
     {
-        $result = $this->db->query("SELECT * FROM profile_settings");
+        try {
+            $result = $this->db->query("SELECT * FROM profile_settings");
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
 
         /**
          *  Une première partie de la configuration concerne l'adresse IP et l'url du serveur qu'on peut obtenir à partir de constantes
@@ -129,18 +133,28 @@ class Profile extends Model
     /**
      *  Modifie la configuration générale du serveur pour la gestion des profils
      */
-    public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion, string $serverManageClientConf, string $serverManageClientRepos)
+    // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion, string $serverManageClientConf, string $serverManageClientRepos)
+    public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
-        $stmt = $this->db->prepare("UPDATE profile_settings SET Os_family = :osFamily , Os_name = :osName, Os_id = :osId, Os_version = :osVersion, Package_type = :packageType, Package_os_version = :packageOsVersion, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
-        $stmt->bindValue(':osFamily', $serverOsFamily);
-        $stmt->bindValue(':osName', $serverOsName);
-        $stmt->bindValue(':osId', $serverOsId);
-        $stmt->bindValue(':osVersion', $serverOsVersion);
-        $stmt->bindValue(':packageType', $serverPackageType);
-        $stmt->bindValue(':packageOsVersion', $serverPackageOsVersion);
-        $stmt->bindValue(':manageClientConf', $serverManageClientConf);
-        $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
-        $stmt->execute();
+        // $stmt = $this->db->prepare("UPDATE profile_settings SET Os_family = :osFamily , Os_name = :osName, Os_id = :osId, Os_version = :osVersion, Package_type = :packageType, Package_os_version = :packageOsVersion, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
+        // $stmt->bindValue(':osFamily', $serverOsFamily);
+        // $stmt->bindValue(':osName', $serverOsName);
+        // $stmt->bindValue(':osId', $serverOsId);
+        // $stmt->bindValue(':osVersion', $serverOsVersion);
+        // $stmt->bindValue(':packageType', $serverPackageType);
+        // $stmt->bindValue(':packageOsVersion', $serverPackageOsVersion);
+        // $stmt->bindValue(':manageClientConf', $serverManageClientConf);
+        // $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
+        // $stmt->execute();
+        try {
+            $stmt = $this->db->prepare("UPDATE profile_settings SET Package_type = :packageType, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
+            $stmt->bindValue(':packageType', $serverPackageType);
+            $stmt->bindValue(':manageClientConf', $serverManageClientConf);
+            $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Models\Common::dbError($e);
+        }
     }
 
     /**

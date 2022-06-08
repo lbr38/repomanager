@@ -121,14 +121,15 @@ class Profile
     /**
      *  Modifie la configuration générale du serveur pour la gestion des profils
      */
-    public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion = null, string $serverManageClientConf, string $serverManageClientRepos)
+    // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion = null, string $serverManageClientConf, string $serverManageClientRepos)
+    public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
-        $serverOsFamily = \Models\Common::validateData($serverOsFamily);
-        $serverOsName = \Models\Common::validateData($serverOsName);
-        $serverOsId = \Models\Common::validateData($serverOsId);
-        $serverOsVersion = \Models\Common::validateData($serverOsVersion);
+        // $serverOsFamily = \Models\Common::validateData($serverOsFamily);
+        // $serverOsName = \Models\Common::validateData($serverOsName);
+        // $serverOsId = \Models\Common::validateData($serverOsId);
+        // $serverOsVersion = \Models\Common::validateData($serverOsVersion);
         $serverPackageType = \Models\Common::validateData($serverPackageType);
-        $serverPackageOsVersion = \Models\Common::validateData($serverPackageOsVersion);
+        // $serverPackageOsVersion = \Models\Common::validateData($serverPackageOsVersion);
 
         if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
             throw new Exception("Le paramètre 'Gérer la configuration des clients' est invalide");
@@ -137,7 +138,8 @@ class Profile
             throw new Exception("Le paramètre 'Gérer la configuration des repos clients' est invalide");
         }
 
-        $this->model->setServerConfiguration($serverOsFamily, $serverOsName, $serverOsId, $serverOsVersion, $serverPackageType, $serverPackageOsVersion, $serverManageClientConf, $serverManageClientRepos);
+        // $this->model->setServerConfiguration($serverOsFamily, $serverOsName, $serverOsId, $serverOsVersion, $serverPackageType, $serverPackageOsVersion, $serverManageClientConf, $serverManageClientRepos);
+        $this->model->setServerConfiguration($serverPackageType, $serverManageClientConf, $serverManageClientRepos);
     }
 
     /**

@@ -756,7 +756,7 @@ function renameGroup(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "controllers/groups/ajax.php",
         data: {
             action: "renameGroup",
             name: name,

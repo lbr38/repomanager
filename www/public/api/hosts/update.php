@@ -161,6 +161,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         }
 
         /**
+         *  Si le status de l'agent a été transmis
+         */
+        if (!empty($datas->agent_status)) {
+            try {
+                $myhost->setAgentStatus($datas->agent_status);
+                $message_success[] = "Mise à jour du status de l'agent effectuée.";
+            } catch (\Exception $e) {
+                $message_error[] = $e->getMessage();
+            }
+        }
+
+        /**
          *  Si les noms des paquets installés sur l'hôte (inventaire) ont été transmis alors on le met à jour en BDD
          */
         if (!empty($datas->installed_packages)) {

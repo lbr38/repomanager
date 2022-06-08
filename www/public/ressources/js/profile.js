@@ -111,11 +111,11 @@ $(document).on('click','.profileConfigurationBtn',function () {
 $(document).on('submit','#applyServerConfigurationForm',function () {
     event.preventDefault();
 
-    var serverOsFamily = $('#serverOsFamilyInput').val();
-    var serverOsName = $('#serverOsNameInput').val();
-    var serverOsVersion = $('#serverOsVersionInput').val();
+    // var serverOsFamily = $('#serverOsFamilyInput').val();
+    // var serverOsName = $('#serverOsNameInput').val();
+    // var serverOsVersion = $('#serverOsVersionInput').val();
     var serverPackageType = $('#serverPackageTypeInput').val();
-    var serverPackageOsVersion = $('#serverPackageOsVersionInput').val();
+    // var serverPackageOsVersion = $('#serverPackageOsVersionInput').val();
     var repoConfPrefix = $('#repoConfPrefix').val();
 
     if ($('#serverManageClientConf').is(':checked')) {
@@ -130,7 +130,8 @@ $(document).on('submit','#applyServerConfigurationForm',function () {
         var serverManageClientRepos = 'no';
     }
 
-    applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
+    // applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
+    applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
 
     return false;
 });
@@ -174,18 +175,19 @@ $(document).on('submit','.profileConfigurationForm',function () {
 /**
  * Ajax: Modifier la configuration serveur
  */
-function applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
+// function applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
+function applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
 {
     $.ajax({
         type: "POST",
         url: "controllers/profiles/ajax.php",
         data: {
             action: "applyServerConfiguration",
-            serverOsFamily: serverOsFamily,
-            serverOsName: serverOsName,
-            serverOsVersion: serverOsVersion,
+            // serverOsFamily: serverOsFamily,
+            // serverOsName: serverOsName,
+            // serverOsVersion: serverOsVersion,
             serverPackageType: serverPackageType,
-            serverPackageOsVersion: serverPackageOsVersion,
+            // serverPackageOsVersion: serverPackageOsVersion,
             serverManageClientConf: serverManageClientConf,
             serverManageClientRepos: serverManageClientRepos,
             repoConfPrefix: repoConfPrefix

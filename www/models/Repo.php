@@ -869,6 +869,47 @@ class Repo extends Model
     }
 
     /**
+     *  Retourne la liste des repos actifs, càd ayant au moins 1 snapshot actif, et leur environnement si il y en a
+     */
+    public function list()
+    {
+        try {
+            $result = $this->db->query("SELECT
+            repos.Id AS repoId,
+            repos_snap.Id AS snapId,
+            repos_env.Id AS envId,
+            repos.Name,
+            repos.Dist,
+            repos.Section,
+            repos.Source,
+            repos.Package_type,
+            repos_env.Env,
+            repos_snap.Date,
+            repos_snap.Time,
+            repos_snap.Signed,
+            repos_snap.Type,
+            repos_env.Description
+            FROM repos 
+            LEFT JOIN repos_snap
+                ON repos.Id = repos_snap.Id_repo
+            LEFT JOIN repos_env 
+                ON repos_snap.Id = repos_env.Id_snap
+            WHERE repos_snap.Status = 'active'
+            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        $repos = array();
+
+        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
+            $repos[] = $datas;
+        }
+
+        return $repos;
+    }
+
+    /**
      *  Retourne la liste des repos, leurs snapshots et leur environnements
      *  N'affiche pas les repos qui n'ont aucun environnement actif
      */
