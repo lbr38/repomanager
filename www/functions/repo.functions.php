@@ -27,7 +27,6 @@ function processList(array $reposList)
     $lastSnapId = '';
 
     foreach ($reposList as $repoArray) {
-        // echo '<div class="repos-list-group-flex-div repos-list-type-' . strtolower(OS_FAMILY) . '" status="' . $repoStatus . '">';
         echo '<div class="repos-list-group-flex-div repos-list-type-' . strtolower(OS_FAMILY) . '">';
 
         foreach ($repoArray as $repo) {
@@ -35,6 +34,7 @@ function processList(array $reposList)
             $snapId     = $repo['snapId'];
             $repoName   = $repo['Name'];
             $repoSource = $repo['Source'];
+            $repoReconstruct = $repo['Reconstruct'];
             $repoStatus = $repo['Status'];
             $repoPackageType = $repo['Package_type'];
             if ($repoPackageType == 'deb') {
@@ -65,10 +65,10 @@ function processList(array $reposList)
              *  On transmets ces infos à la fonction printRepoLine qui va se charger d'afficher la ligne du repo
              */
             if ($repoPackageType == 'rpm') {
-                printRepoLine(compact('repoId', 'snapId', 'envId', 'repoPackageType', 'repoName', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoStatus', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'lastSnapId'));
+                printRepoLine(compact('repoId', 'snapId', 'envId', 'repoPackageType', 'repoName', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoStatus', 'repoReconstruct', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'lastSnapId'));
             }
             if ($repoPackageType == 'deb') {
-                printRepoLine(compact('repoId', 'snapId', 'envId', 'repoPackageType', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoStatus', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection', 'lastSnapId'));
+                printRepoLine(compact('repoId', 'snapId', 'envId', 'repoPackageType', 'repoName', 'repoDist', 'repoSection', 'repoSource', 'repoEnv', 'repoDate', 'repoTime', 'repoReconstruct', 'repoStatus', 'repoDescription', 'repoType', 'repoSigned', 'repoLastName', 'repoLastDist', 'repoLastSection', 'lastSnapId'));
             }
 
             if (!empty($repoName)) {
@@ -108,17 +108,12 @@ function printRepoLine($repoData = [])
     $printRepoSection = 'yes';
     $printRepoEnv = 'yes';
     $printEmptyLine = 'no';
-    $mustReconstruct = 'no';
 
     if (OS_FAMILY == 'Redhat') {
         $repoPath = REPOS_DIR . '/' . $repoDate . '_' . $repoName;
     }
     if (OS_FAMILY == 'Debian') {
         $repoPath = REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $repoDate . '_' . $repoSection;
-    }
-
-    if (is_dir($repoPath . '/my_uploaded_packages') and !Models\Common::dirIsEmpty($repoPath . '/my_uploaded_packages')) {
-        $mustReconstruct = 'yes';
     }
 
     /**
@@ -216,45 +211,51 @@ function printRepoLine($repoData = [])
             echo '<span>' . $repoDate . '</span>';
         echo '</div>';
 
-        echo '<div class="item-info lowopacity">';
+        echo '<div class="item-info">';
         if (PRINT_REPO_SIZE == "yes") {
-            echo '<span>' . $repoSize . '</span>';
+            echo '<span class="lowopacity">' . $repoSize . '</span>';
         }
-        if ($mustReconstruct == 'yes') {
-            echo '<img class="icon" src="ressources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
-        }
-            /**
-             *  Affichage de l'icone du type de repo (miroir ou local)
-             */
+
+        /**
+         *  Affichage de l'icone du type de repo (miroir ou local)
+         */
         if (PRINT_REPO_TYPE == 'yes') {
             if ($repoType == "mirror") {
-                echo "<img class=\"icon\" src=\"ressources/icons/world.png\" title=\"Type : miroir (source : $repoSource)\" />";
+                echo "<img class=\"icon lowopacity\" src=\"ressources/icons/world.png\" title=\"Type : miroir (source : $repoSource)\" />";
             } elseif ($repoType == "local") {
-                echo '<img class="icon" src="ressources/icons/pin.png" title="Type : local" />';
+                echo '<img class="icon lowopacity" src="ressources/icons/pin.png" title="Type : local" />';
             } else {
-                echo '<img class="icon" src="ressources/icons/unknow.png" title="Type : inconnu" />';
+                echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Type : inconnu" />';
             }
         }
-            /**
-             *  Affichage de l'icone de signature GPG du repo
-             */
+        /**
+         *  Affichage de l'icone de signature GPG du repo
+         */
         if (PRINT_REPO_SIGNATURE == 'yes') {
             if ($repoSigned == "yes") {
-                echo '<img class="icon" src="ressources/icons/key.png" title="Repo signé avec GPG" />';
+                echo '<img class="icon lowopacity" src="ressources/icons/key.png" title="Repo signé avec GPG" />';
             } elseif ($repoSigned == "no") {
-                echo '<img class="icon" src="ressources/icons/key2.png" title="Repo non-signé avec GPG" />';
+                echo '<img class="icon lowopacity" src="ressources/icons/key2.png" title="Repo non-signé avec GPG" />';
             } else {
-                echo '<img class="icon" src="ressources/icons/unknow.png" title="Signature GPG : inconnue" />';
+                echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Signature GPG : inconnue" />';
             }
         }
-            /**
-             *  Affichage de l'icone "explorer"
-             */
+        /**
+         *  Affichage de l'icone "explorer"
+         */
         if (OS_FAMILY == "Redhat") {
-            echo "<a href=\"explore.php?id=${snapId}\"><img class=\"icon\" src=\"ressources/icons/search.png\" title=\"Explorer le repo $repoName ($repoDate)\" /></a>";
+            echo "<a href=\"explore.php?id=${snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer le repo $repoName ($repoDate)\" /></a>";
         }
         if (OS_FAMILY == "Debian") {
-            echo "<a href=\"explore.php?id=${snapId}\"><img class=\"icon\" src=\"ressources/icons/search.png\" title=\"Explorer la section ${repoSection} ($repoDate)\" /></a>";
+            echo "<a href=\"explore.php?id=${snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer la section ${repoSection} ($repoDate)\" /></a>";
+        }
+        if (!empty($repoReconstruct)) {
+            if ($repoReconstruct == 'needed') {
+                echo '<img class="icon" src="ressources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
+            }
+            if ($repoReconstruct == 'running') {
+                echo '<img class="icon" src="ressources/images/loading.gif" title="Reconstruction des métadonnées en cours" />';
+            }
         }
             echo '</div>';
     }

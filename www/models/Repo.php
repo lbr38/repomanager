@@ -35,6 +35,7 @@ class Repo extends Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Type,
+                repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,
@@ -65,6 +66,7 @@ class Repo extends Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Type,
+                repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_snap.Id_repo
                 FROM repos 
@@ -92,6 +94,7 @@ class Repo extends Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Type,
+                repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_snap.Id_repo
                 FROM repos
@@ -112,6 +115,7 @@ class Repo extends Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Type,
+                repos_snap.Reconstruct,
                 repos_snap.Status,
                 repos_snap.Id_repo,
                 repos_env.Id AS envId,
@@ -591,6 +595,23 @@ class Repo extends Model
     }
 
     /**
+     *  Modification de l'état de reconstruction des métadonnées du snapshot
+     */
+    public function snapSetReconstruct(string $snapId, string $status = null)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Reconstruct = :status WHERE Id = :snapId");
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        Common::clearCache();
+    }
+
+    /**
      *  Modification de l'état du snapshot
      */
     public function snapSetStatus(string $snapId, string $status)
@@ -1041,7 +1062,7 @@ class Repo extends Model
          */
         try {
             if ($groupName == 'Default') {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Status, repos_env.Description
+                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Reconstruct, repos_snap.Status, repos_env.Description
                 FROM repos 
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -1050,7 +1071,7 @@ class Repo extends Model
                 WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
             } else {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Status, repos_env.Description
+                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Reconstruct, repos_snap.Status, repos_env.Description
                 FROM repos 
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -1117,17 +1138,17 @@ class Repo extends Model
     /**
      *  Retourne le nombre total de repos
      */
-    public function count(string $status)
+    public function count()
     {
         try {
-            $stmt = $this->db->prepare("SELECT repos_env.Id FROM repos 
-            INNER JOIN repos_snap
+            $result = $this->db->query("SELECT DISTINCT
+            repos.Name,
+            repos.Dist,
+            repos.Section
+            FROM repos 
+            LEFT JOIN repos_snap
                 ON repos.Id = repos_snap.Id_repo
-            INNER JOIN repos_env 
-                ON repos_snap.Id = repos_env.Id_snap
-            WHERE repos_snap.Status = :status");
-            $stmt->bindValue(':status', $status);
-            $result = $stmt->execute();
+            WHERE repos_snap.Status = 'active'");
         } catch (\Exception $e) {
             Common::dbError($e);
         }

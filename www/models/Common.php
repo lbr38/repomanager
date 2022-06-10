@@ -113,6 +113,34 @@ class Common
         }
     }
 
+    public static function generateCache(string $role)
+    {
+        ob_start();
+        include(ROOT . '/includes/repos-active-list.inc.php');
+        $content = ob_get_clean();
+        file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
+
+        // if (empty($role)) {
+
+        //     $roles = array('super-administrator', 'administrator', 'usage');
+
+        //     foreach ($roles as $role) {
+        //         define('GENERATE_CACHE_ROLE', $role);
+        //         ob_start();
+        //         include(ROOT . '/includes/repos-active-list.inc.php');
+        //         $content = ob_get_clean();
+        //         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
+        //     }
+        // } else {
+        //     define('GENERATE_CACHE_ROLE', $role);
+
+        //     ob_start();
+        //     include(ROOT . '/includes/repos-active-list.inc.php');
+        //     $content = ob_get_clean();
+        //     file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
+        // }
+    }
+
     /**
      *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
      */
@@ -384,10 +412,18 @@ class Common
     }
 
     /**
-     *  Renvoi si la session utilisateur en cours est administrateur ou non
+     *  Renvoi true si le role spécifié ou la session utilisateur en cours est administrateur
      */
     public static function isadmin()
     {
+        if (defined('GENERATE_CACHE_ROLE')) {
+            if (GENERATE_CACHE_ROLE === 'super-administrator' or GENERATE_CACHE_ROLE === 'administrator') {
+                return true;
+            }
+
+            return false;
+        }
+
         if ($_SESSION['role'] === 'super-administrator' or $_SESSION['role'] === 'administrator') {
             return true;
         }

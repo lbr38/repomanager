@@ -1047,17 +1047,6 @@ class Host
         $this->token = bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
-         *  On tente un premier ping pour déterminer si l'hôte est accessible ou non
-         *  Timeout de 1 seconde max
-         */
-        // $testPing = exec("ping -c 1 -W1 $this->hostname", $output, $testPingResult);
-
-        // if ($testPingResult == 0) {
-        //     $this->onlineStatus = 'online';
-        // } else {
-        //     $this->onlineStatus = 'unreachable';
-        // }
-        /**
          *  Le status de l'agent est défini à 'inconnu' lorsqu'on enregistre pour la première fois un hôte
          */
         $this->onlineStatus = 'unknow';

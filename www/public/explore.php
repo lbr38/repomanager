@@ -78,23 +78,17 @@ if ($pathError == 0) {
     $myrepo = new \Controllers\Repo();
     $myrepo->setSnapId($snapId);
     $myrepo->getAllById('', $snapId, '');
-    $state = $myrepo->getStatus();
+    $reconstruct = $myrepo->getReconstruct();
 
     /**
      *  Si on n'a eu aucune erreur lors de la récupération des paramètres, alors on peut construire le chemin complet du repo
      */
-    if ($state == 'active') {
-        if (OS_FAMILY == "Redhat") {
-            $repoPath = REPOS_DIR . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getName();
-        }
-        if (OS_FAMILY == "Debian") {
-            $repoPath = REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection();
-        }
+    if ($myrepo->getPackageType() == "rpm") {
+        $repoPath = REPOS_DIR . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getName();
     }
-    // if ($state == 'archived') {
-    //     if (OS_FAMILY == "Redhat") $repoPath = REPOS_DIR . "/archived_" . $myrepo->getDateFormatted() . "_" . $myrepo->getName();
-    //     if (OS_FAMILY == "Debian") $repoPath = REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/archived_" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection();
-    // }
+    if ($myrepo->getPackageType() == "deb") {
+        $repoPath = REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection();
+    }
 
     /**
      *  Si le chemin construit n'existe pas sur le serveur alors on incrémente pathError qui affichera une erreur et empêchera toute action
@@ -260,10 +254,13 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
              *  Cependant on retire le chemin complet du fichier pour éviter d'afficher l'emplacement des fichiers en clair à l'écran...
              */
             $packagesDeleted[] = str_replace("$repoPath/", '', $packagePath);
+
+            $deleteRepo = new \Controllers\Repo();
+            $deleteRepo->snapSetReconstruct($snapId, 'needed');
         }
     }
 
-    unset($packageName, $packagePath);
+    unset($packageName, $packagePath, $deleteRepo);
 }
 ?>
 
@@ -271,88 +268,16 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
 <?php include_once('../includes/header.inc.php');?>
 
 <article>
-    <section class="mainSectionLeft">
-        <section class="left">
-            <h3>EXPLORER</h3>
-
-            <?php
-            if ($pathError !== 0) {
-                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
-            }
-
-            if ($pathError === 0) {
-                if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
-                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
-                } else {
-                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
-                }
-
-                if (is_dir($repoPath . '/my_uploaded_packages')) {
-                    if (!Models\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
-                        echo '<span class="yellowtext">Certains paquets uploadés n\'ont pas encore été intégrés au repo. Vous devez reconstruire les fichiers de metadonnées du repo.</span>';
-                    }
-                }
-            }
-            ?>
-
-            <br>
-
-            <span id="loading">Génération de l'arborescence<img src="ressources/images/loading.gif" class="icon" /></span>
-
-            <div id="explorer" class="hide">
-
-                <?php
-
-                /**
-                 *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
-                 */
-
-                if ($pathError === 0) {
-                    echo '<form action="" method="post" />';
-                    if (Models\Common::isadmin()) {
-                        echo '<input type="hidden" name="action" value="deletePackages" />';
-                        echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
-                    }
-
-                    /**
-                     *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
-                     */
-                    if (!empty($packagesToDeleteNonExists)) {
-                        echo '<br><span class="redtext">Les paquets suivants n\'existent pas et n\'ont pas été supprimés : <b>' . rtrim($packagesToDeleteNonExists, ', ') . '</b></span>';
-                    }
-
-                    /**
-                     *  Si des paquets ont été supprimés alors on affiche la liste à cet endroit
-                     */
-                    if (!empty($packagesDeleted)) {
-                        echo '<br><span class="greentext">Les paquets suivants ont été supprimés :</span>';
-                        foreach ($packagesDeleted as $packageDeleted) {
-                            echo '<br><span class="greentext"><b>' . $packageDeleted . '</b></span>';
-                        }
-                        unset($packagesDeleted, $packageDeleted);
-                    }
-
-                    /**
-                     *  Appel à la fonction qui construit l'arborescence de fichiers
-                     */
-                    tree($repoPath);
-
-                    echo '</form>';
-                } ?>
-            </div>
-        </section>
-    </section>
-
-    <?php if (Models\Common::isadmin()) { ?>
+<?php if (Models\Common::isadmin()) { ?>
         <section class="mainSectionRight">
             <section class="right">
                 <h3>ACTIONS</h3>
                 <?php
-                if ($pathError === 0 and $state == 'active') {
+                if ($pathError == 0) {
                     /**
                      *  Si une opération est déjà en cours sur ce repo alors on affiche un message
                      */
-                    if (!empty($opRunning)) {
+                    if (!empty($reconstruct) and $reconstruct == 'running') {
                         echo '<p>';
                         echo '<img src="ressources/images/loading.gif" class="icon" /> ';
                         echo 'Une opération est en cours sur ce repo.';
@@ -362,7 +287,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                     /**
                      *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                      */
-                    if (empty($opRunning)) { ?>
+                    if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct == 'needed')) { ?>
                             <div class="div-generic-gray">
                                 <h5><img src="ressources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
                                 
@@ -397,11 +322,11 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                                 <h5><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
                                 <form id="hidden-form" action="" method="post">
                                     <input type="hidden" name="action" value="reconstruct">
-                                    <input type="hidden" name="snapId" value="<?php echo $snapId; ?>">
+                                    <input type="hidden" name="snapId" value="<?= $snapId ?>">
                                     <span>Signer avec GPG </span>
                                     <label class="onoff-switch-label">
-                                    <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
-                                    <span class="onoff-switch-slider"></span>
+                                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                                        <span class="onoff-switch-slider"></span>
                                     </label>
                                     <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
                                     <br><br>
@@ -411,13 +336,86 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                         <?php
                     }
                 } else {
-                    echo '<p>Aucune action possible.</p>';
+                    echo '<p>Vous ne pouvez pas exécuter d\'action.</p>';
+                } ?>
+            </section>
+        </section>
+<?php } ?>
+
+    <section class="mainSectionLeft">
+        <section class="left">
+            <h3>EXPLORER</h3>
+
+            <?php
+            if ($pathError !== 0) {
+                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+            }
+
+            if ($pathError === 0) {
+                if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
+                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+                } else {
+                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+                }
+
+                if ($myrepo->getReconstruct() == 'needed' or is_dir($repoPath . '/my_uploaded_packages')) {
+                    if (!Models\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
+                        echo '<span class="yellowtext">Le contenu de ce repo a été modifié, vous devez lancer la reconstruction des fichiers de metadonnées.</span>';
+                    }
+                }
+            }
+            ?>
+
+            <br>
+
+            <span id="loading">Génération de l'arborescence<img src="ressources/images/loading.gif" class="icon" /></span>
+
+            <div id="explorer" class="hide">
+
+                <?php
+
+                /**
+                 *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
+                 */
+
+                if ($pathError === 0) {
+                    echo '<form action="" method="post" />';
+                    if (Models\Common::isadmin()) {
+                        echo '<input type="hidden" name="action" value="deletePackages" />';
+                        echo '<input type="hidden" name="snapId" value="' . $snapId . '" />';
+                        echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
+                    }
+
+                    /**
+                     *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
+                     */
+                    if (!empty($packagesToDeleteNonExists)) {
+                        echo '<br><span class="redtext">Les paquets suivants n\'existent pas et n\'ont pas été supprimés : <b>' . rtrim($packagesToDeleteNonExists, ', ') . '</b></span>';
+                    }
+
+                    /**
+                     *  Si des paquets ont été supprimés alors on affiche la liste à cet endroit
+                     */
+                    if (!empty($packagesDeleted)) {
+                        echo '<br><span class="greentext">Les paquets suivants ont été supprimés :</span>';
+                        foreach ($packagesDeleted as $packageDeleted) {
+                            echo '<br><span class="greentext"><b>' . $packageDeleted . '</b></span>';
+                        }
+                        unset($packagesDeleted, $packageDeleted);
+                    }
+
+                    /**
+                     *  Appel à la fonction qui construit l'arborescence de fichiers
+                     */
+                    tree($repoPath);
+
+                    echo '</form>';
                 }
 
                 unset($myrepo); ?>
-            </section>
+            </div>
         </section>
-    <?php } ?>
+    </section>
 </article>
 
 <?php include_once('../includes/footer.inc.php'); ?>

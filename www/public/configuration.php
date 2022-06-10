@@ -860,23 +860,6 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     } ?>
                 </td>
             </tr>
-            <!-- <tr>
-                <td class="td-large">
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à modifier l'environnement d'un repo ou d'un groupe de repos spécifié" />
-                    Autoriser la mise à jour automatique de l'env des repos
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="allowAutoUpdateReposEnv" type="checkbox" class="onoff-switch-input" value="yes" <?php //echo (ALLOW_AUTOUPDATE_REPOS_ENV == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php /*if (empty(ALLOW_AUTOUPDATE_REPOS_ENV)) {
-                        echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                    }*/ ?>
-                </td>
-            </tr> -->
             <tr>
                 <td class="td-large">
                     <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à supprimer les plus vieux snapshots de repo en date en fonction du paramètre de rétention renseigné" />
