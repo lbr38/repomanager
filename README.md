@@ -46,7 +46,7 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 - Debian 10, Ubuntu bionic
-- CentOS 7, 8, CentOS Stream, Rocky Linux, Fedora 33
+- RHEL 7/8, CentOS 7/8, CentOS Stream, Rocky Linux, Fedora 33
 
 Repomanager ne nécessite qu'un service web + PHP (7 minimum) et SQLite.
 
@@ -245,19 +245,8 @@ server {
                 access_log off;
         }
 
-        location = /main.conf {
-                root $REPOS_DIR/profiles/_reposerver;
-                allow all;
-        }
-
         location /repo {
                 alias $REPOS_DIR;
-        }
-
-        location /profiles {
-                root $REPOS_DIR;
-                allow all;
-                autoindex on;
         }
 }
 </pre>
@@ -276,7 +265,7 @@ L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes per
 Télécharger la dernière release disponible au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
 
 <pre>
-RELEASE="v2.5.1-beta" # choix de la release
+RELEASE="v3.0.2-stable" # choix de la release
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
 tar xzf repomanager_$RELEASE.tar.gz

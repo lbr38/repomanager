@@ -29,20 +29,6 @@ $serverConfiguration = $myprofile->getServerConfiguration();
  */
 $serverConfApplyNeeded = 0;
 
-if (!empty($serverConfiguration['Os_name'])) {
-    $serverOsName = $serverConfiguration['Os_name'];
-} else {
-    $serverOsName = OS_NAME;
-    $serverConfApplyNeeded++;
-}
-
-if (!empty($serverConfiguration['Os_version'])) {
-    $serverOsVersion = $serverConfiguration['Os_version'];
-} else {
-    $serverOsVersion = OS_VERSION;
-    $serverConfApplyNeeded++;
-}
-
 if (!empty($serverConfiguration['Package_type'])) {
     $serverPackageType = $serverConfiguration['Package_type'];
 } else {
@@ -53,21 +39,6 @@ if (!empty($serverConfiguration['Package_type'])) {
         $serverPackageType = 'deb';
     }
     $serverConfApplyNeeded++;
-}
-
-/**
- *  Le paramètre serverPackageOsVersion sera surtout important pour les hôtes de la famille Redhat
- */
-if (OS_FAMILY == 'Redhat') {
-    if (!empty($serverConfiguration['Package_os_version'])) {
-        $serverPackageOsVersion = $serverConfiguration['Package_os_version'];
-    } else {
-        /**
-         *  Sur les systèmes Redhat on peut se baser sur la valeur de Releasever pour générer une valeur par défaut pour $serverPackageOsVersion
-         */
-        $serverPackageOsVersion = RELEASEVER;
-        $serverConfApplyNeeded++;
-    }
 }
 
 if (!empty($serverConfiguration['Manage_client_conf'])) {

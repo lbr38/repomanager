@@ -444,7 +444,6 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
         Package_type VARCHAR(255),
-        Package_os_version VARCHAR(255),
         Manage_client_conf CHAR(3),
         Manage_client_repos CHAR(3))");
 
@@ -453,7 +452,7 @@ class Connection extends SQLite3
          */
         $result = $this->query("SELECT * FROM profile_settings");
         if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO profile_settings (Os_family, Os_name, Os_id, Os_version, Manage_client_conf, Manage_client_repos) VALUES ('" . OS_FAMILY . "', '" . OS_NAME . "', '" . OS_ID . "', '" . OS_VERSION . "', 'no', 'no')");
+            $this->exec("INSERT INTO profile_settings (Manage_client_conf, Manage_client_repos) VALUES ('no', 'no')");
         }
 
         /**
