@@ -52,7 +52,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 Runs on following Redhat/CentOS or Debian/Ubuntu systems:
 - Debian 10, Ubuntu bionic
-- CentOS 7, 8, Fedora 33
+- RHEL 7/8, CentOS 7/8, Fedora 33
 
 Repomanager only needs a web service + PHP (7 min.) and SQLite.
 
@@ -250,19 +250,8 @@ server {
                 access_log off;
         }
 
-        location = /main.conf {
-                root $REPOS_DIR/profiles/_reposerver;
-                allow all;
-        }
-
         location /repo {
                 alias $REPOS_DIR;
-        }
-
-        location /profiles {
-                root $REPOS_DIR;
-                allow all;
-                autoindex on;
         }
 }
 </pre>
@@ -281,7 +270,7 @@ Installation script must be executed by root or sudo user to make sure that corr
 Download last available release (.tar.gz) (all releases are visible here: https://github.com/lbr38/repomanager/releases):
 
 <pre>
-RELEASE="v2.5.1-beta" # release choosen
+RELEASE="v3.0.2-stable" # release choice
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
 tar xzf repomanager_$RELEASE.tar.gz

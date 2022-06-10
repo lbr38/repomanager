@@ -384,7 +384,7 @@ class Common
         exec("crontab " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");   // on importe le fichier dans la crontab de WWW_USER
         unlink(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");         // puis on supprime le fichier temporaire
 
-        Common::printAlert('Tâches cron redéployées', 'success');
+        \Models\Common::printAlert('Tâches cron redéployées', 'success');
     }
 
     /**

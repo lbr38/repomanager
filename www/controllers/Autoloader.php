@@ -940,7 +940,7 @@ class Autoloader
          */
         if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
             if (!file_exists(ROOT . "/update-running")) {
-                Common::repomanagerUpdate();
+                \Models\Common::repomanagerUpdate();
             }
         }
     }
@@ -989,7 +989,7 @@ class Autoloader
                         define('CACHE_REPOS_LIST', $row['cache_repos_list']);
                     }
                 } catch (\Exception $e) {
-                    Common::dbError($e);
+                    \Models\Common::dbError($e);
                 }
 
                 $myconn->close();
