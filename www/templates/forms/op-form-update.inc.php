@@ -52,13 +52,6 @@ if ($myrepo->getPackageType() == 'deb') {
     </td>
 </tr>
 
-<?php
-if ($myrepo->getDateFormatted() != DATE_DMY) : ?>
-    <tr>
-        <td colspan="100%">Le snapshot en date du <span class="label-black"><?=$myrepo->getDateFormatted()?></span> sera conservé et traité selon le paramétrage de rétention en place.</td>
-    </tr>
-<?php endif ?>
-
 <script>
 $(document).ready(function(){
 

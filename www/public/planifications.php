@@ -232,22 +232,7 @@ require_once('../functions/repo.functions.php');
                                     } else {
                                         echo '<p>Mise à jour du repo ' . $repo . '</p>';
                                     }
-
-                                /**
-                                 *  Si l'action est un changement d'env
-                                 */
-                                } /*else {
-                                $envs = explode('->', $planAction);
-                                $envTarget = $envs[0];
-                                $envSource = $envs[1];
-                                if (!empty($planGroup)) {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Nouvel environnement ".Models\Common::envtag($envSource)."⟶".Models\Common::envtag($envTarget).'⟶<span class="label-black">xx-xx-xxxx</span> pour les repos du groupe <span class="label-white">'.$planGroup.'</span></p>';
-                                    if (OS_FAMILY == "Debian") echo "<p>Nouvel environnement ".Models\Common::envtag($envSource)."⟶".Models\Common::envtag($envTarget).'⟶<span class="label-black">xx-xx-xxxx</span> pour les sections de repos du groupe <span class="label-white">'.$planGroup.'</span></p>';
-                                } else {
-                                    if (OS_FAMILY == "Redhat") echo "<p>Nouvel environnement ".Models\Common::envtag($envSource)."⟶".Models\Common::envtag($envTarget)."⟶$planDate pour le repo $repo</p>";
-                                    if (OS_FAMILY == "Debian") echo "<p>Nouvel environnement ".Models\Common::envtag($envSource)."⟶".Models\Common::envtag($envTarget)."⟶$planDate pour le repo $repo</p>";
                                 }
-                                }*/
 
                                 echo '<br>';
 

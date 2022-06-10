@@ -2,7 +2,7 @@ name: PHP_CodeSniffer
 
 on:
   push:
-    branches: [ dev, v3 ]
+    branches: [ dev ]
   pull_request:
     push:
       branches: [ stable ]

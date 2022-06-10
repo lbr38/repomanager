@@ -23,9 +23,10 @@ class Repo
     private $time;
     private $env;
     private $description;
-    private $signed; // yes ou no
+    private $signed;
     private $type; // miroir ou local
     private $status;
+    private $reconstruct;
     private $sourceFullUrl;
     private $hostUrl;
     private $rootUrl;
@@ -116,6 +117,11 @@ class Repo
     public function setSigned(string $signed)
     {
         $this->signed = $signed;
+    }
+
+    public function setReconstruct(string $reconstruct)
+    {
+        $this->reconstruct = $reconstruct;
     }
 
     public function setStatus(string $status)
@@ -275,6 +281,11 @@ class Repo
         return $this->targetTime;
     }
 
+    public function getReconstruct()
+    {
+        return $this->reconstruct;
+    }
+
     public function getStatus()
     {
         return $this->status;
@@ -387,6 +398,9 @@ class Repo
         }
         if (!empty($data['Signed'])) {
             $this->setSigned($data['Signed']);
+        }
+        if (!empty($data['Reconstruct'])) {
+            $this->setReconstruct($data['Reconstruct']);
         }
         if (!empty($data['Description'])) {
             $this->setDescription($data['Description']);
@@ -534,9 +548,9 @@ class Repo
     /**
      *  Retourne le nombre total de repos
      */
-    public function count(string $status = 'active')
+    public function count()
     {
-        return $this->model->count($status);
+        return $this->model->count();
     }
 
     /**
@@ -1236,6 +1250,11 @@ class Repo
         $steps = 3;
         exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
+        /**
+         *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+         */
+        $this->model->snapSetReconstruct($this->snapId, 'running');
+
         try {
             /**
              *  Etape 0 : Afficher le titre de l'opération
@@ -1268,6 +1287,11 @@ class Repo
              *  Passage du status de l'opération en done
              */
             $this->op->setStatus('done');
+
+            /**
+             *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+             */
+            $this->model->snapSetReconstruct($this->snapId, '');
         } catch (\Exception $e) {
             $this->op->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
 
@@ -1275,12 +1299,19 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+
+            /**
+             *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+             */
+            $this->model->snapSetReconstruct($this->snapId, 'failed');
         }
         /**
          *  Cloture de l'opération
          */
         $this->op->log->closeStepOperation();
         $this->op->closeOperation();
+
+        \Models\Common::generateCache();
     }
 
     /**
@@ -2951,5 +2982,13 @@ class Repo
                 $this->model->removeFromGroup($id);
             }
         }
+    }
+
+    /**
+     *  Modification de l'état de reconstruction des métadonnées du snapshot
+     */
+    public function snapSetReconstruct(string $snapId, string $status = null)
+    {
+        $this->model->snapSetReconstruct($snapId, $status);
     }
 }

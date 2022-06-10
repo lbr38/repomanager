@@ -52,7 +52,6 @@ foreach ($operation_params as $operation) {
      *  Un Id de repo a été renseigné seulement dans le cas où l'action n'est pas 'new'
      */
     if ($action !== 'new') {
-        // $repoId = $operation['repoId'];
         $snapId = $operation['snapId'];
     }
     if ($action == 'new') {
@@ -233,13 +232,11 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
-        // $repo->setRepoId($repoId);
         $repo->setSnapId($snapId);
 
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        // $repo->getAllById($repoId, $snapId);
         $repo->getAllById('', $snapId);
 
         /**
@@ -281,13 +278,11 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo à dupliquer
          */
         $repo = new \Controllers\Repo();
-        // $repo->setRepoId($repoId);
         $repo->setSnapId($snapId);
 
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        // $repo->getAllById($repoId, $snapId);
         $repo->getAllById('', $snapId);
 
         /**
@@ -353,13 +348,11 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
-        // $repo->setRepoId($repoId);
         $repo->setSnapId($snapId);
 
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        // $repo->getAllById($repoId, $snapId);
         $repo->getAllById('', $snapId);
 
         /**

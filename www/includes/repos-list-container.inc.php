@@ -37,11 +37,14 @@
 
     if (CACHE_REPOS_LIST == "yes") {
         if (!file_exists(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html')) {
-            touch(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html');
-            ob_start();
-            include(__DIR__ . '/repos-active-list.inc.php');
-            $content = ob_get_clean();
-            file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html', $content);
+            // touch(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html');
+            // ob_start();
+            // include(__DIR__ . '/repos-active-list.inc.php');
+            // $content = ob_get_clean();
+            // file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html', $content);
+            // \Models\Common::generateCache($_SESSION['role']);
+
+            \Models\Common::generateCache($_SESSION['role']);
         }
         /**
          *  Enfin on affiche le fichier html généré

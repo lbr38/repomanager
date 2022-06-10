@@ -29,13 +29,6 @@ $serverConfiguration = $myprofile->getServerConfiguration();
  */
 $serverConfApplyNeeded = 0;
 
-// if (!empty($serverConfiguration['Os_family'])) {
-//     $serverOsFamily = $serverConfiguration['Os_family'];
-// } else {
-//     $serverOsFamily = OS_FAMILY;
-//     $serverConfApplyNeeded++;
-// }
-
 if (!empty($serverConfiguration['Os_name'])) {
     $serverOsName = $serverConfiguration['Os_name'];
 } else {
@@ -213,7 +206,6 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 </table>
                                 <br>
                                 <hr>
-                                <br>
                                 <?php
                             endif;
 
@@ -221,6 +213,8 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                              *  Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
                              */
                             if ($serverManageClientConf == "yes") {
+                                echo '<h4>Paramétrage de linupdate</h4>';
+
                                 $myprofile = new \Controllers\Profile();
 
                                 echo '<h5>Paquets à exclure en cas de version majeure :</h5>';
@@ -355,40 +349,10 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
             <h5>Configuration générale</h5>
 
             <div class="operation-form">
-                <!-- <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Famille d'OS que ce client gère. Défini en fonction de l'OS de ce serveur (non-modifiable). Seuls des serveurs clients de la même famille pourront récupérer leur configuration auprès de ce serveur." />Famille d'OS
-                </span> -->
-                <!-- <input type="text" id="serverOsFamilyInput" class="td-medium" value=" $serverOsFamily " /> -->
-                
-                <!-- <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="OS de ce serveur. Les serveurs clients appartenant à la même famille que ce serveur mais pas au même OS pourront tout de même récupérer leur configuration auprès de ce serveur si les repos sont compatibles." />Nom de l'OS
-                </span>
-                <input type="text" id="serverOsNameInput" class="td-medium" value="$serverOsName?>" /> -->
-
-                <!-- <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version d'OS de ce serveur" />Version d'OS
-                </span>
-                <input type="text" id="serverOsVersionInput" class="td-medium" value="$serverOsVersion?>" /> -->
-
                 <span>
                     <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Type de paquets" />Type de paquets diffusés
                 </span>
                 <input type="text" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
-
-                <!-- <?php
-                // if (OS_FAMILY == 'Redhat') : ?>
-                    <span>
-                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version de paquets" />Version de paquets (OS)
-                    </span>
-                    <input type="text" id="serverPackageOsVersionInput" class="td-medium" value="$serverPackageOsVersion?>" />
-                <?php //endif ?> -->
-
-                <?php
-                // if (OS_FAMILY == 'Redhat' and $serverReleasever !== $serverOsVersion) {
-                //     echo '<span><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Version d\'OS des paquets récupérés lors de la création de miroirs." />Version de paquets gérée</span>';
-                //     echo '<input type="text" class="td-medium" value="' . $serverReleasever . '" />';
-                // }
-                ?>
 
                 <span>
                     <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des clients

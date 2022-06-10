@@ -532,6 +532,8 @@ table {
 
 .item-info {
     padding: 2px 0 0 2px !important;
+    position: inherit !important;
+    max-width: fit-content;
 }
 
 .item-info img, .item-env-info img {

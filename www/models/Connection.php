@@ -281,6 +281,7 @@ class Connection extends SQLite3
         Time TIME NOT NULL,
         Signed CHAR(3) NOT NULL,
         Type CHAR(6) NOT NULL,
+        Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
@@ -442,10 +443,6 @@ class Connection extends SQLite3
          *  Crée la table profile_settings si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
-        /*Os_family VARCHAR(255),*/
-        /*Os_name VARCHAR(255),
-        Os_id VARCHAR(255),
-        Os_version VARCHAR(255), */
         Package_type VARCHAR(255),
         Package_os_version VARCHAR(255),
         Manage_client_conf CHAR(3),

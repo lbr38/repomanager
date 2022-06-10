@@ -39,14 +39,14 @@ require_once('../functions/repo.functions.php');
                  *  Récupération du total des repos actifs et repos archivés
                  */
 
-                $repo = new \Controllers\Repo();
-                $totalRepos = $repo->count('active'); ?>
+                $myrepo = new \Controllers\Repo();
+                $totalRepos = $myrepo->count('active'); ?>
 
                 <div>
                     <div class="server-properties">
                         <div class="server-properties-count">
                             <span>
-                                <?php echo $totalRepos ?>
+                                <?= $totalRepos ?>
                             </span>
                         </div>
                         <div>
@@ -100,7 +100,7 @@ require_once('../functions/repo.functions.php');
                         <div class="server-properties">
                             <div class="server-properties-count<?=$borderColor?>">
                                 <span>
-                                    <?php echo $planStatus; ?>
+                                    <?= $planStatus ?>
                                 </span>
                             </div>
 

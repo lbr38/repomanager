@@ -174,6 +174,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                  *  2. Affichage des groupes si il y en a
                  */
                 if (!empty($groupsList)) {
+                    echo '<div class="div-generic-gray">';
                     echo '<h5>Groupes actuels</h5>';
                     echo '<div class="groups-list-container">';
                     foreach ($groupsList as $groupName) { ?>
@@ -212,6 +213,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                 </div>
                             </div>
                     <?php   }
+                    echo '</div>';
                     echo '</div>';
                 } ?>
             </section>
@@ -281,7 +283,16 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                  *  On affiche le nom du groupe sauf si il s'agit du groupe Default
                                  */
                                 if ($groupName != "Default") {
-                                    echo "<h3>$groupName</h3>";
+                                    echo '<h3>';
+                                    echo $groupName;
+
+                                    /**
+                                     *  Affichage du nombre d'hôtes dans ce groupe
+                                     */
+                                    if (!empty($hostsList)) {
+                                        echo ' (' . count($hostsList) . ')';
+                                    }
+                                    echo '</h3>';
                                 }
 
                                 if (\Models\Common::isadmin()) {
@@ -374,22 +385,11 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                              *  On défini le status de l'agent
                                              *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
                                              */
-                                            if ($host['Online_status'] == "running") {
-                                                $agentStatus = 'running';
-                                            }
-                                            if ($host['Online_status'] == "disabled") {
-                                                $agentStatus = 'disabled';
-                                            }
-                                            if ($host['Online_status'] == "stopped") {
-                                                $agentStatus = 'stopped';
-                                            }
-                                            if ($host['Online_status'] == "unknow") {
-                                                $agentStatus = 'unknow';
-                                            }
+                                            $agentStatus = $host['Online_status'];
                                             /**
-                                             *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h
+                                             *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h (et 10min de "marge")
                                              */
-                                            if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 60 minutes'))) {
+                                            if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
                                                 $agentStatus = 'seems-stopped';
                                             }
                                             /**
@@ -461,7 +461,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                                 /**
                                                  *  Nom de l'hôte + ip
                                                  */
-                                                echo '<td class="td-fit" title="Distribution">';
+                                                echo '<td class="td-fit">';
                                             if (preg_match('/centos/i', $os)) {
                                                 echo '<img src="ressources/icons/centos.png" class="icon" />';
                                             } elseif (preg_match('/debian/i', $os)) {
@@ -471,7 +471,7 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
                                             } else {
                                                 echo '<img src="ressources/icons/tux.png" class="icon" />';
                                             }
-                                                    echo $host['Hostname'] . ' (' . $ip . ')';
+                                                    echo '<span title="Nom d\'hôte et adresse IP">' . $host['Hostname'] . ' (' . $ip . ')</span>' ;
                                                 echo '</td>'; ?>
 
                                                 <td class="hostType-td td-10 lowopacity">

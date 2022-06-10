@@ -9,11 +9,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
 $idError = 0;
 
 if (!empty($_GET['id'])) {
-    /**
-     *  A partir de l'ID fourni, on instancie un Host
-     */
     $myhost = new \Controllers\Host();
-    // $myhost->setId($_GET['id']);
 
     /**
      *  Récupération de toutes les informations de base concernant cet hôte
@@ -28,10 +24,19 @@ if (!empty($_GET['id'])) {
         $os_version       = $hostProperties['Os_version'];
         $profile          = $hostProperties['Profile'];
         $env              = $hostProperties['Env'];
-        $onlineStatus     = $hostProperties['Online_status'];
-        $onlineStatusDate = $hostProperties['Online_status_date'];
-        $onlineStatusTime = $hostProperties['Online_status_time'];
         $status           = $hostProperties['Status'];
+        $agentStatus      = $hostProperties['Online_status'];
+
+        /**
+         *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h (et 10min de "marge")
+         */
+        if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
+            $agentStatus = 'seems-stopped';
+        }
+        /**
+         *  Message du dernier état connu
+         */
+        $agentLastSendStatusMsg = 'état au ' . DateTime::createFromFormat('Y-m-d', $hostProperties['Online_status_date'])->format('d-m-Y') . ' à ' . $hostProperties['Online_status_time'];
 
         /**
          *  Si l'hôte est en status 'deleted' alors on ne l'affiche pas
@@ -152,11 +157,11 @@ echo '<h3>' . strtoupper($hostname) . '</h3>';
 if (Models\Common::isadmin()) { ?>
     <div class="hostActionBtn-container">
         <span class="btn-large-blue"><img src="../ressources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="general-status-update" title="Rafraichir les informations générales">Demander l'envoi des informations générales</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?php echo $id?>" action="packages-status-update" title="Rafraichir les paquets disponibles">Demander l'envoi des informations concernant les paquets</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Demander la mise à jour des paquets</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="reset" title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?php echo $id?>" action="delete" title="Supprimer cet hôte">Supprimer cet hôte</span>
+        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="general-status-update" title="Rafraichir les informations générales">Demander l'envoi des informations générales</span>
+        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="packages-status-update" title="Rafraichir les paquets disponibles">Demander l'envoi des informations concernant les paquets</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Demander la mise à jour des paquets</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="reset" title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="delete" title="Supprimer cet hôte">Supprimer cet hôte</span>
     </div>
 <?php } ?>
             <div class="div-flex">
@@ -165,22 +170,6 @@ if (Models\Common::isadmin()) { ?>
                         <tr>
                             <td>IP</td>
                             <td><?= $ip ?></td>
-                        </tr>
-                        <tr>
-                            <td>STATUS</td>
-                            <td>
-                                <?php
-                                if ($onlineStatus == "online") {
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" title="En ligne (ping)" />Online</span>';
-                                }
-                                if ($onlineStatus == "unknown") {
-                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" title="Inconnu" />Inconnu</span>';
-                                }
-                                if ($onlineStatus == "unreachable") {
-                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" title="Injoignable (ping)" />Injoignable</span>';
-                                }
-                                ?>
-                            </td>
                         </tr>
                         <tr>
                             <td>OS</td>
@@ -204,12 +193,14 @@ if (Models\Common::isadmin()) { ?>
                         </tr>
                         <tr>
                             <td>PROFIL</td>
+                            <td>
                             <?php
                             if (!empty($profile)) {
-                                echo "<td>$profile</td>";
+                                echo '<span class="label-white">' . $profile . '</span>';
                             } else {
-                                echo '<td>Inconnu</td>';
+                                echo 'Inconnu';
                             } ?>
+                            </td>
                         </tr>
                         <tr>
                             <td>ENVIRONNEMENT</td>
@@ -219,6 +210,29 @@ if (Models\Common::isadmin()) { ?>
                             } else {
                                 echo '<td>Inconnu</td>';
                             } ?>
+                        </tr>
+                        <tr>
+                            <td>AGENT STATUS</td>
+                            <td>
+                                <span>
+                                <?php
+                                if ($agentStatus == 'running') {
+                                    echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." /> Démarré';
+                                }
+                                if ($agentStatus == "disabled") {
+                                    echo '<img src="ressources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." /> Désactivé';
+                                }
+                                if ($agentStatus == "stopped") {
+                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." /> Stoppé';
+                                }
+                                if ($agentStatus == "seems-stopped") {
+                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." /> Semble stoppé';
+                                }
+                                if ($agentStatus == "unknow") {
+                                    echo '<img src="ressources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." /> Inconnu';
+                                } ?>
+                                </span>
+                            </td>
                         </tr>
                     </table>
 
