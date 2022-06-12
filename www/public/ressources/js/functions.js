@@ -1,5 +1,6 @@
 /**
- *  Rechargement régulier du bandeau de navigation
+ *  Rechargement régulier du bandeau de navigation pour
+ *  faire apparaitre / disparaitre les opérations en cours ou terminées
  */
 setInterval(function () {
     reloadHeader();

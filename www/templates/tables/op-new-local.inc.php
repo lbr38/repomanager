@@ -6,7 +6,7 @@
         <td><?=$this->name?></td>
     </tr>
     <?php
-    if (OS_FAMILY == "Debian") { ?>
+    if (!empty($this->dist) and !empty($this->section)) { ?>
         <tr>
             <th>DISTRIBUTION :</th>
             <td><?=$this->dist?></td>

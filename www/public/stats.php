@@ -68,24 +68,19 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 
             <?php
             if ($repoError !== 0) {
-                if (OS_FAMILY == "Redhat") {
-                    echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
-                }
-                if (OS_FAMILY == "Debian") {
-                    echo "<p>Erreur : la section de repo spécifiée n'existe pas.</p>";
-                }
+                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
             }
 
             if ($repoError === 0) {
-                if (OS_FAMILY == "Redhat" and !empty($myrepo->getName())) {
+                if ($myrepo->getPackageType() == 'rpm') {
                     echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
-                if (OS_FAMILY == "Debian" and !empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
+                if ($myrepo->getPackageType() == 'deb') {
                     echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
             }
 
-                echo '<br>';
+            echo '<br>';
 
             if (!file_exists(WWW_STATS_LOG_PATH)) {
                 echo '<p><span class="yellowtext">Le fichier de log à analyser (' . WWW_STATS_LOG_PATH . ') n\'existe pas ou n\'est pas correctement configuré.</span></p>';
@@ -94,19 +89,19 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                 echo '<p><span class="yellowtext">Le fichier de log à analyser (' . WWW_STATS_LOG_PATH . ') n\'est pas accessible en lecture.</span></p>';
             }
 
-                /**
-                 *  Récupération de la liste des derniers logs d'accès au repo, à partir de la BDD
-                 */
-            if (OS_FAMILY == "Redhat") {
+            /**
+             *  Récupération de la liste des derniers logs d'accès au repo, à partir de la BDD
+             */
+            if ($myrepo->getPackageType() == 'rpm') {
                 $lastAccess = $mystats->getLastAccess($myrepo->getName(), '', '', $myrepo->getEnv());
             }
-            if (OS_FAMILY == "Debian") {
+            if ($myrepo->getPackageType() == 'deb') {
                 $lastAccess = $mystats->getLastAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
             }
 
-                /**
-                 *  Tri des valeurs par date et heure
-                 */
+            /**
+             *  Tri des valeurs par date et heure
+             */
             if (!empty($lastAccess)) {
                 array_multisort(array_column($lastAccess, 'Date'), SORT_DESC, array_column($lastAccess, 'Time'), SORT_DESC, $lastAccess);
             }
@@ -123,11 +118,11 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     /**
                      *  Comptage de la taille du repo et du nombre de paquets actuel
                      */
-                    if (OS_FAMILY == "Redhat") {
+                    if ($myrepo->getPackageType() == 'rpm') {
                         $repoSize = exec("du -hs " . REPOS_DIR . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getName() . " | awk '{print $1}'");
                         $packagesCount = exec("find " . REPOS_DIR . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getName() . "/ -type f -name '*.rpm' | wc -l");
                     }
-                    if (OS_FAMILY == "Debian") {
+                    if ($myrepo->getPackageType() == 'deb') {
                         $repoSize = exec("du -hs " . REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection() . " | awk '{print $1}'");
                         $packagesCount = exec("find " . REPOS_DIR . "/" . $myrepo->getName() . "/" . $myrepo->getDist() . "/" . $myrepo->getDateFormatted() . "_" . $myrepo->getSection() . "/ -type f -name '*.deb' | wc -l");
                     }
@@ -157,38 +152,40 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                      *  Affichage du nombre d'accès au repo en temps réel et des 5 dernières minutes
                      */
                     echo '<div id="refresh-me" class="flex-div-15">';
-                        /**
-                         *  Détails des requêtes en temps réel (+/-5 sec)
-                         */
-                    if (OS_FAMILY == "Redhat") {
+
+                    /**
+                     *  Détails des requêtes en temps réel (+/-5 sec)
+                     */
+                    if ($myrepo->getPackageType() == 'rpm') {
                         $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), '', '', $myrepo->getEnv());
                     }
-                    if (OS_FAMILY == "Debian") {
+                    if ($myrepo->getPackageType() == 'deb') {
                         $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
                     }
-                        /**
-                         *  Comptage du nombre de requêtes précédemment récupérées
-                         */
-                        $realTimeAccessCount = count($realTimeAccess);
 
-                        /**
-                         *  Détails des requêtes des 5 dernières minutes
-                         */
-                    if (OS_FAMILY == "Redhat") {
+                    /**
+                     *  Comptage du nombre de requêtes précédemment récupérées
+                     */
+                    $realTimeAccessCount = count($realTimeAccess);
+
+                    /**
+                     *  Détails des requêtes des 5 dernières minutes
+                     */
+                    if ($myrepo->getPackageType() == 'rpm') {
                         $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), '', '', $myrepo->getEnv());
                     }
-                    if (OS_FAMILY == "Debian") {
+                    if ($myrepo->getPackageType() == 'deb') {
                         $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
                     }
 
-                        /**
-                         *  Comptage du nombre de requêtes précédemment récupérées
-                         */
-                        $lastMinutesAccessCount = count($lastMinutesAccess);
+                    /**
+                     *  Comptage du nombre de requêtes précédemment récupérées
+                     */
+                    $lastMinutesAccessCount = count($lastMinutesAccess);
 
-                        /**
-                         *  Réorganise le détails des requêtes de la plus récente à la plus ancienne
-                         */
+                    /**
+                     *  Réorganise le détails des requêtes de la plus récente à la plus ancienne
+                     */
                     if (!empty($realTimeAccess)) {
                         array_multisort(array_column($realTimeAccess, 'Date'), SORT_DESC, array_column($realTimeAccess, 'Time'), SORT_DESC, $realTimeAccess);
                     }
@@ -285,10 +282,10 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                          *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
                          */
                     while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
-                        if (OS_FAMILY == "Redhat") {
+                        if ($myrepo->getPackageType() == 'rpm') {
                             $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
                         }
-                        if (OS_FAMILY == "Debian") {
+                        if ($myrepo->getPackageType() == 'deb') {
                             $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
                         }
 

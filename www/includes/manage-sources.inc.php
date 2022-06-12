@@ -1,5 +1,21 @@
 <section class="right" id="sourcesDiv">
-    <?php $source = new \Models\Source(); ?>
+    <?php
+    $source = new \Models\Source();
+
+    /**
+     *  Dans le cas de rpm, les clés gpg sont stockées dans RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
+     */
+    if (is_dir(RPM_GPG_DIR)) {
+        $rpmGpgKeys = scandir(RPM_GPG_DIR);
+    }
+
+    /**
+     *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
+     */
+    if (file_exists(GPGHOME . "/trustedkeys.gpg")) {
+        $debGpgKeys = shell_exec("gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+        $debGpgKeys = explode("\n\n", $debGpgKeys);
+    } ?>
 
     <img id="reposSourcesDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
     <h3>REPOS SOURCES</h3>
@@ -8,74 +24,91 @@
     <br>
 
     <div class="div-generic-gray">
+
         <h5>Ajouter un nouveau repo source</h5>
-        <form id="sourceAddForm" autocomplete="off">
-            <p>Nom :</p>
-            <input type="text" class="input-large" name="addSourceName" required />
 
-            <br>
+        <form id="addSourceForm" autocomplete="off">
+            <table>
+                <tr>
+                    <td class="td-30">Type de repo source</td>
+                    <td colspan="100%">
+                        <div class="switch-field">
+                            <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
+                            <label for="repoType_rpm">rpm</label>
+                            <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
+                            <label for="repoType_deb">deb</label>
+                        </div>
+                    </td>
+                </tr>
 
-            <p>Url :</p>
+                <tr>
+                    <td class="td-30">Nom</td>
+                    <td colspan="100%">
+                        <input type="text" name="addSourceName" required />
+                    </td>
+                </tr>
 
-            <?php
-            if (OS_FAMILY == "Redhat") { ?>
-                <span>
-                    <select id="addSourceUrlType" class="select-small" required>
-                        <option value="baseurl">baseurl</option>
-                        <option value="mirrorlist">mirrorlist</option>
-                        <option value="metalink">metalink</option>
-                    </select> 
-                    <input type="text" name="addSourceUrl" class="input-large" required>
-                </span>
-                <br>
-            <?php }
-            if (OS_FAMILY == "Debian") { ?>
-                <input type="text" name="addSourceUrl" class="input-large" required><br>
-            <?php }
+                <tr>
+                    <td class="td-30">Url</td>
+                    <td class="td-10" field-type="rpm">
+                        <select id="addSourceUrlType" class="select-small" required>
+                            <option value="baseurl">baseurl</option>
+                            <option value="mirrorlist">mirrorlist</option>
+                            <option value="metalink">metalink</option>
+                        </select>
+                    </td>
 
-            if (OS_FAMILY == "Redhat") { ?>
-                <p>Ce repo source dispose d'une clé GPG : 
-                <select id="newRepoGpgSelect" class="select-small">
-                    <option id="newRepoGpgSelect_no">Non</option>
-                    <option id="newRepoGpgSelect_yes">Oui</option>
-                </select>
-                </p>
+                    <td>
+                        <input type="text" name="addSourceUrl" required />
+                    </td>
+                </tr>
 
-                <div class="sourceGpgDiv hide">
-                    <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
-                    <p>Clé GPG du trousseau de repomanager :</p>
-                    <select name="existingGpgKey">
-                        <option value="">Choisir une clé GPG...</option>
-                        <?php
-                        $gpgFiles = scandir(RPM_GPG_DIR);
-                        if (!empty($gpgFiles)) {
-                            foreach ($gpgFiles as $gpgFile) {
-                                if (($gpgFile != "..") and ($gpgFile != ".")) {
-                                    echo '<option value="' . $gpgFile . '">' . $gpgFile . '</option>';
-                                }
-                            }
-                        } ?>
-                    </select>
+                <tr field-type="rpm">
+                    <td>Ce repo source dispose d'une clé GPG</td>
+                    <td class="td-10">
+                        <select id="newRepoGpgSelect" class="select-small">
+                            <option id="newRepoGpgSelect_no">Non</option>
+                            <option id="newRepoGpgSelect_yes">Oui</option>
+                        </select>
+                    </td>
+                </tr>
 
-                    <p>URL ou fichier vers une clé GPG :</p>
-                    <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc...">
-                    <br>
-                    <p>Importer une nouvelle clé GPG :</p>
-                    <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
-                </div>
-                <?php
-            }
+                <tr field-type="rpm">
+                    <td colspan="100%">
+                        <div class="sourceGpgDiv hide">
+                            <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
+                            <p>Clé GPG du trousseau de repomanager :</p>
 
-            /**
-             *  Cas Debian
-             */
-            if (OS_FAMILY == "Debian") { ?>
-                <p>Clé GPG (fac.) :</p>
-                <textarea id="gpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
-            <?php } ?>
+                            <select name="existingGpgKey">
+                                <option value="">Choisir une clé GPG...</option>
+                                <?php
+                                if (!empty($rpmGpgKeys)) {
+                                    foreach ($rpmGpgKeys as $gpgFile) {
+                                        if (($gpgFile != "..") and ($gpgFile != ".")) {
+                                            echo '<option value="' . $gpgFile . '">' . $gpgFile . '</option>';
+                                        }
+                                    }
+                                } ?>
+                            </select>
 
-            <br>
-            <br>
+                            <p>URL ou fichier vers une clé GPG :</p>
+                            <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc...">
+                            
+                            <br>
+
+                            <p>Importer une nouvelle clé GPG :</p>
+                            <textarea id="rpmGpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr field-type="deb">
+                    <td colspan="100%">
+                        <p>Clé GPG (fac.) :</p>
+                        <textarea id="debGpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+                    </td>
+                </tr>
+            </table>
             <button type="submit" class="btn-large-blue" title="Ajouter">Ajouter</button>
 
         </form>
@@ -84,55 +117,54 @@
     <?php
 
     /**
-     * LISTE DES CLES GPG DU TROUSSEAU DE REPOMANAGER
+     * Liste des clés du trousseau de repomanager
      */
+    if (!empty($rpmGpgKeys) or !empty($debGpgKeys)) : ?>
+        <div class="div-generic-gray">
+        
+            <h5>Clés GPG importées</h5>
 
-    /**
-     *  Dans le cas de rpm, les clés gpg sont stockées dans RPM_GPG_DIR (en principe par défaut /etc/pki/rpm-gpg/repomanager)
-     */
-    if (OS_FAMILY == "Redhat") {
-        $gpgKeys = scandir(RPM_GPG_DIR);
-    }
-
-    /**
-     *  Dans le cas de apt, les clés sont stockées dans le trousseau GPG 'trustedkeys.gpg' de repomanager
-     */
-    if (OS_FAMILY == "Debian") {
-        $gpgKeys = shell_exec("gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
-        $gpgKeys = explode("\n\n", $gpgKeys);
-    }
-
-    if (!empty($gpgKeys)) {
-        echo '<div class="div-generic-gray">';
-            echo '<h5>Clés GPG importées</h5>';
-        foreach ($gpgKeys as $gpgKey) {
-            if (OS_FAMILY == "Redhat") {
-                if (($gpgKey != "..") and ($gpgKey != ".")) { ?>
+            <?php
+            if (!empty($rpmGpgKeys)) {
+                foreach ($rpmGpgKeys as $gpgKey) {
+                    if (($gpgKey != "..") and ($gpgKey != ".")) : ?>
                         <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" title="Supprimer la clé GPG <?= $gpgKey ?>" />
-                            <?php echo $gpgKey;?>
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Supprimer la clé GPG <?= $gpgKey ?>" />
+                            <?= $gpgKey ?>
                         </p>
-                <?php               }
+                    <?php endif;
+                }
             }
-            if (OS_FAMILY == "Debian") {
-                // On récup uniquement l'ID de la clé GPG
-                $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
-                // Retire tous les espaces blancs
-                $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
-                // Récupère le nom de la clé GPG
-                $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-                if (!empty($gpgKeyID) and !empty($gpgKeyName)) { ?>
-                        <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
-                            <?php echo $gpgKeyName . " ($gpgKeyID)";?>
-                        </p>
-                <?php               }
-            }
-        }
-        echo '</div>';
-    } ?>
 
-        <?php
+            if (!empty($debGpgKeys)) {
+                foreach ($debGpgKeys as $gpgKey) {
+                    /**
+                     *  On récupère uniquement l'ID de la clé GPG
+                     */
+                    $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
+
+                    /**
+                     *  Retire tous les espaces blancs
+                     */
+                    $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
+
+                    /**
+                     *  Récupère le nom de la clé GPG
+                     */
+                    $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+
+                    if (!empty($gpgKeyID) and !empty($gpgKeyName)) : ?>
+                        <p>
+                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
+                            <?= $gpgKeyName . " ($gpgKeyID)" ?>
+                        </p>
+                    <?php endif;
+                }
+            } ?>
+        </div>
+    <?php endif ?>
+
+    <?php
         /**
          *  AFFICHAGE DES REPOS SOURCES ACTUELS
          */
@@ -140,75 +172,51 @@
         /**
          *  1. Récupération de tous les noms de sources
          */
-        if (OS_FAMILY == "Redhat") {
-            $sourcesList = scandir(REPOMANAGER_YUM_DIR);
-        }
-        if (OS_FAMILY == "Debian") {
-            $sourcesList = $source->listAll();
-        }
+        $rpmSourcesList = glob(REPOMANAGER_YUM_DIR . '/*.repo');
+        $debSourcesList = $source->listAll();
 
         /**
          *  2. Affichage des groupes si il y en a
          */
-        if (!empty($sourcesList)) {
-            echo '<div class="div-generic-gray">';
-                echo "<h5>Repos sources actuels</h5>";
+    if (!empty($rpmSourcesList) or !empty($debSourcesList)) : ?>
+            <div class="div-generic-gray">
+                <h5>Repos sources actuels</h5>
 
-            foreach ($sourcesList as $source) {
-                if (OS_FAMILY == "Redhat") {
-                    /**
-                     *  Si le nom du fichier ne termine pas par '.repo' alors on passe au suivant
-                     */
-                    if (!preg_match('/.repo$/i', $source)) {
-                        continue;
-                    }
-                    $sourceName = str_replace(".repo", "", $source);
+                <?php
+                if (!empty($rpmSourcesList)) {
+                    echo '<h4>Rpm</h4>';
 
-                    /**
-                     *  On récupère le contenu du fichier
-                     */
-                    $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR . "/${source}", true));
-                }
-                if (OS_FAMILY == "Debian") {
-                    $sourceName = $source['Name'];
-                    $sourceUrl = $source['Url'];
-                }
-
-                /**
-                 *  Affichage des sources
-                 */ ?>
-                    <div class="header-container sourceDivs">
-                        <div class="header-blue-min">
-                        <?php
-                        if (OS_FAMILY == "Debian") {
-                            echo '<input type="hidden" name="actualSourceUrl" value="' . $sourceUrl . '" />';
-                        } ?>
-
-                            <table class="table-large">
-                                <tr>
-                                    <td>
-                                        <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" />
-                                    </td>
-                                <?php
-                                if (OS_FAMILY == "Debian") {
-                                    echo '<td><input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="' . $sourceName . '" value="' . $sourceUrl . '" /></td>';
-                                } ?>
-                                    <td class="td-fit">
-                                        <?php
-                                        if (OS_FAMILY == "Redhat") {
-                                            echo '<img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="' . $sourceName . '" title="Configuration de ' . $sourceName . '" />';
-                                        }
-                                        echo '<img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="' . $sourceName . '" title="Supprimer le repo source ' . $sourceName . '" />';
-                                        ?>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <?php
+                    foreach ($rpmSourcesList as $source) {
                         /**
-                         *  4. La configuration des repos sources est placée dans un div caché
+                         *  Conserver uniquement le nom du fichier et pas son chemin complet
                          */
-                        if (OS_FAMILY == "Redhat") { ?>
+                        $source = basename($source);
+                        $sourceName = str_replace(".repo", "", $source);
+
+                        /**
+                         *  On récupère le contenu du fichier
+                         */
+                        $content = explode("\n", file_get_contents(REPOMANAGER_YUM_DIR . '/' . $source, true));
+
+                        /**
+                         *  Affichage des sources
+                         */
+                        ?>
+                        <div class="header-container sourceDivs">
+                            <div class="header-blue-min">
+                                <table class="table-large">
+                                    <tr>
+                                        <td>
+                                            <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" repotype="rpm" />
+                                        </td>
+                                        <td class="td-fit">
+                                            <img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="<?= $sourceName ?>" title="Configuration de <?= $sourceName ?>" />
+                                            <img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="rpm" title="Supprimer le repo source <?= $sourceName ?>" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
                             <div id="sourceConfigurationDiv-<?= $sourceName ?>" class="hide detailsDiv">
                         
                                 <p>Paramètres :</p>
@@ -298,10 +306,38 @@
                                 </form>
                                 <br>
                             </div>
-                        <?php   }
-                        echo '</div>';
-            }
-        }
-        ?>
+                        </div>
+                    <?php }
+                }
+
+                if (!empty($debSourcesList)) {
+                    echo '<h4>Deb</h4>';
+
+                    foreach ($debSourcesList as $source) {
+                        $sourceName = $source['Name'];
+                        $sourceUrl = $source['Url'];
+                        ?>
+                        <div class="header-container sourceDivs">
+                            <div class="header-blue-min">
+                                <input type="hidden" name="actualSourceUrl" value="<?= $sourceUrl ?>" />
+                                <table class="table-large">
+                                    <tr>
+                                        <td>
+                                            <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" repotype="deb" />
+                                        </td>
+                                        <td>
+                                            <input class="sourceFormUrlInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceUrl ?>" />
+                                        </td>
+                                
+                                        <td class="td-fit">
+                                            <img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="deb" title="Supprimer le repo source <?= $sourceName ?>" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    <?php }
+                }
+    endif; ?>
     </table>
 </section>

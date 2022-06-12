@@ -62,7 +62,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
     /**
      *  Si on souhaite activer ou non la gestion des hôtes
      */
-    if (!empty($_POST['manageHosts']) and \Models\Common::validateData($_POST['manageHosts']) === "yes") {
+    if (!empty($_POST['manageHosts']) and $_POST['manageHosts'] === "yes") {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'yes';
     } else {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_HOSTS'] = 'no';
@@ -71,7 +71,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
     /**
      *  Si on souhaite activer ou non la gestion des profils
      */
-    if (!empty($_POST['manageProfiles']) and \Models\Common::validateData($_POST['manageProfiles']) === "yes") {
+    if (!empty($_POST['manageProfiles']) and $_POST['manageProfiles'] === "yes") {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_PROFILES'] = 'yes';
     } else {
         $repomanager_conf_array['CONFIGURATION']['MANAGE_PROFILES'] = 'no';
@@ -84,36 +84,72 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
         $repomanager_conf_array['CONFIGURATION']['REPO_CONF_FILES_PREFIX'] = \Models\Common::validateData($_POST['repoConfPrefix']);
     }
 
+/**
+ *  Section RPM
+ */
     /**
-     *  Releasever (Redhat/CentOS)
+     *  Activer/désactiver les repos RPM
      */
+    if (!empty($_POST['rpmRepo']) and $_POST['rpmRepo'] === "enabled") {
+        $repomanager_conf_array['RPM']['RPM_REPO'] = 'enabled';
+    } else {
+        $repomanager_conf_array['RPM']['RPM_REPO'] = 'disabled';
+    }
+
+    /**
+     *  Activer/désactiver la signature des paquets avec GPG
+     */
+    if (!empty($_POST['rpmSignPackages']) and $_POST['rpmSignPackages'] === "yes") {
+        $repomanager_conf_array['RPM']['RPM_SIGN_PACKAGES'] = 'yes';
+    } else {
+        $repomanager_conf_array['RPM']['RPM_SIGN_PACKAGES'] = 'no';
+    }
+
+    /**
+     *  Email lié à la clé GPG qui signe les paquets
+     */
+    if (!empty($_POST['rpmGpgKeyID'])) {
+        $rpmGpgKeyID = \Models\Common::validateData($_POST['rpmGpgKeyID']);
+
+        if (Models\Common::isAlphanumDash($rpmGpgKeyID, array('@', '.'))) {
+            $repomanager_conf_array['RPM']['RPM_SIGN_GPG_KEYID'] = trim($rpmGpgKeyID);
+        }
+    }
+
     if (!empty($_POST['releasever']) and is_numeric($_POST['releasever'])) {
-        $repomanager_conf_array['CONFIGURATION']['RELEASEVER'] = $_POST['releasever'];
+        $repomanager_conf_array['RPM']['RELEASEVER'] = $_POST['releasever'];
         file_put_contents('/etc/yum/vars/releasever', $_POST['releasever']);
     }
 
-
 /**
- *  Section GPG
+ *  Section DEB
  */
-
     /**
-     *  Activer/désactiver la signature des paquets/des repos avec GPG
+     *  Activer/désactiver les repos DEB
      */
-    if (!empty($_POST['gpgSignPackages']) and \Models\Common::validateData($_POST['gpgSignPackages']) === "yes") {
-        $repomanager_conf_array['GPG']['GPG_SIGN_PACKAGES'] = 'yes';
+    if (!empty($_POST['debRepo']) and $_POST['debRepo'] === "enabled") {
+        $repomanager_conf_array['DEB']['DEB_REPO'] = 'enabled';
     } else {
-        $repomanager_conf_array['GPG']['GPG_SIGN_PACKAGES'] = 'no';
+        $repomanager_conf_array['DEB']['DEB_REPO'] = 'disabled';
     }
 
     /**
-     *  Email lié à la clé GPG qui signe les paquets/les repos
+     *  Activer/désactiver la signature des repos avec GPG
      */
-    if (!empty($_POST['gpgKeyID'])) {
-        $gpgKeyID = \Models\Common::validateData($_POST['gpgKeyID']);
+    if (!empty($_POST['debSignRepo']) and $_POST['debSignRepo'] === "yes") {
+        $repomanager_conf_array['DEB']['DEB_SIGN_REPO'] = 'yes';
+    } else {
+        $repomanager_conf_array['DEB']['DEB_SIGN_REPO'] = 'no';
+    }
 
-        if (Models\Common::isAlphanumDash($gpgKeyID, array('@', '.'))) {
-            $repomanager_conf_array['GPG']['GPG_KEYID'] = trim($gpgKeyID);
+    /**
+     *  Email lié à la clé GPG qui signe les paquets
+     */
+    if (!empty($_POST['debGpgKeyID'])) {
+        $debGpgKeyID = \Models\Common::validateData($_POST['debGpgKeyID']);
+
+        if (Models\Common::isAlphanumDash($debGpgKeyID, array('@', '.'))) {
+            $repomanager_conf_array['DEB']['DEB_SIGN_GPG_KEYID'] = trim($debGpgKeyID);
         }
     }
 
@@ -184,21 +220,6 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
     if (!empty($_POST['wwwHostname']) and $OLD_WWW_HOSTNAME !== \Models\Common::validateData($_POST['wwwHostname']) and \Models\Common::isAlphanumDash(Models\Common::validateData($_POST['wwwHostname']), array('.'))) {
         $NEW_WWW_HOSTNAME = trim(Models\Common::validateData($_POST['wwwHostname']));
         $repomanager_conf_array['WWW']['WWW_HOSTNAME'] = "$NEW_WWW_HOSTNAME";
-
-        // Puis on remplace dans tous les fichier de conf de repo
-        // if (OS_FAMILY == "Redhat") {
-        //     exec("find ".REPOS_PROFILES_CONF_DIR."/ -type f -name '*.repo' -print0 | xargs -0 sed -i 's/${OLD_WWW_HOSTNAME}/${NEW_WWW_HOSTNAME}/g'");
-        // }
-        // if (OS_FAMILY == "Debian") {
-        //     exec("find ".REPOS_PROFILES_CONF_DIR."/ -type f -name '*.list' -print0 | xargs -0 sed -i 's/${OLD_WWW_HOSTNAME}/${NEW_WWW_HOSTNAME}/g'");
-        // }
-
-        // On remplace aussi dans le fichier profils/hostname.conf si existe
-        // if (file_exists("PROFILE_SERVER_CONF")) {
-        //     $content = file_get_contents(PROFILE_SERVER_CONF);
-        //     $content = preg_replace("/${OLD_WWW_HOSTNAME}/", $NEW_WWW_HOSTNAME, $content);
-        //     file_put_contents(PROFILE_SERVER_CONF, $content);
-        // }
     }
 
     /**
@@ -613,82 +634,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         </table>
 
         <br><h3>REPOS</h3>
+
         <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Ce serveur gère des repos de paquets 
-                    <?php
-                    echo (OS_FAMILY == "Redhat") ? 'rpm' : '';
-                    echo (OS_FAMILY == "Debian") ? 'deb' : '';
-                    ?>">Type de paquets
-                </td>
-                <td>
-                    <input type="text" value=".<?= PACKAGE_TYPE ?>" readonly />
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(PACKAGE_TYPE)) {
-                        echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                    } ?>
-                </td>
-            </tr>
-            <?php
-            if (OS_FAMILY == "Redhat") : ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Ce serveur créera des miroirs de repos pour CentOS <?= RELEASEVER ?>. Attention cette valeur est globale à yum et peut impacter les mises à jour du serveur <?= WWW_HOSTNAME ?> si elle est modifiée." />Version de paquets gérée
-                    </td>
-                    <td>
-                        <input type="number" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
-                    </td>
-                    <td class="td-fit">
-                        <?php if (!file_exists('/etc/yum/vars/releasever')) {
-                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'existe pas" />';
-                        }?>
-                        <?php if (!is_readable('/etc/yum/vars/releasever')) {
-                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas accessible pour ' . WWW_USER . '" />';
-                        }?>
-                        <?php if (!is_writable('/etc/yum/vars/releasever')) {
-                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas modifiable pour ' . WWW_USER . '" />';
-                        }?>
-                        <?php if (empty(RELEASEVER)) {
-                            echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                        }?>
-                    </td>
-                </tr>
-            <?php endif ?>
-        <tr>
-            <td class="td-large">
-                <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Resigner les paquets du repo avec GPG après création ou mise à jour d'un miroir de repo" />Signer les paquets avec GPG
-            </td>
-            <td>
-                <label class="onoff-switch-label">
-                    <input name="gpgSignPackages" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-            </td>
-            <td class="td-fit">
-                <?php if (empty(GPG_SIGN_PACKAGES)) {
-                    echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                }?>
-            </td>
-        <?php
-        if (GPG_SIGN_PACKAGES == "yes") {
-            echo '<tr>';
-            if (OS_FAMILY == "Redhat") {
-                echo '<td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Adresse mail liée à la clé GPG servant à resigner les paquets" />GPG Key ID (pour signature des paquets)</td>';
-            }
-            if (OS_FAMILY == "Debian") {
-                echo '<td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Adresse mail liée à la clé GPG servant à signer les repos" />GPG Key ID (pour signature des repos)</td>';
-            }
-            echo '<td><input type="text" name="gpgKeyID" autocomplete="off" value="' . GPG_KEYID . '"></td>';
-            echo '<td class="td-fit">';
-            if (empty(GPG_KEYID)) {
-                echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-            }
-            echo '</td>';
-            echo '</tr>';
-        }
-        ?>
             <tr>
                 <td class="td-large">
                     <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Répertoire local de stockage des repos" />Répertoire des repos
@@ -719,21 +666,162 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
             </tr>
             <?php
-            if (CRON_STATS_ENABLED == "yes") {
-                echo '<tr>';
-                echo '<td class="td-large"><img src="ressources/icons/info.png" class="icon-verylowopacity" title="Chemin vers le fichier de log du serveur web contenant des requêtes d\'accès aux repos. Ce fichier est parsé pour générer des statistiques." />Fichier de log à analyser pour les statistiques</td>';
-                echo '<td><input type="text" autocomplete="off" name="statsLogPath" value="' . WWW_STATS_LOG_PATH . '" /></td>';
-                echo '<td class="td-fit">';
-                if (empty(WWW_STATS_LOG_PATH)) {
-                    echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
-                }
-                echo '</td>';
-                echo '</tr>';
-            }
-            ?>
+            if (CRON_STATS_ENABLED == "yes") : ?>
+                <tr>
+                    <td class="td-large">
+                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Chemin vers le fichier de log du serveur web contenant des requêtes d\'accès aux repos. Ce fichier est parsé pour générer des statistiques." />Fichier de log à analyser pour les statistiques
+                    </td>
+                    <td>
+                        <input type="text" autocomplete="off" name="statsLogPath" value="<?= WWW_STATS_LOG_PATH ?>" />
+                    </td>
+                    <td class="td-fit">
+                        <?php
+                        if (empty(WWW_STATS_LOG_PATH)) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        }
+                        ?>
+                    </td>
+                </tr>
+            <?php endif ?>
+        </table>
+
+        <h4>RPM</h4>
+
+        <table class="table-medium">
+            <tr>
+                <td class="td-large">
+                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title=""> Repo de paquets RPM
+                </td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="rpmRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (RPM_REPO == "enabled") ? 'checked' : ''; ?>>
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+            </tr>
+            <?php if (RPM_REPO == "enabled") : ?>
+                <tr>
+                    <td class="td-large">
+                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Signer les paquets du repo avec GPG après création ou mise à jour d'un miroir de repo."> Signer les paquets avec GPG
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="rpmSignPackages" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <?php if (empty(RPM_SIGN_PACKAGES)) {
+                        echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                    } ?>
+                </tr>
+
+                <?php if (RPM_SIGN_PACKAGES == 'yes') : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Adresse email liée à la clé GPG utilisée pour signer les paquets."> Identifiant email de la clé GPG
+                        </td>
+                        <td>
+                            <input type="email" name="rpmGpgKeyID" autocomplete="off" value="<?= RPM_SIGN_GPG_KEYID ?>">
+                        </td>
+                        <td>
+                            <?php if (empty(RPM_SIGN_GPG_KEYID)) {
+                                echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="td-large">
+                            <img src="ressources/icons/info.png" class="icon-verylowopacity" title=""> Méthode de signature GPG
+                        </td>
+                        <td>
+                            <select name="rpmSignMethod">
+                                <option value="rpmsign" <?php echo (RPM_SIGN_METHOD == 'rpmsign' ? 'selected' : '') ?>>rpmsign</option>
+                                <option value="rpmresign" <?php echo (RPM_SIGN_METHOD == 'rpmresign' ? 'selected' : '') ?>>rpmresign (RPM4 perl module)</option>
+                            </select>
+                        </td>
+                        <?php if (empty(RPM_SIGN_METHOD)) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        } ?>
+                    </tr>
+                <?php endif ?>
+
+                <tr>
+                    <td class="td-large">
+                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Ce serveur créera des miroirs de repos pour CentOS <?= RELEASEVER ?>. Attention cette valeur est globale à yum et peut impacter les mises à jour du serveur <?= WWW_HOSTNAME ?> si elle est modifiée." />Version de paquets gérée
+                    </td>
+                    <td>
+                        <input type="text" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
+                    </td>
+                    <td class="td-fit">
+                        <?php if (!file_exists('/etc/yum/vars/releasever')) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'existe pas" />';
+                        }?>
+                        <?php if (!is_readable('/etc/yum/vars/releasever')) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas accessible pour ' . WWW_USER . '" />';
+                        }?>
+                        <?php if (!is_writable('/etc/yum/vars/releasever')) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas modifiable pour ' . WWW_USER . '" />';
+                        }?>
+                        <?php if (empty(RELEASEVER)) {
+                            echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        }?>
+                    </td>
+                </tr>
+            <?php endif ?>
+        </table>
+
+        <h4>DEB</h4>
+
+        <table class="table-medium">
+            <tr>
+                <td class="td-large">
+                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title=""> Repo de paquets DEB
+                </td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="debRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (DEB_REPO == "enabled") ? 'checked' : ''; ?>>
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+            </tr>
+        
+            <?php if (DEB_REPO == "enabled") : ?>
+                <tr>
+                    <td class="td-large">
+                        <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Signer les repos avec GPG."> Signer les repos avec GPG
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="debSignRepo" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <?php if (empty(DEB_SIGN_REPO)) {
+                        echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                    } ?>
+                </tr>
+
+                <?php if (DEB_SIGN_REPO == 'yes') : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Adresse email liée à la clé GPG utilisée pour signer les repos."> Identifiant email de la clé GPG
+                        </td>
+                        <td>
+                            <input type="text" name="debGpgKeyID" autocomplete="off" value="<?= DEB_SIGN_GPG_KEYID ?>">
+                        </td>
+                        <td>
+                            <?php if (empty(DEB_SIGN_GPG_KEYID)) {
+                                echo '<img src="ressources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            } ?>
+                        </td>
+                    </tr>
+                <?php endif ?>
+            <?php endif ?>
         </table>
 
         <br><h3>CONFIGURATION WEB</h3>
+
         <table class="table-medium">
             <tr>
                 <td class="td-large">

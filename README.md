@@ -45,8 +45,9 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 <h2>Ressources</h2>
 
 Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
-- Debian 10, Ubuntu bionic
+- Debian 9,10, Ubuntu bionic
 - RHEL 7/8, CentOS 7/8, CentOS Stream, Rocky Linux, Fedora 33
+Configuration minimale recommandé : Debian 10 ou RHEL/CentOS 8.
 
 Repomanager ne nécessite qu'un service web + PHP (7 minimum) et SQLite.
 

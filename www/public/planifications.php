@@ -4,7 +4,6 @@
 require_once('../controllers/Autoloader.php');
 \Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
-require_once('../functions/repo.functions.php');
 ?>
 
 <body>
@@ -485,10 +484,10 @@ require_once('../functions/repo.functions.php');
                                              *  On génère une <option> pour chaque repo
                                              */
                                             if ($repoPackageType == "rpm") {
-                                                echo '<option value="' . $snapId . '">' . $repoName . ' ⟶ ' . $repoDateFormatted . '</option>';
+                                                echo '<option value="' . $snapId . '" package-type="' . $repoPackageType . '">' . $repoName . ' ⟶ ' . $repoDateFormatted . '</option>';
                                             }
                                             if ($repoPackageType == "deb") {
-                                                echo '<option value="' . $snapId . '"><span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span> ⟶ ' . $repoDateFormatted . '</option>';
+                                                echo '<option value="' . $snapId . '" package-type="' . $repoPackageType . '"><span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span> ⟶ ' . $repoDateFormatted . '</option>';
                                             }
                                         }
                                     } ?>
@@ -543,7 +542,10 @@ require_once('../functions/repo.functions.php');
                         </tr>
 
                         <tr class="__plan_gpg_input hide">
-                            <td colspan="100%"><hr><p><b>Paramètres GPG</b></p></td>
+                            <td colspan="100%">
+                                <hr>
+                                <p><b>Paramètres GPG</b></p>
+                            </td>
                         </tr>
 
                         <tr class="__plan_gpg_input hide">
@@ -560,7 +562,16 @@ require_once('../functions/repo.functions.php');
                             <td class="td-10">Signer avec GPG</td>
                             <td>
                                 <label class="onoff-switch-label">
-                                    <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                                    <?php
+                                    $planGpgResign = 'yes';
+                                    /**
+                                     *  Si les deux constantes suivantes valent 'no' alors la signature avec GPG sera désactivée par défaut
+                                     */
+                                    if (RPM_SIGN_PACKAGES == 'no' and DEB_SIGN_REPO == 'no') {
+                                        $planGpgResign = 'no';
+                                    }
+                                    ?>
+                                    <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes" <?php echo ($planGpgResign == "yes") ? 'checked' : ''; ?>>
                                     <span class="onoff-switch-slider"></span>
                                 </label>
                             </td>

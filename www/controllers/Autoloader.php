@@ -253,7 +253,6 @@ class Autoloader
         if (!defined('POOL')) {
             define('POOL', ROOT . "/operations/pool");
         }
-
         // PIDs
         if (!defined('PID_DIR')) {
             define('PID_DIR', ROOT . "/operations/pid");
@@ -266,22 +265,30 @@ class Autoloader
         if (!defined('HOSTS_DIR')) {
             define('HOSTS_DIR', ROOT . '/hosts');
         }
-        // Répertoires et fichiers supplémentaires pour Redhat
-        if (OS_FAMILY == "Redhat") {
-            // Emplacement de la conf yum
-            if (!defined('REPOMANAGER_YUM_DIR')) {
-                define('REPOMANAGER_YUM_DIR', "/etc/yum.repos.d/repomanager");
-            }
-            if (!defined('REPOMANAGER_YUM_CONF')) {
-                define('REPOMANAGER_YUM_CONF', "/etc/yum.repos.d/repomanager/repomanager.conf");
-            }
-            // Emplacement des clés gpg importées par repomanager
-            if (!defined('RPM_GPG_DIR')) {
-                define('RPM_GPG_DIR', "/etc/pki/rpm-gpg/repomanager");
-            }
-            if (!defined('PASSPHRASE_FILE')) {
-                define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
-            }
+        // Répertoires et fichiers supplémentaires pour rpm
+        // Emplacement de la conf yum
+        if (!defined('REPOMANAGER_YUM_DIR')) {
+            define('REPOMANAGER_YUM_DIR', "/etc/yum.repos.d/repomanager");
+        }
+        if (!defined('REPOMANAGER_YUM_CONF')) {
+            define('REPOMANAGER_YUM_CONF', "/etc/yum.repos.d/repomanager/repomanager.conf");
+        }
+        // Emplacement des clés gpg importées par repomanager
+        if (!defined('RPM_GPG_DIR')) {
+            define('RPM_GPG_DIR', "/etc/pki/rpm-gpg/repomanager");
+        }
+        if (!defined('PASSPHRASE_FILE')) {
+            define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
+        }
+        // }
+        if (!is_dir(ROOT . '/.rpm')) {
+            mkdir(ROOT . '/.rpm', 0770, true);
+        }
+        // Fichier de macros pour rpm
+        if (!file_exists(MACROS_FILE)) {
+            file_put_contents(MACROS_FILE, '%__gpg /usr/bin/gpg' . PHP_EOL);
+            file_put_contents(MACROS_FILE, '%_gpg_name ' . RPM_SIGN_GPG_KEYID . PHP_EOL, FILE_APPEND);
+            file_put_contents(MACROS_FILE, '%__gpg_sign_cmd %{__gpg} gpg --homedir ' . GPGHOME . ' --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file ' . PASSPHRASE_FILE . ' %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}' . PHP_EOL, FILE_APPEND);
         }
 
         /**
@@ -317,6 +324,10 @@ class Autoloader
         if (!is_dir(HOSTS_DIR)) {
             mkdir(HOSTS_DIR, 0770, true);
         }
+        if (!is_dir(REPOMANAGER_YUM_DIR)) {
+            mkdir(REPOMANAGER_YUM_DIR, 0770, true);
+        }
+
         if (!file_exists(WWW_CACHE)) {
             // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
             if (file_exists("/dev/shm")) {
@@ -329,7 +340,7 @@ class Autoloader
         /**
          *  Création du répertoire de backup si n'existe pas
          */
-        if (!is_dir(BACKUP_DIR)) {
+        if (defined('BACKUP_DIR') and !is_dir(BACKUP_DIR)) {
             if (!mkdir(BACKUP_DIR, 0770, true)) {
                 $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : ' . $BACKUP_DIR;
             }
@@ -361,14 +372,20 @@ class Autoloader
             }
         }
 
+        if (!is_dir(REPOS_DIR . '/gpgkeys')) {
+            mkdir(REPOS_DIR . '/gpgkeys', 0770, true);
+        }
+
         /**
          *  Si la clé de signature GPG n'existe pas alors on l'exporte
          */
-        if (GPG_SIGN_PACKAGES == "yes" and !file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . ".pub")) {
-            if (!is_dir(REPOS_DIR . '/gpgkeys')) {
-                mkdir(REPOS_DIR . '/gpgkeys', 0770, true);
-            }
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+        if (RPM_SIGN_PACKAGES == 'yes' and DEB_SIGN_REPO == 'yes') {
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
+        } else if (RPM_SIGN_PACKAGES == 'yes') {
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+        } else if (DEB_SIGN_REPO == 'yes') {
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
         }
     }
 
@@ -492,15 +509,6 @@ class Autoloader
         if (!defined('OS_VERSION')) {
             define('OS_VERSION', OS_INFO['version_id']);
         }
-
-        if (!defined('PACKAGE_TYPE')) {
-            if (OS_FAMILY == "Redhat") {
-                define('PACKAGE_TYPE', 'rpm');
-            }
-            if (OS_FAMILY == "Debian") {
-                define('PACKAGE_TYPE', 'deb');
-            }
-        }
     }
 
     /**
@@ -522,7 +530,7 @@ class Autoloader
          *  Vérification de la présence de repomanager.conf
          */
         if (!file_exists(REPOMANAGER_CONF)) {
-            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager." . ROOT;
+            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.";
             die();
         }
 
@@ -556,26 +564,6 @@ class Autoloader
             } else {
                 define('REPOS_DIR', '');
                 $__LOAD_MAIN_CONF_MESSAGES[] = 'Le répertoire de stockage des repos n\'est pas renseigné . ';
-            }
-        }
-
-        if (!defined('GPG_SIGN_PACKAGES')) {
-            if (!empty($repomanager_conf_array['GPG_SIGN_PACKAGES'])) {
-                define('GPG_SIGN_PACKAGES', $repomanager_conf_array['GPG_SIGN_PACKAGES']);
-            } else {
-                define('GPG_SIGN_PACKAGES', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la signature des paquets avec GPG n'est pas renseigné.";
-            }
-        }
-
-        if (!defined('GPG_KEYID')) {
-            if (GPG_SIGN_PACKAGES == "yes") {
-                if (!empty($repomanager_conf_array['GPG_KEYID'])) {
-                    define('GPG_KEYID', $repomanager_conf_array['GPG_KEYID']);
-                } else {
-                    define('GPG_KEYID', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "L'ID de la clé de signature GPG n'est pas renseigné.";
-                }
             }
         }
 
@@ -672,6 +660,107 @@ class Autoloader
         }
 
         /**
+         *  Paramètres de repos
+         */
+
+        // RPM
+        if (!defined('RPM_REPO')) {
+            if (!empty($repomanager_conf_array['RPM_REPO'])) {
+                define('RPM_REPO', $repomanager_conf_array['RPM_REPO']);
+            } else {
+                define('RPM_REPO', 'disabled');
+            }
+        }
+
+        if (!defined('RPM_SIGN_PACKAGES')) {
+            if (!empty($repomanager_conf_array['RPM_SIGN_PACKAGES'])) {
+                define('RPM_SIGN_PACKAGES', $repomanager_conf_array['RPM_SIGN_PACKAGES']);
+            } else {
+                define('RPM_SIGN_PACKAGES', 'no');
+            }
+        }
+
+        if (!defined('RPM_SIGN_GPG_KEYID')) {
+            if (!empty($repomanager_conf_array['RPM_SIGN_GPG_KEYID'])) {
+                define('RPM_SIGN_GPG_KEYID', $repomanager_conf_array['RPM_SIGN_GPG_KEYID']);
+            } else {
+                define('RPM_SIGN_GPG_KEYID', '');
+
+                /**
+                 *  On affiche un message uniquement si la signature est activée
+                 */
+                if (RPM_SIGN_PACKAGES == 'yes') {
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
+                }
+            }
+        }
+
+        if (!defined('RPM_SIGN_METHOD')) {
+            if (!empty($repomanager_conf_array['RPM_SIGN_METHOD'])) {
+                define('RPM_SIGN_METHOD', $repomanager_conf_array['RPM_SIGN_METHOD']);
+            } else {
+                /**
+                 *  On défini la méthode par défaut en cas de valeur vide
+                 */
+                define('RPM_SIGN_METHOD', 'rpmsign');
+
+                /**
+                 *  On affiche un message uniquement si la signature est activée
+                 */
+                if (RPM_SIGN_PACKAGES == 'yes') {
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune méthode de signature des paquets avec GPG n'est renseignée.";
+                }
+            }
+        }
+
+        if (!defined('RELEASEVER')) {
+            if (!empty($repomanager_conf_array['RELEASEVER'])) {
+                define('RELEASEVER', $repomanager_conf_array['RELEASEVER']);
+            } else {
+                define('RELEASEVER', '');
+
+                /**
+                 *  On affiche un message uniquement si les repos RPM sont activés.
+                 */
+                if (RPM_REPO == 'enabled') {
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune version de release n'est renseignée.";
+                }
+            }
+        }
+
+        // DEB
+        if (!defined('DEB_REPO')) {
+            if (!empty($repomanager_conf_array['DEB_REPO'])) {
+                define('DEB_REPO', $repomanager_conf_array['DEB_REPO']);
+            } else {
+                define('DEB_REPO', 'disabled');
+            }
+        }
+
+        if (!defined('DEB_SIGN_REPO')) {
+            if (!empty($repomanager_conf_array['DEB_SIGN_REPO'])) {
+                define('DEB_SIGN_REPO', $repomanager_conf_array['DEB_SIGN_REPO']);
+            } else {
+                define('DEB_SIGN_REPO', 'no');
+            }
+        }
+
+        if (!defined('DEB_SIGN_GPG_KEYID')) {
+            if (!empty($repomanager_conf_array['DEB_SIGN_GPG_KEYID'])) {
+                define('DEB_SIGN_GPG_KEYID', $repomanager_conf_array['DEB_SIGN_GPG_KEYID']);
+            } else {
+                define('DEB_SIGN_GPG_KEYID', '');
+
+                /**
+                 *  On affiche un message uniquement si la signature est activée
+                 */
+                if (DEB_SIGN_REPO == 'yes') {
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
+                }
+            }
+        }
+
+        /**
          *  Paramètres d'automatisation
          */
         if (!defined('AUTOMATISATION_ENABLED')) {
@@ -683,39 +772,45 @@ class Autoloader
             }
         }
 
-        if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
-            if (!defined('ALLOW_AUTOUPDATE_REPOS')) {
-                if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'])) {
-                    define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
-                } else {
-                    define('ALLOW_AUTOUPDATE_REPOS', '');
+        if (!defined('ALLOW_AUTOUPDATE_REPOS')) {
+            if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'])) {
+                define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
+            } else {
+                define('ALLOW_AUTOUPDATE_REPOS', '');
+                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de mise à jour de repo n'est pas renseignée.";
                 }
             }
+        }
 
-            if (!defined('ALLOW_AUTOUPDATE_REPOS_ENV')) {
-                if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV'])) {
-                    define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
-                } else {
-                    define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
+        if (!defined('ALLOW_AUTOUPDATE_REPOS_ENV')) {
+            if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV'])) {
+                define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
+            } else {
+                define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
+                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
                 }
             }
+        }
 
-            if (!defined('ALLOW_AUTODELETE_ARCHIVED_REPOS')) {
-                if (!empty($repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS'])) {
-                    define('ALLOW_AUTODELETE_ARCHIVED_REPOS', $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS']);
-                } else {
-                    define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
+        if (!defined('ALLOW_AUTODELETE_ARCHIVED_REPOS')) {
+            if (!empty($repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS'])) {
+                define('ALLOW_AUTODELETE_ARCHIVED_REPOS', $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS']);
+            } else {
+                define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
+                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la suppression automatique des repos archivés n'est pas renseignée.";
                 }
             }
+        }
 
-            if (!defined('RETENTION')) {
-                if (isset($repomanager_conf_array['RETENTION']) and $repomanager_conf_array['RETENTION'] >= 0) {
-                    define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
-                } else {
-                    define('RETENTION', '');
+        if (!defined('RETENTION')) {
+            if (isset($repomanager_conf_array['RETENTION']) and $repomanager_conf_array['RETENTION'] >= 0) {
+                define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
+            } else {
+                define('RETENTION', '');
+                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune rétention de sauvegarde n'est configurée.";
                 }
             }
@@ -797,8 +892,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['CRON_APPLY_PERMS'])) {
                 define('CRON_APPLY_PERMS', $repomanager_conf_array['CRON_APPLY_PERMS']);
             } else {
-                define('CRON_APPLY_PERMS', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
+                define('CRON_APPLY_PERMS', 'no');
             }
         }
 
@@ -806,8 +900,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['CRON_SAVE_CONF'])) {
                 define('CRON_SAVE_CONF', $repomanager_conf_array['CRON_SAVE_CONF']);
             } else {
-                define('CRON_SAVE_CONF', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
+                define('CRON_SAVE_CONF', 'no');
             }
         }
 
@@ -815,23 +908,15 @@ class Autoloader
             if (!empty($repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'])) {
                 define('CRON_PLAN_REMINDERS_ENABLED', $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED']);
             } else {
-                define('CRON_PLAN_REMINDERS_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
+                define('CRON_PLAN_REMINDERS_ENABLED', 'no');
             }
         }
 
         /**
-         *  Paramètres supplémentaires si Redhat
+         *  Paramètres supplémentaires pour rpm / yum
          */
-        if (OS_FAMILY == "Redhat") {
-            if (!defined('RELEASEVER')) {
-                if (!empty($repomanager_conf_array['RELEASEVER'])) {
-                    define('RELEASEVER', $repomanager_conf_array['RELEASEVER']);
-                } else {
-                    define('RELEASEVER', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "";
-                }
-            }
+        if (!defined('MACROS_FILE')) {
+            define('MACROS_FILE', ROOT . '/.rpm/.mcs');
         }
 
         /**

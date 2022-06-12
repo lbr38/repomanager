@@ -220,7 +220,7 @@ class Login extends Model
 
         Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
 
-        History::set($_SESSION['username'], "Création de l'utilisateur $username", 'success');
+        History::set($_SESSION['username'], "Création de l'utilisateur <b>$username</b>", 'success');
 
         /**
          *  On retourne le mot de passe temporaire généré afin que l'utilisateur puisse le récupérer
@@ -465,7 +465,7 @@ class Login extends Model
             Common::dbError($e);
         }
 
-        History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur $username", 'success');
+        History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur <b>$username</b>", 'success');
 
         Common::printAlert('Le mot de passe a été regénéré', 'success');
 
@@ -508,7 +508,7 @@ class Login extends Model
             Common::dbError($e);
         }
 
-        History::set($_SESSION['username'], "Suppression de l'utilisateur $username", 'success');
+        History::set($_SESSION['username'], "Suppression de l'utilisateur <b>$username</b>", 'success');
 
         Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
     }

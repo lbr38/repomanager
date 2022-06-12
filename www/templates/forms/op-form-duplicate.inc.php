@@ -1,13 +1,14 @@
 <tr>
     <td colspan="100%">
+        Dupliquer
         <?php
         if ($myrepo->getPackageType() == 'rpm') {
-            echo 'Dupliquer <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+            echo ' <span class="label-white">' . $myrepo->getName() . '</span>';
         }
         if ($myrepo->getPackageType() == 'deb') {
-            echo 'Dupliquer <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
-        }
-        ?>
+            echo ' <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>';
+        } ?>
+        ⟶<span class="label-black"><?=$myrepo->getDateFormatted()?></span>
     </td>
 </tr>
 
@@ -15,10 +16,10 @@
     <td class="td-30">Nouveau nom du repo :</td>
     <td>
         <input type="text" class="operation_param" param-name="targetName" required />
-        <?php if ($myrepo->getPackageType() == 'deb') : ?>
+        <?php /*if ($myrepo->getPackageType() == 'deb') : ?>
             <input type="hidden" class="operation_param" param-name="dist" value="<?= $myrepo->getDist() ?>" required />
             <input type="hidden" class="operation_param" param-name="section" value="<?= $myrepo->getSection() ?>" required />
-        <?php endif ?>
+        <?php endif */?>
     </td>
 </tr>
 
@@ -49,7 +50,6 @@
 /**
  *  Affichage de la liste des groupes
  */
-
 $group = new \Controllers\Group('repo');
 $groupList = $group->listAllName();
 

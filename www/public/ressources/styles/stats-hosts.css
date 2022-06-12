@@ -149,7 +149,31 @@
     margin: 4px;
 }
 
+.groups-container {
+    -moz-column-count: 3;
+    -moz-column-gap: 3%;
+    -moz-column-width: 30%;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 3%;
+    -webkit-column-width: 30%;
+    column-count: 2;
+    width: 100%;
+    column-gap: 1%;
+}
+
 .hosts-group-container {
+    padding: 15px;
+    border-radius: 2px;
+    border: 1px solid #403f3f;
+    background-color: #333333;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+    break-inside: avoid;
+    margin-bottom: 20px;
+}
+
+
+/* .hosts-group-container {
     width: 47.7%;
     margin: 5px;
     padding: 15px;
@@ -161,7 +185,7 @@
     background-color: #333333;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
-}
+} */
 
 #settingsDiv div {
     width: 47.7%;

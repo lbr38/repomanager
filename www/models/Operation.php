@@ -6,19 +6,6 @@ use Exception;
 
 class Operation extends Model
 {
-    // public $log;     // pour instancier un objet Log
-    // private $action;
-    // private $status;
-    // private $id;
-    // private $type;
-    // private $date;
-    // private $time;
-    // private $id_plan; // Si une opération est lancée par une planification alors on peut stocker l'ID de cette planification dans cette variable
-    // private $targetGpgCheck;
-    // private $targetGpgResign;
-    // private $timeStart = "";
-    // private $timeEnd = "";
-
     public function __construct()
     {
         /**

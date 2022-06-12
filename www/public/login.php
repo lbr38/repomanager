@@ -120,7 +120,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
     <link rel="stylesheet" type="text/css" href="ressources/styles/main.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" />
+    <link rel="icon" href="ressources/favicon.ico" />
     <title>Login</title>
 </head>
 

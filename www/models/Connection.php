@@ -10,7 +10,7 @@ class Connection extends SQLite3
     public function __construct(string $database, string $hostId = null)
     {
         /**
-         *  Ouvre la base de données à partie du chemin et du mode renseigné (read-write ou read-only)
+         *  Ouvre la base de données à partir du chemin et du mode renseigné (read-write ou read-only)
          *  Si celle-ci n'existe pas elle est créée automatiquement
          */
         try {

@@ -11,12 +11,7 @@
         <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
         <?php // on affiche ce bouton uniquement sur index.php :
         if ((__ACTUAL_URI__ == "/index.php") or (__ACTUAL_URI__ == "/")) {
-            if (OS_FAMILY == "Redhat") {
-                echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer un nouveau repo<img class="icon" src="ressources/icons/plus.png" title="Créer un nouveau repo" /></span>';
-            }
-            if (OS_FAMILY == "Debian") {
-                echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer une nouvelle section<img class="icon" src="ressources/icons/plus.png" title="Créer une nouvelle section" /></span>';
-            }
+            echo '<span id="newRepoToggleButton" action="new" class="pointer">Créer un nouveau repo<img class="icon" src="ressources/icons/plus.png" title="Créer un nouveau repo" /></span>';
         }
         ?>
     </div>
@@ -28,22 +23,14 @@
     <span id="hideAllReposGroups" class="lowopacity pointer">Tout masquer <img src="ressources/icons/chevron-circle-down.png" class="icon" /></span>
 </div>
 
-<div class="repos-list-container">
+<div id="repos-list-container">
     <?php
 
     /**
      *  Génération de la page en html et stockage en ram
      */
-
     if (CACHE_REPOS_LIST == "yes") {
         if (!file_exists(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html')) {
-            // touch(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html');
-            // ob_start();
-            // include(__DIR__ . '/repos-active-list.inc.php');
-            // $content = ob_get_clean();
-            // file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html', $content);
-            // \Models\Common::generateCache($_SESSION['role']);
-
             \Models\Common::generateCache($_SESSION['role']);
         }
         /**
@@ -51,6 +38,6 @@
          */
         include(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html');
     } else {
-        include(__DIR__ . '/repos-active-list.inc.php');
+        include(__DIR__ . '/repos-list.inc.php');
     } ?>
 </div>

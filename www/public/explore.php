@@ -175,18 +175,9 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
         /**
          *  On vérifie que le paquet est valide
          */
-        if (OS_FAMILY == "Redhat") {
-            if ($packageType !== 'application/x-rpm') {
-                $uploadError++;
-                $packageInvalid .= "$packageName, ";
-            }
-        }
-
-        if (OS_FAMILY == "Debian") {
-            if ($packageType !== 'application/vnd.debian.binary-package') {
-                $uploadError++;
-                $packageInvalid .= "$packageName, ";
-            }
+        if ($packageType !== 'application/x-rpm' and $packageType !== 'application/vnd.debian.binary-package') {
+            $uploadError++;
+            $packageInvalid .= "$packageName, ";
         }
 
         /**
@@ -287,7 +278,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                     /**
                      *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                      */
-                    if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct == 'needed')) { ?>
+                    if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct != 'running')) { ?>
                             <div class="div-generic-gray">
                                 <h5><img src="ressources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
                                 
@@ -304,16 +295,16 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                                  *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
                                  */
                                 if (!empty($packageExists)) {
-                                    echo "<br><span class=\"redtext\">Les paquets suivants existent déjà et n'ont pas été chargés : <b>" . rtrim($packageExists, ', ') . "</b></span>";
+                                    echo '<br><span class="redtext">Les paquets suivants existent déjà et n\'ont pas été chargés : <b>' . rtrim($packageExists, ', ') . '</b></span>';
                                 }
                                 if (!empty($packagesError)) {
-                                    echo "<br><span class=\"redtext\">Les paquets suivants sont en erreur et n'ont pas été chargés : <b>" . rtrim($packagesError, ', ') . "</b></span>";
+                                    echo '<br><span class="redtext">Les paquets suivants sont en erreur et n\'ont pas été chargés : <b>' . rtrim($packagesError, ', ') . '</b></span>';
                                 }
                                 if (!empty($packageEmpty)) {
-                                    echo "<br><span class=\"redtext\">Les paquets suivants semblent vides et n'ont pas été chargés : <b>" . rtrim($packageEmpty, ', ') . "</b></span>";
+                                    echo '<br><span class="redtext">Les paquets suivants semblent vides et n\'ont pas été chargés : <b>' . rtrim($packageEmpty, ', ') . '</b></span>';
                                 }
                                 if (!empty($packageInvalid)) {
-                                    echo "<br><span class=\"redtext\">Les paquets suivants sont invalides et n'ont pas été chargés : <b>" . rtrim($packageInvalid, ', ') . "</b></span>";
+                                    echo '<br><span class="redtext">Les paquets suivants sont invalides et n\'ont pas été chargés : <b>' . rtrim($packageInvalid, ', ') . '</b></span>';
                                 }
                                 ?>
                             </div>
@@ -325,7 +316,21 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                                     <input type="hidden" name="snapId" value="<?= $snapId ?>">
                                     <span>Signer avec GPG </span>
                                     <label class="onoff-switch-label">
-                                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (GPG_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                                        <?php
+                                        $resignChecked = '';
+
+                                        if ($myrepo->getPackageType() == "rpm") {
+                                            if (RPM_SIGN_PACKAGES == 'yes') {
+                                                $resignChecked = 'checked';
+                                            }
+                                        }
+                                        if ($myrepo->getPackageType() == "deb") {
+                                            if (DEB_SIGN_REPO == 'yes') {
+                                                $resignChecked = 'checked';
+                                            }
+                                        }
+                                        ?>
+                                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?= $resignChecked ?>>
                                         <span class="onoff-switch-slider"></span>
                                     </label>
                                     <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>

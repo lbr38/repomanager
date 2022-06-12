@@ -1,0 +1,144 @@
+name: Run operations on a rpm repo (from a Rocky Linux system)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    push:
+      branches: [ stable ]
+jobs:
+  create-repo:
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:latest
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system packages
+        run: | 
+          dnf install epel-release -y
+          dnf update -y
+
+      - name: Install dependencies packages
+        run: dnf install yum-utils rpm-sign createrepo_c sudo -y
+
+      - name: Setup PHP
+        run: |
+          dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm -y
+          dnf module reset php -y
+          dnf module install php:remi-7.4 -y
+          dnf update -y
+          dnf install php -y
+
+      - name: Install PHP modules
+        run: dnf install php-cli php-pdo php-json sqlite -y
+
+      - name: Print PHP version
+        run: php --version    
+
+      - name: Set up repomanager files & directories
+        run: |
+          useradd www-data -s /usr/sbin/nologin
+          groupadd repomanager
+          usermod -a -G repomanager www-data
+          mkdir -p /home/repo
+          mkdir -p /etc/yum/vars
+          mkdir -p /etc/yum.repos.d/repomanager
+          mkdir -p /var/www/repomanager
+          mkdir -p /var/www/repomanager/backups
+          mkdir -p /var/www/repomanager/logs/main
+          mkdir -p /var/www/repomanager/cron
+          mkdir -p /var/www/repomanager/configurations
+          mkdir -p /var/www/repomanager/operations/pool/
+          mkdir -p /var/www/repomanager/db
+          mkdir -p /var/www/repomanager/.gnupg
+          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/version /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/version /var/www/repomanager/cron/github.version
+          cp $GITHUB_WORKSPACE/www/repomanager /var/www/repomanager/
+
+      - name: Set up repomanager main config
+        run: |
+          curl -s -o /var/www/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/repomanager.conf 2> /dev/null
+          curl -s -L -o /var/www/repomanager/db/repomanager.db https://github.com/lbr38/repomanager-docs/raw/main/ci/repomanager.db 2> /dev/null
+          ls -l /var/www/repomanager/configurations/
+          ls -l /var/www/repomanager/db/
+      
+      - name: Generate repomanager GPG signing key
+        run: |
+          echo "Key-Type: RSA" > /tmp/gpg-template-file
+          echo "Key-Length: 2048" >> /tmp/gpg-template-file
+          echo "Key-Usage: sign" >> /tmp/gpg-template-file
+          echo "Name-Real: Repomanager" >> /tmp/gpg-template-file
+          echo "Name-Comment: No description" >> /tmp/gpg-template-file
+          echo "Name-Email: gpgkey@nomail.com" >> /tmp/gpg-template-file
+          echo "Expire-Date: 0" >> /tmp/gpg-template-file
+          echo "Passphrase: beautifulPassphrase" >> /tmp/gpg-template-file
+          gpg2 --batch --gen-key --homedir /var/www/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
+          echo "beautifulPassphrase" > passphrase
+          mv passphrase /var/www/repomanager/.gnupg/passphrase
+          rm /tmp/gpg-template-file
+
+      - name: Set up GPG config
+        run: |
+          echo -e "pinentry-mode loopback\npassphrase-file /var/www/repomanager/.gnupg/passphrase" > gpg.conf 
+          mv gpg.conf /var/www/repomanager/.gnupg/gpg.conf
+
+      - name: Set up yum configuration
+        run: |
+          echo "[main]
+          reposdir=/etc/yum.repos.d/repomanager/
+          keepcache=0
+          debuglevel=2
+          exactarch=1
+          obsoletes=1
+          gpgcheck=1
+          plugins=1
+          installonly_limit=5
+          distroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
+
+      - name: Set up nginx repo source
+        run: |
+          echo "[nginx]
+          name=nginx repo
+          baseurl=http://nginx.org/packages/centos/7/\$basearch/
+          gpgcheck=0
+          enabled=1" > /etc/yum.repos.d/repomanager/nginx.repo
+
+      - name: Download jobs
+        run: |
+          curl -s -o /var/www/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-update-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-duplicate-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-create-env.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-delete.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-reconstruct.json 2> /dev/null
+
+      - name: Set up permissions
+        run: /var/www/repomanager/repomanager -p
+
+      - name: Run job - Mirror repo
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo'
+
+      - name: Print mirrored repo content
+        run: ls -l /home/repo/nginx_pprd/
+
+      - name: Run job - Update repo
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-update-repo'
+
+      - name: Run job - Duplicate repo
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-duplicate-repo'
+
+      - name: Print duplicated repo content
+        run: ls -l /home/repo/nginx-copy_pprd/
+
+      - name: Run job - Create repo env
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-create-env'
+
+      - name: Run job - Reconstruct repo
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-reconstruct'
+
+      - name: Run job - Delete repo
+        run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-delete'

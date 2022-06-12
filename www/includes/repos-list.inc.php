@@ -17,10 +17,8 @@ if (!empty($groupsList)) {
              *  Bouton permettant de masquer le contenu de ce groupe
              */
             echo '<img src="ressources/icons/chevron-circle-down.png" class="hideGroup pointer float-right icon-lowopacity" group="' . $groupName . '" />';
-            /**
-             *  On n'affiche pas le nom de groupe "Default"
-             */
             echo "<h3>$groupName</h3>";
+
             /**
              *  Récupération de la liste des repos du groupe
              */
@@ -28,12 +26,13 @@ if (!empty($groupsList)) {
             $reposList = $myrepo->listByGroup($groupName);
 
         if (!empty($reposList)) {
-            $reposList = group_by("Name", $reposList);
+            $reposList = \Models\Common::groupBy("Name", $reposList);
 
             /**
              *  Traitement de la liste des repos
              */
-            processList($reposList);
+            $myrepo->printRepoList($reposList);
+            unset($myrepo);
         } else {
             echo '<span class="lowopacity">(vide)</span>';
         }

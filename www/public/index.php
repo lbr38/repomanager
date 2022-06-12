@@ -4,7 +4,6 @@
 require_once('../controllers/Autoloader.php');
 \Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
-require_once('../functions/repo.functions.php');
 ?>
 
 <body>
