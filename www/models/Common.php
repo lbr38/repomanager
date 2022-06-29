@@ -116,7 +116,7 @@ class Common
     public static function generateCache(string $role)
     {
         ob_start();
-        include(ROOT . '/includes/repos-active-list.inc.php');
+        include(ROOT . '/includes/repos-list.inc.php');
         $content = ob_get_clean();
         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
 
@@ -127,7 +127,7 @@ class Common
         //     foreach ($roles as $role) {
         //         define('GENERATE_CACHE_ROLE', $role);
         //         ob_start();
-        //         include(ROOT . '/includes/repos-active-list.inc.php');
+        //         include(ROOT . '/includes/repos-list.inc.php');
         //         $content = ob_get_clean();
         //         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
         //     }
@@ -135,7 +135,7 @@ class Common
         //     define('GENERATE_CACHE_ROLE', $role);
 
         //     ob_start();
-        //     include(ROOT . '/includes/repos-active-list.inc.php');
+        //     include(ROOT . '/includes/repos-list.inc.php');
         //     $content = ob_get_clean();
         //     file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
         // }
@@ -577,5 +577,23 @@ class Common
         Common::clearCache();
 
         return true;
+    }
+
+    /**
+     *  Tri un array par la valeur de clé spécifiée
+     */
+    public static function groupBy($key, $data)
+    {
+        $result = array();
+
+        foreach ($data as $val) {
+            if (array_key_exists($key, $val)) {
+                $result[$val[$key]][] = $val;
+            } else {
+                $result[""][] = $val;
+            }
+        }
+
+        return $result;
     }
 }

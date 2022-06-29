@@ -1665,6 +1665,6 @@ class Host
             }
         }
 
-        \Models\History::set($_SESSION['username'], "Modifications des hôtes membres du groupe <b>$groupName</b>", 'success');
+        \Models\History::set($_SESSION['username'], 'Modifications des hôtes membres du groupe <span class="label-white">' . $groupName . '</span>', 'success');
     }
 }

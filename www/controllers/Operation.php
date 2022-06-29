@@ -10,6 +10,7 @@ class Operation
     private $model;
     private $action;
     private $status;
+    private $error;
     private $id;
     private $type;
     private $date;
@@ -50,6 +51,11 @@ class Operation
         $this->status = $status;
     }
 
+    public function setError(string $error)
+    {
+        $this->error = $error;
+    }
+
     public function setTargetGpgCheck(string $gpgCheck)
     {
         $this->targetGpgCheck = $gpgCheck;
@@ -73,6 +79,11 @@ class Operation
     public function getStatus()
     {
         return $this->status;
+    }
+
+    public function getError()
+    {
+        return $this->error;
     }
 
     public function getTargetGpgCheck()
@@ -730,6 +741,7 @@ class Operation
         foreach ($repos_array as $repo) {
             $repoId = \Models\Common::validateData($repo['repoId']);
             $snapId = \Models\Common::validateData($repo['snapId']);
+
             /**
              *  Lorsque qu'aucun environnement ne pointe vers le snapshot (snapId), il n'y a aucun envId transmis.
              *  On set envId = null dans ce cas là
@@ -787,43 +799,50 @@ class Operation
             }
 
             /**
+             *  Récupération du type ede paquets du repo
+             */
+            $packageType = $myrepo->getPackageType();
+
+            /**
              *  Construction du formulaire à partir d'un template
              */
             ob_start();
 
-            echo '<div class="operation-form" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
-                echo '<table>';
-                    /**
-                     *  Si l'action est 'update'
-                     */
+            //echo '<div class="operation-form" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
+            echo '<div class="operation-form" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
+            echo '<table>';
+
+            /**
+             *  Si l'action est 'update'
+             */
             if ($action == 'update') {
                 include(ROOT . '/templates/forms/op-form-update.inc.php');
             }
-                    /**
-                     *  Si l'action est duplicate
-                     */
+            /**
+             *  Si l'action est duplicate
+             */
             if ($action == 'duplicate') {
                 include(ROOT . '/templates/forms/op-form-duplicate.inc.php');
             }
-                    /**
-                     *  Si l'action est 'env'
-                     */
+            /**
+             *  Si l'action est 'env'
+             */
             if ($action == 'env') {
                 include(ROOT . '/templates/forms/op-form-env.inc.php');
             }
-                    /**
-                     *  Si l'action est 'delete'
-                     */
+            /**
+             *  Si l'action est 'delete'
+             */
             if ($action == 'delete') {
                 include(ROOT . '/templates/forms/op-form-delete.inc.php');
             }
-                    /**
-                     *  Si l'action est 'reconstruct'
-                     */
+            /**
+             *  Si l'action est 'reconstruct'
+             */
             if ($action == 'reconstruct') {
                 include(ROOT . '/templates/forms/op-form-reconstruct.inc.php');
             }
-                echo '</table>';
+            echo '</table>';
             echo '</div>';
 
             $content .= ob_get_clean();
@@ -870,20 +889,15 @@ class Operation
              *  Récupération de l'id de repo et de snapshot, sauf quand l'action est 'new'
              */
             if ($action !== 'new') {
-                if (empty($operation_params['repoId'])) {
-                    throw new Exception("Aucun Id de repo n'a été spécifié.");
-                }
                 if (empty($operation_params['snapId'])) {
                     throw new Exception("Aucun Id de snapshot n'a été spécifié.");
                 }
 
-                $repoId = \Models\Common::validateData($operation_params['repoId']);
                 $snapId = \Models\Common::validateData($operation_params['snapId']);
 
                 /**
                  *  On vérifie la validité des paramètres transmis
                  */
-                $this->checkParamRepoId($repoId);
                 $this->checkParamSnapId($snapId);
             }
 
@@ -897,7 +911,7 @@ class Operation
 
             if ($action == 'new') {
                 /**
-                 *  On récupère le type de paquets du repo à créer
+                 *  On récupère le type de paquet du repo à créer
                  */
                 if (empty($operation_params['packageType'])) {
                     throw new Exception("Le type de paquets du repo n'est pas spécifié.");
@@ -912,15 +926,19 @@ class Operation
              */
             if ($action !== 'new') {
                 $myrepo = new \Controllers\Repo();
-                $myrepo->setRepoId($repoId);
                 $myrepo->setSnapId($snapId);
 
                 if (!empty($envId)) {
                     $myrepo->setEnvId($envId);
-                    $myrepo->getAllById($repoId, $snapId, $envId);
+                    $myrepo->getAllById('', $snapId, $envId);
                 } else {
-                    $myrepo->getAllById($repoId, $snapId);
+                    $myrepo->getAllById('', $snapId);
                 }
+
+                /**
+                 *  Récupération du type de paquet
+                 */
+                $packageType = $myrepo->getPackageType();
             }
 
             /**
@@ -930,6 +948,7 @@ class Operation
                 $myrepo = new \Controllers\Repo();
 
                 $this->checkParamType($operation_params['type']);
+
                 if ($packageType == 'deb') {
                     $this->checkParamDist($operation_params['dist']);
                     $this->checkParamSection($operation_params['section']);
@@ -942,7 +961,9 @@ class Operation
                  *  Si le type de repo sélectionné est 'local' alors on vérifie qu'un nom a été fourni (peut rester vide dans le cas d'un miroir)
                  */
                 if ($operation_params['type'] == "local") {
-                    $this->checkParamName($operation_params['alias']);
+                    $targetName = $operation_params['alias'];
+
+                    $this->checkParamName($targetName);
                 }
                 /**
                  *  Si le type de repo sélectionné est 'mirror' alors on vérifie des paramètres supplémentaires
@@ -952,8 +973,11 @@ class Operation
                      *  Si un alias a été donné, on vérifie sa syntaxe
                      */
                     if (!empty($operation_params['alias'])) {
-                        $this->checkParamName($operation_params['alias']);
+                        $targetName = $operation_params['alias'];
+                    } else {
+                        $targetName = $operation_params['source'];
                     }
+                    $this->checkParamName($targetName);
                     $this->checkParamSource($operation_params['source']);
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
@@ -962,7 +986,7 @@ class Operation
                  *  On vérifie qu'un/une repo/section du même nom n'est pas déjà actif avec des snapshots
                  */
                 if ($packageType == 'rpm' and $myrepo->isActive($operation_params['alias']) === true) {
-                    throw new Exception('Un repo du même nom existe déjà');
+                    throw new Exception('Un repo de même nom existe déjà');
                 }
                 if ($packageType == 'deb' and $myrepo->isActive($operation_params['alias'], $operation_params['dist'], $operation_params['section']) === true) {
                     throw new Exception('Une section de repo du même nom existe déjà');
@@ -993,10 +1017,10 @@ class Operation
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $operation_params['alias'] . '</span> (' . $operation_params['type'] . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $operation_params['alias'] . ' ❯ ' . $operation_params['dist'] . ' ❯ ' . $operation_params['section'] . '</span> (' . $operation_params['type'] . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $targetName . ' ❯ ' . $operation_params['dist'] . ' ❯ ' . $operation_params['section'] . '</span> (' . $operation_params['type'] . ')', 'success');
                 }
             }
 
@@ -1007,10 +1031,10 @@ class Operation
                 $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                 $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
-                if ($myrepo->getPackageType() == 'rpm') {
+                if ($packageType == 'rpm') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
-                if ($myrepo->getPackageType() == 'deb') {
+                if ($packageType == 'deb') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
             }
@@ -1020,11 +1044,6 @@ class Operation
              */
             if ($action == 'duplicate') {
                 $this->checkParamTargetName($operation_params['targetName']);
-
-                if ($myrepo->getPackageType() == 'deb') {
-                    $this->checkParamDist($operation_params['dist']);
-                    $this->checkParamSection($operation_params['section']);
-                }
 
                 if (!empty($operation_params['targetEnv'])) {
                     $this->checkParamEnv($operation_params['targetEnv']);
@@ -1040,22 +1059,22 @@ class Operation
                 /**
                  *  On vérifie qu'un repo du même nom n'existe pas déjà
                  */
-                if ($myrepo->getPackageType() == 'rpm') {
+                if ($packageType == 'rpm') {
                     if ($myrepo->isActive($operation_params['targetName']) === true) {
                         throw new Exception('un repo <span class="label-black">' . $operation_params['targetName'] . '</span> existe déjà');
                     }
                 }
-                if ($myrepo->getPackageType() == 'deb') {
-                    if ($myrepo->isActive($operation_params['targetName'], $operation_params['dist'], $operation_params['section']) === true) {
-                        throw new Exception('un repo <span class="label-black">' . $operation_params['targetName'] . ' ❯ ' . $operation_params['dist'] . ' ❯ ' . $operation_params['section'] . '</span> existe déjà');
+                if ($packageType == 'deb') {
+                    if ($myrepo->isActive($operation_params['targetName'], $myrepo->getDist(), $myrepo->getSection()) === true) {
+                        throw new Exception('un repo <span class="label-black">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> existe déjà');
                     }
                 }
 
-                if ($myrepo->getPackageType() == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . '</span>' . \Models\Common::envtag($myrepo->getEnv()) . ' ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
+                if ($packageType == 'rpm') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
                 }
-                if ($myrepo->getPackageType() == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Models\Common::envtag($myrepo->getEnv()) . ' ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                if ($packageType == 'deb') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1070,11 +1089,11 @@ class Operation
                     throw new Exception("Il n'existe aucun Id de snapshot " . $snapId);
                 }
 
-                if ($myrepo->getPackageType() == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du repo <span class="label-white">' . $myrepo->getName() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                if ($packageType == 'rpm') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du snapshot de repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
-                if ($myrepo->getPackageType() == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression de la section de repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                if ($packageType == 'deb') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du snapshot de repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
             }
 
@@ -1085,11 +1104,12 @@ class Operation
                 $this->checkParamEnv($operation_params['targetEnv']);
                 $this->checkParamDescription($operation_params['targetDescription']);
 
-                if ($myrepo->getPackageType() == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Models\Common::envtag($operation_params['targetEnv']) . '⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . '</span>', 'success');
+                if ($packageType == 'rpm') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Models\Common::envtag($operation_params['targetEnv']), 'success');
                 }
-                if ($myrepo->getPackageType() == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Models\Common::envtag($operation_params['targetEnv']) . '⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour la section de repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                if ($packageType == 'deb') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Models\Common::envtag($operation_params['targetEnv']), 'success');
+                    // \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Models\Common::envtag($operation_params['targetEnv']) . '⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1099,11 +1119,11 @@ class Operation
             if ($action == 'reconstruct') {
                 $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
-                if ($myrepo->getPackageType() == 'rpm') {
+                if ($packageType == 'rpm') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . '</span>' . \Models\Common::envtag($myrepo->getEnv()), 'success');
                 }
-                if ($myrepo->getPackageType() == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées de la section de repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Models\Common::envtag($myrepo->getEnv()), 'success');
+                if ($packageType == 'deb') {
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Models\Common::envtag($myrepo->getEnv()), 'success');
                 }
             }
         }

@@ -230,7 +230,7 @@ class Profile
          */
         $this->model->rename($name, $newName);
 
-        \Models\History::set($_SESSION['username'], "Renommage du profil $name en $newName", 'success');
+        \Models\History::set($_SESSION['username'], "Renommage du profil <b>$name</b> en <b>$newName</b>", 'success');
     }
 
     /**

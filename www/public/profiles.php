@@ -32,6 +32,9 @@ $serverConfApplyNeeded = 0;
 if (!empty($serverConfiguration['Package_type'])) {
     $serverPackageType = $serverConfiguration['Package_type'];
 } else {
+    /**
+     *  Si aucun type de paquets n'est spécifié alors on va déduire en fonction du type de système sur lequel repomanager est installé
+     */
     if (OS_FAMILY == 'Redhat') {
         $serverPackageType = 'rpm';
     }

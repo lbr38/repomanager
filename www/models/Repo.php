@@ -458,6 +458,8 @@ class Repo extends Model
      */
     public function getFullSource(string $sourceName)
     {
+        $fullUrl = '';
+
         /**
          *  Récupère l'url complète
          */
@@ -612,6 +614,26 @@ class Repo extends Model
     }
 
     /**
+     *  Retourne true si une opération est en cours sur l'Id de snapshot spécifié
+     */
+    public function snapOpIsRunning(string $snapId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM operations WHERE (Id_snap_source = :snapId OR Id_snap_target = :snapId) AND Status = 'running'");
+            $stmt->bindValue(':snapId', $snapId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result) === true) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      *  Modification de l'état du snapshot
      */
     public function snapSetStatus(string $snapId, string $status)
@@ -693,10 +715,17 @@ class Repo extends Model
      *  Retourne true si existe
      *  Retourne false si n'existe pas
      */
-    public function exists(string $name)
+    public function exists(string $name, string $dist = '', string $section = '')
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM repos WHERE Name = :name");
+            // $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
+            if (!empty($dist) and !empty($section)) {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
+                $stmt->bindValue(':dist', $dist);
+                $stmt->bindValue(':section', $section);
+            } else {
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist IS NULL AND Section IS NULL");
+            }
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -803,24 +832,24 @@ class Repo extends Model
      *  Retourne true si existe
      *  Retourne false si n'existe pas
      */
-    public function sectionExists(string $name, string $dist, string $section)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
-            $stmt->bindValue(':name', $name);
-            $stmt->bindValue(':dist', $dist);
-            $stmt->bindValue(':section', $section);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            Common::dbError($e);
-        }
+    // public function sectionExists(string $name, string $dist, string $section)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
+    //         $stmt->bindValue(':name', $name);
+    //         $stmt->bindValue(':dist', $dist);
+    //         $stmt->bindValue(':section', $section);
+    //         $result = $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         Common::dbError($e);
+    //     }
 
-        if ($this->db->isempty($result) === true) {
-            return false;
-        }
+    //     if ($this->db->isempty($result) === true) {
+    //         return false;
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     /**
      *  Vérifie si un environnement existe à partir de son nom et de l'Id de snapshot vers lequel il pointe
@@ -860,6 +889,8 @@ class Repo extends Model
                 INNER JOIN repos_snap
                     ON repos_snap.Id_repo = repos.Id
                 WHERE repos.Name = :name
+                AND repos.Dist IS NULL
+                AND repos.Section IS NULL
                 AND repos_snap.Status = 'active'");
             } else {
                 $stmt = $this->db->prepare("SELECT repos.Id

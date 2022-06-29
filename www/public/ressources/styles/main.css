@@ -191,7 +191,7 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
     padding: 22px 25px 22px 25px;
 }
 #menu div span {
-    vertical-align: baseline !important;
+    vertical-align: middle !important;
 }
 #menu div span.header-link {
     opacity: 0.50;
@@ -202,7 +202,7 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
 #menu div span.underline {
     border-bottom: 2px solid #2b426e;
     padding-bottom: 22px;
-    vertical-align: baseline;
+    vertical-align: middle;
 }
 #header-refresh {
     position: relative;
@@ -320,7 +320,7 @@ section.left {
     float: right;
 } */
 section.missing-param-alert {
-    width: 99%;
+    width: 97%;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 30px;
@@ -396,13 +396,14 @@ table {
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 
-.repos-list-container {
+#repos-list-container {
     width: 100%;
     font-size: 14px;
 }
 
 .repos-list-group-flex-div {
     display: grid;
+    grid-template-columns: 200px 250px auto auto auto auto 70px 1fr;
     margin-bottom: 4px;
     background-color: #2b426e;
     border-radius: 3px;
@@ -414,18 +415,17 @@ table {
     0px 0px 0px 0px rgb(109 109 109 / 20%);
 }
 
-.repos-list-type-redhat {
-    /* grid-template-columns: 200px auto auto auto auto 96px 1fr; */
+/* .repos-list-type-redhat {
+    /* grid-template-columns: 200px auto auto auto auto 96px 1fr;
     grid-template-columns: 200px auto auto auto auto 70px 1fr;
-}
+}*/
 
-.repos-list-type-debian {
-    grid-template-columns: 200px 250px auto auto auto auto 70px 1fr;
+/* .repos-list-type-debian { */
+    /* grid-template-columns: 200px 250px auto auto auto auto 70px 1fr; */
     /* grid-auto-columns: 200px 250px auto auto auto auto 96px 1fr; */
-}
+/*}*/
 
 .repos-list-group-flex-div [class^="item"] {
-    /* padding: 8px; */
     padding: 4px 0px 4px 8px;
     position: relative;
 }
@@ -445,6 +445,18 @@ table {
 
 .item-repo {
     font-weight: bold;
+}
+
+.item-pkgtype {
+    font-size: 10px;
+    vertical-align: middle;
+    position: absolute !important;
+    top: 20px;
+    left: 1px;
+}
+
+.item-pkgtype .icon-small {
+    margin: 0 !important;
 }
 
 .item-empty-line {

@@ -51,8 +51,9 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 <h2>Requirements</h2>
 
 Runs on following Redhat/CentOS or Debian/Ubuntu systems:
-- Debian 10, Ubuntu bionic
+- Debian 9,10, Ubuntu bionic
 - RHEL 7/8, CentOS 7/8, Fedora 33
+Minimal recommanded configuration: Debian 10 or RHEL/CentOS 8.
 
 Repomanager only needs a web service + PHP (7 min.) and SQLite.
 

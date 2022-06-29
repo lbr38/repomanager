@@ -19,7 +19,7 @@ class Source extends Model
     /**
      *  Add a new source repo
      */
-    public function new(string $name, string $urlType = null, string $url, string $existingGpgKey = null, string $gpgKeyURL = null, string $gpgKeyText = null)
+    public function new(string $repoType, string $name, string $urlType = null, string $url, string $existingGpgKey = null, string $gpgKeyURL = null, string $gpgKeyText = null)
     {
         $name = Common::validateData($name);
 
@@ -49,8 +49,8 @@ class Source extends Model
         /**
          *  Sur Redhat/Centos, on crée un fichier dans /etc/yum.repos.d/repomanager/
          */
-        if (OS_FAMILY == "Redhat") {
-            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
+        if ($repoType == 'rpm') {
+            if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
                 throw new Exception("Un repo source <b>$name</b> existe déjà");
             }
 
@@ -187,7 +187,7 @@ class Source extends Model
         /**
          *  Sur Debian, on ajoute l'URL en BDD
          */
-        if (OS_FAMILY == "Debian") {
+        if ($repoType == "deb") {
             /**
              *  On vérifie qu'un repo source du même nom n'existe pas déjà en BDD
              */
@@ -266,18 +266,22 @@ class Source extends Model
     /**
      *  Remove a source repo
      */
-    public function delete(string $name)
+    public function delete(string $repoType, string $name)
     {
+        if ($repoType != 'rpm' and $repoType != 'deb') {
+            throw new Exception('Le type de repo est invalide');
+        }
+
         $name = Common::validateData($name);
 
-        if (OS_FAMILY == "Redhat") {
-            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
-                if (!unlink(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
+        if ($repoType == "rpm") {
+            if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
+                if (!unlink(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
                     throw new Exception("Erreur lors de la suppression du repo source <b>$name</b>");
                 }
             }
         }
-        if (OS_FAMILY == "Debian") {
+        if ($repoType == "deb") {
             try {
                 $stmt = $this->db->prepare("DELETE FROM sources WHERE Name = :name");
                 $stmt->bindValue(':name', $name);
@@ -291,8 +295,12 @@ class Source extends Model
     /**
      *  Rename a source repo
      */
-    public function rename(string $name, string $newName)
+    public function rename(string $repoType, string $name, string $newName)
     {
+        if ($repoType != 'rpm' and $repoType != 'deb') {
+            throw new Exception('Le type de repo est invalide');
+        }
+
         $name = Common::validateData($name);
         $newName = Common::validateData($newName);
 
@@ -316,24 +324,25 @@ class Source extends Model
         /**
          *  Sur Redhat, le renommage consiste à changer le nom du fichier de repo source ainsi que le nom du repo à l'intérieur de ce fichier
          */
-        if (OS_FAMILY == "Redhat") {
+        if ($repoType == "rpm") {
             /**
              *  Si un fichier portant le même nom que $newName existe déjà alors on ne peut pas renommer le fichier
              */
-            if (file_exists(REPOMANAGER_YUM_DIR . "/${newName}.repo")) {
+            if (file_exists(REPOMANAGER_YUM_DIR . '/' . $newName . '.repo')) {
                 throw new Exception("Erreur : un repo source du même nom <b>$newName<b> existe déjà");
             }
 
             /**
              *  Renommage
              */
-            if (file_exists(REPOMANAGER_YUM_DIR . "/${name}.repo")) {
-                if (!rename(REPOMANAGER_YUM_DIR . "/${name}.repo", REPOMANAGER_YUM_DIR . "/${newName}.repo")) {
-                    throw new Exception('Impossible de renommer le repo source');
+            if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
+                if (!rename(REPOMANAGER_YUM_DIR . '/' . $name . '.repo', REPOMANAGER_YUM_DIR . '/' . $newName . '.repo')) {
+                    throw new Exception('Impossible de renommer le repo source <b>' . $name . '</b>');
                 }
                 $content = file_get_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo");
                 $content = str_replace("[$name]", "[$newName]", $content);
                 $content = str_replace("Repo source $name", "Repo source $newName", $content);
+
                 file_put_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo", $content);
                 unset($content);
             }
@@ -342,7 +351,7 @@ class Source extends Model
         /**
          *  Sur Debian, les repos sources sont stockés en BDD
          */
-        if (OS_FAMILY == "Debian") {
+        if ($repoType == "deb") {
             /**
              *  On vérifie si un repo source du même nom existe déjà
              */
@@ -369,7 +378,7 @@ class Source extends Model
     }
 
     /**
-     *  Edit source repo URL (Debian only)
+     *  Edit source repo URL (repo source de type deb uniquement)
      */
     public function editUrl(string $sourceName, string $url)
     {
@@ -577,23 +586,27 @@ class Source extends Model
     /**
      *  Add a new GPG key
      */
-    public function addGpgKey(string $gpgKey, string $type)
-    {
-        // WIP
-    }
+    // public function addGpgKey(string $gpgKey, string $type)
+    // {
+    //     // WIP
+    // }
 
     /**
      *  Delete a GPG key
      */
-    public function removeGpgKey(string $gpgkey)
+    public function removeGpgKey(string $repoType, string $gpgkey)
     {
+        if ($repoType != 'rpm' and $repoType != 'deb') {
+            throw new Exception('Le type de repo est invalide');
+        }
+
         $gpgkey = Common::validateData($gpgkey);
 
         /**
          *  Cas Redhat
          *  La clé GPG est située un fichier dans /etc/pki/rpm-gpg/repomanager/
          */
-        if (OS_FAMILY == "Redhat") {
+        if ($repoType == "rpm") {
             if (!file_exists('/etc/pki/rpm-gpg/repomanager/' . $gpgkey)) {
                 throw new Exception("La clé GPG <b>" . $gpgkey . "</b> n'existe pas");
             }
@@ -607,11 +620,12 @@ class Source extends Model
          *  Cas Debian
          *  La clé GPG est présente dans le trousseau gpg
          */
-        if (OS_FAMILY == "Debian") {
+        if ($repoType == "deb") {
             /**
              *  On supprime la clé du trousseau, à partir de son ID
              */
             exec("gpg --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgkey", $output, $result);
+
             if ($result != 0) {
                 throw new Exception("Erreur lors de la suppression de la clé GPG <b>$gpgkey</b>");
             }
@@ -623,11 +637,11 @@ class Source extends Model
      */
     public function exists(string $source)
     {
-        $sourceName = Common::validateData($source);
+        $source = Common::validateData($source);
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
-            $stmt->bindValue(':name', $sourceName);
+            $stmt->bindValue(':name', $source);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             Common::dbError($e);
@@ -645,14 +659,14 @@ class Source extends Model
      */
     public function listAll()
     {
+        $sources = array();
+
         $query = $this->db->query("SELECT * FROM sources");
 
         while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
             $sources[] = $datas;
         }
 
-        if (!empty($sources)) {
-            return $sources;
-        }
+        return $sources;
     }
 }

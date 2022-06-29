@@ -1,3 +1,29 @@
+$(document).ready(function () {
+    /**
+     *  Affichage des bons champs dans le formulaire de création de nouveau repo, en fonction du type de paquets qui est sélectionné
+     */
+    newSourceFormPrintRepoTypeFields();
+});
+
+/**
+ *  Fonctions
+ */
+
+/**
+ *  Afficher / masquer les champs de saisie en fonction du type de repo source sélectionné
+ */
+function newSourceFormPrintRepoTypeFields()
+{
+
+    var repoType = $('#addSourceForm').find('input:radio[name=addSourceRepoType]:checked').val();
+
+    /**
+     *  En fonction du type de repo sélectionné, affiche uniquement les champs en lien avec ce type de repo et masque les autres.
+     */
+    $('#addSourceForm').find('[field-type][field-type!='+repoType+']').hide();
+    $('#addSourceForm').find('[field-type][field-type='+repoType+']').show();
+}
+
 /**
  *  Rechargement de la div des sources
  */
@@ -24,6 +50,13 @@ function reloadSourcesDiv()
  });
 
 /**
+ *  Event : affiche/masque des inputs en fonction du type de repo sélectionné
+ */
+ $(document).on('change','input:radio[name="addSourceRepoType"]',function () {
+    newSourceFormPrintRepoTypeFields();
+ });
+
+/**
  *  Event : afficher des inputs supplémentaires pour importer une clé GPG (CentOS)
  */
  $(document).on('change','#newRepoGpgSelect',function () {
@@ -37,51 +70,61 @@ function reloadSourcesDiv()
 /**
  *  Event : ajouter une source
  */
- $(document).on('submit','#sourceAddForm',function () {
+ $(document).on('submit','#addSourceForm',function () {
     event.preventDefault();
 
+    var repoType = '';
     var urlType = '';
     var existingGpgKey = '';
     var gpgKeyURL = '';
     var gpgKeyText = '';
 
-    // Récupération du nom de la source à ajouter
+    /**
+     *  Récupération du type de repo source
+     */
+    var repoType = $('input[name=addSourceRepoType]:checked').val();
+
+    /**
+     *  Récupération du nom de la source à ajouter
+     */
     var name = $('input[name=addSourceName]').val();
 
     /**
-     *  Redhat / CentOS uniquement :
+     *  rpm uniquement :
      *  On récupère le type d'url
      */
-    if ($('#addSourceUrlType').length == 1) {
+    if (repoType == 'rpm') {
         var urlType = $('#addSourceUrlType').val();
     }
 
-    // Récupération de l'url
+    /**
+     *  Récupération de l'url
+     */
     var url = $('input[name=addSourceUrl]').val();
 
     /**
      *  Clé GPG
      */
     /**
-     *  Redhat - CentOS
+     *  Rpm uniquement
      *  On récupère le type de clé GPG (fichier, ASCII, URL)
      */
-    // Si #newRepoGpgSelect existe alors on est forcément sur centos
-    if ($('#newRepoGpgSelect').length == 1) {
+    if (repoType == 'rpm') {
         if ($("#newRepoGpgSelect_yes").is(":selected")) {
             var existingGpgKey = $('select[name=existingGpgKey]').val();
             var gpgKeyURL = $('input[name=gpgKeyURL]').val();
-            var gpgKeyText = $('#gpgKeyText').val();
+            var gpgKeyText = $('#rpmGpgKeyText').val();
         }
-    } else {
+    }
+    if (repoType == 'deb') {
         /**
-         *  Debian
+         *  Deb
          *  La clé GPG est renseignée au format ASCII
          */
-        var gpgKeyText = $('#gpgKeyText').val();
+        var gpgKeyText = $('#debGpgKeyText').val();
     }
 
-    addSource(name, urlType, url, existingGpgKey, gpgKeyURL, gpgKeyText);
+    addSource(repoType, name, urlType, url, existingGpgKey, gpgKeyURL, gpgKeyText);
 
     return false;
  });
@@ -96,16 +139,17 @@ function reloadSourcesDiv()
         /**
          *  Récupération du nom actuel et du nouveau nom
          */
+        var repoType = $(this).attr('repotype');
         var name = $(this).attr('sourcename');
         var newname = $(this).val();
 
-        renameSource(name, newname);
+        renameSource(repoType, name, newname);
     }
     event.stopPropagation();
  });
 
 /**
- *  Event : Modification d'une url source (Debian uniquement)
+ *  Event : Modification d'une url source (repo source de type deb uniquement)
  */
  $(document).on('keypress','.sourceFormUrlInput',function () {
     var keycode = (event.keyCode ? event.keyCode : event.which);
@@ -116,7 +160,7 @@ function reloadSourcesDiv()
         var name = $(this).attr('sourcename');
 
         /**
-         *  Récupère l'url du repo source si existe (Debian uniquement)
+         *  Récupère l'url du repo source si existe (repo source de type deb uniquement)
          */
         var url = $('input[sourcename=' + name + '].sourceFormUrlInput').val();
 
@@ -126,7 +170,7 @@ function reloadSourcesDiv()
  });
 
 /**
- *  Event : modification de la configuration d'un repo source (Redhat uniquement)
+ *  Event : modification de la configuration d'un repo source (repo source de type rpm uniquement)
  */
  $(document).on('submit','.sourceConfForm',function () {
     event.preventDefault();
@@ -198,9 +242,11 @@ function reloadSourcesDiv()
  *  Event : Suppression d'une source
  */
  $(document).on('click','.sourceDeleteToggleBtn',function () {
+    var repoType = $(this).attr('repotype');
     var name = $(this).attr('sourcename');
+
     deleteConfirm('Êtes vous sûr de vouloir supprimer le repo source <b>' + name + '</b> ?', function () {
-        deleteSource(name)});
+        deleteSource(repoType, name)});
  });
 
 /**
@@ -216,9 +262,11 @@ function reloadSourcesDiv()
  *  Event : suppression d'une clé GPG
  */
  $(document).on('click','.gpgKeyDeleteBtn',function () {
+    var repoType = $(this).attr('repotype');
     var gpgkey = $(this).attr('gpgkey');
+
     deleteConfirm('Êtes-vous sûr de vouloir supprimer la clé GPG <b>' + gpgkey + '</b> ?', function () {
-        deleteGpgKey(gpgkey)});
+        deleteGpgKey(repoType, gpgkey)});
  });
 
 
@@ -226,13 +274,14 @@ function reloadSourcesDiv()
  * Ajax : Ajouter une nouvelle source
  * @param {string} name
  */
- function addSource(name, urlType, url, existingGpgKey, gpgKeyURL, gpgKeyText)
+ function addSource(repoType, name, urlType, url, existingGpgKey, gpgKeyURL, gpgKeyText)
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "addSource",
+                repoType: repoType,
                 name: name,
                 urlType: urlType,
                 url: url,
@@ -261,13 +310,14 @@ function reloadSourcesDiv()
  * Ajax : Supprimer une source
  * @param {string} name
  */
- function deleteSource(name)
+ function deleteSource(repoType, name)
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "deleteSource",
+                repoType: repoType,
                 name: name
             },
             dataType: "json",
@@ -291,13 +341,14 @@ function reloadSourcesDiv()
  * Ajax : Renommer une source
  * @param {string} name
  */
- function renameSource(name, newname)
+ function renameSource(repoType, name, newname)
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "renameSource",
+                repoType: repoType,
                 name: name,
                 newname: newname
             },
@@ -319,7 +370,7 @@ function reloadSourcesDiv()
  }
 
 /**
- * Ajax : Modifier l'url d'un repo source (Debian uniquement)
+ * Ajax : Modifier l'url d'un repo source (repo source de type deb uniquement)
  * @param {string} name
  * @param {string} url
  */
@@ -327,7 +378,7 @@ function reloadSourcesDiv()
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "editSourceUrl",
                 name: name,
@@ -359,7 +410,7 @@ function reloadSourcesDiv()
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "configureSource",
                 name: name,
@@ -386,13 +437,14 @@ function reloadSourcesDiv()
  * Ajax : Supprimer une clé GPG
  * @param {string} gpgkey
  */
- function deleteGpgKey(gpgkey)
+ function deleteGpgKey(repoType, gpgkey)
  {
      $.ajax({
             type: "POST",
-            url: "controllers/ajax.php",
+            url: "controllers/sources/ajax.php",
             data: {
                 action: "deleteGpgKey",
+                repoType: repoType,
                 gpgkey: gpgkey
             },
             dataType: "json",

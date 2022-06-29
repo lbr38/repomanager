@@ -128,7 +128,7 @@ class Group
          */
         $this->model->add($name);
 
-        \Models\History::set($_SESSION['username'], "Création d'un nouveau groupe <b>$name</b> (type : $this->type)", 'success');
+        \Models\History::set($_SESSION['username'], 'Création d\'un nouveau groupe <span class="label-white">' . $name . '</span> (type : ' . $this->type . ')', 'success');
 
         \Models\Common::clearCache();
     }
@@ -162,7 +162,7 @@ class Group
          */
         $this->model->rename($actualName, $newName);
 
-        \Models\History::set($_SESSION['username'], "Renommage d'un groupe : <b>$actualName</b> en <b>$newName</b> (type : $this->type)", 'success');
+        \Models\History::set($_SESSION['username'], 'Renommage d\'un groupe : <span class="label-white">' . $actualName . '</span> en <span class="label-white">' . $newName . '</span> (type : ' . $this->type . ')', 'success');
 
         \Models\Common::clearCache();
     }
@@ -185,7 +185,7 @@ class Group
          */
         $this->model->delete($name);
 
-        \Models\History::set($_SESSION['username'], "Suppression du groupe <b>$name</b> (type : $this->type)", 'success');
+        \Models\History::set($_SESSION['username'], 'Suppression du groupe <span class="label-white">' . $name . '</span> (type : '. $this->type . ')', 'success');
 
         \Models\Common::clearCache();
     }

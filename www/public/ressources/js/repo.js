@@ -1,6 +1,31 @@
+$(document).ready(function () {
+    /**
+     *  Affichage des bons champs dans le formulaire de création de nouveau repo, en fonction du type de paquets qui est sélectionné
+     */
+    newRepoFormPrintPackageTypeFields();
+});
+
 /**
  *  Fonctions
  */
+
+/**
+ *  Afficher / masquer les champs de saisie en fonction du type de paquets sélectionné
+ */
+function newRepoFormPrintPackageTypeFields()
+{
+    /**
+     *  Recherche dans le formulaire d'opération dont l'action est 'new' (formulaire de création d'un nouveau repo) de la valeur du
+     *  type de paquets sélectionnée.
+     */
+    var packageType = $('.operation-form-container').find('.operation-form[action=new]').find('input:radio[name="packageType"]:checked').val();
+
+    /**
+     *  En fonction du type de paquets sélectionné, affiche uniquement les champs en lien avec ce type de paquets et masque les autres.
+     */
+    $('.operation-form-container').find('[field-type][field-type!='+packageType+']').hide();
+    $('.operation-form-container').find('[field-type][field-type='+packageType+']').show();
+}
 
 /**
  *  Fonction permettant de compter le nb de checkbox cochée
@@ -10,6 +35,25 @@ function countChecked()
     var countTotal = $('.reposList').find('input[name=checkbox-repo\\[\\]]:checked').length;
     return countTotal;
 };
+
+/**
+ *  Rechargement régulier de la liste des repos pour faire apparaitre les modifications
+ */
+// setInterval(function () {
+//     reloadReposList();
+// }, 5000);
+
+/**
+ *  Fonctions
+ */
+
+/**
+ *  Rechargement du bandeau de navigation
+ */
+// function reloadReposList()
+// {
+//     $("#repos-list-container").load(" #repos-list-container > *");
+// }
 
 /**
  *  Events listeners
@@ -70,6 +114,13 @@ $(document).on('change','input:radio[name="repoType"]',function () {
 });
 
 /**
+ *  Event : affiche/masque des inputs en fonction du type de paquet sélectionné
+ */
+$(document).on('change','input:radio[name="packageType"]',function () {
+    newRepoFormPrintPackageTypeFields();
+});
+
+/**
  *  Event : clic sur le bouton de suppression d'un environnement
  */
 $(document).on('click','.delete-env-btn',function () {
@@ -94,7 +145,7 @@ $(document).on('keypress','.repoDescriptionInput',function () {
         /**
          *  Récupération des valeurs suivantes :
          *   - L'Id du repo à modifier
-         *   - Le status su repo
+         *   - Le status du repo
          *   - La description
          */
         var envId = $(this).attr('env-id');
@@ -216,20 +267,38 @@ $(document).on('submit','.operation-form-container',function () {
          *  Objet qui contiendra les paramètres saisis dans le formulaire pour ce repo
          */
         obj['action'] = $(this).attr('action');
-        obj['repoId'] = $(this).attr('repo-id');
-        obj['snapId'] = $(this).attr('snap-id');
-        obj['envId'] = $(this).attr('env-id');
-        obj['repoStatus'] = $(this).attr('repo-status');
+        if (obj['action'] != 'new') {
+            obj['snapId'] = $(this).attr('snap-id');
+            obj['envId'] = $(this).attr('env-id');
+        }
+
+        /**
+         *  Si l'action est 'new' alors on récupère le type de paquet du repo à créer.
+         *  Puis en fonction du type de paquet on va uniquement récupérer certains paramètres.
+         */
+        if (obj['action'] == 'new') {
+            var packageType = $(this).find('.operation_param[param-name=packageType]:checked').val();
+            obj['packageType'] = packageType;
+        }
 
         /**
          *  Puis on récupère chaque paramètres saisis par l'utilisateur et on les poussent à la suite
-         *  Il n'existe pas de tableau associatif en js donc on pousse un objet
+         *  Il n'existe pas de tableau associatif en js donc on pousse un objet.
+         *  Dans le cas où l'action est 'new', ce sont uniquement les paramètres ayant l'attribut package-type=all OU package-type=packageType qui sont récupérés
          */
-        $(this).find('.operation_param').each(function () {
+        if (obj['action'] == 'new') {
+            var operation_param = $(this).find('.operation_param[package-type=all],.operation_param[package-type='+packageType+']');
+        }
+        if (obj['action'] != 'new') {
+            var operation_param = $(this).find('.operation_param');
+        }
+
+        operation_param.each(function () {
             /**
              *  Récupération du nom du paramètre (name de l'input) et sa valeur (saisie de l'input)
              */
             var param_name = $(this).attr('param-name');
+
             /**
              *  Si l'input est une checkbox et qu'elle est cochée alors sa valeur sera 'yes'
              *  Si elle n'est pas cochée alors sa valeur sera 'no'
@@ -287,13 +356,13 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Récupération des infos du repo
      */
-    var os_family = $(this).attr('os_family');
+    var packageType = $(this).attr('package-type');
     var repoName = $(this).attr('repo');
     var repoEnv = $(this).attr('env');
     /**
      *  Sur Debian on récupère également la distribution et la section
      */
-    if (os_family == "Debian") {
+    if (packageType == "deb") {
         var repoDist = $(this).attr('dist');
         var repoSection = $(this).attr('section');
 
@@ -306,11 +375,11 @@ $(document).on('click','.client-configuration-btn',function () {
     var repo_conf_files_prefix = $(this).attr('repo_conf_files_prefix');
     var www_hostname = $(this).attr('www_hostname');
 
-    if (os_family == "Redhat") {
+    if (packageType == "rpm") {
         var commands = 'echo -e "# Repo ' + repoName + ' (' + repoEnv + ') sur ' + www_hostname + '\n[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=Repo ' + repoName + ' sur ' + www_hostname + '\ncomment=Repo ' + repoName + ' sur ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
-    if (os_family == "Debian") {
-        var commands = 'wget -qO ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | sudo apt-key add -\n\necho "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
+    if (packageType == "deb") {
+        var commands = 'wget -qO - ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | sudo apt-key add -\n\necho "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
     }
 
     /**

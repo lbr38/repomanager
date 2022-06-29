@@ -297,7 +297,7 @@ if (DEBUG_MODE == "enabled") {
  *  Affichage d'un bandeau constant si des erreurs ont été rencontrées lors du chargement des constantes
  */
 if (!empty(__LOAD_GENERAL_ERROR > 0)) { ?>
-    <section class="main">
+    <section>
         <section class="missing-param-alert">
             <span class="yellowtext">Certains paramètres de configuration de l'onglet <a href="configuration.php">Configuration</a> sont vides ou invalides, ce qui pourrait engendrer un dysfonctionnement de Repomanager. Il est recommandé de terminer la configuration avant d'exécuter quelconque opération.</span>
         </section>

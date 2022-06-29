@@ -616,60 +616,14 @@ class Planification
                     return;
                 }
             }
-
-            /**
-             *  Si $this->action contient '->' alors il s'agit d'un changement d'env
-             */
-            // if (strpos(htmlspecialchars_decode($this->action), '->') !== false) {
-            //     $envs = htmlspecialchars_decode($this->action);
-
-            //     /**
-            //      *  Récupération de l'environnement source et de l'environnement cible
-            //      */
-            //     $this->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
-            //     $this->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
-
-
-            //     if (empty($this->repo->getEnv()) or empty($this->repo->getTargetEnv())) {
-            //         /**
-            //          *  On ajoute le repo en erreur à la liste des repo traités par cette planifications
-            //          */
-            //         if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => 'error');
-            //         if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => $this->repo->getName().' ('.$this->repo->getDist().') '.$this->repo->getSection(), 'Status' => 'error');
-
-            //         $this->close(1, 'Erreur (EP04) : Environnement(s) non défini(s)', $processedRepos); // On sort avec 1 car on considère que c'est une erreur de type vérification
-            //         return;
-            //     }
-
-            //     /**
-            //      *  Traitement
-            //      */
-            //     $this->log->title = 'NOUVEL ENVIRONNEMENT';
-            //     /**
-            //      *  Exécution de l'action 'env'
-            //      */
-            //     $this->repo->env();
-            //     /**
-            //      *  On ajoute le repo en erreur à la liste des repo traités par cette planification
-            //      */
-            //     if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->getName(), 'Status' => $this->op->getStatus());
-            //     if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => $this->op->repo->getName().' ('.$this->op->repo->getDist().') '.$this->op->repo->getSection(), 'Status' => $this->op->getStatus());
-            //     /**
-            //      *  Si l'opération est en erreur, on quitte avec un message d'erreur
-            //      */
-            //     if ($this->op->getStatus() == 'error') {
-            //         $this->close(2, 'Une erreur est survenue pendant le traitement du repo, voir les logs', $processedRepos);
-            //         return;
-            //     }
-            // }
         }
 
         /**
-         *  2. Cas où on traite un groupe de repos/sections
+         *  2. Cas où on traite un groupe de repos
          */
         if (!empty($this->group->getName()) and !empty($this->groupReposList)) {
             /**
-             *  Comme on boucle pour traiter plusieurs repos/sections, on ne peut pas tout quitter en cas d'erreur tant qu'on a pas bouclé sur tous les repos.
+             *  Comme on boucle pour traiter plusieurs repos, on ne peut pas tout quitter en cas d'erreur tant qu'on a pas bouclé sur tous les repos.
              *  Du coup on initialise une variable qu'on incrémentera en cas d'erreur.
              *  A la fin si cette variable > 0 alors on pourra quitter ce script en erreur ($this->close 1)
              */
@@ -688,6 +642,10 @@ class Planification
              *  On traite chaque ligne de groupList
              */
             foreach ($this->groupReposList as $repo) {
+                /**
+                 *  On (re)instancie le repo à chaque boucle afin qu'il soit bien initialisé
+                 */
+                $this->repo = new \Controllers\Repo();
 
                 /**
                  *  On ne connait que l'Id du repo mais pas les informations concernant ses snapshots.
@@ -761,33 +719,6 @@ class Planification
                         $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status);
                     }
                 }
-
-                /**
-                 *  Si $this->op->getAction() contient -> alors il s'agit d'un changement d'env
-                 */
-                // if (strpos(htmlspecialchars_decode($this->op->getAction()), '->') !== false) {
-                //     $envs = htmlspecialchars_decode($this->op->getAction());
-
-                //     $this->op->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
-                //     $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
-
-                //     $this->log->title = 'NOUVEL ENVIRONNEMENT';
-
-                //     /**
-                //      *  Exécution de l'opération 'env'
-                //      */
-                //     if ($this->op->exec_env() === false) {
-                //         $plan_error++;
-                //     }
-
-                //     $this->logList[] = $this->op->log->location;
-
-                //     /**
-                //      *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
-                //      */
-                //     if (OS_FAMILY == "Redhat") $processedRepos[] = array('Repo' => $this->op->repo->getName(), 'Status' => $this->op->getStatus());
-                //     if (OS_FAMILY == "Debian") $processedRepos[] = array('Repo' => $this->op->repo->getName().' ('.$this->op->repo->getDist().') '.$this->op->repo->getSection(), 'Status' => $this->op->getStatus());
-                // }
             }
 
             /**
@@ -892,21 +823,6 @@ class Planification
                     return 'Mise à jour de <span class="label-white">' . $this->repo->getName() . '</span>';
                 }
             }
-
-            /**
-             *  Cas où l'action prévue est une création d'env
-             */
-            // if (strpos(htmlspecialchars_decode($this->op->getAction()), '->') !== false) {
-            //     $envs = htmlspecialchars_decode($this->op->getAction());
-
-            //     $this->op->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
-            //     $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
-
-            //     if (empty($this->op->repo->getEnv()) and empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
-
-            //     if (OS_FAMILY == "Redhat") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") du repo <b>".$this->op->repo->getName()."</b>";
-            //     if (OS_FAMILY == "Debian") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") de la section <b>".$this->op->repo->getSection()."</b> du repo <b>".$this->op->repo->getName()."</b> (".$this->op->repo->getDist().")";
-            // }
         }
 
         /**
@@ -937,21 +853,6 @@ class Planification
                 } else {
                     $message .= ' ➞ <span class="label-white">' . $this->repo->getName() . '</span><br>';
                 }
-
-
-                /**
-                 *  Cas où l'action prévue est un changement d'env
-                 */
-                // if (strpos(htmlspecialchars_decode($this->op->getAction()), '->') !== false) {
-                //     $envs = htmlspecialchars_decode($this->op->getAction());
-
-                //     $this->op->repo->setEnv(exec("echo '".$envs."' | awk -F '->' '{print $1}'"));
-                //     $this->op->repo->setTargetEnv(exec("echo '".$envs."' | awk -F '->' '{print $2}'"));
-                //     if (empty($this->op->repo->getEnv()) and empty($this->op->repo->getTargetEnv())) return "Erreur : l'environnement source ou de destination est inconnu";
-
-                //     if (OS_FAMILY == "Redhat") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") des repos du groupe <b>".$this->op->group->getName()."</b>";
-                //     if (OS_FAMILY == "Debian") return "Changement d'environnement (".$this->op->repo->getEnv()." -> ".$this->op->repo->getTargetEnv().") des sections de repos du groupe <b>".$this->op->group->getName()."</b>";
-                // }
             }
 
             return $message;

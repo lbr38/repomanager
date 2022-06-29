@@ -32,6 +32,7 @@ class Repo
     private $rootUrl;
     private $gpgCheck;
     private $gpgResign;
+    private $rpmSignMethod = RPM_SIGN_METHOD;
 
     private $targetName;
     private $targetDate;
@@ -41,6 +42,13 @@ class Repo
     private $targetDescription;
     private $targetGpgCheck;
     private $targetGpgResign;
+
+    private $repoLastName;
+    private $repoLastDist;
+    private $repoLastSection;
+    private $repoLastEnv;
+    private $lastSnapId;
+    private $lastPackageType;
 
     public function __construct()
     {
@@ -351,6 +359,16 @@ class Repo
         return $this->op->log->location;
     }
 
+    public function getOpStatus()
+    {
+        return $this->op->getStatus();
+    }
+
+    public function getOpError()
+    {
+        return $this->op->getError();
+    }
+
     /**
      *  Récupère toutes les informations d'un repo, snapshot en env en base de données
      */
@@ -501,6 +519,14 @@ class Repo
     }
 
     /**
+     *  Retourne true si une opération est en cours sur l'Id de snapshot spécifié
+     */
+    public function snapOpIsRunning(string $snapId)
+    {
+        return $this->model->snapOpIsRunning($snapId);
+    }
+
+    /**
      *  Retourne un array de tous les noms de repos, sans informations des snapshots et environnements associés
      *  Si le paramètre 'true' est passé alors la fonction renverra uniquement les noms des repos qui ont un snapshot actif rattaché
      *  Si le paramètre 'false' est passé alors la fonction renverra tous les noms de repos avec ou sans snapshot rattaché
@@ -599,6 +625,11 @@ class Repo
         $this->op->log->addsubpid(getmypid());
 
         /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
+
+        /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
@@ -647,6 +678,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
         }
 
         /**
@@ -685,6 +717,11 @@ class Repo
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -751,7 +788,8 @@ class Repo
                 $exists = $this->model->exists($this->name);
             }
             if ($this->packageType == "deb") {
-                $exists = $this->model->sectionExists($this->name, $this->dist, $this->section);
+                // $exists = $this->model->sectionExists($this->name, $this->dist, $this->section);
+                $exists = $this->model->exists($this->name, $this->dist, $this->section);
             }
 
             /**
@@ -851,6 +889,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
         }
 
         /**
@@ -913,6 +952,11 @@ class Repo
         $this->op->log->addsubpid(getmypid());
 
         /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
+
+        /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
@@ -960,6 +1004,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
 
             /**
              *  Cloture de l'opération
@@ -1012,6 +1057,11 @@ class Repo
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1208,6 +1258,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
         }
 
         /**
@@ -1243,6 +1294,11 @@ class Repo
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1299,6 +1355,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
 
             /**
              *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
@@ -1310,8 +1367,6 @@ class Repo
          */
         $this->op->log->closeStepOperation();
         $this->op->closeOperation();
-
-        \Models\Common::generateCache();
     }
 
     /**
@@ -1328,6 +1383,11 @@ class Repo
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1350,16 +1410,16 @@ class Repo
             /**
              *  2. Suppression du snapshot
              */
-            if ($this->getStatus() == 'active') {
-                if ($this->packageType == "rpm") {
-                    if (is_dir(REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name)) {
-                        exec('rm ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name . ' -rf', $output, $result);
-                    }
+            $result = 0;
+
+            if ($this->packageType == "rpm") {
+                if (is_dir(REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name)) {
+                    exec('rm ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name . ' -rf', $output, $result);
                 }
-                if ($this->packageType == "deb") {
-                    if (is_dir(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section)) {
-                        exec('rm ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . ' -rf', $output, $result);
-                    }
+            }
+            if ($this->packageType == "deb") {
+                if (is_dir(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section)) {
+                    exec('rm ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . ' -rf', $output, $result);
                 }
             }
 
@@ -1430,6 +1490,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
         }
 
         /**
@@ -1456,6 +1517,11 @@ class Repo
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1527,6 +1593,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
         }
 
         /**
@@ -1552,14 +1619,16 @@ class Repo
                 'id_snap_target' => $this->snapId,
                 'id_env_target' => $this->targetEnv));
         }
-        // if ($this->op->getType() == 'plan') {
-        //     $this->startOperation(array('id_repo_source' => $repoId, 'id_plan' => $this->getPlanId()));
-        // }
 
         /**
          *  Ajout du PID de ce processus dans le fichier PID
          */
         $this->op->log->addsubpid(getmypid());
+
+        /**
+         *  Nettoyage du cache
+         */
+        \Models\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1818,6 +1887,7 @@ class Repo
              *  Passage du status de l'opération en erreur
              */
             $this->op->setStatus('error');
+            $this->op->setError($e->getMessage());
 
             /**
              *  Cloture de l'opération
@@ -1887,16 +1957,15 @@ class Repo
          *  1 : Récupération du type du repo :
          *  Si il s'agit d'un repo de type 'local' alors on quitte à cette étape car on ne peut pas mettre à jour ce type de repo
          */
-        if ($this->type == "local") {
+        if ($this->type == 'local') {
             throw new Exception("Il n'est pas possible de mettre à jour un snapshot de repo local");
         }
 
         /**
          *  2 : Debian seulement : Si la section est un miroir alors il faut récupérer l'URL complète de sa source si ce n'est pas déjà fait
          */
-        if ($this->packageType == "deb") {
+        if ($this->packageType == 'deb') {
             $this->getFullSource($this->source);
-            ;
         }
 
         /**
@@ -1912,7 +1981,8 @@ class Repo
                 }
             }
             if ($this->packageType == "deb") {
-                if ($this->model->sectionExists($this->name, $this->dist, $this->section) == true) {
+                // if ($this->model->sectionExists($this->name, $this->dist, $this->section) == true) {
+                if ($this->model->exists($this->name, $this->dist, $this->section) == true) {
                     throw new Exception('Un repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> existe déjà');
                 }
             }
@@ -2033,23 +2103,49 @@ class Repo
             // }
 
             /**
-             *  Note : pour reposync il faut impérativement rediriger la sortie standard vers la sortie d'erreur car c'est uniquement cette dernière qui est capturée par proc_open. On fait ça pour avoir non seulement les erreurs mais aussi tout le déroulé normal de reposync.
+             *  Détermine la version de yum-utils installée sur le système pour être en mesure de passer les bons paramètres à reposync
              */
-            if ($this->getTargetGpgCheck() == "no") {
-                if (strpos(OS_VERSION, '7') === 0) {
-                    $process = proc_open('exec reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf -l --repoid=' . $this->source . ' --norepopath --download_path="' . $repoPath . '/" 1>&2', $descriptors, $pipes);
-                }
-                if (strpos(OS_VERSION, '8') === 0 or strpos(OS_VERSION, '9') === 0) {
-                    $process = proc_open('exec reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf --nogpgcheck --repoid=' . $this->source . ' --download-path "' . $repoPath . '/" 1>&2', $descriptors, $pipes);
-                }
-            } else { // Dans tous les autres cas (même si rien n'a été précisé) on active gpgcheck
-                if (strpos(OS_VERSION, '7') === 0) {
-                    $process = proc_open('exec reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf --gpgcheck -l --repoid=' . $this->source . ' --norepopath --download_path="' . $repoPath . '/" 1>&2', $descriptors, $pipes);
-                }
-                if (strpos(OS_VERSION, '8') === 0 or strpos(OS_VERSION, '9') === 0) {
-                    $process = proc_open('exec reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf --repoid=' . $this->source . ' --download-path "' . $repoPath . '/" 1>&2', $descriptors, $pipes);
-                }
+            if (OS_FAMILY == 'Debian') {
+                $yumUtilsVersion = exec("dpkg -l | grep yum-utils | awk '{print $3}'");
             }
+            if (OS_FAMILY == 'Redhat') {
+                $yumUtilsVersion = exec("rpm -qi yum-utils | grep 'Version' | awk '{print $3}'");
+            }
+            if (empty($yumUtilsVersion)) {
+                throw new Exception('Impossible de déterminer la version de yum-utils installée.');
+            }
+
+            /**
+             *  Cas où la version de yum-utils est 1.1.31 (généralement le cas sur CentOS7 et Debian)
+             */
+            if (preg_match('/1.1.31/', $yumUtilsVersion)) {
+                $reposyncGlobalParams = '-l --norepopath';
+
+                if ($this->getTargetGpgCheck() == "no") {
+                    $reposyncGpgParam = '';
+                } else {
+                    $reposyncGpgParam = '--gpgcheck';
+                }
+
+            /**
+             *  Cas où la version de yum-utils est 4.x (généralement le cas sur CentOS8 et 9)
+             */
+            } elseif (preg_match('/^4/', $yumUtilsVersion)) {
+                $reposyncGlobalParams = '--norepopath';
+
+                if ($this->getTargetGpgCheck() == "no") {
+                    $reposyncGpgParam = '--nogpgcheck';
+                } else {
+                    $reposyncGpgParam = '';
+                }
+            } else {
+                throw new Exception('La version de yum-utils installée est incompatible ou invalide.');
+            }
+
+            /**
+             *  Instanciation d'un nouveau Process reposync
+             */
+            $myprocess = new \Controllers\Process('/usr/bin/reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf ' . $reposyncGlobalParams . ' ' . $reposyncGpgParam . ' --repoid=' . $this->source . ' -p "' . $repoPath . '/"');
         }
 
         if ($this->packageType == "deb") {
@@ -2057,50 +2153,50 @@ class Repo
              *  Dans le cas où on a précisé de ne pas vérifier les signatures GPG
              */
             if ($this->getTargetGpgCheck() == "no") {
-                $process = proc_open('exec /usr/bin/debmirror --no-check-gpg --nosource --passive --method=http --rsync-extra=none --root=' . $this->rootUrl . ' --dist=' . $dist . ' --host=' . $this->hostUrl . ' --section=' . $this->section . ' --arch=amd64 ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --ignore-release-gpg --progress --i18n --include="Translation-fr.*\.bz2" --postcleanup', $descriptors, $pipes);
+                $debmirrorGpgParam = '--no-check-gpg';
+            } else {
+                $debmirrorGpgParam = '--check-gpg --keyring=' . GPGHOME . '/trustedkeys.gpg';
+            }
 
             /**
-             *  Dans tous les autres cas (même si rien n'a été précisé)
+             *  Instanciation d'un nouveau Process debmirror
              */
-            } else {
-                $process = proc_open('exec /usr/bin/debmirror --check-gpg --keyring=' . GPGHOME . '/trustedkeys.gpg --nosource --passive --method=http --rsync-extra=none --root=' . $this->rootUrl . ' --dist=' . $this->dist . ' --host=' . $this->hostUrl . ' --section=' . $this->section . ' --arch=amd64 ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --ignore-release-gpg --progress --i18n --include="Translation-fr.*\.bz2" --postcleanup', $descriptors, $pipes);
-            }
+            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' --nosource --passive --method=http --rsync-extra=none --host=' . $this->hostUrl . ' --root=' . $this->rootUrl . ' --dist=' . $this->dist . ' --section=' . $this->section . ' --arch=amd64 ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --ignore-release-gpg --progress --i18n --include="Translation-fr.*\.bz2" --postcleanup');
         }
 
         /**
-         *  Récupération du pid et du status du process lancé
-         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaites
+         *  Exécution
          */
-        $proc_details = proc_get_status($process);
-        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", "SUBPID=\"" . $proc_details['pid'] . "\"" . PHP_EOL, FILE_APPEND);
+        $myprocess->exec();
 
         /**
-         *  Tant que le process (lancé par proc_open) n'est pas terminé, on boucle afin de ne pas continuer les étapes suivantes
+         *  Récupération du pid du process lancé
+         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
          */
-        do {
-            $status = proc_get_status($process);
-            // If our stderr pipe has data, grab it for use later.
-            if (!feof($pipes[2])) {
-                // We're acting like passthru would and displaying errors as they come in.
-                $error_line = fgets($pipes[2]);
-                file_put_contents($this->op->log->steplog, $error_line, FILE_APPEND);
-            }
-        } while ($status['running'] === true);
+        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
         /**
-         *  Clôture du process
+         *  Affichage de l'output du process en continue dans un fichier
          */
-        proc_close($process);
+        $myprocess->getOutput($this->op->log->steplog);
+
         echo '</pre></div>';
 
         $this->op->log->steplogWrite();
 
-        /**
-         *  Récupération du code d'erreur de reposync/debmirror
+        /*
+         *  Si il y a un pb avec reposync, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
+         *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente
          */
-        $return = $status['exitcode'];
+        $reposyncError = 0;
+        if (preg_match('/due to missing GPG key/', file_get_contents($this->op->log->steplog))) {
+            ++$reposyncError;
+        }
 
-        if ($return != 0) {
+        /**
+         *  Si l'exécution de reposync ou debmirror s'est mal terminée, on supprime ce qui a été fait et on quitte avec un message d'erreur
+         */
+        if ($myprocess->getReturnCode() != 0 or $reposyncError != 0) {
             /**
              *  Suppression de ce qui a été fait :
              */
@@ -2137,71 +2233,102 @@ class Repo
             $this->op->log->steplogInitialize('signPackages');
             $this->op->log->steplogTitle('SIGNATURE DES PAQUETS (GPG)');
 
-            $descriptors = array(
-                0 => array('file', 'php://stdin', 'r'),
-                1 => array('file', 'php://stdout', 'w'),
-                2 => array('pipe', 'w')
-            );
-
             echo '<div class="hide signRepoDiv"><pre>';
             $this->op->log->steplogWrite();
 
             /**
-             *  On se mets à la racine du repo
-             *  Activation de globstar (**), cela permet à bash d'aller chercher des fichiers .rpm récursivement, peu importe le nb de sous-répertoires
+             *  Récupération de tous les fichiers RPMs de manière récursive
              */
-            if (file_exists("/usr/bin/rpmresign")) {
-                $process = proc_open('shopt -s globstar && cd "' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '" && /usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" **/*.rpm 1>&2', $descriptors, $pipes);
-            }
+            $dir = new \RecursiveDirectoryIterator(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/');
+            $rpmFiles = new \RecursiveIteratorIterator($dir);
+            $signErrors = 0;
 
             /**
-             *  Récupération du pid et du status du process lancé
-             *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaites
+             *  On traite chaque fichier rpm trouvé
              */
-            $proc_details = proc_get_status($process);
-            file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $proc_details['pid'] . '"' . PHP_EOL, FILE_APPEND);
-
-            /**
-             *  Tant que le process (lancé par proc_open) n'est pas terminé, on boucle afin de ne pas continuer les étapes suivantes
-             */
-            do {
-                $status = proc_get_status($process);
-                // If our stderr pipe has data, grab it for use later.
-                if (!feof($pipes[2])) {
-                    // We're acting like passthru would and displaying errors as they come in.
-                    $error_line = fgets($pipes[2]);
-                    file_put_contents($this->op->log->steplog, $error_line, FILE_APPEND);
-                }
-            } while ($status['running'] === true);
-
+            foreach ($rpmFiles as $rpmFile) {
                 /**
-                 *  Clôture du process
+                 *  On traite uniquement si le fichier a bien une extension .rpm
                  */
-                proc_close($process);
-                echo '</pre></div>';
+                if ($rpmFile->getExtension() == 'rpm') {
+                    /**
+                     *  Cas où on souhaite utiliser rpmresign pour signer
+                     */
+                    if ($this->rpmSignMethod == 'rpmresign') {
+                        if (file_exists("/usr/bin/rpmresign")) {
+                            /**
+                             *  Instanciation d'un nouveau Process
+                             */
+                            $myprocess = new \Controllers\Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName());
+                        } else {
+                            $this->op->log->steplogError("Le programme rpmresign est introuvable sur le système.");
+                        }
+                    }
+
+                    /**
+                     *  Cas où on souhaite utiliser nativement gpg pour signer, avec rpmsign (équivalent rpm --sign)
+                     */
+                    if ($this->rpmSignMethod == 'rpmsign') {
+                        /**
+                         *  On a besoin d'un fichier de macros gpg, on signe uniquement si le fichier de macros est présent, sinon on retourne une erreur
+                         */
+                        if (file_exists(MACROS_FILE)) {
+                            /**
+                             *  Instanciation d'un nouveau Process
+                             */
+                            $myprocess = new \Controllers\Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName(), array('GPG_TTY' => '$(tty)'));
+                        } else {
+                            $this->op->log->steplogError("Le fichier de macros pour rpm n'est pas généré.");
+                        }
+                    }
+
+                    /**
+                     *  Exécution
+                     */
+                    $myprocess->exec();
+
+                    /**
+                     *  Récupération du pid du process lancé
+                     *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                     */
+                    file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+
+                    /**
+                     *  Affichage de l'output du process en continue dans un fichier
+                     */
+                    $myprocess->getOutput($this->op->log->steplog);
+
+                    /**
+                     *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                     *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
+                     */
+                    if ($myprocess->getReturnCode() != 0) {
+                        $signErrors++;
+                        break;
+                    }
+                }
+            }
+            echo '</pre></div>';
 
             $this->op->log->steplogWrite();
 
             /**
-             *  Récupération du code d'erreur de rpmresign
-             */
-            $return = $status['exitcode'];
-
-            /**
-             *  Si il y a un pb avec rpmresign, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
+             *  A vérifier car depuis l'écriture de la class Process, les erreurs semblent mieux gérées :
+             *
+             *  Si il y a un pb lors de la signature, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
              *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente $return
              */
             if (preg_match('/gpg: signing failed/', file_get_contents($this->op->log->steplog))) {
-                ++$return;
+                ++$signErrors;
             }
             if (preg_match('/No secret key/', file_get_contents($this->op->log->steplog))) {
-                ++$return;
+                ++$signErrors;
             }
             if (preg_match('/error: gpg/', file_get_contents($this->op->log->steplog))) {
-                ++$return;
+                ++$signErrors;
             }
             if (preg_match("/Can't resign/", file_get_contents($this->op->log->steplog))) {
-                ++$return;
+                ++$signErrors;
             }
             /**
              *  Cas particulier, on affichera un warning si le message suivant a été détecté dans les logs
@@ -2209,12 +2336,15 @@ class Repo
             if (preg_match("/gpg: WARNING:/", file_get_contents($this->op->log->steplog))) {
                 ++$warning;
             }
+            if (preg_match("/warning:/", file_get_contents($this->op->log->steplog))) {
+                ++$warning;
+            }
 
             if ($warning != 0) {
                 $this->op->log-> steplogWarning();
             }
 
-            if ($return != 0) {
+            if ($signErrors != 0) {
                 /**
                  *  Si l'action est reconstruct alors on ne supprime pas ce qui a été fait (sinon ça supprime le repo!)
                  */
@@ -2222,7 +2352,7 @@ class Repo
                     /**
                      *  Suppression de ce qui a été fait :
                      */
-                    exec('rm -rf "' . REPOS_DIR . '/' . $dateFormatted . '_' . $name . '"');
+                    exec('rm -rf "' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '"');
                 }
 
                 throw new Exception('la signature des paquets a échouée');
@@ -2239,6 +2369,9 @@ class Repo
      */
     private function createRepo()
     {
+        $createRepoErrors = 0;
+        $repreproErrors = 0;
+
         ob_start();
 
         $this->op->log->steplogInitialize('createRepo');
@@ -2273,41 +2406,78 @@ class Repo
                 rmdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/');
             }
 
-            exec('createrepo -v ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/ 1>&2 >> ' . $this->op->log->steplog, $output, $return);
+            /**
+             *  Instanciation d'un nouveau Process
+             */
+            $myprocess = new \Controllers\Process('createrepo -v ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/');
+
+            /**
+             *  Exécution
+             */
+            $myprocess->exec();
+
+            /**
+             *  Récupération du pid du process lancé
+             *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+             */
+            file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+
+            /**
+             *  Affichage de l'output du process en continue dans un fichier
+             */
+            $myprocess->getOutput($this->op->log->steplog);
+
+            if ($myprocess->getReturnCode() != 0) {
+                $createRepoErrors++;
+            }
+
             echo '</pre></div>';
 
             $this->op->log->steplogWrite();
         }
 
         if ($this->packageType == "deb") {
-            $descriptors = array(
-                0 => array('file', 'php://stdin', 'r'),
-                1 => array('file', 'php://stdout', 'w'),
-                2 => array('pipe', 'w')
-            );
-
             /**
              *  On va créer et utiliser un répertoire temporaire pour travailler
              */
-            $TMP_DIR = "/tmp/{$this->op->log->pid}_deb_packages";
+            $TMP_DIR = REPOS_DIR . "/{$this->op->log->pid}_deb_packages";
+
             if (!mkdir($TMP_DIR, 0770, true)) {
-                throw new Exception("impossible de créer le répertoire temporaire /tmp/{$this->op->log->pid}_deb_packages");
+                throw new Exception("impossible de créer le répertoire temporaire <b>" . $TMP_DIR . '</b>');
             }
 
             $this->op->log->steplogWrite();
 
             /**
-             *  On se mets à la racine de la section
-             *  On recherche tous les paquets .deb et on les déplace dans le répertoire temporaire
+             *  Chemin complet vers la section qu'on est en train de créer
              */
             $sectionPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
+
             if (!is_dir($sectionPath)) {
                 throw new Exception("le répertoire du repo n'existe pas");
             }
             if (!is_dir($TMP_DIR)) {
                 throw new Exception("le répertoire temporaire n'existe pas");
             }
-            exec("find $sectionPath/ -name '*.deb' -exec mv '{}' ${TMP_DIR}/ \;");
+
+            /**
+             *  Récupération de tous les fichiers DEBs de manière récursive
+             *  On va déplacer ces fichiers deb vers le répertoire temporaire
+             */
+            $dir = new \RecursiveDirectoryIterator($sectionPath . '/');
+            $debFiles = new \RecursiveIteratorIterator($dir);
+
+            /**
+             *  On déplace chaque fichier deb trouvé
+             */
+            foreach ($debFiles as $debFile) {
+                /**
+                 *  On déplace uniquement si le fichier a bien une extension .deb
+                 */
+                if ($debFile->getExtension() == 'deb') {
+                    rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
+                }
+            }
 
             /**
              *  Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
@@ -2319,7 +2489,7 @@ class Repo
              */
             if (!is_dir($sectionPath . '/conf')) {
                 if (!mkdir($sectionPath . '/conf', 0770, true)) {
-                    throw new Exception("impossible de créer le répertoire de configuration du repo (/conf)");
+                    throw new Exception("impossible de créer le répertoire de configuration du repo <b>$sectionPath/conf</b>");
                 }
             }
 
@@ -2328,13 +2498,13 @@ class Repo
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
             if ($this->targetGpgResign == "yes") {
-                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'SignWith: ' . GPG_KEYID . PHP_EOL . 'Pull: ' . $this->section;
+                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL . 'Pull: ' . $this->section;
             } else {
                 $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'Pull: ' . $this->section;
             }
 
             if (!file_put_contents($sectionPath . '/conf/distributions', $file_distributions_content . PHP_EOL)) {
-                throw new Exception('impossible de créer le fichier de configuration du repo (distributions)');
+                throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/distributions</b>");
             }
 
             /**
@@ -2342,20 +2512,20 @@ class Repo
              *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
              */
             if ($this->targetGpgResign == "yes") {
-                $file_options_content = "basedir $sectionPath\nask-passphrase";
+                $file_options_content = "basedir $sectionPath" . PHP_EOL . 'ask-passphrase';
             } else {
                 $file_options_content = "basedir $sectionPath";
             }
 
             if (!file_put_contents($sectionPath . '/conf/options', $file_options_content . PHP_EOL)) {
-                throw new Exception('impossible de créer le fichier de configuration du repo (options)');
+                throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/options</b>");
             }
 
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
             if (\Models\Common::dirIsEmpty($TMP_DIR) === true) {
-                echo "Il n'y a aucun paquets dans ce repo";
+                echo "Il n'y a aucun paquet dans ce repo";
                 echo '</pre></div>';
 
                 $return = 1;
@@ -2365,39 +2535,62 @@ class Repo
              */
             } else {
                 /**
-                 *  Création du repo en incluant les paquets deb du répertoire temporaire, et signature du fichier Release
+                 *  Récupération de tous les fichiers DEBs dans le répertoire temporaire
+                 *  On va déplacer ces fichiers deb vers le répertoire temporaire
                  */
-                if ($this->targetGpgResign == "yes") {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ --gnupghome " . GPGHOME . " includedeb " . $this->dist . " \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
-                } else {
-                    $process = proc_open("for DEB_PACKAGE in ${TMP_DIR}/*.deb; do /usr/bin/reprepro --basedir $sectionPath/ includedeb " . $this->dist . " \$DEB_PACKAGE; rm \$DEB_PACKAGE -f;done 1>&2", $descriptors, $pipes);
+                $dir = new \RecursiveDirectoryIterator($TMP_DIR . '/');
+                $debFiles = new \RecursiveIteratorIterator($dir);
+
+                /**
+                 *  Chaque fichier deb est ajouté au repo
+                 */
+                foreach ($debFiles as $debFile) {
+                    /**
+                     *  On déplace uniquement si le fichier a bien une extension .deb
+                     */
+                    if ($debFile->getExtension() == 'deb') {
+                        /**
+                         *  Cas où on signe le repo
+                         */
+                        if ($this->targetGpgResign == "yes") {
+                            /**
+                             *  Instanciation d'un nouveau Process
+                             */
+                            $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ --gnupghome ' . GPGHOME . ' includedeb ' . $this->dist . ' ' . $debFile->getPath() . '/' . $debFile->getFileName());
+                        } else {
+                            /**
+                             *  Instanciation d'un nouveau Process
+                             */
+                            $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ includedeb ' . $this->dist . ' ' . $debFile->getPath() . '/' . $debFile->getFileName());
+                        }
+
+                        /**
+                         *  Exécution
+                         */
+                        $myprocess->exec();
+
+                        /**
+                         *  Récupération du pid du process lancé
+                         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                         */
+                        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+
+                        /**
+                         *  Affichage de l'output du process en continue dans un fichier
+                         */
+                        $myprocess->getOutput($this->op->log->steplog);
+
+                        /**
+                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                         *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
+                         */
+                        if ($myprocess->getReturnCode() != 0) {
+                            $repreproErrors++;
+                            break;
+                        }
+                    }
                 }
 
-                /**
-                 *  Récupération du pid et du status du process lancé
-                 *  Ecriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaites
-                 */
-                $proc_details = proc_get_status($process);
-                file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $proc_details['pid'] . '"' . PHP_EOL, FILE_APPEND);
-
-                /**
-                 *  Tant que le process (lancé par proc_open) n'est pas terminé, on boucle afin de ne pas continuer les étapes suivantes
-                 */
-                do {
-                    $status = proc_get_status($process);
-
-                    // If our stderr pipe has data, grab it for use later.
-                    if (!feof($pipes[2])) {
-                        // We're acting like passthru would and displaying errors as they come in.
-                        $error_line = fgets($pipes[2]);
-                        file_put_contents($this->op->log->steplog, $error_line, FILE_APPEND);
-                    }
-                } while ($status['running'] === true);
-
-                /**
-                 *  Clôture du process
-                 */
-                proc_close($process);
                 echo '</pre></div>';
 
                 $this->op->log->steplogWrite();
@@ -2408,15 +2601,10 @@ class Repo
                 if ($this->packageType == "deb" and is_dir($TMP_DIR)) {
                     exec("rm -rf '$TMP_DIR'");
                 }
-
-                /**
-                 *  Récupération du code d'erreur de reprepro
-                 */
-                $return = $status['exitcode'];
             }
         }
 
-        if ($return != 0) {
+        if ($createRepoErrors != 0 or $repreproErrors != 0) {
             /**
              *  Suppression de ce qui a été fait :
              */
@@ -2479,51 +2667,49 @@ class Repo
 
         /**
          *  1. Mise à jour de la BDD
-         *  - Si il s'agit d'un nouveau repo on l'ajoute en base de données
+         *  - Si il s'agit d'un nouveau repo alors on l'ajoute en base de données
          */
         if ($this->op->getAction() == "new") {
             /**
-             *  Vérification de l'existance du repo en base de données
+             *  Si actuellement aucun repo rpm de ce nom n'existe en base de données alors on l'ajoute
              */
             if ($this->packageType == "rpm") {
-                $exists = $this->model->exists($this->name);
-            }
-            if ($this->packageType == "deb") {
-                $exists = $this->model->sectionExists($this->name, $this->dist, $this->section);
-            }
-
-            /**
-             *  Si actuellement aucun repo de ce nom n'existe en base de données alors on l'ajoute
-             */
-            if ($exists === false) {
-                if ($this->packageType == "rpm") {
+                if ($this->model->exists($this->name) === false) {
                     $this->model->add($this->getSource(), 'rpm', $this->name);
-                }
-                if ($this->packageType == "deb") {
-                    $this->model->add($this->getSource(), 'deb', $this->name, $this->dist, $this->section);
-                }
+
+                    /**
+                     *  L'Id du repo devient alors l'Id de la dernière ligne insérée en base de données
+                     */
+                    $this->repoId = $this->model->getLastInsertRowID();
 
                 /**
-                 *  L'Id du repo devient alors l'Id de la dernière ligne insérée en base de données
+                 *  Sinon si un repo de même nom existe, on quitte avec une erreur.
                  */
-                $this->repoId = $this->model->getLastInsertRowID();
-
-            /**
-             *  Sinon si un repo de même nom existe, on rattache ce nouveau snapshot et ce nouvel env à ce repo
-             */
-            } else {
-                /**
-                 *  D'abord on récupère l'Id en base de données du repo
-                 */
-                if ($this->packageType == "rpm") {
-                    $this->repoId = $this->model->db_getId($this->name, '', '');
-                }
-
-                if ($this->packageType == "deb") {
-                    $this->repoId = $this->model->db_getId($this->name, $this->dist, $this->section);
+                } else {
+                    throw new Exception('Un repo de même nom existe déjà en base de données');
                 }
             }
-            unset($exists);
+
+            /**
+             *  Si actuellement aucun repo deb de ce nom n'existe en base de données alors on l'ajoute
+             */
+            if ($this->packageType == "deb") {
+                // if ($this->model->sectionExists($this->name, $this->dist, $this->section) === false) {
+                if ($this->model->exists($this->name, $this->dist, $this->section) === false) {
+                    $this->model->add($this->getSource(), 'deb', $this->name, $this->dist, $this->section);
+
+                    /**
+                     *  L'Id du repo devient alors l'Id de la dernière ligne insérée en base de données
+                     */
+                    $this->repoId = $this->model->getLastInsertRowID();
+
+                /**
+                 *  Sinon si un repo de même nom existe, on rattache ce nouveau snapshot et ce nouvel env à ce repo
+                 */
+                } else {
+                    throw new Exception('(rpm) Un repo de même nom existe déjà en base de données');
+                }
+            }
 
             /**
              *  Ajout du snapshot en base de données
@@ -2734,7 +2920,7 @@ class Repo
             }
         }
 
-        \Models\History::set($_SESSION['username'], "Modifications des repos/sections membres du groupe <b>$groupName</b>", 'success');
+        \Models\History::set($_SESSION['username'], 'Modifications des repos membres du groupe <span class="label-white">' . $groupName . '</span>', 'success');
 
         \Models\Common::clearCache();
     }
@@ -2801,12 +2987,12 @@ class Repo
                 $repoName = $repo['Name'];
                 $repoDist = $repo['Dist'];
                 $repoSection = $repo['Section'];
-                $repoPackageType = $repo['Package_type'];
+                $this->packageType = $repo['Package_type'];
 
-                if ($repoPackageType == "rpm") {
+                if ($this->packageType == "rpm") {
                     echo '<option value="' . $repoId . '" selected>' . $repoName . '</option>';
                 }
-                if ($repoPackageType == "deb") {
+                if ($this->packageType == "deb") {
                     echo '<option value="' . $repoId . '" selected>' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</option>';
                 }
             }
@@ -2821,12 +3007,12 @@ class Repo
                 $repoName = $repo['Name'];
                 $repoDist = $repo['Dist'];
                 $repoSection = $repo['Section'];
-                $repoPackageType = $repo['Package_type'];
+                $this->packageType = $repo['Package_type'];
 
-                if ($repoPackageType == "rpm") {
+                if ($this->packageType == "rpm") {
                     echo '<option value="' . $repoId . '">' . $repoName . '</option>';
                 }
-                if ($repoPackageType == "deb") {
+                if ($this->packageType == "deb") {
                     echo '<option value="' . $repoId . '">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</option>';
                 }
             }
@@ -2990,5 +3176,329 @@ class Repo
     public function snapSetReconstruct(string $snapId, string $status = null)
     {
         $this->model->snapSetReconstruct($snapId, $status);
+    }
+
+    /**
+     *  Construit et affiche la liste des repos au format html
+     */
+    public function printRepoList(array $reposList)
+    {
+        $this->repoLastName = '';
+        $this->repoLastDist = '';
+        $this->repoLastSection = '';
+        $this->repoLastEnv = '';
+        $this->lastSnapId = '';
+
+        foreach ($reposList as $repoArray) {
+            echo '<div class="repos-list-group-flex-div">';
+
+            foreach ($repoArray as $repo) {
+                $this->repoId = $repo['repoId'];
+                $this->snapId = $repo['snapId'];
+                $this->name   = $repo['Name'];
+                $this->source = $repo['Source'];
+                $this->reconstruct = $repo['Reconstruct'];
+                $this->status      = $repo['Status'];
+                $this->packageType = $repo['Package_type'];
+                if ($this->packageType == 'deb') {
+                    $this->dist    = $repo['Dist'];
+                    $this->section = $repo['Section'];
+                }
+                if (!empty($repo['envId'])) {
+                    $this->envId = $repo['envId'];
+                } else {
+                    $this->envId = '';
+                }
+                if (!empty($repo['Env'])) {
+                    $this->env = $repo['Env'];
+                } else {
+                    $this->env = '';
+                }
+                $this->dateFormatted = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
+                $this->time   = $repo['Time'];
+                $this->type   = $repo['Type'];
+                $this->signed = $repo['Signed'];
+                if (!empty($repo['Description'])) {
+                    $this->description = $repo['Description'];
+                } else {
+                    $this->description = '';
+                }
+
+                /**
+                 *  On appelle la fonction printRepoLine qui va se charger d'afficher la ligne du repo
+                 */
+                $this->printRepoLine();
+
+                if (!empty($this->name)) {
+                    $this->repoLastName = $this->name;
+                }
+                if (!empty($this->dist)) {
+                    $this->repoLastDist = $this->dist;
+                }
+                if (!empty($this->section)) {
+                    $this->repoLastSection = $this->section;
+                }
+                if (!empty($this->snapId)) {
+                    $this->lastSnapId = $this->snapId;
+                }
+                if (!empty($this->packageType)) {
+                    $this->lastPackageType = $this->packageType;
+                }
+            }
+            echo '</div>';
+        }
+    }
+
+    /**
+     *  Construit et affiche la ligne du repo en cours (sous-fonction de printRepoList)
+     */
+    private function printRepoLine()
+    {
+        $printRepoName = 'yes';
+        $printRepoDist = 'yes';
+        $printRepoSection = 'yes';
+        $printRepoEnv = 'yes';
+        $printEmptyLine = 'no';
+
+        if ($this->packageType == 'rpm') {
+            $repoPath = REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name;
+        }
+        if ($this->packageType == 'deb') {
+            $repoPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section;
+        }
+
+        /**
+         *  Tests qui vont définir si on affiche une nouvelle fois le nom du repo/dist/section
+         *  Utile pour ne pas afficher plusieurs fois l'information et alléger l'affichage
+         */
+        if ($this->repoLastName == $this->name) {
+            $printRepoName = 'no';
+        }
+
+        if ($this->packageType == "deb") {
+            if ($this->name == $this->repoLastName and !empty($this->repoLastDist) and $this->dist == $this->repoLastDist and !empty($this->repoLastSection) and $this->section == $this->repoLastSection) {
+                $printRepoDist = 'no';
+                $printRepoSection = 'no';
+            }
+            if ($this->name == $this->repoLastName and $this->repoLastDist != $this->dist) {
+                $printEmptyLine = 'yes';
+            }
+        }
+
+        /**
+         *  Si le type de paquet n'est pas le même que précédemment alors il faut afficher le nom du repo
+         */
+        if ($this->lastPackageType != $this->packageType) {
+            $printRepoName = 'yes';
+            $printRepoDist = 'yes';
+            $printRepoSection = 'yes';
+        }
+
+        if ($printEmptyLine == 'yes') {
+            echo '<div class="item-empty-line"></div>';
+        }
+
+        /**
+         *  Nom du repo
+         */
+        echo '<div class="item-repo">';
+        if ($printRepoName == "yes") {
+            echo $this->name . '<span class="item-pkgtype lowopacity" title="Repo de paquets ' . $this->packageType . '"><img src="ressources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
+        }
+        echo '</div>';
+
+        /**
+         *  Nom de la distribution et de la section (Debian)
+         */
+        if ($this->packageType == "deb") {
+            if ($printRepoDist == 'yes' or $printRepoSection == 'yes') {
+                echo '<div class="item-dist-section">';
+                    echo '<div class="item-dist-section-sub">';
+                if ($printRepoDist == 'yes') {
+                    echo '<span class="item-dist">' . $this->dist . '</span>';
+                }
+                if ($printRepoSection == 'yes') {
+                    echo '<span class="item-section">❯ ' . $this->section . '</span>';
+                }
+                    echo '</div>';
+                echo '</div>';
+            } else {
+                echo '<div class="item-dist-section"></div>';
+            }
+        } else {
+            echo '<div></div>';
+        } ?>
+
+        <?php
+        /**
+         *  Les checkbox sont affichées uniquement pour les utilisateurs administrateurs
+         */
+        if (\Models\Common::isadmin()) { ?>
+            <div class="item-checkbox">
+                <?php
+                /**
+                 *  On affiche la checkbox que lorsque le snapshot est différent du précédent et qu'il n'y a pas d'opération en cours sur le snapshot
+                 */
+                if ($this->snapId != $this->lastSnapId) :
+                    if ($this->snapOpIsRunning($this->snapId) === true) : ?>
+                        <img src="ressources/images/loading.gif" class="icon" title="Une opération est en cours sur ce snapshot de repo." />
+                    <?php else : ?>
+                        <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>">
+                    <?php endif ?>
+                <?php endif ?>
+            </div>   
+            <?php
+        } else {
+            echo '<div class="item-checkbox"></div>';
+        }
+
+        /**
+         *  Affichage de la taille
+         */
+        if (PRINT_REPO_SIZE == "yes") {
+            if ($this->packageType == "rpm") {
+                $repoSize = exec("du -hs " . REPOS_DIR . "/{$this->dateFormatted}_{$this->name} | awk '{print $1}'");
+            }
+            if ($this->packageType == "deb") {
+                $repoSize = exec("du -hs " . REPOS_DIR . "/{$this->name}/{$this->dist}/{$this->dateFormatted}_{$this->section} | awk '{print $1}'");
+            }
+        }
+
+        /**
+         *  Affichage de la date
+         */
+        echo '<div class="item-snapshot">';
+        if ($this->snapId != $this->lastSnapId) {
+            echo '<div class="item-date" title="' . $this->dateFormatted . ' ' . $this->time . '">';
+                echo '<span>' . $this->dateFormatted . '</span>';
+            echo '</div>';
+
+            echo '<div class="item-info">';
+            if (PRINT_REPO_SIZE == "yes") {
+                echo '<span class="lowopacity">' . $repoSize . '</span>';
+            }
+
+            /**
+             *  Affichage de l'icone du type de repo (miroir ou local)
+             */
+            if (PRINT_REPO_TYPE == 'yes') {
+                if ($this->type == "mirror") {
+                    echo "<img class=\"icon lowopacity\" src=\"ressources/icons/world.png\" title=\"Type : miroir (source : $this->source)\" />";
+                } elseif ($this->type == "local") {
+                    echo '<img class="icon lowopacity" src="ressources/icons/pin.png" title="Type : local" />';
+                } else {
+                    echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Type : inconnu" />';
+                }
+            }
+            /**
+             *  Affichage de l'icone de signature GPG du repo
+             */
+            if (PRINT_REPO_SIGNATURE == 'yes') {
+                if ($this->signed == "yes") {
+                    echo '<img class="icon lowopacity" src="ressources/icons/key.png" title="Repo signé avec GPG" />';
+                } elseif ($this->signed == "no") {
+                    echo '<img class="icon lowopacity" src="ressources/icons/key2.png" title="Repo non-signé avec GPG" />';
+                } else {
+                    echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Signature GPG : inconnue" />';
+                }
+            }
+            /**
+             *  Affichage de l'icone "explorer"
+             */
+            if ($this->packageType == "rpm") {
+                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer le repo $this->name ($this->dateFormatted)\" /></a>";
+            }
+            if ($this->packageType == "deb") {
+                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer la section {$this->section} ($this->dateFormatted)\" /></a>";
+            }
+            if (!empty($this->reconstruct)) {
+                if ($this->reconstruct == 'needed') {
+                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
+                }
+                if ($this->reconstruct == 'failed') {
+                    echo '<img class="icon" src="ressources/icons/redcircle.png" title="La construction des métadonnées du repo a échouée." />';
+                }
+            }
+                echo '</div>';
+        }
+        echo '</div>';
+
+        /**
+         *  Affichage d'une flèche uniquement si un environnement pointe vers le snapshot
+         */
+        if ($this->snapId == $this->lastSnapId) {
+            echo '<div class="item-arrow-up">';
+        } else {
+            echo '<div class="item-arrow">';
+        }
+        if (!empty($this->env)) {
+            echo '<span></span>';
+        }
+        echo '</div>';
+
+        /**
+         *  Affichage de l'environnement pointant vers le snapshot si il y en a un
+         */
+        echo '<div class="item-env">';
+        if (!empty($this->env)) {
+            echo \Models\Common::envtag($this->env, 'fit');
+        }
+        echo '</div>';
+
+        echo '<div class="item-env-info">';
+        if (!empty($this->env)) {
+            /**
+             *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+             */
+            if ($this->packageType == "rpm") {
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="ressources/icons/code.png" title="Afficher la configuration client" />';
+            }
+            if ($this->packageType == "deb") {
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="ressources/icons/code.png" title="Afficher la configuration client" />';
+            }
+
+            /**
+             *  Affichage de l'icone "statistiques"
+             */
+            if (CRON_STATS_ENABLED == "yes") {
+                if ($this->packageType == "rpm") {
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats du repo $this->name ($this->env)\" /></a>";
+                }
+                if ($this->packageType == "deb") {
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats de la section $this->section ($this->env)\" /></a>";
+                }
+            }
+            /**
+             *  Affichage de l'icone "warning" si le répertoire du repo n'existe plus sur le serveur
+             */
+            if ($this->packageType == "rpm") {
+                if (!is_dir(REPOS_DIR . "/{$this->dateFormatted}_{$this->name}")) {
+                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
+                }
+            }
+            if ($this->packageType == "deb") {
+                if (!is_dir(REPOS_DIR . "/$this->name/$this->dist/{$this->dateFormatted}_{$this->section}")) {
+                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le répertoire de cette section semble inexistant sur le serveur" />';
+                }
+            }
+        }
+
+            /**
+             *  Icone suppression de l'environnement
+             */
+        if (!empty($this->env) and \Models\Common::isadmin()) {
+            echo '<img src="ressources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Supprimer l\'environnement ' . $this->env . '" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
+        }
+
+        echo '</div>';
+
+        /**
+         *  Affichage de la description
+         */
+        echo '<div class="item-desc">';
+        if (!empty($this->env)) {
+            echo '<input type="text" class="repoDescriptionInput" env-id="' . $this->envId . '" placeholder="🖉 ajouter une description" value="' . $this->description . '" />';
+        }
+        echo '</div>';
     }
 }
