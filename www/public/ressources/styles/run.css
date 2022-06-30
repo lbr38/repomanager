@@ -101,6 +101,7 @@
     /* padding: 8px 0px 8px 0px; */
 }
 .op-step-div {
+    position: relative;
     margin-bottom: 5px;
     border-radius: 2px;
     border: 1px solid #403f3f;
@@ -108,7 +109,7 @@
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
-.op-step-title, .op-step-title-error, .op-step-title-ok, .op-step-title-warning, .op-step-loading {
+.op-step-title, .op-step-title-error, .op-step-title-ok, .op-step-title-warning, .op-step-loading, .op-step-time, .op-step-duration {
     padding-top: 20px;
     padding-bottom: 20px;
     padding-left: 20px;
@@ -118,3 +119,9 @@
 .op-step-title { width: 30%; }
 .op-step-title-warning { width: 1%; }
 .op-step-title-error, .op-step-title-ok, .op-step-loading { width: 60%; }
+.op-step-time {
+    font-size: 12px;
+    opacity: 0.8;
+    position: absolute;
+    right: 10px;
+}

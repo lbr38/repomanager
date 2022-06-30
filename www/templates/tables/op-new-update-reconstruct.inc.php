@@ -1,5 +1,7 @@
 <?php
 
+echo "<h3>$title</h3>";
+
 echo '<table class="op-table">';
 if ($this->op->getAction() != 'reconstruct') {
     if (!empty($this->source)) {

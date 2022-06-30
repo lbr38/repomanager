@@ -28,12 +28,12 @@ jobs:
         run: |
           dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm -y
           dnf module reset php -y
-          dnf module install php:remi-7.4 -y
+          dnf module install php:remi-8.1 -y
           dnf update -y
           dnf install php -y
 
       - name: Install PHP modules
-        run: dnf install php-cli php-pdo php-json sqlite -y
+        run: dnf install php-cli php-pdo sqlite -y
 
       - name: Print PHP version
         run: php --version    

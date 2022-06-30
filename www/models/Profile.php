@@ -87,7 +87,8 @@ class Profile extends Model
             Package_exclude_major,
             Service_restart,
             Allow_overwrite,
-            Allow_repos_overwrite
+            Allow_repos_overwrite,
+            Notes
             FROM profile WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
@@ -133,19 +134,8 @@ class Profile extends Model
     /**
      *  Modifie la configuration générale du serveur pour la gestion des profils
      */
-    // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion, string $serverManageClientConf, string $serverManageClientRepos)
     public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
-        // $stmt = $this->db->prepare("UPDATE profile_settings SET Os_family = :osFamily , Os_name = :osName, Os_id = :osId, Os_version = :osVersion, Package_type = :packageType, Package_os_version = :packageOsVersion, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
-        // $stmt->bindValue(':osFamily', $serverOsFamily);
-        // $stmt->bindValue(':osName', $serverOsName);
-        // $stmt->bindValue(':osId', $serverOsId);
-        // $stmt->bindValue(':osVersion', $serverOsVersion);
-        // $stmt->bindValue(':packageType', $serverPackageType);
-        // $stmt->bindValue(':packageOsVersion', $serverPackageOsVersion);
-        // $stmt->bindValue(':manageClientConf', $serverManageClientConf);
-        // $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
-        // $stmt->execute();
         try {
             $stmt = $this->db->prepare("UPDATE profile_settings SET Package_type = :packageType, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
             $stmt->bindValue(':packageType', $serverPackageType);
@@ -212,16 +202,17 @@ class Profile extends Model
     /**
      *  Modification de la configuration d'un profil en base de données
      */
-    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $allowOverwrite, string $allowReposOverwrite)
+    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $allowOverwrite, string $allowReposOverwrite, string $notes)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Allow_overwrite = :allowOverwrite, Allow_repos_overwrite = :allowReposOverwrite WHERE Id = :profileId");
+            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Allow_overwrite = :allowOverwrite, Allow_repos_overwrite = :allowReposOverwrite, Notes = :notes WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
             $stmt->bindValue(':packageExclude', $packageExclude);
             $stmt->bindValue(':packageExcludeMajor', $packageExcludeMajor);
             $stmt->bindValue(':serviceRestart', $serviceRestart);
             $stmt->bindValue(':allowOverwrite', $allowOverwrite);
             $stmt->bindValue(':allowReposOverwrite', $allowReposOverwrite);
+            $stmt->bindValue(':notes', $notes);
             $stmt->execute();
         } catch (\Exception $e) {
             \Models\Common::dbError($e);
@@ -263,21 +254,26 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne un array contenant les nom de repos membres d'un profil
+     *  Retourne un array contenant les noms de repos membres d'un profil
+     *  Ici on vérifie bien que les repos membres ont au moins 1 snapshot actif (repos.Status == 'active'), si ce
+     *  n'est pas le cas alors le repos n'est pas considéré comme membre du profil
      */
     public function reposMembersList($profileId)
     {
         try {
-            $stmt = $this->db->prepare("SELECT
+            $stmt = $this->db->prepare("SELECT DISTINCT
             repos.Id,
             repos.Name,
             repos.Dist,
             repos.Section,
             repos.Package_type
             FROM profile_repo_members 
-            INNER JOIN repos
+            LEFT JOIN repos
                 ON repos.Id = profile_repo_members.Id_repo
-            WHERE profile_repo_members.Id_profile = :profileId");
+            LEFT JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            WHERE profile_repo_members.Id_profile = :profileId
+            AND repos_snap.Status == 'active'");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -295,16 +291,21 @@ class Profile extends Model
 
     /**
      *  Retourne un array contenant les Id de repos membres d'un profil
+     *  Ici on vérifie bien que les repos membres ont au moins 1 snapshot actif (repos.Status == 'active'), si ce
+     *  n'est pas le cas alors le repos n'est pas considéré comme membre du profil
      */
     public function reposMembersIdList($profileId)
     {
         try {
-            $stmt = $this->db->prepare("SELECT
+            $stmt = $this->db->prepare("SELECT DISTINCT
             repos.Id
             FROM profile_repo_members 
-            INNER JOIN repos
+            LEFT JOIN repos
                 ON repos.Id = profile_repo_members.Id_repo
-            WHERE profile_repo_members.Id_profile = :profileId");
+            LEFT JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            WHERE profile_repo_members.Id_profile = :profileId
+            AND repos_snap.Status == 'active'");
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
         } catch (\Exception $e) {

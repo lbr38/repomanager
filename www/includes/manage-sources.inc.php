@@ -33,10 +33,19 @@
                     <td class="td-30">Type de repo source</td>
                     <td colspan="100%">
                         <div class="switch-field">
+                        <?php
+                        if (RPM_REPO == 'enabled' and DEB_REPO == 'enabled') : ?>
                             <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
                             <label for="repoType_rpm">rpm</label>
                             <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
                             <label for="repoType_deb">deb</label>
+                        <?php elseif (RPM_REPO == 'enabled') : ?>
+                            <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
+                            <label for="repoType_rpm">rpm</label>     
+                        <?php elseif (DEB_REPO == 'enabled') : ?>
+                            <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" checked />
+                            <label for="repoType_deb">deb</label> 
+                        <?php endif ?>
                         </div>
                     </td>
                 </tr>
@@ -165,19 +174,19 @@
     <?php endif ?>
 
     <?php
-        /**
-         *  AFFICHAGE DES REPOS SOURCES ACTUELS
-         */
+    /**
+     *  AFFICHAGE DES REPOS SOURCES ACTUELS
+     */
 
-        /**
-         *  1. Récupération de tous les noms de sources
-         */
-        $rpmSourcesList = glob(REPOMANAGER_YUM_DIR . '/*.repo');
-        $debSourcesList = $source->listAll();
+    /**
+     *  1. Récupération de tous les noms de sources
+     */
+    $rpmSourcesList = glob(REPOMANAGER_YUM_DIR . '/*.repo');
+    $debSourcesList = $source->listAll();
 
-        /**
-         *  2. Affichage des groupes si il y en a
-         */
+    /**
+     *  2. Affichage des groupes si il y en a
+     */
     if (!empty($rpmSourcesList) or !empty($debSourcesList)) : ?>
             <div class="div-generic-gray">
                 <h5>Repos sources actuels</h5>
@@ -295,12 +304,7 @@
 
                                     <p>Notes :</p>
 
-                                    <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire...">
-                                        <?php
-                                        if (!empty($comments)) {
-                                            echo trim($comments);
-                                        } ?>
-                                    </textarea>
+                                    <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire..."><?= trim($comments) ?></textarea>                                    
 
                                     <button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>
                                 </form>

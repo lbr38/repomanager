@@ -55,7 +55,7 @@ Runs on following Redhat/CentOS or Debian/Ubuntu systems:
 - RHEL 7/8, CentOS 7/8, Fedora 33
 Minimal recommanded configuration: Debian 10 or RHEL/CentOS 8.
 
-Repomanager only needs a web service + PHP (7 min.) and SQLite.
+Repomanager only needs a web service + PHP (7.x or 8.x) and SQLite.
 
 CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
 Disk space required depends on the size of the repos you need to clone.
@@ -89,10 +89,12 @@ Note for Redhat/CentOS systems: you may adapt SELinux configuration to make sure
 
 <pre>
 # Redhat / CentOS
-yum install nginx php-fpm php-cli php-pdo php-json sqlite
+yum install nginx php-fpm php-cli php-pdo php-json sqlite # PHP 7.4
+yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
 
 # Debian
-apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3
+apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3 # PHP 7.4
+apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3 # PHP 8.1
 </pre>
 
 <b>SQLite</b>

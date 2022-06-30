@@ -18,12 +18,14 @@ class Operation
     private $id_plan; // Si une opération est lancée par une planification alors on peut stocker l'ID de cette planification dans cette variable
     private $targetGpgCheck;
     private $targetGpgResign;
-    private $timeStart = "";
-    private $timeEnd = "";
+    private $timeStart;
+    private $timeEnd;
+    private $stepName;
+    private $stepNumber = 0;
+    private $stepTimeStart;
 
     public function __construct()
     {
-
         $this->model = new \Models\Operation();
     }
 
@@ -516,25 +518,136 @@ class Operation
     }
 
     /**
-     *  CLOTURE D'UNE OPERATION
+     *  Cloture d'une opération
      */
     public function closeOperation()
     {
-        $this->timeEnd = microtime(true);
-        $this->duration = $this->timeEnd - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
+        /**
+         *  Calcul et conversion du temps total
+         */
+        $this->duration = microtime(true) - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
 
-        $this->model->closeOperation($this->id, $this->status, $this->duration);
+        $this->step('DUREE TOTALE', false);
+        $this->log->steplogDuration($this->stepId, \Models\Common::convertMicrotime($this->duration));
 
         /**
-         *  Cloture du fichier de log ouvert par startOperation()
+         *  Génère un fichier 'completed' dans le répertoire temporaire des étapes de l'opération, ceci afin que logbuilder.php s'arrête
          */
-        $this->log->close();
+        touch(TEMP_DIR . '/' . $this->log->getPid() . '/completed');
+
+        $this->deletePid();
+
+        $this->model->closeOperation($this->id, $this->status, $this->duration);
 
         /**
          *  Nettoyage du cache de repos-list
          */
         \Models\Common::clearCache();
     }
+
+    /**
+     *  Création d'un nouvelle étape dans l'opération et donc un nouveau fichier de log pour cette étape
+     */
+    public function step(string $name = null, bool $printLoading = true)
+    {
+        /**
+         *  Incrémentation du numéro d'étape
+         */
+        $this->stepNumber++;
+
+        /**
+         *  Initialisation de l'heure de démarrage de cette étape
+         */
+        $this->stepTimeStart = microtime(true);
+
+        /**
+         *  Création d'un fichier de log pour cette étape
+         */
+        $this->log->steplog($this->stepNumber);
+
+        if (!empty($name)) {
+            $this->stepName = $name;
+            $this->stepId = \Models\Common::randomString(24);
+
+            /**
+             *  Initialisation du fichier de configuration
+             */
+            $this->log->steplogInitialize($this->stepId);
+
+            /**
+             *  Affichage du titre de l'étape
+             */
+            $this->log->steplogName($this->stepName);
+
+            /**
+             *  Affichage d'une icone de chargement
+             */
+            if ($printLoading === true) {
+                $this->log->steplogLoading($this->stepId);
+            }
+        }
+    }
+
+    /**
+     *  Ecrire les données capturées dans le fichier de log de l'étape en cours
+     *  Ou spécifier un message à écrire dans le fichier de log de l'étape en cours
+     */
+    public function stepWriteToLog(string $message = null)
+    {
+        $this->log->steplogWrite($message);
+    }
+
+    /**
+     *  Affichage d'un message de succès pour l'étape en cours
+     */
+    public function stepOK(string $message = null)
+    {
+        $this->log->steplogOK($this->stepId, \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $message);
+    }
+
+    /**
+     *  Affichage d'un message d'erreur pour l'étape en cours
+     */
+    public function stepError(string $error)
+    {
+        $this->log->steplogError($this->stepId, \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $error);
+    }
+
+    /**
+     *  Affichage d'une icône de warning pour l'étape en cours
+     */
+    public function stepWarning()
+    {
+        $this->log->steplogWarning();
+    }
+
+    private function getStepDuration()
+    {
+        return \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
+    }
+
+    private function deletePid()
+    {
+        /**
+         *  Suppression du fichier PID
+         */
+        if (file_exists(PID_DIR . '/' . $this->log->getPid() . '.pid')) {
+            unlink(PID_DIR . '/' . $this->log->getPid() . '.pid');
+        }
+    }
+
+    /**
+     *  Clôture de l'étape en cours
+     */
+    // public function stepEnd()
+    // {
+    //     /**
+    //      *  Génère un fichier 'completed' dans le répertoire temporaire des étapes de l'opération, ceci afin que logbuilder.php s'arrête
+    //      */
+    //     touch(TEMP_DIR . '/' . $this->log->getPid() . '/completed');
+
+    //     $this->deletePid();
+    // }
 
     /**
      *  Retourne le nom du repo ou du groupe en cours de traitement
@@ -689,9 +802,9 @@ class Operation
 
                         <td class="td-fit">
                             <?php
-                                /**
-                                 *  Affichage de l'icone en cours ou terminée ou en erreur
-                                 */
+                            /**
+                             *  Affichage de l'icone en cours ou terminée ou en erreur
+                             */
                             if ($status == "running") {
                                 echo 'en cours <img src="ressources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
                             }

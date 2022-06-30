@@ -324,7 +324,7 @@ class Autoloader
         if (!is_dir(HOSTS_DIR)) {
             mkdir(HOSTS_DIR, 0770, true);
         }
-        if (!is_dir(REPOMANAGER_YUM_DIR)) {
+        if (RPM_REPO == 'enabled' and !is_dir(REPOMANAGER_YUM_DIR)) {
             mkdir(REPOMANAGER_YUM_DIR, 0770, true);
         }
 

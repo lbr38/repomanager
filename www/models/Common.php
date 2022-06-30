@@ -119,26 +119,6 @@ class Common
         include(ROOT . '/includes/repos-list.inc.php');
         $content = ob_get_clean();
         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
-
-        // if (empty($role)) {
-
-        //     $roles = array('super-administrator', 'administrator', 'usage');
-
-        //     foreach ($roles as $role) {
-        //         define('GENERATE_CACHE_ROLE', $role);
-        //         ob_start();
-        //         include(ROOT . '/includes/repos-list.inc.php');
-        //         $content = ob_get_clean();
-        //         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
-        //     }
-        // } else {
-        //     define('GENERATE_CACHE_ROLE', $role);
-
-        //     ob_start();
-        //     include(ROOT . '/includes/repos-list.inc.php');
-        //     $content = ob_get_clean();
-        //     file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
-        // }
     }
 
     /**
@@ -437,6 +417,46 @@ class Common
     public static function generateRandom()
     {
         return mt_rand(1000, 99999);
+    }
+
+    /**
+     *  Génère une chaine de caractères aléatoires
+     */
+    public static function randomString(int $length)
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyz';
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $index = rand(0, strlen($characters) - 1);
+            $randomString .= $characters[$index];
+        }
+
+        return $randomString;
+    }
+
+    /**
+     *  Convertit une durée microtime au format HHhMMmSSs
+     */
+    public static function convertMicrotime(string $duration)
+    {
+        $hours = (int)($duration/60/60);
+        $minutes = (int)($duration/60)-$hours*60;
+        $seconds = (int)$duration-$hours*60*60-$minutes*60;
+
+        $time = '';
+
+        if (!empty($hours)) {
+            $time = strval($hours) . 'h';
+        }
+        if (!empty($minutes)) {
+            $time .= strval($minutes) . 'm';
+        }
+        if (!empty($seconds)) {
+            $time .= $seconds . 's';
+        }
+
+        return $time;
     }
 
     /**

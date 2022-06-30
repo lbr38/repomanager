@@ -27,7 +27,7 @@ class Repo
     private $type; // miroir ou local
     private $status;
     private $reconstruct;
-    private $sourceFullUrl;
+    // private $sourceFullUrl;
     private $hostUrl;
     private $rootUrl;
     private $gpgCheck;
@@ -151,10 +151,10 @@ class Repo
         $this->source = $source;
     }
 
-    public function setSourceFullUrl(string $fullUrl)
-    {
-        $this->sourceFullUrl = $fullUrl;
-    }
+    // public function setSourceFullUrl(string $fullUrl)
+    // {
+    //     $this->sourceFullUrl = $fullUrl;
+    // }
 
     public function setSourceHostUrl(string $hostUrl)
     {
@@ -481,7 +481,7 @@ class Repo
             throw new Exception('impossible de déterminer la racine de l\'URL du repo source');
         }
 
-        $this->setSourceFullUrl($fullUrl);
+        // $this->setSourceFullUrl($fullUrl);
         $this->setSourceHostUrl($hostUrl);
         $this->setSourceRoot($root);
     }
@@ -637,34 +637,28 @@ class Repo
 
         try {
             /**
-             *  Etape 0 : Afficher le titre de l'opération
-             */
-            $this->op->log->steplog(0);
-            file_put_contents($this->op->log->steplog, "<h3>CREATION D'UN NOUVEAU REPO</h3>");
-            /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->op->log->steplog(1);
-            $this->printDetails();
+            $this->printDetails("CREATION D'UN NOUVEAU REPO");
+
             /**
              *   Etape 2 : récupération des paquets
              */
-            $this->op->log->steplog(2);
             $this->getPackages();
+
             /**
              *   Etape 3 : signature des paquets/du repo
              */
-            $this->op->log->steplog(3);
             $this->signPackages();
+
             /**
              *   Etape 4 : Création du repo et liens symboliques
              */
-            $this->op->log->steplog(4);
             $this->createRepo();
+
             /**
              *   Etape 5 : Finalisation du repo (ajout en BDD et application des droits)
              */
-            $this->op->log->steplog(5);
             $this->finalize();
 
             /**
@@ -672,7 +666,7 @@ class Repo
              */
             $this->op->setStatus('done');
         } catch (\Exception $e) {
-            $this->op->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+            $this->op->stepError($e->getMessage()); // On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
 
             /**
              *  Passage du status de l'opération en erreur
@@ -684,7 +678,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -737,9 +730,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-new-local.inc.php');
 
-            $this->op->log->steplog(1);
-            $this->op->log->steplogInitialize('createRepo');
-            $this->op->log->steplogTitle('CREATION DU REPO');
+            $this->op->step('CREATION DU REPO');
 
             /**
              *  2. On vérifie que le nom du repo n'est pas vide
@@ -788,7 +779,6 @@ class Repo
                 $exists = $this->model->exists($this->name);
             }
             if ($this->packageType == "deb") {
-                // $exists = $this->model->sectionExists($this->name, $this->dist, $this->section);
                 $exists = $this->model->exists($this->name, $this->dist, $this->section);
             }
 
@@ -857,17 +847,15 @@ class Repo
                 exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . "/{$this->name}");
             }
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  7. Ajout de la section à un groupe si un groupe a été renseigné
              */
             if (!empty($this->targetGroup)) {
-                $this->op->log->steplog(2);
-                $this->op->log->steplogInitialize('addToGroup');
-                $this->op->log->steplogTitle('AJOUT A UN GROUPE');
+                $this->op->step('AJOUT A UN GROUPE');
                 $this->addRepoIdToGroup($this->repoId, $this->targetGroup);
-                $this->op->log->steplogOK();
+                $this->op->stepOK();
             }
 
             /**
@@ -881,9 +869,9 @@ class Repo
             $this->op->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
              */
-            $this->op->log->steplogError($e->getMessage());
+            $this->op->stepError($e->getMessage());
 
             /**
              *  Passage du status de l'opération en erreur
@@ -895,7 +883,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -964,41 +951,36 @@ class Repo
 
         try {
             /**
-             *  Etape 0 : Afficher le titre de l'opération
-             */
-            $this->op->log->steplog(0);
-            file_put_contents($this->op->log->steplog, "<h3>MISE A JOUR D'UN REPO</h3>");
-            /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->op->log->steplog(1);
-            $this->printDetails();
+            $this->printDetails("MISE A JOUR D'UN REPO");
+
             /**
             *   Etape 2 : récupération des paquets
             */
-            $this->op->log->steplog(2);
             $this->getPackages();
+
             /**
             *   Etape 3 : signature des paquets/du repo
             */
-            $this->op->log->steplog(3);
             $this->signPackages();
+
             /**
             *   Etape 4 : Création du repo et liens symboliques
             */
-            $this->op->log->steplog(4);
             $this->createRepo();
+
             /**
             *   Etape 6 : Finalisation du repo (ajout en BDD et application des droits)
             */
-            $this->op->log->steplog(5);
             $this->finalize();
+
             /**
              *  Passage du status de l'opération en done
              */
             $this->op->setStatus('done');
         } catch (\Exception $e) {
-            $this->op->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+            $this->op->stepError($e->getMessage()); // On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1009,7 +991,6 @@ class Repo
             /**
              *  Cloture de l'opération
              */
-            $this->op->log->closeStepOperation();
             $this->op->closeOperation();
 
             /**
@@ -1020,7 +1001,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1077,9 +1057,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-duplicate.inc.php');
 
-            $this->op->log->steplog(1);
-            $this->op->log->steplogInitialize('duplicate');
-            $this->op->log->steplogTitle('DUPLICATION');
+            $this->op->step('DUPLICATION');
 
             /**
              *  On vérifie que le snapshot source existe
@@ -1134,7 +1112,7 @@ class Repo
                 throw new Exception('impossible de copier les données du repo source vers le nouveau repo');
             }
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  Sur Debian il faut reconstruire les données du repo avec le nouveau nom du repo.
@@ -1157,9 +1135,7 @@ class Repo
                 $this->setName($backupName);
             }
 
-            $this->op->log->steplog(3);
-            $this->op->log->steplogInitialize('finalize');
-            $this->op->log->steplogTitle('FINALISATION');
+            $this->op->step('FINALISATION');
 
             /**
              *  Création du lien symbolique
@@ -1221,22 +1197,20 @@ class Repo
             }
             exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->targetName . '/');
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  10. Ajout de la section à un groupe si un groupe a été renseigné
              */
             if (!empty($this->targetGroup)) {
-                $this->op->log->steplog(4);
-                $this->op->log->steplogInitialize('addToGroup');
-                $this->op->log->steplogTitle('AJOUT A UN GROUPE');
+                $this->op->step('AJOUT A UN GROUPE');
 
                 /**
                  *  Ajout du repo créé au groupe spécifié
                  */
                 $this->addRepoIdToGroup($targetRepoId, $this->targetGroup);
 
-                $this->op->log->steplogOK();
+                $this->op->stepOK();
             }
 
             /**
@@ -1250,9 +1224,9 @@ class Repo
             $this->op->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
              */
-            $this->op->log->steplogError($e->getMessage());
+            $this->op->stepError($e->getMessage());
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1264,7 +1238,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1313,25 +1286,18 @@ class Repo
 
         try {
             /**
-             *  Etape 0 : Afficher le titre de l'opération
-             */
-            $this->op->log->steplog(0);
-            file_put_contents($this->op->log->steplog, "<h3>RECONSTRUCTION DES METADONNÉES DU REPO</h3>");
-            /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->op->log->steplog(1);
-            $this->printDetails();
+            $this->printDetails('RECONSTRUCTION DES METADONNÉES DU REPO');
             /**
             *   Etape 2 : signature des paquets/du repo
             */
-            $this->op->log->steplog(2);
             $this->signPackages();
             /**
             *   Etape 3 : Création du repo et liens symboliques
             */
-            $this->op->log->steplog(3);
             $this->createRepo();
+
             /**
              *  Etape 4 : on modifie l'état de la signature du repo en BDD
              *  Comme on a reconstruit les fichiers du repo, il est possible qu'on soit passé d'un repo signé à un repo non-signé, ou inversement
@@ -1340,16 +1306,16 @@ class Repo
             $this->model->snapSetSigned($this->snapId, $this->targetGpgResign);
 
             /**
-             *  Passage du status de l'opération en done
-             */
-            $this->op->setStatus('done');
-
-            /**
              *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
              */
             $this->model->snapSetReconstruct($this->snapId, '');
+
+            /**
+             *  Passage du status de l'opération en done
+             */
+            $this->op->setStatus('done');
         } catch (\Exception $e) {
-            $this->op->log->steplogError($e->getMessage()); // On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+            $this->op->stepError($e->getMessage()); // On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1365,7 +1331,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1403,9 +1368,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-delete.inc.php');
 
-            $this->op->log->steplog(1);
-            $this->op->log->steplogInitialize('deleteSnapshot');
-            $this->op->log->steplogTitle('SUPPRESSION');
+            $this->op->step('SUPPRESSION');
 
             /**
              *  2. Suppression du snapshot
@@ -1427,7 +1390,7 @@ class Repo
                 throw new Exception('impossible de supprimer le snapshot du <span class="label-black">' . $this->dateFormatted . '</span>');
             }
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  Passage du snapshot en état 'deleted' en base de données
@@ -1482,9 +1445,9 @@ class Repo
             $this->op->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
              */
-            $this->op->log->steplogError($e->getMessage());
+            $this->op->stepError($e->getMessage());
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1496,7 +1459,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1537,9 +1499,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-remove-env.inc.php');
 
-            $this->op->log->steplog(1);
-            $this->op->log->steplogInitialize('removeLink');
-            $this->op->log->steplogTitle('SUPPRESSION');
+            $this->op->step('SUPPRESSION');
 
             /**
              *  2. Suppression du lien symbolique de l'environnement
@@ -1560,7 +1520,7 @@ class Repo
              */
             $this->model->deleteEnv($this->envId);
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  Nettoyage automatique des snapshots inutilisés
@@ -1568,10 +1528,8 @@ class Repo
             $snapshotsRemoved = $this->cleanSnapshots();
 
             if (!empty($snapshotsRemoved)) {
-                $this->op->log->steplog(4);
-                $this->op->log->steplogInitialize('removeSnapshots');
-                $this->op->log->steplogTitle('NETTOYAGE');
-                $this->op->log->steplogOK($snapshotsRemoved);
+                $this->op->step('NETTOYAGE');
+                $this->op->stepOK($snapshotsRemoved);
             }
 
             /**
@@ -1585,9 +1543,9 @@ class Repo
             $this->op->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
              */
-            $this->op->log->steplogError($e->getMessage());
+            $this->op->stepError($e->getMessage());
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1599,7 +1557,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1644,9 +1601,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-env.inc.php');
 
-            $this->op->log->steplog(1);
-            $this->op->log->steplogInitialize('createEnv');
-            $this->op->log->steplogTitle('NOUVEL ENVIRONNEMENT ' . \Models\Common::envtag($this->targetEnv));
+            $this->op->step('NOUVEL ENVIRONNEMENT ' . \Models\Common::envtag($this->targetEnv));
 
             /**
              *  2. On vérifie si le snapshot source existe
@@ -1720,7 +1675,7 @@ class Repo
                     /**
                      *  Clôture de l'étape en cours
                      */
-                    $this->op->log->steplogOK();
+                    $this->op->stepOK();
 
                 /**
                  *  Cas 2 : Il y a déjà un environnement de repo du même nom pointant vers un snapshot.
@@ -1758,7 +1713,7 @@ class Repo
                     /**
                      *  Clôture de l'étape en cours
                      */
-                    $this->op->log->steplogOK();
+                    $this->op->stepOK();
                 }
             }
 
@@ -1787,7 +1742,7 @@ class Repo
                     /**
                      *  Clôture de l'étape en cours
                      */
-                    $this->op->log->steplogOK();
+                    $this->op->stepOK();
 
                 /**
                  *  Cas 2 : Il y a déjà un environnement de repo du même nom pointant vers un snapshot.
@@ -1825,13 +1780,11 @@ class Repo
                     /**
                      *  Clôture de l'étape en cours
                      */
-                    $this->op->log->steplogOK();
+                    $this->op->stepOK();
                 }
             }
 
-            $this->op->log->steplog(3);
-            $this->op->log->steplogInitialize('finalizeRepo');
-            $this->op->log->steplogTitle("FINALISATION");
+            $this->op->step('FINALISATION');
 
             /**
              *  8. Application des droits sur le repo/la section modifié
@@ -1849,7 +1802,7 @@ class Repo
             /**
              *  Clôture de l'étape en cours
              */
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
 
             /**
              *  Nettoyage automatique des snapshots inutilisés
@@ -1857,10 +1810,8 @@ class Repo
             $snapshotsRemoved = $this->cleanSnapshots();
 
             if (!empty($snapshotsRemoved)) {
-                $this->op->log->steplog(4);
-                $this->op->log->steplogInitialize('removeSnapshots');
-                $this->op->log->steplogTitle('NETTOYAGE');
-                $this->op->log->steplogOK($snapshotsRemoved);
+                $this->op->step('NETTOYAGE');
+                $this->op->stepOK($snapshotsRemoved);
             }
 
             /**
@@ -1879,9 +1830,9 @@ class Repo
             $this->op->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->op->log->steplogError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  On transmets l'erreur à $this->op->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
              */
-            $this->op->log->steplogError($e->getMessage());
+            $this->op->stepError($e->getMessage());
 
             /**
              *  Passage du status de l'opération en erreur
@@ -1892,7 +1843,6 @@ class Repo
             /**
              *  Cloture de l'opération
              */
-            $this->op->log->closeStepOperation();
             $this->op->closeOperation();
 
             /**
@@ -1904,7 +1854,6 @@ class Repo
         /**
          *  Cloture de l'opération
          */
-        $this->op->log->closeStepOperation();
         $this->op->closeOperation();
     }
 
@@ -1915,17 +1864,18 @@ class Repo
     *    - une mise à jour de repo/section
     *    - une reconstruction des métadonnées d'un repo/section
     */
-    private function printDetails()
+    private function printDetails(string $title)
     {
+        $this->op->step();
+
         ob_start();
 
         /**
          *  Affichage du tableau récapitulatif de l'opération
          */
-        include(ROOT . '/templates/tables/op-new-update-duplicate-reconstruct.inc.php');
+        include(ROOT . '/templates/tables/op-new-update-reconstruct.inc.php');
 
-        $this->logcontent = ob_get_clean();
-        file_put_contents($this->op->log->steplog, $this->logcontent);
+        $this->op->stepWriteToLog(ob_get_clean());
 
         return true;
     }
@@ -1938,8 +1888,7 @@ class Repo
     {
         ob_start();
 
-        $this->op->log->steplogInitialize('getPackages');
-        $this->op->log->steplogTitle('RÉCUPÉRATION DES PAQUETS');
+        $this->op->step('RÉCUPÉRATION DES PAQUETS');
 
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
@@ -1969,20 +1918,21 @@ class Repo
         }
 
         /**
-         *  2. Si il s'agit d'un nouveau repo, on vérifie qu'un repo du même nom avec un ou plusieurs environnements actifs n'existe pas déjà.
+         *  2. Si il s'agit d'un nouveau repo, on vérifie qu'un repo du même nom avec un ou plusieurs snapshots actifs n'existe pas déjà.
          *  Un repo peut exister et n'avoir aucun snapshot / environnement rattachés (il sera invisible dans la liste) mais dans ce cas cela ne doit pas empêcher la création d'un nouveau repo
          *
          *  Cas nouveau snapshot de repo :
          */
         if ($this->op->getAction() == "new") {
             if ($this->packageType == "rpm") {
-                if ($this->model->exists($this->name) === true) {
+                //if ($this->model->exists($this->name) === true) {
+                if ($this->model->isActive($this->name) === true) {
                     throw new Exception('Un repo <span class="label-white">' . $this->name . '</span> existe déjà');
                 }
             }
             if ($this->packageType == "deb") {
                 // if ($this->model->sectionExists($this->name, $this->dist, $this->section) == true) {
-                if ($this->model->exists($this->name, $this->dist, $this->section) == true) {
+                if ($this->model->isActive($this->name, $this->dist, $this->section) == true) {
                     throw new Exception('Un repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> existe déjà');
                 }
             }
@@ -2019,7 +1969,7 @@ class Repo
             }
         }
 
-        $this->op->log->steplogWrite();
+        $this->op->stepWriteToLog();
 
         //// TRAITEMENT ////
 
@@ -2046,13 +1996,11 @@ class Repo
             throw new Exception("la création du répertoire <b>" . $repoPath . "</b> a échouée");
         }
 
-        $this->op->log->steplogWrite();
-
         /**
          *  3. Récupération des paquets
          */
         echo '<div class="hide getPackagesDiv"><pre>';
-        $this->op->log->steplogWrite();
+        $this->op->stepWriteToLog();
 
         // File descriptors for each subprocess. http://phptutorial.info/?proc-open
         /* $descriptors = [
@@ -2086,7 +2034,7 @@ class Repo
             // if ($lockFile != 0) {
             //     echo 'En attente de la libération du lock yum...';
 
-            //     $this->op->log->steplogWrite();
+            //     $this->op->stepWriteToLog();
 
             //     /**
             //      *  On boucle tant que le lock est en place
@@ -2182,7 +2130,7 @@ class Repo
 
         echo '</pre></div>';
 
-        $this->op->log->steplogWrite();
+        $this->op->stepWriteToLog();
 
         /*
          *  Si il y a un pb avec reposync, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
@@ -2210,7 +2158,7 @@ class Repo
             throw new Exception('erreur lors de la récupération des paquets');
         }
 
-        $this->op->log->steplogOK();
+        $this->op->stepOK();
 
         return true;
     }
@@ -2230,11 +2178,10 @@ class Repo
          *  Redhat seulement car sur Debian c'est le fichier Release qui est signé ors de la création du repo
          */
         if ($this->packageType == "rpm" and $this->targetGpgResign == "yes") {
-            $this->op->log->steplogInitialize('signPackages');
-            $this->op->log->steplogTitle('SIGNATURE DES PAQUETS (GPG)');
+            $this->op->step('SIGNATURE DES PAQUETS (GPG)');
 
             echo '<div class="hide signRepoDiv"><pre>';
-            $this->op->log->steplogWrite();
+            $this->op->stepWriteToLog();
 
             /**
              *  Récupération de tous les fichiers RPMs de manière récursive
@@ -2261,7 +2208,7 @@ class Repo
                              */
                             $myprocess = new \Controllers\Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName());
                         } else {
-                            $this->op->log->steplogError("Le programme rpmresign est introuvable sur le système.");
+                            throw new Exception("Le programme rpmresign est introuvable sur le système.");
                         }
                     }
 
@@ -2278,7 +2225,7 @@ class Repo
                              */
                             $myprocess = new \Controllers\Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName(), array('GPG_TTY' => '$(tty)'));
                         } else {
-                            $this->op->log->steplogError("Le fichier de macros pour rpm n'est pas généré.");
+                            throw new Exception("Le fichier de macros pour rpm n'est pas généré.");
                         }
                     }
 
@@ -2310,7 +2257,7 @@ class Repo
             }
             echo '</pre></div>';
 
-            $this->op->log->steplogWrite();
+            $this->op->stepWriteToLog();
 
             /**
              *  A vérifier car depuis l'écriture de la class Process, les erreurs semblent mieux gérées :
@@ -2341,7 +2288,7 @@ class Repo
             }
 
             if ($warning != 0) {
-                $this->op->log-> steplogWarning();
+                $this->op->stepWarning();
             }
 
             if ($signErrors != 0) {
@@ -2358,7 +2305,7 @@ class Repo
                 throw new Exception('la signature des paquets a échouée');
             }
 
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
         }
 
         return true;
@@ -2374,12 +2321,11 @@ class Repo
 
         ob_start();
 
-        $this->op->log->steplogInitialize('createRepo');
-        $this->op->log->steplogTitle('CRÉATION DU REPO');
+        $this->op->step('CRÉATION DU REPO');
 
         echo '<div class="hide createRepoDiv"><pre>';
 
-        $this->op->log->steplogWrite();
+        $this->op->stepWriteToLog();
 
         if ($this->packageType == "rpm") {
             /**
@@ -2433,7 +2379,7 @@ class Repo
 
             echo '</pre></div>';
 
-            $this->op->log->steplogWrite();
+            $this->op->stepWriteToLog();
         }
 
         if ($this->packageType == "deb") {
@@ -2446,7 +2392,7 @@ class Repo
                 throw new Exception("impossible de créer le répertoire temporaire <b>" . $TMP_DIR . '</b>');
             }
 
-            $this->op->log->steplogWrite();
+            $this->op->stepWriteToLog();
 
             /**
              *  Chemin complet vers la section qu'on est en train de créer
@@ -2593,7 +2539,7 @@ class Repo
 
                 echo '</pre></div>';
 
-                $this->op->log->steplogWrite();
+                $this->op->stepWriteToLog();
 
                 /**
                  *  Suppression du répertoire temporaire
@@ -2620,7 +2566,7 @@ class Repo
             throw new Exception('la création du repo a échouée');
         }
 
-        $this->op->log->steplogWrite();
+        $this->op->stepWriteToLog();
 
         /**
          *  Création du lien symbolique (environnement)
@@ -2640,7 +2586,7 @@ class Repo
             }
         }
 
-        $this->op->log->steplogOK();
+        $this->op->stepOK();
 
         return true;
     }
@@ -2652,8 +2598,7 @@ class Repo
     {
         ob_start();
 
-        $this->op->log->steplogInitialize('finalizeRepo');
-        $this->op->log->steplogTitle('FINALISATION');
+        $this->op->step('FINALISATION');
 
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
@@ -2683,10 +2628,10 @@ class Repo
                     $this->repoId = $this->model->getLastInsertRowID();
 
                 /**
-                 *  Sinon si un repo de même nom existe, on quitte avec une erreur.
+                 *  Sinon si un repo de même nom existe, on récupère son Id en base de données
                  */
                 } else {
-                    throw new Exception('Un repo de même nom existe déjà en base de données');
+                    $this->repoId = $this->model->getIdByName($this->name, '', '');
                 }
             }
 
@@ -2694,7 +2639,6 @@ class Repo
              *  Si actuellement aucun repo deb de ce nom n'existe en base de données alors on l'ajoute
              */
             if ($this->packageType == "deb") {
-                // if ($this->model->sectionExists($this->name, $this->dist, $this->section) === false) {
                 if ($this->model->exists($this->name, $this->dist, $this->section) === false) {
                     $this->model->add($this->getSource(), 'deb', $this->name, $this->dist, $this->section);
 
@@ -2704,10 +2648,10 @@ class Repo
                     $this->repoId = $this->model->getLastInsertRowID();
 
                 /**
-                 *  Sinon si un repo de même nom existe, on rattache ce nouveau snapshot et ce nouvel env à ce repo
+                 *  Sinon si un repo de même nom existe, on récupère son Id en base de données
                  */
                 } else {
-                    throw new Exception('(rpm) Un repo de même nom existe déjà en base de données');
+                    $this->repoId = $this->model->getIdByName($this->name, $this->dist, $this->section);
                 }
             }
 
@@ -2832,17 +2776,16 @@ class Repo
             fi*/
         }
 
-        $this->op->log->steplogOK();
+        $this->op->stepOK();
 
         /**
          *  Ajout du repo à un groupe si un groupe a été renseigné.
          *  Uniquement si il s'agit d'un nouveau repo/section ($this->op->getAction() = new)
          */
         if ($this->op->getAction() == 'new' and !empty($this->targetGroup)) {
-            $this->op->log->steplogInitialize('addToGroup');
-            $this->op->log->steplogTitle('AJOUT A UN GROUPE');
+            $this->op->step('AJOUT A UN GROUPE');
             $this->addRepoIdToGroup($this->repoId, $this->targetGroup);
-            $this->op->log->steplogOK();
+            $this->op->stepOK();
         }
 
         /**
@@ -2851,9 +2794,8 @@ class Repo
         $snapshotsRemoved = $this->cleanSnapshots();
 
         if (!empty($snapshotsRemoved)) {
-            $this->op->log->steplogInitialize('removeSnapshots');
-            $this->op->log->steplogTitle('NETTOYAGE');
-            $this->op->log->steplogOK($snapshotsRemoved);
+            $this->op->step('NETTOYAGE');
+            $this->op->stepOK($snapshotsRemoved);
         }
 
         /**
@@ -3028,6 +2970,11 @@ class Repo
      */
     public function cleanSnapshots()
     {
+        $returnOutput = '';
+        $removedSnaps = array();
+        $removedSnapsError = array();
+        $removedSnapsFinalArray = array();
+
         /**
          *  1. Si le nettoyage automatique n'est pas autorisé alors on quitte la fonction
          */
@@ -3068,14 +3015,11 @@ class Repo
                  *  Si il y a des snapshots inutilisés alors on traite
                  */
                 if (!empty($unusedSnapshots)) {
-                    $removedSnaps = array();
-                    $removedSnapsError = array();
-                    $output = '';
-
                     foreach ($unusedSnapshots as $unusedSnapshot) {
                         $snapId = $unusedSnapshot['snapId'];
                         $snapDate = $unusedSnapshot['Date'];
                         $snapDateFormatted = DateTime::createFromFormat('Y-m-d', $snapDate)->format('d-m-Y');
+                        $result = '';
 
                         if ($packageType == 'rpm') {
                             if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
@@ -3100,6 +3044,11 @@ class Repo
                                     $removedSnaps[] = 'Le snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> a été supprimé';
                                 }
 
+                                /**
+                                 *  Changement du status en base de données
+                                 */
+                                $this->model->snapSetStatus($snapId, 'deleted');
+
                             /**
                              *  Cas où il y a eu une erreur lors de la suppression
                              */
@@ -3117,31 +3066,32 @@ class Repo
                                 continue;
                             }
                         }
-
-                        /**
-                         *  Changement du status en base de données
-                         */
-                        $this->model->snapSetStatus($snapId, 'deleted');
-
-                        /**
-                         *  On merge les deux array
-                         */
-                        $removedSnapsFinalArray = array_merge($removedSnaps, $removedSnapsError);
-
-                        /**
-                         *  On forge le message qui sera affiché dans le log
-                         */
-                        foreach ($removedSnapsFinalArray as $removedSnap) {
-                            $output .= $removedSnap . '<br>';
-                        }
-
-                        if (!empty($output)) {
-                            return $output;
-                        }
                     }
                 }
             }
+
+            /**
+             *  On merge les deux array contenant des messages de suppression ou d'erreur
+             */
+            if (!empty($removedSnapsError)) {
+                $removedSnapsFinalArray = array_merge($removedSnapsFinalArray, $removedSnapsError);
+            }
+
+            if (!empty($removedSnaps)) {
+                $removedSnapsFinalArray = array_merge($removedSnapsFinalArray, $removedSnaps);
+            }
+
+            /**
+             *  Si des messages ont été récupérés alors on forge le message qui sera affiché dans le log
+             */
+            if (!empty($removedSnapsFinalArray)) {
+                foreach ($removedSnapsFinalArray as $removedSnap) {
+                    $returnOutput .= $removedSnap . '<br>';
+                }
+            }
         }
+
+        return $returnOutput;
     }
 
     /**

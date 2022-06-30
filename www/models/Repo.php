@@ -162,7 +162,7 @@ class Repo extends Model
              *  Cas où on a seulement spécifié le nom du repo
              */
             if (empty($dist) or empty($section)) {
-                $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name");
+                $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name AND Dist IS NULL AND Section IS NULL");
 
             /**
              *  Cas où la distribution et la section ont été spécifié
@@ -718,7 +718,6 @@ class Repo extends Model
     public function exists(string $name, string $dist = '', string $section = '')
     {
         try {
-            // $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
             if (!empty($dist) and !empty($section)) {
                 $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
                 $stmt->bindValue(':dist', $dist);
@@ -826,30 +825,6 @@ class Repo extends Model
 
         return true;
     }
-
-    /**
-     *  Vérifie que la section existe
-     *  Retourne true si existe
-     *  Retourne false si n'existe pas
-     */
-    // public function sectionExists(string $name, string $dist, string $section)
-    // {
-    //     try {
-    //         $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist = :dist AND Section = :section");
-    //         $stmt->bindValue(':name', $name);
-    //         $stmt->bindValue(':dist', $dist);
-    //         $stmt->bindValue(':section', $section);
-    //         $result = $stmt->execute();
-    //     } catch (\Exception $e) {
-    //         Common::dbError($e);
-    //     }
-
-    //     if ($this->db->isempty($result) === true) {
-    //         return false;
-    //     }
-
-    //     return true;
-    // }
 
     /**
      *  Vérifie si un environnement existe à partir de son nom et de l'Id de snapshot vers lequel il pointe

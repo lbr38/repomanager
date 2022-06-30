@@ -11,21 +11,21 @@ loadProfilesSelect2();
  */
 function loadProfilesSelect2()
 {
-    $('.reposSelectList').select2({
+    $('.select-repos').select2({
         closeOnSelect: false,
         placeholder: 'Ajouter un repo ✎'
     });
-    $('.excludeMajorSelectList').select2({
+    $('.select-exclude-major').select2({
         closeOnSelect: false,
         placeholder: 'Sélectionner un paquet 🖉',
         tags: true
     });
-    $('.excludeSelectList').select2({
+    $('.select-exclude').select2({
         closeOnSelect: false,
         placeholder: 'Sélectionner un paquet 🖉',
         tags: true
     });
-    $('.needRestartSelectList').select2({
+    $('.select-need-restart').select2({
         closeOnSelect: false,
         placeholder: 'Sélectionner un service 🖉',
         tags: true
@@ -111,11 +111,7 @@ $(document).on('click','.profileConfigurationBtn',function () {
 $(document).on('submit','#applyServerConfigurationForm',function () {
     event.preventDefault();
 
-    // var serverOsFamily = $('#serverOsFamilyInput').val();
-    // var serverOsName = $('#serverOsNameInput').val();
-    // var serverOsVersion = $('#serverOsVersionInput').val();
     var serverPackageType = $('#serverPackageTypeInput').val();
-    // var serverPackageOsVersion = $('#serverPackageOsVersionInput').val();
     var repoConfPrefix = $('#repoConfPrefix').val();
 
     if ($('#serverManageClientConf').is(':checked')) {
@@ -130,7 +126,6 @@ $(document).on('submit','#applyServerConfigurationForm',function () {
         var serverManageClientRepos = 'no';
     }
 
-    // applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
     applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
 
     return false;
@@ -150,23 +145,25 @@ $(document).on('submit','.profileConfigurationForm',function () {
      */
     var name = $(this).attr('profilename');
 
-    var reposList = $('select[profilename=' + name + '].reposSelectList').val();
-    var packagesMajorExcluded = $('select[profilename=' + name + '].excludeMajorSelectList').val();
-    var packagesExcluded = $('select[profilename=' + name + '].excludeSelectList').val();
-    var serviceNeedRestart = $('select[profilename=' + name + '].needRestartSelectList').val();
+    var reposList = $('select[profilename=' + name + '].select-repos').val();
+    var packagesMajorExcluded = $('select[profilename=' + name + '].select-exclude-major').val();
+    var packagesExcluded = $('select[profilename=' + name + '].select-exclude').val();
+    var serviceNeedRestart = $('select[profilename=' + name + '].select-need-restart').val();
 
-    if ($('#profileConf_allowOverwrite[profilename=' + name + ']').is(':checked')) {
+    if ($('#profile-conf-allow-overwrite[profilename=' + name + ']').is(':checked')) {
         var allowOverwrite = 'yes';
     } else {
         var allowOverwrite = 'no';
     }
-    if ($('#profileConf_allowReposFilesOverwrite[profilename=' + name + ']').is(':checked')) {
+    if ($('#profile-conf-allow-repos-overwrite[profilename=' + name + ']').is(':checked')) {
         var allowReposFilesOverwrite = 'yes';
     } else {
         var allowReposFilesOverwrite = 'no';
     }
 
-    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite);
+    var notes = $('textarea[profilename=' + name + '].profile-conf-notes').val();
+
+    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite, notes);
 
     return false;
 });
@@ -183,11 +180,7 @@ function applyServerConfiguration(serverPackageType, serverManageClientConf, ser
         url: "controllers/profiles/ajax.php",
         data: {
             action: "applyServerConfiguration",
-            // serverOsFamily: serverOsFamily,
-            // serverOsName: serverOsName,
-            // serverOsVersion: serverOsVersion,
             serverPackageType: serverPackageType,
-            // serverPackageOsVersion: serverPackageOsVersion,
             serverManageClientConf: serverManageClientConf,
             serverManageClientRepos: serverManageClientRepos,
             repoConfPrefix: repoConfPrefix
@@ -328,7 +321,7 @@ function duplicateProfile(name)
 /**
  * Ajax: Modifier la configuration d'un profil
  */
-function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite)
+function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite, notes)
 {
     $.ajax({
         type: "POST",
@@ -341,7 +334,8 @@ function configureProfile(name, reposList, packagesMajorExcluded, packagesExclud
             packagesExcluded: packagesExcluded,
             serviceNeedRestart: serviceNeedRestart,
             allowOverwrite: allowOverwrite,
-            allowReposFilesOverwrite: allowReposFilesOverwrite
+            allowReposFilesOverwrite: allowReposFilesOverwrite,
+            notes: notes
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

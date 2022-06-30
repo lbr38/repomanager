@@ -1248,6 +1248,10 @@ footer p { color: gray; }
     table-layout: auto !important;
 }
 
+.profileDiv textarea {
+    height: 100px;
+}
+
 .detailsDiv {
     padding: 10px;
     background-color: #262525;
