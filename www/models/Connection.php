@@ -465,7 +465,8 @@ class Connection extends SQLite3
         Package_exclude_major VARCHAR(255),
         Service_restart VARCHAR(255),
         Allow_overwrite CHAR(3),
-        Allow_repos_overwrite CHAR(3))");
+        Allow_repos_overwrite CHAR(3),
+        Notes VARCHAR(255)");
 
         /**
          *  Crée la table profile_repo_members si n'existe pas
@@ -737,47 +738,5 @@ class Connection extends SQLite3
         }
 
         return $count;
-    }
-
-    /**
-     *  Transforme un résultat de requête ($result = $stmt->execute()) en un array
-     */
-    public function fetch(object $result, string $option = '')
-    {
-        /**
-         *  On vérifie d'abord que $result n'est pas vide, sauf si on a précisé l'option "ignore-null"
-         */
-        if ($option != "ignore-null") {
-            if ($this->isempty($result) === true) {
-                throw new Exception('Erreur : le résultat les données à traiter est vide');
-            }
-        }
-
-        $datas = array();
-
-        /**
-         *  Fetch le résultat puis retourne l'array créé
-         */
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
-     *  Execute une requête et renvoi un array contenant les résultats
-     */
-    public function queryArray(string $query)
-    {
-        $result = $this->query($query);
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas = $row;
-        }
-
-        if (!empty($datas)) {
-            return $datas;
-        }
     }
 }

@@ -180,13 +180,19 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
                 $serviceNeedRestart = $_POST['serviceNeedRestart'];
             }
 
+            if (empty($_POST['notes'])) {
+                $notes = '';
+            } else {
+                $notes = $_POST['notes'];
+            }
+
             $myprofile = new \Controllers\Profile();
 
             /**
              *  Tentative de configuration du profil
              */
             try {
-                $myprofile->configure($name, $reposList, $packagesExcluded, $packagesMajorExcluded, $serviceNeedRestart, $allowOverwrite, $allowReposFilesOverwrite);
+                $myprofile->configure($name, $reposList, $packagesExcluded, $packagesMajorExcluded, $serviceNeedRestart, $allowOverwrite, $allowReposFilesOverwrite, $notes);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }

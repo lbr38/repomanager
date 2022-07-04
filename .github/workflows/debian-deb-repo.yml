@@ -20,7 +20,8 @@ jobs:
           coverage: none
 
       - name: Install PHP modules
-        run: sudo apt-get install -y php-cli php7.4-json php7.4-sqlite3 sqlite3
+        # run: sudo apt-get install -y php-cli php7.4-json php7.4-sqlite3 sqlite3
+        run: sudo apt-get install -y php-cli php8.1-sqlite3 sqlite3
 
       - name: Print PHP version
         run: php --version

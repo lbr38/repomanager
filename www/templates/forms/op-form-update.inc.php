@@ -29,8 +29,14 @@ if ($myrepo->getPackageType() == 'deb') {
     <td class="td-30">Signer avec GPG</td>
     <td>
         <label class="onoff-switch-label">
-            <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
-            <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?>>
+            <?php
+            if ($myrepo->getPackageType() == 'rpm') : ?>
+                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                <?php
+            endif;
+            if ($myrepo->getPackageType() == 'deb') : ?>
+                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?>>
+            <?php endif ?>
             <span class="onoff-switch-slider"></span>
         </label>
     </td>

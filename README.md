@@ -49,7 +49,7 @@ Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 - RHEL 7/8, CentOS 7/8, CentOS Stream, Rocky Linux, Fedora 33
 Configuration minimale recommandé : Debian 10 ou RHEL/CentOS 8.
 
-Repomanager ne nécessite qu'un service web + PHP (7 minimum) et SQLite.
+Repomanager ne nécessite qu'un service web + PHP (7.x ou 8.x) et SQLite.
 
 Le CPU et la RAM sont essentiellement sollicités lors de la création de miroirs et si la signature avec GPG est activée.
 L'espace disque est à adapter en fonction de la taille des repos distants à cloner.
@@ -78,16 +78,18 @@ Repomanager installera lui même ces dépendances si il détecte qu'elles ne son
 
 Repomanager s'administre depuis une interface web. Il faut donc installer un service web+php et configurer un vhost dédié.
 
-Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x) mais une compatibilité avec apache n'est pas exclue.
+Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x/8.x) mais une compatibilité avec apache n'est pas exclue.
 
 Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et faire en sorte qu'il n'empêche pas la bonne exécution de PHP.
 
 <pre>
 # Redhat / CentOS
-yum install nginx php-fpm php-cli php-pdo php-json sqlite
+yum install nginx php-fpm php-cli php-pdo php-json sqlite # PHP 7.4
+yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
 
 # Debian
-apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3
+apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3 # PHP 7.4
+apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3 # PHP 8.1
 </pre>
 
 <b>SQLite</b>

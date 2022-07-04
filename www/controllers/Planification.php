@@ -678,7 +678,7 @@ class Planification
                 $this->repo->setPlanId($this->id);
 
                 /**
-                 *  Si $this->op->getAction() = update alors on met à jour le repo
+                 *  Si $this->action() = update alors on met à jour le repo
                  */
                 if ($this->action == "update") {
                     /**
@@ -993,7 +993,13 @@ class Planification
          */
         include(ROOT . '/templates/planification_log.inc.php');
         $this->log->write($logContent);
-        $this->log->close();
+
+        /**
+         *  Suppression du fichier PID
+         */
+        if (file_exists(PID_DIR . '/' . $this->log->getPid() . '.pid')) {
+            unlink(PID_DIR . '/' . $this->log->getPid() . '.pid');
+        }
 
         // Contenu du mail de la planification //
 
@@ -1008,9 +1014,7 @@ class Planification
 
             if ($this->action == 'update') {
                 $msg_processed_repos .= 'mise à jour';
-            } //else {
-            //     $msg_processed_repos .= "pointage de l'env ".$this->action;
-            // }
+            }
 
             $msg_processed_repos .= '<br><br><b>Repos traités :</b><br>';
 

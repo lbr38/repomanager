@@ -252,16 +252,16 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 
                     <div id="repo-access-chart-div" class="flex-div-65 div-generic-gray">
                     <?php
-                        /**
-                         *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
-                         */
+                    /**
+                     *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
+                     */
                     if (empty($repo_access_chart_filter)) {
                         $repo_access_chart_filter = "1week";
                     }
 
-                        /**
-                         *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
-                         */
+                    /**
+                     *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
+                     */
                     if ($repo_access_chart_filter == "1week") {
                         $dateCounter = date('Y-m-d', strtotime('-1 week', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
                     }
@@ -275,12 +275,12 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         $dateCounter = date('Y-m-d', strtotime('-6 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
                     }
 
-                        $repoAccessChartLabels = '';
-                        $repoAccessChartData = '';
+                    $repoAccessChartLabels = '';
+                    $repoAccessChartData = '';
 
-                        /**
-                         *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
-                         */
+                    /**
+                     *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
+                     */
                     while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
                         if ($myrepo->getPackageType() == 'rpm') {
                             $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
@@ -306,11 +306,11 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         $dateCounter = date('Y-m-d', strtotime('+1 day', strtotime($dateCounter)));
                     }
 
-                        /**
-                         *  Suppression de la dernière virgule
-                         */
-                        $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
-                        $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
+                    /**
+                     *  Suppression de la dernière virgule
+                     */
+                    $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
+                    $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
 
                     if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) { ?>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="1week">1 semaine</span>
@@ -376,40 +376,43 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         echo '</thead>';
                         echo '<tbody>';
                         foreach ($lastAccess as $access) {
-                                /**
-                                 *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
-                                 *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
-                                 *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
-                                 *
-                                 *  Par exemple :
-                                 *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
-                                 *                                                                      |                                                   |
-                                 *                                                                      |_                                                  |_
-                                 *                                                                        |                                                   |
-                                 *                                                                preg_match récupère l'occurence située entre un slash et un espace
-                                 *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
-                                 */
-                                preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
-                                $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
-                                echo '<tr>';
-                                    echo '<td class="td-10">';
+                            /**
+                             *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
+                             *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
+                             *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
+                             *
+                             *  Par exemple :
+                             *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
+                             *                                                                      |                                                   |
+                             *                                                                      |_                                                  |_
+                             *                                                                        |                                                   |
+                             *                                                                preg_match récupère l'occurence située entre un slash et un espace
+                             *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
+                             */
+                            preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
+                            $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
+
+                            echo '<tr>';
+                            echo '<td class="td-10">';
                             if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
                                 echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                             } else {
                                 echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                             }
-                                    echo '</td>';
-                                    echo '<td class="td-100">' . DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' à ' . $access['Time'] . '</td>';
-                                    echo '<td class="td-100">' . $access['Source'] . ' (' . $access['IP'] . ')</td>';
-                                    // retrait des double quotes " dans la requête complète :
-                                    echo '<td><span title="' . str_replace('"', '', $access['Request']) . '">' . $accessTarget[0] . '</span></td>';
-                                echo '</tr>';
+                            echo '</td>';
+                            echo '<td class="td-100">' . DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' à ' . $access['Time'] . '</td>';
+                            echo '<td class="td-100">' . $access['Source'] . ' (' . $access['IP'] . ')</td>';
+
+                            // retrait des double quotes " dans la requête complète :
+                            echo '<td><span title="' . str_replace('"', '', $access['Request']) . '">' . $accessTarget[0] . '</span></td>';
+                            echo '</tr>';
                         }
-                                echo '</tbody>';
+
+                        echo '</tbody>';
                     } else {
                         echo "<tr><td>Aucune requête d'accès récente n'a été trouvée</td></tr>";
                     }
-                        echo '</table>';
+                    echo '</table>';
                     echo '</div>';
 
                     /**

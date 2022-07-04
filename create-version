@@ -13,11 +13,11 @@ RESET=$(tput sgr0)
 
 DEV_DIR="/home/github/repomanager"
 DEV_BRANCH="stable"
-#RELEASE_BRANCH="releases"
-ARCHIVE_PATH="/tmp"
+ARCHIVE_PATH="$HOME/repomanager/releases"
 IGNORE_FILE="/home/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
 CONFIRM=""
 
+mkdir -p "$ARCHIVE_PATH"
 
 echo -e "\n --- Nouvelle version ---"
 echo -e " Git status :"
@@ -71,6 +71,8 @@ else
     echo "Erreur lors de l'archivage"
     exit
 fi
+
+rm /tmp/repomanager -rf
 
 echo -e "\n Archive ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz créée avec succès"
 

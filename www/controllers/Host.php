@@ -1556,7 +1556,7 @@ class Host
      */
     public function updateOS()
     {
-        return $this->model->updateOS($this->authId, $this->token, $this->os);
+        return $this->model->updateOS($this->authId, $this->token, \Models\Common::validateData($this->os));
     }
 
     /**
@@ -1564,7 +1564,7 @@ class Host
      */
     public function updateOsVersion()
     {
-        return $this->model->updateOsVersion($this->authId, $this->token, $this->os_version);
+        return $this->model->updateOsVersion($this->authId, $this->token, \Models\Common::validateData($this->os_version));
     }
 
     /**
@@ -1572,7 +1572,7 @@ class Host
      */
     public function updateOsFamily()
     {
-        return $this->model->updateOsFamily($this->authId, $this->token, $this->os_family);
+        return $this->model->updateOsFamily($this->authId, $this->token, \Models\Common::validateData($this->os_family));
     }
 
     /**
@@ -1580,7 +1580,7 @@ class Host
      */
     public function updateType()
     {
-        return $this->model->updateType($this->authId, $this->token, $this->type);
+        return $this->model->updateType($this->authId, $this->token, \Models\Common::validateData($this->type));
     }
 
     /**
@@ -1588,7 +1588,7 @@ class Host
      */
     public function updateKernel()
     {
-        return $this->model->updateKernel($this->authId, $this->token, $this->kernel);
+        return $this->model->updateKernel($this->authId, $this->token, \Models\Common::validateData($this->kernel));
     }
 
     /**
@@ -1596,7 +1596,7 @@ class Host
      */
     public function updateArch()
     {
-        return $this->model->updateArch($this->authId, $this->token, $this->arch);
+        return $this->model->updateArch($this->authId, $this->token, \Models\Common::validateData($this->arch));
     }
 
     /**
@@ -1604,7 +1604,7 @@ class Host
      */
     public function updateProfile()
     {
-        return $this->model->updateProfile($this->authId, $this->token, $this->profile);
+        return $this->model->updateProfile($this->authId, $this->token, \Models\Common::validateData($this->profile));
     }
 
     /**
@@ -1612,7 +1612,7 @@ class Host
      */
     public function updateEnv()
     {
-        return $this->model->updateEnv($this->authId, $this->token, $this->env);
+        return $this->model->updateEnv($this->authId, $this->token, \Models\Common::validateData($this->env));
     }
 
     /**

@@ -94,11 +94,12 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                  */
                 $profileId = $profile['Id'];
                 $profileName = $profile['Name'];
-                $profileConf_exclude = explode(',', $profile['Package_exclude']);
-                $profileConf_excludeMajor = explode(',', $profile['Package_exclude_major']);
-                $profileConf_needRestart = explode(',', $profile['Service_restart']);
-                $profileConf_allowOverwrite = $profile['Allow_overwrite'];
-                $profileConf_allowReposFilesOverwrite = $profile['Allow_repos_overwrite'];
+                $profileConfExclude = explode(',', $profile['Package_exclude']);
+                $profileConfExcludeMajor = explode(',', $profile['Package_exclude_major']);
+                $profileConfNeedRestart = explode(',', $profile['Service_restart']);
+                $profileConfAllowOverwrite = $profile['Allow_overwrite'];
+                $profileConfAllowReposOverwrite = $profile['Allow_repos_overwrite'];
+                $profileNotes = $profile['Notes'];
                 $profileReposMembersIds = $myprofile->reposMembersIdList($profileId);
 
                 /**
@@ -135,14 +136,21 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
             
                     <div id="profileConfigurationDiv-<?=$profileName?>" class="hide profileDivConf">
                         <form class="profileConfigurationForm" profilename="<?=$profileName?>" autocomplete="off">
+
+                            <h4>Paramétrage de linupdate</h4>
+
                             <?php
+                            if ($serverManageClientRepos == "no" and $serverManageClientConf == "no") {
+                                echo "<p>Ce serveur n'est pas configuré pour gérer la configuration des clients.</p>";
+                            }
+
                             if ($serverManageClientRepos == "yes") : ?>
                                 <h5>Repos :</h5>
 
                                 <table class="table-large">
                                     <tr>
                                         <td colspan="100%">
-                                            <select class="reposSelectList" profilename="<?=$profileName?>" name="profileRepos[]" multiple>
+                                            <select class="select-repos" profilename="<?= $profileName ?>" multiple>
                                                 <?php
                                                 /**
                                                  *  On récupère la liste des repos actifs
@@ -187,8 +195,6 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                              *  Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
                              */
                             if ($serverManageClientConf == "yes") {
-                                echo '<h4>Paramétrage de linupdate</h4>';
-
                                 $myprofile = new \Controllers\Profile();
 
                                 echo '<h5>Paquets à exclure en cas de version majeure :</h5>';
@@ -201,13 +207,13 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 sort($listPackages);
 
                                 /**
-                                 *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConf_excludeMajor alors on l'affiche comme sélectionné "selected"
+                                 *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConfExcludeMajor alors on l'affiche comme sélectionné "selected"
                                  */ ?>
-                                <select class="excludeMajorSelectList" profilename="<?=$profileName?>" name="profileConf_excludeMajor[]" multiple>
+                                <select class="select-exclude-major" profilename="<?= $profileName ?>" name="profileConfExcludeMajor[]" multiple>
 
                                     <?php
                                     foreach ($listPackages as $package) {
-                                        if (in_array($package, $profileConf_excludeMajor)) {
+                                        if (in_array($package, $profileConfExcludeMajor)) {
                                             echo '<option value="' . $package . '" selected>' . $package . '</option>';
                                         } else {
                                             echo '<option value="' . $package . '">' . $package . '</option>';
@@ -216,7 +222,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                         /**
                                          *  On vérifie la même chose pour ce même paquet suivi d'un wildcard (ex: apache.*)
                                          */
-                                        if (in_array("${package}.*", $profileConf_excludeMajor)) {
+                                        if (in_array("${package}.*", $profileConfExcludeMajor)) {
                                             echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
                                         } else {
                                             echo '<option value="' . $package . '.*">' . $package . '.*</option>';
@@ -225,11 +231,11 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 </select>
                                 <br>
                                 <h5>Paquets à exclure (toute version) :</h5>
-                                <select class="excludeSelectList" profilename="<?php echo $profileName;?>" name="profileConf_exclude[]" multiple>
+                                <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
 
                                     <?php
                                     foreach ($listPackages as $package) {
-                                        if (in_array($package, $profileConf_exclude)) {
+                                        if (in_array($package, $profileConfExclude)) {
                                             echo '<option value="' . $package . '" selected>' . $package . '</option>';
                                         } else {
                                             echo '<option value="' . $package . '">' . $package . '</option>';
@@ -238,7 +244,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                         /**
                                          *  On fait la même chose pour ce même paquet suivi d'un wildcard (ex: apache.*)
                                          */
-                                        if (in_array("${package}.*", $profileConf_exclude)) {
+                                        if (in_array("${package}.*", $profileConfExclude)) {
                                             echo '<option value="' . $package . '.*" selected>' . $package . '.*</option>';
                                         } else {
                                             echo '<option value="' . $package . '.*">' . $package . '.*</option>';
@@ -257,11 +263,11 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 $listServices = $myprofile->getServices();
                                 sort($listServices); ?>
 
-                                <select class="needRestartSelectList" profilename="<?php echo $profileName;?>" name="profileConf_needRestart[]" multiple>
+                                <select class="select-need-restart" profilename="<?= $profileName ?>" multiple>
                                     
                                     <?php
                                     foreach ($listServices as $service) {
-                                        if (in_array($service, $profileConf_needRestart)) {
+                                        if (in_array($service, $profileConfNeedRestart)) {
                                             echo '<option value="' . $service . '" selected>' . $service . '</option>';
                                         } else {
                                             echo '<option value="' . $service . '">' . $service . '</option>';
@@ -275,7 +281,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                         <td class="td-fit" title="Sur l'hôte client, autoriser linupdate à récupérer la configuration de ce profil à chaque exécution">Autoriser la mise à jour auto. de la configuration</td>
                                         <td>
                                             <label class="onoff-switch-label">
-                                                <input id="profileConf_allowOverwrite" name="profileConf_allowOverwrite" profilename="<?php echo $profileName;?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConf_allowOverwrite == "yes") ? 'checked' : ''; ?>>
+                                                <input id="profile-conf-allow-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowOverwrite == "yes") ? 'checked' : ''; ?>>
                                                 <span class="onoff-switch-slider"></span>
                                             </label>
                                         </td>
@@ -284,12 +290,15 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                         <td class="td-fit" title="Sur l'hôte client, autoriser linupdate à récupérer la configuration des repos de ce profil à chaque exécution">Autoriser la mise à jour auto. des fichiers de repo</td>
                                         <td>
                                             <label class="onoff-switch-label">
-                                                <input id="profileConf_allowReposFilesOverwrite" name="profileConf_allowReposFilesOverwrite" profilename="<?php echo $profileName;?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConf_allowReposFilesOverwrite == "yes") ? 'checked' : ''; ?>>
+                                                <input id="profile-conf-allow-repos-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowReposOverwrite == "yes") ? 'checked' : ''; ?>>
                                                 <span class="onoff-switch-slider"></span>
                                             </label>
                                         </td>
                                     </tr>
                                 </table>
+
+                                <h5>Notes :</h5>
+                                <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes; ?></textarea>
                             <?php   }
                             /**
                              *  On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no
@@ -329,20 +338,20 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                 <input type="text" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
 
                 <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des clients
-                </span>
-
-                <label class="onoff-switch-label">
-                    <input id="serverManageClientConf" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientConf == "yes") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-
-                <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos clients
+                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos sur les hôtes clients
                 </span>
 
                 <label class="onoff-switch-label">
                     <input id="serverManageClientRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientRepos == "yes") ? 'checked' : ''; ?>>
+                    <span class="onoff-switch-slider"></span>
+                </label>
+
+                <span>
+                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des paquets sur les hôtes clients
+                </span>
+
+                <label class="onoff-switch-label">
+                    <input id="serverManageClientConf" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientConf == "yes") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
             </div>

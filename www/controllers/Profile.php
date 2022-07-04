@@ -39,7 +39,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Le profil $profile n'existe pas");
+            throw new Exception("Le profil <b>$profile</b> n'existe pas");
         }
 
         /**
@@ -62,7 +62,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Le profil $profile n'existe pas");
+            throw new Exception("Le profil <b>$profile</b> n'existe pas");
         }
 
         /**
@@ -124,12 +124,7 @@ class Profile
     // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion = null, string $serverManageClientConf, string $serverManageClientRepos)
     public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
-        // $serverOsFamily = \Models\Common::validateData($serverOsFamily);
-        // $serverOsName = \Models\Common::validateData($serverOsName);
-        // $serverOsId = \Models\Common::validateData($serverOsId);
-        // $serverOsVersion = \Models\Common::validateData($serverOsVersion);
         $serverPackageType = \Models\Common::validateData($serverPackageType);
-        // $serverPackageOsVersion = \Models\Common::validateData($serverPackageOsVersion);
 
         if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
             throw new Exception("Le paramètre 'Gérer la configuration des clients' est invalide");
@@ -320,7 +315,7 @@ class Profile
      *  Gestion des repos du profil
      *  Gestion des paquets à exclure
      */
-    public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $allowOverwrite, string $allowReposOverwrite)
+    public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $allowOverwrite, string $allowReposOverwrite, string $notes)
     {
         $name = \Models\Common::validateData($name);
 
@@ -470,9 +465,16 @@ class Profile
         $serviceNeedRestartExploded = implode(',', $serviceNeedRestart);
 
         /**
+         *  Vérification des notes
+         */
+        if (!empty($notes)) {
+            $notes = \Models\Common::validateData($notes);
+        }
+
+        /**
          *  Insertion de la nouvelle configuration en base de données
          */
-        $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $allowOverwrite, $allowReposOverwrite);
+        $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $allowOverwrite, $allowReposOverwrite, $notes);
 
         \Models\History::set($_SESSION['username'], "Modification de la configuration du profil <b>$name</b>", 'success');
     }
