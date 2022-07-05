@@ -20,7 +20,7 @@ $repoError = 0;
 if (empty($_GET['id'])) {
     $repoError++;
 } else {
-    $envId = \Models\Common::validateData($_GET['id']);
+    $envId = \Controllers\Common::validateData($_GET['id']);
 }
 
 /**
@@ -43,16 +43,16 @@ if ($repoError == 0) {
  *  Si un filtre a été sélectionné pour le graphique principal, la page est rechargée en arrière plan par jquery et récupère les données du graphique à partir du filtre sélectionné
  */
 if (!empty($_GET['repo_access_chart_filter'])) {
-    if (Models\Common::validateData($_GET['repo_access_chart_filter']) == "1week") {
+    if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1week") {
         $repo_access_chart_filter = "1week";
     }
-    if (Models\Common::validateData($_GET['repo_access_chart_filter']) == "1month") {
+    if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1month") {
         $repo_access_chart_filter = "1month";
     }
-    if (Models\Common::validateData($_GET['repo_access_chart_filter']) == "3months") {
+    if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "3months") {
         $repo_access_chart_filter = "3months";
     }
-    if (Models\Common::validateData($_GET['repo_access_chart_filter']) == "6months") {
+    if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "6months") {
         $repo_access_chart_filter = "6months";
     }
 }
@@ -73,20 +73,20 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 
             if ($repoError === 0) {
                 if ($myrepo->getPackageType() == 'rpm') {
-                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '</p>';
+                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
                 if ($myrepo->getPackageType() == 'deb') {
-                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Models\Common::envtag($myrepo->getEnv()) . '</p>';
+                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
             }
 
             echo '<br>';
 
-            if (!file_exists(WWW_STATS_LOG_PATH)) {
-                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . WWW_STATS_LOG_PATH . ') n\'existe pas ou n\'est pas correctement configuré.</span></p>';
+            if (!file_exists(STATS_LOG_PATH)) {
+                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . STATS_LOG_PATH . ') n\'existe pas ou n\'est pas correctement configuré.</span></p>';
             }
-            if (!is_readable(WWW_STATS_LOG_PATH)) {
-                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . WWW_STATS_LOG_PATH . ') n\'est pas accessible en lecture.</span></p>';
+            if (!is_readable(STATS_LOG_PATH)) {
+                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . STATS_LOG_PATH . ') n\'est pas accessible en lecture.</span></p>';
             }
 
             /**
@@ -208,9 +208,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                      *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                      */
                                     if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                        echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        echo "<img src=\"resources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                     } else {
-                                        echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        echo "<img src=\"resources/icons/redcircle.png\" class=\"icon-small\" /> ";
                                     }
                                     /**
                                      *  Affichage des détails de la/les requête(s)
@@ -235,9 +235,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                      *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                      */
                                     if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                        echo "<img src=\"ressources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        echo "<img src=\"resources/icons/greencircle.png\" class=\"icon-small\" /> ";
                                     } else {
-                                        echo "<img src=\"ressources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        echo "<img src=\"resources/icons/redcircle.png\" class=\"icon-small\" /> ";
                                     }
                                     /**
                                      *  Affichage des détails de la/les requête(s)
@@ -395,9 +395,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                             echo '<tr>';
                             echo '<td class="td-10">';
                             if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
-                                echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                             } else {
-                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                             }
                             echo '</td>';
                             echo '<td class="td-100">' . DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' à ' . $access['Time'] . '</td>';

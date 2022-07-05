@@ -43,82 +43,82 @@ class Host
 
     public function setId(string $id)
     {
-        $this->id = \Models\Common::validateData($id);
+        $this->id = \Controllers\Common::validateData($id);
     }
 
     public function setIp(string $ip)
     {
-        $this->ip = \Models\Common::validateData($ip);
+        $this->ip = \Controllers\Common::validateData($ip);
     }
 
     public function setHostname(string $hostname)
     {
-        $this->hostname = \Models\Common::validateData($hostname);
+        $this->hostname = \Controllers\Common::validateData($hostname);
     }
 
     public function setOS(string $os)
     {
-        $this->os = \Models\Common::validateData($os);
+        $this->os = \Controllers\Common::validateData($os);
     }
 
     public function setOsVersion(string $os_version)
     {
-        $this->os_version = \Models\Common::validateData($os_version);
+        $this->os_version = \Controllers\Common::validateData($os_version);
     }
 
     public function setOsFamily(string $os_family)
     {
-        $this->os_family = \Models\Common::validateData($os_family);
+        $this->os_family = \Controllers\Common::validateData($os_family);
     }
 
     public function setType(string $type)
     {
-        $this->type = \Models\Common::validateData($type);
+        $this->type = \Controllers\Common::validateData($type);
     }
 
     public function setKernel(string $kernel)
     {
-        $this->kernel = \Models\Common::validateData($kernel);
+        $this->kernel = \Controllers\Common::validateData($kernel);
     }
 
     public function setArch(string $arch)
     {
-        $this->arch = \Models\Common::validateData($arch);
+        $this->arch = \Controllers\Common::validateData($arch);
     }
 
     public function setProfile(string $profile)
     {
-        $this->profile = \Models\Common::validateData($profile);
+        $this->profile = \Controllers\Common::validateData($profile);
     }
 
     public function setEnv(string $env)
     {
-        $this->env = \Models\Common::validateData($env);
+        $this->env = \Controllers\Common::validateData($env);
     }
 
     public function setPackageId(string $packageId)
     {
-        $this->packageId = \Models\Common::validateData($packageId);
+        $this->packageId = \Controllers\Common::validateData($packageId);
     }
 
     public function setPackageName(string $packageName)
     {
-        $this->packageName = \Models\Common::validateData($packageName);
+        $this->packageName = \Controllers\Common::validateData($packageName);
     }
 
     public function setPackageVersion(string $packageVersion)
     {
-        $this->packageVersion = \Models\Common::validateData($packageVersion);
+        $this->packageVersion = \Controllers\Common::validateData($packageVersion);
     }
 
     public function setAuthId(string $authId)
     {
-        $this->authId = \Models\Common::validateData($authId);
+        $this->authId = \Controllers\Common::validateData($authId);
     }
 
     public function setToken(string $token)
     {
-        $this->token = \Models\Common::validateData($token);
+        $this->token = \Controllers\Common::validateData($token);
     }
 
     public function setFromApi()
@@ -185,7 +185,7 @@ class Host
     public function getAll(string $id)
     {
         if (!is_numeric($id)) {
-            \Models\Common::printAlert("Erreur : l'ID spécifié n'est pas numérique", 'error');
+            \Controllers\Common::printAlert("Erreur : l'ID spécifié n'est pas numérique", 'error');
             return false;
         }
 
@@ -254,7 +254,7 @@ class Host
             throw new Exception("Un Id d'hôte doit être spécifié");
         }
 
-        $packageState = \Models\Common::validateData($packageState);
+        $packageState = \Controllers\Common::validateData($packageState);
 
         /**
          *  Ouverture de la BDD dédiée de l'hôte
@@ -322,35 +322,35 @@ class Host
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'gray';
-                $content_text = '<img src="../ressources/icons/products/package.png" class="icon" /> Inventorié';
+                $content_text = '<img src="../resources/icons/products/package.png" class="icon" /> Inventorié';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Installé';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installé';
             }
             if ($event['State'] == "dep-installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Installé (en tant que dépendance)';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installé (en tant que dépendance)';
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../ressources/icons/update.png" class="icon" /> Mis à jour';
+                $content_text = '<img src="../resources/icons/update.png" class="icon" /> Mis à jour';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = '<img src="../ressources/icons/bin.png" class="icon" /> Désinstallé';
+                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Désinstallé';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../ressources/icons/arrow-back.png" class="icon" /> Rétrogradé';
+                $content_text = '<img src="../resources/icons/arrow-back.png" class="icon" /> Rétrogradé';
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../ressources/icons/arrow-circle-down.png" class="icon" /> Réinstallé';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Réinstallé';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="../ressources/icons/bin.png" class="icon" /> Purgé';
+                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Purgé';
             }
             $content_version = $event['Version'];
 
@@ -450,7 +450,7 @@ class Host
          *  Les paramètres suivants doivent être des chiffres
          */
         if (!is_numeric($pkgs_considered_outdated) or !is_numeric($pkgs_considered_critical)) {
-            \Models\Common::printAlert('Les paramètres doivent être numériques', 'error');
+            \Controllers\Common::printAlert('Les paramètres doivent être numériques', 'error');
             return;
         }
 
@@ -458,13 +458,13 @@ class Host
          *  Les paramètres doivent être supérieurs à 0
          */
         if ($pkgs_considered_outdated <= 0 or $pkgs_considered_critical <= 0) {
-            \Models\Common::printAlert('Les paramètres doivent être supérieurs à 0', 'error');
+            \Controllers\Common::printAlert('Les paramètres doivent être supérieurs à 0', 'error');
             return;
         }
 
         $this->model->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
 
-        \Models\Common::printAlert('Les paramètres ont été pris en compte', 'success');
+        \Controllers\Common::printAlert('Les paramètres ont été pris en compte', 'success');
     }
 
     /**
@@ -583,7 +583,7 @@ class Host
         /**
          *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
          */
-        $packagesList = array_filter(explode(",", \Models\Common::validateData($packagesInventory)));
+        $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesInventory)));
 
         /**
          *  On traite si l'array n'est pas vide
@@ -690,7 +690,7 @@ class Host
             /**
              *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
              */
-            $packagesList = array_filter(explode(",", \Models\Common::validateData($packagesAvailable)));
+            $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesAvailable)));
         }
 
         /**
@@ -1086,7 +1086,7 @@ class Host
              */
             if (!mkdir(HOSTS_DIR . "/{$this->id}", 0770, true)) {
                 if ($this->callFromApi == 'no') {
-                    \Models\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                    \Controllers\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 }
                 return 5;
             }
@@ -1102,7 +1102,7 @@ class Host
              */
             if (!mkdir(HOSTS_DIR . "/{$this->id}/reports", 0770, true)) {
                 if ($this->callFromApi == 'no') {
-                    \Models\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                    \Controllers\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
                 }
                 return 5;
             }
@@ -1133,8 +1133,8 @@ class Host
 
     public function setUpdateRequestStatus(string $type, string $status)
     {
-        $type = \Models\Common::validateData($type);
-        $status = \Models\Common::validateData($status);
+        $type = \Controllers\Common::validateData($type);
+        $status = \Controllers\Common::validateData($status);
 
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
@@ -1197,7 +1197,7 @@ class Host
          *  On traite l'array contenant les Id d'hôtes à traiter
          */
         foreach ($hostsId as $hostId) {
-            $this->setId(\Models\Common::validateData($hostId));
+            $this->setId(\Controllers\Common::validateData($hostId));
 
             /**
              *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $hostIdError[] puis on passe à l'hôte suivant
@@ -1475,7 +1475,7 @@ class Host
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères invalides
          */
-        if (\Models\Common::isAlphanumDash($packageName, array('*')) === false) {
+        if (\Controllers\Common::isAlphanumDash($packageName, array('*')) === false) {
             throw new Exception('Le nom du paquet contient des caractères invalides');
         }
 
@@ -1556,7 +1556,7 @@ class Host
      */
     public function updateOS()
     {
-        return $this->model->updateOS($this->authId, $this->token, \Models\Common::validateData($this->os));
+        return $this->model->updateOS($this->authId, $this->token, \Controllers\Common::validateData($this->os));
     }
 
     /**
@@ -1564,7 +1564,7 @@ class Host
      */
     public function updateOsVersion()
     {
-        return $this->model->updateOsVersion($this->authId, $this->token, \Models\Common::validateData($this->os_version));
+        return $this->model->updateOsVersion($this->authId, $this->token, \Controllers\Common::validateData($this->os_version));
     }
 
     /**
@@ -1572,7 +1572,7 @@ class Host
      */
     public function updateOsFamily()
     {
-        return $this->model->updateOsFamily($this->authId, $this->token, \Models\Common::validateData($this->os_family));
+        return $this->model->updateOsFamily($this->authId, $this->token, \Controllers\Common::validateData($this->os_family));
     }
 
     /**
@@ -1580,7 +1580,7 @@ class Host
      */
     public function updateType()
     {
-        return $this->model->updateType($this->authId, $this->token, \Models\Common::validateData($this->type));
+        return $this->model->updateType($this->authId, $this->token, \Controllers\Common::validateData($this->type));
     }
 
     /**
@@ -1588,7 +1588,7 @@ class Host
      */
     public function updateKernel()
     {
-        return $this->model->updateKernel($this->authId, $this->token, \Models\Common::validateData($this->kernel));
+        return $this->model->updateKernel($this->authId, $this->token, \Controllers\Common::validateData($this->kernel));
     }
 
     /**
@@ -1596,7 +1596,7 @@ class Host
      */
     public function updateArch()
     {
-        return $this->model->updateArch($this->authId, $this->token, \Models\Common::validateData($this->arch));
+        return $this->model->updateArch($this->authId, $this->token, \Controllers\Common::validateData($this->arch));
     }
 
     /**
@@ -1604,7 +1604,7 @@ class Host
      */
     public function updateProfile()
     {
-        return $this->model->updateProfile($this->authId, $this->token, \Models\Common::validateData($this->profile));
+        return $this->model->updateProfile($this->authId, $this->token, \Controllers\Common::validateData($this->profile));
     }
 
     /**
@@ -1612,7 +1612,7 @@ class Host
      */
     public function updateEnv()
     {
-        return $this->model->updateEnv($this->authId, $this->token, \Models\Common::validateData($this->env));
+        return $this->model->updateEnv($this->authId, $this->token, \Controllers\Common::validateData($this->env));
     }
 
     /**

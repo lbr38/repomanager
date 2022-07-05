@@ -132,7 +132,7 @@ class Repo extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -175,7 +175,7 @@ class Repo extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -215,7 +215,7 @@ class Repo extends Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $id = '';
@@ -234,7 +234,7 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $envId = array();
@@ -254,7 +254,7 @@ class Repo extends Model
         try {
             $result = $this->db->query("SELECT Id FROM repos");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $id = array();
@@ -284,7 +284,7 @@ class Repo extends Model
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $snapshots = array();
@@ -315,7 +315,7 @@ class Repo extends Model
             $stmt->bindValue(':repoId', $repoId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $id = '';
@@ -355,7 +355,7 @@ class Repo extends Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -395,7 +395,7 @@ class Repo extends Model
             $stmt->bindValue(':idgroup', $groupId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -443,7 +443,7 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -468,7 +468,7 @@ class Repo extends Model
             $stmt->bindValue(':name', $sourceName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -501,7 +501,7 @@ class Repo extends Model
 
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $data = array();
@@ -527,15 +527,15 @@ class Repo extends Model
 
         try {
             $stmt = $this->db->prepare("UPDATE repos_env SET Description = :description WHERE Id = :envId");
-            $stmt->bindValue(':description', Common::validateData($description));
+            $stmt->bindValue(':description', \Controllers\Common::validateData($description));
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -556,10 +556,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -573,10 +573,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -590,10 +590,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -607,10 +607,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -623,7 +623,7 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -644,10 +644,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -660,7 +660,7 @@ class Repo extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -680,7 +680,7 @@ class Repo extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -700,7 +700,7 @@ class Repo extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -728,7 +728,7 @@ class Repo extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -775,7 +775,7 @@ class Repo extends Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -816,7 +816,7 @@ class Repo extends Model
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -842,7 +842,7 @@ class Repo extends Model
             $stmt->bindValue(':env', $env);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -882,7 +882,7 @@ class Repo extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -924,7 +924,7 @@ class Repo extends Model
             WHERE repos_snap.Status = 'active'
             ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -966,7 +966,7 @@ class Repo extends Model
             WHERE repos_snap.Status = 'active'
             ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -1004,7 +1004,7 @@ class Repo extends Model
             AND repos_snap.Type = 'mirror'
             ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -1046,7 +1046,7 @@ class Repo extends Model
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
             }
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -1095,7 +1095,7 @@ class Repo extends Model
                 $reposInGroup = $stmt->execute();
             }
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $reposIn = array();
@@ -1129,7 +1129,7 @@ class Repo extends Model
             $stmt->bindValue(':groupname', $groupName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -1156,7 +1156,7 @@ class Repo extends Model
                 ON repos.Id = repos_snap.Id_repo
             WHERE repos_snap.Status = 'active'");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         return $this->db->count($result);
@@ -1187,10 +1187,10 @@ class Repo extends Model
             $stmt->bindValue(':packageType', $packageType);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -1208,10 +1208,10 @@ class Repo extends Model
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -1226,10 +1226,10 @@ class Repo extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -1247,7 +1247,7 @@ class Repo extends Model
             $stmt->bindValue(':groupId', $groupId);
             $result = $stmt->execute();
         } catch (Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -1263,10 +1263,10 @@ class Repo extends Model
             $stmt->bindValue(':id_group', $groupId);
             $stmt->execute();
         } catch (Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -1287,10 +1287,10 @@ class Repo extends Model
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -1303,10 +1303,10 @@ class Repo extends Model
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
 
-        Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 }

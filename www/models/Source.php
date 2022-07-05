@@ -21,12 +21,12 @@ class Source extends Model
      */
     public function new(string $repoType, string $name, string $urlType = null, string $url, string $existingGpgKey = null, string $gpgKeyURL = null, string $gpgKeyText = null)
     {
-        $name = Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  On vérifie que le nom du repo source ne contient pas de caractères invalides
          */
-        if (!Common::isAlphanumDash($name)) {
+        if (!\Controllers\Common::isAlphanumDash($name)) {
             throw new Exception('Le nom du repo source ne peut pas contenir de caractères spéciaux hormis le tiret - et l\'underscore _');
         }
 
@@ -39,7 +39,7 @@ class Source extends Model
         /**
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
-        if (!Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
+        if (!\Controllers\Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
             throw new Exception('L\'URL du repo source contient des caractères invalides');
         }
         if (!preg_match('#^https?://#', $url)) {
@@ -64,7 +64,7 @@ class Source extends Model
              *  Cas où c'est une clé existante
              */
             } elseif (!empty($existingGpgKey)) { // On recupère le nom de la clé existante
-                $existingGpgKey = Common::validateData($existingGpgKey);
+                $existingGpgKey = \Controllers\Common::validateData($existingGpgKey);
 
                 /**
                  *  Si la clé renseignée n'existe pas, on quitte
@@ -77,7 +77,7 @@ class Source extends Model
              *  Cas où c'est une URL vers une clé GPG
              */
             } elseif (!empty($gpgKeyURL)) { // On recupère l'url de la clé gpg
-                $gpgKeyURL = Common::validateData($gpgKeyURL);
+                $gpgKeyURL = \Controllers\Common::validateData($gpgKeyURL);
 
                 /**
                  *  Formattage de l'URL
@@ -88,7 +88,7 @@ class Source extends Model
                 /**
                  *  Si l'URL contient des caractères invalide alors on quitte
                  */
-                if (!Common::isAlphanumDash($gpgKeyURL, array(':', '/', '.'))) {
+                if (!\Controllers\Common::isAlphanumDash($gpgKeyURL, array(':', '/', '.'))) {
                     throw new Exception('L\'URL de la clé GPG contient des caractères invalides');
                 }
 
@@ -103,13 +103,13 @@ class Source extends Model
              *  Cas où on importe une clé au format texte ASCII
              */
             } elseif (!empty($gpgKeyText)) { // On récupère la clé gpg au format texte
-                $gpgKeyText = Common::validateData($gpgKeyText);
+                $gpgKeyText = \Controllers\Common::validateData($gpgKeyText);
 
                 /**
                  *  Si le 'pavé' de texte ASCII contient des caractères invalide alors on quitte
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
-                if (!Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+                if (!\Controllers\Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
                     throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
                 }
 
@@ -134,7 +134,7 @@ class Source extends Model
             /**
              *  Récupération du type d'URL
              */
-            $urlType = Common::validateData($urlType);
+            $urlType = \Controllers\Common::validateData($urlType);
             if ($urlType != 'baseurl' and $urlType != 'mirrorlist' and $urlType != 'metalink') {
                 throw new Exception('Le type d\'URL renseigné est invalide');
             }
@@ -196,7 +196,7 @@ class Source extends Model
                 $stmt->bindValue(':name', $name);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
 
             /**
@@ -210,14 +210,14 @@ class Source extends Model
              *  Si une clé GPG a été transmise alors on l'importe
              */
             if (!empty($gpgKeyText)) {
-                $gpgKeyText = Common::validateData($gpgKeyText);
+                $gpgKeyText = \Controllers\Common::validateData($gpgKeyText);
                 $gpgKeyText = trim($gpgKeyText);
 
                 /**
                  *  Si le 'pavé' de texte ASCII contient des caractères invalides alors on quitte
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
-                if (!Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
+                if (!\Controllers\Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
                     throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
                 }
 
@@ -258,7 +258,7 @@ class Source extends Model
                 $stmt->bindValue(':url', $url);
                 $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
         }
     }
@@ -272,7 +272,7 @@ class Source extends Model
             throw new Exception('Le type de repo est invalide');
         }
 
-        $name = Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         if ($repoType == "rpm") {
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
@@ -287,7 +287,7 @@ class Source extends Model
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
         }
     }
@@ -301,8 +301,8 @@ class Source extends Model
             throw new Exception('Le type de repo est invalide');
         }
 
-        $name = Common::validateData($name);
-        $newName = Common::validateData($newName);
+        $name = \Controllers\Common::validateData($name);
+        $newName = \Controllers\Common::validateData($newName);
 
         /**
          *  Si le nom actuel et le nouveau nom sont les mêmes, on ne fait rien
@@ -360,7 +360,7 @@ class Source extends Model
                 $stmt->bindValue(':newname', $newName);
                 $result = $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
             if ($this->db->isempty($result) === false) {
                 throw new Exception("Un repo source <b>$newName</b> existe déjà");
@@ -372,7 +372,7 @@ class Source extends Model
                 $stmt->bindValue(':name', $name);
                 $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
         }
     }
@@ -382,7 +382,7 @@ class Source extends Model
      */
     public function editUrl(string $sourceName, string $url)
     {
-        $sourceName = Common::validateData($sourceName);
+        $sourceName = \Controllers\Common::validateData($sourceName);
 
         /**
          *  Formattage de l'URL passée
@@ -411,7 +411,7 @@ class Source extends Model
             $stmt->bindValue(':name', $sourceName);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -420,7 +420,7 @@ class Source extends Model
      */
     public function configureSource(string $sourceName, array $options, string $comments = null)
     {
-        $sourceName = Common::validateData($sourceName);
+        $sourceName = \Controllers\Common::validateData($sourceName);
         $sourceFile = REPOMANAGER_YUM_DIR . "/${sourceName}.repo"; // Le fichier dans lequel on va écrire
 
         /**
@@ -429,7 +429,7 @@ class Source extends Model
         $content = "[${sourceName}]" . PHP_EOL;
 
         foreach ($options as $option) {
-            $optionName = Common::validateData($option['name']);
+            $optionName = \Controllers\Common::validateData($option['name']);
             $optionValue = $option['value'];
 
             /**
@@ -569,7 +569,7 @@ class Source extends Model
          *  Si des commentaires ont été saisis dans le bloc de textarea 'Notes' alors on ajoute un dièse # avant chaque ligne afin de l'inclure en tant que commentaire dans le fichier
          */
         if (!empty($comments)) {
-            $comments = explode(PHP_EOL, Common::validateData($comments));
+            $comments = explode(PHP_EOL, \Controllers\Common::validateData($comments));
             foreach ($comments as $comment) {
                 $content .= "#" . $comment . PHP_EOL;
             }
@@ -600,7 +600,7 @@ class Source extends Model
             throw new Exception('Le type de repo est invalide');
         }
 
-        $gpgkey = Common::validateData($gpgkey);
+        $gpgkey = \Controllers\Common::validateData($gpgkey);
 
         /**
          *  Cas Redhat
@@ -637,14 +637,14 @@ class Source extends Model
      */
     public function exists(string $source)
     {
-        $source = Common::validateData($source);
+        $source = \Controllers\Common::validateData($source);
 
         try {
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
             $stmt->bindValue(':name', $source);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result)) {

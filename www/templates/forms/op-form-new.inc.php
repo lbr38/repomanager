@@ -1,5 +1,5 @@
 <section id="newRepoDiv" class="right">
-    <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
+    <img id="newRepoCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
     <?php
 
     /**
@@ -184,7 +184,7 @@
         </div>
         
         <br>
-        <button class="btn-large-red">Confirmer et exécuter<img src="ressources/icons/rocket.png" class="icon" /></button>
+        <button class="btn-large-red">Confirmer et exécuter<img src="resources/icons/rocket.png" class="icon" /></button>
 
     </form>
 </section>

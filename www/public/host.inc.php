@@ -154,9 +154,9 @@ $lineChartDates = "'" . implode("','", array_keys($dates)) . "'";
 
 echo '<h3>' . strtoupper($hostname) . '</h3>';
 
-if (Models\Common::isadmin()) { ?>
+if (Controllers\Common::isadmin()) { ?>
     <div class="hostActionBtn-container">
-        <span class="btn-large-blue"><img src="../ressources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
+        <span class="btn-large-blue"><img src="../resources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
         <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="general-status-update" title="Rafraichir les informations générales">Demander l'envoi des informations générales</span>
         <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="packages-status-update" title="Rafraichir les paquets disponibles">Demander l'envoi des informations concernant les paquets</span>
         <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Demander la mise à jour des paquets</span>
@@ -177,13 +177,13 @@ if (Models\Common::isadmin()) { ?>
                             if (!empty($os) and !empty($os_version)) {
                                 echo '<td>';
                                 if ($os == "Centos" or $os == "centos" or $os == "CentOS") {
-                                    echo '<img src="ressources/icons/centos.png" class="icon" />';
+                                    echo '<img src="resources/icons/centos.png" class="icon" />';
                                 } elseif ($os == "Debian" or $os == "debian") {
-                                    echo '<img src="ressources/icons/debian.png" class="icon" />';
+                                    echo '<img src="resources/icons/debian.png" class="icon" />';
                                 } elseif ($os == "Ubuntu" or $os == "ubuntu" or $os == "linuxmint") {
-                                    echo '<img src="ressources/icons/ubuntu.png" class="icon" />';
+                                    echo '<img src="resources/icons/ubuntu.png" class="icon" />';
                                 } else {
-                                    echo '<img src="ressources/icons/tux.png" class="icon" />';
+                                    echo '<img src="resources/icons/tux.png" class="icon" />';
                                 }
                                 echo ucfirst($os) . ' ' . $os_version;
                                 echo '</td>';
@@ -206,7 +206,7 @@ if (Models\Common::isadmin()) { ?>
                             <td>ENVIRONNEMENT</td>
                             <?php
                             if (!empty($env)) {
-                                echo "<td>" . Models\Common::envtag($env) . "</td>";
+                                echo "<td>" . Controllers\Common::envtag($env) . "</td>";
                             } else {
                                 echo '<td>Inconnu</td>';
                             } ?>
@@ -217,19 +217,19 @@ if (Models\Common::isadmin()) { ?>
                                 <span>
                                 <?php
                                 if ($agentStatus == 'running') {
-                                    echo '<img src="ressources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." /> Démarré';
+                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." /> Démarré';
                                 }
                                 if ($agentStatus == "disabled") {
-                                    echo '<img src="ressources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." /> Désactivé';
+                                    echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." /> Désactivé';
                                 }
                                 if ($agentStatus == "stopped") {
-                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." /> Stoppé';
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." /> Stoppé';
                                 }
                                 if ($agentStatus == "seems-stopped") {
-                                    echo '<img src="ressources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." /> Semble stoppé';
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." /> Semble stoppé';
                                 }
                                 if ($agentStatus == "unknow") {
-                                    echo '<img src="ressources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." /> Inconnu';
+                                    echo '<img src="resources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." /> Inconnu';
                                 } ?>
                                 </span>
                             </td>
@@ -270,7 +270,7 @@ if (Models\Common::isadmin()) { ?>
                                  *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet disponible
                                  */
                                 if ($packagesAvailableTotal > 0) {
-                                    echo ' <img src="ressources/icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
+                                    echo ' <img src="resources/icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
                                 }
                                 ?>
                                 </td>
@@ -281,7 +281,7 @@ if (Models\Common::isadmin()) { ?>
                                      *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet installé
                                      */
                                     if ($packagesInstalledCount > 0) {
-                                        echo ' <img src="ressources/icons/search.png" id="packagesInstalledButton" class="icon-lowopacity" />';
+                                        echo ' <img src="resources/icons/search.png" id="packagesInstalledButton" class="icon-lowopacity" />';
                                     }
                                     ?>
                                 </td>
@@ -291,7 +291,7 @@ if (Models\Common::isadmin()) { ?>
 
                     <div id="packagesContainer">
 
-                        <span id="packagesContainerLoader">Chargement <img src="../ressources/images/loading.gif" class="icon" /></span>
+                        <span id="packagesContainerLoader">Chargement <img src="../resources/images/loading.gif" class="icon" /></span>
 
                         <div id="packagesAvailableDiv" class="hide">
                             <table class="packages-table">
@@ -308,33 +308,33 @@ if (Models\Common::isadmin()) { ?>
                                             echo '<tr>';
                                                 echo '<td>';
                                             if (preg_match('/python/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/python.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/vscode.png" class="icon" />';
                                             } elseif (preg_match('/^firefox/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/firefox.png" class="icon" />';
                                             } elseif (preg_match('/^chrome-$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/chrome.png" class="icon" />';
                                             } elseif (preg_match('/^chromium-$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/chromium.png" class="icon" />';
                                             } elseif (preg_match('/^brave-browser$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/brave.png" class="icon" />';
                                             } elseif (preg_match('/^filezilla/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/filezilla.png" class="icon" />';
                                             } elseif (preg_match('/^java/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/java.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/java.png" class="icon" />';
                                             } elseif (preg_match('/^fonts-/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/fonts.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/fonts.png" class="icon" />';
                                             } elseif (preg_match('/^teams$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/teams.png" class="icon" />';
                                             } elseif (preg_match('/^teamviewer$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/teamviewer.png" class="icon" />';
                                             } elseif (preg_match('/^thunderbird/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/thunderbird.png" class="icon" />';
                                             } elseif (preg_match('/^vlc/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/vlc.png" class="icon" />';
                                             } else {
-                                                echo '<img src="../ressources/icons/products/package.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/package.png" class="icon" />';
                                             }
                                                 echo $package['Name'];
                                                 echo '</td>';
@@ -365,31 +365,31 @@ if (Models\Common::isadmin()) { ?>
                                             echo '<tr class="pkg-row">';
                                                 echo '<td>';
                                             if (preg_match('/python/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/python.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/vscode.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/vscode.png" class="icon" />';
                                             } elseif (preg_match('/^firefox/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/firefox.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/firefox.png" class="icon" />';
                                             } elseif (preg_match('/^chrome-/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/chrome.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/chrome.png" class="icon" />';
                                             } elseif (preg_match('/^chromium-/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/chromium.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/chromium.png" class="icon" />';
                                             } elseif (preg_match('/^brave-/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/brave.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/brave.png" class="icon" />';
                                             } elseif (preg_match('/^filezilla/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/filezilla.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/filezilla.png" class="icon" />';
                                             } elseif (preg_match('/^java/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/java.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/java.png" class="icon" />';
                                             } elseif (preg_match('/^teams$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/teams.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/teams.png" class="icon" />';
                                             } elseif (preg_match('/^teamviewer$/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/teamviewer.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/teamviewer.png" class="icon" />';
                                             } elseif (preg_match('/^thunderbird/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/thunderbird.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/thunderbird.png" class="icon" />';
                                             } elseif (preg_match('/^vlc/i', $package['Name'])) {
-                                                echo '<img src="../ressources/icons/products/vlc.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/vlc.png" class="icon" />';
                                             } else {
-                                                echo '<img src="../ressources/icons/products/package.png" class="icon" />';
+                                                echo '<img src="../resources/icons/products/package.png" class="icon" />';
                                             }
                                             if ($package['State'] == "removed" or $package['State'] == "purged") {
                                                 echo '<span class="redtext">' . $package['Name'] . ' (désinstallé)</span>';
@@ -502,13 +502,13 @@ if (Models\Common::isadmin()) { ?>
                                                  *  Affichage d'une icone en fonction du status
                                                  */
                                             if ($event['Status'] == 'done') {
-                                                echo '<img src="ressources/icons/greencircle.png" class="icon-small" />';
+                                                echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
                                             }
                                             if ($event['Status'] == 'error') {
-                                                echo '<img src="ressources/icons/redcircle.png" class="icon-small" />';
+                                                echo '<img src="resources/icons/redcircle.png" class="icon-small" />';
                                             }
                                             if ($event['Status'] == 'running') {
-                                                echo '<img src="ressources/images/loading.gif" class="icon" />';
+                                                echo '<img src="resources/images/loading.gif" class="icon" />';
                                             }
                                                 /**
                                                  *  Affichage du type de demande
@@ -619,7 +619,7 @@ if (Models\Common::isadmin()) { ?>
                                     /**
                                      *  Affichage du bouton Afficher tout
                                      */
-                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Afficher tout</b> <img src="ressources/icons/chevron-circle-down.png" class="icon" /></p>';
+                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Afficher tout</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
                                 }
                             } ?>
                     </div>

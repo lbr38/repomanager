@@ -28,7 +28,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
      *  On continue si il n'y a pas eu d'erreur
      */
     if ($error == 0) {
-        $username = \Models\Common::validateData($_POST['username']);
+        $username = \Controllers\Common::validateData($_POST['username']);
 
         $mylogin = new \Models\Login();
 
@@ -117,10 +117,10 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 <head>
     <meta charset="utf-8">
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="ressources/styles/main.css">
+    <link rel="stylesheet" type="text/css" href="resources/styles/main.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="ressources/favicon.ico" />
+    <link rel="icon" href="resources/favicon.ico" />
     <title>Login</title>
 </head>
 

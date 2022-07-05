@@ -24,7 +24,7 @@ class History
         try {
             $result = $db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
             return;
         }
 
@@ -40,7 +40,7 @@ class History
      */
     public static function getByUser(string $userId)
     {
-        $userId = Common::validateData($userId);
+        $userId = \Controllers\Common::validateData($userId);
 
         /**
          *  On vérifie que l'Id est valide
@@ -61,7 +61,7 @@ class History
             $stmt->bindValue(':userid', $userId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
             return;
         }
 
@@ -78,9 +78,9 @@ class History
     {
         date_default_timezone_set('Europe/Paris');
 
-        $username = Common::validateData($username);
-        $action   = Common::validateData($action);
-        $state    = Common::validateData($state);
+        $username = \Controllers\Common::validateData($username);
+        $action   = \Controllers\Common::validateData($action);
+        $state    = \Controllers\Common::validateData($state);
 
         /**
          *  Ouverture d'une connexion à la base de données
@@ -107,7 +107,7 @@ class History
                 throw new Exception();
             }
         } catch (\Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
+            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
             return;
         }
 
@@ -120,7 +120,7 @@ class History
             $stmt->bindValue(':state', $state);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
+            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
             return;
         }
     }

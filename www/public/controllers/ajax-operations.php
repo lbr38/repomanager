@@ -16,7 +16,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
          *  Demande d'un formulaire d'opération
          */
         if ($_POST['action'] == "getForm" and !empty($_POST['operationAction']) and !empty($_POST['repos_array'])) {
-            $operation_action = \Models\Common::validateData($_POST['operationAction']);
+            $operation_action = \Controllers\Common::validateData($_POST['operationAction']);
             $repos_array = json_decode($_POST['repos_array'], true);
 
             $myop = new \Controllers\Operation();
@@ -66,9 +66,9 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
         if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POST['snapId']) and !empty($_POST['envId']))) {
             $myrepo = new \Controllers\Repo();
             $myrepo->getAllById(
-                \Models\Common::validateData($_POST['repoId']),
-                \Models\Common::validateData($_POST['snapId']),
-                \Models\Common::validateData($_POST['envId'])
+                \Controllers\Common::validateData($_POST['repoId']),
+                \Controllers\Common::validateData($_POST['snapId']),
+                \Controllers\Common::validateData($_POST['envId'])
             );
 
             /**

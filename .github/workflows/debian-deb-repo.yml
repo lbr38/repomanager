@@ -7,7 +7,7 @@ on:
     push:
       branches: [ stable ]
 jobs:
-  create-repo:
+  run-operations:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +46,6 @@ jobs:
           sudo mkdir -p /var/www/repomanager/.gnupg
           sudo cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           sudo cp $GITHUB_WORKSPACE/version /var/www/repomanager/
-          sudo cp $GITHUB_WORKSPACE/version /var/www/repomanager/cron/github.version
           sudo cp $GITHUB_WORKSPACE/www/repomanager /var/www/repomanager/
 
       - name: Set up repomanager main config

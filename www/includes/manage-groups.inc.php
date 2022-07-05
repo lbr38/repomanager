@@ -1,5 +1,5 @@
 <section class="right" id="groupsDiv">
-    <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
+    <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
     <h3>GROUPES</h3>
     <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
     <br>
@@ -44,8 +44,8 @@
                                         <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
                                     </td>
                                     <td class="td-fit">
-                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="ressources/icons/cog.png" />
-                                        <img src="ressources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
+                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="resources/icons/cog.png" />
+                                        <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
                                     </td>
                                 </tr>
                             </table>

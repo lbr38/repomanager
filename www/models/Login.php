@@ -24,32 +24,32 @@ class Login extends Model
 
     private function setUsername(string $username)
     {
-        $this->username = Common::validateData($username);
+        $this->username = \Controllers\Common::validateData($username);
     }
 
     private function setPassword(string $password)
     {
-        $this->password = Common::validateData($password);
+        $this->password = \Controllers\Common::validateData($password);
     }
 
     private function setFirstName(string $first_name = null)
     {
-        $this->first_name = Common::validateData($first_name);
+        $this->first_name = \Controllers\Common::validateData($first_name);
     }
 
     private function setLastName(string $last_name = null)
     {
-        $this->last_name = Common::validateData($last_name);
+        $this->last_name = \Controllers\Common::validateData($last_name);
     }
 
     private function setEmail(string $email = null)
     {
-        $this->email = Common::validateData($email);
+        $this->email = \Controllers\Common::validateData($email);
     }
 
     private function setRole(string $role)
     {
-        $this->role = Common::validateData($role);
+        $this->role = \Controllers\Common::validateData($role);
     }
 
     public function getFirstName()
@@ -79,7 +79,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -104,10 +104,10 @@ class Login extends Model
     {
         try {
             $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username and State = 'active'");
-            $stmt->bindValue(':username', Common::validateData($username));
+            $stmt->bindValue(':username', \Controllers\Common::validateData($username));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -128,7 +128,7 @@ class Login extends Model
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch (\Exception $e) {
-            Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
             return;
         }
 
@@ -145,14 +145,14 @@ class Login extends Model
      */
     public function addUser(string $username, string $role)
     {
-        $username = Common::validateData($username);
-        $role = Common::validateData($role);
+        $username = \Controllers\Common::validateData($username);
+        $role = \Controllers\Common::validateData($role);
 
         /**
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
         if (Common::isAlphanumDash($username) === false) {
-            Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
+            \Controllers\Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
             return false;
         }
 
@@ -160,7 +160,7 @@ class Login extends Model
          *  On vérifie que le role est valide
          */
         if ($role != "usage" and $role != "administrator") {
-            Common::printAlert("Le role sélectionné est invalide", 'error');
+            \Controllers\Common::printAlert("Le role sélectionné est invalide", 'error');
             return false;
         }
 
@@ -172,11 +172,11 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === false) {
-            Common::printAlert("Le nom d'utilisateur <b>$username</b> est déjà utilisé", 'error');
+            \Controllers\Common::printAlert("Le nom d'utilisateur <b>$username</b> est déjà utilisé", 'error');
             return false;
         }
 
@@ -190,7 +190,7 @@ class Login extends Model
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            Common::printAlert("Erreur lors de la création de l'utilisateur", 'error');
+            \Controllers\Common::printAlert("Erreur lors de la création de l'utilisateur", 'error');
             return false;
         }
 
@@ -215,10 +215,10 @@ class Login extends Model
             $stmt->bindValue(':role', $role);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
-        Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
+        \Controllers\Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
 
         History::set($_SESSION['username'], "Création de l'utilisateur <b>$username</b>", 'success');
 
@@ -233,7 +233,7 @@ class Login extends Model
      */
     public function checkUsernamePwd(string $username, string $password)
     {
-        $username = Common::validateData($username);
+        $username = \Controllers\Common::validateData($username);
 
         /**
          *  On récupère le username et le mot de passe haché en base de données correspondant à l'username fourni
@@ -243,7 +243,7 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -316,16 +316,16 @@ class Login extends Model
         /**
          *  Vérification des données renseignées
          */
-        $username = Common::validateData($username);
+        $username = \Controllers\Common::validateData($username);
         if (!empty($first_name)) {
-            $first_name = Common::validateData($first_name);
+            $first_name = \Controllers\Common::validateData($first_name);
         }
         if (!empty($last_name)) {
-            $last_name = Common::validateData($last_name);
+            $last_name = \Controllers\Common::validateData($last_name);
         }
         if (!empty($email)) {
             if (Common::validateMail($email) === false) {
-                Common::printAlert("L'adresse email est incorrecte", 'error');
+                \Controllers\Common::printAlert("L'adresse email est incorrecte", 'error');
                 return;
             }
         }
@@ -341,7 +341,7 @@ class Login extends Model
             $stmt->bindValue(':email', $email);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -353,7 +353,7 @@ class Login extends Model
 
         History::set($_SESSION['username'], "Modifications des informations personnelles", 'success');
 
-        Common::printAlert('Les modifications ont été appliquées', 'success');
+        \Controllers\Common::printAlert('Les modifications ont été appliquées', 'success');
     }
 
     /**
@@ -361,8 +361,8 @@ class Login extends Model
      */
     public function changePassword(string $username, string $actual_password, string $new_password, string $new_password2)
     {
-        $username        = Common::validateData($username);
-        $actual_password = Common::validateData($actual_password);
+        $username        = \Controllers\Common::validateData($username);
+        $actual_password = \Controllers\Common::validateData($actual_password);
         $new_password    = $new_password;
         $new_password2   = $new_password2;
 
@@ -382,7 +382,7 @@ class Login extends Model
          *  On vérifie que le nouveau mot de passe renseigné et sa re-saisie sont les mêmes
          */
         if ($new_password !== $new_password2) {
-            Common::printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
+            \Controllers\Common::printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
             return;
         }
 
@@ -390,7 +390,7 @@ class Login extends Model
          *  On vérifie que le nouveau mot de passe renseigné et l'ancien (hashé en bdd) sont différents
          */
         if (password_verify($new_password, $actual_password_hashed)) {
-            Common::printAlert('Le nouveau mot de passe est identique à l\'ancien mot de passe', 'error');
+            \Controllers\Common::printAlert('Le nouveau mot de passe est identique à l\'ancien mot de passe', 'error');
             return;
         }
 
@@ -408,12 +408,12 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Modification du mot de passe", 'success');
 
-        Common::printAlert('Le mot de passe a bien été changé', 'success');
+        \Controllers\Common::printAlert('Le mot de passe a bien été changé', 'success');
     }
 
     /**
@@ -421,7 +421,7 @@ class Login extends Model
      */
     public function resetPassword(string $username)
     {
-        $username = Common::validateData($username);
+        $username = \Controllers\Common::validateData($username);
 
         /**
          *  Vérification de l'existance de l'utilisateur en base de données
@@ -431,11 +431,11 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
-            Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            \Controllers\Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
             return false;
         }
 
@@ -449,7 +449,7 @@ class Login extends Model
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            Common::printAlert("Erreur lors de la création de l'utilisateur <b>$username</b>", 'error');
+            \Controllers\Common::printAlert("Erreur lors de la création de l'utilisateur <b>$username</b>", 'error');
             return false;
         }
 
@@ -462,12 +462,12 @@ class Login extends Model
             $stmt->bindValue(':password', $password_hashed);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur <b>$username</b>", 'success');
 
-        Common::printAlert('Le mot de passe a été regénéré', 'success');
+        \Controllers\Common::printAlert('Le mot de passe a été regénéré', 'success');
 
         return $password;
     }
@@ -477,7 +477,7 @@ class Login extends Model
      */
     public function deleteUser(string $username)
     {
-        $username = Common::validateData($username);
+        $username = \Controllers\Common::validateData($username);
 
         /**
          *  On vérifie que l'utilisateur mentionné existe en base de données
@@ -487,11 +487,11 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
-            Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            \Controllers\Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
             return;
         }
 
@@ -505,11 +505,11 @@ class Login extends Model
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         History::set($_SESSION['username'], "Suppression de l'utilisateur <b>$username</b>", 'success');
 
-        Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
+        \Controllers\Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
     }
 }

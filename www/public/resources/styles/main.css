@@ -1034,15 +1034,6 @@ footer p { color: gray; }
 /* lien vers github dans le footer */
 #github img { width: 25px; }
 
-/* Cron : pastilles vertes ou rouge */
-#planCronStatus h5, #planCronStatus span { display: inline-block; }
-/* on veut que la pastille soit placée sur la droite */
-#planCronStatus span {
-    color: gray;
-    float: right;
-}
-#planCronStatus img { width: 8px; }
-
 /* Boutons au sommet de la liste des repos permettant d'afficher les div cachées (groupes, repos sources) */
 #ReposListDisplayToggleButton, #ReposSourcesToggleButton, #GroupsListToggleButton, #settingsToggleButton {
     padding-left: 8px;

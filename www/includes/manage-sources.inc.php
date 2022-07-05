@@ -17,7 +17,7 @@
         $debGpgKeys = explode("\n\n", $debGpgKeys);
     } ?>
 
-    <img id="reposSourcesDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
+    <img id="reposSourcesDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
     <h3>REPOS SOURCES</h3>
 
     <p>Pour créer un miroir, repomanager doit connaitre l'URL du repo source.</p>
@@ -138,7 +138,7 @@
                 foreach ($rpmGpgKeys as $gpgKey) {
                     if (($gpgKey != "..") and ($gpgKey != ".")) : ?>
                         <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Supprimer la clé GPG <?= $gpgKey ?>" />
+                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Supprimer la clé GPG <?= $gpgKey ?>" />
                             <?= $gpgKey ?>
                         </p>
                     <?php endif;
@@ -164,7 +164,7 @@
 
                     if (!empty($gpgKeyID) and !empty($gpgKeyName)) : ?>
                         <p>
-                            <img src="ressources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
+                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
                             <?= $gpgKeyName . " ($gpgKeyID)" ?>
                         </p>
                     <?php endif;
@@ -219,8 +219,8 @@
                                             <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" repotype="rpm" />
                                         </td>
                                         <td class="td-fit">
-                                            <img src="ressources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="<?= $sourceName ?>" title="Configuration de <?= $sourceName ?>" />
-                                            <img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="rpm" title="Supprimer le repo source <?= $sourceName ?>" />
+                                            <img src="resources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="<?= $sourceName ?>" title="Configuration de <?= $sourceName ?>" />
+                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="rpm" title="Supprimer le repo source <?= $sourceName ?>" />
                                         </td>
                                     </tr>
                                 </table>
@@ -334,7 +334,7 @@
                                         </td>
                                 
                                         <td class="td-fit">
-                                            <img src="ressources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="deb" title="Supprimer le repo source <?= $sourceName ?>" />
+                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="deb" title="Supprimer le repo source <?= $sourceName ?>" />
                                         </td>
                                     </tr>
                                 </table>

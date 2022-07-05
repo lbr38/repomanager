@@ -8,7 +8,7 @@ include_once('../includes/head.inc.php');
 /**
  *  Seuls les admins ont accès à configuration.php
  */
-if (!Models\Common::isadmin()) {
+if (!Controllers\Common::isadmin()) {
     header('Location: index.php');
     exit;
 }
@@ -17,7 +17,7 @@ if (!Models\Common::isadmin()) {
  *  Cas où on souhaite filtrer par Id utilisateur
  */
 if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty($_POST['userid'])) {
-    $filterByUserId = \Models\Common::validateData($_POST['userid']);
+    $filterByUserId = \Controllers\Common::validateData($_POST['userid']);
 
     if (!is_numeric($filterByUserId)) {
         printAlert("L'Id utilisateur est invalide");
@@ -101,10 +101,10 @@ if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty(
                                     echo '<td class="td-100">' . htmlspecialchars_decode($historyLine['Action']) . '</td>';
                                     echo '<td class="td-100">' . $historyLine['Username'] . '</td>';
                                 if ($historyLine['State'] == "success") {
-                                    echo '<td><img src="ressources/icons/greencircle.png" class="icon-small" />Succès</td>';
+                                    echo '<td><img src="resources/icons/greencircle.png" class="icon-small" />Succès</td>';
                                 }
                                 if ($historyLine['State'] == "error") {
-                                    echo '<td><img src="ressources/icons/redcircle.png" class="icon-small" />Erreur</td>';
+                                    echo '<td><img src="resources/icons/redcircle.png" class="icon-small" />Erreur</td>';
                                 }
                                     echo '</tr>';
                             }

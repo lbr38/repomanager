@@ -16,21 +16,21 @@ if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
      */
     // Prénom
     if (!empty($_POST['first_name'])) {
-        $firstName = \Models\Common::validateData($_POST['first_name']);
+        $firstName = \Controllers\Common::validateData($_POST['first_name']);
     } else {
         $firstName = '';
     }
 
     // Nom
     if (!empty($_POST['last_name'])) {
-        $lastName = \Models\Common::validateData($_POST['last_name']);
+        $lastName = \Controllers\Common::validateData($_POST['last_name']);
     } else {
         $lastName = '';
     }
 
     // Email
     if (!empty($_POST['email'])) {
-        $email = \Models\Common::validateData($_POST['email']);
+        $email = \Controllers\Common::validateData($_POST['email']);
     } else {
         $email = '';
     }

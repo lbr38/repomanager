@@ -4,7 +4,7 @@ namespace Models;
 
 use Exception;
 
-class Environnement extends Model
+class Environment extends Model
 {
     public $name;
 
@@ -27,8 +27,8 @@ class Environnement extends Model
      */
     public function new()
     {
-        if (!Common::isAlphanumDash($this->name)) {
-            Common::printAlert("Erreur : le nom d'environnement contient des caractères invalides", 'error');
+        if (!\Controllers\Common::isAlphanumDash($this->name)) {
+            \Controllers\Common::printAlert("Erreur : le nom d'environnement contient des caractères invalides", 'error');
             return;
         }
 
@@ -40,7 +40,7 @@ class Environnement extends Model
             $stmt->bindValue(':name', $this->name);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -57,10 +57,10 @@ class Environnement extends Model
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM env WHERE Name=:name");
-            $stmt->bindValue(':name', Common::validateData($_GET['deleteEnv']));
+            $stmt->bindValue(':name', \Controllers\Common::validateData($_GET['deleteEnv']));
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -95,8 +95,8 @@ class Environnement extends Model
             $this->db->exec("DELETE FROM env");
 
             foreach ($envsToInsert as $env) {
-                if (!Common::isAlphanumDash($env)) {
-                    Common::printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
+                if (!\Controllers\Common::isAlphanumDash($env)) {
+                    \Controllers\Common::printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
                     return;
                 }
 
@@ -108,7 +108,7 @@ class Environnement extends Model
                     $stmt->bindValue(':name', $env);
                     $stmt->execute();
                 } catch (\Exception $e) {
-                    Common::dbError($e);
+                    \Controllers\Common::dbError($e);
                 }
             }
         }
@@ -187,10 +187,10 @@ class Environnement extends Model
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
-            $stmt->bindValue(':env', Common::validateData($env));
+            $stmt->bindValue(':env', \Controllers\Common::validateData($env));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result)) {

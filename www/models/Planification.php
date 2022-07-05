@@ -53,7 +53,7 @@ class Planification extends Model
             $stmt->bindValue(':reminder', $reminder);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -67,7 +67,7 @@ class Planification extends Model
             $stmt->bindValue(':id', $planId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -81,7 +81,7 @@ class Planification extends Model
             $stmt->bindValue(':id', $planId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         if ($this->db->isempty($result) === true) {
@@ -101,7 +101,7 @@ class Planification extends Model
             $stmt->bindValue(':id', $planId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -121,7 +121,7 @@ class Planification extends Model
             $stmt->bindValue(':id', $planId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -158,7 +158,7 @@ class Planification extends Model
             $stmt->bindValue(':status', $status);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -173,7 +173,7 @@ class Planification extends Model
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -254,7 +254,7 @@ class Planification extends Model
             $stmt->bindValue(':planId', $planId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 }

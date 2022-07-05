@@ -11,7 +11,7 @@ include_once('../includes/head.inc.php');
 
 <article>
     <section class="mainSectionRight">
-        <?php if (Models\Common::isadmin()) : ?>
+        <?php if (Controllers\Common::isadmin()) : ?>
             <!-- GERER L'AFFICHAGE -->
             <?php include_once('../includes/display.inc.php'); ?>
 
@@ -80,7 +80,7 @@ include_once('../includes/head.inc.php');
             </div>
 
             <?php
-            if (AUTOMATISATION_ENABLED == "yes") {
+            if (PLANS_ENABLED == "yes") {
                 $plan = new \Controllers\Planification();
                 $lastPlan = $plan->listLast();
                 $nextPlan = $plan->listNext();

@@ -22,21 +22,21 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 
 <b>Fonctionnalités</b>
 
-| **Fonctions** | **Stable** |
+| **Fonctionnalités** ||
 |----------|---------------|
 | Créer des miroirs de repos publics | ✅ |
 | Créer des repos locaux | ✅ |
 | Signer les repos ou les paquets avec GPG | ✅ |
 | Archiver / restaurer des miroirs | ✅ |
 | Charger des paquets dans des repos (ex: patchs zero-day) | ✅ |
-| **Automatisation** | **Stable** |
+| **Automatisation** ||
 | Créer des tâches planifiées sur les miroirs (mise à jour...) | ✅ |
 | Rappels de planifications (mail) | ✅ |
-| **Statistiques** | **Stable** |
+| **Statistiques** ||
 | Graphiques sur l'utilisation et l'évolution des repos | ✅ |
-| **Gestion du parc** | **Stable** |
+| **Gestion du parc** | |
 | Analyser et gérer les paquets installés sur un parc de serveurs "clients" | ✅ |
-| **Général** | **Stable** |
+| **Général** ||
 | Création d'utilisateurs (administrateurs ou "lecture-seule") | ✅ |
 | Historique des actions effectuées par utilisateur | ✅ |
 | Mise à jour automatique ou manuelle de repomanager | ✅ |
@@ -58,16 +58,16 @@ L'espace disque est à adapter en fonction de la taille des repos distants à cl
 <b>Dépendances</b>
 
 Pour fonctionner repomanager requiert la présence de certains logiciels couramment installés sur les distributions Linux, tels que :
-<pre>
+```
 rsync, curl, wget, gnupg2
-</pre>
+```
 
 Ainsi que certains logiciels spécifiques nécessaires pour créer des miroirs de repo tels que :
-<pre>
+```
 yum-utils et createrepo (CentOS/Redhat)
 rpmresign (module perl RPM4) pour la signature des repos (CentOS/Redhat)
 debmirror (Debian)
-</pre>
+```
 
 Repomanager installera lui même ces dépendances si il détecte qu'elles ne sont pas présentes sur le système. Veillez donc à ce que le serveur ait au moins accès aux dépôts de base de son OS.
 
@@ -82,7 +82,7 @@ Repomanager n'est testé qu'avec nginx+php-fpm (PHP 7.x/8.x) mais une compatibil
 
 Note pour les systèmes Redhat/CentOS : adapter la configuration de SELinux et faire en sorte qu'il n'empêche pas la bonne exécution de PHP.
 
-<pre>
+```
 # Redhat / CentOS
 yum install nginx php-fpm php-cli php-pdo php-json sqlite # PHP 7.4
 yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
@@ -90,13 +90,13 @@ yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
 # Debian
 apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3 # PHP 7.4
 apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3 # PHP 8.1
-</pre>
+```
 
 <b>SQLite</b>
 
 S'assurer que le module sqlite pour php est activée :
 
-<pre>
+```
 # Debian
 vim /etc/php/7.4/mods-available/sqlite3.ini
 
@@ -104,7 +104,7 @@ vim /etc/php/7.4/mods-available/sqlite3.ini
 vim /etc/php.d/20-sqlite3.ini
 
 extension=sqlite3.so
-</pre>
+```
 
 <b>Vhost</b>
 
@@ -115,7 +115,7 @@ Adapter les valeurs :
  - des deux variables $WWW_DIR et $REPOS_DIR
  - des directives server_name, access_log, error_log, ssl_certificate, ssl_certificate_key
 
-<pre>
+```
 #### Repomanager vhost ####
 
 # Disable some logging
@@ -252,34 +252,34 @@ server {
                 alias $REPOS_DIR;
         }
 }
-</pre>
+```
 
 
 <b>Repomanager</b>
 
 Le programme nécessite 2 répertoires choisis par l'utilisateur au moment de l'installation :
-<pre>
+```
 Répertoire d'installation (par défaut /var/www/repomanager/)
 Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
-</pre>
+```
 
 L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes permissions soient correctement établies sur les répertoires utilisés par repomanager.
 
 Télécharger la dernière release disponible au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
 
-<pre>
+```
 RELEASE="v3.0.2-stable" # choix de la release
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
 tar xzf repomanager_$RELEASE.tar.gz
 cd /tmp/repomanager/
-</pre>
+```
 
 Lancer l'installation de repomanager :
-<pre>
+```
 chmod 700 repomanager
 sudo ./repomanager --install
-</pre>
+```
 
 <h1>Linupdate et Repomanager</h1>
 

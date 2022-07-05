@@ -24,7 +24,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $id = '';
@@ -44,7 +44,7 @@ class Profile extends Model
         try {
             $result = $this->db->query("SELECT Name FROM profile_package");
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $packages = array();
@@ -64,7 +64,7 @@ class Profile extends Model
         try {
             $result = $this->db->query("SELECT Name FROM profile_service");
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $services = array();
@@ -93,7 +93,7 @@ class Profile extends Model
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $profile = array();
@@ -113,7 +113,7 @@ class Profile extends Model
         try {
             $result = $this->db->query("SELECT * FROM profile_settings");
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -143,7 +143,7 @@ class Profile extends Model
             $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -157,7 +157,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -180,7 +180,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -195,7 +195,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -215,7 +215,7 @@ class Profile extends Model
             $stmt->bindValue(':notes', $notes);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -229,7 +229,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -241,7 +241,7 @@ class Profile extends Model
         try {
             $result = $this->db->query("SELECT * FROM profile ORDER BY Name ASC");
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $profiles = array();
@@ -277,7 +277,7 @@ class Profile extends Model
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -309,7 +309,7 @@ class Profile extends Model
             $stmt->bindValue(':profileId', $profileId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $repos = array();
@@ -334,7 +334,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $service);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -360,7 +360,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $packageName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -378,7 +378,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $packageName);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         return true;
@@ -397,7 +397,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $serviceName);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**
@@ -415,7 +415,7 @@ class Profile extends Model
             $stmt->bindValue(':name', $serviceName);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         return true;
@@ -431,7 +431,7 @@ class Profile extends Model
             $stmt->bindValue(':profileId', $profileId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -446,7 +446,7 @@ class Profile extends Model
             $stmt->bindValue(':repoId', $repoId);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 

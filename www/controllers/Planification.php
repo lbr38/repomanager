@@ -54,7 +54,7 @@ class Planification
          *  On sépare chaque jour spécifié par une virgule
          */
         foreach ($days as $day) {
-            $planDay .= \Models\Common::validateData($day) . ',';
+            $planDay .= \Controllers\Common::validateData($day) . ',';
         }
 
         /**
@@ -90,7 +90,7 @@ class Planification
 
     public function setMailRecipient(string $mailRecipient)
     {
-        $this->mailRecipient = \Models\Common::validateData($mailRecipient);
+        $this->mailRecipient = \Controllers\Common::validateData($mailRecipient);
     }
 
     public function setReminder($reminders)
@@ -112,7 +112,7 @@ class Planification
              *  On sépare chaque jour de rappel par une virgule
              */
             foreach ($reminders as $reminder) {
-                $planReminder .= \Models\Common::validateData($reminder) . ',';
+                $planReminder .= \Controllers\Common::validateData($reminder) . ',';
             }
         }
 
@@ -151,7 +151,7 @@ class Planification
             die();
         }
 
-        $this->targetGpgCheck = \Models\Common::validateData($state);
+        $this->targetGpgCheck = \Controllers\Common::validateData($state);
     }
 
     public function setTargetGpgResign(string $state)
@@ -294,7 +294,7 @@ class Planification
              */
             $envs = explode('->', $this->action);
 
-            $myenv = new \Models\Environnement();
+            $myenv = new \Models\Environment();
 
             foreach ($envs as $env) {
                 if ($myenv->exists($env) === false) {
@@ -357,7 +357,7 @@ class Planification
             /**
              *  On vérifie que l'environnement existe
              */
-            $myenv = new \Models\Environnement();
+            $myenv = new \Models\Environment();
 
             if ($myenv->exists($this->targetEnv) === false) {
                 throw new Exception("L'environnement " . $this->targetEnv . " n'existe pas");
@@ -377,9 +377,9 @@ class Planification
                  *  On vérifie que chaque adresse mail est valide
                  */
                 foreach ($mailRecipientTest as $mail) {
-                    $mail = \Models\Common::validateData($mail);
+                    $mail = \Controllers\Common::validateData($mail);
 
-                    if (\Models\Common::validateMail($mail) === false) {
+                    if (\Controllers\Common::validateMail($mail) === false) {
                         throw new Exception("Adresse email invalide : $mail");
                     }
                 }
@@ -388,7 +388,7 @@ class Planification
              *  Cas où 1 seule adresse mail a été renseignée
              */
             } else {
-                if (\Models\Common::validateMail($this->mailRecipient) === false) {
+                if (\Controllers\Common::validateMail($this->mailRecipient) === false) {
                     throw new Exception("Adresse email invalide : $mail");
                 }
             }
@@ -471,7 +471,7 @@ class Planification
             /**
              *  1. Si les planifications ne sont pas activées, on quitte
              */
-            if (AUTOMATISATION_ENABLED != "yes") {
+            if (PLANS_ENABLED != "yes") {
                 throw new Exception("Erreur (EP01) : Les planifications ne sont pas activées. Vous pouvez modifier ce paramètre depuis l'onglet Configuration.");
             }
 

@@ -107,12 +107,12 @@ class Group
      */
     public function new(string $name)
     {
-        $name = \Models\Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du groupe ne contient pas de caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Le groupe <b>$name</b> contient des caractères invalides");
         }
 
@@ -130,7 +130,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Création d\'un nouveau groupe <span class="label-white">' . $name . '</span> (type : ' . $this->type . ')', 'success');
 
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -143,10 +143,10 @@ class Group
         /**
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($actualName) === false) {
+        if (\Controllers\Common::isAlphanumDash($actualName) === false) {
             throw new Exception("Le nom actuel du groupe <b>$actualName</b> contient des caractères invalides");
         }
-        if (\Models\Common::isAlphanumDash($newName) === false) {
+        if (\Controllers\Common::isAlphanumDash($newName) === false) {
             throw new Exception("Le nouveau nom du groupe <b>$newName</b> contient des caractères invalides");
         }
 
@@ -164,7 +164,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Renommage d\'un groupe : <span class="label-white">' . $actualName . '</span> en <span class="label-white">' . $newName . '</span> (type : ' . $this->type . ')', 'success');
 
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -187,7 +187,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Suppression du groupe <span class="label-white">' . $name . '</span> (type : '. $this->type . ')', 'success');
 
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**

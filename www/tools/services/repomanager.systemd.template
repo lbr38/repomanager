@@ -1,0 +1,10 @@
+[Unit]
+Description=Repomanager service
+
+[Service]
+Type=simple
+ExecStart=__WWW_PATH__/tools/services/repomanager-service
+#CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

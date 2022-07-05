@@ -47,7 +47,8 @@ function help
     echo -e "\n   Available parameters:"
     echo -e "   -i | --install          ➤  Execute repomanager installation wizard."
     echo -e "   -p | --set-permissions  ➤  Set permissions on repomanager directories and files."
-    echo -e "   -d | --check-deps       ➤  Check and install missing dependencies.\n\n\n"
+    echo -e "   -d | --check-deps       ➤  Check and install missing dependencies."
+    echo -e "   -s | --deploy-service   ➤  Deploy repomanager service.\n\n\n"
 }
 
 # System check
@@ -205,9 +206,10 @@ function permissions
         chmod 750 "$WWW_DIR"
         chown -R ${WWW_USER}:repomanager "$WWW_DIR"
         chmod 550 ${WWW_DIR}/repomanager
+        chmod 500 ${WWW_DIR}/tools/services/repomanager-service
 
         # Permissions on repos directory
-        # No chmod here because it can be a large directory and it could take too much time. The php cronjob will take care of  it.
+        # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
         chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
 
         # Permissions on .gnupg directory
@@ -537,6 +539,54 @@ function createYumFiles
     echo "distroverpkg=centos-release" >> /etc/yum.repos.d/repomanager/repomanager.conf
 }
 
+# Deploy repomanager systemd services
+function deployService
+{
+    if [ -z "$WWW_DIR" ];then
+        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager/)"
+        echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
+
+        if [ -z "$WWW_DIR" ];then
+            WWW_DIR="/var/www/repomanager"
+        fi
+    fi
+
+    # Exit function if web sources directory does not exist
+    if [ ! -d "$WWW_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] Cannot find ${YELLOW}${WWW_DIR}${RESET} directory..."
+        return
+    fi
+
+    # Exit function if services files cannot be found
+    if [ ! -f "${WWW_DIR}/tools/services/repomanager.systemd.template" ];then
+        echo -e "[$YELLOW ERROR $RESET] Systemd template service file ${YELLOW}${WWW_DIR}/tools/services/repomanager.systemd.template${RESET} does not exist..."
+        return
+    fi
+    if [ ! -f "${WWW_DIR}/tools/services/repomanager-service" ];then
+        echo -e "[$YELLOW ERROR $RESET] Repomanager service script ${YELLOW}${WWW_DIR}/tools/services/repomanager-service${RESET} does not exist..."
+        return
+    fi
+
+    # Deploy systemd service template file
+    echo -ne "\n➤ Deploying service... "
+    \cp "$WWW_DIR/tools/services/repomanager.systemd.template" /lib/systemd/system/repomanager.service &&
+    sed -i "s|__WWW_PATH__|$WWW_DIR|g" /lib/systemd/system/repomanager.service &&
+    ln -fs /lib/systemd/system/repomanager.service /etc/systemd/system/repomanager.service &&
+    chmod 700 "${WWW_DIR}/tools/services/repomanager-service"
+    echo -e "${GREEN}Done${RESET}"
+
+    systemctl daemon-reload --quiet
+    systemctl enable repomanager --quiet
+
+    echo -n "  Start repomanager service now (yes/no): "; read -p "" CONFIRM
+    if [ "$CONFIRM" == "yes" ];then
+        systemctl start repomanager --quiet
+        if [ "$?" != "0" ];then
+            echo -e "[$YELLOW ERROR $RESET] Starting repomanager service has failed"
+        fi
+    fi
+}
+
 # Installation wizard
 function installation
 {
@@ -624,10 +674,8 @@ function installation
     # Copy web sources
     cp -r ${PWD}/* ${WWW_DIR}/
 
-    # Copy actual version file and set up github.version file
+    # Copy actual version file
     cp ../version ${WWW_DIR}/
-    mkdir -p ${WWW_DIR}/cron/
-    cp ${WWW_DIR}/version ${WWW_DIR}/cron/github.version
 
     # Copy this script
     cp ${PWD}/repomanager ${WWW_DIR}/repomanager
@@ -721,19 +769,19 @@ function installation
 
             # Asking all the needed informations to generate a key.
             while [ -z "$key_length" ];do
-                echo -ne "  Key size (1024 / 2048 / 4096): "; read -p "" key_length
+                read -p "  Key size (1024 / 2048 / 4096): " key_length
             done
             while [ -z "$key_name" ];do
-                echo -ne "  Name: "; read -p "" key_name
+                read -p "  Name: " key_name
             done
             while [ -z "$key_description" ];do
-                echo -ne "  Description: "; read -p "" key_description
+                read -p "  Description: " key_description
             done
             while [ -z "$key_email" ];do
-                echo -ne "  Email: "; read -p "" key_email
+                read -p "  Email: " key_email
             done
             while [ -z "$key_passphrase" ];do
-                echo -ne "  Passphrase: "; read -s key_passphrase
+                read -s -p "  Passphrase: " key_passphrase
             done
             echo ""
 
@@ -751,7 +799,7 @@ function installation
             gpg2 --batch --gen-key --homedir ${GPGHOME} --no-permission-warning gpg-template-file 2>/dev/null &&
 
             echo -e "  GPG key generation [$GREEN OK $RESET]\n"
-            rm -f gpg-template-file
+            rm gpg-template-file -f
 
             echo "$key_passphrase" > "$PASSPHRASE_FILE"
             GPG_KEYID="$key_email"
@@ -823,19 +871,18 @@ function installation
     echo "WWW_HOSTNAME = \"$WWW_HOSTNAME\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "WWW_REPOS_DIR_URL = \"https://${WWW_HOSTNAME}/repo\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
-    echo -e "\n[AUTOMATISATION]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "AUTOMATISATION_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[PLANS]" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "PLANS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "PLAN_REMINDERS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "ALLOW_AUTOUPDATE_REPOS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "RETENTION = \"2\"" >> ${WWW_DIR}/configurations/repomanager.conf
 
-    echo -e "\n[CRON]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "CRON_DAILY_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "CRON_APPLY_PERMS = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "CRON_SAVE_CONF = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "CRON_PLAN_REMINDERS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "CRON_STATS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[STATS]" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "STATS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "STATS_LOG_PATH = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+
 
     # Create repomanager group
     if ! grep -q "repomanager" /etc/group;then
@@ -844,22 +891,16 @@ function installation
         usermod -G repomanager "$WWW_USER"
     fi
 
-    # Configure cron to allow web user to manage its crontab
-    # Remove webuser from cron.deny if exist
-    if [ -f "/etc/cron.deny" ];then
-        if grep -q "$WWW_USER" /etc/cron.deny;then
-            sed -i "/${WWW_USER}/d" /etc/cron.deny 
-        fi
-    fi
-    # Add webuser to /etc/at.allow if not exist
-    if [ -f "/etc/cron.allow" ];then
-        if ! grep -q "$WWW_USER" /etc/cron.allow;then
-            echo "$WWW_USER" >> /etc/cron.allow
-        fi
-    fi
-
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
         createYumFiles
+    fi
+
+    echo -e "\n➤ Repomanager is using a systemd service to execute regular tasks, such as:"
+    echo "  - checking for new version availability"
+    echo "  - generating repos access statistics (if enabled)"
+    echo -ne "\n  Deploy Repomanager's service now (yes/no): "; read -p "" CONFIRM
+    if [ "$CONFIRM" == "yes" ];then
+        deployService
     fi
 
     echo -e "\n ${GREEN}Installation success!${RESET}"
@@ -897,6 +938,10 @@ while [ $# -ge 1 ];do
         --check-deps|-d)
             checkSystem
             checkDependencies
+            exit
+        ;;
+        --deploy-service|-s)
+            deployService
             exit
         ;;
         *)

@@ -28,21 +28,21 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 <b>Features</b>
 
-| **Functions** | **Stable** |
+| **Functions** ||
 |----------|---------------|
 | Create mirrors from public repos | ✅ |
 | Create local repos | ✅ |
 | Sign repos or packages with GPG key | ✅ |
 | Archive / restore mirrors | ✅ |
 | Load custom packages into repos (eg: patch zero-day) | ✅ |
-| **Automatisation** |
+| **Automatisation** ||
 | Create automatic tasks on mirrors (update mirror...) | ✅ |
 | Send automatic task reminder (mail) | ✅ |
-| **Stats** |
+| **Stats** ||
 | Visualize graphs on repos' evolution and utilisation | ✅ |
-| **Hosts management** |
+| **Hosts management** ||
 | Analyze et manage installed packages on clients hosts (linupdate agent needed) | ✅ |
-| **General** |
+| **General** ||
 | Create users (ro-user or admin) | ✅ |
 | See history of actions taken by users | ✅ |
 | Automatic or manual update of repomanager | ✅ |
@@ -63,16 +63,16 @@ Disk space required depends on the size of the repos you need to clone.
 <b>Dependencies</b>
 
 Repomanager requires packages commonly found on every Linux distributions such as:
-<pre>
+```
 rsync, curl, wget, gnupg2
-</pre>
+```
 
 And specific packages needed to build mirrors such as:
-<pre>
+```
 yum-utils and createrepo (CentOS/Redhat)
 rpmresign (perl RPM4 module) to sign repos (CentOS/Redhat)
 debmirror (Debian)
-</pre>
+```
 
 Repomanager will automatically install those dependencies if there are not present. Please check that the server has at least access to its OS base repositories to be able to install those deps.
 
@@ -87,7 +87,7 @@ Repomanager has been only tested with nginx+php-fpm (PHP 7.x) but an apache/http
 
 Note for Redhat/CentOS systems: you may adapt SELinux configuration to make sure it will not prevent PHP execution.
 
-<pre>
+```
 # Redhat / CentOS
 yum install nginx php-fpm php-cli php-pdo php-json sqlite # PHP 7.4
 yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
@@ -95,13 +95,13 @@ yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
 # Debian
 apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3 # PHP 7.4
 apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3 # PHP 8.1
-</pre>
+```
 
 <b>SQLite</b>
 
 Be sure that sqlite module for php is enabled:
 
-<pre>
+```
 # Debian
 vim /etc/php/7.4/mods-available/sqlite3.ini
 
@@ -109,7 +109,7 @@ vim /etc/php/7.4/mods-available/sqlite3.ini
 vim /etc/php.d/20-sqlite3.ini
 
 extension=sqlite3.so
-</pre>
+```
 
 <b>Vhost</b>
 
@@ -120,7 +120,7 @@ Adapt the following values:
  - $WWW_DIR and $REPOS_DIR variables
  - server_name, access_log, error_log, ssl_certificate and ssl_certificate_key directives
 
-<pre>
+```
 #### Repomanager vhost ####
 
 # Disable some logging
@@ -257,31 +257,31 @@ server {
                 alias $REPOS_DIR;
         }
 }
-</pre>
+```
 
 
 <b>Repomanager</b>
 
 The program will need two directories chosen by the user during installation:
-<pre>
+```
 Main installation directory (default is /var/www/repomanager/)
 Repos directory (default is /home/repo/)
-</pre>
+```
 
 Installation script must be executed by root or sudo user to make sure that correct permissions are applied on the directories used by repomanager.
 
 Download last available release (.tar.gz) (all releases are visible here: https://github.com/lbr38/repomanager/releases):
 
-<pre>
+```
 RELEASE="v3.0.2-stable" # release choice
 cd /tmp
 wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
 tar xzf repomanager_$RELEASE.tar.gz
 cd /tmp/repomanager/
-</pre>
+```
 
 Proceed the installation:
-<pre>
+```
 chmod 700 repomanager
 sudo ./repomanager --install
-</pre>
+```
