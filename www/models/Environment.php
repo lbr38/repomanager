@@ -80,7 +80,7 @@ class Environment extends Model
          *  On place ces environnements valides dans un nouveau array, ceux qui sont invaldes sont ignorés
          */
         foreach ($envs as $env) {
-            if (Common::isAlphanumDash(Common::validateData($env))) {
+            if (\Controllers\Common::isAlphanumDash(\Controllers\Common::validateData($env))) {
                 $envsToInsert[] = $env;
             }
         }

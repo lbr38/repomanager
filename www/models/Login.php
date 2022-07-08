@@ -151,7 +151,7 @@ class Login extends Model
         /**
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
-        if (Common::isAlphanumDash($username) === false) {
+        if (\Controllers\Common::isAlphanumDash($username) === false) {
             \Controllers\Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
             return false;
         }
@@ -324,7 +324,7 @@ class Login extends Model
             $last_name = \Controllers\Common::validateData($last_name);
         }
         if (!empty($email)) {
-            if (Common::validateMail($email) === false) {
+            if (\Controllers\Common::validateMail($email) === false) {
                 \Controllers\Common::printAlert("L'adresse email est incorrecte", 'error');
                 return;
             }
