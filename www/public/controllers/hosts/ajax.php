@@ -15,8 +15,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
          *  Rechercher si un paquet est présent sur un hôte (depuis la liste de tous les hôtes sur hosts.php)
          */
         if ($_POST['action'] == "searchHostPackage" and !empty($_POST['hostid']) and !empty($_POST['package'])) {
-            $hostid  = \Models\Common::validateData($_POST['hostid']);
-            $package = \Models\Common::validateData($_POST['package']);
+            $hostid  = \Controllers\Common::validateData($_POST['hostid']);
+            $package = \Controllers\Common::validateData($_POST['package']);
 
             $myhost = new \Controllers\Host();
 

@@ -1,10 +1,10 @@
 <section class="right" id="displayDiv">
-    <img id="displayDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="ressources/icons/close.png" />
+    <img id="displayDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
     <h3>AFFICHAGE</h3>
 
     <div class="div-generic-gray">
         <?php
-        if (Models\Common::isadmin()) { ?>
+        if (Controllers\Common::isadmin()) { ?>
             <h5>Informations</h5>
                 
             <!-- afficher ou non la taille des repos/sections -->

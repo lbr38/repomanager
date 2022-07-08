@@ -160,7 +160,8 @@ class Autoloader
         \Controllers\Autoloader::loadDirs();
         \Controllers\Autoloader::loadEnvs();
         \Controllers\Autoloader::checkForUpdate();
-        \Controllers\Autoloader::startStats();
+        // \Controllers\Autoloader::startStats();
+        \Controllers\Autoloader::serviceIsActive();
         \Controllers\Autoloader::loadReposListDisplayConf();
     }
 
@@ -224,10 +225,6 @@ class Autoloader
         if (!defined('GPGHOME')) {
             define('GPGHOME', ROOT . "/.gnupg");
         }
-        // Répertoire des résultats de tâches cron
-        if (!defined('CRON_DIR')) {
-            define('CRON_DIR', ROOT . "/cron");
-        }
         // Répertoire principal des logs
         if (!defined('LOGS_DIR')) {
             define('LOGS_DIR', ROOT . "/logs");
@@ -238,16 +235,6 @@ class Autoloader
         }
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
-        }
-        // Logs des cron
-        if (!defined('CRON_LOGS_DIR')) {
-            define('CRON_LOGS_DIR', LOGS_DIR . '/cron');
-        }
-        if (!defined('CRON_LOG')) {
-            define('CRON_LOG', CRON_LOGS_DIR . '/cronjob-daily.log');
-        }
-        if (!defined('CRON_STATS_LOG')) {
-            define('CRON_STATS_LOG', CRON_LOGS_DIR . '/cronjob-stats.log');
         }
         // Pool de taches asynchrones
         if (!defined('POOL')) {
@@ -305,12 +292,6 @@ class Autoloader
         }
         if (!is_dir(MAIN_LOGS_DIR)) {
             mkdir(MAIN_LOGS_DIR, 0770, true);
-        }
-        if (!is_dir(CRON_LOGS_DIR)) {
-            mkdir(CRON_LOGS_DIR, 0770, true);
-        }
-        if (!is_dir(CRON_DIR)) {
-            mkdir(CRON_DIR, 0770, true);
         }
         if (!is_dir(POOL)) {
             mkdir(POOL, 0770, true);
@@ -540,9 +521,17 @@ class Autoloader
         $repomanager_conf_array = parse_ini_file(REPOMANAGER_CONF);
 
         /**
-         *  Si certains paramètres sont vides alors on incrémente $EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alertes
+         *  Si certains paramètres sont vides alors on incrémente $EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alertes.
+         *  Certains paramètres font exceptions et peuvent rester vides
          */
         foreach ($repomanager_conf_array as $key => $value) {
+            /**
+             *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
+             */
+            if ($key == 'STATS_LOG_PATH') {
+                continue;
+            }
+
             if (empty($value)) {
                 ++$__LOAD_MAIN_CONF_ERROR;
             }
@@ -763,11 +752,11 @@ class Autoloader
         /**
          *  Paramètres d'automatisation
          */
-        if (!defined('AUTOMATISATION_ENABLED')) {
-            if (!empty($repomanager_conf_array['AUTOMATISATION_ENABLED'])) {
-                define('AUTOMATISATION_ENABLED', $repomanager_conf_array['AUTOMATISATION_ENABLED']);
+        if (!defined('PLANS_ENABLED')) {
+            if (!empty($repomanager_conf_array['PLANS_ENABLED'])) {
+                define('PLANS_ENABLED', $repomanager_conf_array['PLANS_ENABLED']);
             } else {
-                define('AUTOMATISATION_ENABLED', '');
+                define('PLANS_ENABLED', '');
                 $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications n'est pas renseignée.";
             }
         }
@@ -777,7 +766,7 @@ class Autoloader
                 define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
             } else {
                 define('ALLOW_AUTOUPDATE_REPOS', '');
-                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de mise à jour de repo n'est pas renseignée.";
                 }
             }
@@ -788,7 +777,7 @@ class Autoloader
                 define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
             } else {
                 define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
-                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
                 }
             }
@@ -799,7 +788,7 @@ class Autoloader
                 define('ALLOW_AUTODELETE_ARCHIVED_REPOS', $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS']);
             } else {
                 define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
-                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la suppression automatique des repos archivés n'est pas renseignée.";
                 }
             }
@@ -810,7 +799,7 @@ class Autoloader
                 define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
             } else {
                 define('RETENTION', '');
-                if (defined('AUTOMATISATION_ENABLED') and AUTOMATISATION_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune rétention de sauvegarde n'est configurée.";
                 }
             }
@@ -849,66 +838,41 @@ class Autoloader
         }
 
         /**
-         *  Paramètres cron
+         *  Paramètres statistiques
          */
-        if (!defined('CRON_STATS_ENABLED')) {
-            if (!empty($repomanager_conf_array['CRON_STATS_ENABLED'])) {
-                define('CRON_STATS_ENABLED', $repomanager_conf_array['CRON_STATS_ENABLED']);
+        if (!defined('STATS_ENABLED')) {
+            if (!empty($repomanager_conf_array['STATS_ENABLED'])) {
+                define('STATS_ENABLED', $repomanager_conf_array['STATS_ENABLED']);
             } else {
-                define('CRON_STATS_ENABLED', '');
+                define('STATS_ENABLED', '');
                 $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des statistiques n'est pas renseignée.";
             }
         }
 
-        if (CRON_STATS_ENABLED == "yes") {
-            if (!defined('WWW_STATS_LOG_PATH')) {
-                if (!empty($repomanager_conf_array['WWW_STATS_LOG_PATH'])) {
-                    define('WWW_STATS_LOG_PATH', $repomanager_conf_array['WWW_STATS_LOG_PATH']);
+        if (STATS_ENABLED == "yes") {
+            if (!defined('STATS_LOG_PATH')) {
+                if (!empty($repomanager_conf_array['STATS_LOG_PATH'])) {
+                    define('STATS_LOG_PATH', $repomanager_conf_array['STATS_LOG_PATH']);
 
                     /**
                      *  On teste l'accès au chemin renseigné
                      */
-                    if (!is_readable(WWW_STATS_LOG_PATH)) {
+                    if (!is_readable(STATS_LOG_PATH)) {
                         ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le fichier de log (access log) à analyser pour les statistiques n'est pas accessible en lecture : '" . WWW_STATS_LOG_PATH . "'";
+                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le fichier de log (access log) à analyser pour les statistiques n'est pas accessible en lecture : '" . STATS_LOG_PATH . "'";
                     }
                 } else {
-                    define('WWW_STATS_LOG_PATH', '');
+                    define('STATS_LOG_PATH', '');
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Le chemin d'accès au fichier de log (access log) à analyser pour les statistiques n'est pas renseigné.";
                 }
             }
         }
 
-        if (!defined('CRON_DAILY_ENABLED')) {
-            if (!empty($repomanager_conf_array['CRON_DAILY_ENABLED'])) {
-                define('CRON_DAILY_ENABLED', $repomanager_conf_array['CRON_DAILY_ENABLED']);
+        if (!defined('PLAN_REMINDERS_ENABLED')) {
+            if (!empty($repomanager_conf_array['PLAN_REMINDERS_ENABLED'])) {
+                define('PLAN_REMINDERS_ENABLED', $repomanager_conf_array['PLAN_REMINDERS_ENABLED']);
             } else {
-                define('CRON_DAILY_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation du cronjob régulier n'est pas renseignée.";
-            }
-        }
-
-        if (!defined('CRON_APPLY_PERMS')) {
-            if (!empty($repomanager_conf_array['CRON_APPLY_PERMS'])) {
-                define('CRON_APPLY_PERMS', $repomanager_conf_array['CRON_APPLY_PERMS']);
-            } else {
-                define('CRON_APPLY_PERMS', 'no');
-            }
-        }
-
-        if (!defined('CRON_SAVE_CONF')) {
-            if (!empty($repomanager_conf_array['CRON_SAVE_CONF'])) {
-                define('CRON_SAVE_CONF', $repomanager_conf_array['CRON_SAVE_CONF']);
-            } else {
-                define('CRON_SAVE_CONF', 'no');
-            }
-        }
-
-        if (!defined('CRON_PLAN_REMINDERS_ENABLED')) {
-            if (!empty($repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED'])) {
-                define('CRON_PLAN_REMINDERS_ENABLED', $repomanager_conf_array['CRON_PLAN_REMINDERS_ENABLED']);
-            } else {
-                define('CRON_PLAN_REMINDERS_ENABLED', 'no');
+                define('PLAN_REMINDERS_ENABLED', 'no');
             }
         }
 
@@ -950,7 +914,7 @@ class Autoloader
         /**
          *  Récupération des environnements en base de données
          */
-        $myenv = new \Models\Environnement();
+        $myenv = new \Models\Environment();
         if (!defined('ENVS')) {
             define('ENVS', $myenv->listAll());
         }
@@ -990,9 +954,13 @@ class Autoloader
         if (!defined('VERSION')) {
             define('VERSION', file_get_contents(ROOT . '/version'));
         }
+
         if (!defined('GIT_VERSION')) {
-            define('GIT_VERSION', file_get_contents(ROOT . '/cron/github.version'));
+            if (file_exists(ROOT . '/version.available')) {
+                define('GIT_VERSION', file_get_contents(ROOT . '/version.available'));
+            }
         }
+
         if (defined('VERSION') and defined('GIT_VERSION')) {
             if (VERSION !== GIT_VERSION) {
                 if (!defined('UPDATE_AVAILABLE')) {
@@ -1003,6 +971,8 @@ class Autoloader
                     define('UPDATE_AVAILABLE', 'no');
                 }
             }
+        } else {
+            define('UPDATE_AVAILABLE', 'no');
         }
 
         /**
@@ -1025,21 +995,26 @@ class Autoloader
          */
         if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
             if (!file_exists(ROOT . "/update-running")) {
-                \Models\Common::repomanagerUpdate();
+                \Controllers\Common::repomanagerUpdate();
             }
         }
     }
 
     /**
-     *  Démarrage du script de parsage des logs, pour les statistiques
+     *  Return true if repomanager systemd service is running
      */
-    private static function startStats()
+    private static function serviceIsActive()
     {
-        /**
-         *  Si les stats sont activées mais que le parser de log ne tourne pas, alors on le lance en arrière-plan
-         */
-        if (CRON_STATS_ENABLED == "yes" and empty(shell_exec("/bin/ps -ax | grep 'stats-log-parser' | grep -v 'grep'"))) {
-            exec("bash " . ROOT . "/tools/stats-log-parser '" . WWW_STATS_LOG_PATH . "' >/dev/null 2>/dev/null &");
+        exec('systemctl is-active repomanager --quiet', $output, $return);
+
+        if ($return == 0) {
+            if (!defined('SERVICE_RUNNING')) {
+                define('SERVICE_RUNNING', true);
+            }
+        }
+
+        if (!defined('SERVICE_RUNNING')) {
+            define('SERVICE_RUNNING', false);
         }
     }
 
@@ -1074,7 +1049,7 @@ class Autoloader
                         define('CACHE_REPOS_LIST', $row['cache_repos_list']);
                     }
                 } catch (\Exception $e) {
-                    \Models\Common::dbError($e);
+                    \Controllers\Common::dbError($e);
                 }
 
                 $myconn->close();

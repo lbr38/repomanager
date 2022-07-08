@@ -11,7 +11,7 @@ include_once('../includes/head.inc.php');
 
 <article>
     <section class="mainSectionRight">
-        <?php if (Models\Common::isadmin()) : ?>
+        <?php if (Controllers\Common::isadmin()) : ?>
             <!-- GERER L'AFFICHAGE -->
             <?php include_once('../includes/display.inc.php'); ?>
 
@@ -26,25 +26,7 @@ include_once('../includes/head.inc.php');
         <?php endif ?>
 
         <section id="planDiv" class="right">
-            <div class="div-flex">
-                <h3>PLANIFICATIONS</h3>
-                <div id="planCronStatus">
-                    <?php
-                    // on commence par vérifier si une tache cron est déjà présente ou non :
-                    if (CRON_PLAN_REMINDERS_ENABLED == "yes") {
-                        $cronStatus = \Models\Common::checkCronReminder();
-                        if ($cronStatus == 'On') {
-                            echo '<span class="pointer" title="La tâche cron pour l\'envoi des rappels est active">Rappels <img src="ressources/icons/greencircle.png" /></span>';
-                        }
-                        if ($cronStatus == 'Off') {
-                            echo '<span class="pointer" title="Il n\'y a aucune tâche cron active pour l\'envoi des rappels">Rappels <img src="ressources/icons/redcircle.png" /></span>';
-                        }
-                    } else {
-                        echo '<span class="pointer" title="Les rappels de planifications sont désactivés">Rappels <img src="ressources/icons/redcircle.png" /></span>';
-                    }
-                    ?>
-                </div>
-            </div>
+            <h3>PLANIFICATIONS</h3>
 
             <?php
 
@@ -62,7 +44,7 @@ include_once('../includes/head.inc.php');
              */
             if (!empty($planList)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<h5><img src="ressources/icons/calendar.png" class="icon" />Planifications actives</h5>';
+                    echo '<h5><img src="resources/icons/calendar.png" class="icon" />Planifications actives</h5>';
 
                 foreach ($planList as $plan) {
                     $planId = $plan['Id'];
@@ -110,9 +92,9 @@ include_once('../includes/head.inc.php');
                                     <td class="td-10">
                                     <?php
                                     if ($planAction == "update") {
-                                        echo '<img class="icon" src="ressources/icons/update.png" title="Type d\'opération : ' . $planAction . '" />';
+                                        echo '<img class="icon" src="resources/icons/update.png" title="Type d\'opération : ' . $planAction . '" />';
                                     } else {
-                                        echo '<img class="icon" src="ressources/icons/link.png" title="Type d\'opération : ' . $planAction . '" />';
+                                        echo '<img class="icon" src="resources/icons/link.png" title="Type d\'opération : ' . $planAction . '" />';
                                     } ?>
                                     </td>
                                     <td class="td-small">
@@ -198,15 +180,15 @@ include_once('../includes/head.inc.php');
                                      */ ?>
                                     <td class="td-fit">
                                         <span>
-                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="ressources/icons/search.png" />
+                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="resources/icons/search.png" />
                                         </span>
                                         <span>
                                         <?php
                                         if ($planStatus == "queued") {
-                                            echo '<img class="deletePlanButton icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Supprimer la planification" src="ressources/icons/bin.png" />';
+                                            echo '<img class="deletePlanButton icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Supprimer la planification" src="resources/icons/bin.png" />';
                                         }
                                         if ($planStatus == "running") {
-                                            echo 'en cours<img src="ressources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
+                                            echo 'en cours<img src="resources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
                                         }
                                         ?>
                                         </span>
@@ -290,9 +272,9 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                         echo '<span>Vérif. des signatures GPG</span>';
                                     if ($planGpgCheck == "yes") {
-                                        echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                     } else {
-                                        echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                     }
                                     echo '</div>';
                                     /**
@@ -301,9 +283,9 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                         echo '<span>Signature des paquets avec GPG</span>';
                                     if ($planGpgResign == "yes") {
-                                        echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                     } else {
-                                        echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                     }
                                     echo '</div>';
                                 }
@@ -335,9 +317,9 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                     echo '<span>Notification en cas d\'erreur</span>';
                                 if ($planNotificationOnError == "yes") {
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                 } else {
-                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                 }
                                     echo '</div>';
 
@@ -347,9 +329,9 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                     echo '<span>Notification en cas de succès</span>';
                                 if ($planNotificationOnSuccess == "yes") {
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                 } else {
-                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                 }
                                     echo '</div>';
 
@@ -382,9 +364,9 @@ include_once('../includes/head.inc.php');
                 echo '</div>';
             } ?>
 
-            <?php if (Models\Common::isadmin()) { ?>
+            <?php if (Controllers\Common::isadmin()) { ?>
                 <form id="newPlanForm" class="div-generic-gray" autocomplete="off">
-                    <h5><img src="ressources/icons/plus.png" class="icon" />Créer une planification</h5>
+                    <h5><img src="resources/icons/plus.png" class="icon" />Créer une planification</h5>
                     <table class="table-large">
                         <tr>
                             <td>Type</td>
@@ -442,7 +424,7 @@ include_once('../includes/head.inc.php');
                                     <option></option>
                                     <?php
                                     // foreach (ENVS as $env) {
-                                    //     echo '<option value="' . $env . '">Faire pointer un environnement ' . \Models\Common::envtag($env) . '</option>';
+                                    //     echo '<option value="' . $env . '">Faire pointer un environnement ' . \Controllers\Common::envtag($env) . '</option>';
                                     // }
                                     ?>
                                     <option value="update" id="updateRepoSelect">Mise à jour</option>
@@ -651,7 +633,7 @@ include_once('../includes/head.inc.php');
 
             if (!empty($plansDone)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<h5><img src="ressources/icons/history.png" class="icon" />Historique des planifications</h5>';
+                    echo '<h5><img src="resources/icons/history.png" class="icon" />Historique des planifications</h5>';
 
                 foreach ($plansDone as $plan) {
                     $planId                    = $plan['Id'];
@@ -704,9 +686,9 @@ include_once('../includes/head.inc.php');
                                         <td class="td-10">
                                         <?php
                                         if ($planAction == "update") {
-                                            echo "<img class=\"icon\" src=\"ressources/icons/update.png\" title=\"Type d'opération : $planAction\" />";
+                                            echo "<img class=\"icon\" src=\"resources/icons/update.png\" title=\"Type d'opération : $planAction\" />";
                                         } else {
-                                            echo "<img class=\"icon\" src=\"ressources/icons/link.png\" title=\" Type d'opération : $planAction\" />";
+                                            echo "<img class=\"icon\" src=\"resources/icons/link.png\" title=\" Type d'opération : $planAction\" />";
                                         } ?>
                                         </td>
                                         <td class="td-small">Le <b><?=$planDate?></b> à <b><?=$planTime?></b></td>
@@ -748,7 +730,7 @@ include_once('../includes/head.inc.php');
                                         </td>
                                         <td class="td-fit">
                                             <span>
-                                                <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="ressources/icons/search.png" />
+                                                <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="resources/icons/search.png" />
                                             </span>
                                             <span>
                                                 <?php
@@ -756,11 +738,11 @@ include_once('../includes/head.inc.php');
                                                  *  Affichage d'une pastille verte ou rouge en fonction du status de la planification
                                                  */
                                                 if ($planStatus == "done") {
-                                                    echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Planification terminée" />';
+                                                    echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Planification terminée" />';
                                                 } elseif ($planStatus == "error") {
-                                                    echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification en erreur" />';
+                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Planification en erreur" />';
                                                 } elseif ($planStatus == "stopped") {
-                                                    echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Planification stoppée par l\'utilisateur" />';
+                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Planification stoppée par l\'utilisateur" />';
                                                 } ?>
                                             </span>
                                         </td>
@@ -787,9 +769,9 @@ include_once('../includes/head.inc.php');
                                 echo '<div>';
                                     echo '<span>Vérif. des signatures GPG</span>';
                                 if ($planGpgCheck == "yes") {
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                 } else {
-                                    echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                 }
                                     echo '</div>';
 
@@ -799,9 +781,9 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                     echo '<span>Signature des paquets avec GPG</span>';
                                 if ($planGpgResign == "yes") {
-                                    echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                                 } else {
-                                        echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                                 }
                                     echo '</div>';
                             }
@@ -829,9 +811,9 @@ include_once('../includes/head.inc.php');
                                 echo '<div>';
                                 echo '<span>Notification en cas d\'erreur</span>';
                             if ($planNotificationOnError == "yes") {
-                                echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                             } else {
-                                echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                             }
                                 echo '</div>';
 
@@ -841,9 +823,9 @@ include_once('../includes/head.inc.php');
                                 echo '<div>';
                                 echo '<span>Notification en cas de succès</span>';
                             if ($planNotificationOnSuccess == "yes") {
-                                echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
                             } else {
-                                echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
                             }
                                 echo '</div>';
 

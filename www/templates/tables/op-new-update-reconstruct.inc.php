@@ -29,10 +29,10 @@ if (!empty($this->targetGpgCheck)) {
     echo "<tr><th>VERIFICATION DES SIGNATURES GPG :</th><td>";
 
     if ($this->targetGpgCheck == 'yes') {
-        echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
     }
     if ($this->targetGpgCheck == 'no') {
-        echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
     }
     echo "</td></tr>";
 }
@@ -40,14 +40,14 @@ if (!empty($this->targetGpgResign)) {
     echo '<tr><th>SIGNATURE DU REPO AVEC GPG :</th><td>';
 
     if ($this->targetGpgResign == "yes") {
-        echo '<span><img src="ressources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
     }
     if ($this->targetGpgResign == "no") {
-        echo '<span><img src="ressources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
     }
     echo '</tr>';
 }
 if (!empty($this->targetGroup)) {
-    echo '<tr><th>AJOUT AU GROUPE :</th><td><img src="ressources/icons/folder.png" class="icon" />' . $this->targetGroup . '</td></tr>';
+    echo '<tr><th>AJOUT AU GROUPE :</th><td><img src="resources/icons/folder.png" class="icon" />' . $this->targetGroup . '</td></tr>';
 }
 echo "</table>";

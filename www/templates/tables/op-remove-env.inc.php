@@ -16,6 +16,6 @@
     </tr>
     <tr>
         <th>ENVIRONNEMENT :</th>
-        <td><?=\Models\Common::envtag($this->env)?></td>
+        <td><?=\Controllers\Common::envtag($this->env)?></td>
     </tr>
 </table>

@@ -361,7 +361,7 @@ class Connection extends SQLite3
                 $stmt->bindValue(':password_hashed', $password_hashed);
                 $stmt->execute();
             } catch (\Exception $e) {
-                Common::dbError($e);
+                \Controllers\Common::dbError($e);
             }
         }
 
@@ -466,7 +466,7 @@ class Connection extends SQLite3
         Service_restart VARCHAR(255),
         Allow_overwrite CHAR(3),
         Allow_repos_overwrite CHAR(3),
-        Notes VARCHAR(255)");
+        Notes VARCHAR(255))");
 
         /**
          *  Crée la table profile_repo_members si n'existe pas

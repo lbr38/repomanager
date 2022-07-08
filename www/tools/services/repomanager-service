@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+set -u
+trap 'kill 0' EXIT
+
+# Laisse un délai de 60sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
+# sleep 30s
+
+SCRIPT_PATH=$(realpath $0)
+WWW_DIR=$(echo "$SCRIPT_PATH" | sed 's|/tools/services/repomanager-service||g')
+CURRENT_TIME=""
+LAST_TIME=""
+STATS_LOG_PARSING_RUNNING="no"
+COUNTER="0"
+
+# Check that WWW_DIR is valid by checking if repomanager configuration file exist
+if [ ! -f "${WWW_DIR}/configurations/repomanager.conf" ];then
+    echo "Error: Configuration file '${WWW_DIR}/configurations/repomanager.conf' not found."
+    exit 1
+fi
+
+# Get additionnal variables
+function getVars
+{
+    WWW_USER=$(grep "^WWW_USER =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|WWW_USER = ||g' | sed 's|"||g')
+    REPOS_DIR=$(grep "^REPOS_DIR =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|REPOS_DIR = ||g' | sed 's|"||g')
+    UPDATE_BRANCH=$(grep "^UPDATE_BRANCH =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|UPDATE_BRANCH = ||g' | sed 's|"||g')
+
+    STATS_ENABLED=$(grep "^STATS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|STATS_ENABLED = ||g' | sed 's|"||g')
+    # Access log file to analyze
+    STATS_ACCESS_LOG_FILE=$(grep "^STATS_LOG_PATH =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|STATS_LOG_PATH = ||g' | sed 's|"||g')
+    # File to log sqlite errors
+    STATS_ERROR_LOG="${WWW_DIR}/logs/stats/stats-log-parser.log"
+    STATS_DB="${WWW_DIR}/db/repomanager-stats.db"
+
+    PLANS_ENABLED=$(grep "^PLANS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|PLANS_ENABLED = ||g' | sed 's|"||g')
+    PLAN_REMINDERS_ENABLED=$(grep "^PLAN_REMINDERS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|PLAN_REMINDERS_ENABLED = ||g' | sed 's|"||g')
+}
+
+function generalChecks
+{
+    # Check if www user is defined
+    if [ -z "$WWW_USER" ];then
+        echo "Error: www user is not defined."
+        exit 1
+    fi
+
+    # Check if www user is a reel unix user
+    if ! grep -q "$WWW_USER" /etc/passwd;then
+        echo "Error: www user is not a unix user."
+        exit 1
+    fi
+
+    # Check if sudo exist
+    if [ ! -f "/usr/bin/sudo" ];then
+        echo "Error: sudo command not found."
+        exit 1
+    fi
+
+    # Check if repos directory exists
+    if [ ! -d "$REPOS_DIR" ];then
+        echo "Error: Repos directory '$REPOS_DIR' not found."
+        exit 1
+    fi
+}
+
+# Clean temporary files
+function cleanUp
+{
+    # Clean files older than 2 days
+    if [ -d "$WWW_DIR/.temp" ];then
+        find "$WWW_DIR/.temp"/ -mtime +2 -exec rm -rv {} \;
+    fi
+}
+
+# Check if a new version is available on Github
+function checkVersion
+{
+    if [ ! -f "${WWW_DIR}/version.available" ];then
+        touch "${WWW_DIR}/version.available"
+        chown ${WWW_USER}:repomanager "${WWW_DIR}/version.available"
+    fi
+
+    curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" > ${WWW_DIR}/version.available
+}
+
+# Apply permissions on repos directories
+function applyPerms
+{
+    find "$REPOS_DIR" -type d -print0 | xargs -r0 chmod 0770
+    find "$REPOS_DIR" -type f -print0 | xargs -r0 chmod 0660
+    chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
+}
+
+# Generate daily stats on repos such as package count and repo's size
+function statsGenerate
+{
+    if [ "$CURRENT_TIME" == "$LAST_TIME" ];then
+        return
+    fi
+
+    # Exit the function if time != 00:00
+    if [ "$CURRENT_TIME" != "00:00" ];then
+        return
+    fi
+
+    # Generate stats for each repos
+    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/tools/stats-generator.php
+}
+
+# Start parsing of access log to generete statistics on clients accessing the repos 
+function statsParseAccessLog
+{
+    # Checks that required variables are set and that files exist
+    if [ -z "$STATS_ACCESS_LOG_FILE" ];then
+        echo "Error: Cannot determine access log file to analyze."
+        exit 1
+    fi
+
+    if [ ! -f "$STATS_ACCESS_LOG_FILE" ];then
+        echo "Error: Access log file '$STATS_ACCESS_LOG_FILE' not found."
+        exit 1
+    fi
+
+    if [ ! -f "$STATS_DB" ];then
+        echo "Error: Database not found."
+        exit 1
+    fi
+
+    if [ ! -f "/usr/bin/sqlite3" ];then
+        echo "Error: '/usr/bin/sqlite3' not found."
+        exit 1
+    fi
+
+    # Creates logs directory
+    mkdir -p "${WWW_DIR}/logs/stats/"
+
+    # Do not start log analize if an analyze is already running
+    if [ "$STATS_LOG_PARSING_RUNNING" == "no" ];then
+        # Boucle qui écoute et récupère tout nouvel ajout dans le fichier STATS_ACCESS_LOG_FILE
+        # Les nouvelles lignes sont ensuite parsées pour récupérer la date, l'ip, la requête d'accès et le nom du repo
+        tail -n0 -F "$STATS_ACCESS_LOG_FILE" | \
+        while read LINE; do
+            if echo "$LINE" | grep -q -E 'urlgrabber|APT-CURL|APT-HTTP';then
+                # Parsage de la ligne récupérée puis insertion en BDD
+                DATE=$(echo "$LINE" | awk '{print $4}' | sed 's/\[//g' | cut -d':' -f1 | sed 's|/|-|g')
+                DATE=$(date -d "$DATE" +%Y-%m-%d)
+                TIME=$(echo "$LINE" | awk '{print $4}' | cut -d':' -f2,3,4)
+                SOURCE_IP=$(echo "$LINE" | awk '{print $1}')
+                SOURCE_HOST=$(dig -x $SOURCE_IP +short)
+                REQUEST=$(echo "$LINE" | awk '{print $6,$7,$8}')
+                REQUEST_RESULT=$(echo "$LINE" | awk '{print $9}')
+                /usr/bin/sqlite3 -cmd ".timeout 5000" -cmd ".log '$STATS_ERROR_LOG'" "$STATS_DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
+            fi
+        done &
+
+        STATS_LOG_PARSING_RUNNING="yes"
+    fi
+}
+
+# Execute plans every minute
+function execPlan
+{
+    if [ "$CURRENT_TIME" == "$LAST_TIME" ];then
+        return
+    fi        
+
+    # Execute plans in background as www user
+    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/operations/plan.php exec & > /dev/null
+}
+
+# Send plan reminder (every day at 00:00)
+function sendPlanReminder
+{
+    if [ "$CURRENT_TIME" == "$LAST_TIME" ];then
+        return
+    fi
+
+    # Exit the function if time != 00:00
+    if [ "$CURRENT_TIME" != "00:00" ];then
+        return
+    fi
+
+    # Execute plans in background as www user
+    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/operations/plan.php send-reminders & > /dev/null
+}
+
+# Execution
+while true; do
+
+    # Get vars on every loop because their value can have been updated by user from the web interface
+    getVars
+
+    # Check that vars are defined
+    generalChecks
+
+    # Execute actions on service start (COUNTER = 0) and then every hour (COUNTER = 720)
+    # 3600 / 5sec (sleep 5) = 720
+    if [ "$COUNTER" -eq "0" ] || [ "$COUNTER" -eq "720" ];then
+        # Check version
+        checkVersion
+
+        # Cleanup files
+        cleanUp
+
+        # Reset counter
+        COUNTER="0"
+    fi
+
+    CURRENT_TIME=$(date +%H:%M)
+
+    # Parse access logs to generate stats (if enabled)
+    if [ "$STATS_ENABLED" == "yes" ];then
+        statsGenerate
+        statsParseAccessLog
+    fi
+
+    # Execute plans (if plan enabled)
+    if [ "$PLANS_ENABLED" == "yes" ];then
+        execPlan
+    fi
+
+    # Send plans reminder (if plan et plan reminders enabled)
+    if [ "$PLANS_ENABLED" == "yes" ] && [ "$PLAN_REMINDERS_ENABLED" == "yes" ];then
+        sendPlanReminder
+    fi
+
+    LAST_TIME=$(date +%H:%M)
+
+    sleep 5
+
+    (( COUNTER++ ))
+done
+
+exit

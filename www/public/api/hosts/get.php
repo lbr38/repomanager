@@ -68,7 +68,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
      *  Si l'hôte a demandé de récupérer la configuration d'un profil
      */
     if (!empty($datas->profile)) {
-        $profile = \Models\Common::validateData($datas->profile);
+        $profile = \Controllers\Common::validateData($datas->profile);
 
         /**
          *  Instanciation d'un objet Profile

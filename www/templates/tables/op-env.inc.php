@@ -18,7 +18,7 @@
     <tr>
     <th>NOUVEL ENVIRONNEMENT :</th>
     <td>
-        <span><?= \Models\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
+        <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
     </td>
 </tr>
 <?php

@@ -51,7 +51,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
              *  Tentative de modification des paramètres d'affichage
              */
             try {
-                \Models\Common::configureReposListDisplay($_POST['printRepoSize'], $_POST['printRepoType'], $_POST['printRepoSignature'], $_POST['cacheReposList']);
+                \Controllers\Common::configureReposListDisplay($_POST['printRepoSize'], $_POST['printRepoType'], $_POST['printRepoSignature'], $_POST['cacheReposList']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }

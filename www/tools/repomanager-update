@@ -5,7 +5,7 @@ set -u
 
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 WWW_DIR=$(echo "$CURRENT" | sed 's|/tools||g')
-GITHUB_VERSION=$(cat ${WWW_DIR}/cron/github.version)
+GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
 UPDATE_ERROR=0
 
 if [ -z "$GITHUB_VERSION" ];then
@@ -22,7 +22,6 @@ cd /tmp/repomanager-update_${GITHUB_VERSION}/
 BACKUP_CONF_DIR="/tmp/repomanager-update_${GITHUB_VERSION}/backup-conf"
 
 # Sauvegarde des configurations actuelles
-cp ${WWW_DIR}/ressources/styles/colors.php ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/configurations/repomanager.conf ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
@@ -47,7 +46,7 @@ cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
 
 ## Création des répertories cibles si n'existent pas
 mkdir -p "${WWW_DIR}/public"
-mkdir -p "${WWW_DIR}/ressources"
+mkdir -p "${WWW_DIR}/resources"
 mkdir -p "${WWW_DIR}/tools"
 mkdir -p "${WWW_DIR}/templates"
 mkdir -p "${WWW_DIR}/api"
@@ -66,7 +65,6 @@ if [ $? -ne "0" ];then
 fi
 
 # Remise en place des configurations sauvegardées
-\cp ${BACKUP_CONF_DIR}/colors.php ${WWW_DIR}/ressources/styles/colors.php
 \cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf
 \cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db
 \cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db
@@ -79,8 +77,12 @@ if [ $UPDATE_ERROR -ne "0" ];then
     exit 4
 fi
 
+# Remise en place de permissions
+chmod 550 ${WWW_DIR}/tools/services/repomanager-service
+ 
 # Nettoyage
-cd "$WWW_DIR" &&
+cd "$WWW_DIR"
+
 # Nettoyage de certains vieux répertoires ou fichiers inutilisés si existe dans la cible
 rm -rf "${WWW_DIR}/archives"
 rm -rf "${WWW_DIR}/_archives"
@@ -92,7 +94,7 @@ rm -rf "${WWW_DIR}/images"
 rm -rf "${WWW_DIR}/icons"
 rm -rf "${WWW_DIR}/styles"
 rm -rf "${WWW_DIR}/js"
-rm -rf "${WWW_DIR}/ressources"
+rm -rf "${WWW_DIR}/public/ressources"
 rm -rf "${WWW_DIR}/logs/plans"
 rm -rf "${WWW_DIR}/operations_prechecks"
 rm -rf "${WWW_DIR}/customs_errors"

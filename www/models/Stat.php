@@ -28,7 +28,7 @@ class Stat extends Model
             $stmt->bindValue(':envId', $envId);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -42,7 +42,7 @@ class Stat extends Model
             $stmt->bindValue('envId', $envId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $datas = array();
@@ -69,7 +69,7 @@ class Stat extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $datas = array();
@@ -98,7 +98,7 @@ class Stat extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $datas = array();
@@ -127,7 +127,7 @@ class Stat extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $datas = array();
@@ -154,7 +154,7 @@ class Stat extends Model
             $stmt->bindValue(':date', $date);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         /**

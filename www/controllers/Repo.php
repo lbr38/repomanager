@@ -57,22 +57,22 @@ class Repo
 
     public function setRepoId(string $id)
     {
-        $this->repoId = \Models\Common::validateData($id);
+        $this->repoId = \Controllers\Common::validateData($id);
     }
 
     public function setSnapId(string $id)
     {
-        $this->snapId = \Models\Common::validateData($id);
+        $this->snapId = \Controllers\Common::validateData($id);
     }
 
     public function setEnvId(string $id)
     {
-        $this->envId = \Models\Common::validateData($id);
+        $this->envId = \Controllers\Common::validateData($id);
     }
 
     public function setPlanId(string $id)
     {
-        $this->planId = \Models\Common::validateData($id);
+        $this->planId = \Controllers\Common::validateData($id);
     }
 
     public function setName(string $name)
@@ -143,7 +143,7 @@ class Repo
             $description = '';
         }
 
-        $this->description = \Models\Common::validateData($description);
+        $this->description = \Controllers\Common::validateData($description);
     }
 
     public function setSource(string $source)
@@ -627,7 +627,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -714,7 +714,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -941,7 +941,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1041,7 +1041,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1271,7 +1271,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1352,7 +1352,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1483,7 +1483,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1585,7 +1585,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1601,7 +1601,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-env.inc.php');
 
-            $this->op->step('NOUVEL ENVIRONNEMENT ' . \Models\Common::envtag($this->targetEnv));
+            $this->op->step('NOUVEL ENVIRONNEMENT ' . \Controllers\Common::envtag($this->targetEnv));
 
             /**
              *  2. On vérifie si le snapshot source existe
@@ -1615,11 +1615,11 @@ class Repo
              */
             if ($this->model->existsSnapIdEnv($this->snapId, $this->targetEnv) === true) {
                 if ($this->packageType == 'rpm') {
-                    throw new Exception('Un environnement ' . \Models\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('Un environnement ' . \Controllers\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
 
                 if ($this->packageType == 'deb') {
-                    throw new Exception('Un environnement ' . \Models\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('Un environnement ' . \Controllers\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
             }
 
@@ -1822,7 +1822,7 @@ class Repo
             /**
              *  Nettoyage du cache
              */
-            \Models\Common::clearCache();
+            \Controllers\Common::clearCache();
 
             /**
              *  Passage du status de l'opération en done
@@ -2342,7 +2342,7 @@ class Repo
                 /**
                  *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
                  */
-                if (!\Models\Common::dirIsEmpty(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/')) {
+                if (!\Controllers\Common::dirIsEmpty(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/')) {
                     exec('mv -f ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/*.rpm ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_integrated_packages/');
                 }
 
@@ -2470,7 +2470,7 @@ class Repo
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
-            if (\Models\Common::dirIsEmpty($TMP_DIR) === true) {
+            if (\Controllers\Common::dirIsEmpty($TMP_DIR) === true) {
                 echo "Il n'y a aucun paquet dans ce repo";
                 echo '</pre></div>';
 
@@ -2864,7 +2864,7 @@ class Repo
 
         \Models\History::set($_SESSION['username'], 'Modifications des repos membres du groupe <span class="label-white">' . $groupName . '</span>', 'success');
 
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -3253,7 +3253,7 @@ class Repo
          */
         echo '<div class="item-repo">';
         if ($printRepoName == "yes") {
-            echo $this->name . '<span class="item-pkgtype lowopacity" title="Repo de paquets ' . $this->packageType . '"><img src="ressources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
+            echo $this->name . '<span class="item-pkgtype lowopacity" title="Repo de paquets ' . $this->packageType . '"><img src="resources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
         }
         echo '</div>';
 
@@ -3283,7 +3283,7 @@ class Repo
         /**
          *  Les checkbox sont affichées uniquement pour les utilisateurs administrateurs
          */
-        if (\Models\Common::isadmin()) { ?>
+        if (\Controllers\Common::isadmin()) { ?>
             <div class="item-checkbox">
                 <?php
                 /**
@@ -3291,7 +3291,7 @@ class Repo
                  */
                 if ($this->snapId != $this->lastSnapId) :
                     if ($this->snapOpIsRunning($this->snapId) === true) : ?>
-                        <img src="ressources/images/loading.gif" class="icon" title="Une opération est en cours sur ce snapshot de repo." />
+                        <img src="resources/images/loading.gif" class="icon" title="Une opération est en cours sur ce snapshot de repo." />
                     <?php else : ?>
                         <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>">
                     <?php endif ?>
@@ -3333,11 +3333,11 @@ class Repo
              */
             if (PRINT_REPO_TYPE == 'yes') {
                 if ($this->type == "mirror") {
-                    echo "<img class=\"icon lowopacity\" src=\"ressources/icons/world.png\" title=\"Type : miroir (source : $this->source)\" />";
+                    echo "<img class=\"icon lowopacity\" src=\"resources/icons/world.png\" title=\"Type : miroir (source : $this->source)\" />";
                 } elseif ($this->type == "local") {
-                    echo '<img class="icon lowopacity" src="ressources/icons/pin.png" title="Type : local" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/pin.png" title="Type : local" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Type : inconnu" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Type : inconnu" />';
                 }
             }
             /**
@@ -3345,28 +3345,28 @@ class Repo
              */
             if (PRINT_REPO_SIGNATURE == 'yes') {
                 if ($this->signed == "yes") {
-                    echo '<img class="icon lowopacity" src="ressources/icons/key.png" title="Repo signé avec GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key.png" title="Repo signé avec GPG" />';
                 } elseif ($this->signed == "no") {
-                    echo '<img class="icon lowopacity" src="ressources/icons/key2.png" title="Repo non-signé avec GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key2.png" title="Repo non-signé avec GPG" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="ressources/icons/unknow.png" title="Signature GPG : inconnue" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Signature GPG : inconnue" />';
                 }
             }
             /**
              *  Affichage de l'icone "explorer"
              */
             if ($this->packageType == "rpm") {
-                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer le repo $this->name ($this->dateFormatted)\" /></a>";
+                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Explorer le repo $this->name ($this->dateFormatted)\" /></a>";
             }
             if ($this->packageType == "deb") {
-                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"ressources/icons/search.png\" title=\"Explorer la section {$this->section} ($this->dateFormatted)\" /></a>";
+                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Explorer la section {$this->section} ($this->dateFormatted)\" /></a>";
             }
             if (!empty($this->reconstruct)) {
                 if ($this->reconstruct == 'needed') {
-                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
                 }
                 if ($this->reconstruct == 'failed') {
-                    echo '<img class="icon" src="ressources/icons/redcircle.png" title="La construction des métadonnées du repo a échouée." />';
+                    echo '<img class="icon" src="resources/icons/redcircle.png" title="La construction des métadonnées du repo a échouée." />';
                 }
             }
                 echo '</div>';
@@ -3391,7 +3391,7 @@ class Repo
          */
         echo '<div class="item-env">';
         if (!empty($this->env)) {
-            echo \Models\Common::envtag($this->env, 'fit');
+            echo \Controllers\Common::envtag($this->env, 'fit');
         }
         echo '</div>';
 
@@ -3401,21 +3401,21 @@ class Repo
              *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
              */
             if ($this->packageType == "rpm") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="ressources/icons/code.png" title="Afficher la configuration client" />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Afficher la configuration client" />';
             }
             if ($this->packageType == "deb") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="ressources/icons/code.png" title="Afficher la configuration client" />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Afficher la configuration client" />';
             }
 
             /**
              *  Affichage de l'icone "statistiques"
              */
-            if (CRON_STATS_ENABLED == "yes") {
+            if (STATS_ENABLED == "yes") {
                 if ($this->packageType == "rpm") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats du repo $this->name ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Voir les stats du repo $this->name ($this->env)\" /></a>";
                 }
                 if ($this->packageType == "deb") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"ressources/icons/stats.png\" title=\"Voir les stats de la section $this->section ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Voir les stats de la section $this->section ($this->env)\" /></a>";
                 }
             }
             /**
@@ -3423,12 +3423,12 @@ class Repo
              */
             if ($this->packageType == "rpm") {
                 if (!is_dir(REPOS_DIR . "/{$this->dateFormatted}_{$this->name}")) {
-                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
                 }
             }
             if ($this->packageType == "deb") {
                 if (!is_dir(REPOS_DIR . "/$this->name/$this->dist/{$this->dateFormatted}_{$this->section}")) {
-                    echo '<img class="icon" src="ressources/icons/warning.png" title="Le répertoire de cette section semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="Le répertoire de cette section semble inexistant sur le serveur" />';
                 }
             }
         }
@@ -3436,8 +3436,8 @@ class Repo
             /**
              *  Icone suppression de l'environnement
              */
-        if (!empty($this->env) and \Models\Common::isadmin()) {
-            echo '<img src="ressources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Supprimer l\'environnement ' . $this->env . '" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
+        if (!empty($this->env) and \Controllers\Common::isadmin()) {
+            echo '<img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Supprimer l\'environnement ' . $this->env . '" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
         }
 
         echo '</div>';

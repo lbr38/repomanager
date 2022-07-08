@@ -8,7 +8,7 @@ include_once('../includes/head.inc.php');
 /**
  *  Seuls les admins ont accès à configuration.php
  */
-if (!Models\Common::isadmin()) {
+if (!Controllers\Common::isadmin()) {
     header('Location: index.php');
     exit;
 }
@@ -124,11 +124,11 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 <td class="td-fit">
                                     <?php
                                     if (MANAGE_HOSTS == 'yes' and $hostsCount > 0) {
-                                        echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' hôte(s) utilise(nt) ce profil">' . $hostsCount . '<img src="ressources/icons/server.png" class="icon" /></span>';
+                                        echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' hôte(s) utilise(nt) ce profil">' . $hostsCount . '<img src="resources/icons/server.png" class="icon" /></span>';
                                     } ?>
-                                    <span><img src="ressources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Configuration de <?=$profileName?>" /></span>
-                                    <span><img src="ressources/icons/duplicate.png" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Créer un nouveau profil en dupliquant la configuration de <?=$profileName?>" /></span>
-                                    <span><img src="ressources/icons/bin.png" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Supprimer le profil <?=$profileName?>" /></span>
+                                    <span><img src="resources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Configuration de <?=$profileName?>" /></span>
+                                    <span><img src="resources/icons/duplicate.png" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Créer un nouveau profil en dupliquant la configuration de <?=$profileName?>" /></span>
+                                    <span><img src="resources/icons/bin.png" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Supprimer le profil <?=$profileName?>" /></span>
                                 </td>
                             </tr>
                         </table>
@@ -325,7 +325,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                  *  Si une des valeurs était vide alors on indique à l'utilisateur qu'il faut valider le formulaire au moins une fois pour valider et appliquer la configuration.
                  */
             if ($serverConfApplyNeeded > 0) {
-                echo '<p><img src="ressources/icons/warning.png" class="icon" />Certains paramètres étaient vides et ont été générés automatiquement, vous devez valider ce formulaire pour appliquer la configuration.<br><br></p>';
+                echo '<p><img src="resources/icons/warning.png" class="icon" />Certains paramètres étaient vides et ont été générés automatiquement, vous devez valider ce formulaire pour appliquer la configuration.<br><br></p>';
             }
             ?>
             
@@ -333,12 +333,12 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 
             <div class="operation-form">
                 <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Type de paquets" />Type de paquets diffusés
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Type de paquets" />Type de paquets diffusés
                 </span>
                 <input type="text" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
 
                 <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos sur les hôtes clients
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos sur les hôtes clients
                 </span>
 
                 <label class="onoff-switch-label">
@@ -347,7 +347,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                 </label>
 
                 <span>
-                    <img src="ressources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des paquets sur les hôtes clients
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des paquets sur les hôtes clients
                 </span>
 
                 <label class="onoff-switch-label">

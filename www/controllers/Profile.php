@@ -124,7 +124,7 @@ class Profile
     // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion = null, string $serverManageClientConf, string $serverManageClientRepos)
     public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
-        $serverPackageType = \Models\Common::validateData($serverPackageType);
+        $serverPackageType = \Controllers\Common::validateData($serverPackageType);
 
         if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
             throw new Exception("Le paramètre 'Gérer la configuration des clients' est invalide");
@@ -170,12 +170,12 @@ class Profile
      */
     public function new(string $name)
     {
-        $name = \Models\Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Le profil <b>$name</b> contient des caractères invalides");
         }
 
@@ -199,17 +199,17 @@ class Profile
      */
     public function rename(string $name, string $newName)
     {
-        $name = \Models\Common::validateData($name);
-        $newName = \Models\Common::validateData($newName);
+        $name = \Controllers\Common::validateData($name);
+        $newName = \Controllers\Common::validateData($newName);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
         }
 
-        if (\Models\Common::isAlphanumDash($newName) === false) {
+        if (\Controllers\Common::isAlphanumDash($newName) === false) {
             throw new Exception("Le nom de profil <b>$newName</b> contient des caractères invalides");
         }
 
@@ -233,7 +233,7 @@ class Profile
      */
     public function duplicate(string $name)
     {
-        $name = \Models\Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  Récupéraiton de l'Id du profil source
@@ -293,12 +293,12 @@ class Profile
      */
     public function delete(string $name)
     {
-        $name = \Models\Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
         }
 
@@ -317,14 +317,14 @@ class Profile
      */
     public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $allowOverwrite, string $allowReposOverwrite, string $notes)
     {
-        $name = \Models\Common::validateData($name);
+        $name = \Controllers\Common::validateData($name);
 
         $error = 0;
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Models\Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception("Le nom du profil <b>$name</b> contient des caractères invalides");
         }
 
@@ -372,7 +372,7 @@ class Profile
          */
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = \Models\Common::validateData($packageName);
+                $packageName = \Controllers\Common::validateData($packageName);
 
                 /**
                  *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
@@ -388,7 +388,7 @@ class Profile
                 /**
                  *  On vérifie que le nom du paquet ne contient pas de caractères interdits
                  */
-                \Models\Common::isAlphanumDash($packageNameFormatted);
+                \Controllers\Common::isAlphanumDash($packageNameFormatted);
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
@@ -402,7 +402,7 @@ class Profile
          */
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
-                $packageName = \Models\Common::validateData($packageName);
+                $packageName = \Controllers\Common::validateData($packageName);
 
                 /**
                  *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
@@ -418,7 +418,7 @@ class Profile
                 /**
                  *  On vérifie que le nom du paquet ne contient pas de caractères interdits
                  */
-                \Models\Common::isAlphanumDash($packageNameFormatted);
+                \Controllers\Common::isAlphanumDash($packageNameFormatted);
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
@@ -432,12 +432,12 @@ class Profile
          */
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = \Models\Common::validateData($serviceName);
+                $serviceName = \Controllers\Common::validateData($serviceName);
 
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                \Models\Common::isAlphanumDash($serviceName);
+                \Controllers\Common::isAlphanumDash($serviceName);
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
@@ -468,7 +468,7 @@ class Profile
          *  Vérification des notes
          */
         if (!empty($notes)) {
-            $notes = \Models\Common::validateData($notes);
+            $notes = \Controllers\Common::validateData($notes);
         }
 
         /**

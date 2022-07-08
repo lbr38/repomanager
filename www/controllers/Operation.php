@@ -36,7 +36,7 @@ class Operation
 
     public function setAction(string $action)
     {
-        $this->action = \Models\Common::validateData($action);
+        $this->action = \Controllers\Common::validateData($action);
     }
 
     public function setType(string $type)
@@ -45,7 +45,7 @@ class Operation
             throw new Exception("Le type d'opération est invalide");
         }
 
-        $this->type = \Models\Common::validateData($type);
+        $this->type = \Controllers\Common::validateData($type);
     }
 
     public function setStatus(string $status)
@@ -190,9 +190,9 @@ class Operation
             unset($myplan);
         }
 
-        \Models\Common::printAlert("L'opération a été arrêtée", 'success');
+        \Controllers\Common::printAlert("L'opération a été arrêtée", 'success');
 
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -273,7 +273,7 @@ class Operation
             throw new Exception("La source ne peut pas être vide");
         }
 
-        if (!\Models\Common::isAlphanumDash($source, array('.'))) {
+        if (!\Controllers\Common::isAlphanumDash($source, array('.'))) {
             throw new Exception('La source du repo contient des caractères invalides');
         }
     }
@@ -292,7 +292,7 @@ class Operation
     private function checkParamAlias(string $alias)
     {
         if (!empty($alias)) {
-            if (!\Models\Common::isAlphanum($alias, array('-'))) {
+            if (!\Controllers\Common::isAlphanum($alias, array('-'))) {
                 throw new Exception('Le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
             }
         }
@@ -317,7 +317,7 @@ class Operation
             throw new Exception('Le nom du repo ne peut pas être vide');
         }
 
-        if (!\Models\Common::isAlphanum($name, array('-'))) {
+        if (!\Controllers\Common::isAlphanum($name, array('-'))) {
             throw new Exception('Le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
         }
     }
@@ -327,7 +327,7 @@ class Operation
         if (empty($targetName)) {
             throw new Exception('Vous devez spécifier un nouveau nom de repo');
         }
-        if (!\Models\Common::isAlphanum($targetName, array('-'))) {
+        if (!\Controllers\Common::isAlphanum($targetName, array('-'))) {
             throw new Exception('Le nouveau nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
         }
     }
@@ -338,7 +338,7 @@ class Operation
             throw new Exception('Le nom de la distribution ne peut pas être vide');
         }
 
-        if (!\Models\Common::isAlphanum($dist, array('-', '/'))) {
+        if (!\Controllers\Common::isAlphanum($dist, array('-', '/'))) {
             throw new Exception('Le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -');
         }
     }
@@ -349,7 +349,7 @@ class Operation
             throw new Exception('Le nom de la section ne peut pas être vide');
         }
 
-        if (!\Models\Common::isAlphanum($section, array('-'))) {
+        if (!\Controllers\Common::isAlphanum($section, array('-'))) {
             throw new Exception('Le nom de la section ne peut pas contenir de caractères spéciaux hormis le tiret -');
         }
     }
@@ -371,7 +371,7 @@ class Operation
     private function checkParamGroup(string $group)
     {
         if (!empty($group)) {
-            if (!\Models\Common::isAlphanumDash($group, array('-'))) {
+            if (!\Controllers\Common::isAlphanumDash($group, array('-'))) {
                 throw new Exception('Le groupe comporte des caractères invalides');
             }
         }
@@ -384,7 +384,7 @@ class Operation
              *  Vérification du contenu de la description
              *  On accepte certains caractères spéciaux
              */
-            if (!\Models\Common::isAlphanumDash($description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) {
+            if (!\Controllers\Common::isAlphanumDash($description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) {
                 throw new Exception('La description comporte des caractères invalides');
             }
         }
@@ -395,7 +395,7 @@ class Operation
         if (empty($env)) {
             throw new Exception("Le nom de l'environnement ne peut pas être vide");
         }
-        if (!\Models\Common::isAlphanum($env, array('-'))) {
+        if (!\Controllers\Common::isAlphanum($env, array('-'))) {
             throw new Exception("L'environnement comporte des caractères invalides");
         }
     }
@@ -407,7 +407,7 @@ class Operation
         if (empty($targetEnv)) {
             throw new Exception("Le nom de l'environnement cible ne peut pas être vide");
         }
-        if (!\Models\Common::isAlphanum($targetEnv, array('-'))) {
+        if (!\Controllers\Common::isAlphanum($targetEnv, array('-'))) {
             throw new Exception("L'environnement comporte des caractères invalides");
         }
     }
@@ -528,7 +528,7 @@ class Operation
         $this->duration = microtime(true) - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
 
         $this->step('DUREE TOTALE', false);
-        $this->log->steplogDuration($this->stepId, \Models\Common::convertMicrotime($this->duration));
+        $this->log->steplogDuration($this->stepId, \Controllers\Common::convertMicrotime($this->duration));
 
         /**
          *  Génère un fichier 'completed' dans le répertoire temporaire des étapes de l'opération, ceci afin que logbuilder.php s'arrête
@@ -542,7 +542,7 @@ class Operation
         /**
          *  Nettoyage du cache de repos-list
          */
-        \Models\Common::clearCache();
+        \Controllers\Common::clearCache();
     }
 
     /**
@@ -567,7 +567,7 @@ class Operation
 
         if (!empty($name)) {
             $this->stepName = $name;
-            $this->stepId = \Models\Common::randomString(24);
+            $this->stepId = \Controllers\Common::randomString(24);
 
             /**
              *  Initialisation du fichier de configuration
@@ -602,7 +602,7 @@ class Operation
      */
     public function stepOK(string $message = null)
     {
-        $this->log->steplogOK($this->stepId, \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $message);
+        $this->log->steplogOK($this->stepId, \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $message);
     }
 
     /**
@@ -610,7 +610,7 @@ class Operation
      */
     public function stepError(string $error)
     {
-        $this->log->steplogError($this->stepId, \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $error);
+        $this->log->steplogError($this->stepId, \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart), $error);
     }
 
     /**
@@ -623,7 +623,7 @@ class Operation
 
     private function getStepDuration()
     {
-        return \Models\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
+        return \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
     }
 
     private function deletePid()
@@ -731,7 +731,7 @@ class Operation
         }
 
         if (!empty($repoEnv)) {
-            echo ' ' . \Models\Common::envtag($repoEnv);
+            echo ' ' . \Controllers\Common::envtag($repoEnv);
         }
 
         return;
@@ -772,22 +772,22 @@ class Operation
                         <td class="td-fit">
                             <?php
                             if ($action == "new") {
-                                echo '<img class="icon" src="ressources/icons/plus.png" title="Nouveau" />';
+                                echo '<img class="icon" src="resources/icons/plus.png" title="Nouveau" />';
                             }
                             if ($action == "update") {
-                                echo '<img class="icon" src="ressources/icons/update.png" title="Mise à jour" />';
+                                echo '<img class="icon" src="resources/icons/update.png" title="Mise à jour" />';
                             }
                             if ($action == "reconstruct") {
-                                echo '<img class="icon" src="ressources/icons/update.png" title="Reconstruction des métadonnées" />';
+                                echo '<img class="icon" src="resources/icons/update.png" title="Reconstruction des métadonnées" />';
                             }
                             if ($action == "env" or strpos(htmlspecialchars_decode($action), '->') !== false) {
-                                echo '<img class="icon" src="ressources/icons/link.png" title="Nouvel environnement" />';
+                                echo '<img class="icon" src="resources/icons/link.png" title="Nouvel environnement" />';
                             }
                             if ($action == "duplicate") {
-                                echo '<img class="icon" src="ressources/icons/duplicate.png" title="Duplication" />';
+                                echo '<img class="icon" src="resources/icons/duplicate.png" title="Duplication" />';
                             }
                             if ($action == "delete" or $action == "removeEnv") {
-                                echo '<img class="icon" src="ressources/icons/bin.png" title="Suppression" />';
+                                echo '<img class="icon" src="resources/icons/bin.png" title="Suppression" />';
                             } ?>
                         </td>
                         <td class="td-small">
@@ -806,16 +806,16 @@ class Operation
                              *  Affichage de l'icone en cours ou terminée ou en erreur
                              */
                             if ($status == "running") {
-                                echo 'en cours <img src="ressources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
+                                echo 'en cours <img src="resources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
                             }
                             if ($status == "done") {
-                                echo '<img class="icon-small" src="ressources/icons/greencircle.png" title="Opération terminée" />';
+                                echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Opération terminée" />';
                             }
                             if ($status == "error") {
-                                echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération en erreur" />';
+                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Opération en erreur" />';
                             }
                             if ($status == "stopped") {
-                                echo '<img class="icon-small" src="ressources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
+                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
                             }
                             ?>
                         </td>
@@ -831,7 +831,7 @@ class Operation
      */
     public function getForm(string $action, array $repos_array)
     {
-        $action = \Models\Common::validateData($action);
+        $action = \Controllers\Common::validateData($action);
 
         if ($action == 'update') {
             $title = '<h3>MISE A JOUR</h3>';
@@ -852,8 +852,8 @@ class Operation
         $content = $title . '<form class="operation-form-container" autocomplete="off">';
 
         foreach ($repos_array as $repo) {
-            $repoId = \Models\Common::validateData($repo['repoId']);
-            $snapId = \Models\Common::validateData($repo['snapId']);
+            $repoId = \Controllers\Common::validateData($repo['repoId']);
+            $snapId = \Controllers\Common::validateData($repo['snapId']);
 
             /**
              *  Lorsque qu'aucun environnement ne pointe vers le snapshot (snapId), il n'y a aucun envId transmis.
@@ -862,7 +862,7 @@ class Operation
             if (empty($repo['envId'])) {
                 $envId = null;
             } else {
-                $envId = \Models\Common::validateData($repo['envId']);
+                $envId = \Controllers\Common::validateData($repo['envId']);
             }
 
             /**
@@ -961,7 +961,7 @@ class Operation
             $content .= ob_get_clean();
         }
 
-        $content .= '<br><button class="btn-large-red">Confirmer et exécuter<img src="ressources/icons/rocket.png" class="icon" /></button></form>';
+        $content .= '<br><button class="btn-large-red">Confirmer et exécuter<img src="resources/icons/rocket.png" class="icon" /></button></form>';
 
         return $content;
     }
@@ -982,7 +982,7 @@ class Operation
                 throw new Exception("Aucune action n'a été spécifié.");
             }
 
-            $action = \Models\Common::validateData($operation_params['action']);
+            $action = \Controllers\Common::validateData($operation_params['action']);
 
             /**
              *  On vérifie que l'action spécifiée est valide
@@ -1006,7 +1006,7 @@ class Operation
                     throw new Exception("Aucun Id de snapshot n'a été spécifié.");
                 }
 
-                $snapId = \Models\Common::validateData($operation_params['snapId']);
+                $snapId = \Controllers\Common::validateData($operation_params['snapId']);
 
                 /**
                  *  On vérifie la validité des paramètres transmis
@@ -1018,7 +1018,7 @@ class Operation
              *  Lorsque qu'aucun environnement ne pointe vers le snapshot (snapId), il n'y a aucun envId transmis.
              */
             if (!empty($envId)) {
-                $envId = \Models\Common::validateData($operation_params['envId']);
+                $envId = \Controllers\Common::validateData($operation_params['envId']);
                 $this->checkParamEnvId($envId);
             }
 
@@ -1218,11 +1218,11 @@ class Operation
                 $this->checkParamDescription($operation_params['targetDescription']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Models\Common::envtag($operation_params['targetEnv']), 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Models\Common::envtag($operation_params['targetEnv']), 'success');
-                    // \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Models\Common::envtag($operation_params['targetEnv']) . '⟶' . \Models\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    // \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Controllers\Common::envtag($operation_params['targetEnv']) . '⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1233,10 +1233,10 @@ class Operation
                 $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . '</span>' . \Models\Common::envtag($myrepo->getEnv()), 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Models\Common::envtag($myrepo->getEnv()), 'success');
+                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
             }
         }
@@ -1251,7 +1251,7 @@ class Operation
          *  Création d'un Id principal pour identifier l'opération asynchrone
          */
         while (true) {
-            $operation_id = \Models\Common::generateRandom();
+            $operation_id = \Controllers\Common::generateRandom();
 
             /**
              *  On crée le fichier JSON et on sort de la boucle si le numéro est disponible

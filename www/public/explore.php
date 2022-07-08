@@ -9,8 +9,8 @@ require_once('../functions/explore.functions.php');
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
  */
-if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['snapId'])) {
-    $snapId = \Models\Common::validateData($_POST['snapId']);
+if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['snapId'])) {
+    $snapId = \Controllers\Common::validateData($_POST['snapId']);
 
     /**
      *  Récupération de la valeur de GPG Resign
@@ -61,7 +61,7 @@ $pathError = 0;
 if (empty($_GET['id'])) {
     $pathError++;
 } else {
-    $snapId = \Models\Common::validateData($_GET['id']);
+    $snapId = \Controllers\Common::validateData($_GET['id']);
 }
 
 /**
@@ -101,7 +101,7 @@ if ($pathError == 0) {
 /**
  *  Cas où on upload un package dans un repo
  */
-if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
+if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
     /**
      *  On définit le chemin d'upload comme étant le répertoire my_uploaded_packages à l'intérieur du répertoire du repo
      */
@@ -112,7 +112,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
      */
     if (!is_dir($targetDir)) {
         if (!mkdir($targetDir, 0770, true)) {
-            \Models\Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
+            \Controllers\Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
             return;
         }
     }
@@ -139,7 +139,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
          *  Le nom du paquet ne doit pas contenir de caractère spéciaux, sinon on passe au suivant
          *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          */
-        if (!Models\Common::isAlphanumDash($packageName, array('.'))) {
+        if (!Controllers\Common::isAlphanumDash($packageName, array('.'))) {
             $uploadError++;
             $packageInvalid .= "$packageName, ";
             continue;
@@ -189,21 +189,21 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
     }
 
     if ($uploadError === 0) {
-        \Models\Common::printAlert('Les fichiers ont été chargés', 'success');
+        \Controllers\Common::printAlert('Les fichiers ont été chargés', 'success');
     } else {
-        \Models\Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
+        \Controllers\Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
     }
 }
 
 /**
  *  Cas où on supprime un ou plusieurs paquets d'un repo
  */
-if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
+if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
     $packagesToDeleteNonExists = ''; // contiendra la liste des fichiers qui n'existent pas, si on tente de supprimer un fichier qui n'existe pas
     $packagesDeleted = array();
 
     foreach ($_POST['packageName'] as $packageToDelete) {
-        $packageName = \Models\Common::validateData($packageToDelete);
+        $packageName = \Controllers\Common::validateData($packageToDelete);
         $packagePath = "$repoPath/$packageName";
 
         /**
@@ -211,7 +211,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
          *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
          *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
          */
-        if (!Models\Common::isAlphanumDash($packageName, array('.', '/', '+', '~'))) {
+        if (!Controllers\Common::isAlphanumDash($packageName, array('.', '/', '+', '~'))) {
             continue;
         }
 
@@ -259,7 +259,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
 <?php include_once('../includes/header.inc.php');?>
 
 <article>
-<?php if (Models\Common::isadmin()) { ?>
+<?php if (Controllers\Common::isadmin()) { ?>
         <section class="mainSectionRight">
             <section class="right">
                 <h3>ACTIONS</h3>
@@ -270,7 +270,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                      */
                     if (!empty($reconstruct) and $reconstruct == 'running') {
                         echo '<p>';
-                        echo '<img src="ressources/images/loading.gif" class="icon" /> ';
+                        echo '<img src="resources/images/loading.gif" class="icon" /> ';
                         echo 'Une opération est en cours sur ce repo.';
                         echo '</p>';
                     }
@@ -280,7 +280,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                      */
                     if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct != 'running')) { ?>
                             <div class="div-generic-gray">
-                                <h5><img src="ressources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
+                                <h5><img src="resources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
                                 
                                 <p>Sélectionnez des paquets à intégrer au repo.</p>
                                 <br>
@@ -310,7 +310,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                             </div>
                             
                             <div class="div-generic-gray">
-                                <h5><img src="ressources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
+                                <h5><img src="resources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
                                 <form id="hidden-form" action="" method="post">
                                     <input type="hidden" name="action" value="reconstruct">
                                     <input type="hidden" name="snapId" value="<?= $snapId ?>">
@@ -335,7 +335,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                                     </label>
                                     <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
                                     <br><br>
-                                    <button type="submit" class="btn-large-red"><img src="ressources/icons/rocket.png" class="icon" />Exécuter</button>
+                                    <button type="submit" class="btn-large-red"><img src="resources/icons/rocket.png" class="icon" />Exécuter</button>
                                 </form>
                             </div>
                         <?php
@@ -364,7 +364,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
                 }
 
                 if ($myrepo->getReconstruct() == 'needed' or is_dir($repoPath . '/my_uploaded_packages')) {
-                    if (!Models\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
+                    if (!Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
                         echo '<span class="yellowtext">Le contenu de ce repo a été modifié, vous devez lancer la reconstruction des fichiers de metadonnées.</span>';
                     }
                 }
@@ -373,7 +373,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
 
             <br>
 
-            <span id="loading">Génération de l'arborescence<img src="ressources/images/loading.gif" class="icon" /></span>
+            <span id="loading">Génération de l'arborescence<img src="resources/images/loading.gif" class="icon" /></span>
 
             <div id="explorer" class="hide">
 
@@ -385,7 +385,7 @@ if (!empty($_POST['action']) and \Models\Common::validateData($_POST['action']) 
 
                 if ($pathError === 0) {
                     echo '<form action="" method="post" />';
-                    if (Models\Common::isadmin()) {
+                    if (Controllers\Common::isadmin()) {
                         echo '<input type="hidden" name="action" value="deletePackages" />';
                         echo '<input type="hidden" name="snapId" value="' . $snapId . '" />';
                         echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';

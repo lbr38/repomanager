@@ -6,34 +6,34 @@
     }
     ?>
     <br>
-    <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="ressources/images/GitHub-Mark-Light-64px.png" /></a>
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="resources/images/GitHub-Mark-Light-64px.png" /></a>
 </footer>
 
-<script src="ressources/js/functions.js"></script>
+<script src="resources/js/functions.js"></script>
 <?php
 if (__ACTUAL_URI__ == "/index.php" or __ACTUAL_URI__ == "/") {
-    echo '<script src="ressources/js/repo.js"></script>';
-    echo '<script src="ressources/js/group.js"></script>';
-    echo '<script src="ressources/js/source.js"></script>';
+    echo '<script src="resources/js/repo.js"></script>';
+    echo '<script src="resources/js/group.js"></script>';
+    echo '<script src="resources/js/source.js"></script>';
 }
 if (__ACTUAL_URI__ == "/planifications.php") {
-    echo '<script src="ressources/js/repo.js"></script>';
-    echo '<script src="ressources/js/group.js"></script>';
-    echo '<script src="ressources/js/plan.js"></script>';
-    echo '<script src="ressources/js/source.js"></script>';
+    echo '<script src="resources/js/repo.js"></script>';
+    echo '<script src="resources/js/group.js"></script>';
+    echo '<script src="resources/js/plan.js"></script>';
+    echo '<script src="resources/js/source.js"></script>';
 }
 if (__ACTUAL_URI__ == "/hosts.php" or __ACTUAL_URI__ == "/host.php") {
-    echo '<script src="ressources/js/host.js"></script>';
+    echo '<script src="resources/js/host.js"></script>';
 }
 if (__ACTUAL_URI__ == "/explore.php") {
-    echo '<script src="ressources/js/explore.js"></script>';
+    echo '<script src="resources/js/explore.js"></script>';
 }
 if (__ACTUAL_URI__ == "/profiles.php") {
-    echo '<script src="ressources/js/profile.js"></script>';
+    echo '<script src="resources/js/profile.js"></script>';
 }
 if (__ACTUAL_URI__ == "/stats.php") {
-    echo '<script src="ressources/js/stats.js"></script>';
+    echo '<script src="resources/js/stats.js"></script>';
 }
 if (__ACTUAL_URI__ == "/run.php") {
-    echo '<script src="ressources/js/run.js"></script>';
+    echo '<script src="resources/js/run.js"></script>';
 } ?>

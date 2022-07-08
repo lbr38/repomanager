@@ -33,7 +33,7 @@ if (DEBUG_MODE == "enabled") {
                     } else {
                         echo '<span class="header-link">';
                     } ?>
-                    <img src="ressources/icons/menu.png" class="icon" />REPOS
+                    <img src="resources/icons/menu.png" class="icon" />REPOS
                     </span>
                 </a>
             </div>
@@ -41,7 +41,7 @@ if (DEBUG_MODE == "enabled") {
 
         <div class="menu-sub-container">
             <?php
-            if (AUTOMATISATION_ENABLED == "yes") : ?>
+            if (PLANS_ENABLED == "yes") : ?>
                 <div>
                     <a href="planifications.php">
                         <?php
@@ -50,7 +50,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="ressources/icons/calendar.png" class="icon" />PLANIFICATIONS
+                            <img src="resources/icons/calendar.png" class="icon" />PLANIFICATIONS
                         </span>
                     </a>
                 </div>
@@ -69,7 +69,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="ressources/icons/server.png" class="icon" />GESTION DES HOTES
+                            <img src="resources/icons/server.png" class="icon" />GESTION DES HOTES
                         </span>
                     </a>
                 </div>
@@ -79,7 +79,7 @@ if (DEBUG_MODE == "enabled") {
 
         <div class="menu-sub-container">
             <?php
-            if (Models\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
+            if (Controllers\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
                 <div>
                     <a href="profiles.php">
                         <?php
@@ -88,7 +88,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="ressources/icons/stack.png" class="icon" />GESTION DES PROFILS
+                            <img src="resources/icons/stack.png" class="icon" />GESTION DES PROFILS
                         </span>
                     </a>
                 </div>
@@ -98,7 +98,7 @@ if (DEBUG_MODE == "enabled") {
 
         <div class="menu-sub-container">
             <?php
-            if (Models\Common::isadmin()) : ?>
+            if (Controllers\Common::isadmin()) : ?>
                 <div>
                     <a href="configuration.php">
                         <?php
@@ -107,7 +107,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                           <img src="ressources/icons/settings.png" class="icon" />ADMINISTRATION
+                           <img src="resources/icons/settings.png" class="icon" />ADMINISTRATION
                         </span>
                     </a>
                 </div>
@@ -124,7 +124,7 @@ if (DEBUG_MODE == "enabled") {
                     } else {
                         echo '<span class="header-link">';
                     } ?>
-                    <img src="ressources/icons/rocket.png" class="icon" />OPERATIONS
+                    <img src="resources/icons/rocket.png" class="icon" />OPERATIONS
                     </span>
                 </a>
 
@@ -284,7 +284,7 @@ if (DEBUG_MODE == "enabled") {
                         ?>
                     </a>
                     <a href="logout.php" title="Se déconnecter">
-                        <img src="../ressources/icons/power.png" class="icon" />
+                        <img src="../resources/icons/power.png" class="icon" />
                     </a>
                 </span>
             </div>
@@ -296,7 +296,7 @@ if (DEBUG_MODE == "enabled") {
 /**
  *  Affichage d'un bandeau constant si des erreurs ont été rencontrées lors du chargement des constantes
  */
-if (!empty(__LOAD_GENERAL_ERROR > 0)) { ?>
+if (__LOAD_GENERAL_ERROR > 0) : ?>
     <section>
         <section class="missing-param-alert">
             <span class="yellowtext">Certains paramètres de configuration de l'onglet <a href="configuration.php">Configuration</a> sont vides ou invalides, ce qui pourrait engendrer un dysfonctionnement de Repomanager. Il est recommandé de terminer la configuration avant d'exécuter quelconque opération.</span>
@@ -308,6 +308,15 @@ if (!empty(__LOAD_GENERAL_ERROR > 0)) { ?>
             } ?>
         </section>
     </section>
-<?php }
+<?php endif;
+
+if (!SERVICE_RUNNING) : ?>
+    <section>
+        <section class="missing-param-alert">
+            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Le service repomanager est inactif</span>
+        </section>
+    </section>
+    <?php
+endif;
 
 include('maintenance.inc.php'); ?>

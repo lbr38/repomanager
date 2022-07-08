@@ -1,6 +1,6 @@
 <?php
 
-namespace Models;
+namespace Controllers;
 
 use Exception;
 
@@ -117,6 +117,7 @@ class Common
     {
         ob_start();
         include(ROOT . '/includes/repos-list.inc.php');
+
         $content = ob_get_clean();
         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
     }
@@ -238,19 +239,6 @@ class Common
         return '<span class="' . $class . '">' . $env . '</span>';
     }
 
-    /**
-     *  Vérifie que la tâche cron des rappels de planifications est en place
-     */
-    public static function checkCronReminder()
-    {
-        $cronStatus = shell_exec("crontab -l | grep 'send-reminders' | grep -v '#'");
-        if (empty($cronStatus)) {
-            return 'Off';
-        }
-
-        return 'On';
-    }
-
     public static function writeToIni($file, $array = [])
     {
         // check first argument is string
@@ -311,60 +299,11 @@ class Common
 
         // got lock, write data
         fwrite($fp, implode(PHP_EOL, $data) . PHP_EOL);
+
         // release lock
         flock($fp, LOCK_UN);
         fclose($fp);
         return true;
-    }
-
-    /**
-     *  Inscrit les tâches cron dans la crontab de WWW_USER
-     */
-    public static function enableCron()
-    {
-        /**
-         *  Récupération du contenu de la crontab actuelle dans un fichier temporaire
-         */
-        shell_exec("crontab -l > " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");
-
-        /**
-         *  On supprime toutes les lignes concernant repomanager dans ce fichier pour refaire propre
-         */
-        exec("sed -i '/cronjob.php/d' " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");
-        exec("sed -i '/plan.php/d' " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");
-        exec("sed -i '/stats-generator.php/d' " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");
-
-        /**
-         *  Puis on ajoute les tâches cron suivantes au fichier temporaire
-         */
-
-        // Tâche cron journalière
-        if (CRON_DAILY_ENABLED == "yes") {
-            file_put_contents(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp", "*/5 * * * * php " . ROOT . "/operations/cronjob.php" . PHP_EOL, FILE_APPEND);
-        }
-
-        // Statistiques
-        if (CRON_STATS_ENABLED == "yes") {
-            file_put_contents(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp", "0 0 * * * php " . ROOT . "/tools/stats-generator.php" . PHP_EOL, FILE_APPEND);
-        }
-
-        // si on a activé l'automatisation alors on ajoute la tâche cron d'exécution des planifications
-        if (AUTOMATISATION_ENABLED == "yes") {
-            file_put_contents(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp", "* * * * * php " . ROOT . "/operations/plan.php exec" . PHP_EOL, FILE_APPEND);
-        }
-
-        // si on a activé l'automatisation et les envois de rappels de planifications alors on ajoute la tâche cron d'envoi des rappels
-        if (AUTOMATISATION_ENABLED == "yes" and CRON_PLAN_REMINDERS_ENABLED == "yes") {
-            file_put_contents(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp", "0 0 * * * php " . ROOT . "/operations/plan.php send-reminders" . PHP_EOL, FILE_APPEND);
-        }
-
-        /**
-         *  Enfin on reimporte le contenu du fichier temporaire
-         */
-        exec("crontab " . TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");   // on importe le fichier dans la crontab de WWW_USER
-        unlink(TEMP_DIR . "/" . WWW_USER . "_crontab.tmp");         // puis on supprime le fichier temporaire
-
-        \Models\Common::printAlert('Tâches cron redéployées', 'success');
     }
 
     /**
@@ -379,6 +318,7 @@ class Common
                 return false;
             }
         }
+
         closedir($handle);
         return true;
     }
@@ -388,7 +328,7 @@ class Common
      */
     public static function killStatsLogParser()
     {
-        exec("/usr/bin/pkill -9 -u " . WWW_USER . " -f 'tail -n0 -F " . WWW_STATS_LOG_PATH . "'");
+        exec("/usr/bin/pkill -9 -u " . WWW_USER . " -f 'tail -n0 -F " . STATS_LOG_PATH . "'");
     }
 
     /**
@@ -573,7 +513,7 @@ class Common
         /**
          *  Ouverture d'une connexion à la base de données
          */
-        $myconn = new Connection('main');
+        $myconn = new \Models\Connection('main');
 
         /**
          *  Modification des paramètres en base de données

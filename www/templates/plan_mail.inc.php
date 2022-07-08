@@ -353,7 +353,7 @@ $template = "<!doctype html>
           <br>
         </td>
         <td>
-          <br><img src=\"https://github.com/lbr38/repomanager/raw/stable/www/public/ressources/images/repomanager.png\" />
+          <br><img src=\"https://github.com/lbr38/repomanager/raw/stable/www/public/resources/images/repomanager.png\" />
         </td>
       </tr>
       <tr>

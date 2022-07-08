@@ -22,7 +22,7 @@ class Operation extends Model
         try {
             $result = $this->db->query("SELECT Id FROM operations WHERE Status = 'running'");
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $operations = array();
@@ -59,7 +59,7 @@ class Operation extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $operations = array();
@@ -139,7 +139,7 @@ class Operation extends Model
             }
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $datas = array();
@@ -167,7 +167,7 @@ class Operation extends Model
             $stmt->bindValue(':status', $status);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Models\Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -179,7 +179,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -192,7 +192,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -205,7 +205,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -218,7 +218,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -231,7 +231,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -243,7 +243,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -255,7 +255,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -267,7 +267,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -280,7 +280,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -293,7 +293,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
         unset($stmt);
     }
@@ -311,7 +311,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -326,7 +326,7 @@ class Operation extends Model
             $stmt->bindValue(':status', $status);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Models\Common::dbError($e);
+            Controllers\Common::dbError($e);
         }
 
         $data = array();
@@ -348,7 +348,7 @@ class Operation extends Model
             $stmt->bindValue(':pid', $pid);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         $planId = '';
@@ -370,7 +370,7 @@ class Operation extends Model
             $stmt->bindValue(':pid', $pid);
             $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
     }
 
@@ -384,7 +384,7 @@ class Operation extends Model
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            Common::dbError($e);
+            \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
