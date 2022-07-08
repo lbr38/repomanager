@@ -521,7 +521,7 @@ class Repo extends Model
         /**
          *  Vérification des caractères de la description
          */
-        if (Common::isAlphanumDash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
+        if (\Controllers\Common::isAlphanumDash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
             throw new Exception("La description contient des caractères invalides");
         }
 

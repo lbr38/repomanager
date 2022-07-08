@@ -314,10 +314,10 @@ class Source extends Model
         /**
          *  On vérifie que le nom ainsi que le nouveau nom ne contiennent pas de caractères invalides
          */
-        if (Common::isAlphanumDash($name) === false) {
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
             throw new Exception('Erreur : le nom du repo source contient des caractères invalides');
         }
-        if (Common::isAlphanumDash($newName) === false) {
+        if (\Controllers\Common::isAlphanumDash($newName) === false) {
             throw new Exception('Erreur : le nouveau nom du repo source contient des caractères invalides');
         }
 
@@ -394,7 +394,7 @@ class Source extends Model
         /**
          *  On vérifie que l'url ne contient pas de caractères invalides
          */
-        if (Common::isAlphanumDash($url, array(':', '/', '.', '?', '&')) === false) {
+        if (\Controllers\Common::isAlphanumDash($url, array(':', '/', '.', '?', '&')) === false) {
             throw new Exception("L'URL saisie contient des caractères invalides");
         }
 
@@ -435,7 +435,7 @@ class Source extends Model
             /**
              *  On vérifie que le nom de l'option est valide, càd qu'il ne contient pas de caractère spéciaux
              */
-            if (Common::isAlphanumDash($optionName) === false) {
+            if (\Controllers\Common::isAlphanumDash($optionName) === false) {
                 throw new Exception("Le paramètre <b>$optionName</b> contient des caractère invalides");
             }
 
@@ -480,7 +480,7 @@ class Source extends Model
                 if ($optionName == 'baseurl' or $optionName == 'mirrorlist' or $optionName == 'metalink') {
                     $optionValue = trim($optionValue);          // Suppression des espaces si il y en a (ça ne devrait pas)
                     $optionValue = stripslashes($optionValue);  // Suppression des anti-slash
-                    if (Common::isAlphanumDash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
+                    if (\Controllers\Common::isAlphanumDash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -499,7 +499,7 @@ class Source extends Model
                     /**
                      *  La clé gpg peut être un fichier ou une url, donc on accepte certains caractères
                      */
-                    if (Common::isAlphanumDash($optionValue, array(':', '/', '.')) === false) {
+                    if (\Controllers\Common::isAlphanumDash($optionValue, array(':', '/', '.')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
@@ -546,7 +546,7 @@ class Source extends Model
                  *  Tous les autres types paramètres
                  */
                 } else {
-                    if (Common::isAlphanumDash($optionValue, array('.', ' ', ':', '/', '&', '?', '=')) === false) {
+                    if (\Controllers\Common::isAlphanumDash($optionValue, array('.', ' ', ':', '/', '&', '?', '=')) === false) {
                         throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
                     }
                     /**
