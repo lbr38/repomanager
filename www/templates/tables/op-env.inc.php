@@ -1,7 +1,7 @@
-<h3>NOUVEL ENVIRONNEMENT</h3>
+<h3>NEW REPO ENVIRONMENT</h3>
 <table class="op-table">
     <tr>
-        <th>REPO :</th>
+        <th>REPO:</th>
         <td>
             <span class="label-white">
                 <?php
@@ -16,7 +16,7 @@
     </tr>
 
     <tr>
-    <th>NOUVEL ENVIRONNEMENT :</th>
+    <th>ENVIRONMENT:</th>
     <td>
         <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
     </td>
@@ -24,7 +24,7 @@
 <?php
 if (!empty($this->targetDescription)) : ?>
     <tr>
-        <th>DESCRIPTION :</th>
+        <th>DESCRIPTION:</th>
         <td><?=$this->targetDescription?></td>
     </tr>
 <?php endif ?>

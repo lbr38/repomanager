@@ -1,4 +1,4 @@
-name: Run operations on a deb repo (from an Ubuntu system)
+name: Run operations on a deb repo (from an Ubuntu latest system)
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies packages
         # run: sudo apt-get install -y debmirror reprepro curl gnupg2 yum-utils createrepo
-        run: sudo apt-get install -y debmirror reprepro curl gnupg2
+        run: sudo apt-get install -y debmirror reprepro curl gnupg2 findutils
 
       - name: Set up repomanager files & directories
         run: |
@@ -37,23 +37,23 @@ jobs:
           sudo mkdir -p /home/repo
           sudo mkdir -p /etc/yum.repos.d/repomanager
           sudo mkdir -p /var/www/repomanager
-          sudo mkdir -p /var/www/repomanager/backups
-          sudo mkdir -p /var/www/repomanager/logs/main
-          sudo mkdir -p /var/www/repomanager/cron
-          sudo mkdir -p /var/www/repomanager/configurations
-          sudo mkdir -p /var/www/repomanager/operations/pool/
-          sudo mkdir -p /var/www/repomanager/db
-          sudo mkdir -p /var/www/repomanager/.gnupg
+          sudo mkdir -p /var/lib/repomanager
+          sudo mkdir -p /var/lib/repomanager/backups
+          sudo mkdir -p /var/lib/repomanager/logs/main
+          sudo mkdir -p /var/lib/repomanager/configurations
+          sudo mkdir -p /var/lib/repomanager/operations/pool/
+          sudo mkdir -p /var/lib/repomanager/db
+          sudo mkdir -p /var/lib/repomanager/.gnupg
           sudo cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
-          sudo cp $GITHUB_WORKSPACE/version /var/www/repomanager/
-          sudo cp $GITHUB_WORKSPACE/www/repomanager /var/www/repomanager/
+          sudo cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
+          sudo cp $GITHUB_WORKSPACE/repomanager /var/lib/repomanager/
 
       - name: Set up repomanager main config
         run: |
-          sudo curl -s -o /var/www/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/repomanager.conf 2> /dev/null
-          sudo curl -s -L -o /var/www/repomanager/db/repomanager.db https://github.com/lbr38/repomanager-docs/raw/main/ci/repomanager.db 2> /dev/null
-          sudo ls -l /var/www/repomanager/configurations/
-          sudo ls -l /var/www/repomanager/db/
+          sudo curl -s -o /var/lib/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/repomanager.conf 2> /dev/null
+          sudo curl -s -L -o /var/lib/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
+          sudo ls -l /var/lib/repomanager/configurations/
+          sudo ls -l /var/lib/repomanager/db/
       
       - name: Generate repomanager GPG signing key
         run: |
@@ -65,27 +65,30 @@ jobs:
           echo "Name-Email: gpgkey@nomail.com" >> /tmp/gpg-template-file
           echo "Expire-Date: 0" >> /tmp/gpg-template-file
           echo "Passphrase: beautifulPassphrase" >> /tmp/gpg-template-file
-          sudo gpg2 --batch --gen-key --homedir /var/www/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
+          sudo gpg2 --batch --gen-key --homedir /var/lib/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
           echo "beautifulPassphrase" > passphrase
-          sudo mv passphrase /var/www/repomanager/.gnupg/passphrase
+          sudo mv passphrase /var/lib/repomanager/.gnupg/passphrase
           rm /tmp/gpg-template-file
 
       - name: Set up GPG config
         run: |
-          echo -e "pinentry-mode loopback\npassphrase-file /var/www/repomanager/.gnupg/passphrase" > gpg.conf 
-          sudo mv gpg.conf /var/www/repomanager/.gnupg/gpg.conf
+          echo -e "pinentry-mode loopback\npassphrase-file /var/lib/repomanager/.gnupg/passphrase" > gpg.conf 
+          sudo mv gpg.conf /var/lib/repomanager/.gnupg/gpg.conf
 
       - name: Download jobs
         run: |
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-mirror-repo.json 2> /dev/null
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-update-repo.json 2> /dev/null
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-duplicate-repo.json 2> /dev/null
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-create-env.json 2> /dev/null
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-delete.json 2> /dev/null
-          sudo curl -s -o /var/www/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/deb/ci-reconstruct.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
+          sudo curl -s -o /var/lib/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-reconstruct.json 2> /dev/null
 
       - name: Set up permissions
-        run: sudo /var/www/repomanager/repomanager -p
+        run: sudo /var/lib/repomanager/repomanager -p
+
+      - name: Update database
+        run: sudo -u www-data php /var/www/repomanager/tools/update-database.php
 
       - name: Run job - Mirror repo
         run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo'

@@ -3,13 +3,7 @@
 TODO
 logs
 README*
-envs.conf
-groups.conf
-hosts.conf
-planifications.conf
 repomanager.conf
-repos.list
-repos-archive.list
 create-version
 .tarignore
 update
@@ -17,5 +11,10 @@ repomanager.png
 archives
 wip
 WIP
+TODO
+todo
 screenshots
 jsconfig.json
+archive
+archives
+phpcs.xml

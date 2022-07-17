@@ -2,38 +2,45 @@
 set -u
 trap 'kill 0' EXIT
 
-# Laisse un délai de 60sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
-# sleep 30s
+# Laisse un délai de 30sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
+# sleep 30
 
 SCRIPT_PATH=$(realpath $0)
-WWW_DIR=$(echo "$SCRIPT_PATH" | sed 's|/tools/services/repomanager-service||g')
+DATA_DIR="/var/lib/repomanager"
+LOG_DIR="$DATA_DIR/logs/service"
+LOG="$LOG_DIR/repomanager-service.log"
+STATS_LOG_DIR="$DATA_DIR/logs/stats"
+STATS_LOG="$STATS_LOG_DIR/stats-log-parser.log"
+STATS_DB="$DATA_DIR/db/repomanager-stats.db"
 CURRENT_TIME=""
 LAST_TIME=""
 STATS_LOG_PARSING_RUNNING="no"
 COUNTER="0"
 
-# Check that WWW_DIR is valid by checking if repomanager configuration file exist
-if [ ! -f "${WWW_DIR}/configurations/repomanager.conf" ];then
-    echo "Error: Configuration file '${WWW_DIR}/configurations/repomanager.conf' not found."
+# Create log dirs if not exist
+mkdir -p "$LOG_DIR"
+mkdir -p "$STATS_LOG_DIR"
+
+# Check that DATA_DIR is valid by checking if repomanager configuration file exist
+if [ ! -f "${DATA_DIR}/configurations/repomanager.conf" ];then
+    echo "Error: Configuration file '${DATA_DIR}/configurations/repomanager.conf' not found." > "$LOG"
     exit 1
 fi
 
 # Get additionnal variables
 function getVars
 {
-    WWW_USER=$(grep "^WWW_USER =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|WWW_USER = ||g' | sed 's|"||g')
-    REPOS_DIR=$(grep "^REPOS_DIR =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|REPOS_DIR = ||g' | sed 's|"||g')
-    UPDATE_BRANCH=$(grep "^UPDATE_BRANCH =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|UPDATE_BRANCH = ||g' | sed 's|"||g')
+    WWW_DIR=$(grep "^WWW_DIR =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|WWW_DIR = ||g' | sed 's|"||g')
+    WWW_USER=$(grep "^WWW_USER =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|WWW_USER = ||g' | sed 's|"||g')
+    REPOS_DIR=$(grep "^REPOS_DIR =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|REPOS_DIR = ||g' | sed 's|"||g')
+    UPDATE_BRANCH=$(grep "^UPDATE_BRANCH =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|UPDATE_BRANCH = ||g' | sed 's|"||g')
 
-    STATS_ENABLED=$(grep "^STATS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|STATS_ENABLED = ||g' | sed 's|"||g')
+    STATS_ENABLED=$(grep "^STATS_ENABLED =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|STATS_ENABLED = ||g' | sed 's|"||g')
     # Access log file to analyze
-    STATS_ACCESS_LOG_FILE=$(grep "^STATS_LOG_PATH =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|STATS_LOG_PATH = ||g' | sed 's|"||g')
-    # File to log sqlite errors
-    STATS_ERROR_LOG="${WWW_DIR}/logs/stats/stats-log-parser.log"
-    STATS_DB="${WWW_DIR}/db/repomanager-stats.db"
+    STATS_ACCESS_LOG_FILE=$(grep "^STATS_LOG_PATH =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|STATS_LOG_PATH = ||g' | sed 's|"||g')
 
-    PLANS_ENABLED=$(grep "^PLANS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|PLANS_ENABLED = ||g' | sed 's|"||g')
-    PLAN_REMINDERS_ENABLED=$(grep "^PLAN_REMINDERS_ENABLED =" ${WWW_DIR}/configurations/repomanager.conf | sed 's|PLAN_REMINDERS_ENABLED = ||g' | sed 's|"||g')
+    PLANS_ENABLED=$(grep "^PLANS_ENABLED =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|PLANS_ENABLED = ||g' | sed 's|"||g')
+    PLAN_REMINDERS_ENABLED=$(grep "^PLAN_REMINDERS_ENABLED =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|PLAN_REMINDERS_ENABLED = ||g' | sed 's|"||g')
 }
 
 function generalChecks
@@ -67,20 +74,20 @@ function generalChecks
 function cleanUp
 {
     # Clean files older than 2 days
-    if [ -d "$WWW_DIR/.temp" ];then
-        find "$WWW_DIR/.temp"/ -mtime +2 -exec rm -rv {} \;
+    if [ -d "$DATA_DIR/.temp" ];then
+        find "$DATA_DIR/.temp"/ -mtime +2 -exec rm -rv {} \;
     fi
 }
 
 # Check if a new version is available on Github
 function checkVersion
 {
-    if [ ! -f "${WWW_DIR}/version.available" ];then
-        touch "${WWW_DIR}/version.available"
-        chown ${WWW_USER}:repomanager "${WWW_DIR}/version.available"
+    if [ ! -f "${DATA_DIR}/version.available" ];then
+        touch "${DATA_DIR}/version.available"
+        chown ${WWW_USER}:repomanager "${DATA_DIR}/version.available"
     fi
 
-    curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/version" > ${WWW_DIR}/version.available
+    curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/version" > ${DATA_DIR}/version.available
 }
 
 # Apply permissions on repos directories
@@ -104,7 +111,7 @@ function statsGenerate
     fi
 
     # Generate stats for each repos
-    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/tools/stats-generator.php
+    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/tools/stats-generator.php
 }
 
 # Start parsing of access log to generete statistics on clients accessing the repos 
@@ -112,27 +119,24 @@ function statsParseAccessLog
 {
     # Checks that required variables are set and that files exist
     if [ -z "$STATS_ACCESS_LOG_FILE" ];then
-        echo "Error: Cannot determine access log file to analyze."
-        exit 1
+        echo "Error: Cannot determine access log file to analyze." >> "$LOG"
+        return
     fi
 
     if [ ! -f "$STATS_ACCESS_LOG_FILE" ];then
-        echo "Error: Access log file '$STATS_ACCESS_LOG_FILE' not found."
-        exit 1
+        echo "Error: Access log file '$STATS_ACCESS_LOG_FILE' not found." >> "$LOG"
+        return
     fi
 
     if [ ! -f "$STATS_DB" ];then
-        echo "Error: Database not found."
-        exit 1
+        echo "Error: Database '$STATS_DB' not found." >> "$LOG"
+        return
     fi
 
     if [ ! -f "/usr/bin/sqlite3" ];then
-        echo "Error: '/usr/bin/sqlite3' not found."
-        exit 1
+        echo "Error: '/usr/bin/sqlite3' not found." >> "$LOG"
+        return
     fi
-
-    # Creates logs directory
-    mkdir -p "${WWW_DIR}/logs/stats/"
 
     # Do not start log analize if an analyze is already running
     if [ "$STATS_LOG_PARSING_RUNNING" == "no" ];then
@@ -149,7 +153,7 @@ function statsParseAccessLog
                 SOURCE_HOST=$(dig -x $SOURCE_IP +short)
                 REQUEST=$(echo "$LINE" | awk '{print $6,$7,$8}')
                 REQUEST_RESULT=$(echo "$LINE" | awk '{print $9}')
-                /usr/bin/sqlite3 -cmd ".timeout 5000" -cmd ".log '$STATS_ERROR_LOG'" "$STATS_DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
+                /usr/bin/sqlite3 -cmd ".timeout 5000" -cmd ".log '$STATS_LOG'" "$STATS_DB" "INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES ('$DATE', '$TIME', '$SOURCE_HOST', '$SOURCE_IP', '$REQUEST', '$REQUEST_RESULT');"
             fi
         done &
 
@@ -165,7 +169,7 @@ function execPlan
     fi        
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/operations/plan.php exec & > /dev/null
+    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/operations/plan.php 'exec' & > /dev/null
 }
 
 # Send plan reminder (every day at 00:00)
@@ -181,11 +185,14 @@ function sendPlanReminder
     fi
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php /var/www/repomanager/operations/plan.php send-reminders & > /dev/null
+    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/operations/plan.php 'send-reminders' & > /dev/null
 }
 
 # Execution
 while true; do
+
+    # Clean log
+    echo -n> "$LOG"
 
     # Get vars on every loop because their value can have been updated by user from the web interface
     getVars

@@ -59,9 +59,75 @@ if ($myrepo->getPackageType() == 'deb') {
     </td>
 </tr>
 
+<tr>
+    <td class="td-30">Architecture</td>
+    <td>
+        <select class="targetArchSelect operation_param" param-name="targetArch" multiple>
+            <option value="">Sélectionner l'architecture...</option>
+            <?php
+            if ($myrepo->getPackageType() == 'rpm') : ?>
+                <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                <?php
+            endif;
+            if ($myrepo->getPackageType() == 'deb') : ?>
+                <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
+                <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
+                <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                <?php
+            endif; ?>
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td class="td-30">Inclure les sources</td>
+    <td>
+        <?php
+        if ($myrepo->getPackageType() == 'rpm') : ?>
+            <label class="onoff-switch-label">
+                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <?php
+        endif;
+        if ($myrepo->getPackageType() == 'deb') : ?>
+            <label class="onoff-switch-label">
+                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                <span class="onoff-switch-slider"></span>
+            </label>
+            <?php
+        endif; ?>
+    </td>
+</tr>
+
+<?php
+if ($myrepo->getPackageType() == 'deb') : ?>
+<tr>
+    <td class="td-30">Inclure les traductions de paquets</td>
+    <td>
+        <select class="targetPackageTranslationSelect operation_param" param-name="targetPackageTranslation" multiple>
+            <option value="">Sélectionner des traductions...</option>
+            <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+            <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+        </select>
+    </td>
+</tr>
+    <?php
+endif; ?>
+
 <script>
 $(document).ready(function(){
+    /**
+     *  Convert select to select2
+     */
+    classToSelect2('.targetArchSelect');
+    classToSelect2('.targetPackageTranslationSelect');
 
+
+    /**
+     *  Update repo->date<-env schema if an env is selected
+     */
     var selectName = '#update-repo-target-env-select-<?=$myrepo->getSnapId()?>';
     var envSpan = '#update-repo-show-target-env-<?=$myrepo->getSnapId()?>';
 
@@ -69,7 +135,7 @@ $(document).ready(function(){
         /**
          *  Nom du dernier environnement de la chaine
          */
-        var lastEnv = '<?=LAST_ENV?>';
+        var lastEnv = '<?= LAST_ENV ?>';
 
         /**
          *  Récupération de l'environnement sélectionné dans la liste
@@ -104,8 +170,6 @@ $(document).ready(function(){
 
     $(document).on('change',selectName,function(){
         printEnv();
-  
     }).trigger('change');
-
 });
 </script>

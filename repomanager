@@ -9,6 +9,9 @@ OS_FAMILY=""
 WWW_DIR=""
 WWW_USER=""
 WWW_HOSTNAME=""
+DATA_DIR="/var/lib/repomanager"
+GPGHOME="${DATA_DIR}/.gnupg"
+CONF="${DATA_DIR}/configurations/repomanager.conf"
 RELEASEVER=""
 REPOS_DIR=""
 CONFIRM=""
@@ -174,12 +177,15 @@ function permissions
         exit
     fi
 
-    if [ ! -f "${WWW_DIR}/configurations/repomanager.conf" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot find the main configuration file 'repomanager.conf'"
+    if [ ! -d "$DATA_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] $DATA_DIR does not exist"
         exit
     fi
 
-    CONF="${WWW_DIR}/configurations/repomanager.conf"
+    if [ ! -f "$CONF" ];then
+        echo -e "[$YELLOW ERROR $RESET] Cannot find the main configuration file '$CONF'"
+        exit
+    fi
 
     # Getting some variable from main config file
     REPOS_DIR=$(grep "^REPOS_DIR =" "$CONF" | cut -d'=' -f2 | sed 's/"//g' | sed 's/ //g')
@@ -197,7 +203,7 @@ function permissions
         echo -e "[$YELLOW ERROR $RESET] Cannot determine repomanager URL"
         exit
     fi
-
+ 
     # Setting permissions only if sudo/root
     if [ "$ACTUAL_USER" == "root" ];then
         # Permissions on web directory
@@ -205,20 +211,25 @@ function permissions
         find "$WWW_DIR" -type d -exec chmod 0770 {} \;
         chmod 750 "$WWW_DIR"
         chown -R ${WWW_USER}:repomanager "$WWW_DIR"
-        chmod 550 ${WWW_DIR}/repomanager
-        chmod 500 ${WWW_DIR}/tools/services/repomanager-service
+        # Permissions on data directory
+        find "$DATA_DIR" -type f -exec chmod 0660 {} \;
+        find "$DATA_DIR" -type d -exec chmod 0770 {} \;
+        chmod 750 "$DATA_DIR"
+        chown -R ${WWW_USER}:repomanager "$DATA_DIR"
+        chmod 550 ${DATA_DIR}/repomanager
+        chmod 500 ${DATA_DIR}/tools/service/repomanager-service
 
         # Permissions on repos directory
         # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
         chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
 
         # Permissions on .gnupg directory
-        if [ -d "${WWW_DIR}/.gnupg" ];then
-            chown -R ${WWW_USER}:repomanager ${WWW_DIR}/.gnupg
-            chmod 700 ${WWW_DIR}/.gnupg
+        if [ -d "$GPGHOME" ];then
+            chown -R ${WWW_USER}:repomanager $GPGHOME
+            chmod 700 $GPGHOME
             # Permissions on passphrase
-            if [ -f "${WWW_DIR}/.gnupg/passphrase" ];then 
-                chmod 400 ${WWW_DIR}/.gnupg/passphrase
+            if [ -f "${GPGHOME}/passphrase" ];then 
+                chmod 400 ${GPGHOME}/passphrase
             fi
         fi
         # Permissions on GPG public key
@@ -297,10 +308,10 @@ function checkDependencies
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
-        CHECK_DEP=$(rpm -qa rsync)
+        CHECK_DEP=$(rpm -qa findutils)
         if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing rsync\t" &&
-            yum install rsync -y > /dev/null &&
+            echo -ne "Installing findutils\t" &&
+            yum install findutils -y > /dev/null &&
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
@@ -342,10 +353,10 @@ function checkDependencies
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
-        CHECK_DEP=$(dpkg --list | grep "^ii  rsync ")
+        CHECK_DEP=$(dpkg --list | grep "^ii  findutils ")
         if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing rsync\t" &&
-            apt-get -qq install rsync -y > /dev/null &&
+            echo -ne "Installing findutils\t" &&
+            apt-get -qq install findutils -y > /dev/null &&
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
@@ -539,40 +550,30 @@ function createYumFiles
     echo "distroverpkg=centos-release" >> /etc/yum.repos.d/repomanager/repomanager.conf
 }
 
-# Deploy repomanager systemd services
+# Deploy repomanager systemd service
 function deployService
 {
-    if [ -z "$WWW_DIR" ];then
-        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager/)"
-        echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
-
-        if [ -z "$WWW_DIR" ];then
-            WWW_DIR="/var/www/repomanager"
-        fi
-    fi
-
-    # Exit function if web sources directory does not exist
-    if [ ! -d "$WWW_DIR" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot find ${YELLOW}${WWW_DIR}${RESET} directory..."
+    # Exit function if datadir directory does not exist
+    if [ ! -d "$DATA_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] Cannot find ${YELLOW}${DATA_DIR}${RESET} directory..."
         return
     fi
 
     # Exit function if services files cannot be found
-    if [ ! -f "${WWW_DIR}/tools/services/repomanager.systemd.template" ];then
-        echo -e "[$YELLOW ERROR $RESET] Systemd template service file ${YELLOW}${WWW_DIR}/tools/services/repomanager.systemd.template${RESET} does not exist..."
+    if [ ! -f "${DATA_DIR}/tools/service/repomanager.systemd.template" ];then
+        echo -e "[$YELLOW ERROR $RESET] Systemd template service file ${YELLOW}${DATA_DIR}/tools/service/repomanager.systemd.template${RESET} does not exist..."
         return
     fi
-    if [ ! -f "${WWW_DIR}/tools/services/repomanager-service" ];then
-        echo -e "[$YELLOW ERROR $RESET] Repomanager service script ${YELLOW}${WWW_DIR}/tools/services/repomanager-service${RESET} does not exist..."
+    if [ ! -f "${DATA_DIR}/tools/service/repomanager-service" ];then
+        echo -e "[$YELLOW ERROR $RESET] Repomanager service script ${YELLOW}${DATA_DIR}/tools/service/repomanager-service${RESET} does not exist..."
         return
     fi
 
     # Deploy systemd service template file
     echo -ne "\n➤ Deploying service... "
-    \cp "$WWW_DIR/tools/services/repomanager.systemd.template" /lib/systemd/system/repomanager.service &&
-    sed -i "s|__WWW_PATH__|$WWW_DIR|g" /lib/systemd/system/repomanager.service &&
+    \cp "$DATA_DIR/tools/service/repomanager.systemd.template" /lib/systemd/system/repomanager.service &&
     ln -fs /lib/systemd/system/repomanager.service /etc/systemd/system/repomanager.service &&
-    chmod 700 "${WWW_DIR}/tools/services/repomanager-service"
+    chmod 700 "${DATA_DIR}/tools/service/repomanager-service"
     echo -e "${GREEN}Done${RESET}"
 
     systemctl daemon-reload --quiet
@@ -619,32 +620,44 @@ function installation
 
     #### INSTALLATION ####
 
+    echo -e "➤ Repomanager data files will be stored in ${DATA_DIR}/. ${YELLOW}Please do not remove or move this directory and be sure to make daily backup of this directory.${RESET}"
+
     ## Repomanager web files installation location
     if [ -z "$WWW_DIR" ];then
-        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager/)"
+        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager)"
         echo -e "  ${YELLOW}You will have to set up a vhost to serve this location.${RESET}"
         echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
 
         if [ -z "$WWW_DIR" ];then
             WWW_DIR="/var/www/repomanager"
         fi
-        if [ -d "$WWW_DIR" ];then
-            echo -n "  $WWW_DIR already exists, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
-            if [ "$CONFIRM" != "yes" ];then
-                exit
-            fi
+    fi
+
+    if [ -d "$WWW_DIR" ];then
+        echo -n "  Webdir ${YELLOW}${WWW_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "yes" ];then
+            exit
+        fi
+    fi
+
+    if [ -d "$DATA_DIR" ];then
+        echo -n "  Datadir ${YELLOW}${DATA_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "yes" ];then
+            exit
         fi
     fi
     
-    # Delete dir content
+    # Delete webdir and datadir content
     rm "$WWW_DIR" -rf
+    rm "$DATA_DIR" -rf
 
-    # Create dir if not exist
+    # Create webdir and datadir
     mkdir -p "$WWW_DIR"
+    mkdir -p "$DATA_DIR"
 
     ## Repos directory
     if [ -z "$REPOS_DIR" ];then
-        echo -e "\n➤ Repos storage path (default is /home/repo/)"
+        echo -e "\n➤ Repos storage path (default is /home/repo)"
         echo -e "  ${YELLOW}This directory's size can grow large depending on your usage. Be sure to allow sufficiant disk space on this location.${RESET}"
         echo -n "  Leave empty to use default directory or specify a location: "; read -p "" REPOS_DIR
 
@@ -668,17 +681,17 @@ function installation
     mkdir -p "$REPOS_DIR"
 
     # Create 'configurations' and 'gnupg' directories
-    mkdir -p "${WWW_DIR}/configurations/"
-    mkdir -p "${WWW_DIR}/.gnupg/"
+    mkdir -p "${DATA_DIR}/configurations/"
+    mkdir -p "${DATA_DIR}/.gnupg/"
 
     # Copy web sources
-    cp -r ${PWD}/* ${WWW_DIR}/
+    cp -r ${PWD}/www/* ${WWW_DIR}/
 
-    # Copy actual version file
-    cp ../version ${WWW_DIR}/
+    # Copy scripts and tools to datadir
+    cp -r ${PWD}/tools ${DATA_DIR}/
 
     # Copy this script
-    cp ${PWD}/repomanager ${WWW_DIR}/repomanager
+    cp ${PWD}/repomanager ${DATA_DIR}/repomanager
 
 
     #### CONFIGURATION ####
@@ -729,7 +742,6 @@ function installation
         if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
             DEB_SIGN_REPO="yes"
         fi
-        GPGHOME="${WWW_DIR}/.gnupg"
         GPG_KEYID=""
         PASSPHRASE=""
         PASSPHRASE_FILE="${GPGHOME}/passphrase"
@@ -809,12 +821,12 @@ function installation
 
         # Create rpm macros file
         if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-            mkdir -p "${WWW_DIR}/.rpm"
-            echo "%__gpg /usr/bin/gpg2" > "$WWW_DIR/.rpm/.mcs"
-            echo "%_gpg_path $GPGHOME" >> "$WWW_DIR/.rpm/.mcs"
-            echo "%_gpg_name $GPG_KEYID" >> "$WWW_DIR/.rpm/.mcs"
-            echo "%_gpg_passphrase_file $PASSPHRASE_FILE" >> "$WWW_DIR/.rpm/.mcs"
-            echo "%__gpg_sign_cmd %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file %{_gpg_passphrase_file} %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >> "$WWW_DIR/.rpm/.mcs"
+            mkdir -p "${DATA_DIR}/.rpm"
+            echo "%__gpg /usr/bin/gpg2" > "$DATA_DIR/.rpm/.mcs"
+            echo "%_gpg_path $GPGHOME" >> "$DATA_DIR/.rpm/.mcs"
+            echo "%_gpg_name $GPG_KEYID" >> "$DATA_DIR/.rpm/.mcs"
+            echo "%_gpg_passphrase_file $PASSPHRASE_FILE" >> "$DATA_DIR/.rpm/.mcs"
+            echo "%__gpg_sign_cmd %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file %{_gpg_passphrase_file} %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >> "$DATA_DIR/.rpm/.mcs"
         fi
         # Additionnal gpg configuration for reprepro
         if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
@@ -833,67 +845,75 @@ function installation
     echo -e "   ${YELLOW}\nConfiguring repomanager...${RESET}"
 
     # Generating repomanager.conf with specified values
-    echo "[PATHS]" > ${WWW_DIR}/configurations/repomanager.conf
-    echo "WWW_DIR = \"$WWW_DIR\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "REPOS_DIR = \"$REPOS_DIR\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "[PATHS]" > $CONF
+    echo "WWW_DIR = \"$WWW_DIR\"" >> $CONF
+    echo "REPOS_DIR = \"$REPOS_DIR\"" >> $CONF
 
-    echo -e "\n[CONFIGURATION]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "EMAIL_DEST = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "MANAGE_HOSTS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "MANAGE_PROFILES = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "BACKUP_DIR = \"${WWW_DIR}/backups\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "DEBUG_MODE = \"disabled\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[CONFIGURATION]" >> $CONF
+    echo "EMAIL_DEST = \"\"" >> $CONF
+    echo "MANAGE_HOSTS = \"no\"" >> $CONF
+    echo "MANAGE_PROFILES = \"no\"" >> $CONF
+    echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> $CONF
+    echo "BACKUP_DIR = \"${DATA_DIR}/backups\"" >> $CONF
+    echo "DEBUG_MODE = \"disabled\"" >> $CONF
     
-    echo -e "\n[RPM]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "RPM_REPO = \"${RPM_REPO}\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "RPM_SIGN_PACKAGES = \"${RPM_SIGN_PACKAGES}\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "RPM_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "RPM_SIGN_METHOD = \"$RPM_SIGN_METHOD\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[RPM]" >> $CONF
+    echo "RPM_REPO = \"${RPM_REPO}\"" >> $CONF
+    echo "RPM_SIGN_PACKAGES = \"${RPM_SIGN_PACKAGES}\"" >> $CONF
+    echo "RPM_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> $CONF
+    echo "RPM_SIGN_METHOD = \"$RPM_SIGN_METHOD\"" >> $CONF
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        echo "RELEASEVER = \"$RELEASEVER\"" >> ${WWW_DIR}/configurations/repomanager.conf
+        echo "RELEASEVER = \"$RELEASEVER\"" >> $CONF
     else
-        echo "RELEASEVER = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+        echo "RELEASEVER = \"\"" >> $CONF
     fi
+    echo "RPM_DEFAULT_ARCH = \"\"" >> $CONF
+    echo "RPM_INCLUDE_SOURCE = \"no\"" >> $CONF
 
-    echo -e "\n[DEB]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "DEB_REPO = \"${DEB_REPO}\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "DEB_SIGN_REPO = \"${DEB_SIGN_REPO}\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "DEB_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    
-    echo -e "\n[UPDATE]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "UPDATE_AUTO = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "UPDATE_BRANCH = \"stable\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[DEB]" >> $CONF
+    echo "DEB_REPO = \"${DEB_REPO}\"" >> $CONF
+    echo "DEB_SIGN_REPO = \"${DEB_SIGN_REPO}\"" >> $CONF
+    echo "DEB_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> $CONF
+    echo "DEB_DEFAULT_ARCH = \"\"" >> $CONF
+    echo "DEB_INCLUDE_SOURCE = \"no\"" >> $CONF
+    echo "DEB_DEFAULT_TRANSLATION = \"\"" >> $CONF
 
-    echo -e "\n[WWW]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "WWW_USER = \"$WWW_USER\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "WWW_HOSTNAME = \"$WWW_HOSTNAME\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "WWW_REPOS_DIR_URL = \"https://${WWW_HOSTNAME}/repo\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[UPDATE]" >> $CONF
+    echo "UPDATE_AUTO = \"no\"" >> $CONF
+    echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> $CONF
+    echo "UPDATE_BRANCH = \"stable\"" >> $CONF
 
-    echo -e "\n[PLANS]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "PLANS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "PLAN_REMINDERS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "ALLOW_AUTOUPDATE_REPOS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "RETENTION = \"2\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[WWW]" >> $CONF
+    echo "WWW_USER = \"$WWW_USER\"" >> $CONF
+    echo "WWW_HOSTNAME = \"$WWW_HOSTNAME\"" >> $CONF
+    echo "WWW_REPOS_DIR_URL = \"https://${WWW_HOSTNAME}/repo\"" >> $CONF
 
-    echo -e "\n[STATS]" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "STATS_ENABLED = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    echo "STATS_LOG_PATH = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo -e "\n[PLANS]" >> $CONF
+    echo "PLANS_ENABLED = \"no\"" >> $CONF
+    echo "PLAN_REMINDERS_ENABLED = \"no\"" >> $CONF
+    echo "ALLOW_AUTOUPDATE_REPOS = \"no\"" >> $CONF
+    echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"no\"" >> $CONF
+    echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"no\"" >> $CONF
+    echo "RETENTION = \"2\"" >> $CONF
 
+    echo -e "\n[STATS]" >> $CONF
+    echo "STATS_ENABLED = \"no\"" >> $CONF
+    echo "STATS_LOG_PATH = \"\"" >> $CONF
 
     # Create repomanager group
     if ! grep -q "repomanager" /etc/group;then
         groupadd repomanager
-        # Webserver user is added to the group members
-        usermod -G repomanager "$WWW_USER"
     fi
+
+    # Webserver user is added to the group members
+    usermod -G repomanager "$WWW_USER"
 
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
         createYumFiles
     fi
+
+    # Create symlink to repomanager executable
+    ln -sf /var/lib/repomanager/repomanager /usr/bin/repomanager 
 
     echo -e "\n➤ Repomanager is using a systemd service to execute regular tasks, such as:"
     echo "  - checking for new version availability"

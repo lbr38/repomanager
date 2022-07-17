@@ -46,7 +46,7 @@
 
     <?php
     if (__ACTUAL_URI__ == "/index.php") {
-        echo '<title>Repomanager - Accueil</title>';
+        echo '<title>Repomanager - Repos</title>';
     } elseif (__ACTUAL_URI__ == "/planifications.php") {
         echo '<title>Repomanager - Planifications</title>';
     } elseif (__ACTUAL_URI__ == "/run.php") {

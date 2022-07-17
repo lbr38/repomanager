@@ -26,14 +26,13 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 |----------|---------------|
 | Créer des miroirs de repos publics | ✅ |
 | Créer des repos locaux | ✅ |
-| Signer les repos ou les paquets avec GPG | ✅ |
-| Archiver / restaurer des miroirs | ✅ |
+| Signer les repos / les paquets avec GPG | ✅ |
 | Charger des paquets dans des repos (ex: patchs zero-day) | ✅ |
 | **Automatisation** ||
-| Créer des tâches planifiées sur les miroirs (mise à jour...) | ✅ |
+| Créer des tâches planifiées pour mettre à jour les miroirs | ✅ |
 | Rappels de planifications (mail) | ✅ |
 | **Statistiques** ||
-| Graphiques sur l'utilisation et l'évolution des repos | ✅ |
+| Métriques sur l'utilisation et l'évolution des repos | ✅ |
 | **Gestion du parc** | |
 | Analyser et gérer les paquets installés sur un parc de serveurs "clients" | ✅ |
 | **Général** ||
@@ -59,7 +58,7 @@ L'espace disque est à adapter en fonction de la taille des repos distants à cl
 
 Pour fonctionner repomanager requiert la présence de certains logiciels couramment installés sur les distributions Linux, tels que :
 ```
-rsync, curl, wget, gnupg2
+curl, mlocate, wget, gnupg2
 ```
 
 Ainsi que certains logiciels spécifiques nécessaires pour créer des miroirs de repo tels que :
@@ -265,19 +264,16 @@ Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
 
 L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes permissions soient correctement établies sur les répertoires utilisés par repomanager.
 
-Télécharger la dernière release disponible au format .tar.gz. Toutes les releases sont visibles ici : https://github.com/lbr38/repomanager/releases
+Cloner le projet :
 
 ```
-RELEASE="v3.0.2-stable" # choix de la release
 cd /tmp
-wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
-tar xzf repomanager_$RELEASE.tar.gz
+git clone https://github.com/lbr38/repomanager.git
 cd /tmp/repomanager/
 ```
 
 Lancer l'installation de repomanager :
 ```
-chmod 700 repomanager
 sudo ./repomanager --install
 ```
 

@@ -86,8 +86,3 @@ if (STATS_ENABLED == "yes") {
         }
     }
 }
-
-/**
- *  Vérification des erreurs et ajout dans le fichier de log
- */
-file_put_contents(CRON_STATS_LOG, 'Status="OK"' . PHP_EOL);

@@ -36,7 +36,7 @@ class History
     }
 
     /**
-     *  Récupérer l'hsitorique complet d'un utilisateur
+     *  Récupérer l'historique complet d'un utilisateur
      */
     public static function getByUser(string $userId)
     {
@@ -74,6 +74,9 @@ class History
         return $datas;
     }
 
+    /**
+     *  Ajouter une nouvelle ligne d'historique en base de données
+     */
     public static function set(string $username, string $action, string $state = null)
     {
         date_default_timezone_set('Europe/Paris');

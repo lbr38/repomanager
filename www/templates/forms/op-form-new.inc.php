@@ -52,11 +52,11 @@
                     </td>
                 </tr>
 
-                <tr class="type_mirror_input">
+                <tr field-type="mirror rpm deb">
                     <td class="td-30">Repo source</td>
                     <td>
                         <?php if (RPM_REPO == 'enabled') : ?>
-                            <select id="repoSourceSelect" class="operation_param" param-name="source" package-type="rpm" field-type="rpm">
+                            <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror rpm" package-type="rpm">
                                 <option value="">Sélectionner un repo source...</option>
                                 <?php
                                 $reposFiles = scandir(REPOMANAGER_YUM_DIR);
@@ -75,7 +75,7 @@
                         <?php endif;
 
                         if (DEB_REPO == 'enabled') : ?>
-                            <select id="repoSourceSelect" class="operation_param" param-name="source" package-type="deb" field-type="deb">
+                            <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror deb" package-type="deb">
                                 <option value="">Sélectionner un repo source...</option>
                                 <?php
                                 $source = new \Models\Source();
@@ -95,21 +95,21 @@
                 </tr>
          
                 <tr>
-                    <td class="type_mirror_input td-30">Nom personnalisé (fac.)</td>
-                    <td class="type_local_input td-30 hide">Nom du repo</td>
+                    <td class="td-30" field-type="mirror rpm deb">Nom personnalisé (fac.)</td>
+                    <td class="td-30" field-type="local rpm deb">Nom du repo</td>
                     <td>
                         <input type="text" class="operation_param" param-name="alias" package-type="all" />
                     </td>
                 </tr>
 
-                <tr field-type="deb">
+                <tr field-type="mirror local deb">
                     <td class="td-30">Distribution</td>
                     <td>
                         <input type="text" class="operation_param" param-name="dist" package-type="deb" />
                     </td>
                 </tr>
 
-                <tr field-type="deb">
+                <tr field-type="mirror local deb">
                     <td class="td-30">Section</td>
                     <td>
                         <input type="text" class="operation_param" param-name="section" package-type="deb" />
@@ -138,24 +138,24 @@
                     <td><input type="text" class="operation_param" param-name="targetDescription" package-type="all" /></td>
                 </tr>
 
-                <tr class="type_mirror_input">
+                <tr field-type="mirror rpm deb">
                     <td class="td-30">Vérification des signatures GPG</td>
                     <td>
-                        <label class="type_mirror_input onoff-switch-label">
+                        <label class="onoff-switch-label">
                             <input name="repoGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetGpgCheck" package-type="all" checked />
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </td>
                 </tr>
 
-                <tr class="type_mirror_input">
+                <tr field-type="mirror rpm deb">
                     <td class="td-30">Signer avec GPG</td>
                     <td>
-                        <label class="onoff-switch-label" field-type="rpm">
+                        <label class="onoff-switch-label" field-type="mirror rpm">
                             <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?> />
                             <span class="onoff-switch-slider"></span>
                         </label>
-                        <label class="onoff-switch-label" field-type="deb">
+                        <label class="onoff-switch-label" field-type="mirror deb">
                             <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" param-name="targetGpgResign" package-type="deb" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?> />
                             <span class="onoff-switch-slider"></span>
                         </label>
@@ -180,6 +180,55 @@
                         </td>
                     </tr>
                 <?php endif ?>
+
+                <tr field-type="mirror rpm deb">
+                    <td colspan="100%"><b>Paramètres avancés</b></td>
+                </tr>
+
+                <tr field-type="mirror local rpm deb">
+                    <td class="td-30">Architecture</td>
+                    <td field-type="mirror local rpm">
+                        <select class="targetArchSelect operation_param" param-name="targetArch" package-type="rpm" multiple>
+                            <option value="">Sélectionner l'architecture...</option>
+                            <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                            <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                        </select>
+                    </td>
+
+                    <td field-type="mirror local deb">
+                        <select class="targetArchSelect operation_param" param-name="targetArch" package-type="deb" multiple>
+                            <option value="">Sélectionner l'architecture...</option>
+                            <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
+                            <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
+                            <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr field-type="mirror rpm deb">
+                    <td class="td-30">Inclure les sources</td>
+                    <td>
+                        <label field-type="mirror rpm" class="onoff-switch-label">
+                            <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                        <label field-type="mirror deb" class="onoff-switch-label">
+                            <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                </tr>
+
+                <tr field-type="mirror deb">
+                    <td class="td-30">Inclure les traductions de paquets</td>
+                    <td>
+                        <select id="targetPackageTranslationSelect" class="operation_param" param-name="targetPackageTranslation" package-type="deb" multiple>
+                            <option value="">Sélectionner des traductions...</option>
+                            <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+                            <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                        </select>
+                    </td>
+                </tr>
             </table>
         </div>
         
@@ -188,18 +237,3 @@
 
     </form>
 </section>
-
-<script>
-$(document).ready(function(){
-    /**
-     *  Affiche la description uniquement si un environnement est spécifié
-     */
-    $(document).on('change','#new-repo-target-env-select',function(){
-        if ($('#new-repo-target-env-select').val() == "") {
-            $('#new-repo-target-description-tr').hide();
-        } else {
-            $('#new-repo-target-description-tr').show();
-        }
-    }).trigger('change');
-});
-</script>

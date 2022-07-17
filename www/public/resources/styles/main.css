@@ -1064,7 +1064,7 @@ footer p { color: gray; }
 #hideAllReposGroups {
     position: absolute;
     right: 8px;
-    top: -24px;
+    top: -28px;
 }
 
 .action, .alert, .alert-success, .alert-error, .confirmAlert { /* div affichant une alerte au milieu de la page */

@@ -582,6 +582,23 @@ class Planification
                 }
 
                 /**
+                 *  Set target arch from the actual repo's arch
+                 */
+                $this->repo->setTargetArch($this->repo->getArch());
+
+                /**
+                 *  Set target Package source from the actual repo's setting (yes or no)
+                 */
+                $this->repo->setTargetPackageSource($this->repo->getPackageSource());
+
+                /**
+                 *  Set target Package Translation from the actual repo's setting, if there is
+                 */
+                if (!empty($this->repo->getPackageTranslation())) {
+                    $this->repo->setTargetPackageTranslation($this->repo->getPackageTranslation());
+                }
+
+                /**
                  *  Set de GPG Check conformément à ce qui a été défini pour cette planification
                  */
                 $this->repo->setTargetGpgCheck($this->targetGpgCheck);
@@ -686,6 +703,23 @@ class Planification
                      */
                     if (!empty($this->targetEnv)) {
                         $this->repo->setTargetEnv($this->targetEnv);
+                    }
+
+                    /**
+                     *  Set target arch from the actual repo's arch
+                     */
+                    $this->repo->setTargetArch($this->repo->getArch());
+
+                    /**
+                     *  Set target Package source from the actual repo's setting (yes or no)
+                     */
+                    $this->repo->setTargetPackageSource($this->repo->getPackageSource());
+
+                    /**
+                     *  Set target Package Translation from the actual repo's setting, if there is
+                     */
+                    if (!empty($this->repo->getPackageTranslation())) {
+                        $this->repo->setTargetPackageTranslation($this->repo->getPackageTranslation());
                     }
 
                     /**

@@ -3,8 +3,7 @@ Description=Repomanager service
 
 [Service]
 Type=simple
-ExecStart=__WWW_PATH__/tools/services/repomanager-service
-#CPUQuota=50%
+ExecStart=/var/lib/repomanager/tools/service/repomanager-service
 
 [Install]
 WantedBy=multi-user.target

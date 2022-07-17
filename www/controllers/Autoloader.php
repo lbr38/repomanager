@@ -51,6 +51,10 @@ class Autoloader
             define('ROOT', dirname(__FILE__, 2));
         }
 
+        if (!defined('DATA_DIR')) {
+            define('DATA_DIR', '/var/lib/repomanager');
+        }
+
         /**
          *  Chargement de toutes les fonctions nécessaires
          */
@@ -119,6 +123,10 @@ class Autoloader
             define('ROOT', dirname(__FILE__, 2));
         }
 
+        if (!defined('DATA_DIR')) {
+            define('DATA_DIR', '/var/lib/repomanager');
+        }
+
         /**
          *  Chargement des fonctions nécessaires
          */
@@ -160,7 +168,6 @@ class Autoloader
         \Controllers\Autoloader::loadDirs();
         \Controllers\Autoloader::loadEnvs();
         \Controllers\Autoloader::checkForUpdate();
-        // \Controllers\Autoloader::startStats();
         \Controllers\Autoloader::serviceIsActive();
         \Controllers\Autoloader::loadReposListDisplayConf();
     }
@@ -209,25 +216,24 @@ class Autoloader
         /**
          *  Emplacement des répertoires de bases
          */
-
         // Emplacement de la DB
         if (!defined('DB_DIR')) {
-            define('DB_DIR', ROOT . "/db");
+            define('DB_DIR', DATA_DIR . "/db");
         }
         if (!defined('DB')) {
-            define('DB', ROOT . "/db/repomanager.db");
+            define('DB', DB_DIR . "/repomanager.db");
         }
         // Emplacement du répertoire de cache
         if (!defined('WWW_CACHE')) {
-            define('WWW_CACHE', ROOT . "/cache");
+            define('WWW_CACHE', DATA_DIR . "/cache");
         }
         // Emplacement du répertoire de clé GPG
         if (!defined('GPGHOME')) {
-            define('GPGHOME', ROOT . "/.gnupg");
+            define('GPGHOME', DATA_DIR . "/.gnupg");
         }
         // Répertoire principal des logs
         if (!defined('LOGS_DIR')) {
-            define('LOGS_DIR', ROOT . "/logs");
+            define('LOGS_DIR', DATA_DIR . "/logs");
         }
         // Logs du programme
         if (!defined('MAIN_LOGS_DIR')) {
@@ -236,21 +242,31 @@ class Autoloader
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
         }
+        if (!defined('SERVICE_LOG_DIR')) {
+            define('SERVICE_LOG_DIR', LOGS_DIR . '/service');
+        }
+        if (!defined('SERVICE_LOG')) {
+            define('SERVICE_LOG', SERVICE_LOG_DIR . '/repomanager-service.log');
+        }
         // Pool de taches asynchrones
         if (!defined('POOL')) {
-            define('POOL', ROOT . "/operations/pool");
+            define('POOL', DATA_DIR . "/operations/pool");
         }
         // PIDs
         if (!defined('PID_DIR')) {
-            define('PID_DIR', ROOT . "/operations/pid");
+            define('PID_DIR', DATA_DIR . "/operations/pid");
         }
         // Répertoire contenant des fichiers temporaires
         if (!defined('TEMP_DIR')) {
-            define('TEMP_DIR', ROOT . "/.temp");
+            define('TEMP_DIR', DATA_DIR . "/.temp");
         }
         // Hotes
         if (!defined('HOSTS_DIR')) {
-            define('HOSTS_DIR', ROOT . '/hosts');
+            define('HOSTS_DIR', DATA_DIR . '/hosts');
+        }
+        // Logbuilder
+        if (!defined('LOGBUILDER')) {
+            define('LOGBUILDER', ROOT . '/tools/logbuilder.php');
         }
         // Répertoires et fichiers supplémentaires pour rpm
         // Emplacement de la conf yum
@@ -267,9 +283,8 @@ class Autoloader
         if (!defined('PASSPHRASE_FILE')) {
             define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
         }
-        // }
-        if (!is_dir(ROOT . '/.rpm')) {
-            mkdir(ROOT . '/.rpm', 0770, true);
+        if (!is_dir(DATA_DIR . '/.rpm')) {
+            mkdir(DATA_DIR . '/.rpm', 0770, true);
         }
         // Fichier de macros pour rpm
         if (!file_exists(MACROS_FILE)) {
@@ -293,6 +308,9 @@ class Autoloader
         if (!is_dir(MAIN_LOGS_DIR)) {
             mkdir(MAIN_LOGS_DIR, 0770, true);
         }
+        if (!is_dir(SERVICE_LOG_DIR)) {
+            mkdir(SERVICE_LOG_DIR, 0770, true);
+        }
         if (!is_dir(POOL)) {
             mkdir(POOL, 0770, true);
         }
@@ -312,18 +330,18 @@ class Autoloader
         if (!file_exists(WWW_CACHE)) {
             // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
             if (file_exists("/dev/shm")) {
-                exec('cd ' . ROOT . ' && ln -sfn /dev/shm cache');
+                exec('cd ' . DATA_DIR . ' && ln -sfn /dev/shm cache');
             } else {
-                mkdir(ROOT . '/cache', 0770, true);
+                mkdir(DATA_DIR . '/cache', 0770, true);
             }
         }
 
         /**
          *  Création du répertoire de backup si n'existe pas
          */
-        if (defined('BACKUP_DIR') and !is_dir(BACKUP_DIR)) {
+        if (defined('BACKUP_DIR') and !empty(BACKUP_DIR) and !is_dir(BACKUP_DIR)) {
             if (!mkdir(BACKUP_DIR, 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : ' . $BACKUP_DIR;
+                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : ' . BACKUP_DIR;
             }
         }
         /**
@@ -504,7 +522,7 @@ class Autoloader
          *  Emplacements du fichier de conf
          */
         if (!defined('REPOMANAGER_CONF')) {
-            define('REPOMANAGER_CONF', ROOT . "/configurations/repomanager.conf");
+            define('REPOMANAGER_CONF', DATA_DIR . '/configurations/repomanager.conf');
         }
 
         /**
@@ -528,7 +546,9 @@ class Autoloader
             /**
              *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
              */
-            if ($key == 'STATS_LOG_PATH') {
+            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION');
+
+            if (in_array($key, $ignoreEmptyParam)) {
                 continue;
             }
 
@@ -717,6 +737,22 @@ class Autoloader
             }
         }
 
+        if (!defined('RPM_DEFAULT_ARCH')) {
+            if (!empty($repomanager_conf_array['RPM_DEFAULT_ARCH'])) {
+                define('RPM_DEFAULT_ARCH', explode(',', $repomanager_conf_array['RPM_DEFAULT_ARCH']));
+            } else {
+                define('RPM_DEFAULT_ARCH', array());
+            }
+        }
+
+        if (!defined('RPM_INCLUDE_SOURCE')) {
+            if (!empty($repomanager_conf_array['RPM_INCLUDE_SOURCE'])) {
+                define('RPM_INCLUDE_SOURCE', $repomanager_conf_array['RPM_INCLUDE_SOURCE']);
+            } else {
+                define('RPM_INCLUDE_SOURCE', 'no');
+            }
+        }
+
         // DEB
         if (!defined('DEB_REPO')) {
             if (!empty($repomanager_conf_array['DEB_REPO'])) {
@@ -746,6 +782,30 @@ class Autoloader
                 if (DEB_SIGN_REPO == 'yes') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
                 }
+            }
+        }
+
+        if (!defined('DEB_DEFAULT_ARCH')) {
+            if (!empty($repomanager_conf_array['DEB_DEFAULT_ARCH'])) {
+                define('DEB_DEFAULT_ARCH', explode(',', $repomanager_conf_array['DEB_DEFAULT_ARCH']));
+            } else {
+                define('DEB_DEFAULT_ARCH', array());
+            }
+        }
+
+        if (!defined('DEB_INCLUDE_SOURCE')) {
+            if (!empty($repomanager_conf_array['DEB_INCLUDE_SOURCE'])) {
+                define('DEB_INCLUDE_SOURCE', $repomanager_conf_array['DEB_INCLUDE_SOURCE']);
+            } else {
+                define('DEB_INCLUDE_SOURCE', 'no');
+            }
+        }
+
+        if (!defined('DEB_DEFAULT_TRANSLATION')) {
+            if (!empty($repomanager_conf_array['DEB_DEFAULT_TRANSLATION'])) {
+                define('DEB_DEFAULT_TRANSLATION', explode(',', $repomanager_conf_array['DEB_DEFAULT_TRANSLATION']));
+            } else {
+                define('DEB_DEFAULT_TRANSLATION', array());
             }
         }
 
@@ -880,7 +940,7 @@ class Autoloader
          *  Paramètres supplémentaires pour rpm / yum
          */
         if (!defined('MACROS_FILE')) {
-            define('MACROS_FILE', ROOT . '/.rpm/.mcs');
+            define('MACROS_FILE', DATA_DIR . '/.rpm/.mcs');
         }
 
         /**
@@ -956,8 +1016,8 @@ class Autoloader
         }
 
         if (!defined('GIT_VERSION')) {
-            if (file_exists(ROOT . '/version.available')) {
-                define('GIT_VERSION', file_get_contents(ROOT . '/version.available'));
+            if (file_exists(DATA_DIR . '/version.available')) {
+                define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
             }
         }
 

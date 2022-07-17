@@ -16,6 +16,9 @@ class Repo
     private $name;
     private $source;
     private $packageType;
+    private $arch;
+    private $packageSourceIncluded;
+    private $packageTranslationIncluded;
     private $dist;
     private $section;
     private $date;
@@ -24,10 +27,9 @@ class Repo
     private $env;
     private $description;
     private $signed;
-    private $type; // miroir ou local
+    private $type; // mirror ou local
     private $status;
     private $reconstruct;
-    // private $sourceFullUrl;
     private $hostUrl;
     private $rootUrl;
     private $gpgCheck;
@@ -42,6 +44,9 @@ class Repo
     private $targetDescription;
     private $targetGpgCheck;
     private $targetGpgResign;
+    private $targetArch;
+    private $targetPackageSource = 'no';
+    private $targetPackageTranslation = array();
 
     private $repoLastName;
     private $repoLastDist;
@@ -151,11 +156,6 @@ class Repo
         $this->source = $source;
     }
 
-    // public function setSourceFullUrl(string $fullUrl)
-    // {
-    //     $this->sourceFullUrl = $fullUrl;
-    // }
-
     public function setSourceHostUrl(string $hostUrl)
     {
         $this->hostUrl = $hostUrl;
@@ -207,6 +207,36 @@ class Repo
     public function setTargetGpgResign(string $gpgResign)
     {
         $this->targetGpgResign = $gpgResign;
+    }
+
+    public function setArch(array $arch)
+    {
+        $this->arch = $arch;
+    }
+
+    public function setIncludePackageSource(string $packageSourceIncluded)
+    {
+        $this->packageSourceIncluded = $packageSourceIncluded;
+    }
+
+    public function setPackageTranslation(array $packageTranslationIncluded)
+    {
+        $this->packageTranslationIncluded = $packageTranslationIncluded;
+    }
+
+    public function setTargetArch(array $targetArch)
+    {
+        $this->targetArch = $targetArch;
+    }
+
+    public function setTargetPackageSource(string $targetPackageSource)
+    {
+        $this->targetPackageSource = $targetPackageSource;
+    }
+
+    public function setTargetPackageTranslation(array $targetPackageTranslation)
+    {
+        $this->targetPackageTranslation = $targetPackageTranslation;
     }
 
     public function getRepoId()
@@ -324,6 +354,21 @@ class Repo
         return $this->signed;
     }
 
+    public function getArch()
+    {
+        return $this->arch;
+    }
+
+    public function getPackageSource()
+    {
+        return $this->packageSourceIncluded;
+    }
+
+    public function getPackageTranslation()
+    {
+        return $this->packageTranslationIncluded;
+    }
+
     public function getDescription()
     {
         return $this->description;
@@ -435,6 +480,15 @@ class Repo
         if ($this->packageType == 'deb' and $this->type == "mirror") {
             $this->getFullSource($this->source);
         }
+        if (!empty($data['Arch'])) {
+            $this->setArch(explode(',', $data['Arch']));
+        }
+        if (!empty($data['Pkg_source'])) {
+            $this->setIncludePackageSource($data['Pkg_source']);
+        }
+        if (!empty($data['Pkg_translation'])) {
+            $this->setPackageTranslation(explode(',', $data['Pkg_translation']));
+        }
     }
 
     /**
@@ -481,7 +535,6 @@ class Repo
             throw new Exception('impossible de déterminer la racine de l\'URL du repo source');
         }
 
-        // $this->setSourceFullUrl($fullUrl);
         $this->setSourceHostUrl($hostUrl);
         $this->setSourceRoot($root);
     }
@@ -633,13 +686,13 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails("CREATION D'UN NOUVEAU REPO");
+            $this->printDetails('CREATE A NEW REPO MIRROR');
 
             /**
              *   Etape 2 : récupération des paquets
@@ -720,7 +773,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 2;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             ob_start();
@@ -819,7 +872,7 @@ class Repo
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->model->addSnap($this->targetDate, $this->targetTime, 'no', $this->type, 'active', $this->repoId);
+            $this->model->addSnap($this->targetDate, $this->targetTime, 'no', $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
@@ -947,13 +1000,13 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails("MISE A JOUR D'UN REPO");
+            $this->printDetails('UPDATE REPO');
 
             /**
             *   Etape 2 : récupération des paquets
@@ -1047,7 +1100,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 4;
-        exec("php " . ROOT . "/operations/logbuilder.php " . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             ob_start();
@@ -1171,7 +1224,7 @@ class Repo
             /**
              *  On ajoute le snapshot copié en base de données
              */
-            $this->model->addSnap($this->date, $this->time, $this->signed, $this->type, $this->status, $targetRepoId);
+            $this->model->addSnap($this->date, $this->time, $this->signed, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, $this->status, $targetRepoId);
 
             /**
              *  On récupère l'Id du snapshot créé en base de données
@@ -1277,7 +1330,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 3;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         /**
          *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
@@ -1288,7 +1341,7 @@ class Repo
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails('RECONSTRUCTION DES METADONNÉES DU REPO');
+            $this->printDetails('REBUILD REPO METADATA');
             /**
             *   Etape 2 : signature des paquets/du repo
             */
@@ -1358,7 +1411,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 1;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             ob_start();
@@ -1489,7 +1542,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 2;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             ob_start();
@@ -1591,7 +1644,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 4;
-        exec('php ' . ROOT . '/operations/logbuilder.php ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
 
         try {
             ob_start();
@@ -1890,8 +1943,10 @@ class Repo
 
         $this->op->step('RÉCUPÉRATION DES PAQUETS');
 
+        //// CHECKS ////
+
         /**
-         *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
+         *  Operation type must be specified ('new' or 'update')
          */
         if (empty($this->op->getAction())) {
             throw new Exception("Type d'opération inconnu (vide)");
@@ -1900,11 +1955,9 @@ class Repo
             throw new Exception("Erreur : Type d'opération invalide");
         }
 
-        //// VERIFICATIONS ////
-
         /**
-         *  1 : Récupération du type du repo :
-         *  Si il s'agit d'un repo de type 'local' alors on quitte à cette étape car on ne peut pas mettre à jour ce type de repo
+         *  Verify repo type (mirror or local)
+         *  If it must be a local repo then quit because we can't update a local repo
          */
         if ($this->type == 'local') {
             throw new Exception("Il n'est pas possible de mettre à jour un snapshot de repo local");
@@ -1925,17 +1978,22 @@ class Repo
          */
         if ($this->op->getAction() == "new") {
             if ($this->packageType == "rpm") {
-                //if ($this->model->exists($this->name) === true) {
                 if ($this->model->isActive($this->name) === true) {
                     throw new Exception('Un repo <span class="label-white">' . $this->name . '</span> existe déjà');
                 }
             }
             if ($this->packageType == "deb") {
-                // if ($this->model->sectionExists($this->name, $this->dist, $this->section) == true) {
                 if ($this->model->isActive($this->name, $this->dist, $this->section) == true) {
                     throw new Exception('Un repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> existe déjà');
                 }
             }
+        }
+
+        /**
+         *  Target arch must be specified
+         */
+        if (empty($this->targetArch)) {
+            throw new Exception('Packages arch must be specified.');
         }
 
         /**
@@ -2081,13 +2139,30 @@ class Repo
             } elseif (preg_match('/^4/', $yumUtilsVersion)) {
                 $reposyncGlobalParams = '--norepopath';
 
-                if ($this->getTargetGpgCheck() == "no") {
+                if ($this->targetGpgCheck == "no") {
                     $reposyncGpgParam = '--nogpgcheck';
                 } else {
                     $reposyncGpgParam = '';
                 }
             } else {
                 throw new Exception('La version de yum-utils installée est incompatible ou invalide.');
+            }
+
+
+            /**
+             *  Case we want packages sources to be synced
+             */
+            if ($this->targetPackageSource == 'yes') {
+                $reposyncGlobalParams .= ' --source';
+            }
+
+            /**
+             *  Case we want specific package arch to be synced
+             */
+            if (!empty($this->targetArch)) {
+                foreach ($this->targetArch as $arch) {
+                    $reposyncGlobalParams .= ' --arch="' . $arch . '"';
+                }
             }
 
             /**
@@ -2098,9 +2173,45 @@ class Repo
 
         if ($this->packageType == "deb") {
             /**
-             *  Dans le cas où on a précisé de ne pas vérifier les signatures GPG
+             *  debmirror global params
              */
-            if ($this->getTargetGpgCheck() == "no") {
+
+            /**
+             *  Case we want packages sources to be synced
+             */
+            if ($this->targetPackageSource == 'yes') {
+                $debmirrorGlobalParams = '--source';
+            } else {
+                $debmirrorGlobalParams = '--nosource';
+            }
+
+            /**
+             *  Case we want specific package arch to be synced
+             */
+            if (!empty($this->targetArch)) {
+                foreach ($this->targetArch as $arch) {
+                    $debmirrorGlobalParams .= ' --arch="' . $arch . '"';
+                }
+            }
+
+            /**
+             *  Case we want some packages translations to be synced
+             */
+            if (!empty($this->targetPackageTranslation)) {
+                /**
+                 *  Add --i18n then include each translation required
+                 */
+                $debmirrorGlobalParams .= ' --i18n';
+
+                foreach ($this->targetPackageTranslation as $translation) {
+                    $debmirrorGlobalParams .= ' --include="Translation-' . $translation . '.*"';
+                }
+            }
+
+            /**
+             *  Case we don't want GPG signature check
+             */
+            if ($this->targetGpgCheck == "no") {
                 $debmirrorGpgParam = '--no-check-gpg';
             } else {
                 $debmirrorGpgParam = '--check-gpg --keyring=' . GPGHOME . '/trustedkeys.gpg';
@@ -2109,7 +2220,7 @@ class Repo
             /**
              *  Instanciation d'un nouveau Process debmirror
              */
-            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' --nosource --passive --method=http --rsync-extra=none --host=' . $this->hostUrl . ' --root=' . $this->rootUrl . ' --dist=' . $this->dist . ' --section=' . $this->section . ' --arch=amd64 ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --ignore-release-gpg --progress --i18n --include="Translation-fr.*\.bz2" --postcleanup');
+            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' ' . $debmirrorGlobalParams . ' --passive --method=http --rsync-extra=none --host="' . $this->hostUrl . '" --root="' . $this->rootUrl . '" --dist="' . $this->dist . '" --section="' . $this->section . '" ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --progress --postcleanup');
         }
 
         /**
@@ -2175,7 +2286,7 @@ class Repo
 
         /**
          *  Signature des paquets du repo avec GPG
-         *  Redhat seulement car sur Debian c'est le fichier Release qui est signé ors de la création du repo
+         *  Redhat seulement car sur Debian c'est le fichier Release qui est signé lors de la création du repo
          */
         if ($this->packageType == "rpm" and $this->targetGpgResign == "yes") {
             $this->op->step('SIGNATURE DES PAQUETS (GPG)');
@@ -2191,7 +2302,7 @@ class Repo
             $signErrors = 0;
 
             /**
-             *  On traite chaque fichier rpm trouvé
+             *  On traite chaque fichier trouvé
              */
             foreach ($rpmFiles as $rpmFile) {
                 /**
@@ -2384,6 +2495,13 @@ class Repo
 
         if ($this->packageType == "deb") {
             /**
+             *  Target arch must be specified
+             */
+            if (empty($this->targetArch)) {
+                throw new Exception('Packages arch must be specified.');
+            }
+
+            /**
              *  On va créer et utiliser un répertoire temporaire pour travailler
              */
             $TMP_DIR = REPOS_DIR . "/{$this->op->log->pid}_deb_packages";
@@ -2440,30 +2558,39 @@ class Repo
             }
 
             /**
-             *  Création du fichier "distributions"
-             *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
+             *  Create "distributions" file
+             *  Its content will depend on repo signature, architecture specified...
              */
-            if ($this->targetGpgResign == "yes") {
-                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL . 'Pull: ' . $this->section;
-            } else {
-                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'Pull: ' . $this->section;
+            $repreproArchs = '';
+
+            foreach ($this->targetArch as $arch) {
+                $repreproArchs .= ' ' . $arch;
             }
 
-            if (!file_put_contents($sectionPath . '/conf/distributions', $file_distributions_content . PHP_EOL)) {
+            $distributionsFileContent = 'Origin: ' . $this->name . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
+            $distributionsFileContent .= 'Label: apt repository' . PHP_EOL;
+            $distributionsFileContent .= 'Codename: ' . $this->dist . PHP_EOL;
+            $distributionsFileContent .= 'Architectures: ' . $repreproArchs . PHP_EOL;
+            $distributionsFileContent .= 'Components: ' . $this->section . PHP_EOL;
+            $distributionsFileContent .= 'Description: ' . $this->name . ' repo, mirror of ' . $this->source . ' - ' . $this->dist . ' - ' . $this->section . PHP_EOL;
+            if ($this->targetGpgResign == "yes") {
+                $distributionsFileContent .= 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL;
+            }
+            $distributionsFileContent .= 'Pull: ' . $this->section;
+
+            if (!file_put_contents($sectionPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
                 throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/distributions</b>");
             }
 
             /**
-             *  Création du fichier "options"
-             *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
+             *  Create "options" file
              */
+            $optionsFileContent = "basedir $sectionPath" . PHP_EOL;
             if ($this->targetGpgResign == "yes") {
-                $file_options_content = "basedir $sectionPath" . PHP_EOL . 'ask-passphrase';
-            } else {
-                $file_options_content = "basedir $sectionPath";
+                $optionsFileContent .= 'ask-passphrase';
             }
 
-            if (!file_put_contents($sectionPath . '/conf/options', $file_options_content . PHP_EOL)) {
+            if (!file_put_contents($sectionPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
                 throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/options</b>");
             }
 
@@ -2658,7 +2785,7 @@ class Repo
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->type, 'active', $this->repoId);
+            $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
@@ -2702,7 +2829,7 @@ class Repo
                 /**
                  *  Cas où un nouveau snapshot a été créé, on l'ajoute en base de données
                  */
-                $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, 'mirror', 'active', $this->repoId);
+                $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, 'mirror', 'active', $this->repoId);
 
                 /**
                  *  On récupère l'Id du snapshot précédemment créé
@@ -3293,7 +3420,7 @@ class Repo
                     if ($this->snapOpIsRunning($this->snapId) === true) : ?>
                         <img src="resources/images/loading.gif" class="icon" title="Une opération est en cours sur ce snapshot de repo." />
                     <?php else : ?>
-                        <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>">
+                        <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>" title="Select and execute an action.">
                     <?php endif ?>
                 <?php endif ?>
             </div>   

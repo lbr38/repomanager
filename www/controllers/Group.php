@@ -209,15 +209,20 @@ class Group
     }
 
     /**
-     *  Retourne tous les noms de groupes en bases de données
-     *  Avec le groupe par défaut
+     *  Returns the names of groups in database
+     *  With the default group name
      */
     public function listAllWithDefault()
     {
         $groups = $this->model->listAllName();
 
         /**
-         *  On ajoute le groupe par défaut (groupe fictif) à la suite
+         *  Sort by name
+         */
+        asort($groups);
+
+        /**
+         *  Then add default group 'Default' to the end of the list
          */
         $groups[] = 'Default';
 
