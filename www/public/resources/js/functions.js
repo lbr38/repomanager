@@ -64,7 +64,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Supprimer')
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
      */
-     $("#newConfirmAlert").remove();
+    $("#newConfirmAlert").remove();
 
     var $content = '<div id="newConfirmAlert" class="confirmAlert"><span class="confirmAlert-message">' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Annuler</span></div></div>';
 
@@ -116,22 +116,6 @@ function reloadContentById(id)
 function reloadContentByClass(className)
 {
     $('.' + className).load(location.href + ' .' + className + ' > *');
-}
-
-/**
- *  Rechargement de la div 'nouveau repo'
- */
-function reloadNewRepoDiv()
-{
-    $("#newRepoDiv").load(" #newRepoDiv > *");
-
-    if ($("#repoType_mirror").is(":checked")) {
-        $(".type_mirror_input").show();
-        $(".type_local_input").hide();
-    } else {
-        $(".type_mirror_input").hide();
-        $(".type_local_input").show();
-    }
 }
 
 /**

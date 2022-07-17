@@ -422,6 +422,15 @@ class Operation
         }
     }
 
+    private function checkParamIncludeArch(array $targetIncludeArch)
+    {
+        foreach ($targetIncludeArch as $arch) {
+            if (!\Controllers\Common::isAlphanumdash($arch)) {
+                throw new Exception("L'architecture à inclure comporte des caractères invalides");
+            }
+        }
+    }
+
     private function checkParamIncludeSource(string $targetIncludeSource)
     {
         if ($targetIncludeSource !== "yes" and $targetIncludeSource !== "no") {
@@ -1097,6 +1106,7 @@ class Operation
                     $this->checkParamSource($operation_params['source']);
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
+                    $this->checkParamIncludeArch($operation_params['targetIncludeArch']);
                     $this->checkParamIncludeSource($operation_params['targetIncludeSource']);
 
                     if ($packageType == 'deb') {

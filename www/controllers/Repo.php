@@ -24,10 +24,9 @@ class Repo
     private $env;
     private $description;
     private $signed;
-    private $type; // miroir ou local
+    private $type; // mirror ou local
     private $status;
     private $reconstruct;
-    // private $sourceFullUrl;
     private $hostUrl;
     private $rootUrl;
     private $gpgCheck;
@@ -42,6 +41,7 @@ class Repo
     private $targetDescription;
     private $targetGpgCheck;
     private $targetGpgResign;
+    private $targetIncludeArch;
     private $targetIncludeSource = 'no';
     private $targetIncludeTranslation;
 
@@ -153,11 +153,6 @@ class Repo
         $this->source = $source;
     }
 
-    // public function setSourceFullUrl(string $fullUrl)
-    // {
-    //     $this->sourceFullUrl = $fullUrl;
-    // }
-
     public function setSourceHostUrl(string $hostUrl)
     {
         $this->hostUrl = $hostUrl;
@@ -209,6 +204,11 @@ class Repo
     public function setTargetGpgResign(string $gpgResign)
     {
         $this->targetGpgResign = $gpgResign;
+    }
+
+    public function setTargetIncludeArch(array $targetIncludeArch)
+    {
+        $this->targetIncludeArch = $targetIncludeArch;
     }
 
     public function setTargetIncludeSource(string $targetIncludeSource)
@@ -493,7 +493,6 @@ class Repo
             throw new Exception('impossible de déterminer la racine de l\'URL du repo source');
         }
 
-        // $this->setSourceFullUrl($fullUrl);
         $this->setSourceHostUrl($hostUrl);
         $this->setSourceRoot($root);
     }
@@ -2102,6 +2101,23 @@ class Repo
                 throw new Exception('La version de yum-utils installée est incompatible ou invalide.');
             }
 
+
+            /**
+             *  Case we want packages sources to be synced
+             */
+            if ($this->targetIncludeSource == 'yes') {
+                $reposyncGlobalParams .= ' --source';
+            }
+
+            /**
+             *  Case we want specific package arch to be synced
+             */
+            if (!empty($this->targetIncludeArch)) {
+                foreach($this->targetIncludeArch as $arch) {
+                    $reposyncGlobalParams .= ' --arch="' . $arch . '"';
+                }
+            }
+
             /**
              *  Instanciation d'un nouveau Process reposync
              */
@@ -2120,6 +2136,15 @@ class Repo
                 $debmirrorGlobalParams = '--source';
             } else {
                 $debmirrorGlobalParams = '--nosource';
+            }
+
+            /**
+             *  Case we want specific package arch to be synced
+             */
+            if (!empty($this->targetIncludeArch)) {
+                foreach($this->targetIncludeArch as $arch) {
+                    $debmirrorGlobalParams .= ' --arch="' . $arch . '"';
+                }
             }
 
             /**
@@ -2148,7 +2173,7 @@ class Repo
             /**
              *  Instanciation d'un nouveau Process debmirror
              */
-            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' ' . $debmirrorGlobalParams . ' --passive --method=http --rsync-extra=none --host="' . $this->hostUrl . '" --root="' . $this->rootUrl . '" --dist="' . $this->dist . '" --section="' . $this->section . '" --arch="amd64" ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --progress --postcleanup');
+            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' ' . $debmirrorGlobalParams . ' --passive --method=http --rsync-extra=none --host="' . $this->hostUrl . '" --root="' . $this->rootUrl . '" --dist="' . $this->dist . '" --section="' . $this->section . '" ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --progress --postcleanup');
         }
 
         /**

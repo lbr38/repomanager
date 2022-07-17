@@ -1,44 +1,79 @@
 $(document).ready(function () {
     /**
-     *  Affichage des bons champs dans le formulaire de création de nouveau repo, en fonction du type de paquets qui est sélectionné
+     *  Charge tous le nécessaire pour le formulaire de création d'un nouveau repo 
      */
-    newRepoFormPrintPackageTypeFields();
+    loadNewRepoFormJS();
 });
 
 /**
  *  Fonctions
  */
+function loadNewRepoFormJS()
+{
+    /**
+     *  Affiche la description uniquement si un environnement est spécifié
+     */
+    $(document).on('change','#new-repo-target-env-select',function(){
+        if ($('#new-repo-target-env-select').val() == "") {
+            $('#new-repo-target-description-tr').hide();
+        } else {
+            $('#new-repo-target-description-tr').show();
+        }
+    }).trigger('change');
+
+    /**
+     *  Converti les select en select2
+     */
+    $('.targetIncludeArchSelect, #targetIncludeTranslationSelect').select2({
+        closeOnSelect: false,
+        placeholder: 'Sélectionner...'
+    });
+
+    /**
+     *  Affiche/masque les champs nécessaires
+     */
+    newRepoFormPrintFields();
+}
+
+/**
+ *  Rechargement de la div 'nouveau repo'
+ */
+function reloadNewRepoDiv()
+{
+    $("#newRepoDiv").load(" #newRepoDiv > *", function() {
+        loadNewRepoFormJS();
+    });
+}
 
 /**
  *  Afficher / masquer les champs de saisie en fonction du type de paquets sélectionné (rpm ou deb)
  */
-function newRepoFormPrintPackageTypeFields()
+function newRepoFormPrintFields()
 {
     /**
-     *  Recherche dans le formulaire d'opération dont l'action est 'new' (formulaire de création d'un nouveau repo) de la valeur du
-     *  type de paquets sélectionnée.
+     *  Recherche du type de repo et du type de paquets sélectionné dans le formulaire d'opération dont
+     *  l'action est 'new' (formulaire de création d'un nouveau repo)
+     */
+
+    /**
+     *  Récupération de la valeur du bouton radio 'repoType'
+     */
+    var repoType =  $('.operation-form-container').find('.operation-form[action=new]').find('input:radio[name="repoType"]:checked').val();
+
+    /**
+     *  Récupération de la valeur du bouton radio 'packageType' 
      */
     var packageType = $('.operation-form-container').find('.operation-form[action=new]').find('input:radio[name="packageType"]:checked').val();
 
     /**
-     *  En fonction du type de paquets sélectionné, affiche uniquement les champs en lien avec ce type de paquets et masque les autres.
+     *  On masque tous les champs 
      */
-    $('.operation-form-container').find('[field-type][field-type!='+packageType+']').hide();
-    $('.operation-form-container').find('[field-type][field-type='+packageType+']').show();
-}
-
-/**
- *  Afficher / masquer les champs de saisie en fonction du type de repo sélectionné (mirror ou local)
- */
-function newRepoFormPrintRepoTypeFields()
-{
-    if ($('.operation-form[action=new]').find('input:radio[id="repoType_mirror"]').is(":checked")) {
-        $(".type_mirror_input").show();
-        $(".type_local_input").hide();
-    } else {
-        $(".type_mirror_input").hide();
-        $(".type_local_input").show();
-    }
+    $('.operation-form-container').find('[field-type]').hide();
+    
+    /**
+     *  En fonction du type de repo et de paquets sélectionné, affiche uniquement les champs en lien avec ce type de repo et de paquets.
+     */
+    $('.operation-form-container').find('[field-type~='+repoType+'][field-type~='+packageType+']').show();
 }
 
 /**
@@ -115,17 +150,10 @@ $(document).on('click','.hideGroup',function () {
 });
 
 /**
- *  Event : affiche/masque des inputs en fonction du type de repo à créer ('miroir' ou 'local')
+ *  Event : affiche/masque des inputs en fonction du type de repo ou du type de paquets sélectionné
  */
-$(document).on('change','input:radio[name="repoType"]',function () {
-    newRepoFormPrintRepoTypeFields();
-});
-
-/**
- *  Event : affiche/masque des inputs en fonction du type de paquet sélectionné
- */
-$(document).on('change','input:radio[name="packageType"]',function () {
-    newRepoFormPrintPackageTypeFields();
+$(document).on('change','input:radio[name="repoType"], input:radio[name="packageType"]',function () {
+    newRepoFormPrintFields();
 });
 
 /**

@@ -195,7 +195,13 @@ foreach ($operation_params as $operation) {
             /**
              *  Paramètres avancés de la création d'un repo
              */
-            $targetIncludeSource = $operation['targetIncludeSource'];
+            if (!empty($operation['targetIncludeArch'])) {
+                $targetIncludeArch = $operation['targetIncludeArch'];
+            }
+
+            if (!empty($operation['targetIncludeSource'])) {
+                $targetIncludeSource = $operation['targetIncludeSource'];
+            }
 
             /**
              *  Paramètres supplémentaires si deb
@@ -206,8 +212,6 @@ foreach ($operation_params as $operation) {
                  */
                 if (!empty($operation['targetIncludeTranslation'])) {
                     $targetIncludeTranslation = $operation['targetIncludeTranslation'];
-                } else {
-                    $targetIncludeTranslation = '';
                 }
             }
         }
@@ -249,9 +253,16 @@ foreach ($operation_params as $operation) {
         if (!empty($targetEnv)) {
             $repo->setTargetEnv($targetEnv);
         }
-        $repo->setTargetIncludeSource($targetIncludeSource);
+        if (!empty($targetIncludeArch)) {
+            $repo->setTargetIncludeArch($targetIncludeArch);
+        }
+        if (!empty($targetIncludeSource)) {
+            $repo->setTargetIncludeSource($targetIncludeSource);
+        }
         if ($packageType == 'deb') {
-            $repo->setTargetIncludeTranslation($targetIncludeTranslation);
+            if (!empty($targetIncludeTranslation)) {
+                $repo->setTargetIncludeTranslation($targetIncludeTranslation);
+            }
         }
 
         /**
