@@ -79,9 +79,9 @@ foreach ($operation_params as $operation) {
             echo "Operation 'new' - Erreur : le paramètre packageType n'est pas défini." . PHP_EOL;
             $exitCode++;
             continue;
-        } else {
-            $packageType = $operation['packageType'];
         }
+        
+        $packageType = $operation['packageType'];
     }
 
     /**
@@ -154,6 +154,15 @@ foreach ($operation_params as $operation) {
          */
         if ($type === 'mirror') {
             /**
+             *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
+             */
+            if (empty($operation['alias'])) {
+                $alias = $source;
+            } else {
+                $alias = $operation['alias'];
+            }
+
+            /**
              *  Si le paramètre Source n'est pas défini, on quitte
              */
             if (empty($operation['source'])) {
@@ -182,20 +191,30 @@ foreach ($operation_params as $operation) {
                 continue;
             }
             $targetGpgResign = $operation['targetGpgResign'];
-        }
 
-        /**
-         *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
-         *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
-         */
-        if ($type === 'mirror') {
-            if (empty($operation['alias'])) {
-                $alias = $source;
-            } else {
-                $alias = $operation['alias'];
+            /**
+             *  Paramètres avancés de la création d'un repo
+             */
+            $targetIncludeSource = $operation['targetIncludeSource'];
+
+            /**
+             *  Paramètres supplémentaires si deb
+             */
+            if ($packageType == 'deb') {
+                /**
+                 *  Cas où on souhaite inclure des traductions de paquets
+                 */
+                if (!empty($operation['targetIncludeTranslation'])) {
+                    $targetIncludeTranslation = $operation['targetIncludeTranslation'];
+                } else {
+                    $targetIncludeTranslation = '';
+                }
             }
         }
         if ($type === 'local') {
+            /**
+             *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
+             */
             if (empty($operation['alias'])) {
                 echo "Operation 'new' - Erreur : le paramètre Alias (Name) n'est pas défini." . PHP_EOL;
                 $exitCode++;
@@ -229,6 +248,10 @@ foreach ($operation_params as $operation) {
         }
         if (!empty($targetEnv)) {
             $repo->setTargetEnv($targetEnv);
+        }
+        $repo->setTargetIncludeSource($targetIncludeSource);
+        if ($packageType == 'deb') {
+            $repo->setTargetIncludeTranslation($targetIncludeTranslation);
         }
 
         /**

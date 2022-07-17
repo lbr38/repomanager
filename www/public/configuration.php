@@ -669,7 +669,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <?php endif ?>
         </table>
 
-        <h4>RPM</h4>
+        <h5>RPM</h5>
 
         <table class="table-medium">
             <tr>
@@ -755,7 +755,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <?php endif ?>
         </table>
 
-        <h4>DEB</h4>
+        <h5>DEB</h5>
 
         <table class="table-medium">
             <tr>

@@ -10,7 +10,7 @@ $(document).ready(function () {
  */
 
 /**
- *  Afficher / masquer les champs de saisie en fonction du type de paquets sélectionné
+ *  Afficher / masquer les champs de saisie en fonction du type de paquets sélectionné (rpm ou deb)
  */
 function newRepoFormPrintPackageTypeFields()
 {
@@ -25,6 +25,20 @@ function newRepoFormPrintPackageTypeFields()
      */
     $('.operation-form-container').find('[field-type][field-type!='+packageType+']').hide();
     $('.operation-form-container').find('[field-type][field-type='+packageType+']').show();
+}
+
+/**
+ *  Afficher / masquer les champs de saisie en fonction du type de repo sélectionné (mirror ou local)
+ */
+function newRepoFormPrintRepoTypeFields()
+{
+    if ($('.operation-form[action=new]').find('input:radio[id="repoType_mirror"]').is(":checked")) {
+        $(".type_mirror_input").show();
+        $(".type_local_input").hide();
+    } else {
+        $(".type_mirror_input").hide();
+        $(".type_local_input").show();
+    }
 }
 
 /**
@@ -104,13 +118,7 @@ $(document).on('click','.hideGroup',function () {
  *  Event : affiche/masque des inputs en fonction du type de repo à créer ('miroir' ou 'local')
  */
 $(document).on('change','input:radio[name="repoType"]',function () {
-    if ($("#repoType_mirror").is(":checked")) {
-        $(".type_mirror_input").show();
-        $(".type_local_input").hide();
-    } else {
-        $(".type_mirror_input").hide();
-        $(".type_local_input").show();
-    }
+    newRepoFormPrintRepoTypeFields();
 });
 
 /**

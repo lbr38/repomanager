@@ -422,6 +422,22 @@ class Operation
         }
     }
 
+    private function checkParamIncludeSource(string $targetIncludeSource)
+    {
+        if ($targetIncludeSource !== "yes" and $targetIncludeSource !== "no") {
+            throw new Exception('Le paramètre d\'inclusion des sources de paquets est invalide');
+        }
+    }
+
+    private function checkParamIncludeTranslation(array $targetIncludeTranslation)
+    {
+        foreach ($targetIncludeTranslation as $translation) {
+            if (!\Controllers\Common::isAlphanum($translation)) {
+                throw new Exception("La traduction à inclure comporte des caractères invalides");
+            }
+        }
+    }
+
     /**
      *  NOUVELLE OPERATION
      *  Ajout d'une nouvelle entrée en BDD
@@ -635,19 +651,6 @@ class Operation
             unlink(PID_DIR . '/' . $this->log->getPid() . '.pid');
         }
     }
-
-    /**
-     *  Clôture de l'étape en cours
-     */
-    // public function stepEnd()
-    // {
-    //     /**
-    //      *  Génère un fichier 'completed' dans le répertoire temporaire des étapes de l'opération, ceci afin que logbuilder.php s'arrête
-    //      */
-    //     touch(TEMP_DIR . '/' . $this->log->getPid() . '/completed');
-
-    //     $this->deletePid();
-    // }
 
     /**
      *  Retourne le nom du repo ou du groupe en cours de traitement
@@ -1094,6 +1097,11 @@ class Operation
                     $this->checkParamSource($operation_params['source']);
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
+                    $this->checkParamIncludeSource($operation_params['targetIncludeSource']);
+
+                    if ($packageType == 'deb') {
+                        $this->checkParamIncludeTranslation($operation_params['targetIncludeTranslation']);
+                    }
                 }
                 /**
                  *  On vérifie qu'un/une repo/section du même nom n'est pas déjà actif avec des snapshots

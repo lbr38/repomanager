@@ -42,6 +42,8 @@ class Repo
     private $targetDescription;
     private $targetGpgCheck;
     private $targetGpgResign;
+    private $targetIncludeSource = 'no';
+    private $targetIncludeTranslation;
 
     private $repoLastName;
     private $repoLastDist;
@@ -207,6 +209,16 @@ class Repo
     public function setTargetGpgResign(string $gpgResign)
     {
         $this->targetGpgResign = $gpgResign;
+    }
+
+    public function setTargetIncludeSource(string $targetIncludeSource)
+    {
+        $this->targetIncludeSource = $targetIncludeSource;
+    }
+
+    public function setTargetIncludeTranslation(array $targetIncludeTranslation)
+    {
+        $this->targetIncludeTranslation = $targetIncludeTranslation;
     }
 
     public function getRepoId()
@@ -2081,7 +2093,7 @@ class Repo
             } elseif (preg_match('/^4/', $yumUtilsVersion)) {
                 $reposyncGlobalParams = '--norepopath';
 
-                if ($this->getTargetGpgCheck() == "no") {
+                if ($this->targetGpgCheck == "no") {
                     $reposyncGpgParam = '--nogpgcheck';
                 } else {
                     $reposyncGpgParam = '';
@@ -2098,9 +2110,36 @@ class Repo
 
         if ($this->packageType == "deb") {
             /**
-             *  Dans le cas où on a précisé de ne pas vérifier les signatures GPG
+             *  debmirror global params
              */
-            if ($this->getTargetGpgCheck() == "no") {
+
+            /**
+             *  Case we want packages sources to be synced
+             */
+            if ($this->targetIncludeSource == 'yes') {
+                $debmirrorGlobalParams = '--source';
+            } else {
+                $debmirrorGlobalParams = '--nosource';
+            }
+
+            /**
+             *  Case we want some packages translations to be synced
+             */
+            if (!empty($this->targetIncludeTranslation)) {
+                /**
+                 *  Add --i18n then include each translation required
+                 */
+                $debmirrorGlobalParams .= ' --i18n';
+
+                foreach($this->targetIncludeTranslation as $translation) {
+                    $debmirrorGlobalParams .= ' --include="Translation-' . $translation . '.*"';
+                }
+            }
+
+            /**
+             *  Case we don't want GPG signature check
+             */
+            if ($this->targetGpgCheck == "no") {
                 $debmirrorGpgParam = '--no-check-gpg';
             } else {
                 $debmirrorGpgParam = '--check-gpg --keyring=' . GPGHOME . '/trustedkeys.gpg';
@@ -2109,7 +2148,7 @@ class Repo
             /**
              *  Instanciation d'un nouveau Process debmirror
              */
-            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' --nosource --passive --method=http --rsync-extra=none --host=' . $this->hostUrl . ' --root=' . $this->rootUrl . ' --dist=' . $this->dist . ' --section=' . $this->section . ' --arch=amd64 ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --ignore-release-gpg --progress --i18n --include="Translation-fr.*\.bz2" --postcleanup');
+            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' ' . $debmirrorGlobalParams . ' --passive --method=http --rsync-extra=none --host="' . $this->hostUrl . '" --root="' . $this->rootUrl . '" --dist="' . $this->dist . '" --section="' . $this->section . '" --arch="amd64" ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --progress --postcleanup');
         }
 
         /**
@@ -2175,7 +2214,7 @@ class Repo
 
         /**
          *  Signature des paquets du repo avec GPG
-         *  Redhat seulement car sur Debian c'est le fichier Release qui est signé ors de la création du repo
+         *  Redhat seulement car sur Debian c'est le fichier Release qui est signé lors de la création du repo
          */
         if ($this->packageType == "rpm" and $this->targetGpgResign == "yes") {
             $this->op->step('SIGNATURE DES PAQUETS (GPG)');
@@ -2191,7 +2230,7 @@ class Repo
             $signErrors = 0;
 
             /**
-             *  On traite chaque fichier rpm trouvé
+             *  On traite chaque fichier trouvé
              */
             foreach ($rpmFiles as $rpmFile) {
                 /**
