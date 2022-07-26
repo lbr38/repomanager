@@ -850,19 +850,19 @@ class Operation
         $action = \Controllers\Common::validateData($action);
 
         if ($action == 'update') {
-            $title = '<h3>MISE A JOUR</h3>';
+            $title = '<h3>UPDATE</h3>';
         }
         if ($action == 'env') {
-            $title = '<h3>NOUVEL ENVIRONNEMENT</h3>';
+            $title = '<h3>NEW ENVIRONMENT</h3>';
         }
         if ($action == 'duplicate') {
-            $title = '<h3>DUPLIQUER</h3>';
+            $title = '<h3>DUPLICATE</h3>';
         }
         if ($action == 'delete') {
-            $title = '<h3>SUPPRIMER</h3>';
+            $title = '<h3>DELETE</h3>';
         }
         if ($action == 'reconstruct') {
-            $title = '<h3>RECONSTRUIRE LE REPO</h3>';
+            $title = '<h3>REBUILD REPO</h3>';
         }
 
         $content = $title . '<form class="operation-form-container" autocomplete="off">';

@@ -650,7 +650,7 @@ class Repo
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails("CREATION D'UN NOUVEAU REPO");
+            $this->printDetails('CREATE NEW REPO MIRROR');
 
             /**
              *   Etape 2 : récupération des paquets
@@ -964,7 +964,7 @@ class Repo
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails("MISE A JOUR D'UN REPO");
+            $this->printDetails('UPDATE REPO');
 
             /**
             *   Etape 2 : récupération des paquets
@@ -1299,7 +1299,7 @@ class Repo
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails('RECONSTRUCTION DES METADONNÉES DU REPO');
+            $this->printDetails('REBUILD REPO METADATA');
             /**
             *   Etape 2 : signature des paquets/du repo
             */

@@ -253,12 +253,11 @@ foreach ($operation_params as $operation) {
         if (!empty($targetEnv)) {
             $repo->setTargetEnv($targetEnv);
         }
-        if (!empty($targetIncludeArch)) {
-            $repo->setTargetIncludeArch($targetIncludeArch);
-        }
-        if (!empty($targetIncludeSource)) {
-            $repo->setTargetIncludeSource($targetIncludeSource);
-        }
+
+        $repo->setTargetIncludeArch($targetIncludeArch);
+
+        $repo->setTargetIncludeSource($targetIncludeSource);
+        
         if ($packageType == 'deb') {
             if (!empty($targetIncludeTranslation)) {
                 $repo->setTargetIncludeTranslation($targetIncludeTranslation);
@@ -308,6 +307,29 @@ foreach ($operation_params as $operation) {
         $targetGpgResign = $operation['targetGpgResign'];
 
         /**
+         *  Paramètres avancés de la création d'un repo
+         */
+        if (!empty($operation['targetIncludeArch'])) {
+            $targetIncludeArch = $operation['targetIncludeArch'];
+        }
+
+        if (!empty($operation['targetIncludeSource'])) {
+            $targetIncludeSource = $operation['targetIncludeSource'];
+        }
+
+        /**
+         *  Paramètres supplémentaires si deb
+         */
+        if ($packageType == 'deb') {
+            /**
+             *  Cas où on souhaite inclure des traductions de paquets
+             */
+            if (!empty($operation['targetIncludeTranslation'])) {
+                $targetIncludeTranslation = $operation['targetIncludeTranslation'];
+            }
+        }
+
+        /**
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
@@ -334,6 +356,16 @@ foreach ($operation_params as $operation) {
          *  Set de GPG Resign
          */
         $repo->setTargetGpgResign($targetGpgResign);
+
+        $repo->setTargetIncludeArch($targetIncludeArch);
+
+        $repo->setTargetIncludeSource($targetIncludeSource);
+
+        if ($packageType == 'deb') {
+            if (!empty($targetIncludeTranslation)) {
+                $repo->setTargetIncludeTranslation($targetIncludeTranslation);
+            }
+        }
 
         /**
          *  Exécution de l'opération

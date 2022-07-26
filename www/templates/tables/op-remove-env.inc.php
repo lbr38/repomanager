@@ -1,8 +1,8 @@
-<h3>SUPPRESSION D'UN ENVIRONNEMENT</h3>
+<h3>REMOVE REPO ENVIRONMENT</h3>
 
 <table class="op-table">
     <tr>
-        <th>REPO :</th>
+        <th>REPO:</th>
         <td>
             <span class="label-white">
                 <?php
@@ -15,7 +15,7 @@
         </td>
     </tr>
     <tr>
-        <th>ENVIRONNEMENT :</th>
+        <th>ENVIRONNEMENT:</th>
         <td><?=\Controllers\Common::envtag($this->env)?></td>
     </tr>
 </table>

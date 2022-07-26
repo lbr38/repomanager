@@ -202,6 +202,21 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
         $repomanager_conf_array['DEB']['DEB_INCLUDE_SOURCE'] = 'no';
     }
 
+    /**
+     *  Deb mirror: default translations
+     */
+    if (!empty($_POST['debDefaultTranslation'])) {
+        /**
+         *  Convert array to a string with values separated by a comma
+         */
+        $debDefaultTranslation = \Controllers\Common::validateData(implode(',', $_POST['debDefaultTranslation']));
+    } else {
+        $debDefaultTranslation = '';
+    }
+    if (Controllers\Common::isAlphanumDash($debDefaultTranslation, array(','))) {
+        $repomanager_conf_array['DEB']['DEB_DEFAULT_TRANSLATION'] = trim($debDefaultTranslation);
+    }
+
 /**
  *  Section UPDATE
  */
@@ -864,6 +879,17 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             <input name="debIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages specific translation when creating deb mirror
+                    </td>
+                    <td>
+                        <select id="debTranslationSelect" name="debDefaultTranslation[]" multiple>
+                            <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+                            <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                        </select>
                     </td>
                 </tr>
             <?php endif ?>

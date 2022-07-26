@@ -224,8 +224,8 @@
                     <td>
                         <select id="targetIncludeTranslationSelect" class="operation_param" param-name="targetIncludeTranslation" package-type="deb" multiple>
                             <option value="">Sélectionner des traductions...</option>
-                            <option value="en">en (english)</option>
-                            <option value="fr">fr (french)</option>
+                            <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+                            <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
                         </select>
                     </td>
                 </tr>

@@ -855,12 +855,18 @@ function installation
     else
         echo "RELEASEVER = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
     fi
+    echo "RPM_DEFAULT_ARCH = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "RPM_INCLUDE_SOURCE = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+
 
     echo -e "\n[DEB]" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "DEB_REPO = \"${DEB_REPO}\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "DEB_SIGN_REPO = \"${DEB_SIGN_REPO}\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "DEB_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> ${WWW_DIR}/configurations/repomanager.conf
-    
+    echo "DEB_DEFAULT_ARCH = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "DEB_INCLUDE_SOURCE = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
+    echo "DEB_DEFAULT_TRANSLATION = \"\"" >> ${WWW_DIR}/configurations/repomanager.conf
+
     echo -e "\n[UPDATE]" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "UPDATE_AUTO = \"no\"" >> ${WWW_DIR}/configurations/repomanager.conf
     echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> ${WWW_DIR}/configurations/repomanager.conf

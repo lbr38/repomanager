@@ -528,7 +528,7 @@ class Autoloader
             /**
              *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
              */
-            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH');
+            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -780,6 +780,14 @@ class Autoloader
                 define('DEB_INCLUDE_SOURCE', $repomanager_conf_array['DEB_INCLUDE_SOURCE']);
             } else {
                 define('DEB_INCLUDE_SOURCE', 'no');
+            }
+        }
+
+        if (!defined('DEB_DEFAULT_TRANSLATION')) {
+            if (!empty($repomanager_conf_array['DEB_DEFAULT_TRANSLATION'])) {
+                define('DEB_DEFAULT_TRANSLATION', explode(',', $repomanager_conf_array['DEB_DEFAULT_TRANSLATION']));
+            } else {
+                define('DEB_DEFAULT_TRANSLATION', array());
             }
         }
 
