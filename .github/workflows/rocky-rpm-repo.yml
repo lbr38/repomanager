@@ -60,8 +60,8 @@ jobs:
 
       - name: Set up repomanager main config
         run: |
-          curl -s -o /var/www/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/repomanager.conf 2> /dev/null
-          curl -s -L -o /var/www/repomanager/db/repomanager.db https://github.com/lbr38/repomanager-docs/raw/main/ci/repomanager.db 2> /dev/null
+          curl -s -o /var/www/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/repomanager.conf 2> /dev/null
+          curl -s -L -o /var/www/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
           ls -l /var/www/repomanager/configurations/
           ls -l /var/www/repomanager/db/
       
@@ -108,12 +108,12 @@ jobs:
 
       - name: Download jobs
         run: |
-          curl -s -o /var/www/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-mirror-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-update-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-duplicate-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-create-env.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-delete.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-reconstruct.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
+          curl -s -o /var/www/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-reconstruct.json 2> /dev/null
 
       - name: Set up permissions
         run: /var/www/repomanager/repomanager -p

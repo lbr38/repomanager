@@ -1311,7 +1311,7 @@ class Operation
         /**
          *  Lancement de execute.php qui va s'occuper de traiter le fichier JSON
          */
-        // exec("php " . ROOT . "/operations/execute.php --id='$operation_id' >/dev/null 2>/dev/null &");
+        exec("php " . ROOT . "/operations/execute.php --id='$operation_id' >/dev/null 2>/dev/null &");
 
         return $operation_id;
     }

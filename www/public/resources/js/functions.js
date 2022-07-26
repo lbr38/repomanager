@@ -134,6 +134,10 @@ function copyToClipboard(containerid)
     printAlert('Copié', 'success');
 }
 
+/**
+ * Convert select tag to a select2 by specified id
+ * @param {*} id 
+ */
 function idToSelect2(id)
 {
     $(id).select2({
@@ -142,6 +146,10 @@ function idToSelect2(id)
     });
 }
 
+/**
+ * Convert select tag to a select2 by specified class
+ * @param {*} className 
+ */
 function classToSelect2(className)
 {
     $(className).select2({
