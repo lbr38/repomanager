@@ -539,11 +539,11 @@ function createYumFiles
     echo "distroverpkg=centos-release" >> /etc/yum.repos.d/repomanager/repomanager.conf
 }
 
-# Deploy repomanager systemd services
+# Deploy repomanager systemd service
 function deployService
 {
     if [ -z "$WWW_DIR" ];then
-        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager/)"
+        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager)"
         echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
 
         if [ -z "$WWW_DIR" ];then
@@ -621,7 +621,7 @@ function installation
 
     ## Repomanager web files installation location
     if [ -z "$WWW_DIR" ];then
-        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager/)"
+        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager)"
         echo -e "  ${YELLOW}You will have to set up a vhost to serve this location.${RESET}"
         echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
 
@@ -644,7 +644,7 @@ function installation
 
     ## Repos directory
     if [ -z "$REPOS_DIR" ];then
-        echo -e "\n➤ Repos storage path (default is /home/repo/)"
+        echo -e "\n➤ Repos storage path (default is /home/repo)"
         echo -e "  ${YELLOW}This directory's size can grow large depending on your usage. Be sure to allow sufficiant disk space on this location.${RESET}"
         echo -n "  Leave empty to use default directory or specify a location: "; read -p "" REPOS_DIR
 

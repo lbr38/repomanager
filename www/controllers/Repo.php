@@ -2504,30 +2504,39 @@ class Repo
             }
 
             /**
-             *  Création du fichier "distributions"
-             *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
+             *  Create "distributions" file
+             *  Its content will depend on repo signature, architecture specified...
              */
-            if ($this->targetGpgResign == "yes") {
-                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL . 'Pull: ' . $this->section;
-            } else {
-                $file_distributions_content = 'Origin: Repo ' . $this->name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'Label: apt repository' . PHP_EOL . 'Codename: ' . $this->dist . PHP_EOL . 'Architectures: i386 amd64' . PHP_EOL . 'Components: ' . $this->section . PHP_EOL . 'Description: Repo ' . $this->name . ', miroir du repo ' . $this->source . ', distribution ' . $this->dist . ', section ' . $this->section . PHP_EOL . 'Pull: ' . $this->section;
+            $repreproArchs = '';
+
+            foreach ($this->targetIncludeArch as $arch) {
+                $repreproArchs .= ' ' . $arch;
             }
 
-            if (!file_put_contents($sectionPath . '/conf/distributions', $file_distributions_content . PHP_EOL)) {
+            $distributionsFileContent = 'Origin: ' . $this->name . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
+            $distributionsFileContent .= 'Label: apt repository' . PHP_EOL;
+            $distributionsFileContent .= 'Codename: ' . $this->dist . PHP_EOL;
+            $distributionsFileContent .= 'Architectures: ' . $repreproArchs . PHP_EOL;
+            $distributionsFileContent .= 'Components: ' . $this->section . PHP_EOL;
+            $distributionsFileContent .= 'Description: ' . $this->name . ' repo, mirror of ' . $this->source . ' - ' . $this->dist . ' - ' . $this->section . PHP_EOL;
+            if ($this->targetGpgResign == "yes") {
+                $distributionsFileContent .= 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL;
+            }
+            $distributionsFileContent .= 'Pull: ' . $this->section;
+
+            if (!file_put_contents($sectionPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
                 throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/distributions</b>");
             }
 
             /**
-             *  Création du fichier "options"
-             *  Son contenu sera différent suivant si on a choisi de chiffrer ou non le repo
+             *  Create "options" file
              */
+            $optionsFileContent = "basedir $sectionPath" . PHP_EOL;
             if ($this->targetGpgResign == "yes") {
-                $file_options_content = "basedir $sectionPath" . PHP_EOL . 'ask-passphrase';
-            } else {
-                $file_options_content = "basedir $sectionPath";
+                $optionsFileContent .= 'ask-passphrase';
             }
 
-            if (!file_put_contents($sectionPath . '/conf/options', $file_options_content . PHP_EOL)) {
+            if (!file_put_contents($sectionPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
                 throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/options</b>");
             }
 

@@ -424,6 +424,10 @@ class Operation
 
     private function checkParamIncludeArch(array $targetIncludeArch)
     {
+        if (empty($targetIncludeArch)) {
+
+        }
+
         foreach ($targetIncludeArch as $arch) {
             if (!\Controllers\Common::isAlphanumdash($arch)) {
                 throw new Exception("L'architecture à inclure comporte des caractères invalides");
@@ -1106,6 +1110,13 @@ class Operation
                     $this->checkParamSource($operation_params['source']);
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
+
+                    if (empty($operation_params['targetIncludeArch'])) {
+                        throw new Exception('You must specify architecture.');
+                    }
+                    if (empty($operation_params['targetIncludeSource'])) {
+                        throw new Exception('You must specify if package source should be mirrored or not.');
+                    }
                     $this->checkParamIncludeArch($operation_params['targetIncludeArch']);
                     $this->checkParamIncludeSource($operation_params['targetIncludeSource']);
 
@@ -1167,6 +1178,19 @@ class Operation
                 }
                 if ($packageType == 'deb') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
+                }
+
+                if (empty($operation_params['targetIncludeArch'])) {
+                    throw new Exception('You must specify architecture.');
+                }
+                if (empty($operation_params['targetIncludeSource'])) {
+                    throw new Exception('You must specify if package source should be mirrored or not.');
+                }
+                $this->checkParamIncludeArch($operation_params['targetIncludeArch']);
+                $this->checkParamIncludeSource($operation_params['targetIncludeSource']);
+
+                if ($packageType == 'deb') {
+                    $this->checkParamIncludeTranslation($operation_params['targetIncludeTranslation']);
                 }
             }
 
@@ -1240,7 +1264,6 @@ class Operation
                 }
                 if ($packageType == 'deb') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
-                    // \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Controllers\Common::envtag($operation_params['targetEnv']) . '⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1288,7 +1311,7 @@ class Operation
         /**
          *  Lancement de execute.php qui va s'occuper de traiter le fichier JSON
          */
-        exec("php " . ROOT . "/operations/execute.php --id='$operation_id' >/dev/null 2>/dev/null &");
+        // exec("php " . ROOT . "/operations/execute.php --id='$operation_id' >/dev/null 2>/dev/null &");
 
         return $operation_id;
     }

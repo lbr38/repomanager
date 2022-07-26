@@ -190,33 +190,37 @@
                     <td field-type="mirror rpm">
                         <select class="targetIncludeArchSelect operation_param" param-name="targetIncludeArch" package-type="rpm" multiple>
                             <option value="">Sélectionner l'architecture...</option>
-                            <option value="x86_64">x86_64</option>
-                            <option value="noarch">noarch</option>
+                            <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                            <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
                         </select>
                     </td>
 
                     <td field-type="mirror deb">
                         <select class="targetIncludeArchSelect operation_param" param-name="targetIncludeArch" package-type="deb" multiple>
                             <option value="">Sélectionner l'architecture...</option>
-                            <option value="i386">i386</option>
-                            <option value="amd64">amd64</option>
-                            <option value="armhf">armhf</option>
+                            <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
+                            <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
+                            <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
                         </select>
                     </td>
                 </tr>
 
                 <tr field-type="mirror rpm deb">
-                    <td class="td-30">Inclu. les sources</td>
+                    <td class="td-30">Inclure les sources</td>
                     <td>
-                        <label class="onoff-switch-label">
-                            <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetIncludeSource" package-type="all" />
+                        <label field-type="mirror rpm" class="onoff-switch-label">
+                            <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetIncludeSource" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                        <label field-type="mirror deb" class="onoff-switch-label">
+                            <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetIncludeSource" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </td>
                 </tr>
 
                 <tr field-type="mirror deb">
-                    <td class="td-30">Inclu. les traductions de paquets</td>
+                    <td class="td-30">Inclure les traductions de paquets</td>
                     <td>
                         <select id="targetIncludeTranslationSelect" class="operation_param" param-name="targetIncludeTranslation" package-type="deb" multiple>
                             <option value="">Sélectionner des traductions...</option>
@@ -232,24 +236,4 @@
         <button class="btn-large-red">Confirmer et exécuter<img src="resources/icons/rocket.png" class="icon" /></button>
 
     </form>
-
-    <script>
-    $(document).ready(function(){
-        // /**
-        //  *  Affiche la description uniquement si un environnement est spécifié
-        //  */
-        // $(document).on('change','#new-repo-target-env-select',function(){
-        //     if ($('#new-repo-target-env-select').val() == "") {
-        //         $('#new-repo-target-description-tr').hide();
-        //     } else {
-        //         $('#new-repo-target-description-tr').show();
-        //     }
-        // }).trigger('change');
-
-        // $('.targetIncludeArchSelect, #targetIncludeTranslationSelect').select2({
-        //     closeOnSelect: false,
-        //     placeholder: 'Sélectionner...'
-        // });
-    });
-    </script>
 </section>

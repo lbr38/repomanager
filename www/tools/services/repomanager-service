@@ -2,8 +2,8 @@
 set -u
 trap 'kill 0' EXIT
 
-# Laisse un délai de 60sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
-# sleep 30s
+# Laisse un délai de 30sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
+# sleep 30
 
 SCRIPT_PATH=$(realpath $0)
 WWW_DIR=$(echo "$SCRIPT_PATH" | sed 's|/tools/services/repomanager-service||g')

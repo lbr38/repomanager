@@ -528,7 +528,9 @@ class Autoloader
             /**
              *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
              */
-            if ($key == 'STATS_LOG_PATH') {
+            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH');
+
+            if (in_array($key, $ignoreEmptyParam)) {
                 continue;
             }
 
@@ -717,6 +719,22 @@ class Autoloader
             }
         }
 
+        if (!defined('RPM_DEFAULT_ARCH')) {
+            if (!empty($repomanager_conf_array['RPM_DEFAULT_ARCH'])) {
+                define('RPM_DEFAULT_ARCH', explode(',', $repomanager_conf_array['RPM_DEFAULT_ARCH']));
+            } else {
+                define('RPM_DEFAULT_ARCH', array());
+            }
+        }
+
+        if (!defined('RPM_INCLUDE_SOURCE')) {
+            if (!empty($repomanager_conf_array['RPM_INCLUDE_SOURCE'])) {
+                define('RPM_INCLUDE_SOURCE', $repomanager_conf_array['RPM_INCLUDE_SOURCE']);
+            } else {
+                define('RPM_INCLUDE_SOURCE', 'no');
+            }
+        }
+
         // DEB
         if (!defined('DEB_REPO')) {
             if (!empty($repomanager_conf_array['DEB_REPO'])) {
@@ -746,6 +764,22 @@ class Autoloader
                 if (DEB_SIGN_REPO == 'yes') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
                 }
+            }
+        }
+
+        if (!defined('DEB_DEFAULT_ARCH')) {
+            if (!empty($repomanager_conf_array['DEB_DEFAULT_ARCH'])) {
+                define('DEB_DEFAULT_ARCH', explode(',', $repomanager_conf_array['DEB_DEFAULT_ARCH']));
+            } else {
+                define('DEB_DEFAULT_ARCH', array());
+            }
+        }
+
+        if (!defined('DEB_INCLUDE_SOURCE')) {
+            if (!empty($repomanager_conf_array['DEB_INCLUDE_SOURCE'])) {
+                define('DEB_INCLUDE_SOURCE', $repomanager_conf_array['DEB_INCLUDE_SOURCE']);
+            } else {
+                define('DEB_INCLUDE_SOURCE', 'no');
             }
         }
 

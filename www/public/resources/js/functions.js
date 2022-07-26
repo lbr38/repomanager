@@ -133,3 +133,19 @@ function copyToClipboard(containerid)
 
     printAlert('Copié', 'success');
 }
+
+function idToSelect2(id)
+{
+    $(id).select2({
+        closeOnSelect: false,
+        placeholder: 'Select...'
+    });
+}
+
+function classToSelect2(className)
+{
+    $(className).select2({
+        closeOnSelect: false,
+        placeholder: 'Select...'
+    });
+}

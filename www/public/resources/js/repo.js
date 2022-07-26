@@ -22,12 +22,10 @@ function loadNewRepoFormJS()
     }).trigger('change');
 
     /**
-     *  Converti les select en select2
+     *  Convert select to select2
      */
-    $('.targetIncludeArchSelect, #targetIncludeTranslationSelect').select2({
-        closeOnSelect: false,
-        placeholder: 'Sélectionner...'
-    });
+    classToSelect2('.targetIncludeArchSelect');
+    idToSelect2('#targetIncludeTranslationSelect');
 
     /**
      *  Affiche/masque les champs nécessaires

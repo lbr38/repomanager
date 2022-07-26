@@ -121,6 +121,31 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
         file_put_contents('/etc/yum/vars/releasever', $_POST['releasever']);
     }
 
+    /**
+     *  Rpm mirror: default architecture
+     */
+    if (!empty($_POST['rpmDefaultArchitecture'])) {
+        /**
+         *  Convert array to a string with values separated by a comma
+         */
+        $rpmDefaultArchitecture = \Controllers\Common::validateData(implode(',', $_POST['rpmDefaultArchitecture']));
+    } else {
+        $rpmDefaultArchitecture = '';
+    }
+    if (Controllers\Common::isAlphanumDash($rpmDefaultArchitecture, array(','))) {
+        $repomanager_conf_array['RPM']['RPM_DEFAULT_ARCH'] = trim($rpmDefaultArchitecture);
+    }
+
+    /**
+     *  Rpm mirror: include source
+     */
+    if (!empty($_POST['rpmIncludeSource']) and $_POST['rpmIncludeSource'] === "yes") {
+        $repomanager_conf_array['RPM']['RPM_INCLUDE_SOURCE'] = 'yes';
+    } else {
+        $repomanager_conf_array['RPM']['RPM_INCLUDE_SOURCE'] = 'no';
+    }
+
+    
 /**
  *  Section DEB
  */
@@ -151,6 +176,30 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
         if (Controllers\Common::isAlphanumDash($debGpgKeyID, array('@', '.'))) {
             $repomanager_conf_array['DEB']['DEB_SIGN_GPG_KEYID'] = trim($debGpgKeyID);
         }
+    }
+
+    /**
+     *  Deb mirror: default architecture
+     */
+    if (!empty($_POST['debDefaultArchitecture'])) {
+        /**
+         *  Convert array to a string with values separated by a comma
+         */
+        $debDefaultArchitecture = \Controllers\Common::validateData(implode(',', $_POST['debDefaultArchitecture']));
+    } else {
+        $debDefaultArchitecture = '';
+    }
+    if (Controllers\Common::isAlphanumDash($debDefaultArchitecture, array(','))) {
+        $repomanager_conf_array['DEB']['DEB_DEFAULT_ARCH'] = trim($debDefaultArchitecture);
+    }
+
+    /**
+     *  Deb mirror: include source
+     */
+    if (!empty($_POST['debIncludeSource']) and $_POST['debIncludeSource'] === "yes") {
+        $repomanager_conf_array['DEB']['DEB_INCLUDE_SOURCE'] = 'yes';
+    } else {
+        $repomanager_conf_array['DEB']['DEB_INCLUDE_SOURCE'] = 'no';
     }
 
 /**
@@ -329,35 +378,6 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
      */
     \Controllers\Common::clearCache();
 }
-
-/**
- *  Section CRON
- *  Si un des formulaires de la page a été validé alors on entre dans cette condition
- */
-// if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) === "applyCronConfiguration") {
-//     // Récupération de tous les paramètres définis dans le fichier repomanager.conf
-//     $repomanager_conf_array = parse_ini_file(REPOMANAGER_CONF, true);
-
-//     /**
-//      *  Activation des tâches cron
-//      */
-//     if (!empty($_POST['cronDailyEnable']) and \Controllers\Common::validateData($_POST['cronDailyEnable']) === "yes") {
-//         $repomanager_conf_array['CRON']['CRON_DAILY_ENABLED'] = 'yes';
-//     } else {
-//         $repomanager_conf_array['CRON']['CRON_DAILY_ENABLED'] = 'no';
-//     }
-
-//     /**
-//      *  Activer / désactiver la ré-application régulière des permissions sur les répertoires de repos
-//      */
-//     if (!empty($_POST['cronApplyPerms']) and \Controllers\Common::validateData($_POST['cronApplyPerms']) === "yes") {
-//         $repomanager_conf_array['CRON']['CRON_APPLY_PERMS'] = 'yes';
-//     } else {
-//         $repomanager_conf_array['CRON']['CRON_APPLY_PERMS'] = 'no';
-//     }
-
-//     save($repomanager_conf_array);
-// }
 
 /**
  *  Enregistrement
@@ -752,6 +772,28 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         }?>
                     </td>
                 </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default architecture to use when creating rpm mirror."> Default architecture to use when creating rpm mirror
+                    </td>
+                    <td>
+                        <select id="rpmArchitectureSelect" name="rpmDefaultArchitecture[]" multiple>
+                            <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                            <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="rpmIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                </tr>
             <?php endif ?>
         </table>
 
@@ -801,6 +843,29 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </td>
                     </tr>
                 <?php endif ?>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default architecture to use when creating deb mirror."> Default architecture to use when creating deb mirror
+                    </td>
+                    <td>
+                        <select id="debArchitectureSelect" name="debDefaultArchitecture[]" multiple>
+                            <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
+                            <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
+                            <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages sources when creating deb mirror."> Include packages sources when creating deb mirror
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="debIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                </tr>
             <?php endif ?>
         </table>
 
