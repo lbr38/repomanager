@@ -1,4 +1,4 @@
-name: Run operations on a deb repo (from an Ubuntu system)
+name: Run operations on a deb repo (from an Ubuntu latest system)
 
 on:
   push:

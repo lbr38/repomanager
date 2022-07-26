@@ -1,4 +1,4 @@
-name: Run operations on a rpm repo (from a Rocky Linux system)
+name: Run operations on a rpm repo (from a Rocky Linux 8 system)
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
   run-operations:
     runs-on: ubuntu-latest
     container:
-      image: rockylinux:latest
+      image: rockylinux:8
       options: --user root
     steps:
       - name: Checkout
