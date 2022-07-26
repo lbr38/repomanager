@@ -29,9 +29,13 @@
         echo '<tr><th>DESCRIPTION:</th><td>' . $this->targetDescription . '</td></tr>';
     }
 
-    echo '<tr><th>ARCHITECTURE:</th><td>' . implode(', ', $this->targetIncludeArch) . '</td></tr>';
+    if (!empty($this->targetIncludeArch)) {
+        echo '<tr><th>ARCHITECTURE:</th><td>' . implode(', ', $this->targetIncludeArch) . '</td></tr>';
+    }
 
-    echo '<tr><th>INCLUDE PACKAGES SOURCES:</th><td>' . $this->targetIncludeSource . '</td></tr>';
+    if (!empty($this->targetIncludeSource)) {
+        echo '<tr><th>INCLUDE PACKAGES SOURCES:</th><td>' . $this->targetIncludeSource . '</td></tr>';
+    }
 
     if (!empty($this->targetIncludeTranslation)) {
         echo '<tr><th>INCLUDE PACKAGES TRANSLATION:</th><td>' . implode(', ', $this->targetIncludeTranslation) . '</td></tr>';
