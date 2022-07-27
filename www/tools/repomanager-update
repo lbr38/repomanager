@@ -14,11 +14,12 @@ UPDATE_ERROR=0
 if [ ! -f "${WWW_DIR}/version.available" ];then
     exit 1
 fi
+
+GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
 if [ -z "$GITHUB_VERSION" ];then
     exit 1
 fi
 
-GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
 WORKING_DIR="/tmp/repomanager-update_${GITHUB_VERSION}"
 BACKUP_CONF_DIR="$WORKING_DIR/backup-conf"
 SQL_QUERY_DIR="$WORKING_DIR/repomanager/tools/update-sql-queries/stable"
