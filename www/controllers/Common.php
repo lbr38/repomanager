@@ -460,6 +460,8 @@ class Common
                     $errorMsg = file_get_contents(ROOT . 'logs/update/update.log');
                 }
 
+
+
                 // if ($result == 1) {
                 //     $errorMsg = "Error: version.available file not found.";
                 // }

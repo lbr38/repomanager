@@ -23,12 +23,14 @@ exec &> >(tee -a "$LOG")
 
 # Quit if github version is unknown or if file does not exist
 if [ ! -f "${WWW_DIR}/version.available" ];then
+    echo "Error: version.available file not found."
     exit 1
 fi
 
 GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
 if [ -z "$GITHUB_VERSION" ];then
-    exit 11
+    echo "Error: unknown github available version number."
+    exit 1
 fi
 
 WORKING_DIR="/tmp/repomanager-update_${GITHUB_VERSION}"
@@ -57,7 +59,7 @@ function updateDatabase
         if [ "$(ls -A $SQL_QUERY_DIR)" ];then
 
             for SQL_QUERY_FILE in $(ls -A1 $SQL_QUERY_DIR/);do
-                bash "$SQL_QUERY_FILE" "$DB" "$DB_STATS" "$DB_HOSTS"
+                bash "$SQL_QUERY_DIR/$SQL_QUERY_FILE" "$DB" "$DB_STATS" "$DB_HOSTS"
 
                 if [ $? -ne "0" ];then
                     echo "Error while executing SQL update request from the update file: $SQL_QUERY_FILE."
