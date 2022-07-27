@@ -50,7 +50,7 @@ function updateDatabase
             for SQL_QUERY_FILE in $(ls -A1 $SQL_QUERY_DIR/);do
                 bash "$SQL_QUERY_FILE" "$DB" "$DB_STATS" "$DB_HOSTS"
 
-                if [ $? != "0" ];then
+                if [ $? -ne "0" ];then
                     echo "Error while executing SQL update request from the update file: $SQL_QUERY_FILE."
                     exit 7
                 fi
