@@ -458,7 +458,7 @@ class Common
                 if ($result == 1) {
                     $errorMsg = "Error: version.available file not found.";
                 }
-                if ($result == 1) {
+                if ($result == 11) {
                     $errorMsg = "Error: unknown github available version number.";
                 }
                 if ($result == 2) {

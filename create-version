@@ -12,7 +12,7 @@ CYAN=$(tput setaf 6)
 RESET=$(tput sgr0)
 
 DEV_DIR="/home/github/repomanager"
-DEV_BRANCH="stable"
+DEV_BRANCH="dev"
 ARCHIVE_PATH="$HOME/repomanager/releases"
 IGNORE_FILE="/home/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
 CONFIRM=""

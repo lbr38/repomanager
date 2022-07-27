@@ -21,4 +21,6 @@ if ! /usr/bin/sqlite3 -noheader -batch -cmd ".timeout 5000" "$DB" "PRAGMA table_
     /usr/bin/sqlite3 -cmd ".timeout 5000" "$DB" "INSERT into repos_snap SELECT * FROM repos_snap_new;" &&
     # Drop repos_snap_new:
     /usr/bin/sqlite3 -cmd ".timeout 5000" "$DB" "DROP TABLE repos_snap_new;"
+else
+    exit 0
 fi
