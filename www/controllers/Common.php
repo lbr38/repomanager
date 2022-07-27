@@ -456,8 +456,8 @@ class Common
             if ($result != 0) {
                 $error++;
 
-                if (file_exists(ROOT . 'logs/update/update.log')) {
-                    $errorMsg = file_get_contents(ROOT . 'logs/update/update.log');
+                if (file_exists(ROOT . '/logs/update/update.log')) {
+                    $errorMsg = file_get_contents(ROOT . '/logs/update/update.log');
                 }
 
 
