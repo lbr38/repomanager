@@ -578,8 +578,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td>
                     <select name="updateBranch">
-                        <option value="beta" <?php echo (UPDATE_BRANCH == "beta") ? 'selected' : ''; ?>>beta</option>
                         <option value="stable" <?php echo (UPDATE_BRANCH == "stable") ? 'selected' : ''; ?>>stable</option>
+                        <option value="dev" <?php echo (UPDATE_BRANCH == "dev") ? 'selected' : ''; ?>>dev</option>
                     </select>
                 </td>
                 <?php
