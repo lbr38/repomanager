@@ -7,10 +7,19 @@ set -u
 ## Variables ##
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 WWW_DIR=$(echo "$CURRENT" | sed 's|/tools||g')
+LOG_DIR="$WWW_DIR/logs/update"
+LOG="$LOG_DIR/update.log"
 DB="$WWW_DIR/db/repomanager.db"
 DB_STATS="$WWW_DIR/db/repomanager-stats.db"
 DB_HOSTS="$WWW_DIR/db/repomanager-hosts.db"
 UPDATE_ERROR=0
+
+# Create empty log file
+mkdir -p "$LOG_DIR"
+echo -n> "$LOG"
+
+# Write everything to log
+exec &> >(tee -a "$LOG")
 
 # Quit if github version is unknown or if file does not exist
 if [ ! -f "${WWW_DIR}/version.available" ];then

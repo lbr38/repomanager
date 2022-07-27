@@ -455,37 +455,42 @@ class Common
             exec("bash " . ROOT . "/tools/repomanager-update", $output, $result);
             if ($result != 0) {
                 $error++;
-                if ($result == 1) {
-                    $errorMsg = "Error: version.available file not found.";
+
+                if (file_exists(ROOT . 'logs/update/update.log')) {
+                    $errorMsg = file_get_contents(ROOT . 'logs/update/update.log');
                 }
-                if ($result == 11) {
-                    $errorMsg = "Error: unknown github available version number.";
-                }
-                if ($result == 2) {
-                    $errorMsg = "Error while downloading update " . GIT_VERSION . " (https://github.com/lbr38/repomanager/releases/download/" . GIT_VERSION . "/repomanager_" . GIT_VERSION . ".tar.gz)";
-                }
-                if ($result == 3) {
-                    $errorMsg = "Error while extracting archive file.";
-                }
-                if ($result == 4) {
-                    $errorMsg = "Error while updating application.";
-                }
-                if ($result == 5) {
-                    $errorMsg = 'Error: main database file not found.';
-                }
-                if ($result == 6) {
-                    $errorMsg = 'Error: /usr/bin/sqlite3 not found.';
-                }
-                if ($result == 7) {
-                    /**
-                     *  Get the error message from the executed script if any
-                     */
-                    if (!empty($output)) {
-                        $errorMsg = implode('<br>', $output);
-                    } else {
-                        $errorMsg = "Error while trying to update database.";
-                    }
-                }
+
+                // if ($result == 1) {
+                //     $errorMsg = "Error: version.available file not found.";
+                // }
+                // if ($result == 11) {
+                //     $errorMsg = "Error: unknown github available version number.";
+                // }
+                // if ($result == 2) {
+                //     $errorMsg = "Error while downloading update " . GIT_VERSION . " (https://github.com/lbr38/repomanager/releases/download/" . GIT_VERSION . "/repomanager_" . GIT_VERSION . ".tar.gz)";
+                // }
+                // if ($result == 3) {
+                //     $errorMsg = "Error while extracting archive file.";
+                // }
+                // if ($result == 4) {
+                //     $errorMsg = "Error while updating application.";
+                // }
+                // if ($result == 5) {
+                //     $errorMsg = 'Error: main database file not found.';
+                // }
+                // if ($result == 6) {
+                //     $errorMsg = 'Error: /usr/bin/sqlite3 not found.';
+                // }
+                // if ($result == 7) {
+                //     /**
+                //      *  Get the error message from the executed script if any
+                //      */
+                //     if (!empty($output)) {
+                //         $errorMsg = implode('<br>', $output);
+                //     } else {
+                //         $errorMsg = "Error while trying to update database.";
+                //     }
+                // }
             }
         }
         /**
