@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+DB="$1"
+DB_STATS="$2"
+DB_HOSTS="$3"
 
 ## v3.1.0-stable ##
 # Add Arch, Pkg_source and Pkg_translation columns to repos_snap:

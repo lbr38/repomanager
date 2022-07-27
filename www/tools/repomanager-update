@@ -8,6 +8,8 @@ set -u
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 WWW_DIR=$(echo "$CURRENT" | sed 's|/tools||g')
 DB="$WWW_DIR/db/repomanager.db"
+DB_STATS="$WWW_DIR/db/repomanager-stats.db"
+DB_HOSTS="$WWW_DIR/db/repomanager-hosts.db"
 UPDATE_ERROR=0
 
 # Quit if github version is unknown or if file does not exist
@@ -45,10 +47,8 @@ function updateDatabase
     if [ -d "$SQL_QUERY_DIR" ];then
         if [ "$(ls -A $SQL_QUERY_DIR)" ];then
 
-            SQL_ERROR="0"
-
             for SQL_QUERY_FILE in $(ls -A1 $SQL_QUERY_DIR/);do
-                bash "$SQL_QUERY_FILE"
+                bash "$SQL_QUERY_FILE" "$DB" "$DB_STATS" "$DB_HOSTS"
 
                 if [ $? != "0" ];then
                     echo "Error while executing SQL update request from the update file: $SQL_QUERY_FILE."
