@@ -1,27 +1,81 @@
-#!/bin/bash
-# Script de mise à jour de repomanager
-# Il télécharge la dernière archive tar.gz disponible, la décompresse et copie les fichiers et répertoires
+#!/usr/bin/env bash
+# Repomanager update script
+# It downloads last available tar.gz archive, uncompress it and copy files and directories to the right place.
 set -u
 
+
+## Variables ##
 CURRENT="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 WWW_DIR=$(echo "$CURRENT" | sed 's|/tools||g')
-GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
+DB="$WWW_DIR/db/repomanager.db"
 UPDATE_ERROR=0
 
+# Quit if github version is unknown or if file does not exist
+if [ ! -f "${WWW_DIR}/version.available" ];then
+    exit 1
+fi
 if [ -z "$GITHUB_VERSION" ];then
     exit 1
 fi
 
-# On supprime le répertoire de travail si existe déjà, puis on le recrée vide
-rm /tmp/repomanager-update_${GITHUB_VERSION}/ -rf &&
-mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/ &&
-mkdir -p /tmp/repomanager-update_${GITHUB_VERSION}/backup-conf &&
-cd /tmp/repomanager-update_${GITHUB_VERSION}/
+GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
+WORKING_DIR="/tmp/repomanager-update_${GITHUB_VERSION}"
+BACKUP_CONF_DIR="$WORKING_DIR/backup-conf"
+SQL_QUERY_DIR="$WORKING_DIR/repomanager/tools/update-sql-queries/stable"
 
-# Répertoire qui contiendra les sauvegardes de configuration actuelles
-BACKUP_CONF_DIR="/tmp/repomanager-update_${GITHUB_VERSION}/backup-conf"
+## Functions ##
 
-# Sauvegarde des configurations actuelles
+# Execute SQL queries to update certain tables in the database
+function updateDatabase
+{
+    echo ""
+
+    # Quit if main database does not exist
+    if [ ! -f "$DB" ];then
+        exit 5
+    fi
+
+    # Quit if sqlite3 is not found
+    if [ ! -f "/usr/bin/sqlite3" ];then
+        exit 6
+    fi
+
+    # Apply SQL update queries if dir exists and if there are files in it
+    if [ -d "$SQL_QUERY_DIR" ];then
+        if [ "$(ls -A $SQL_QUERY_DIR)" ];then
+
+            SQL_ERROR="0"
+
+            for SQL_QUERY_FILE in $(ls -A1 $SQL_QUERY_DIR/);do
+                bash "$SQL_QUERY_FILE"
+
+                if [ $? != "0" ];then
+                    echo "Error while executing SQL update request from the update file: $SQL_QUERY_FILE."
+                    exit 7
+                fi
+
+            done
+        fi
+
+
+    fi
+}
+
+
+## Execution ##
+
+# Delete working dir if already exist.
+rm "$WORKING_DIR" -rf
+
+# Then create it.
+mkdir -p "$WORKING_DIR"
+
+# Dir which will contain backups of actual configuration files
+mkdir -p "$BACKUP_CONF_DIR" &&
+
+cd "$WORKING_DIR"
+
+# Backup actual configurations
 cp ${WWW_DIR}/configurations/repomanager.conf ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager.db ${BACKUP_CONF_DIR}/
 cp ${WWW_DIR}/db/repomanager-stats.db ${BACKUP_CONF_DIR}/
@@ -29,22 +83,22 @@ cp -r ${WWW_DIR}/logs ${BACKUP_CONF_DIR}/
 cp -r ${WWW_DIR}/operations/pid ${BACKUP_CONF_DIR}/
 cp -r ${WWW_DIR}/.temp ${BACKUP_CONF_DIR}/
 
-# Téléchargement de la nouvelle version :
+# Download new version archive
 wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/${GITHUB_VERSION}/repomanager_${GITHUB_VERSION}.tar.gz"
 if [ $? -ne "0" ];then
     exit 2
 fi
 
-# Extraction de l'archive
+# Extract archive
 tar xzf repomanager_${GITHUB_VERSION}.tar.gz
 if [ $? -ne "0" ];then
     exit 3
 fi
 
-# Entre dans les fichiers décompréssés
-cd "/tmp/repomanager-update_${GITHUB_VERSION}/repomanager"
+# Enter into decompressed archive dir
+cd "$WORKING_DIR/repomanager"
 
-## Création des répertories cibles si n'existent pas
+# Create target dirs if not exist
 mkdir -p "${WWW_DIR}/public"
 mkdir -p "${WWW_DIR}/resources"
 mkdir -p "${WWW_DIR}/tools"
@@ -52,38 +106,45 @@ mkdir -p "${WWW_DIR}/templates"
 mkdir -p "${WWW_DIR}/api"
 mkdir -p "${WWW_DIR}/db"
 
-# Copie des fichiers au bon endroit
-# Copie de tous les fichiers
+# Copy files to the right place
+
+# Copy all files
 rsync -a --quiet ./ ${WWW_DIR}/
 if [ $? -ne "0" ];then
     (( UPDATE_ERROR++ ))
 fi
-# Seconde copie des fichiers .php uniquement en supprimant ceux inutilisés
+# Then copy .php files only and delete those which are not used anymore
 rsync -a --quiet --delete-after --include '*/' --include '*.php' --exclude '*' ./ ${WWW_DIR}/
 if [ $? -ne "0" ];then
     (( UPDATE_ERROR++ ))
 fi
 
-# Remise en place des configurations sauvegardées
-\cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf
-\cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db
-\cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db
-\cp -r ${BACKUP_CONF_DIR}/logs ${WWW_DIR}/
-\cp -r ${BACKUP_CONF_DIR}/pid ${WWW_DIR}/operations/
-\cp -r ${BACKUP_CONF_DIR}/.temp ${WWW_DIR}/
+# Restore backuped configuration files
+\cp ${BACKUP_CONF_DIR}/repomanager.conf ${WWW_DIR}/configurations/repomanager.conf &&
+\cp ${BACKUP_CONF_DIR}/repomanager.db ${WWW_DIR}/db/repomanager.db &&
+\cp ${BACKUP_CONF_DIR}/repomanager-stats.db ${WWW_DIR}/db/repomanager-stats.db &&
+\cp -r ${BACKUP_CONF_DIR}/logs ${WWW_DIR}/ &&
+\cp -r ${BACKUP_CONF_DIR}/pid ${WWW_DIR}/operations/ &&
+\cp -r ${BACKUP_CONF_DIR}/.temp ${WWW_DIR}/ &&
+if [ $? -ne "0" ];then
+    (( UPDATE_ERROR++ ))
+fi
 
-# Si il y a eu des erreurs alors on quitte
+# Quit if there was any error
 if [ $UPDATE_ERROR -ne "0" ];then
     exit 4
 fi
 
-# Remise en place de permissions
+# Apply database update queries if there are
+updateDatabase 
+
+# Apply permissions on repomanager service script
 chmod 550 ${WWW_DIR}/tools/services/repomanager-service
  
-# Nettoyage
+# Clean up
 cd "$WWW_DIR"
 
-# Nettoyage de certains vieux répertoires ou fichiers inutilisés si existe dans la cible
+# Clean up unused files or directories
 rm -rf "${WWW_DIR}/archives"
 rm -rf "${WWW_DIR}/_archives"
 rm -rf "${WWW_DIR}/cron"
@@ -91,7 +152,7 @@ rm -rf "${WWW_DIR}/public/ressources"
 rm -rf "${WWW_DIR}/logs/plans"
 rm -f "${WWW_DIR}/operations/cronjob_daily.php"
 
-# Suppression du répertoire de mise à jour
-rm "/tmp/repomanager-update_${GITHUB_VERSION}/" -rf
+# Delete working dir
+rm "$WORKING_DIR" -rf
 
 exit 0

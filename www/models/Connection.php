@@ -280,6 +280,9 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Signed CHAR(3) NOT NULL,
+        Arch VARCHAR(255),
+        Pkg_source CHAR(3),
+        Pkg_translation VARCHAR(255),
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,

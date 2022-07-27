@@ -455,16 +455,32 @@ class Common
             if ($result != 0) {
                 $error++;
                 if ($result == 1) {
-                    $errorMsg = "Erreur : numéro de version disponible sur github inconnu";
+                    $errorMsg = "Error: unknown available version number.";
                 }
                 if ($result == 2) {
-                    $errorMsg = "Erreur lors du téléchargement de la mise à jour " . GIT_VERSION . " (https://github.com/lbr38/repomanager/releases/download/" . GIT_VERSION . "/repomanager_" . GIT_VERSION . ".tar.gz)";
+                    $errorMsg = "Error while downloading update " . GIT_VERSION . " (https://github.com/lbr38/repomanager/releases/download/" . GIT_VERSION . "/repomanager_" . GIT_VERSION . ".tar.gz)";
                 }
                 if ($result == 3) {
-                    $errorMsg = "Erreur lors de l'extraction de la mise à jour";
+                    $errorMsg = "Error while extracting archive file.";
                 }
                 if ($result == 4) {
-                    $errorMsg = "Erreur lors de l'application de la mise à jour";
+                    $errorMsg = "Error while updating application.";
+                }
+                if ($result == 5) {
+                    $errorMsg = 'Error: main database file not found.';
+                }
+                if ($result == 6) {
+                    $errorMsg = 'Error: /usr/bin/sqlite3 not found.';
+                }
+                if ($result == 7) {
+                    /**
+                     *  Get the error message from the executed script if any
+                     */
+                    if (!empty($output)) {
+                        $errorMsg = implode('<br>', $output);
+                    } else {
+                        $errorMsg = "Error while trying to update database.";
+                    }
                 }
             }
         }
@@ -479,8 +495,8 @@ class Common
         /**
          *  Suppression du fichier 'update-running' pour lever la maintenance
          */
-        if (file_exists(ROOT . "/update-running")) {
-            unlink(ROOT . "/update-running");
+        if (file_exists(ROOT . '/update-running')) {
+            unlink(ROOT . '/update-running');
         }
 
         return $updateStatus;
