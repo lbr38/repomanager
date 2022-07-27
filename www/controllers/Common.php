@@ -456,7 +456,10 @@ class Common
             if ($result != 0) {
                 $error++;
                 if ($result == 1) {
-                    $errorMsg = "Error: unknown available version number.";
+                    $errorMsg = "Error: version.available file not found.";
+                }
+                if ($result == 1) {
+                    $errorMsg = "Error: unknown github available version number.";
                 }
                 if ($result == 2) {
                     $errorMsg = "Error while downloading update " . GIT_VERSION . " (https://github.com/lbr38/repomanager/releases/download/" . GIT_VERSION . "/repomanager_" . GIT_VERSION . ".tar.gz)";

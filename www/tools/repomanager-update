@@ -17,7 +17,7 @@ fi
 
 GITHUB_VERSION=$(cat ${WWW_DIR}/version.available)
 if [ -z "$GITHUB_VERSION" ];then
-    exit 1
+    exit 11
 fi
 
 WORKING_DIR="/tmp/repomanager-update_${GITHUB_VERSION}"
