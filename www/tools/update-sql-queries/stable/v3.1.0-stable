@@ -6,6 +6,9 @@ DB_HOSTS="$3"
 ## v3.1.0-stable ##
 # Add Arch, Pkg_source and Pkg_translation columns to repos_snap:
 if ! /usr/bin/sqlite3 -noheader -batch -cmd ".timeout 5000" "$DB" "PRAGMA table_info(repos_snap);" | grep -q "Arch";then
+
+    echo "Executing update requests"
+
     /usr/bin/sqlite3 -cmd ".timeout 5000" "$DB" "ALTER TABLE repos_snap ADD Arch VARCHAR(255);" &&
     /usr/bin/sqlite3 -cmd ".timeout 5000" "$DB" "ALTER TABLE repos_snap ADD Pkg_source CHAR(3);" &&
     /usr/bin/sqlite3 -cmd ".timeout 5000" "$DB" "ALTER TABLE repos_snap ADD Pkg_translation VARCHAR(255);" &&
