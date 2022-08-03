@@ -1,4 +1,4 @@
-name: Run operations on a rpm repo (from a Rocky Linux system)
+name: Run operations on a rpm repo (from a Rocky Linux 8 system)
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
   run-operations:
     runs-on: ubuntu-latest
     container:
-      image: rockylinux:latest
+      image: rockylinux:8
       options: --user root
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
           dnf update -y
 
       - name: Install dependencies packages
-        run: dnf install yum-utils rpm-sign createrepo_c sudo -y
+        run: dnf install yum-utils rpm-sign createrepo_c sudo findutils -y
 
       - name: Setup PHP
         run: |
@@ -47,23 +47,23 @@ jobs:
           mkdir -p /etc/yum/vars
           mkdir -p /etc/yum.repos.d/repomanager
           mkdir -p /var/www/repomanager
-          mkdir -p /var/www/repomanager/backups
-          mkdir -p /var/www/repomanager/logs/main
-          mkdir -p /var/www/repomanager/cron
-          mkdir -p /var/www/repomanager/configurations
-          mkdir -p /var/www/repomanager/operations/pool/
-          mkdir -p /var/www/repomanager/db
-          mkdir -p /var/www/repomanager/.gnupg
+          mkdir -p /var/lib/repomanager
+          mkdir -p /var/lib/repomanager/backups
+          mkdir -p /var/lib/repomanager/logs/main
+          mkdir -p /var/lib/repomanager/configurations
+          mkdir -p /var/lib/repomanager/operations/pool/
+          mkdir -p /var/lib/repomanager/db
+          mkdir -p /var/lib/repomanager/.gnupg
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
-          cp $GITHUB_WORKSPACE/version /var/www/repomanager/
-          cp $GITHUB_WORKSPACE/www/repomanager /var/www/repomanager/
+          cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
+          cp $GITHUB_WORKSPACE/repomanager /var/lib/repomanager/
 
       - name: Set up repomanager main config
         run: |
-          curl -s -o /var/www/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/repomanager.conf 2> /dev/null
-          curl -s -L -o /var/www/repomanager/db/repomanager.db https://github.com/lbr38/repomanager-docs/raw/main/ci/repomanager.db 2> /dev/null
-          ls -l /var/www/repomanager/configurations/
-          ls -l /var/www/repomanager/db/
+          curl -s -o /var/lib/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/repomanager.conf 2> /dev/null
+          curl -s -L -o /var/lib/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
+          ls -l /var/lib/repomanager/configurations/
+          ls -l /var/lib/repomanager/db/
       
       - name: Generate repomanager GPG signing key
         run: |
@@ -75,15 +75,15 @@ jobs:
           echo "Name-Email: gpgkey@nomail.com" >> /tmp/gpg-template-file
           echo "Expire-Date: 0" >> /tmp/gpg-template-file
           echo "Passphrase: beautifulPassphrase" >> /tmp/gpg-template-file
-          gpg2 --batch --gen-key --homedir /var/www/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
+          gpg2 --batch --gen-key --homedir /var/lib/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
           echo "beautifulPassphrase" > passphrase
-          mv passphrase /var/www/repomanager/.gnupg/passphrase
+          mv passphrase /var/lib/repomanager/.gnupg/passphrase
           rm /tmp/gpg-template-file
 
       - name: Set up GPG config
         run: |
-          echo -e "pinentry-mode loopback\npassphrase-file /var/www/repomanager/.gnupg/passphrase" > gpg.conf 
-          mv gpg.conf /var/www/repomanager/.gnupg/gpg.conf
+          echo -e "pinentry-mode loopback\npassphrase-file /var/lib/repomanager/.gnupg/passphrase" > gpg.conf 
+          mv gpg.conf /var/lib/repomanager/.gnupg/gpg.conf
 
       - name: Set up yum configuration
         run: |
@@ -108,15 +108,18 @@ jobs:
 
       - name: Download jobs
         run: |
-          curl -s -o /var/www/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-mirror-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-update-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-duplicate-repo.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-create-env.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-delete.json 2> /dev/null
-          curl -s -o /var/www/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/repomanager-docs/main/ci/operations/rpm/ci-reconstruct.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-reconstruct.json 2> /dev/null
 
       - name: Set up permissions
-        run: /var/www/repomanager/repomanager -p
+        run: /var/lib/repomanager/repomanager -p
+
+      - name: Update database
+        run: sudo -u www-data php /var/www/repomanager/tools/update-database.php
 
       - name: Run job - Mirror repo
         run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo'

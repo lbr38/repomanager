@@ -22,7 +22,7 @@ class Connection extends SQLite3
              *  Cas où la base de données renseignée est "main", il s'agit de la base de données principale repomanager.db
              */
             if ($database == "main") {
-                $this->open(ROOT . "/db/repomanager.db");
+                $this->open(DB_DIR . '/repomanager.db');
 
                 /**
                  *  Activation des exception pour SQLite
@@ -33,7 +33,7 @@ class Connection extends SQLite3
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
              */
             } elseif ($database == "stats") {
-                $this->open(ROOT . "/db/repomanager-stats.db");
+                $this->open(DB_DIR . '/repomanager-stats.db');
 
                 /**
                  *  Activation des exception pour SQLite
@@ -44,7 +44,7 @@ class Connection extends SQLite3
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
              */
             } elseif ($database == "hosts") {
-                $this->open(ROOT . "/db/repomanager-hosts.db");
+                $this->open(DB_DIR . '/repomanager-hosts.db');
 
                 /**
                  *  Activation des exception pour SQLite
@@ -56,7 +56,7 @@ class Connection extends SQLite3
              */
             } elseif ($database == "host") {
                 if (!defined('HOSTS_DIR')) {
-                    define('HOSTS_DIR', ROOT . '/hosts');
+                    define('HOSTS_DIR', DATA_DIR . '/hosts');
                 }
 
                 $this->open(HOSTS_DIR . "/$hostId/properties.db");
@@ -280,6 +280,9 @@ class Connection extends SQLite3
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Signed CHAR(3) NOT NULL,
+        Arch VARCHAR(255),
+        Pkg_source CHAR(3),
+        Pkg_translation VARCHAR(255),
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
         Status CHAR(8) NOT NULL,
@@ -738,5 +741,27 @@ class Connection extends SQLite3
         }
 
         return $count;
+    }
+
+    /**
+     *  Return true if column name exists in the specified table
+     */
+    public function columnExist(string $tableName, string $columnName)
+    {
+        $columns = array();
+
+        $result = $this->query("PRAGMA table_info($tableName)");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $columns[] = $row;
+        }
+
+        foreach ($columns as $column) {
+            if ($column['name'] == $columnName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -150,7 +150,6 @@ if (!empty($plansQueued)) {
             }
         }
 
-
         /**
          *  Traitement des rappels
          *  Si la date actuelle ($dateNow) correspond à la date de rappel de la planification, alors on envoi un rappel par mail

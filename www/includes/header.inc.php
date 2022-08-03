@@ -319,4 +319,20 @@ if (!SERVICE_RUNNING) : ?>
     <?php
 endif;
 
+/**
+ *  Display repomanager service error if there is
+ */
+if (filesize(SERVICE_LOG)) {
+    $serviceLog = file_get_contents(SERVICE_LOG);
+    ?>
+    <section>
+        <section class="missing-param-alert">
+            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
+            <br>
+            <span class="yellowtext"><?= $serviceLog ?></span>
+        </section>
+    </section>
+    <?php
+}
+
 include('maintenance.inc.php'); ?>

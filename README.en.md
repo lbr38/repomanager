@@ -32,14 +32,13 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 |----------|---------------|
 | Create mirrors from public repos | ✅ |
 | Create local repos | ✅ |
-| Sign repos or packages with GPG key | ✅ |
-| Archive / restore mirrors | ✅ |
-| Load custom packages into repos (eg: patch zero-day) | ✅ |
+| Sign repos / packages with GPG key | ✅ |
+| Load custom packages into repos (e.g: patch zero-day) | ✅ |
 | **Automatisation** ||
-| Create automatic tasks on mirrors (update mirror...) | ✅ |
+| Create automatic tasks tp update mirrors | ✅ |
 | Send automatic task reminder (mail) | ✅ |
 | **Stats** ||
-| Visualize graphs on repos' evolution and utilisation | ✅ |
+| Visualize metrics on repos' evolution and utilisation | ✅ |
 | **Hosts management** ||
 | Analyze et manage installed packages on clients hosts (linupdate agent needed) | ✅ |
 | **General** ||
@@ -64,7 +63,7 @@ Disk space required depends on the size of the repos you need to clone.
 
 Repomanager requires packages commonly found on every Linux distributions such as:
 ```
-rsync, curl, wget, gnupg2
+curl, mlocate, wget, gnupg2
 ```
 
 And specific packages needed to build mirrors such as:
@@ -262,7 +261,7 @@ server {
 
 <b>Repomanager</b>
 
-The program will need two directories chosen by the user during installation:
+The program will need two directories to be choose by the user during installation:
 ```
 Main installation directory (default is /var/www/repomanager/)
 Repos directory (default is /home/repo/)
@@ -270,18 +269,15 @@ Repos directory (default is /home/repo/)
 
 Installation script must be executed by root or sudo user to make sure that correct permissions are applied on the directories used by repomanager.
 
-Download last available release (.tar.gz) (all releases are visible here: https://github.com/lbr38/repomanager/releases):
+Clone:
 
 ```
-RELEASE="v3.0.2-stable" # release choice
 cd /tmp
-wget https://github.com/lbr38/repomanager/releases/download/$RELEASE/repomanager_$RELEASE.tar.gz
-tar xzf repomanager_$RELEASE.tar.gz
-cd /tmp/repomanager/
+git clone https://github.com/lbr38/repomanager.git
 ```
 
 Proceed the installation:
 ```
-chmod 700 repomanager
+cd /tmp/repomanager/
 sudo ./repomanager --install
 ```

@@ -37,7 +37,7 @@ if [ "$CONFIRM" != "y" ];then
     exit
 fi
 
-echo "$VERSION" > ${DEV_DIR}/version
+echo "$VERSION" > ${DEV_DIR}/www/version
 
 # Suppression du répertoire /tmp/repomanager si existe car on va avoir besoin qu'il soit vierge
 rm /tmp/repomanager -rf
@@ -48,15 +48,16 @@ else
     exit
 fi
 
-cp -r ${DEV_DIR}/www /tmp/repomanager && # on copie le contenu de $DEV_DIR dedans
-cp ${DEV_DIR}/version /tmp/repomanager &&
-cd /tmp # On se place sur tmp afin de faire une archive repomanager/
+# on copie le contenu de $DEV_DIR dedans
+cp -r ${DEV_DIR} /tmp/repomanager
 if [ $? -eq "0" ];then
     echo "[ OK ]"
 else
     echo "Erreur lors de la création de /tmp/repomanager/"
     exit
 fi
+
+cd /tmp # On se place sur tmp afin de faire une archive repomanager/
 
 echo -e "\n Création de l'archive :"
 # Si une archive du même nom existe déjà dans le répertoire cible lors on la supprime 
@@ -72,7 +73,7 @@ else
     exit
 fi
 
-rm /tmp/repomanager -rf
+# rm /tmp/repomanager -rf
 
 echo -e "\n Archive ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz créée avec succès"
 

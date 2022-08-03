@@ -422,6 +422,34 @@ class Operation
         }
     }
 
+    private function checkParamIncludeArch(array $targetArch)
+    {
+        if (empty($targetArch)) {
+        }
+
+        foreach ($targetArch as $arch) {
+            if (!\Controllers\Common::isAlphanumdash($arch)) {
+                throw new Exception("L'architecture à inclure comporte des caractères invalides");
+            }
+        }
+    }
+
+    private function checkParamIncludeSource(string $targetPackageSource)
+    {
+        if ($targetPackageSource !== "yes" and $targetPackageSource !== "no") {
+            throw new Exception('Le paramètre d\'inclusion des sources de paquets est invalide');
+        }
+    }
+
+    private function checkParamIncludeTranslation(array $targetPackageTranslation)
+    {
+        foreach ($targetPackageTranslation as $translation) {
+            if (!\Controllers\Common::isAlphanum($translation)) {
+                throw new Exception("La traduction à inclure comporte des caractères invalides");
+            }
+        }
+    }
+
     /**
      *  NOUVELLE OPERATION
      *  Ajout d'une nouvelle entrée en BDD
@@ -637,19 +665,6 @@ class Operation
     }
 
     /**
-     *  Clôture de l'étape en cours
-     */
-    // public function stepEnd()
-    // {
-    //     /**
-    //      *  Génère un fichier 'completed' dans le répertoire temporaire des étapes de l'opération, ceci afin que logbuilder.php s'arrête
-    //      */
-    //     touch(TEMP_DIR . '/' . $this->log->getPid() . '/completed');
-
-    //     $this->deletePid();
-    // }
-
-    /**
      *  Retourne le nom du repo ou du groupe en cours de traitement
      */
     public function printRepoOrGroup(string $id)
@@ -834,19 +849,19 @@ class Operation
         $action = \Controllers\Common::validateData($action);
 
         if ($action == 'update') {
-            $title = '<h3>MISE A JOUR</h3>';
+            $title = '<h3>UPDATE</h3>';
         }
         if ($action == 'env') {
-            $title = '<h3>NOUVEL ENVIRONNEMENT</h3>';
+            $title = '<h3>NEW ENVIRONMENT</h3>';
         }
         if ($action == 'duplicate') {
-            $title = '<h3>DUPLIQUER</h3>';
+            $title = '<h3>DUPLICATE</h3>';
         }
         if ($action == 'delete') {
-            $title = '<h3>SUPPRIMER</h3>';
+            $title = '<h3>DELETE</h3>';
         }
         if ($action == 'reconstruct') {
-            $title = '<h3>RECONSTRUIRE LE REPO</h3>';
+            $title = '<h3>REBUILD REPO</h3>';
         }
 
         $content = $title . '<form class="operation-form-container" autocomplete="off">';
@@ -1094,6 +1109,19 @@ class Operation
                     $this->checkParamSource($operation_params['source']);
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
+
+                    if (empty($operation_params['targetArch'])) {
+                        throw new Exception('You must specify architecture.');
+                    }
+                    if (empty($operation_params['targetPackageSource'])) {
+                        throw new Exception('You must specify if package source should be mirrored or not.');
+                    }
+                    $this->checkParamIncludeArch($operation_params['targetArch']);
+                    $this->checkParamIncludeSource($operation_params['targetPackageSource']);
+
+                    if ($packageType == 'deb') {
+                        $this->checkParamIncludeTranslation($operation_params['targetPackageTranslation']);
+                    }
                 }
                 /**
                  *  On vérifie qu'un/une repo/section du même nom n'est pas déjà actif avec des snapshots
@@ -1149,6 +1177,19 @@ class Operation
                 }
                 if ($packageType == 'deb') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
+                }
+
+                if (empty($operation_params['targetArch'])) {
+                    throw new Exception('You must specify architecture.');
+                }
+                if (empty($operation_params['targetPackageSource'])) {
+                    throw new Exception('You must specify if package source should be mirrored or not.');
+                }
+                $this->checkParamIncludeArch($operation_params['targetArch']);
+                $this->checkParamIncludeSource($operation_params['targetPackageSource']);
+
+                if ($packageType == 'deb') {
+                    $this->checkParamIncludeTranslation($operation_params['targetPackageTranslation']);
                 }
             }
 
@@ -1222,7 +1263,6 @@ class Operation
                 }
                 if ($packageType == 'deb') {
                     \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
-                    // \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement ' . \Controllers\Common::envtag($operation_params['targetEnv']) . '⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> pour le repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1256,8 +1296,8 @@ class Operation
             /**
              *  On crée le fichier JSON et on sort de la boucle si le numéro est disponible
              */
-            if (!file_exists(ROOT . '/operations/pool/' . $operation_id . '.json')) {
-                touch(ROOT . '/operations/pool/' . $operation_id . '.json');
+            if (!file_exists(POOL . '/' . $operation_id . '.json')) {
+                touch(POOL . '/' . $operation_id . '.json');
                 break;
             }
         }
@@ -1265,7 +1305,7 @@ class Operation
         /**
          *  Ajout du contenu de l'array dans un fichier au format JSON
          */
-        file_put_contents(ROOT . '/operations/pool/' . $operation_id . '.json', json_encode($operations_params, JSON_PRETTY_PRINT));
+        file_put_contents(POOL . '/' . $operation_id . '.json', json_encode($operations_params, JSON_PRETTY_PRINT));
 
         /**
          *  Lancement de execute.php qui va s'occuper de traiter le fichier JSON

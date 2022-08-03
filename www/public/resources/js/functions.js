@@ -64,7 +64,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Supprimer')
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
      */
-     $("#newConfirmAlert").remove();
+    $("#newConfirmAlert").remove();
 
     var $content = '<div id="newConfirmAlert" class="confirmAlert"><span class="confirmAlert-message">' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Annuler</span></div></div>';
 
@@ -119,22 +119,6 @@ function reloadContentByClass(className)
 }
 
 /**
- *  Rechargement de la div 'nouveau repo'
- */
-function reloadNewRepoDiv()
-{
-    $("#newRepoDiv").load(" #newRepoDiv > *");
-
-    if ($("#repoType_mirror").is(":checked")) {
-        $(".type_mirror_input").show();
-        $(".type_local_input").hide();
-    } else {
-        $(".type_mirror_input").hide();
-        $(".type_local_input").show();
-    }
-}
-
-/**
  *  Copie du contenu d'un élement dans le presse-papier
  *  @param {*} containerid
  */
@@ -148,4 +132,28 @@ function copyToClipboard(containerid)
     window.getSelection().removeAllRanges();
 
     printAlert('Copié', 'success');
+}
+
+/**
+ * Convert select tag to a select2 by specified id
+ * @param {*} id
+ */
+function idToSelect2(id)
+{
+    $(id).select2({
+        closeOnSelect: false,
+        placeholder: 'Select...'
+    });
+}
+
+/**
+ * Convert select tag to a select2 by specified class
+ * @param {*} className
+ */
+function classToSelect2(className)
+{
+    $(className).select2({
+        closeOnSelect: false,
+        placeholder: 'Select...'
+    });
 }

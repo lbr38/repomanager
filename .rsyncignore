@@ -1,7 +1,0 @@
-.rsyncignore
-www
-update
-first-install
-vars
-github.version
-version.available

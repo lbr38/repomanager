@@ -4,6 +4,9 @@
 if (!defined('ROOT')) {
     define('ROOT', dirname(__FILE__, 2));
 }
+if (!defined('DATA_DIR')) {
+    define('DATA_DIR', '/var/lib/repomanager');
+}
 require_once(ROOT . '/controllers/Autoloader.php');
 \Controllers\Autoloader::loadFromLogin();
 include_once(ROOT . '/includes/head.inc.php');

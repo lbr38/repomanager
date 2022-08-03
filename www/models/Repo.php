@@ -34,6 +34,9 @@ class Repo extends Model
                 repos_snap.Date,
                 repos_snap.Time,
                 repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,
@@ -65,6 +68,9 @@ class Repo extends Model
                 repos_snap.Date,
                 repos_snap.Time,
                 repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,
@@ -93,6 +99,9 @@ class Repo extends Model
                 repos_snap.Date,
                 repos_snap.Time,
                 repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,
@@ -114,6 +123,9 @@ class Repo extends Model
                 repos_snap.Date,
                 repos_snap.Time,
                 repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
                 repos_snap.Status,
@@ -914,6 +926,9 @@ class Repo extends Model
             repos_snap.Date,
             repos_snap.Time,
             repos_snap.Signed,
+            repos_snap.Arch,
+            repos_snap.Pkg_source,
+            repos_snap.Pkg_translation,
             repos_snap.Type,
             repos_env.Description
             FROM repos 
@@ -956,6 +971,9 @@ class Repo extends Model
             repos_snap.Date,
             repos_snap.Time,
             repos_snap.Signed,
+            repos_snap.Arch,
+            repos_snap.Pkg_source,
+            repos_snap.Pkg_translation,
             repos_snap.Type,
             repos_env.Description
             FROM repos 
@@ -996,6 +1014,9 @@ class Repo extends Model
             repos_snap.Date,
             repos_snap.Time,
             repos_snap.Signed,
+            repos_snap.Arch,
+            repos_snap.Pkg_source,
+            repos_snap.Pkg_translation,
             repos_snap.Type
             FROM repos
             LEFT JOIN repos_snap
@@ -1068,7 +1089,26 @@ class Repo extends Model
          */
         try {
             if ($groupName == 'Default') {
-                $reposInGroup = $this->db->query("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Reconstruct, repos_snap.Status, repos_env.Description
+                $reposInGroup = $this->db->query("SELECT DISTINCT
+                repos.Id AS repoId,
+                repos_snap.Id AS snapId,
+                repos_env.Id AS envId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_env.Env,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
+                repos_snap.Type,
+                repos_snap.Reconstruct,
+                repos_snap.Status,
+                repos_env.Description
                 FROM repos 
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -1077,7 +1117,26 @@ class Repo extends Model
                 WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
                 ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
             } else {
-                $stmt = $this->db->prepare("SELECT DISTINCT repos.Id AS repoId, repos_snap.Id AS snapId, repos_env.Id AS envId, repos.Name, repos.Dist, repos.Section, repos.Source, repos.Package_type, repos_env.Env, repos_snap.Date, repos_snap.Time, repos_snap.Signed, repos_snap.Type, repos_snap.Reconstruct, repos_snap.Status, repos_env.Description
+                $stmt = $this->db->prepare("SELECT DISTINCT
+                repos.Id AS repoId,
+                repos_snap.Id AS snapId,
+                repos_env.Id AS envId,
+                repos.Name,
+                repos.Dist,
+                repos.Section,
+                repos.Source,
+                repos.Package_type,
+                repos_env.Env,
+                repos_snap.Date,
+                repos_snap.Time,
+                repos_snap.Signed,
+                repos_snap.Arch,
+                repos_snap.Pkg_source,
+                repos_snap.Pkg_translation,
+                repos_snap.Type,
+                repos_snap.Reconstruct,
+                repos_snap.Status,
+                repos_env.Description
                 FROM repos 
                 LEFT JOIN repos_snap
                     ON repos.Id = repos_snap.Id_repo
@@ -1196,13 +1255,16 @@ class Repo extends Model
     /**
      * Ajout d'un nouveau snapshot de repo en base de données, lié à un Id de repo
      */
-    public function addSnap(string $date, string $time, string $gpgSignature, string $type, string $status, string $repoId)
+    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, string $includeSource, array $includeTranslation, string $type, string $status, string $repoId)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :type, :status, :repoId)");
+            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_source', 'Pkg_translation', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeSource, :includeTranslation, :type, :status, :repoId)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':signed', $gpgSignature);
+            $stmt->bindValue(':arch', implode(',', $arch));
+            $stmt->bindValue(':includeSource', $includeSource);
+            $stmt->bindValue(':includeTranslation', implode(',', $includeTranslation));
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':repoId', $repoId);

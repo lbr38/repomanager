@@ -79,9 +79,9 @@ foreach ($operation_params as $operation) {
             echo "Operation 'new' - Erreur : le paramètre packageType n'est pas défini." . PHP_EOL;
             $exitCode++;
             continue;
-        } else {
-            $packageType = $operation['packageType'];
         }
+
+        $packageType = $operation['packageType'];
     }
 
     /**
@@ -154,6 +154,15 @@ foreach ($operation_params as $operation) {
          */
         if ($type === 'mirror') {
             /**
+             *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
+             */
+            if (empty($operation['alias'])) {
+                $alias = $source;
+            } else {
+                $alias = $operation['alias'];
+            }
+
+            /**
              *  Si le paramètre Source n'est pas défini, on quitte
              */
             if (empty($operation['source'])) {
@@ -182,28 +191,41 @@ foreach ($operation_params as $operation) {
                 continue;
             }
             $targetGpgResign = $operation['targetGpgResign'];
-        }
 
-        /**
-         *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
-         *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
-         */
-        if ($type === 'mirror') {
-            if (empty($operation['alias'])) {
-                $alias = $source;
-            } else {
-                $alias = $operation['alias'];
+            if (!empty($operation['targetPackageSource'])) {
+                $targetPackageSource = $operation['targetPackageSource'];
+            }
+
+            /**
+             *  Paramètres supplémentaires si deb
+             */
+            if ($packageType == 'deb') {
+                /**
+                 *  Cas où on souhaite inclure des traductions de paquets
+                 */
+                if (!empty($operation['targetPackageTranslation'])) {
+                    $targetPackageTranslation = $operation['targetPackageTranslation'];
+                }
             }
         }
         if ($type === 'local') {
+            /**
+             *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
+             */
             if (empty($operation['alias'])) {
                 echo "Operation 'new' - Erreur : le paramètre Alias (Name) n'est pas défini." . PHP_EOL;
                 $exitCode++;
                 continue;
-            } else {
-                $alias = $operation['alias'];
             }
+            $alias = $operation['alias'];
         }
+
+        if (empty($operation['targetArch'])) {
+            echo "Operation 'new' - Error: package arch must be specified." . PHP_EOL;
+            $exitCode++;
+            continue;
+        }
+        $targetArch = $operation['targetArch'];
 
         /**
          *  Création d'un objet Repo avec les infos spécifiées par l'utilisateur
@@ -226,7 +248,23 @@ foreach ($operation_params as $operation) {
             $repo->setSource($source);
             $repo->setTargetGpgCheck($targetGpgCheck);
             $repo->setTargetGpgResign($targetGpgResign);
+            $repo->setTargetPackageSource($targetPackageSource);
+
+            if ($packageType == 'deb') {
+                if (!empty($targetPackageTranslation)) {
+                    $repo->setTargetPackageTranslation($targetPackageTranslation);
+                }
+            }
         }
+
+        /**
+         *  Set target package arch
+         */
+        $repo->setTargetArch($targetArch);
+
+        /**
+         *  Set target env if specified
+         */
         if (!empty($targetEnv)) {
             $repo->setTargetEnv($targetEnv);
         }
@@ -274,6 +312,21 @@ foreach ($operation_params as $operation) {
         $targetGpgResign = $operation['targetGpgResign'];
 
         /**
+         *  Paramètres avancés de la création d'un repo
+         */
+        if (!empty($operation['targetArch'])) {
+            $targetArch = $operation['targetArch'];
+        }
+
+        if (!empty($operation['targetPackageSource'])) {
+            $targetPackageSource = $operation['targetPackageSource'];
+        }
+
+        if (!empty($operation['targetPackageTranslation'])) {
+            $targetPackageTranslation = $operation['targetPackageTranslation'];
+        }
+
+        /**
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
@@ -300,6 +353,16 @@ foreach ($operation_params as $operation) {
          *  Set de GPG Resign
          */
         $repo->setTargetGpgResign($targetGpgResign);
+
+        $repo->setTargetArch($targetArch);
+
+        $repo->setTargetPackageSource($targetPackageSource);
+
+        if ($packageType == 'deb') {
+            if (!empty($targetPackageTranslation)) {
+                $repo->setTargetPackageTranslation($targetPackageTranslation);
+            }
+        }
 
         /**
          *  Exécution de l'opération
@@ -364,6 +427,23 @@ foreach ($operation_params as $operation) {
 
         if (!empty($targetEnv)) {
             $repo->setTargetEnv($targetEnv);
+        }
+
+        /**
+         *  Get the source repo Arch
+         */
+        $repo->setTargetArch($repo->getArch());
+
+        /**
+         *  Get the source repo Package Source inclusion
+         */
+        $repo->setTargetPackageSource($repo->getPackageSource());
+
+        /**
+         *  Get the source repo Package Translation inclusion
+         */
+        if (!empty($repo->getPackageTranslation())) {
+            $repo->setTargetPackageTranslation($repo->getPackageTranslation());
         }
 
         /**
@@ -478,6 +558,11 @@ foreach ($operation_params as $operation) {
          *  On récupère toutes les infos du repo en base de données
          */
         $repo->getAllById('', $snapId);
+
+        /**
+         *  Get the actual repo Arch
+         */
+        $repo->setTargetArch($repo->getArch());
 
         /**
          *  Set de GPG Resign

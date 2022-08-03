@@ -20,7 +20,7 @@
 
 <!-- Bouton permettant de masquer le contenu de tous les groupes de repos listés -->
 <div class="relative">
-    <span id="hideAllReposGroups" class="lowopacity pointer">Tout masquer <img src="resources/icons/chevron-circle-down.png" class="icon" /></span>
+    <span id="hideAllReposGroups" class="lowopacity pointer">Tout masquer<img src="resources/icons/chevron-circle-down.png" class="icon" /></span>
 </div>
 
 <div id="repos-list-container">
