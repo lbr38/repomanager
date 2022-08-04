@@ -2,8 +2,8 @@
 set -u
 trap 'kill 0' EXIT
 
-# Laisse un délai de 30sec pour laisser le temps au système de démarrer complètememnt et éviter le crash du service
-# sleep 30
+# Leave a delay of 30sec to let the system start
+sleep 30
 
 SCRIPT_PATH=$(realpath $0)
 DATA_DIR="/var/lib/repomanager"
@@ -140,12 +140,12 @@ function statsParseAccessLog
 
     # Do not start log analize if an analyze is already running
     if [ "$STATS_LOG_PARSING_RUNNING" == "no" ];then
-        # Boucle qui écoute et récupère tout nouvel ajout dans le fichier STATS_ACCESS_LOG_FILE
-        # Les nouvelles lignes sont ensuite parsées pour récupérer la date, l'ip, la requête d'accès et le nom du repo
+        # Loop that get every new lines in the 'STATS_ACCESS_LOG_FILE' file
+        # New lines are parsed to get date, time, IP and request
         tail -n0 -F "$STATS_ACCESS_LOG_FILE" | \
         while read LINE; do
             if echo "$LINE" | grep -q -E 'urlgrabber|APT-CURL|APT-HTTP';then
-                # Parsage de la ligne récupérée puis insertion en BDD
+                # Parse the line and insert in database
                 DATE=$(echo "$LINE" | awk '{print $4}' | sed 's/\[//g' | cut -d':' -f1 | sed 's|/|-|g')
                 DATE=$(date -d "$DATE" +%Y-%m-%d)
                 TIME=$(echo "$LINE" | awk '{print $4}' | cut -d':' -f2,3,4)

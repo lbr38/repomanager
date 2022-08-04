@@ -149,10 +149,10 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
         /**
          *  Si l'action ne correspond à aucune action valide
          */
-        response(HTTP_BAD_REQUEST, 'Action invalide');
+        response(HTTP_BAD_REQUEST, 'Invalid action.');
     }
 
-    response(HTTP_BAD_REQUEST, 'Il manque un paramètre');
+    response(HTTP_BAD_REQUEST, 'Missing parameter.');
 } else {
     response(HTTP_METHOD_NOT_ALLOWED, 'Method not allowed');
 }

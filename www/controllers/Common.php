@@ -352,11 +352,11 @@ class Common
     }
 
     /**
-     *  Génère un nombre aléatoire en 1000 et 99999
+     *  Génère un nombre aléatoire en 10000 et 99999
      */
     public static function generateRandom()
     {
-        return mt_rand(1000, 99999);
+        return mt_rand(10000, 99999);
     }
 
     /**

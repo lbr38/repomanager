@@ -29,6 +29,10 @@ REPOMANAGER_YUM_DIR="/etc/yum.repos.d/repomanager"
 REPOMANAGER_APT_DIR="/etc/apt/"
 RPM_GPG_DIR="/etc/pki/rpm-gpg/repomanager"
 
+PROCEED_INSTALLATION="0"
+PROCEED_DEPENDENCIES="0"
+PROCEED_PERMISSIONS="0"
+
 # Colors
 GREEN=$(tput setaf 2)
 RED=$(tput setaf 1)
@@ -293,9 +297,7 @@ function getPackageType
 # Check and install missing dependencies
 function checkDependencies
 {
-    if [ -z "$PACKAGE_TYPE" ];then
-        getPackageType
-    fi
+    getPackageType
 
     echo -e "\nChecking dependencies..."
 
@@ -946,23 +948,21 @@ while [ $# -ge 1 ];do
             exit
            ;;
         --first-install|--install|-i)
-            checkSystem
-            installation
-            permissions
-            exit
+            PROCEED_INSTALLATION="1"
         ;;
         --set-permissions|--permissions|-p)
-            permissions
-            exit
+            PROCEED_PERMISSIONS="1"
         ;;
         --check-deps|-d)
-            checkSystem
-            checkDependencies
-            exit
+            PROCEED_DEPENDENCIES="1"
         ;;
         --deploy-service|-s)
             deployService
             exit
+        ;;
+        --package-type)
+            PACKAGE_TYPE="$2"
+            shift
         ;;
         *)
             echo "Unknown parameter: $1"
@@ -972,6 +972,26 @@ while [ $# -ge 1 ];do
     esac
     shift
 done
+
+if [ "$PROCEED_INSTALLATION" == "1" ];then
+    checkSystem
+    installation
+    permissions
+    exit
+fi
+
+if [ "$PROCEED_DEPENDENCIES" == "1" ];then
+    checkSystem
+    checkDependencies
+    exit
+fi
+
+if [ "$PROCEED_PERMISSIONS" == "1" ];then
+    permissions
+    exit
+fi
+
+
 
 help
 

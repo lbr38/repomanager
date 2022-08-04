@@ -475,25 +475,25 @@ $(document).on('click','#repos-display-conf-btn',function () {
  */
 function removeEnv(repoId, snapId, envId)
 {
-     $.ajax({
-            type: "POST",
-            url: "controllers/ajax-operations.php",
-            data: {
-                action: "removeEnv",
-                repoId: repoId,
-                snapId: snapId,
-                envId: envId
-            },
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'success');
-            },
-            error : function (jqXHR, ajaxOptions, thrownError) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'error');
-            },
-        });
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax-operations.php",
+        data: {
+            action: "removeEnv",
+            repoId: repoId,
+            snapId: snapId,
+            envId: envId
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }
 
 /**
@@ -503,24 +503,24 @@ function removeEnv(repoId, snapId, envId)
  */
 function setRepoDescription(envId, repoDescription)
 {
-     $.ajax({
-            type: "POST",
-            url: "controllers/ajax.php",
-            data: {
-                action: "setRepoDescription",
-                envId: envId,
-                description: repoDescription
-            },
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'success');
-            },
-            error : function (jqXHR, ajaxOptions, thrownError) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'error');
-            },
-        });
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax.php",
+        data: {
+            action: "setRepoDescription",
+            envId: envId,
+            description: repoDescription
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }
 
 /**
@@ -530,24 +530,24 @@ function setRepoDescription(envId, repoDescription)
  */
 function getForm(action, repos_array)
 {
-     $.ajax({
-            type: "POST",
-            url: "controllers/ajax-operations.php",
-            data: {
-                action: "getForm",
-                operationAction: action,
-                repos_array: repos_array
-            },
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                $("#operationsDiv").append(jsonValue.message);
-            },
-            error : function (jqXHR, ajaxOptions, thrownError) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'error');
-            },
-        });
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax-operations.php",
+        data: {
+            action: "getForm",
+            operationAction: action,
+            repos_array: repos_array
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            $("#operationsDiv").append(jsonValue.message);
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }
 
 /**
@@ -556,29 +556,29 @@ function getForm(action, repos_array)
  */
 function validateExecuteForm(operation_params_json)
 {
-     $.ajax({
-            type: "POST",
-            url: "controllers/ajax-operations.php",
-            data: {
-                action: "validateForm",
-                operation_params: operation_params_json,
-            },
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-               /**
-                *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
-                */
-                $("#newRepoDiv").hide();
-                $("#operationsDiv").hide();
-                reloadHeader();
-                printAlert(jsonValue.message, 'success');
-            },
-            error : function (jqXHR, ajaxOptions, thrownError) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'error');
-            },
-        });
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax-operations.php",
+        data: {
+            action: "validateForm",
+            operation_params: operation_params_json,
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+           /**
+            *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
+            */
+            $("#newRepoDiv").hide();
+            $("#operationsDiv").hide();
+            reloadHeader();
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }
 
 /**
@@ -590,25 +590,25 @@ function validateExecuteForm(operation_params_json)
  */
 function configureReposListDisplay(printRepoSize, printRepoType, printRepoSignature, cacheReposList)
 {
-     $.ajax({
-            type: "POST",
-            url: "controllers/ajax.php",
-            data: {
-                action: "configureReposListDisplay",
-                printRepoSize: printRepoSize,
-                printRepoType: printRepoType,
-                printRepoSignature: printRepoSignature,
-                cacheReposList: cacheReposList
-            },
-            dataType: "json",
-            success: function (data, textStatus, jqXHR) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'success');
-                reloadContentByClass('reposList');
-            },
-            error : function (jqXHR, ajaxOptions, thrownError) {
-                jsonValue = jQuery.parseJSON(jqXHR.responseText);
-                printAlert(jsonValue.message, 'error');
-            },
-        });
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax.php",
+        data: {
+            action: "configureReposListDisplay",
+            printRepoSize: printRepoSize,
+            printRepoType: printRepoType,
+            printRepoSignature: printRepoSignature,
+            cacheReposList: cacheReposList
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+            reloadContentByClass('reposList');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }

@@ -6,9 +6,13 @@ on:
   pull_request:
     push:
       branches: [ stable ]
+
 jobs:
   run-operations:
     runs-on: ubuntu-latest
+    # container:
+    #   image: debian:latest
+    #   options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -16,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.1'
           coverage: none
 
       - name: Install PHP modules
@@ -86,6 +90,9 @@ jobs:
 
       - name: Set up permissions
         run: sudo /var/lib/repomanager/repomanager -p
+
+      - name: Check repomanager dependencies
+        run: sudo /var/lib/repomanager/repomanager -d --package-type deb
 
       - name: Update database
         run: sudo -u www-data php /var/www/repomanager/tools/update-database.php

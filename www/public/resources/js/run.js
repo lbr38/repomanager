@@ -41,3 +41,37 @@ $(document).ready(function () {
         $(".mainSectionLeft").load(" .mainSectionLeft > *");
     });
 });
+
+/**
+ *  Event: relaunch operation
+ */
+$(document).on('click','.relaunch-operation-btn',function () {
+    var poolId = $(this).attr('pool-id');
+
+    relaunchOperation(poolId);
+});
+
+/**
+ *  Ajax : Relaunch operation
+ *  @param {string} poolId
+ */
+function relaunchOperation(poolId)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/ajax-operations.php",
+        data: {
+            action: "relaunchOperation",
+            poolId: poolId
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}

@@ -22,7 +22,7 @@ class Process
         $this->env = array('HOME' => ROOT);
 
         /**
-         *  Si d'autres variables ont été spécifiées alors on les ajoute.
+         *  Si d'autres variables d'environnement ont été spécifiées alors on les ajoute.
          */
         if (!empty($env)) {
             $this->env = array_merge($this->env, $env);

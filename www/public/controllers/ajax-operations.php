@@ -86,15 +86,34 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             response(HTTP_OK, 'L\'environnement a été supprimé');
         }
 
+        /**
+         *  Relaunch an operation
+         */
+        if ($_POST['action'] == "relaunchOperation" and !empty($_POST['poolId'])) {
+            $myop = new \Controllers\Operation();
 
+            /**
+             *  Execute operation
+             */
+            try {
+                $myop->executeId($_POST['poolId']);
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Si il n'y a pas eu d'erreur
+             */
+            response(HTTP_OK, 'Operation has been relaunched using the same parameters.');
+        }
 
         /**
          *  Si l'action ne correspond à aucune action valide
          */
-        response(HTTP_BAD_REQUEST, 'Action invalide');
+        response(HTTP_BAD_REQUEST, 'Invalid action.');
     }
 
-    response(HTTP_BAD_REQUEST, 'Il manque un paramètre');
+    response(HTTP_BAD_REQUEST, 'Missing parameter.');
 } else {
     response(HTTP_METHOD_NOT_ALLOWED, 'Method not allowed');
 }

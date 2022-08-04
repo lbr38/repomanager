@@ -154,15 +154,16 @@ class Operation extends Model
     /**
      *  Ajout d'une nouvelle opération en base de données
      */
-    public function add(string $date, string $time, string $action, string $type, string $pid, string $logfile, string $status)
+    public function add(string $date, string $time, string $action, string $type, string $pid, string $poolId, string $logfile, string $status)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO operations (date, time, action, type, pid, logfile, status) VALUES (:date, :time, :action, :type, :pid, :logfile, :status)");
+            $stmt = $this->db->prepare("INSERT INTO operations (Date, Time, Action, Type, Pid, Pool_id, Logfile, Status) VALUES (:date, :time, :action, :type, :pid, :poolid, :logfile, :status)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':action', $action);
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':pid', $pid);
+            $stmt->bindValue(':poolid', $poolId);
             $stmt->bindValue(':logfile', $logfile);
             $stmt->bindValue(':status', $status);
             $stmt->execute();
