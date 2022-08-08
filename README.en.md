@@ -1,11 +1,8 @@
 **ENGLISH VERSION**
 
-:warning: **Warning : there is no english version for the web UI which is actually in french.** :warning:
+:warning: **Warning : Web UI is being slowly traducted to english. Most of the content remains in french. Help for traduction is much appreciated!** :warning:
 
-:warning: **Code is actually in english (functions, class names, variables...) but the comments remains in french.** :warning:
-
-:warning: **Help for traduction is much appreciated!** :warning:
-
+:warning: **Whole code is actually in english (functions, class names, variables...) but the comments remains in french.** :warning:
 
 <h1>REPOMANAGER</h1>
 

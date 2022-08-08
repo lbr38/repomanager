@@ -38,21 +38,11 @@ class Autoloader
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
 
-        date_default_timezone_set('Europe/Paris');
-
         /**
          *  On défini un cookie contenant l'URI en cours, utile pour rediriger directement vers cette URI après s'être identifié sur la page de login
          */
         if (!empty($_SERVER['REQUEST_URI'])) {
             setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
-        }
-
-        if (!defined('ROOT')) {
-            define('ROOT', dirname(__FILE__, 2));
-        }
-
-        if (!defined('DATA_DIR')) {
-            define('DATA_DIR', '/var/lib/repomanager');
         }
 
         /**
@@ -102,8 +92,8 @@ class Autoloader
      */
     public static function loadFromLogin()
     {
+        \Controllers\Autoloader::loadConstant();
         \Controllers\Autoloader::register();
-        \Controllers\Autoloader::loadSystem();
         \Controllers\Autoloader::loadConfiguration();
         \Controllers\Autoloader::loadDirs();
     }
@@ -117,21 +107,11 @@ class Autoloader
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
 
-        date_default_timezone_set('Europe/Paris');
-
-        if (!defined('ROOT')) {
-            define('ROOT', dirname(__FILE__, 2));
-        }
-
-        if (!defined('DATA_DIR')) {
-            define('DATA_DIR', '/var/lib/repomanager');
-        }
-
         /**
          *  Chargement des fonctions nécessaires
          */
+        \Controllers\Autoloader::loadConstant();
         \Controllers\Autoloader::register();
-        \Controllers\Autoloader::loadSystem();
         \Controllers\Autoloader::loadConfiguration();
         \Controllers\Autoloader::loadDirs();
         \Controllers\Autoloader::loadEnvs();
@@ -161,9 +141,9 @@ class Autoloader
      */
     private static function loadAll()
     {
+        \Controllers\Autoloader::loadConstant();
         \Controllers\Autoloader::register();
         \Controllers\Autoloader::loadSession();
-        \Controllers\Autoloader::loadSystem();
         \Controllers\Autoloader::loadConfiguration();
         \Controllers\Autoloader::loadDirs();
         \Controllers\Autoloader::loadEnvs();
@@ -207,21 +187,42 @@ class Autoloader
         $_SESSION['start_time'] = time();
     }
 
-    /**
-     *  Chargement des chemins vers les répertoires et fichiers de base
-     *  Création si n'existent pas
-     */
-    private static function loadDirs()
+    private static function loadConstant()
     {
+        date_default_timezone_set('Europe/Paris');
+
         /**
-         *  Emplacement des répertoires de bases
+         *  Load system constants
          */
-        // Emplacement de la DB
+        \Controllers\Autoloader::loadSystemConstant();
+
+        // Web dir
+        if (!defined('ROOT')) {
+            define('ROOT', dirname(__FILE__, 2));
+        }
+        // Data dir
+        if (!defined('DATA_DIR')) {
+            define('DATA_DIR', '/var/lib/repomanager');
+        }
+        // Databases dir
         if (!defined('DB_DIR')) {
             define('DB_DIR', DATA_DIR . "/db");
         }
+        // Main database
         if (!defined('DB')) {
             define('DB', DB_DIR . "/repomanager.db");
+        }
+        // Stats database
+        if (!defined('STATS_DB')) {
+            define('STATS_DB', DB_DIR . "/repomanager-stats.db");
+        }
+        // Hosts database
+        if (!defined('HOSTS_DB')) {
+            define('HOSTS_DB', DB_DIR . "/repomanager-hosts.db");
+        }
+        // Main configuration file
+        if (!defined('REPOMANAGER_CONF')) {
+            define('REPOMANAGER_CONF', DATA_DIR . '/configurations/repomanager.conf');
         }
         // Emplacement du répertoire de cache
         if (!defined('WWW_CACHE')) {
@@ -283,6 +284,17 @@ class Autoloader
         if (!defined('PASSPHRASE_FILE')) {
             define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
         }
+    }
+
+    /**
+     *  Chargement des chemins vers les répertoires et fichiers de base
+     *  Création si n'existent pas
+     */
+    private static function loadDirs()
+    {
+        /**
+         *  Emplacement des répertoires de bases
+         */
         if (!is_dir(DATA_DIR . '/.rpm')) {
             mkdir(DATA_DIR . '/.rpm', 0770, true);
         }
@@ -391,7 +403,7 @@ class Autoloader
     /**
      *  Chargement des informations du système et de l'OS
      */
-    private static function loadSystem()
+    private static function loadSystemConstant()
     {
         /**
          *  Protocol (http ou https)
@@ -465,6 +477,8 @@ class Autoloader
             define('OS_INFO', array_combine($listIds, $listVal));
         }
 
+        unset($os, $listIds, $listVal);
+
         /**
          *  Puis à partir de l'array OS_INFO on détermine la famille d'os, son nom et sa version
          */
@@ -517,13 +531,6 @@ class Autoloader
     {
         $__LOAD_MAIN_CONF_ERROR = 0;
         $__LOAD_MAIN_CONF_MESSAGES = array();
-
-        /**
-         *  Emplacements du fichier de conf
-         */
-        if (!defined('REPOMANAGER_CONF')) {
-            define('REPOMANAGER_CONF', DATA_DIR . '/configurations/repomanager.conf');
-        }
 
         /**
          *  Vérification de la présence de repomanager.conf
@@ -1012,7 +1019,7 @@ class Autoloader
          *  Version actuelle et version disponible sur github
          */
         if (!defined('VERSION')) {
-            define('VERSION', file_get_contents(ROOT . '/version'));
+            define('VERSION', trim(file_get_contents(ROOT . '/version')));
         }
 
         if (!defined('GIT_VERSION')) {

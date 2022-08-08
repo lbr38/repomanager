@@ -2,79 +2,75 @@
 # Création d'une nouvelle archive de version
 
 set -u
-# Variables de couleurs :
-BLANC=$(tput setaf 7)
-GRIS=$(tput setaf 8)
-VERT=$(tput setaf 2)
-ROUGE=$(tput setaf 1)
-JAUNE=$(tput setaf 3)
-CYAN=$(tput setaf 6)
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
 
-DEV_DIR="/home/github/repomanager"
+DEV_DIR="$HOME/github/repomanager"
 DEV_BRANCH="stable"
 ARCHIVE_PATH="$HOME/repomanager/releases"
-IGNORE_FILE="/home/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
+IGNORE_FILE="$HOME/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
+TMP_DIR="/tmp/repomanager"
 CONFIRM=""
 
 mkdir -p "$ARCHIVE_PATH"
 
-echo -e "\n --- Nouvelle version ---"
-echo -e " Git status :"
+echo -e "$YELLOW\n --- New release packaging --- $RESET\n"
+
+echo -e "Git status:"
 git status
 
-echo -e "\n Vous devez régler tous vos conflits et publier tout votre travail avant de pouvoir créer une version"
-echo -ne " Continue ? (y/n) : "; read -p "" CONFIRM
+echo -e "\n You must have dealed with all conflicts and pushed your work before creating a new release."
+echo -ne " Continue ? (y/n): "; read -p "" CONFIRM
 if [ "$CONFIRM" != "y" ];then
     exit
 fi
 
-echo -ne "\n Donner un numéro de version : "; read -p "" VERSION
-VERSION="v${VERSION}-${DEV_BRANCH}" # reformatage du nom de la version
-echo " Version : ${VERSION}"
-echo -ne " Confirmer (y/n) : "; read -p "" CONFIRM
+echo -ne "\n Specify release version (e.g: 3.2.0): "; read -p "" VERSION
+
+# Final version name
+VERSION="v${VERSION}-${DEV_BRANCH}"
+echo " Release version: ${YELLOW}${VERSION}${RESET}"
+echo -ne " Confirm (y/n) : "; read -p "" CONFIRM
 if [ "$CONFIRM" != "y" ];then
     exit
 fi
 
+# Push new version to version file
 echo "$VERSION" > ${DEV_DIR}/www/version
 
-# Suppression du répertoire /tmp/repomanager si existe car on va avoir besoin qu'il soit vierge
-rm /tmp/repomanager -rf
-if [ $? -eq "0" ];then
-    echo "[ OK ]"
-else
-    echo "Erreur lors de la suppression de /tmp/repomanager/"
+# Remove '/tmp/repomanager' if already exist
+rm "$TMP_DIR" -rf
+if [ $? -ne "0" ];then
+    echo -e "${YELLOW}Error while cleaning '$TMP_DIR' $RESET"
     exit
 fi
 
-# on copie le contenu de $DEV_DIR dedans
-cp -r ${DEV_DIR} /tmp/repomanager
-if [ $? -eq "0" ];then
-    echo "[ OK ]"
-else
-    echo "Erreur lors de la création de /tmp/repomanager/"
+# Copy dev dir content to the tmp dir
+cp -r $DEV_DIR $TMP_DIR
+if [ $? -ne "0" ];then
+    echo -e "${YELLOW}Error while copying '$DEV_DIR' to '$TMP_DIR' $RESET"
     exit
 fi
 
-cd /tmp # On se place sur tmp afin de faire une archive repomanager/
+cd /tmp
 
-echo -e "\n Création de l'archive :"
-# Si une archive du même nom existe déjà dans le répertoire cible lors on la supprime 
-if [ -f "${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz" ];then
-    rm ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz -f
-fi
+# Create tar archive
+echo -ne "\n Create tar archive: "
+# If an archive with the same name already exist, then remove it 
+rm ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz -f
 
 tar pczf ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz --exclude-from=${DEV_DIR}/.tarignore repomanager
-if [ $? -eq "0" ];then
-    echo "[ OK ]"
-else
-    echo "Erreur lors de l'archivage"
+if [ $? -ne "0" ];then
+    echo -e "${YELLOW}Error while creating the archive" $RESET
     exit
 fi
+echo -e "[$GREEN OK $RESET]"
 
-# rm /tmp/repomanager -rf
+# Remove tmp dir
+rm "$TMP_DIR" -rf
 
-echo -e "\n Archive ${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz créée avec succès"
+echo -e "$GREEN\n Successfully created archive '${ARCHIVE_PATH}/repomanager_${VERSION}.tar.gz' $RESET"
 
 exit

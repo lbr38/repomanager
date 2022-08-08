@@ -98,25 +98,25 @@ if (!empty($_GET['logfile'])) {
             <h3>HISTORIQUE</h3>
 
             <?php
-                /**
-                 *  Instanciation d'objets Planification et Operation pour pouvoir récupérer l'historique
-                 */
-                $myplan = new \Controllers\Planification();
-                $myop = new \Controllers\Operation();
+            /**
+             *  Instanciation d'objets Planification et Operation pour pouvoir récupérer l'historique
+             */
+            $myplan = new \Controllers\Planification();
+            $myop = new \Controllers\Operation();
 
-                /**
-                 *  Récupère toutes les planifications en cours d'exécution
-                 */
-                $plansRunning = $myplan->listRunning();
+            /**
+             *  Récupère toutes les planifications en cours d'exécution
+             */
+            $plansRunning = $myplan->listRunning();
 
-                /**
-                 *  Récupère toutes les opérations en cours d'exécution et qui n'ont pas été lancées par une planification (type = manual)
-                 */
-                $opsRunning = $myop->listRunning('manual');
+            /**
+             *  Récupère toutes les opérations en cours d'exécution et qui n'ont pas été lancées par une planification (type = manual)
+             */
+            $opsRunning = $myop->listRunning('manual');
 
-                /**
-                 *  Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
-                 */
+            /**
+             *  Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
+             */
             if (!empty($plansRunning) and !empty($opsRunning)) {
                 $totalRunning = array_merge($plansRunning, $opsRunning);
                 array_multisort(array_column($totalRunning, 'Date'), SORT_DESC, array_column($totalRunning, 'Time'), SORT_DESC, $totalRunning); // On tri par date pour avoir le + récent en haut
@@ -126,24 +126,24 @@ if (!empty($_GET['logfile'])) {
                 $totalRunning = $opsRunning;
             }
 
-                /**
-                 *  Recupère toutes les planifications terminées
-                 */
-                $plansDone = $myplan->listDone();
+            /**
+             *  Recupère toutes les planifications terminées
+             */
+            $plansDone = $myplan->listDone();
 
-                /**
-                 *  Récupère toutes les opérations terminées et qui n'ont pas été lancées par une planification (type = manual)
-                 */
-                $opsDone = $myop->listDone('manual');
+            /**
+             *  Récupère toutes les opérations terminées et qui n'ont pas été lancées par une planification (type = manual)
+             */
+            $opsDone = $myop->listDone('manual');
 
-                /**
-                 *  Récupère toutes les opérations terminées qui ont été lancées par une planification récurrente
-                 */
-                $opsFromRegularPlanDone = $myop->listDone('plan', 'regular');
+            /**
+             *  Récupère toutes les opérations terminées qui ont été lancées par une planification récurrente
+             */
+            $opsFromRegularPlanDone = $myop->listDone('plan', 'regular');
 
-                /**
-                 *  Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
-                 */
+            /**
+             *  Si les requêtes précédentes ont toutes les deux retourné un résultat, alors on merge ces résultats dans $totalRunning
+             */
             if (!empty($plansDone) and !empty($opsDone)) {
                 $totalDone = array_merge($plansDone, $opsDone);
                 array_multisort(array_column($totalDone, 'Date'), SORT_DESC, array_column($totalDone, 'Time'), SORT_DESC, $totalDone); // On tri par date pour avoir le + récent en haut
@@ -153,9 +153,9 @@ if (!empty($_GET['logfile'])) {
                 $totalDone = $opsDone;
             }
 
-                /**
-                 *  Affichage des données en cours d'exécution
-                 */
+            /**
+             *  Affichage des données en cours d'exécution
+             */
             if (!empty($totalRunning)) {
                 echo '<div class="div-generic-gray">';
                     echo '<h5>En cours</h5>';
@@ -252,9 +252,9 @@ if (!empty($_GET['logfile'])) {
                     echo '</div>';
             }
 
-                /**
-                 *  Affichage des données terminées
-                 */
+            /**
+             *  Affichage des données terminées
+             */
             if (!empty($totalDone) or !empty($opsFromRegularPlanDone)) {
 
                 /**
@@ -262,18 +262,18 @@ if (!empty($_GET['logfile'])) {
                  */
                 if (!empty($totalDone)) {
                     echo '<div class="div-generic-gray">';
-                        echo '<h5>Terminé</h5>';
+                    echo '<h5>Terminé</h5>';
 
-                        /**
-                         *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
-                         *  Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
-                         */
-                        $i = 0;
-                        $printMaxItems = 2;
+                    /**
+                     *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
+                     *  Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
+                     */
+                    $i = 0;
+                    $printMaxItems = 2;
 
-                        /**
-                         *  Traitement de toutes les opérations terminées
-                         */
+                    /**
+                     *  Traitement de toutes les opérations terminées
+                     */
                     foreach ($totalDone as $itemDone) {
                         /**
                          *  Si on a dépassé le nombre maximal d'opération qu'on souhaite afficher par défaut, alors les suivantes sont masquées dans un container caché
@@ -329,23 +329,23 @@ if (!empty($_GET['logfile'])) {
                                                     <td class="td-fit">
                                                         <img class="icon" src="resources/icons/calendar.png" title="Planification" />
                                                     </td>
-                                            <?php
-                                            if ($planType == "plan") {
-                                                if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
-                                                    echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
-                                                } else {
-                                                    echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
-                                                }
-                                                if ($planStatus == "done") {
-                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/greencircle.png" title="Opération terminée" /></td>';
-                                                }
-                                                if ($planStatus == "error") {
-                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération en erreur" /></td>';
-                                                }
-                                                if ($planStatus == "stopped") {
-                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
-                                                }
-                                            } ?>
+                                                    <?php
+                                                    if ($planType == "plan") {
+                                                        if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
+                                                            echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
+                                                        } else {
+                                                            echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
+                                                        }
+                                                        if ($planStatus == "done") {
+                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/greencircle.png" title="Opération terminée" /></td>';
+                                                        }
+                                                        if ($planStatus == "error") {
+                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération en erreur" /></td>';
+                                                        }
+                                                        if ($planStatus == "stopped") {
+                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
+                                                        }
+                                                    } ?>
                                                 </tr>
                                             </table>
                                         </div>
@@ -361,9 +361,9 @@ if (!empty($_GET['logfile'])) {
                                         }
                                     }
 
-                                /**
-                                 *  Si l'item ne possède pas de clé Reminder alors il s'agit d'une opération
-                                 */
+                        /**
+                         *  Si l'item ne possède pas de clé Reminder alors il s'agit d'une opération
+                         */
                         } else {
                             $myop->printOperation($itemDone['Id']);
                         }
@@ -416,7 +416,6 @@ if (!empty($_GET['logfile'])) {
                             }
                         }
 
-                        // printOp($itemDone);
                         $myop->printOperation($itemDone['Id']);
 
                         if ($i > $printMaxItems) {

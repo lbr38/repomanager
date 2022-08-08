@@ -23,6 +23,7 @@ class Operation
     private $stepName;
     private $stepNumber = 0;
     private $stepTimeStart;
+    private $poolId;
 
     public function __construct()
     {
@@ -68,6 +69,11 @@ class Operation
         $this->targetGpgResign = $gpgResign;
     }
 
+    public function setPoolId(string $poolId)
+    {
+        $this->poolId = $poolId;
+    }
+
     public function getAction()
     {
         return $this->action;
@@ -101,6 +107,11 @@ class Operation
     public function getPlanId()
     {
         return $this->id_plan;
+    }
+
+    public function getPoolId()
+    {
+        return $this->poolId;
     }
 
     /**
@@ -464,7 +475,7 @@ class Operation
         $this->status = 'running';
         $this->log = new \Models\Log('repomanager');
 
-        $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->pid, $this->log->name, $this->status);
+        $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->pid, $this->poolId, $this->log->name, $this->status);
 
         /**
          *  Récupération de l'ID de l'opération précédemment créée en BDD car on en aura besoin pour clore l'opération
@@ -767,6 +778,7 @@ class Operation
         $time = $opInfo['Time'];
         $status = $opInfo['Status'];
         $logfile = $opInfo['Logfile'];
+        $poolId = $opInfo['Pool_id'];
 
         /**
          *  Défini la position et la couleur du bandeau selon si l'opération a été intiiée par une planification ou non
@@ -817,6 +829,13 @@ class Operation
 
                         <td class="td-fit">
                             <?php
+                            /**
+                             *  Print relaunch button if pool Id JSON file still exists
+                             */
+                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json')) {
+                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="resources/icons/update.png" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
+                            }
+
                             /**
                              *  Affichage de l'icone en cours ou terminée ou en erreur
                              */
@@ -1288,10 +1307,10 @@ class Operation
     public function execute(array $operations_params)
     {
         /**
-         *  Création d'un Id principal pour identifier l'opération asynchrone
+         *  Création d'un Id principal pour identifier l'opération asynchrone (mélange du timestamp Unix et d'un nombre aléatoire)
          */
         while (true) {
-            $operation_id = \Controllers\Common::generateRandom();
+            $operation_id = time() . \Controllers\Common::generateRandom();
 
             /**
              *  On crée le fichier JSON et on sort de la boucle si le numéro est disponible
@@ -1310,8 +1329,17 @@ class Operation
         /**
          *  Lancement de execute.php qui va s'occuper de traiter le fichier JSON
          */
-        exec("php " . ROOT . "/operations/execute.php --id='$operation_id' >/dev/null 2>/dev/null &");
+        $this->executeId($operation_id);
 
         return $operation_id;
+    }
+
+    public function executeId(int $operationId)
+    {
+        if (!file_exists(POOL . '/' . $operationId . '.json')) {
+            throw new Exception('Error: specified pool Id does not exists.');
+        }
+
+        exec('php ' . ROOT . "/operations/execute.php --id='$operationId' >/dev/null 2>/dev/null &");
     }
 }

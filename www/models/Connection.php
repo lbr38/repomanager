@@ -22,7 +22,7 @@ class Connection extends SQLite3
              *  Cas où la base de données renseignée est "main", il s'agit de la base de données principale repomanager.db
              */
             if ($database == "main") {
-                $this->open(DB_DIR . '/repomanager.db');
+                $this->open(DB);
 
                 /**
                  *  Activation des exception pour SQLite
@@ -33,7 +33,7 @@ class Connection extends SQLite3
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
              */
             } elseif ($database == "stats") {
-                $this->open(DB_DIR . '/repomanager-stats.db');
+                $this->open(STATS_DB);
 
                 /**
                  *  Activation des exception pour SQLite
@@ -44,7 +44,7 @@ class Connection extends SQLite3
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
              */
             } elseif ($database == "hosts") {
-                $this->open(DB_DIR . '/repomanager-hosts.db');
+                $this->open(HOSTS_DB);
 
                 /**
                  *  Activation des exception pour SQLite
@@ -55,11 +55,7 @@ class Connection extends SQLite3
              *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
              */
             } elseif ($database == "host") {
-                if (!defined('HOSTS_DIR')) {
-                    define('HOSTS_DIR', DATA_DIR . '/hosts');
-                }
-
-                $this->open(HOSTS_DIR . "/$hostId/properties.db");
+                $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
 
                 /**
                  *  Activation du mode WAL
@@ -70,7 +66,6 @@ class Connection extends SQLite3
                  *  Génération des tables si n'existent pas
                  */
                 $this->generateHostTables();
-
 
                 /**
                  *  Activation des exception pour SQLite
@@ -414,6 +409,7 @@ class Connection extends SQLite3
         GpgCheck CHAR(3),
         GpgResign CHAR(3),
         Pid INTEGER NOT NULL,
+        Pool_id INTEGER NOT NULL,
         Logfile VARCHAR(255) NOT NULL,
         Duration INTEGER,
         Status CHAR(7) NOT NULL)");    /* running, done, stopped */

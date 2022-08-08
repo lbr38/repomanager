@@ -48,12 +48,20 @@ class Repo
     private $targetPackageSource = 'no';
     private $targetPackageTranslation = array();
 
+    /**
+     *  Repo list print properties
+     */
     private $repoLastName;
     private $repoLastDist;
     private $repoLastSection;
     private $repoLastEnv;
     private $lastSnapId;
     private $lastPackageType;
+
+    /**
+     *  Operation properties
+     */
+    private $poolId;
 
     public function __construct()
     {
@@ -237,6 +245,11 @@ class Repo
     public function setTargetPackageTranslation(array $targetPackageTranslation)
     {
         $this->targetPackageTranslation = $targetPackageTranslation;
+    }
+
+    public function setPoolId(string $poolId)
+    {
+        $this->poolId = $poolId;
     }
 
     public function getRepoId()
@@ -652,6 +665,7 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('new');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         if ($this->packageType == "rpm") {
             $this->op->startOperation(
@@ -751,6 +765,7 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('new');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         if ($this->packageType == "rpm") {
             $this->op->startOperation(array('id_repo_target' => $this->name));
@@ -956,6 +971,8 @@ class Repo
          */
         $this->op = new \Controllers\Operation();
         $this->op->setAction('update');
+        $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         /**
          *  Si un Id de planification a été spécifié alors ça signifie que l'action a été initialisée par une planification
@@ -1068,6 +1085,7 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('duplicate');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         if ($this->packageType == "rpm") {
             $this->op->startOperation(
@@ -1248,7 +1266,7 @@ class Repo
             if ($this->packageType == "deb") {
                 exec('find ' . REPOS_DIR . '/' . $this->targetName . '/ -type d -exec chmod 0770 {} \;');
             }
-            exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->targetName . '/');
+            exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName);
 
             $this->op->stepOK();
 
@@ -1308,6 +1326,7 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('reconstruct');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         $this->op->startOperation(
             array(
@@ -1395,6 +1414,8 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('delete');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
+
         $this->op->startOperation(array('id_snap_target' => $this->snapId));
 
         /**
@@ -1523,6 +1544,7 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('removeEnv');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
 
         $this->op->startOperation(array(
             'id_snap_target' => $this->snapId,
@@ -1624,6 +1646,8 @@ class Repo
         $this->op = new \Controllers\Operation();
         $this->op->setAction('env');
         $this->op->setType('manual');
+        $this->op->setPoolId($this->poolId);
+
         if ($this->op->getType() == 'manual') {
             $this->op->startOperation(array(
                 'id_snap_target' => $this->snapId,
@@ -2148,7 +2172,6 @@ class Repo
                 throw new Exception('La version de yum-utils installée est incompatible ou invalide.');
             }
 
-
             /**
              *  Case we want packages sources to be synced
              */
@@ -2181,17 +2204,20 @@ class Repo
              */
             if ($this->targetPackageSource == 'yes') {
                 $debmirrorGlobalParams = '--source';
+
+                /**
+                 *  --arch='source' is also needed to publy source packages
+                 */
+                $debmirrorGlobalParams .= ' --arch="source"';
             } else {
                 $debmirrorGlobalParams = '--nosource';
             }
 
             /**
-             *  Case we want specific package arch to be synced
+             *  Specific package arch to be synced
              */
-            if (!empty($this->targetArch)) {
-                foreach ($this->targetArch as $arch) {
-                    $debmirrorGlobalParams .= ' --arch="' . $arch . '"';
-                }
+            foreach ($this->targetArch as $arch) {
+                $debmirrorGlobalParams .= ' --arch="' . $arch . '"';
             }
 
             /**
@@ -2232,7 +2258,7 @@ class Repo
          *  Récupération du pid du process lancé
          *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
          */
-        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
         /**
          *  Affichage de l'output du process en continue dans un fichier
@@ -2494,6 +2520,9 @@ class Repo
         }
 
         if ($this->packageType == "deb") {
+            $repreproArchs = '';
+            $repreproGpgParams = '';
+
             /**
              *  Target arch must be specified
              */
@@ -2536,10 +2565,28 @@ class Repo
              */
             foreach ($debFiles as $debFile) {
                 /**
-                 *  On déplace uniquement si le fichier a bien une extension .deb
+                 *  Move files that have .deb extension to the temp dir
                  */
                 if ($debFile->getExtension() == 'deb') {
                     rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
+                }
+
+                /**
+                 *  Case packages sources must be included in the repo too
+                 *  Move the packages sources to the temp dir
+                 */
+                if ($this->targetPackageSource == 'yes') {
+                    if ($debFile->getExtension() == 'dsc') {
+                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
+                    }
+
+                    if ($debFile->getExtension() == 'gz') {
+                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
+                    }
+
+                    if ($debFile->getExtension() == 'xz') {
+                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
+                    }
                 }
             }
 
@@ -2561,15 +2608,24 @@ class Repo
              *  Create "distributions" file
              *  Its content will depend on repo signature, architecture specified...
              */
-            $repreproArchs = '';
 
+            /**
+             *  Define archs
+             */
             foreach ($this->targetArch as $arch) {
                 $repreproArchs .= ' ' . $arch;
+            }
+            /**
+             *  If packages sources must be included, then add 'source' to the archs
+             */
+            if ($this->targetPackageSource == 'yes') {
+                $repreproArchs .= ' source';
             }
 
             $distributionsFileContent = 'Origin: ' . $this->name . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
             $distributionsFileContent .= 'Label: apt repository' . PHP_EOL;
             $distributionsFileContent .= 'Codename: ' . $this->dist . PHP_EOL;
+            $distributionsFileContent .= 'Suite: stable' . PHP_EOL;
             $distributionsFileContent .= 'Architectures: ' . $repreproArchs . PHP_EOL;
             $distributionsFileContent .= 'Components: ' . $this->section . PHP_EOL;
             $distributionsFileContent .= 'Description: ' . $this->name . ' repo, mirror of ' . $this->source . ' - ' . $this->dist . ' - ' . $this->section . PHP_EOL;
@@ -2608,37 +2664,144 @@ class Repo
              */
             } else {
                 /**
-                 *  Récupération de tous les fichiers DEBs dans le répertoire temporaire
-                 *  On va déplacer ces fichiers deb vers le répertoire temporaire
+                 *  Get all .deb files in temporary directory
                  */
-                $dir = new \RecursiveDirectoryIterator($TMP_DIR . '/');
-                $debFiles = new \RecursiveIteratorIterator($dir);
+                $debFiles = glob($TMP_DIR . "/*.{deb,dsc}", GLOB_BRACE);
 
                 /**
-                 *  Chaque fichier deb est ajouté au repo
+                 *  To avoid 'too many argument list', reprepro will have to import .deb packages by lot of 100.
+                 *  So we are creating arrays of deb packages paths by lot of 100.
                  */
-                foreach ($debFiles as $debFile) {
-                    /**
-                     *  On déplace uniquement si le fichier a bien une extension .deb
-                     */
-                    if ($debFile->getExtension() == 'deb') {
+                $debFilesGlobalArray = array();
+                $debFilesArray = array();
+                $i = 0;
+
+                $dscFilesGlobalArray = array();
+
+                foreach ($debFiles as $packageFile) {
+                    if (preg_match('/.deb$/', $packageFile)) {
                         /**
-                         *  Cas où on signe le repo
+                         *  Add deb file path to the array and increment package counter
                          */
-                        if ($this->targetGpgResign == "yes") {
-                            /**
-                             *  Instanciation d'un nouveau Process
-                             */
-                            $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ --gnupghome ' . GPGHOME . ' includedeb ' . $this->dist . ' ' . $debFile->getPath() . '/' . $debFile->getFileName());
-                        } else {
-                            /**
-                             *  Instanciation d'un nouveau Process
-                             */
-                            $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ includedeb ' . $this->dist . ' ' . $debFile->getPath() . '/' . $debFile->getFileName());
-                        }
+                        $debFilesArray[] = $packageFile;
+                        $i++;
 
                         /**
-                         *  Exécution
+                         *  If 100 packages paths have been collected, then push the array in the global array and create a new array
+                         */
+                        if ($i == '100') {
+                            $debFilesGlobalArray[] = $debFilesArray;
+                            $debFilesArray = array();
+
+                            /**
+                             *  Reset packages counter
+                             */
+                            $i = 0;
+                        }
+                    }
+
+                    if (preg_match('/.dsc$/', $packageFile)) {
+                        /**
+                         *  Add deb file path to the array and increment package counter
+                         */
+                        $dscFilesGlobalArray[] = $packageFile;
+                    }
+                }
+                /**
+                 *  Add the last generated array, even if has not reached 100 packages, and if not empty
+                 */
+                if (!empty($debFilesArray)) {
+                    $debFilesGlobalArray[] = $debFilesArray;
+                }
+
+                /**
+                 *  Case repo GPG signature is enabled
+                 */
+                if ($this->targetGpgResign == 'yes') {
+                    $repreproGpgParams = '--gnupghome ' . GPGHOME;
+                }
+
+                /**
+                 *  Process each lot arrays to generate a one-liner path to packages. The paths to deb files are concatened and separated by a space.
+                 *  It the only way to import multiple packages with reprepro (using * wildcard coult end in 'too many argument' error)
+                 */
+                if (!empty($debFilesGlobalArray)) {
+                    foreach ($debFilesGlobalArray as $lotArray) {
+                        /**
+                         *  Convert each array of 100 packages to a string
+                         *
+                         *  e.g:
+                         *
+                         *  Array(
+                         *      [0] => /home/repo/.../package1.deb
+                         *      [1] => /home/repo/.../package2.deb
+                         *      [2] => /home/repo/.../package3.deb
+                         *      ...
+                         *  )
+                         *
+                         *  is being converted to a oneliner string:
+                         *
+                         *  '/home/repo/.../package1.deb /home/repo/.../package2.deb /home/repo/.../package3.deb'
+                         */
+                        $debFilesConcatenatePaths = trim(implode(' ', $lotArray));
+
+                        /**
+                         *  Then build the includeb command from the string generated
+                         */
+                        $repreproIncludeParams = 'includedeb ' . $this->dist . ' ' . $debFilesConcatenatePaths;
+
+                        /**
+                         *  Proceed to import those 100 deb packages into the repo
+                         *  Instanciate a new Process
+                         */
+                        $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+
+                        /**
+                         *  Execute
+                         */
+                        $myprocess->exec();
+
+                        /**
+                         *  Récupération du pid du process lancé
+                         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                         */
+                        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+
+                        /**
+                         *  Affichage de l'output du process en continue dans un fichier
+                         */
+                        $myprocess->getOutput($this->op->log->steplog);
+
+                        /**
+                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                         *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
+                         */
+                        if ($myprocess->getReturnCode() != 0) {
+                            $repreproErrors++;
+                            break;
+                        }
+                    }
+                }
+
+                /**
+                 *  Case packages sources must be included in the repo too
+                 */
+                if ($this->targetPackageSource == 'yes' and !empty($dscFilesGlobalArray)) {
+                    /**
+                     *  Reprepro can't deal with multiple .dsc files at the same time, so we have to proceed each file one by one
+                     *  Known issue https://bugs.launchpad.net/ubuntu/+source/reprepro/+bug/1479148
+                     */
+                    foreach ($dscFilesGlobalArray as $dscFile) {
+                        $repreproIncludeParams = '-S ' . $this->section . ' -P optional includedsc ' . $this->dist . ' ' . $dscFile;
+
+                        /**
+                         *  Proceed to import those 100 deb packages into the repo
+                         *  Instanciate a new Process
+                         */
+                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+
+                        /**
+                         *  Execute
                          */
                         $myprocess->exec();
 

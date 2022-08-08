@@ -153,6 +153,8 @@ foreach ($operation_params as $operation) {
          *  Si le type est 'mirror' alors on vérifie des paramètres supplémentaires
          */
         if ($type === 'mirror') {
+            $source = $operation['source'];
+
             /**
              *  Le paramètre Alias peut être vide dans le cas d'un type = 'mirror', si c'est le cas alors il pendra comme valeur 'source'
              */
@@ -170,7 +172,6 @@ foreach ($operation_params as $operation) {
                 $exitCode++;
                 continue;
             }
-            $source = $operation['source'];
 
             /**
              *  Si le paramètre GPG Check n'est pas défini, on quitte
@@ -231,6 +232,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos spécifiées par l'utilisateur
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setType($type);
         $repo->setName($alias);
         $repo->setTargetGroup($targetGroup);
@@ -330,6 +332,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setSnapId($snapId);
 
         /**
@@ -358,7 +361,7 @@ foreach ($operation_params as $operation) {
 
         $repo->setTargetPackageSource($targetPackageSource);
 
-        if ($packageType == 'deb') {
+        if ($repo->getPackageType() == 'deb') {
             if (!empty($targetPackageTranslation)) {
                 $repo->setTargetPackageTranslation($targetPackageTranslation);
             }
@@ -395,6 +398,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo à dupliquer
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setSnapId($snapId);
 
         /**
@@ -467,6 +471,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo à dupliquer
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setSnapId($snapId);
 
         /**
@@ -504,6 +509,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setSnapId($snapId);
 
         /**
@@ -552,6 +558,7 @@ foreach ($operation_params as $operation) {
          *  Création d'un objet Repo avec les infos du repo source
          */
         $repo = new \Controllers\Repo();
+        $repo->setPoolId($id);
         $repo->setSnapId($snapId);
 
         /**

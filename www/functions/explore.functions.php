@@ -87,7 +87,8 @@ function printSubDir($dir, $path)
     } else {
         echo "<li><span class=\"explorer-toggle\"><img src=\"resources/icons/folder.png\" class=\"icon\" />$dir</span>";
     }
-    tree("$path/$dir"); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier
+
+    tree($path . '/' . $dir); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier
     echo "</li>";
 }
 
