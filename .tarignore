@@ -1,14 +1,11 @@
 .git*
 .gnupg
-TODO
 logs
 README*
 repomanager.conf
 create-version
 .tarignore
-update
 repomanager.png
-archives
 wip
 WIP
 TODO

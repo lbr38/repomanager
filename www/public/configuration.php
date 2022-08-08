@@ -17,8 +17,6 @@ if (!Controllers\Common::isadmin()) {
  *  Mise à jour de Repomanager
  */
 if (!empty($_GET['action']) and \Controllers\Common::validateData($_GET['action']) == "update") {
-    // $updateStatus = \Controllers\Common::repomanagerUpdate();
-
     $myupdate = new \Controllers\Update();
     $updateStatus = $myupdate->update();
 }

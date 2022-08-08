@@ -8,7 +8,6 @@ class Update
 {
     private $model;
     private $workingDir;
-    private $backupConfDir;
     private $log = array();
 
     public function __construct()
@@ -45,10 +44,10 @@ class Update
         if (UPDATE_BACKUP_ENABLED == 'yes') {
             $backupName = DATE_YMD . '_' . TIME . '_repomanager_full_backup.tar.gz';
 
-            exec("tar --exclude='" . BACKUP_DIR . "' --exclude='" . ROOT . "/db' -czf /tmp/${backupName} " . ROOT, $output, $result);
+            // exec("tar --exclude='" . BACKUP_DIR . "' --exclude='" . DATA_DIR . "/db/repomanager-stats.db' -czf /tmp/${backupName} " . ROOT, $output, $result);
+            exec("tar --exclude='" . BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $result);
 
             if ($result != 0) {
-                $error++;
                 throw new Exception('Error while backuping actual repomanager configuration.');
             } else {
                 /**
@@ -106,8 +105,10 @@ class Update
         /**
          *  For each files found execute its queries
          */
-        foreach ($updateFiles as $updateFile) {
-            $this->model->updateDB($updateFile);
+        if (!empty($updateFiles)) {
+            foreach ($updateFiles as $updateFile) {
+                $this->model->updateDB($updateFile);
+            }
         }
     }
 
@@ -156,8 +157,6 @@ class Update
      */
     public function update()
     {
-        $error = 0;
-
         try {
             /**
              *  Quit if actual version is the same as the available version
@@ -180,10 +179,9 @@ class Update
              *  Update
              */
             $this->workingDir = '/tmp/repomanager-update_' . GIT_VERSION;
-            $this->backupConfDir = $this->workingDir . '/backup-conf';
 
             /**
-             *  Delete working dirs if already exist
+             *  Delete working dir if already exist
              */
             if (is_dir($this->workingDir)) {
                 exec("rm '$this->workingDir' -rf");
@@ -193,7 +191,6 @@ class Update
              *  Then create it
              */
             mkdir($this->workingDir, 0770, true);
-            mkdir($this->backupConfDir, 0770, true);
 
             /**
              *  Download new release
@@ -213,12 +210,7 @@ class Update
             /**
              *  Apply permissions on repomanager service script
              */
-            chmod(DATA_DIR . '/tools/service/repomanager-service', 550);
-
-            /**
-             *  Edit version file
-             */
-            file_put_contents(ROOT . 'version', GIT_VERSION);
+            chmod(DATA_DIR . '/tools/service/repomanager-service', octdec('0550'));
 
             /**
              *  Delete working dir

@@ -208,9 +208,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                      *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                      */
                                     if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                        echo "<img src=\"resources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
                                     } else {
-                                        echo "<img src=\"resources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
                                     }
                                     /**
                                      *  Affichage des détails de la/les requête(s)
@@ -235,9 +235,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                      *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                                      */
                                     if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                        echo "<img src=\"resources/icons/greencircle.png\" class=\"icon-small\" /> ";
+                                        echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
                                     } else {
-                                        echo "<img src=\"resources/icons/redcircle.png\" class=\"icon-small\" /> ";
+                                        echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
                                     }
                                     /**
                                      *  Affichage des détails de la/les requête(s)
@@ -323,17 +323,17 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                              *  Utilisés par jqeury pour récupérer de nouvelles valeurs en fonction du filtre choisi par l'utilisateur (1week...)
                              */ ?>
                             <canvas id="repo-access-chart">
-                                <span id="repo-access-chart-labels" labels="<?php echo $repoAccessChartLabels;?>"></span>
-                                <span id="repo-access-chart-data" data="<?php echo $repoAccessChartData;?>"></span>
+                                <span id="repo-access-chart-labels" labels="<?= $repoAccessChartLabels ?>"></span>
+                                <span id="repo-access-chart-data" data="<?= $repoAccessChartData ?>"></span>
                             </canvas>
                             <script>
                                 var ctx = document.getElementById('repo-access-chart').getContext('2d');
                                 var myRepoAccessChart = new Chart(ctx, {
                                     type: 'line',
                                     data: {
-                                        labels: [<?php echo $repoAccessChartLabels;?>],
+                                        labels: [<?= $repoAccessChartLabels ?>],
                                         datasets: [{
-                                            data: [<?php echo $repoAccessChartData;?>],
+                                            data: [<?= $repoAccessChartData ?>],
                                             label: "Nombre d'accès",
                                             borderColor: '#3e95cd',
                                             fill: false
@@ -462,9 +462,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     var myRepoSizeChart = new Chart(ctx, {
                                         type: 'line',
                                         data: {
-                                            labels: [<?php echo $dateLabels;?>],    
+                                            labels: [<?= $dateLabels ?>],    
                                             datasets: [{
-                                                data: [<?php echo $sizeData;?>],
+                                                data: [<?= $sizeData ?>],
                                                 label: 'Taille en Mo',
                                                 borderColor: '#3e95cd',
                                                 fill: false
@@ -504,9 +504,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     var myRepoPackagesCountChart = new Chart(ctx, {
                                         type: 'line',
                                         data: {
-                                            labels: [<?php echo $dateLabels;?>],    
+                                            labels: [<?= $dateLabels ?>],    
                                             datasets: [{
-                                                data: [<?php echo $countData;?>],
+                                                data: [<?= $countData ?>],
                                                 label: 'Nombre de paquets',
                                                 borderColor: '#3e95cd',
                                                 fill: false

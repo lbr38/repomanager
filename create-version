@@ -1,5 +1,5 @@
-#!/bin/bash
-# Création d'une nouvelle archive de version
+#!/usr/bin/env bash
+# Create a new release tar archive
 
 set -u
 GREEN=$(tput setaf 2)
@@ -10,7 +10,7 @@ RESET=$(tput sgr0)
 DEV_DIR="$HOME/github/repomanager"
 DEV_BRANCH="stable"
 ARCHIVE_PATH="$HOME/repomanager/releases"
-IGNORE_FILE="$HOME/github/repomanager/.tarignore" # Contient les fichiers à ne pas inclure à l'archive tar
+IGNORE_FILE="$HOME/github/repomanager/.tarignore"
 TMP_DIR="/tmp/repomanager"
 CONFIRM=""
 
