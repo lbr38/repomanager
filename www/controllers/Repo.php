@@ -1262,11 +1262,14 @@ class Repo
              */
             if ($this->packageType == "rpm") {
                 exec('find ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName . '/ -type f -exec chmod 0660 {} \;');
+                exec('find ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName . '/ -type d -exec chmod 0770 {} \;');
+                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName);
             }
             if ($this->packageType == "deb") {
-                exec('find ' . REPOS_DIR . '/' . $this->targetName . '/ -type d -exec chmod 0770 {} \;');
+                exec('find ' . REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . '/ -type f -exec chmod 0660 {} \;');
+                exec('find ' . REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . '/ -type d -exec chmod 0770 {} \;');
+                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section);
             }
-            exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName);
 
             $this->op->stepOK();
 
@@ -2754,7 +2757,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new \Controllers\Process('/usr/bin/reprepro --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -P optionnal --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
@@ -2798,7 +2801,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute

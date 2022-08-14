@@ -1,37 +1,33 @@
 @font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype'); }
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-/* Codes couleurs
+/* Color codes
 
-// boutons //
-    boutons bleu :              #2b426e
-    boutons bleu (hover) :      #263859
+Buttons:
 
-    boutons vert :              #489f4d
-    boutons vert (hover) :      #3e8e41
+    blue:            #2b426e
+    blue (hover):    #263859
 
-    boutons rouge :             #d9534f
-    boutons rouge (hover) :     #b14440
+    green:           #489f4d
+    green (hover):   #3e8e41
 
-    boutons gris :              #555555
-    boutons gris (hover) :
-
-    boutons blanc :             #f7f7f7
-    boutons blanc (hover) :
+    red:             #d9534f
+    red (hover):     #b14440
 */
 
 body {
-    /* Gestion de l'affichage 'fade-in' de chaque page, afin de rendre l'affichage des pages plus agréable
-    Voir @keyframes fadeInAnimation en complément ci-dessous */
+    /**
+     *  'fade-in' mode on every page
+     *  See @keyframes fadeInAnimation below
+     **/
     animation: fadeInAnimation ease 0.00001s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
     font-family: 'Roboto', sans-serif !important;
     margin: 0px;
     padding: 0px;
-    /* background-color: #262525; */
     background-color: #202020;
-    color: whitesmoke; /* couleur par défaut */
+    color: whitesmoke;
     overflow-x: hidden;
 }
 
@@ -46,13 +42,13 @@ body {
 
 a {
     text-decoration: none;
-    /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
+    /* using text-shadow to generate bold on link */
     text-shadow: -.25px -.25px 0 transparent,
                   .25px .25px transparent;
 }
 
 a:hover {
-    /* utilisation de text-shadow pour gérer le bold sur un lien survolé, sans que ça provoque de décalage */
+    /* using text-shadow to generate bold on link */
     text-shadow: -.25px -.25px 0 white,
                   .25px .25px white;
 }
@@ -60,7 +56,6 @@ a:hover {
 p, label, a, i, span {
     font-size: 14px;
     color: whitesmoke;
-    /* vertical-align: middle; */
 }
 
 span {
@@ -115,7 +110,7 @@ td {
     vertical-align: middle;
 }
 
-/* Classes génériques */
+/* Generic classes */
 .inline { display: inline; }
 .block { display: block; }
 .inline-block { display: inline-block; }
@@ -125,7 +120,6 @@ td {
 .text-center { text-align: center; }
 .relative { position: relative; }
 .pointer { cursor: pointer; }
-/* Classes génériques permettant de créer des textes de couleurs */
 .greentext { color: #489f4d; }
 .redtext { color: #d9534f; }
 .yellowtext { color: #cc9951; }
@@ -138,9 +132,9 @@ td {
 .lowopacity:hover, .mediumopacity:hover, .verylowopacity:hover { opacity: 1 }
 .opacity-80 { opacity: 0.80; }
 /* Classes génériques permettant de créer des images de couleurs à partir d'images blanches https://codepen.io/sosuke/pen/Pjoqqp */
-.yellowimg {
+/* .yellowimg {
     filter: brightness(0) saturate(100%) invert(73%) sepia(30%) saturate(901%) hue-rotate(347deg) brightness(97%) contrast(93%);
-}
+} */
 .bkg-green {
     background-color: #489f4d !important;
     color: white !important;
@@ -273,7 +267,6 @@ article {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    /* justify-content: space-between; */
     justify-content: space-evenly;
 }
 
@@ -281,7 +274,6 @@ article {
 section.mainSectionLeft {
     flex: 0 0 68%;
     order: 1;
-    /* padding-left: 15px; */
     display: inline-block;
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
@@ -289,7 +281,6 @@ section.mainSectionLeft {
 section.mainSectionRight {
     flex: 0 0 29.5%;
     order: 2;
-    /* padding-right: 15px; */
     vertical-align: top; /* force toutes les sous-sections à commencer en haut de la section principale */
 }
 
@@ -316,9 +307,6 @@ section.left {
     /* min-height: 300px;  */
     display: inline-block;
 }
-/* section.right, #newRepoDiv {
-    float: right;
-} */
 section.missing-param-alert {
     width: 97%;
     margin-left: auto;

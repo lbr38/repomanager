@@ -371,7 +371,7 @@ $(document).on('submit','.operation-form-container',function () {
     /**
      *  On envoi l'array principal au format JSON à php pour vérification des paramètres
      */
-    var operation_params_json  = JSON.stringify(operation_params);
+    var operation_params_json = JSON.stringify(operation_params);
 
     validateExecuteForm(operation_params_json);
 
