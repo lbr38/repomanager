@@ -2,7 +2,7 @@
     <?php
         echo '<p>' . VERSION . '</p>';
     if (UPDATE_AVAILABLE == "yes") {
-        echo '<p class="yellowtext">Une nouvelle version est disponible</p>';
+        echo '<p class="yellowtext">New release available</p>';
     }
     ?>
     <br>
@@ -10,6 +10,7 @@
 </footer>
 
 <script src="resources/js/functions.js"></script>
+<script src="resources/js/update.js"></script>
 <?php
 if (__ACTUAL_URI__ == "/index.php" or __ACTUAL_URI__ == "/") {
     echo '<script src="resources/js/repo.js"></script>';
@@ -25,7 +26,7 @@ if (__ACTUAL_URI__ == "/planifications.php") {
 if (__ACTUAL_URI__ == "/hosts.php" or __ACTUAL_URI__ == "/host.php") {
     echo '<script src="resources/js/host.js"></script>';
 }
-if (__ACTUAL_URI__ == "/explore.php") {
+if (__ACTUAL_URI__ == "/browse.php") {
     echo '<script src="resources/js/explore.js"></script>';
 }
 if (__ACTUAL_URI__ == "/profiles.php") {

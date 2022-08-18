@@ -20,7 +20,7 @@ if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty(
     $filterByUserId = \Controllers\Common::validateData($_POST['userid']);
 
     if (!is_numeric($filterByUserId)) {
-        printAlert("L'Id utilisateur est invalide");
+        printAlert("User Id is invalid");
     } else {
         $filterByUser = "yes";
     }
@@ -34,26 +34,24 @@ if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty(
 <article>
     <section class="main">
         <section class="section-center">
-            <h3>HISTORIQUE</h3>
+            <h3>HISTORY</h3>
 
             <div class="div-flex">
                 <div class="flex-div-100 div-generic-gray">
-                    <h4>ACTIONS EXÉCUTÉES</h4>
+                    <h4>EXECUTED ACTIONS</h4>
                     <form action="history.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="filterByUser" />
-                        <p>Filtrer par utilisateur :</p>
+                        <p>Filter by user:</p>
                         
                         <?php
+                        /**
+                         *  Récupération de tous les utilisateurs en base de données
+                         */
+                        $myusers = new \Models\Login();
+                        $users = $myusers->getUsers(); ?>
 
-                            /**
-                             *  Récupération de tous les utilisateurs en base de données
-                             */
-
-                            $myusers = new \Models\Login();
-                            $users = $myusers->getUsers();
-                        ?>
                         <select name="userid" class="select-large">
-                            <option value="">Tous</option>
+                            <option value="">All</option>
                             <?php
                             foreach ($users as $user) {
                                 if (!empty($filterByUser) and $filterByUser == "yes" and !empty($filterByUserId) and $user['Id'] == $filterByUserId) {
@@ -63,52 +61,59 @@ if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty(
                                 }
                             } ?>
                         </select>
-                        <button class="btn-medium-green">Valider</button>
+                        <button class="btn-medium-green">Validate</button>
                     </form>
 
                     <br>
 
                     <?php
-                        /**
-                         *  Si un filtrage par utilisateur a été sélectionné, on récupère uniquement les actions de l'utilisateur
-                         */
+                    /**
+                     *  Si un filtrage par utilisateur a été sélectionné, on récupère uniquement les actions de l'utilisateur
+                     */
                     if (!empty($filterByUser) and $filterByUser == "yes") {
                         $historyLines = \Models\History::getByUser($filterByUserId);
 
-                        /**
-                         *  Sinon on récupère toutes les actions de tous sles utilisateurs
-                         */
+                    /**
+                     *  Sinon on récupère toutes les actions de tous sles utilisateurs
+                     */
                     } else {
                         $historyLines = \Models\History::getAll();
                     }
 
                     if (empty($historyLines)) {
-                        echo '<p>Aucune action n\'a été trouvée pour cet utilisateur</p>';
+                        echo '<p>No action have been found for this user.</p>';
                     } else { ?>
                         <table class="table-generic-blue">
                             <thead>
                                 <tr>
                                     <td class="td-100">Date</td>
                                     <td class="td-100">Action</td>
-                                    <td class="td-100">Utilisateur</td>
-                                    <td>Etat</td>
+                                    <td class="td-100">User</td>
+                                    <td>State</td>
                                 </tr>
                             </thead>
                             <?php
-                            foreach ($historyLines as $historyLine) {
-                                echo '<tr>';
-                                    echo '<td class="td-100"><b>' . $historyLine['Date'] . '</b> à <b>' . $historyLine['Time'] . '</b></td>';
-                                    echo '<td class="td-100">' . htmlspecialchars_decode($historyLine['Action']) . '</td>';
-                                    echo '<td class="td-100">' . $historyLine['Username'] . '</td>';
-                                if ($historyLine['State'] == "success") {
-                                    echo '<td><img src="resources/icons/greencircle.png" class="icon-small" />Succès</td>';
-                                }
-                                if ($historyLine['State'] == "error") {
-                                    echo '<td><img src="resources/icons/redcircle.png" class="icon-small" />Erreur</td>';
-                                }
-                                    echo '</tr>';
-                            }
-                            ?>
+                            foreach ($historyLines as $historyLine) : ?>
+                                <tr>
+                                    <td class="td-100">
+                                        <b><?= $historyLine['Date'] ?></b> at <b><?= $historyLine['Time'] ?></b>
+                                    </td>
+                                    <td class="td-100">
+                                        <?= htmlspecialchars_decode($historyLine['Action']) ?>
+                                    </td>
+                                    <td class="td-100">
+                                        <?= $historyLine['Username'] ?>
+                                    </td>
+                                    <?php
+                                    if ($historyLine['State'] == "success") {
+                                        echo '<td><img src="resources/icons/greencircle.png" class="icon-small" />Success</td>';
+                                    }
+                                    if ($historyLine['State'] == "error") {
+                                        echo '<td><img src="resources/icons/redcircle.png" class="icon-small" />Error</td>';
+                                    } ?>
+                                </tr>
+                                <?php
+                            endforeach ?>
                         </table>
                     <?php } ?>
                 </div>

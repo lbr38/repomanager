@@ -57,7 +57,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, 'L\'opération est en cours d\'exécution : <a href="run.php"><b>visualiser</b></a>');
+            response(HTTP_OK, 'Operation is running : <a href="run.php"><b>visualize</b></a>');
         }
 
         /**
@@ -83,7 +83,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, 'L\'environnement a été supprimé');
+            response(HTTP_OK, 'Environment has been deleted');
         }
 
         /**

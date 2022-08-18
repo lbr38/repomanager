@@ -28,7 +28,7 @@ class Environment extends Model
     public function new()
     {
         if (!\Controllers\Common::isAlphanumDash($this->name)) {
-            \Controllers\Common::printAlert("Erreur : le nom d'environnement contient des caractères invalides", 'error');
+            \Controllers\Common::printAlert("Environment name contains invalid characters", 'error');
             return;
         }
 
@@ -96,7 +96,7 @@ class Environment extends Model
 
             foreach ($envsToInsert as $env) {
                 if (!\Controllers\Common::isAlphanumDash($env)) {
-                    \Controllers\Common::printAlert("Erreur : le nom d'environnement '$env' contient des caractères invalides", 'error');
+                    \Controllers\Common::printAlert("Environment name '$env' contains invalid characters", 'error');
                     return;
                 }
 

@@ -128,7 +128,7 @@ class Login extends Model
         try {
             $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch (\Exception $e) {
-            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données', 'error');
+            \Controllers\Common::printAlert('An error occured while executing request in database', 'error');
             return;
         }
 
@@ -152,7 +152,7 @@ class Login extends Model
          *  On vérifie que le nom d'utilisateur ne contient pas de caractères spéciaux
          */
         if (\Controllers\Common::isAlphanumDash($username) === false) {
-            \Controllers\Common::printAlert("L'utilisateur ne peut pas contenir de caractères spéciaux hormis le tiret et l'underscore", 'error');
+            \Controllers\Common::printAlert('Username cannot contain special characters except hyphen and underscore', 'error');
             return false;
         }
 
@@ -160,7 +160,7 @@ class Login extends Model
          *  On vérifie que le role est valide
          */
         if ($role != "usage" and $role != "administrator") {
-            \Controllers\Common::printAlert("Le role sélectionné est invalide", 'error');
+            \Controllers\Common::printAlert('Selected role is invalid', 'error');
             return false;
         }
 
@@ -176,7 +176,7 @@ class Login extends Model
         }
 
         if ($this->db->isempty($result) === false) {
-            \Controllers\Common::printAlert("Le nom d'utilisateur <b>$username</b> est déjà utilisé", 'error');
+            \Controllers\Common::printAlert("Username <b>$username</b> is already used", 'error');
             return false;
         }
 
@@ -190,7 +190,7 @@ class Login extends Model
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            \Controllers\Common::printAlert("Erreur lors de la création de l'utilisateur", 'error');
+            \Controllers\Common::printAlert("Error while creating user", 'error');
             return false;
         }
 
@@ -218,9 +218,9 @@ class Login extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::printAlert("L'utilisateur <b>$username</b> a été créé", 'success');
+        \Controllers\Common::printAlert("User <b>$username</b> has been created", 'success');
 
-        History::set($_SESSION['username'], "Création de l'utilisateur <b>$username</b>", 'success');
+        History::set($_SESSION['username'], "Create user: <b>$username</b>", 'success');
 
         /**
          *  On retourne le mot de passe temporaire généré afin que l'utilisateur puisse le récupérer
@@ -291,7 +291,7 @@ class Login extends Model
 
         // Connexion au serveur LDAP
         $ldapconn = ldap_connect("ldap://ldap.example.com")
-            or die("Impossible de se connecter au serveur LDAP.");
+            or die("Cannot connect to LDAP server.");
 
         if ($ldapconn) {
             // Connexion au serveur LDAP
@@ -325,7 +325,7 @@ class Login extends Model
         }
         if (!empty($email)) {
             if (\Controllers\Common::validateMail($email) === false) {
-                \Controllers\Common::printAlert("L'adresse email est incorrecte", 'error');
+                \Controllers\Common::printAlert("Email address is invalid", 'error');
                 return;
             }
         }
@@ -351,9 +351,9 @@ class Login extends Model
         $_SESSION['last_name']  = $last_name;
         $_SESSION['email']      = $email;
 
-        History::set($_SESSION['username'], "Modifications des informations personnelles", 'success');
+        History::set($_SESSION['username'], "Personal informations modification", 'success');
 
-        \Controllers\Common::printAlert('Les modifications ont été appliquées', 'success');
+        \Controllers\Common::printAlert('Changes have been taken into account', 'success');
     }
 
     /**
@@ -382,7 +382,7 @@ class Login extends Model
          *  On vérifie que le nouveau mot de passe renseigné et sa re-saisie sont les mêmes
          */
         if ($new_password !== $new_password2) {
-            \Controllers\Common::printAlert('Le nouveau mot de passe et sa re-saisie sont différents', 'error');
+            \Controllers\Common::printAlert('New password and password re-type are different', 'error');
             return;
         }
 
@@ -390,7 +390,7 @@ class Login extends Model
          *  On vérifie que le nouveau mot de passe renseigné et l'ancien (hashé en bdd) sont différents
          */
         if (password_verify($new_password, $actual_password_hashed)) {
-            \Controllers\Common::printAlert('Le nouveau mot de passe est identique à l\'ancien mot de passe', 'error');
+            \Controllers\Common::printAlert('New password is the same as the old password', 'error');
             return;
         }
 
@@ -411,9 +411,9 @@ class Login extends Model
             \Controllers\Common::dbError($e);
         }
 
-        History::set($_SESSION['username'], "Modification du mot de passe", 'success');
+        History::set($_SESSION['username'], "Password modification", 'success');
 
-        \Controllers\Common::printAlert('Le mot de passe a bien été changé', 'success');
+        \Controllers\Common::printAlert('Password has been changed', 'success');
     }
 
     /**
@@ -435,7 +435,7 @@ class Login extends Model
         }
 
         if ($this->db->isempty($result) === true) {
-            \Controllers\Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            \Controllers\Common::printAlert('User <b>$username</b> does not exist', 'error');
             return false;
         }
 
@@ -449,7 +449,7 @@ class Login extends Model
          */
         $password_hashed = password_hash($password, PASSWORD_BCRYPT);
         if ($password_hashed === false) {
-            \Controllers\Common::printAlert("Erreur lors de la création de l'utilisateur <b>$username</b>", 'error');
+            \Controllers\Common::printAlert("Error while creating the user <b>$username</b>", 'error');
             return false;
         }
 
@@ -465,9 +465,9 @@ class Login extends Model
             \Controllers\Common::dbError($e);
         }
 
-        History::set($_SESSION['username'], "Réinitialisation du mot de passe de l'utilisateur <b>$username</b>", 'success');
+        History::set($_SESSION['username'], "Reset password of user <b>$username</b>", 'success');
 
-        \Controllers\Common::printAlert('Le mot de passe a été regénéré', 'success');
+        \Controllers\Common::printAlert('Password has been regenerated', 'success');
 
         return $password;
     }
@@ -491,7 +491,7 @@ class Login extends Model
         }
 
         if ($this->db->isempty($result) === true) {
-            \Controllers\Common::printAlert("L'utilisateur <b>$username</b> n'existe pas", 'error');
+            \Controllers\Common::printAlert('User <b>$username</b> does not exist', 'error');
             return;
         }
 
@@ -508,8 +508,8 @@ class Login extends Model
             \Controllers\Common::dbError($e);
         }
 
-        History::set($_SESSION['username'], "Suppression de l'utilisateur <b>$username</b>", 'success');
+        History::set($_SESSION['username'], "Delete user <b>$username</b>", 'success');
 
-        \Controllers\Common::printAlert("L'utilisateur <b>$username</b> a été supprimé", 'success');
+        \Controllers\Common::printAlert("User <b>$username</b> has been deleted", 'success');
     }
 }

@@ -36,7 +36,7 @@ if (!empty($_GET['id'])) {
         /**
          *  Message du dernier état connu
          */
-        $agentLastSendStatusMsg = 'état au ' . DateTime::createFromFormat('Y-m-d', $hostProperties['Online_status_date'])->format('d-m-Y') . ' à ' . $hostProperties['Online_status_time'];
+        $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $hostProperties['Online_status_date'])->format('d-m-Y') . ' at ' . $hostProperties['Online_status_time'];
 
         /**
          *  Si l'hôte est en status 'deleted' alors on ne l'affiche pas
@@ -57,7 +57,7 @@ if (!empty($_GET['id'])) {
 }
 
 if ($idError != 0) {
-    echo '<span class="yellowtext">L\'Id d\'hôte renseigné est invalide</span>';
+    echo '<span class="yellowtext">Specified host Id is invalid.</span>';
     die();
 }
 
@@ -157,11 +157,11 @@ echo '<h3>' . strtoupper($hostname) . '</h3>';
 if (Controllers\Common::isadmin()) { ?>
     <div class="hostActionBtn-container">
         <span class="btn-large-blue"><img src="../resources/icons/rocket.png" class="icon-lowopacity" />Actions</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="general-status-update" title="Rafraichir les informations générales">Demander l'envoi des informations générales</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="packages-status-update" title="Rafraichir les paquets disponibles">Demander l'envoi des informations concernant les paquets</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Mettre à jour tous les paquets de l'hôte">Demander la mise à jour des paquets</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="reset" title="Réinitialiser cet hôte">Réinitialiser cet hôte</span>
-        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="delete" title="Supprimer cet hôte">Supprimer cet hôte</span>
+        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
+        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="packages-status-update" title="Send packages informations (available, installed, updated...).">Request to send packages info.</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Update all available packages using linupdate.">Update packages</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="reset" title="Reset known data.">Reset</span>
+        <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="delete" title="Delete this host">Delete</span>
     </div>
 <?php } ?>
             <div class="div-flex">
@@ -188,27 +188,27 @@ if (Controllers\Common::isadmin()) { ?>
                                 echo ucfirst($os) . ' ' . $os_version;
                                 echo '</td>';
                             } else {
-                                echo '<td>Inconnu</td>';
+                                echo '<td>Unknow</td>';
                             } ?>
                         </tr>
                         <tr>
-                            <td>PROFIL</td>
+                            <td>PROFILE</td>
                             <td>
                             <?php
                             if (!empty($profile)) {
                                 echo '<span class="label-white">' . $profile . '</span>';
                             } else {
-                                echo 'Inconnu';
+                                echo 'Unknow';
                             } ?>
                             </td>
                         </tr>
                         <tr>
-                            <td>ENVIRONNEMENT</td>
+                            <td>ENVIRONMENT</td>
                             <?php
                             if (!empty($env)) {
                                 echo "<td>" . Controllers\Common::envtag($env) . "</td>";
                             } else {
-                                echo '<td>Inconnu</td>';
+                                echo '<td>Unknow</td>';
                             } ?>
                         </tr>
                         <tr>
@@ -217,19 +217,19 @@ if (Controllers\Common::isadmin()) { ?>
                                 <span>
                                 <?php
                                 if ($agentStatus == 'running') {
-                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." /> Démarré';
+                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
                                 }
                                 if ($agentStatus == "disabled") {
-                                    echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." /> Désactivé';
+                                    echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
                                 }
                                 if ($agentStatus == "stopped") {
-                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." /> Stoppé';
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
                                 }
                                 if ($agentStatus == "seems-stopped") {
-                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." /> Semble stoppé';
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
                                 }
                                 if ($agentStatus == "unknow") {
-                                    echo '<img src="resources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." /> Inconnu';
+                                    echo '<img src="resources/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
                                 } ?>
                                 </span>
                             </td>
@@ -244,14 +244,14 @@ if (Controllers\Common::isadmin()) { ?>
             <div class="div-flex">
                 <div class="flex-div-50 div-generic-gray">
                                    
-                    <h4>ETATS DES PAQUETS</h4>
+                    <h4>PACKAGES</h4>
 
                     <table class="hosts-table">
                         <thead>
                             <tr>
                                 <td></td>
-                                <th>À mettre à jour</th>
-                                <th>Total installés</th>
+                                <th>To update</th>
+                                <th>Total installed</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -271,8 +271,7 @@ if (Controllers\Common::isadmin()) { ?>
                                  */
                                 if ($packagesAvailableTotal > 0) {
                                     echo ' <img src="resources/icons/search.png" id="packagesAvailableButton" class="icon-lowopacity" />';
-                                }
-                                ?>
+                                } ?>
                                 </td>
                                 <td>
                                     <?php
@@ -291,13 +290,13 @@ if (Controllers\Common::isadmin()) { ?>
 
                     <div id="packagesContainer">
 
-                        <span id="packagesContainerLoader">Chargement <img src="../resources/images/loading.gif" class="icon" /></span>
+                        <span id="packagesContainerLoader">Loading <img src="../resources/images/loading.gif" class="icon" /></span>
 
                         <div id="packagesAvailableDiv" class="hide">
                             <table class="packages-table">
                                 <thead>
                                     <tr>
-                                        <td>Nom</td>
+                                        <td>Name</td>
                                         <td>Version</td>
                                     </tr>
                                 </thead>
@@ -306,7 +305,7 @@ if (Controllers\Common::isadmin()) { ?>
                                     if (!empty($packagesAvailable)) {
                                         foreach ($packagesAvailable as $package) {
                                             echo '<tr>';
-                                                echo '<td>';
+                                            echo '<td>';
                                             if (preg_match('/python/i', $package['Name'])) {
                                                 echo '<img src="../resources/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) {
@@ -336,9 +335,9 @@ if (Controllers\Common::isadmin()) { ?>
                                             } else {
                                                 echo '<img src="../resources/icons/products/package.png" class="icon" />';
                                             }
-                                                echo $package['Name'];
-                                                echo '</td>';
-                                                echo '<td>' . $package['Version'] . '</td>';
+                                            echo $package['Name'];
+                                            echo '</td>';
+                                            echo '<td>' . $package['Version'] . '</td>';
                                             echo '</tr>';
                                         }
                                     } ?>
@@ -347,13 +346,13 @@ if (Controllers\Common::isadmin()) { ?>
                         </div>
 
                         <div id="packagesInstalledDiv" class="hide">
-                            <h4>Inventaire des paquets de l'hôte</h4>
+                            <h4>Package inventory of this host</h4>
 
                             <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Rechercher...">
                             <table id="packagesIntalledTable" class="packages-table">
                                 <thead>
                                     <tr>
-                                        <td>Nom</td>
+                                        <td>Name</td>
                                         <td>Version</td>
                                         <td></td>
                                     </tr>
@@ -363,7 +362,7 @@ if (Controllers\Common::isadmin()) { ?>
                                     if (!empty($packagesInventored)) {
                                         foreach ($packagesInventored as $package) {
                                             echo '<tr class="pkg-row">';
-                                                echo '<td>';
+                                            echo '<td>';
                                             if (preg_match('/python/i', $package['Name'])) {
                                                 echo '<img src="../resources/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) {
@@ -392,13 +391,13 @@ if (Controllers\Common::isadmin()) { ?>
                                                 echo '<img src="../resources/icons/products/package.png" class="icon" />';
                                             }
                                             if ($package['State'] == "removed" or $package['State'] == "purged") {
-                                                echo '<span class="redtext">' . $package['Name'] . ' (désinstallé)</span>';
+                                                echo '<span class="redtext">' . $package['Name'] . ' (uninstalled)</span>';
                                             } else {
                                                 echo $package['Name'];
                                             }
-                                                echo '</td>';
-                                                echo '<td>' . $package['Version'] . '</td>';
-                                                echo '<td><span class="getPackageTimeline pointer" hostid="' . $id . '" packagename="' . $package['Name'] . '">Historique</span></td>';
+                                            echo '</td>';
+                                            echo '<td>' . $package['Version'] . '</td>';
+                                            echo '<td class="td-10"><span class="getPackageTimeline pointer" hostid="' . $id . '" packagename="' . $package['Name'] . '">History</span></td>';
                                             echo '</tr>';
                                         }
                                     } ?>
@@ -409,9 +408,9 @@ if (Controllers\Common::isadmin()) { ?>
                 </div>               
 
                 <div class="flex-div-50 div-generic-gray">
-                    <h4>HISTORIQUE</h4>
+                    <h4>HISTORY</h4>
 
-                    <p>Historique des évènements (installation, mise à jour, désintallation de paquets...)</p>
+                    <p>Events history (installation, update, uninstallation...)</p>
                     <br>
 
                     <div id="eventsContainer">
@@ -419,7 +418,7 @@ if (Controllers\Common::isadmin()) { ?>
                             if (empty($allEventsList)) {
                                 echo '<p>Aucun historique</p>';
                             } else { ?>
-                                <span>Afficher les demandes de transfert </span>
+                                <span>Show sending requests </span>
                                 <label class="onoff-switch-label">
                                     <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php echo (!empty($_COOKIE['showUpdateRequests']) and $_COOKIE['showUpdateRequests'] == "yes") ? 'checked' : ''; ?>>
                                     <span class="onoff-switch-slider"></span>
@@ -492,15 +491,15 @@ if (Controllers\Common::isadmin()) { ?>
                                     } ?>
 
                                         <td class="td-fit">
-                                            <span><?php echo 'Le <b>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</b> à <b>' . $event['Time']; ?></b></span>
+                                            <span><?= '<b>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</b> at <b>' . $event['Time']; ?></b></span>
                                         </td>
                                     
                                         <?php
                                         if ($event['Event_type'] == "update_request") {
                                             echo '<td class="td-10">';
-                                                /**
-                                                 *  Affichage d'une icone en fonction du status
-                                                 */
+                                            /**
+                                             *  Affichage d'une icone en fonction du status
+                                             */
                                             if ($event['Status'] == 'done') {
                                                 echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
                                             }
@@ -510,32 +509,32 @@ if (Controllers\Common::isadmin()) { ?>
                                             if ($event['Status'] == 'running') {
                                                 echo '<img src="resources/images/loading.gif" class="icon" />';
                                             }
-                                                /**
-                                                 *  Affichage du type de demande
-                                                 */
+                                            /**
+                                             *  Affichage du type de demande
+                                             */
                                             if ($event['Type'] == 'general-status-update') {
-                                                echo 'Envoi des informations générales';
+                                                echo 'Sending general info.';
                                             }
                                             if ($event['Type'] == 'packages-status-update') {
-                                                echo 'Envoi de l\'état des paquets';
+                                                echo 'Sending packages state';
                                             }
                                             if ($event['Type'] == 'packages-update') {
-                                                echo 'Mise à jour des paquets';
+                                                echo 'Packages update';
                                             }
-                                                /**
-                                                 *  Affichage du status
-                                                 */
+                                            /**
+                                             *  Affichage du status
+                                             */
                                             if ($event['Status'] == 'done') {
-                                                echo ' terminé';
+                                                echo ' completed';
                                             }
                                             if ($event['Status'] == 'error') {
-                                                echo ' en erreur';
+                                                echo ' has failed';
                                             }
                                             if ($event['Status'] == 'running') {
-                                                echo ' en cours';
+                                                echo ' running';
                                             }
                                             if ($event['Status'] == 'requested') {
-                                                echo ' demandé(e)';
+                                                echo ' requested';
                                             }
                                             echo '</td>';
                                         }
@@ -568,58 +567,65 @@ if (Controllers\Common::isadmin()) { ?>
                                             $packagesRemovedCount = count($packagesRemoved); ?>
 
                                             <?php
-                                            if ($packagesInstalledCount > 0) { ?>
+                                            if ($packagesInstalledCount > 0) : ?>
                                                 <td class="td-10">
                                                     <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="installed">
-                                                    <span class="label-green">Installé(s)</span>
+                                                    <span class="label-green">Installed</span>
                                                     <span class="label-green"><?= $packagesInstalledCount ?></span>
                                                 </td>
-                                            <?php                                       }
+                                                <?php
+                                            endif;
 
-                                            if ($dependenciesInstalledCount > 0) { ?>
+                                            if ($dependenciesInstalledCount > 0) : ?>
                                                 <td class="td-10">
                                                     <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="dep-installed">
-                                                    <span class="label-green">Dép. Installé(s)</span>
+                                                    <span class="label-green">Dep. installed</span>
                                                     <span class="label-green"><?= $dependenciesInstalledCount ?></span>
                                                 </td>
-                                            <?php                                       }
+                                                <?php
+                                            endif;
 
-                                            if ($packagesUpdatedCount > 0) { ?>
+                                            if ($packagesUpdatedCount > 0) : ?>
                                                 <td class="td-10">
                                                     <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="upgraded">
-                                                    <span class="label-yellow">Mis à jour</span>
+                                                    <span class="label-yellow">Updated</span>
                                                     <span class="label-yellow"><?= $packagesUpdatedCount ?></span>
                                                 </td>
-                                            <?php                                       }
+                                                <?php
+                                            endif;
 
-                                            if ($packagesDowngradedCount > 0) { ?>
+                                            if ($packagesDowngradedCount > 0) : ?>
                                                 <td class="td-10">
                                                     <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="downgraded">
-                                                    <span class="label-red">Rétrogradé(s)</span>
+                                                    <span class="label-red">Downgraded</span>
                                                     <span class="label-red"><?= $packagesDowngradedCount ?></span>
                                                 </td>
-                                            <?php                                       }
+                                                <?php
+                                            endif;
 
-                                            if ($packagesRemovedCount > 0) { ?>
+                                            if ($packagesRemovedCount > 0) : ?>
                                                 <td class="td-10">
                                                     <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="removed">
-                                                    <span class="label-red">Désintallé(s)</span>
+                                                    <span class="label-red">Uninstalled</span>
                                                     <span class="label-red"><?= $packagesRemovedCount ?></span>
                                                 </td>
-                                            <?php                                       }
+                                                <?php
+                                            endif;
                                         } ?>
                                         <td colspan="100%"></td>
                                     </tr>
-                                    <?php                               ++$i;
+                                    <?php
+                                    ++$i;
                                 } ?>
 
                                 </table>
                                 
-                                <?php                           if ($i > $printMaxItems) {
+                                <?php
+                                if ($i > $printMaxItems) {
                                     /**
                                      *  Affichage du bouton Afficher tout
                                      */
-                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Afficher tout</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
+                                    echo '<p id="print-all-events-btn" class="pointer center"><b>Show all</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
                                 }
                             } ?>
                     </div>
@@ -641,19 +647,19 @@ $(document).ready(function(){
         labels: [<?=$lineChartDates?>],
         datasets: [
             {
-                label: 'Paquets installés',
+                label: 'Installed',
                 data: [<?=$lineChartInstalledPackagesCount?>],
                 borderColor: '#489f4d',
                 fill: false
             },
             {
-                label: 'Paquets mis à jour',
+                label: 'Updated',
                 data: [<?=$lineChartUpgradedPackagesCount?>],
                 borderColor: '#cc9951',
                 fill: false
             },
             {
-                label: 'Paquets désinstallés',
+                label: 'Uninstalled',
                 data: [<?=$lineChartRemovedPackagesCount?>],
                 borderColor: '#d9534f',
                 fill: false
@@ -679,7 +685,7 @@ $(document).ready(function(){
                 position: 'left',
                 title: {
                     display: true,
-                    text: 'Evolution des paquets (15 jours)',
+                    text: 'Packages evolution',
                 }
             },
         },

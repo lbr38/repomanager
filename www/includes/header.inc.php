@@ -3,9 +3,8 @@
 /**
  *  Debug mode
  */
-
 if (DEBUG_MODE == "enabled") {
-    echo '<b>Mode debug activé</b>';
+    echo '<b>Debug mode enabled</b>';
     if (!empty($_POST)) {
         echo '<br>POST : <pre>';
         print_r($_POST);
@@ -28,7 +27,7 @@ if (DEBUG_MODE == "enabled") {
             <div>
                 <a href="index.php">
                     <?php
-                    if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/index.php' or __ACTUAL_URI__ == '/explore.php' or __ACTUAL_URI__ == '/stats.php') {
+                    if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/index.php' or __ACTUAL_URI__ == '/browse.php' or __ACTUAL_URI__ == '/stats.php') {
                         echo '<span class="underline">';
                     } else {
                         echo '<span class="header-link">';
@@ -69,7 +68,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="resources/icons/server.png" class="icon" />GESTION DES HOTES
+                            <img src="resources/icons/server.png" class="icon" />MANAGE HOSTS
                         </span>
                     </a>
                 </div>
@@ -88,7 +87,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="resources/icons/stack.png" class="icon" />GESTION DES PROFILS
+                            <img src="resources/icons/stack.png" class="icon" />MANAGE PROFILES
                         </span>
                     </a>
                 </div>
@@ -107,7 +106,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                           <img src="resources/icons/settings.png" class="icon" />ADMINISTRATION
+                           <img src="resources/icons/settings.png" class="icon" />SETTINGS
                         </span>
                     </a>
                 </div>
@@ -131,28 +130,27 @@ if (DEBUG_MODE == "enabled") {
                 <div id="header-refresh">
 
                     <?php
-                        $op = new \Controllers\Operation();
+                    $op = new \Controllers\Operation();
+                    /**
+                     *  On récupère les opérations ou les planifications en cours si il y en a
+                     */
+                    $opsRunning = $op->listRunning('manual');
+                    $plansRunning = $op->listRunning('plan');
 
-                        /**
-                         *  On récupère les opérations ou les planifications en cours si il y en a
-                         */
-                        $opsRunning = $op->listRunning('manual');
-                        $plansRunning = $op->listRunning('plan');
+                    /**
+                     *  On les compte
+                     */
+                    $opsRunningCount = count($opsRunning);
+                    $plansRunningCount = count($plansRunning);
 
-                        /**
-                         *  On les compte
-                         */
-                        $opsRunningCount = count($opsRunning);
-                        $plansRunningCount = count($plansRunning);
+                    /**
+                     *  On les additionne
+                     */
+                    $totalRunningCount = $opsRunningCount + $plansRunningCount;
 
-                        /**
-                         *  On les additionne
-                         */
-                        $totalRunningCount = $opsRunningCount + $plansRunningCount;
-
-                        /**
-                         *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
-                         */
+                    /**
+                     *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
+                     */
                     if ($totalRunningCount > 0) {
                         echo '<span class="op-total-running bkg-red">' . $totalRunningCount . '</span>';
                     }
@@ -163,52 +161,50 @@ if (DEBUG_MODE == "enabled") {
                     if ($totalRunningCount > 0) {
                         echo '<div class="header-op-container">';
 
-                            /**
-                             *  On affiche chaque opération en cours
-                             */
+                        /**
+                         *  On affiche chaque opération en cours
+                         */
                         foreach ($opsRunning as $opRunning) {
                             $opId = $opRunning['Id'];
                             $opPid = $opRunning['Pid'];
                             $opLogfile = $opRunning['Logfile'];
                             if (!empty($opRunning['Action'])) {
                                 $opAction = $opRunning['Action'];
-                            }
-                            ?>
+                            } ?>
 
                             <div class="header-op-subdiv btn-large-red">
                                 <span>
                                     <a href="run.php?logfile=<?=$opLogfile?>">
-                                    <?php
-                                    if ($opAction == "new") {
-                                        echo 'Nouveau repo ';
-                                    }
-                                    if ($opAction == "update") {
-                                        echo 'Mise à jour ';
-                                    }
-                                    if ($opAction == "env") {
-                                        echo 'Nouvel env. ';
-                                    }
-                                    if ($opAction == "removeEnv") {
-                                        echo 'Suppression de l\'env. ';
-                                    }
-                                    if ($opAction == "reconstruct") {
-                                        echo 'Reconstruction des metadonnées ';
-                                    }
-                                    if ($opAction == "duplicate") {
-                                        echo 'Duplication ';
-                                    }
-                                    if ($opAction == "delete") {
-                                        echo 'Suppression ';
-                                    }
+                                        <?php
+                                        if ($opAction == "new") {
+                                            echo 'New repo ';
+                                        }
+                                        if ($opAction == "update") {
+                                            echo 'Update ';
+                                        }
+                                        if ($opAction == "env") {
+                                            echo 'New env. ';
+                                        }
+                                        if ($opAction == "removeEnv") {
+                                            echo 'Remove env. ';
+                                        }
+                                        if ($opAction == "reconstruct") {
+                                            echo 'Building metadata ';
+                                        }
+                                        if ($opAction == "duplicate") {
+                                            echo 'Duplicate ';
+                                        }
+                                        if ($opAction == "delete") {
+                                            echo 'Delete ';
+                                        }
 
-                                    /**
-                                     *  Affichage du nom du repo ou du groupe en cours de traitement
-                                     */
-                                    $op->printRepoOrGroup($opId);
-                                    ?>
+                                        /**
+                                         *  Affichage du nom du repo ou du groupe en cours de traitement
+                                         */
+                                        $op->printRepoOrGroup($opId); ?>
                                     </a>
                                 </span>
-                                <span title="Stopper l'opération">
+                                <span title="Stop operation">
                                     <a href="run.php?stop=<?=$opPid?>">⛔</a>
                                 </span>
                             </div>
@@ -235,13 +231,13 @@ if (DEBUG_MODE == "enabled") {
                                     <a href="run.php?logfile=<?= $opLogfile ?>">
                                     <?php
                                     if ($planAction == "new") {
-                                        echo 'Nouveau repo ';
+                                        echo 'New repo ';
                                     }
                                     if ($planAction == "update") {
-                                        echo 'Mise à jour ';
+                                        echo 'Update ';
                                     }
                                     if ($planAction == "env") {
-                                        echo 'Nouvel env. ';
+                                        echo 'New env. ';
                                     }
 
                                     /**
@@ -251,7 +247,7 @@ if (DEBUG_MODE == "enabled") {
                                     ?>
                                     </a>
                                 </span>
-                                <span title="Stopper l'opération">
+                                <span title="Stop operation">
                                     <a href="run.php?stop=<?=$opPid?>">⛔</a>
                                 </span>
                             </div>
@@ -275,7 +271,7 @@ if (DEBUG_MODE == "enabled") {
                 } else {
                     echo '<span class="header-link">';
                 } ?>
-                    <a href="user.php" title="Accéder à l'espace personnel">
+                    <a href="user.php" title="User space">
                         <?php
                             echo $_SESSION['username'];
                         if (!empty($_SESSION['first_name'])) {
@@ -283,8 +279,8 @@ if (DEBUG_MODE == "enabled") {
                         }
                         ?>
                     </a>
-                    <a href="logout.php" title="Se déconnecter">
-                        <img src="../resources/icons/power.png" class="icon" />
+                    <a href="logout.php" title="Logout">
+                        <img src="resources/icons/power.png" class="icon" />
                     </a>
                 </span>
             </div>
@@ -299,7 +295,7 @@ if (DEBUG_MODE == "enabled") {
 if (__LOAD_GENERAL_ERROR > 0) : ?>
     <section>
         <section class="missing-param-alert">
-            <span class="yellowtext">Certains paramètres de configuration de l'onglet <a href="configuration.php">Configuration</a> sont vides ou invalides, ce qui pourrait engendrer un dysfonctionnement de Repomanager. Il est recommandé de terminer la configuration avant d'exécuter quelconque opération.</span>
+            <span class="yellowtext">Some settings from the <a href="configuration.php"><b>settings tab</b></a> contain missing value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
         </section>
         <section class="missing-param-alert">
             <?php
@@ -313,7 +309,7 @@ if (__LOAD_GENERAL_ERROR > 0) : ?>
 if (!SERVICE_RUNNING) : ?>
     <section>
         <section class="missing-param-alert">
-            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Le service repomanager est inactif</span>
+            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">repomanager service is not running</span>
         </section>
     </section>
     <?php
@@ -327,7 +323,7 @@ if (filesize(SERVICE_LOG)) {
     ?>
     <section>
         <section class="missing-param-alert">
-            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
+            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">repomanager service has error:</span>
             <br>
             <span class="yellowtext"><?= $serviceLog ?></span>
         </section>
@@ -335,4 +331,5 @@ if (filesize(SERVICE_LOG)) {
     <?php
 }
 
-include('maintenance.inc.php'); ?>
+include('maintenance.inc.php');
+include('update.inc.php'); ?>

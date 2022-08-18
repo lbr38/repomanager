@@ -29,7 +29,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le groupe <b>" . $_POST['name'] . "</b> a été créé");
+            response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been created");
         }
 
         /**
@@ -50,7 +50,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le groupe <b>" . $_POST['name'] . "</b> a été renommé en <b>" . $_POST['newname'] . "</b>");
+            response(HTTP_OK, "Groupe <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
         }
 
         /**
@@ -71,7 +71,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le groupe <b>" . $_POST['name'] . "</b> a été supprimé");
+            response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been deleted");
         }
 
         /**
@@ -101,7 +101,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le groupe <b>" . $_POST['name'] . "</b> a été édité");
+            response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been edited");
         }
 
         /**
@@ -133,7 +133,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le groupe <b>" . $_POST['name'] . "</b> a été édité");
+            response(HTTP_OK, "Group <b>" . $_POST['name'] . "</b> has been edited");
         }
 
         /**

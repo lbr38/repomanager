@@ -33,7 +33,7 @@ if (!empty($_GET['logfile'])) {
 <article>
     <section class="mainSectionLeft">
         <section class="left">
-            <h3>JOURNAL</h3>
+            <h3>LOG</h3>
             <div id="log-container">
                 <div id="scrollButtons-container">
                     <div id="scrollButtons">
@@ -44,7 +44,7 @@ if (!empty($_GET['logfile'])) {
                              */
 
                         if (!empty($_COOKIE['displayFullLogs']) and $_COOKIE['displayFullLogs'] == "yes") { ?>
-                                <button id="displayFullLogs-no" class="button-top-down-details pointer" title="Masquer les détails"><img src="resources/icons/search.png" /></button>
+                                <button id="displayFullLogs-no" class="button-top-down-details pointer" title="Hide details."><img src="resources/icons/search.png" /></button>
                                 <style>
                                     .getPackagesDiv { display: block; }
                                     .signRepoDiv { display: block; }
@@ -52,13 +52,13 @@ if (!empty($_GET['logfile'])) {
                                 </style>
                             <?php
                         } else {
-                            echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Afficher les détails"><img src="resources/icons/search.png" /></button>';
+                            echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Show details."><img src="resources/icons/search.png" /></button>';
                         }
                         ?>
                         <br>
                         <br>
-                        <a href="#top" class="button-top-down" title="Atteindre le haut de page"><img src="resources/icons/arrow-circle-up.png" /></a>
-                        <a href="#bottom" class="button-top-down" title="Atteindre le bas de page"><img src="resources/icons/arrow-circle-down.png" /></a>
+                        <a href="#top" class="button-top-down" title="Go to the top."><img src="resources/icons/arrow-circle-up.png" /></a>
+                        <a href="#bottom" class="button-top-down" title="Go to the bottom."><img src="resources/icons/arrow-circle-down.png" /></a>
                     </div>
                 </div>
 
@@ -95,7 +95,7 @@ if (!empty($_GET['logfile'])) {
 
     <section class="mainSectionRight">
         <section class="right">
-            <h3>HISTORIQUE</h3>
+            <h3>HISTORY</h3>
 
             <?php
             /**
@@ -158,7 +158,7 @@ if (!empty($_GET['logfile'])) {
              */
             if (!empty($totalRunning)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<h5>En cours</h5>';
+                echo '<h5>Running</h5>';
 
                 foreach ($totalRunning as $itemRunning) {
 
@@ -199,22 +199,22 @@ if (!empty($_GET['logfile'])) {
                                                 <td class="td-fit">
                                                     <img class="icon" src="resources/icons/calendar.png" title="Planification" />
                                                 </td>
-                                        <?php
-                                        /**
-                                         *  On affiche un lien vers le fichier de log de la planification si il y en a un
-                                         */
-                                        if ($planType == "plan") {
-                                            if (!empty($planLogfile)) {
-                                                echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
-                                            } else {
-                                                echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
-                                            }
-                                        }
-                                        if ($planType == "regular") {
-                                            echo "<td>Planification récurrente</b></td>";
-                                        } ?>
+                                                <?php
+                                                /**
+                                                 *  On affiche un lien vers le fichier de log de la planification si il y en a un
+                                                 */
+                                                if ($planType == "plan") {
+                                                    if (!empty($planLogfile)) {
+                                                        echo '<td><a href="run.php?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></a></td>';
+                                                    } else {
+                                                        echo '<td>Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></td>';
+                                                    }
+                                                }
+                                                if ($planType == "regular") {
+                                                    echo "<td>Regular plan</b></td>";
+                                                } ?>
                                                 <td class="td-fit">
-                                                    en cours <img class="icon" src="resources/images/loading.gif" title="En cours d\'exécution" />
+                                                    running<img class="icon" src="resources/images/loading.gif" title="Running" />
                                                 </td>
                                             </tr>
                                         </table>
@@ -249,7 +249,7 @@ if (!empty($_GET['logfile'])) {
 
                     unset($planOpsRunning, $planOpsDone);
                 }
-                    echo '</div>';
+                echo '</div>';
             }
 
             /**
@@ -262,7 +262,7 @@ if (!empty($_GET['logfile'])) {
                  */
                 if (!empty($totalDone)) {
                     echo '<div class="div-generic-gray">';
-                    echo '<h5>Terminé</h5>';
+                    echo '<h5>Done</h5>';
 
                     /**
                      *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
@@ -322,44 +322,44 @@ if (!empty($_GET['logfile'])) {
                             /**
                              *  3. Affichage de l'en-tête de la planification
                              */ ?>
-                                    <div class="header-container">
-                                        <div class="header-blue">
-                                            <table>
-                                                <tr>
-                                                    <td class="td-fit">
-                                                        <img class="icon" src="resources/icons/calendar.png" title="Planification" />
-                                                    </td>
-                                                    <?php
-                                                    if ($planType == "plan") {
-                                                        if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
-                                                            echo "<td><a href=\"run.php?logfile=${planLogfile}\">Planification du <b>$planDate</b> à <b>$planTime</b></a></td>";
-                                                        } else {
-                                                            echo "<td>Planification du <b>$planDate</b> à <b>$planTime</b></td>";
-                                                        }
-                                                        if ($planStatus == "done") {
-                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/greencircle.png" title="Opération terminée" /></td>';
-                                                        }
-                                                        if ($planStatus == "error") {
-                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération en erreur" /></td>';
-                                                        }
-                                                        if ($planStatus == "stopped") {
-                                                            echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" /></td>';
-                                                        }
-                                                    } ?>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
+                            <div class="header-container">
+                                <div class="header-blue">
+                                    <table>
+                                        <tr>
+                                            <td class="td-fit">
+                                                <img class="icon" src="resources/icons/calendar.png" title="Planification" />
+                                            </td>
+                                            <?php
+                                            if ($planType == "plan") {
+                                                if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
+                                                    echo '<td><a href="run.php?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></a></td>';
+                                                } else {
+                                                    echo "<td>Plan of the <b>$planDate</b> at <b>$planTime</b></td>";
+                                                }
+                                                if ($planStatus == "done") {
+                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/greencircle.png" title="Operation done" /></td>';
+                                                }
+                                                if ($planStatus == "error") {
+                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Operation failed" /></td>';
+                                                }
+                                                if ($planStatus == "stopped") {
+                                                    echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Operation stopped by the user" /></td>';
+                                                }
+                                            } ?>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
 
-                                    <?php
-                                    /**
-                                     *  Si il y a des opérations terminées pour cette planification alors on l'affiche
-                                     */
-                                    if (!empty($planOpsDone)) {
-                                        foreach ($planOpsDone as $planOpDone) {
-                                            $myop->printOperation($planOpDone['Id'], true);
-                                        }
-                                    }
+                            <?php
+                            /**
+                             *  Si il y a des opérations terminées pour cette planification alors on l'affiche
+                             */
+                            if (!empty($planOpsDone)) {
+                                foreach ($planOpsDone as $planOpDone) {
+                                    $myop->printOperation($planOpDone['Id'], true);
+                                }
+                            }
 
                         /**
                          *  Si l'item ne possède pas de clé Reminder alors il s'agit d'une opération
@@ -382,10 +382,10 @@ if (!empty($_GET['logfile'])) {
                          *  On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
                          */
                         if (!isset($_COOKIE['printAllOp']) or (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] != "yes")) {
-                            echo '<p id="print-all-op" class="pointer center"><b>Afficher tout</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
+                            echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
                         }
                     }
-                        echo '</div>';
+                    echo '</div>';
                 }
 
 
@@ -394,14 +394,14 @@ if (!empty($_GET['logfile'])) {
                  */
                 if (!empty($opsFromRegularPlanDone)) {
                     echo '<div class="div-generic-gray">';
-                        echo '<h5>Tâches récurrentes terminées</h5>';
+                    echo '<h5>Finished regular tasks</h5>';
 
-                        /**
-                         *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
-                         *  Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
-                         */
-                        $i = 0;
-                        $printMaxItems = 2;
+                    /**
+                     *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
+                     *  Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
+                     */
+                    $i = 0;
+                    $printMaxItems = 2;
 
                     foreach ($opsFromRegularPlanDone as $itemDone) {
                         /**
@@ -430,7 +430,7 @@ if (!empty($_GET['logfile'])) {
                          *  On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
                          */
                         if (!isset($_COOKIE['printAllRegularOp']) or (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] != "yes")) {
-                            echo '<p id="print-all-regular-op" class="pointer center"><b>Afficher tout</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
+                            echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
                         }
                     }
                         echo '</div>';

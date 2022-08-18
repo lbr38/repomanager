@@ -151,7 +151,7 @@ class Repo extends Model
          *  Si rien n'a été trouvé en BDD avec l'ID fourni alors on quitte
          */
         if ($this->db->isempty($result) === true) {
-            throw new Exception("Erreur : impossible de trouver le repo correspondant aux Id spécifiés");
+            throw new Exception("Error: cannot find repo with specified Id");
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -534,7 +534,7 @@ class Repo extends Model
          *  Vérification des caractères de la description
          */
         if (\Controllers\Common::isAlphanumDash($description, array(' ', '(', ')', '@', ',', '.', '\'', 'é', 'è', 'ê', 'à', 'ç', 'ù', 'ô', 'ï', '"')) === false) {
-            throw new Exception("La description contient des caractères invalides");
+            throw new Exception('Description contains invalid characters');
         }
 
         try {

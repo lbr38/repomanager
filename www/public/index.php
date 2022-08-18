@@ -29,7 +29,7 @@ include_once('../includes/head.inc.php');
         <?php endif ?>
 
         <section class="right">
-            <h3>PROPRIÉTÉS</h3>
+            <h3>PROPERTIES</h3>
 
             <div class="div-generic-gray server-properties-container">
                 <?php
@@ -88,12 +88,12 @@ include_once('../includes/head.inc.php');
                 if (!empty($lastPlan or !empty($nextPlan))) { ?>
                     <div class="div-generic-gray">
                     <?php
-                    if (!empty($lastPlan)) {
+                    if (!empty($lastPlan)) :
                         if ($lastPlan['Status'] == 'done') {
                             $planStatus = 'OK';
                             $borderColor = '-green';
                         } else {
-                            $planStatus = 'Erreur';
+                            $planStatus = 'Error';
                             $borderColor = '-red';
                         } ?>
                         <div class="server-properties">
@@ -104,12 +104,13 @@ include_once('../includes/head.inc.php');
                             </div>
 
                             <div>
-                                <span><a href="planifications.php">Dernière planification (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' à ' . $lastPlan['Time']?>)</a></span>
+                                <span><a href="planifications.php">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' à ' . $lastPlan['Time']?>)</a></span>
                             </div>
                         </div>
-                    <?php           }
+                        <?php
+                    endif;
 
-                    if (!empty($nextPlan)) {
+                    if (!empty($nextPlan)) :
                         /**
                          *  Calcul du nombre de jours restants avant la prochaine planification
                          */
@@ -142,10 +143,11 @@ include_once('../includes/head.inc.php');
                                 </span>
                             </div>
                             <div>
-                                <span><a href="planifications.php">Prochaine planification (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' à ' . $nextPlan['Time']?>)</a></span>
+                                <span><a href="planifications.php">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' à ' . $nextPlan['Time']?>)</a></span>
                             </div>
                         </div>
-                    <?php           }
+                        <?php
+                    endif;
                 }
             } ?>
         </section>

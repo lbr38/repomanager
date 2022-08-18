@@ -27,7 +27,7 @@ class Source extends Model
          *  On vérifie que le nom du repo source ne contient pas de caractères invalides
          */
         if (!\Controllers\Common::isAlphanumDash($name)) {
-            throw new Exception('Le nom du repo source ne peut pas contenir de caractères spéciaux hormis le tiret - et l\'underscore _');
+            throw new Exception('Repo source name cannot contain special characters except hyphen and underscore');
         }
 
         /**
@@ -40,10 +40,10 @@ class Source extends Model
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
         if (!\Controllers\Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
-            throw new Exception('L\'URL du repo source contient des caractères invalides');
+            throw new Exception('Repo source URL contains invalid characters');
         }
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('L\'URL du repo source doit commencer par <b>http(s)://</b>');
+            throw new Exception('Repo source URL must start with <b>http(s)://</b>');
         }
 
         /**
@@ -51,14 +51,14 @@ class Source extends Model
          */
         if ($repoType == 'rpm') {
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
-                throw new Exception("Un repo source <b>$name</b> existe déjà");
+                throw new Exception("Repo source <b>$name</b> already exists");
             }
 
             /**
              *  On récupère la clé GPG, il s'agit soit une clé existante, soit au format url, soit au format texte à importer. Si les deux sont renseignés on affiche une erreur (c'est l'un ou l'autre)
              */
             if (!empty($existingGpgKey) and !empty($gpgKeyURL) and !empty($gpgKeyText)) {
-                throw new Exception('Vous ne pouvez pas renseigner plusieurs types de clé GPG à la fois');
+                throw new Exception('You cannot specify more than one type of GPG key');
 
             /**
              *  Cas où c'est une clé existante
@@ -70,7 +70,7 @@ class Source extends Model
                  *  Si la clé renseignée n'existe pas, on quitte
                  */
                 if (!file_exists(RPM_GPG_DIR . "/$existingGpgKey")) {
-                    throw new Exception('La clé GPG renseignée n\'existe pas');
+                    throw new Exception('Specified GPG key does not exist');
                 }
 
             /**
@@ -89,14 +89,14 @@ class Source extends Model
                  *  Si l'URL contient des caractères invalide alors on quitte
                  */
                 if (!\Controllers\Common::isAlphanumDash($gpgKeyURL, array(':', '/', '.'))) {
-                    throw new Exception('L\'URL de la clé GPG contient des caractères invalides');
+                    throw new Exception('GPG key URL contains invalid characters');
                 }
 
                 /**
                  *  Si l'URL ne commence pas par http(s) ou par file:// (pour désigner un fichier sur le serveur) alors elle est invalide
                  */
                 if (!preg_match('#^https?://#', $gpgKeyURL) and !preg_match('/^file:\/\/\//', $gpgKeyURL)) {
-                    throw new Exception('L\'URL de la clé GPG est invalide');
+                    throw new Exception('GPG key URL is invalid');
                 }
 
             /**
@@ -110,14 +110,14 @@ class Source extends Model
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
                 if (!\Controllers\Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
-                    throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
+                    throw new Exception('ASCII GPG key contains invalid characters');
                 }
 
                 /**
                  *  Si le contenu qu'on tente d'importer est un fichier sur le disque alors on quitte
                  */
                 if (file_exists($gpgKeyText)) {
-                    throw new Exception('La clé GPG renseignée doit être au format texte ASCII');
+                    throw new Exception('GPG key must be specified in ASCII text format');
                 }
 
                 /**
@@ -125,7 +125,7 @@ class Source extends Model
                  */
                 $newGpgFile = "REPOMANAGER-RPM-GPG-KEY-${name}";
                 if (file_exists(RPM_GPG_DIR . "/${newGpgFile}")) {
-                    throw new Exception("Un fichier GPG du même nom existe déjà dans le trousseau de repomanager");
+                    throw new Exception('A GPG file with the same name already exists');
                 } else {
                     file_put_contents(RPM_GPG_DIR . "/${newGpgFile}", $gpgKeyText); // ajout de la clé gpg à l'intérieur du fichier gpg
                 }
@@ -136,7 +136,7 @@ class Source extends Model
              */
             $urlType = \Controllers\Common::validateData($urlType);
             if ($urlType != 'baseurl' and $urlType != 'mirrorlist' and $urlType != 'metalink') {
-                throw new Exception('Le type d\'URL renseigné est invalide');
+                throw new Exception('Specified URL type is invalid');
             }
 
             /**
@@ -203,7 +203,7 @@ class Source extends Model
              *  Si le résultat n'est pas vide alors un repo existe déjà
              */
             if ($this->db->isempty($result) === false) {
-                throw new Exception("Un repo source <b>$name</b> existe déja");
+                throw new Exception("A source repo <b>$name</b> already exists");
             }
 
             /**
@@ -218,14 +218,14 @@ class Source extends Model
                  *  Ici on autorise tous les caractères qu'on peut possiblement retrouver dans une clé GPG au format ASCII
                  */
                 if (!\Controllers\Common::isAlphanum($gpgKeyText, array('-', '=', '+', '/', ' ', ':', '.', '(', ')', "\n", "\r"))) {
-                    throw new Exception('La clé GPG au format ASCII contient des caractères invalides');
+                    throw new Exception('ASCII GPG key contains invalid characters');
                 }
 
                 /**
                  *  Si le contenu qu'on tente d'importer est un fichier sur le disque alors on quitte
                  */
                 if (file_exists($gpgKeyText)) {
-                    throw new Exception('La clé GPG renseignée doit être au format texte ASCII');
+                    throw new Exception('GPG key must be specified in ASCII text format');
                 }
 
                 /**
@@ -248,7 +248,7 @@ class Source extends Model
                  *  Si erreur lors de l'import, on affiche un message d'erreur
                  */
                 if ($result != 0) {
-                    throw new Exception("Erreur lors de l'import de la clé GPG");
+                    throw new Exception('Error while importing GPG key');
                 }
             }
 
@@ -269,7 +269,7 @@ class Source extends Model
     public function delete(string $repoType, string $name)
     {
         if ($repoType != 'rpm' and $repoType != 'deb') {
-            throw new Exception('Le type de repo est invalide');
+            throw new Exception('Repo type is invalid');
         }
 
         $name = \Controllers\Common::validateData($name);
@@ -277,7 +277,7 @@ class Source extends Model
         if ($repoType == "rpm") {
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
                 if (!unlink(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
-                    throw new Exception("Erreur lors de la suppression du repo source <b>$name</b>");
+                    throw new Exception("Error while deleting source repo <b>$name</b>");
                 }
             }
         }
@@ -298,7 +298,7 @@ class Source extends Model
     public function rename(string $repoType, string $name, string $newName)
     {
         if ($repoType != 'rpm' and $repoType != 'deb') {
-            throw new Exception('Le type de repo est invalide');
+            throw new Exception('Repo type is invalid');
         }
 
         $name = \Controllers\Common::validateData($name);
@@ -308,17 +308,17 @@ class Source extends Model
          *  Si le nom actuel et le nouveau nom sont les mêmes, on ne fait rien
          */
         if ($name == $newName) {
-            throw new Exception('Vous devez renseigner un nom différent de l\'actuel');
+            throw new Exception('You must specify a different name from the actual');
         }
 
         /**
          *  On vérifie que le nom ainsi que le nouveau nom ne contiennent pas de caractères invalides
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception('Erreur : le nom du repo source contient des caractères invalides');
+            throw new Exception('Repo name contains invalid characters');
         }
         if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception('Erreur : le nouveau nom du repo source contient des caractères invalides');
+            throw new Exception('Repo new name contains invalid characters');
         }
 
         /**
@@ -329,7 +329,7 @@ class Source extends Model
              *  Si un fichier portant le même nom que $newName existe déjà alors on ne peut pas renommer le fichier
              */
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $newName . '.repo')) {
-                throw new Exception("Erreur : un repo source du même nom <b>$newName<b> existe déjà");
+                throw new Exception("A repo source with the same name <b>$newName<b> already exists");
             }
 
             /**
@@ -337,11 +337,11 @@ class Source extends Model
              */
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
                 if (!rename(REPOMANAGER_YUM_DIR . '/' . $name . '.repo', REPOMANAGER_YUM_DIR . '/' . $newName . '.repo')) {
-                    throw new Exception('Impossible de renommer le repo source <b>' . $name . '</b>');
+                    throw new Exception('Cannot rename source repo <b>' . $name . '</b>');
                 }
                 $content = file_get_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo");
                 $content = str_replace("[$name]", "[$newName]", $content);
-                $content = str_replace("Repo source $name", "Repo source $newName", $content);
+                $content = str_replace("Source repo $name", "Source repo $newName", $content);
 
                 file_put_contents(REPOMANAGER_YUM_DIR . "/${newName}.repo", $content);
                 unset($content);
@@ -363,7 +363,7 @@ class Source extends Model
                 \Controllers\Common::dbError($e);
             }
             if ($this->db->isempty($result) === false) {
-                throw new Exception("Un repo source <b>$newName</b> existe déjà");
+                throw new Exception("Source repo <b>$newName</b> already exists");
             }
 
             try {
@@ -395,14 +395,14 @@ class Source extends Model
          *  On vérifie que l'url ne contient pas de caractères invalides
          */
         if (\Controllers\Common::isAlphanumDash($url, array(':', '/', '.', '?', '&')) === false) {
-            throw new Exception("L'URL saisie contient des caractères invalides");
+            throw new Exception("Specified URL contains invalid characters");
         }
 
         /**
          *  On vérifie que l'url commence par http(s)://
          */
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception("L'URL saisie doit commencer par http(s)://");
+            throw new Exception("Specified URL must start with http(s)://");
         }
 
         try {
@@ -436,7 +436,7 @@ class Source extends Model
              *  On vérifie que le nom de l'option est valide, càd qu'il ne contient pas de caractère spéciaux
              */
             if (\Controllers\Common::isAlphanumDash($optionName) === false) {
-                throw new Exception("Le paramètre <b>$optionName</b> contient des caractère invalides");
+                throw new Exception("Parameter <b>$optionName</b> contains invalid characters");
             }
 
             if (empty($optionValue)) {
@@ -481,13 +481,13 @@ class Source extends Model
                     $optionValue = trim($optionValue);          // Suppression des espaces si il y en a (ça ne devrait pas)
                     $optionValue = stripslashes($optionValue);  // Suppression des anti-slash
                     if (\Controllers\Common::isAlphanumDash($optionValue, array(':', '/', '.', '?', '$', '&', '=', ',')) === false) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
+                        throw new Exception("Parameter value <b>$optionName</b> contains invalid characters");
                     }
                     /**
                      *  Si la valeur ne commence pas par http(s):// alors le paramètre est invalide
                      */
                     if (!preg_match('#^https?://#', $optionValue)) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> doit commencer par http(s)://");
+                        throw new Exception("Parameter value <b>$optionName</b> must start with http(s)://");
                     }
 
                 /**
@@ -500,13 +500,13 @@ class Source extends Model
                      *  La clé gpg peut être un fichier ou une url, donc on accepte certains caractères
                      */
                     if (\Controllers\Common::isAlphanumDash($optionValue, array(':', '/', '.')) === false) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
+                        throw new Exception("Parameter value <b>$optionName</b> contains invalid characters");
                     }
                     /**
                      *  Si la valeur ne commence pas par http(s):// ou par file:/// alors le paramètre est invalide
                      */
                     if (!preg_match('#^https?://#', $optionValue) and !preg_match('/^file:\/\/\//', $optionValue)) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> doit commencer par http(s):// ou file:///");
+                        throw new Exception("Parameter value <b>$optionName</b> must start with http(s):// ou file:///");
                     }
 
                 /**
@@ -514,7 +514,7 @@ class Source extends Model
                  */
                 } elseif ($optionName == 'metadata_expire') {
                     if (!is_numeric($optionValue)) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> doit être un chiffre");
+                        throw new Exception("Parameter value <b>$optionName</b> must be numeric");
                     }
 
                 /**
@@ -526,14 +526,14 @@ class Source extends Model
                      *  Vérifie que le fichier existe
                      */
                     if (!file_exists($optionValue)) {
-                        throw new Exception("Le fichier <b>$optionValue</b> du paramètre <b>$optionName</b> n'existe pas");
+                        throw new Exception("File <b>$optionValue</b> of parameter <b>$optionName</b> soes not exist");
                     }
 
                     /**
                      *  Vérifie que le fichier est accessible en lecture
                      */
                     if (!is_readable($optionValue)) {
-                        throw new Exception("Le fichier <b>$optionValue</b> du paramètre <b>$optionName</b> n'est pas accessible en lecture");
+                        throw new Exception("File <b>$optionValue</b> of parameter <b>$optionName</b> is not readable");
                     }
 
                 /**
@@ -547,13 +547,13 @@ class Source extends Model
                  */
                 } else {
                     if (\Controllers\Common::isAlphanumDash($optionValue, array('.', ' ', ':', '/', '&', '?', '=')) === false) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> contient des caractères invalides");
+                        throw new Exception("Parameter value <b>$optionName</b> contains invalid characters");
                     }
                     /**
                      *  Si la valeur commence par un slash, ce n'est pas bon... cela pourrait être un chemin de fichier sur le système
                      */
                     if (preg_match('#^/#', $optionValue)) {
-                        throw new Exception("La valeur du paramètre <b>$optionName</b> est invalide");
+                        throw new Exception("Parameter value <b>$optionName</b> is invalid");
                     }
                 }
             }
@@ -597,7 +597,7 @@ class Source extends Model
     public function removeGpgKey(string $repoType, string $gpgkey)
     {
         if ($repoType != 'rpm' and $repoType != 'deb') {
-            throw new Exception('Le type de repo est invalide');
+            throw new Exception('Repo type is invalid');
         }
 
         $gpgkey = \Controllers\Common::validateData($gpgkey);
@@ -608,11 +608,11 @@ class Source extends Model
          */
         if ($repoType == "rpm") {
             if (!file_exists('/etc/pki/rpm-gpg/repomanager/' . $gpgkey)) {
-                throw new Exception("La clé GPG <b>" . $gpgkey . "</b> n'existe pas");
+                throw new Exception("GPG key <b>" . $gpgkey . "</b> does not exist");
             }
 
             if (!unlink('/etc/pki/rpm-gpg/repomanager/' . $gpgkey)) {
-                throw new Exception("Impossible de supprimer la clé GPG <b>" . $gpgkey . "</b>");
+                throw new Exception("Cannot delete GPG key <b>" . $gpgkey . "</b>");
             }
         }
 
@@ -627,7 +627,7 @@ class Source extends Model
             exec("gpg --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --no-greeting --delete-key --batch --yes $gpgkey", $output, $result);
 
             if ($result != 0) {
-                throw new Exception("Erreur lors de la suppression de la clé GPG <b>$gpgkey</b>");
+                throw new Exception("Error while deleting GPG key <b>$gpgkey</b>");
             }
         }
     }

@@ -8,15 +8,16 @@ if ($myrepo->getPackageType() == 'deb') {
 ?>
 
 <tr>
-    <td colspan="100%">L'opération va créer un nouveau miroir :<br><br><span class="label-white"><?=$mirror?></span>⟶<span class="label-green"><?=DATE_DMY?></span><span id="update-repo-show-target-env-<?=$myrepo->getSnapId()?>"></span></td>
+    <td colspan="100%">Operation will create a new mirror snapshot:
+    <br><br><span class="label-white"><?=$mirror?></span>⟶<span class="label-green"><?=DATE_DMY?></span><span id="update-repo-show-target-env-<?=$myrepo->getSnapId()?>"></span></td>
 </tr>
 
 <tr>
-    <td colspan="100%">Paramétrage de la mise à jour :</td>
+    <td colspan="100%">Update params:</td>
 </tr>
 
 <tr>
-    <td class="td-30">Vérification des signatures GPG</td>
+    <td class="td-30">GPG check</td>
     <td>
         <label class="onoff-switch-label">
             <input name="repoGpgCheck" param-name="targetGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" checked />
@@ -26,7 +27,7 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td class="td-30">Signer avec GPG</td>
+    <td class="td-30">Sign with GPG</td>
     <td>
         <label class="onoff-switch-label">
             <?php
@@ -43,7 +44,7 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td class="td-30">Faire pointer un environnement</td>
+    <td class="td-30">Point an environment</td>
     <td>
         <select id="update-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="operation_param" param-name="targetEnv">
             <option value=""></option>
@@ -63,7 +64,7 @@ if ($myrepo->getPackageType() == 'deb') {
     <td class="td-30">Architecture</td>
     <td>
         <select class="targetArchSelect operation_param" param-name="targetArch" multiple>
-            <option value="">Sélectionner l'architecture...</option>
+            <option value="">Select architecture...</option>
             <?php
             if ($myrepo->getPackageType() == 'rpm') : ?>
                 <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
@@ -81,7 +82,7 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td class="td-30">Inclure les sources</td>
+    <td class="td-30">Include packages sources</td>
     <td>
         <?php
         if ($myrepo->getPackageType() == 'rpm') : ?>
@@ -104,7 +105,7 @@ if ($myrepo->getPackageType() == 'deb') {
 <?php
 if ($myrepo->getPackageType() == 'deb') : ?>
 <tr>
-    <td class="td-30">Inclure les traductions de paquets</td>
+    <td class="td-30">Include packages translations</td>
     <td>
         <select class="targetPackageTranslationSelect operation_param" param-name="targetPackageTranslation" multiple>
             <option value="">Sélectionner des traductions...</option>

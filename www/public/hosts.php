@@ -33,9 +33,9 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 <article>
     <section class="main">
         <section class="section-center">
-            <h3>GESTION DU PARC</h3>
+            <h3>MANAGE HOSTS</h3>
 
-            <p>Gérez les mises à jour de vos hôtes et consultez leur état.</p>
+            <p>Manage your hosts updates and check their state.</p>
 
             <br>
 
@@ -100,7 +100,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                 <div class="flex-div-100 hosts-charts-container">
 
                 <div class="hosts-chart-sub-container div-generic-gray">
-                    <span class="hosts-chart-title">Hôtes (<?= $totalHosts ?>)</span>
+                    <span class="hosts-chart-title">Hosts (<?= $totalHosts ?>)</span>
                     <canvas id="hosts-count-chart" class="host-pie-chart"></canvas>
                 </div>
     
@@ -115,7 +115,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                 $randomHexColor = array_rand($validHexColors, 1);
 
                                 if (empty($kernel['Kernel'])) {
-                                    $kernelName = 'Inconnu';
+                                    $kernelName = 'Unknow';
                                 } else {
                                     $kernelName = $kernel['Kernel'];
                                 } ?>
@@ -143,7 +143,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                 <?php endif;
                 if (!empty($profilesList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-gray">
-                        <span class="hosts-chart-title">Profils</span>
+                        <span class="hosts-chart-title">Profiles</span>
 
                         <div class="hosts-charts-list-column-container">
                             <?php
@@ -151,7 +151,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                 $randomHexColor = array_rand($validHexColors, 1);
 
                                 if (empty($profile['Profile'])) {
-                                    $profileName = 'Inconnu';
+                                    $profileName = 'Unknow';
                                 } else {
                                     $profileName = $profile['Profile'];
                                 } ?>
@@ -179,7 +179,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 
                 if (!empty($osList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-gray">
-                        <span class="hosts-chart-title">Systèmes d'exploitation</span>
+                        <span class="hosts-chart-title">Operating systems</span>
                         <canvas id="hosts-os-chart" class="host-bar-chart"></canvas>
                     </div>
                 <?php endif;
@@ -193,7 +193,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 
                 if (!empty($envsList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-gray">
-                        <span class="hosts-chart-title">Environnements</span>
+                        <span class="hosts-chart-title">Environments</span>
                         <canvas id="hosts-env-chart" class="host-pie-chart"></canvas>
                     </div>
                 <?php endif ?>
@@ -203,43 +203,41 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 
         <?php if (\Controllers\Common::isadmin()) { ?>
             <section id="settingsDiv" class="section-center hide">
-                <img id="settingsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
-                <h3>PARAMÈTRES</h3>
+                <img id="settingsDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
+                <h3>DISPLAY SETTINGS</h3>
                 <div class="div-generic-gray">
                     <form id="hostsSettingsForm" action="hosts.php" method="post" autocomplete="off">
                         <table>
                             <tr>
-                                <td>Afficher un label jaune lorsque le nombre de mises à jour disponible est supérieur ou égal à :</td>
+                                <td>Display a yellow label when total available update is greater than or equal to:</td>
                                 <td><input type="number" class="input-small" name="settings-pkgs-considered-outdated" value="<?=$pkgs_count_considered_outdated?>" /></td>
                             </tr>
                             <tr>
-                                <td>Afficher un label rouge lorsque le nombre de mises à jour disponible est supérieur ou égal à :</td>
+                                <td>Display a red label when total available update is greater than or equal to:</td>
                                 <td><input type="number" class="input-small" name="settings-pkgs-considered-critical" value="<?=$pkgs_count_considered_critical?>" /></td>
                             </tr>
                         </table>
                         <br>
-                        <button class="btn-large-blue">Enregistrer</button>
+                        <button class="btn-large-blue">Save</button>
                     </form>
                 </div>
             </section>
 
             <section id="groupsHostDiv" class="section-center hide">
-                <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
-                <h3>GROUPES</h3>
-                <h5>Créer un groupe</h5>
+                <img id="groupsDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
+                <h3>GROUPS</h3>
+                <h5>Create a group</h5>
                 <form id="newGroupForm" autocomplete="off">
                     <input id="newGroupInput" type="text" class="input-medium" /></td>
-                    <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button></td>
+                    <button type="submit" class="btn-xxsmall-blue" title="Add">+</button></td>
                 </form>
                 
                 <br>
 
                 <?php
-
                 /**
                  *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
                  */
-
                 $groupsList = $group->listAllName();
 
                 /**
@@ -247,44 +245,46 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                  */
                 if (!empty($groupsList)) {
                     echo '<div class="div-generic-gray">';
-                    echo '<h5>Groupes actuels</h5>';
+                    echo '<h5>Current groups</h5>';
                     echo '<div class="groups-list-container">';
-                    foreach ($groupsList as $groupName) { ?>
-                            <div class="header-container">
-                                <div class="header-blue-min">
-                                    <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-                                        <input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
-                                        <table class="table-large">
-                                            <tr>
-                                                <td>
-                                                    <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
-                                                </td>
-                                                <td class="td-fit">
-                                                    <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="resources/icons/cog.png" />
-                                                    <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </form>
-                                </div>
 
-                                <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide detailsDiv">
-                                    <form class="groupHostsForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-                                        <p><b>Hôtes</b></p>
-                                        <table class="table-large">
-                                            <tr>
-                                                <td>
-                                                    <?php $myhost->selectServers($groupName); ?>
-                                                </td>
-                                                <td class="td-fit">
-                                                    <button type="submit" class="btn-xxsmall-blue" title="Enregistrer">💾</button>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </form>
-                                </div>
+                    foreach ($groupsList as $groupName) : ?>
+                        <div class="header-container">
+                            <div class="header-blue-min">
+                                <form class="groupForm" groupname="<?= $groupName ?>" autocomplete="off">
+                                    <input type="hidden" name="actualGroupName" value="<?= $groupName ?>" />
+                                    <table class="table-large">
+                                        <tr>
+                                            <td>
+                                                <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?= $groupName ?>" type="text" value="<?= $groupName ?>" />
+                                            </td>
+                                            <td class="td-fit">
+                                                <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> group configuration" src="resources/icons/cog.png" />
+                                                <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
                             </div>
-                    <?php   }
+
+                            <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide detailsDiv">
+                                <form class="groupHostsForm" groupname="<?= $groupName ?>" autocomplete="off">
+                                    <p><b>Hosts</b></p>
+                                    <table class="table-large">
+                                        <tr>
+                                            <td>
+                                                <?php $myhost->selectServers($groupName); ?>
+                                            </td>
+                                            <td class="td-fit">
+                                                <button type="submit" class="btn-xxsmall-blue" title="Save">💾</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+                        <?php
+                    endforeach;
                     echo '</div>';
                     echo '</div>';
                 } ?>
@@ -300,11 +300,11 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 
             <div>
                 <div class="div-flex">
-                    <h3>HÔTES</h3>
+                    <h3>HOSTS</h3>
                     <?php if (\Controllers\Common::isadmin()) { ?>
                         <div>
-                            <span id="GroupsListToggleButton" class="pointer" title="Gérer les groupes">Gérer les groupes<img src="resources/icons/folder.png" class="icon"></span>
-                            <span id="settingsToggleButton" class="pointer" title="Gérer les paramètres">Paramètres<img src="resources/icons/cog.png" class="icon"></span>
+                            <span id="GroupsListToggleButton" class="pointer" title="Manage hosts groups">Manage groups<img src="resources/icons/folder.png" class="icon"></span>
+                            <span id="settingsToggleButton" class="pointer" title="Display settings">Settings<img src="resources/icons/cog.png" class="icon"></span>
                         </div>
                     <?php } ?>
                 </div>
@@ -318,17 +318,18 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
-                                    <p>Rechercher un hôte :</p>
-                                    <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Nom d'hôte, IP" />
+                                    <p>Search host:</p>
+                                    <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                 </div>
                                 <div>
-                                    <p>Rechercher un paquet :</p>
-                                    <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Nom du paquet" />
+                                    <p>Search package:</p>
+                                    <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                 </div>
                             </div>
                         </div>
-                    <?php   } else {
-                        echo '<p>Il n\'y a aucun hote configuré</p>';
+                        <?php
+                    } else {
+                        echo '<p>No host configured.</p>';
                     } ?>
                     
                     <div class="groups-container">
@@ -349,63 +350,61 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         ?>
                         <input type='hidden' name='groupname' value='<?=$groupName?>'>
         
-                            <div class="hosts-group-container">
-                                <?php
+                        <div class="hosts-group-container">
+                            <?php
+                            /**
+                             *  On affiche le nom du groupe sauf si il s'agit du groupe Default
+                             */
+                            if ($groupName != "Default") {
+                                echo '<h3>';
+                                echo $groupName;
                                 /**
-                                 *  On affiche le nom du groupe sauf si il s'agit du groupe Default
+                                 *  Affichage du nombre d'hôtes dans ce groupe
                                  */
-                                if ($groupName != "Default") {
-                                    echo '<h3>';
-                                    echo $groupName;
-
-                                    /**
-                                     *  Affichage du nombre d'hôtes dans ce groupe
-                                     */
-                                    if (!empty($hostsList)) {
-                                        echo ' (' . count($hostsList) . ')';
-                                    }
-                                    echo '</h3>';
+                                if (!empty($hostsList)) {
+                                    echo ' (' . count($hostsList) . ')';
                                 }
+                                echo '</h3>';
+                            }
 
-                                if (\Controllers\Common::isadmin()) {
-                                    /**
-                                     *  Boutons d'actions sur les checkbox sélectionnées
-                                     */ ?>
-                                    <div class="js-buttons-<?=$groupName?> hide">
-                                        
-                                        <h5>Demander à l'hôte l'envoi d'informations :</h5>
-                                        <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?=$groupName?>" title="Demander à l'hôte d'envoyer ses informations générales."><img src="resources/icons/update.png" class="icon" /><b>Informations générales</b></button>
-                                        <button class="hostsActionBtn pointer btn-fit-blue" action="packages-status-update" group="<?=$groupName?>" title="Demander à l'hôte d'envoyer les informations concernant ses paquets (disponibles, installés, mis à jours...)."><img src="resources/icons/update.png" class="icon" /><b>Informations concernant les paquets</b></button>
-
-                                        <h5>Demander à l'hôte l'exécution d'une action :</h5>
-                                        <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Demander à l'hôte d'exécuter une mise à jour de ses paquets."><img src="resources/icons/update.png" class="icon" /><b>Mettre à jour les paquets</b></button>
-                                        
-                                        <h5>Supprimer ou réinitialiser l'hôte :</h5>
-                                        <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Réinitialiser les données connues de l'hôte. Cette action est irréversible."><img src="resources/icons/update.png" class="icon" /><b>Réinitialiser</b></button>
-                                        <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Supprimer l'hôte."><img src="resources/icons/bin.png" class="icon" /><b>Supprimer</b></button>
-                                    </div>
-                                <?php }
+                            if (\Controllers\Common::isadmin()) {
                                 /**
-                                 *  Affichage des hôtes du groupe
-                                 */
-                                if (!empty($hostsList)) { ?>
-                                    <table class="hosts-table">
-                                        <thead>
-                                            <tr>
-                                                <td class="td-fit"></td>
-                                                <td class="td-fit"></td>
-                                                <td class="td-10"></td>
-                                                <td title="Nombre total de paquets installés"><span>Inst.</span></td>
-                                                <td title="Nombre total de mises à jour disponibles pour installation"><span>Disp.</span></td>
-                                                <td class="hostDetails-td"></td>
-                                                <?php if (\Controllers\Common::isadmin()) { ?>
-                                                    <td class="td-fit"><span class='js-select-all-button pointer' group='<?=$groupName?>'>Tout sélec.</span></td>
-                                                <?php } ?>
-                                                <td class="td-10"></td>
-                                                <td class="td-10"></td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                 *  Boutons d'actions sur les checkbox sélectionnées
+                                 */ ?>
+                                <div class="js-buttons-<?=$groupName?> hide">
+                                    
+                                    <h5>Request selected host(s) to send informations:</h5>
+                                    <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="resources/icons/update.png" class="icon" /><b>General informations</b></button>
+                                    <button class="hostsActionBtn pointer btn-fit-blue" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="resources/icons/update.png" class="icon" /><b>Packages informations</b></button>
+                                    <h5>Request selected host(s) to execute an action.</h5>
+                                    <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages using linupdate."><img src="resources/icons/update.png" class="icon" /><b>Update packages</b></button>
+                                    
+                                    <h5>Delete or reset selected host(s).</h5>
+                                    <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Reset known data."><img src="resources/icons/update.png" class="icon" /><b>Reset</b></button>
+                                    <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Delete."><img src="resources/icons/bin.png" class="icon" /><b>Delete</b></button>
+                                </div>
+                            <?php }
+                            /**
+                             *  Affichage des hôtes du groupe
+                             */
+                            if (!empty($hostsList)) { ?>
+                                <table class="hosts-table">
+                                    <thead>
+                                        <tr>
+                                            <td class="td-fit"></td>
+                                            <td class="td-fit"></td>
+                                            <td class="td-10"></td>
+                                            <td title="Total installed packages."><span>Inst.</span></td>
+                                            <td title="Total available updates."><span>Avail.</span></td>
+                                            <td class="hostDetails-td"></td>
+                                            <?php if (\Controllers\Common::isadmin()) { ?>
+                                                <td class="td-fit"><span class='js-select-all-button pointer' group='<?=$groupName?>'>Select all</span></td>
+                                            <?php } ?>
+                                            <td class="td-10"></td>
+                                            <td class="td-10"></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                         <?php
                                         /**
                                          *  Traitement de la liste des hôtes
@@ -467,8 +466,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                             /**
                                              *  Message du dernier état connu
                                              */
-                                            $agentLastSendStatusMsg = 'état au ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' à ' . $host['Online_status_time'];
-
+                                            $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' at ' . $host['Online_status_time'];
                                             /**
                                              *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
                                              */
@@ -493,12 +491,10 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                             } else {
                                                 $totalUptodate++;
                                             }
-
                                             /**
                                              *  Récupération du status de la dernière mise à jour (si il y en a)
                                              */
                                             $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
-
                                             /**
                                              *  Fermeture de la base de données de l'hôte
                                              */
@@ -507,54 +503,55 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                             /**
                                              *  Affichage des informations de l'hôte
                                              *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
-                                             */
-                                            echo '<tr class="host-tr" hostid="' . $id . '" hostname="' . $hostname . '" os="' . $os . '" os_version="' . $os_version . '" os_family="' . $os_family . '" type="' . $type . '" kernel="' . $kernel . '" arch="' . $arch . '">';
+                                             */ ?>
+                                            <tr class="host-tr" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>">
+                                                <?php
                                                 /**
-                                                 *  Status ping
+                                                 *  Linupdate agent state
                                                  */
                                                 echo '<td class="td-fit">';
-                                            if ($agentStatus == 'running') {
-                                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : actif (' . $agentLastSendStatusMsg . ')." />';
-                                            }
-                                            if ($agentStatus == "disabled") {
-                                                echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="État du module d\'agent reposerver sur l\'hôte : désactivé (' . $agentLastSendStatusMsg . ')." />';
-                                            }
-                                            if ($agentStatus == "stopped") {
-                                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : stoppé (' . $agentLastSendStatusMsg . ')." />';
-                                            }
-                                            if ($agentStatus == "seems-stopped") {
-                                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : semble stoppé (' . $agentLastSendStatusMsg . ')." />';
-                                            }
-                                            if ($agentStatus == "unknow") {
-                                                echo '<img src="resources/icons/graycircle.png" class="icon-small" title="État de l\'agent linupdate sur l\'hôte : inconnu." />';
-                                            }
+                                                if ($agentStatus == 'running') {
+                                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                }
+                                                if ($agentStatus == "disabled") {
+                                                    echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                }
+                                                if ($agentStatus == "stopped") {
+                                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                }
+                                                if ($agentStatus == "seems-stopped") {
+                                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                }
+                                                if ($agentStatus == "unknow") {
+                                                    echo '<img src="resources/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
+                                                }
                                                 echo '</td>';
 
                                                 /**
                                                  *  Nom de l'hôte + ip
                                                  */
                                                 echo '<td class="td-fit">';
-                                            if (preg_match('/centos/i', $os)) {
-                                                echo '<img src="resources/icons/centos.png" class="icon" />';
-                                            } elseif (preg_match('/debian/i', $os)) {
-                                                echo '<img src="resources/icons/debian.png" class="icon" />';
-                                            } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
-                                                echo '<img src="resources/icons/ubuntu.png" class="icon" />';
-                                            } else {
-                                                echo '<img src="resources/icons/tux.png" class="icon" />';
-                                            }
-                                                    echo '<span title="Nom d\'hôte et adresse IP">' . $host['Hostname'] . ' (' . $ip . ')</span>' ;
+                                                if (preg_match('/centos/i', $os)) {
+                                                    echo '<img src="resources/icons/centos.png" class="icon" />';
+                                                } elseif (preg_match('/debian/i', $os)) {
+                                                    echo '<img src="resources/icons/debian.png" class="icon" />';
+                                                } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
+                                                    echo '<img src="resources/icons/ubuntu.png" class="icon" />';
+                                                } else {
+                                                    echo '<img src="resources/icons/tux.png" class="icon" />';
+                                                }
+                                                echo '<span title="Hostname and IP address">' . $host['Hostname'] . ' (' . $ip . ')</span>' ;
                                                 echo '</td>'; ?>
 
                                                 <td class="hostType-td td-10 lowopacity">
                                                     <span title="Type <?=$type?>"><?=$type?></span>
                                                 </td>
 
-                                                <td class="packagesCount-td" title="<?=$packagesInstalledTotal . ' paquet(s) installé(s) sur cet hôte'?>">
+                                                <td class="packagesCount-td" title="<?=$packagesInstalledTotal . ' installed package(s) on this host.'?>">
                                                     <span><?= $packagesInstalledTotal ?></span>
                                                 </td>
 
-                                                <td class="packagesCount-td" title="<?=$packagesAvailableTotal . ' mise(s) à jour disponible(s) sur cet hôte'?>">
+                                                <td class="packagesCount-td" title="<?=$packagesAvailableTotal . ' available update(s) on this host.'?>">
                                                     <?php
                                                     if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
                                                         echo '<span class="bkg-red">' . $packagesAvailableTotal . '</span>';
@@ -565,12 +562,12 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                     } ?>
                                                 </td>
 
-                                                <td class="hostDetails-td" title="Voir les détails de cet hôte">
-                                                    <span class="printHostDetails pointer" host_id="<?=$id?>">Détails</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="resources/icons/external-link.png" class="icon-lowopacity" /></a>
+                                                <td class="hostDetails-td" title="See the details for this host.">
+                                                    <span class="printHostDetails pointer" host_id="<?=$id?>">Details</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="resources/icons/external-link.png" class="icon-lowopacity" /></a>
                                                 </td>
 
                                                 <?php if (\Controllers\Common::isadmin()) : ?>
-                                                    <td class="td-fit" title="Sélectionner <?=$hostname?>">
+                                                    <td class="td-fit" title="Select <?=$hostname?>">
                                                         <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$groupName?>" value="<?=$id?>">
                                                     </td>
                                                 <?php endif ?>
@@ -582,39 +579,38 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                      */
                                                     if (!empty($lastRequestedUpdate)) {
                                                         if ($lastRequestedUpdate['Type'] == 'packages-update') {
-                                                            $updateType = 'Mise à jour des paquets';
+                                                            $updateType = 'Packages update';
                                                         }
                                                         if ($lastRequestedUpdate['Type'] == 'general-status-update') {
-                                                            $updateType = 'Envoi des infos. générales';
+                                                            $updateType = 'Sending general info.';
                                                         }
                                                         if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
-                                                            $updateType = 'Envoi de l\'état des paquets';
+                                                            $updateType = 'Sending packages state';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'requested') {
-                                                            $updateStatus = 'demandé(e)';
+                                                            $updateStatus = 'requested';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'running') {
-                                                            $updateStatus = 'en cours<img src="resources/images/loading.gif" class="icon" />';
+                                                            $updateStatus = 'running<img src="resources/images/loading.gif" class="icon" />';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'done') {
-                                                            $updateStatus = 'terminé(e)';
+                                                            $updateStatus = 'done';
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'error') {
-                                                            $updateStatus = 'en erreur';
+                                                            $updateStatus = 'has failed';
                                                         }
-
                                                         /**
                                                          *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +10min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
                                                          */
                                                         if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
                                                             if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
-                                                                echo '<span class="yellowtext" title="La demande ne semble ne pas avoir été prise en compte par l\'hôte (demandée le ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' à ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
                                                             } else {
-                                                                echo '<span title="Le ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' à ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                echo '<span title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                             }
                                                         }
                                                         if ($lastRequestedUpdate['Status'] == 'error') {
-                                                            echo '<span class="redtext" title="Le ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' à ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                            echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                         }
                                                     } ?>
                                                 </td>
@@ -622,14 +618,15 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                 </td>
                                             </tr>
                                             <?php
-                                        }
-                                        echo '</tbody>';
-                                        echo '</table>';
-                                } else {
-                                    echo '<table class="hosts-table-empty"><tr class="host-tr"><td class="lowopacity">(vide)</td></tr></table>';
-                                }
-
-                                echo '</div>';
+                                        } ?>
+                                    </tbody>
+                                </table>
+                                <?php
+                            } else {
+                                echo '<table class="hosts-table-empty"><tr class="host-tr"><td class="lowopacity">(empty)</td></tr></table>';
+                            } ?>
+                        </div>
+                        <?php
                     }
                     echo '</div>';
                 }
@@ -647,7 +644,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 /**
  *  Graph des hôtes
  */
-$labels = "'A jour', 'A mettre à jour'";
+$labels = "'Up to date', 'Need update'";
 $datas = "'$totalUptodate', '$totalNotUptodate'";
 $backgrounds = "'rgb(75, 192, 192)','rgb(255, 99, 132)'";
 $title = '';
@@ -670,7 +667,7 @@ if (!empty($profilesList)) {
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
         if (empty($profile['Profile'])) {
-            $profileNameList .= "'Inconnu',";
+            $profileNameList .= "'Unknow',";
         } else {
             $profileNameList .= "'" . $profile['Profile'] . "',";
         }
@@ -705,7 +702,7 @@ if (!empty($osList)) {
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
         if (empty($os['Os'])) {
-            $osNameList .= "'Inconnu',";
+            $osNameList .= "'Unknow',";
         } else {
             $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
         }
@@ -740,7 +737,7 @@ if (!empty($archList)) {
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
         if (empty($arch['Arch'])) {
-            $archNameList .= "'Inconnu',";
+            $archNameList .= "'Unknow',";
         } else {
             $archNameList .= "'" . $arch['Arch'] . "',";
         }
@@ -775,7 +772,7 @@ if (!empty($envsList)) {
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
         if (empty($env['Env'])) {
-            $envNameList .= "'Inconnu',";
+            $envNameList .= "'Unknow',";
         } else {
             $envNameList .= "'" . $env['Env'] . "',";
         }

@@ -39,7 +39,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Le profil <b>$profile</b> n'existe pas");
+            throw new Exception("Profile <b>$profile</b> does not exist");
         }
 
         /**
@@ -62,7 +62,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Le profil <b>$profile</b> n'existe pas");
+            throw new Exception("Profile <b>$profile</b> does not exist");
         }
 
         /**
@@ -121,19 +121,17 @@ class Profile
     /**
      *  Modifie la configuration générale du serveur pour la gestion des profils
      */
-    // public function setServerConfiguration(string $serverOsFamily, string $serverOsName, string $serverOsId, string $serverOsVersion, string $serverPackageType, string $serverPackageOsVersion = null, string $serverManageClientConf, string $serverManageClientRepos)
     public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
     {
         $serverPackageType = \Controllers\Common::validateData($serverPackageType);
 
         if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
-            throw new Exception("Le paramètre 'Gérer la configuration des clients' est invalide");
+            throw new Exception("Parameter 'Manage profiles packages configuration");
         }
         if ($serverManageClientRepos != 'yes' && $serverManageClientRepos != 'no') {
-            throw new Exception("Le paramètre 'Gérer la configuration des repos clients' est invalide");
+            throw new Exception("Parameter 'Manage profiles repos configuration' is invalid");
         }
 
-        // $this->model->setServerConfiguration($serverOsFamily, $serverOsName, $serverOsId, $serverOsVersion, $serverPackageType, $serverPackageOsVersion, $serverManageClientConf, $serverManageClientRepos);
         $this->model->setServerConfiguration($serverPackageType, $serverManageClientConf, $serverManageClientRepos);
     }
 
@@ -176,14 +174,14 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Le profil <b>$name</b> contient des caractères invalides");
+            throw new Exception("Profile <b>$name</b> contains invalid characters");
         }
 
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà
          */
         if ($this->model->exists($name) === true) {
-            throw new Exception("Le profil <b>$name</b> existe déjà");
+            throw new Exception("Profile <b>$name</b> already exist");
         }
 
         /**
@@ -191,7 +189,7 @@ class Profile
          */
         $this->model->add($name);
 
-        \Models\History::set($_SESSION['username'], "Création d'un nouveau profil : $name", 'success');
+        \Models\History::set($_SESSION['username'], "Create a new profile: $name", 'success');
     }
 
     /**
@@ -206,18 +204,18 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
+            throw new Exception("Profile name <b>$name</b> contains invalid characters");
         }
 
         if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception("Le nom de profil <b>$newName</b> contient des caractères invalides");
+            throw new Exception("Profile name <b>$newName</b> contains invalid characters");
         }
 
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
          */
         if ($this->model->exists($newName) === true) {
-            throw new Exception("Le profil <b>$newName</b> existe déjà");
+            throw new Exception("Profile <b>$newName</b> already exist");
         }
 
         /**
@@ -225,7 +223,7 @@ class Profile
          */
         $this->model->rename($name, $newName);
 
-        \Models\History::set($_SESSION['username'], "Renommage du profil <b>$name</b> en <b>$newName</b>", 'success');
+        \Models\History::set($_SESSION['username'], "Profile <b>$name</b> renamed to <b>$newName</b>", 'success');
     }
 
     /**
@@ -285,7 +283,7 @@ class Profile
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
         }
 
-        \Models\History::set($_SESSION['username'], "Duplication du profil <b>$name</b> en <b>$newName</b>", 'success');
+        \Models\History::set($_SESSION['username'], "Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
     }
 
     /**
@@ -299,7 +297,7 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Le nom de profil <b>$name</b> contient des caractères invalides");
+            throw new Exception("Profile name <b>$name</b> contains invalid characters");
         }
 
         /**
@@ -307,7 +305,7 @@ class Profile
          */
         $this->model->delete($name);
 
-        \Models\History::set($_SESSION['username'], "Suppression du profil <b>$name</b>", 'success');
+        \Models\History::set($_SESSION['username'], "Delete profile <b>$name</b>", 'success');
     }
 
     /**
@@ -325,14 +323,14 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Le nom du profil <b>$name</b> contient des caractères invalides");
+            throw new Exception("Profile name <b>$name</b> contains invalid characters");
         }
 
         /**
          *  2. On vérifie que le profil existe en base de données
          */
         if ($this->model->exists($name) === false) {
-            throw new Exception("Le profil <b>$name</b> n'existe pas");
+            throw new Exception("Profile <b>$name</b> does not exist");
         }
 
         /**
@@ -476,7 +474,7 @@ class Profile
          */
         $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $allowOverwrite, $allowReposOverwrite, $notes);
 
-        \Models\History::set($_SESSION['username'], "Modification de la configuration du profil <b>$name</b>", 'success');
+        \Models\History::set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
     }
 
     /**

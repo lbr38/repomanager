@@ -38,7 +38,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le repo source <b>" . $_POST['name'] . "</b> a été créé");
+            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been created");
         }
 
         /**
@@ -59,7 +59,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le repo source <b>" . $_POST['name'] . "</b> a été retiré");
+            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been deleted");
         }
 
         /**
@@ -80,7 +80,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le repo source <b>" . $_POST['name'] . "</b> a été renommé en <b>" . $_POST['newname'] . "</b>");
+            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
         }
 
         /**
@@ -101,7 +101,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "L'URL du repo source <b>" . $_POST['name'] . "</b> a été modifiée");
+            response(HTTP_OK, "Source repo URL <b>" . $_POST['name'] . "</b> has been saved");
         }
 
         /**
@@ -122,7 +122,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La configuration du repo source <b>" . $_POST['name'] . "</b> a été modifiée");
+            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> configuration has been saved");
         }
 
         /**
@@ -143,7 +143,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La clé GPG <b>" . $_POST['gpgkey'] . "</b> a été supprimée");
+            response(HTTP_OK, "GPG key <b>" . $_POST['gpgkey'] . "</b> has been deleted");
         }
 
         /**

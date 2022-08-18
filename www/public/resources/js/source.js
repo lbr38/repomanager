@@ -245,7 +245,7 @@ function reloadSourcesDiv()
     var repoType = $(this).attr('repotype');
     var name = $(this).attr('sourcename');
 
-    deleteConfirm('Êtes vous sûr de vouloir supprimer le repo source <b>' + name + '</b> ?', function () {
+    deleteConfirm('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
         deleteSource(repoType, name)});
  });
 
@@ -265,7 +265,7 @@ function reloadSourcesDiv()
     var repoType = $(this).attr('repotype');
     var gpgkey = $(this).attr('gpgkey');
 
-    deleteConfirm('Êtes-vous sûr de vouloir supprimer la clé GPG <b>' + gpgkey + '</b> ?', function () {
+    deleteConfirm('Are you sure you want to delete <b>' + gpgkey + '</b> GPG key?', function () {
         deleteGpgKey(repoType, gpgkey)});
  });
 

@@ -167,13 +167,13 @@ class Host
          *  Récupération à partir d'un id d'hôte et du token
          */
         if (empty($this->authId) or empty($this->token)) {
-            throw new Exception("Identifiants invalides");
+            throw new Exception("Invalid identifiers");
         }
 
         $id = $this->model->getIdByAuth($this->authId, $this->token);
 
         if (empty($id)) {
-            throw new Exception("Aucun Id d'hôte n'a été trouvé à partir de ces identifiants");
+            throw new Exception("No host Id has been found from those identifiers");
         }
 
         return $id;
@@ -185,7 +185,7 @@ class Host
     public function getAll(string $id)
     {
         if (!is_numeric($id)) {
-            \Controllers\Common::printAlert("Erreur : l'ID spécifié n'est pas numérique", 'error');
+            \Controllers\Common::printAlert('Specified Id is invalid', 'error');
             return false;
         }
 
@@ -251,7 +251,7 @@ class Host
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
         if (empty($id)) {
-            throw new Exception("Un Id d'hôte doit être spécifié");
+            throw new Exception("Host Id must be specified");
         }
 
         $packageState = \Controllers\Common::validateData($packageState);
@@ -264,19 +264,19 @@ class Host
         $packages = $this->model->getEventDetails($eventId, $packageState);
 
         if ($packageState == 'installed') {
-            $content = '<span><b>Installé(s) :</b></span><br>';
+            $content = '<span><b>Installed:</b></span><br>';
         }
         if ($packageState == 'dep-installed') {
-            $content = '<span><b>Dépendances installée(s) :</b></span><br>';
+            $content = '<span><b>Installed dependencies:</b></span><br>';
         }
         if ($packageState == 'upgraded') {
-            $content = '<span><b>Mis à jour :</b></span><br>';
+            $content = '<span><b>Updated:</b></span><br>';
         }
         if ($packageState == 'removed') {
-            $content = '<span><b>Désinstallé(s) :</b></span><br>';
+            $content = '<span><b>Uninstalled:</b></span><br>';
         }
         if ($packageState == 'downgraded') {
-            $content = '<span><b>Rétrogradé(s) :</b></span><br>';
+            $content = '<span><b>Downgraded:</b></span><br>';
         }
 
         foreach ($packages as $package) {
@@ -295,7 +295,7 @@ class Host
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
         if (empty($id)) {
-            throw new Exception("Un Id d'hôte doit être spécifié");
+            throw new Exception("Host Id must be specified");
         }
 
         /**
@@ -308,7 +308,7 @@ class Host
         /**
          *  On forge la timeline à afficher et on la renvoie au controlleur ajax car c'est jquery qui se chargera de l'afficher ensuite
          */
-        $content = '<h4>HISTORIQUE DU PAQUET ' . strtoupper($packageName) . '</h4>';
+        $content = '<h4>' . strtoupper($packageName) . ' PACKAGE HISTORY</h4>';
         $content .= '<div class="timeline">';
 
         /**
@@ -322,35 +322,35 @@ class Host
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'gray';
-                $content_text = '<img src="../resources/icons/products/package.png" class="icon" /> Inventorié';
+                $content_text = '<img src="../resources/icons/products/package.png" class="icon" /> Inventored';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installé';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installed';
             }
             if ($event['State'] == "dep-installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installé (en tant que dépendance)';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installed (as depencency)';
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/update.png" class="icon" /> Mis à jour';
+                $content_text = '<img src="../resources/icons/update.png" class="icon" /> Updated';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Désinstallé';
+                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Uninstalled';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/arrow-back.png" class="icon" /> Rétrogradé';
+                $content_text = '<img src="../resources/icons/arrow-back.png" class="icon" /> Downgraded';
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Réinstallé';
+                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Reinstalled';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Purgé';
+                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Purged';
             }
             $content_version = $event['Version'];
 
@@ -365,7 +365,7 @@ class Host
             }
 
             $content .= '<div class="timeline-container-content-' . $content_color . '">';
-                $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' à ' . $event['Time'] . '</span>';
+                $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' at ' . $event['Time'] . '</span>';
                 /**
                  *  Si cet évènement a pour origine un évènement de mise à jour, d'installation ou de désintallation, alors on ondique l'Id de l'évènement
                  */
@@ -374,7 +374,7 @@ class Host
             } else {
                 $content .= '<span class="timeline-event-text">' . $content_text . '</span>';
             }
-                $content .= '<span class="timeline-event-version">En version : <b>' . $content_version . '</b></span>';
+                $content .= '<span class="timeline-event-version">Version : <b>' . $content_version . '</b></span>';
             $content .= '</div>';
 
             if ($content_position == "left") {
@@ -432,7 +432,7 @@ class Host
     public function getLastPackagesStatusCount(string $status, string $days)
     {
         if ($status != 'installed' and $status != 'upgraded' and $status != 'removed') {
-            throw new Exception("Status invalide");
+            throw new Exception("Invalid status");
         }
 
         $dateEnd   = date('Y-m-d');
@@ -450,7 +450,7 @@ class Host
          *  Les paramètres suivants doivent être des chiffres
          */
         if (!is_numeric($pkgs_considered_outdated) or !is_numeric($pkgs_considered_critical)) {
-            \Controllers\Common::printAlert('Les paramètres doivent être numériques', 'error');
+            \Controllers\Common::printAlert('Params must be numeric', 'error');
             return;
         }
 
@@ -458,13 +458,13 @@ class Host
          *  Les paramètres doivent être supérieurs à 0
          */
         if ($pkgs_considered_outdated <= 0 or $pkgs_considered_critical <= 0) {
-            \Controllers\Common::printAlert('Les paramètres doivent être supérieurs à 0', 'error');
+            \Controllers\Common::printAlert('Params must be greater than or equal to 0', 'error');
             return;
         }
 
         $this->model->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
 
-        \Controllers\Common::printAlert('Les paramètres ont été pris en compte', 'success');
+        \Controllers\Common::printAlert('Params have been taken into account', 'success');
     }
 
     /**
@@ -474,7 +474,7 @@ class Host
     public function setAgentStatus(string $status)
     {
         if ($status != 'running' and $status != 'stopped' and $status != 'disabled') {
-            throw new Exception("Le status de l'agent est invalide.");
+            throw new Exception('Agent status is invalid');
         }
 
         $this->model->setAgentStatus($this->id, $status);
@@ -1086,7 +1086,7 @@ class Host
              */
             if (!mkdir(HOSTS_DIR . "/{$this->id}", 0770, true)) {
                 if ($this->callFromApi == 'no') {
-                    \Controllers\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                    \Controllers\Common::printAlert("Cannot register the host", 'error');
                 }
                 return 5;
             }
@@ -1102,7 +1102,7 @@ class Host
              */
             if (!mkdir(HOSTS_DIR . "/{$this->id}/reports", 0770, true)) {
                 if ($this->callFromApi == 'no') {
-                    \Controllers\Common::printAlert("Impossible de finaliser l'enregistrement de l'hôte", 'error');
+                    \Controllers\Common::printAlert("Cannot register the host", 'error');
                 }
                 return 5;
             }
@@ -1178,7 +1178,7 @@ class Host
             and $action != 'general-status-update'
             and $action != 'packages-status-update'
         ) {
-            throw new Exception("L'action à exécuter est invalide");
+            throw new Exception('Action to execute is invalid');
         }
 
         $hostIdError                      = array();
@@ -1469,14 +1469,14 @@ class Host
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
         if (empty($id)) {
-            throw new Exception("Un Id d'hôte doit être spécifié");
+            throw new Exception("Host Id must be specified");
         }
 
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères invalides
          */
         if (\Controllers\Common::isAlphanumDash($packageName, array('*')) === false) {
-            throw new Exception('Le nom du paquet contient des caractères invalides');
+            throw new Exception('Package name contains invalid characters');
         }
 
         /**
@@ -1501,7 +1501,7 @@ class Host
          *  On vérifie que le groupe existe
          */
         if ($mygroup->exists($groupName) === false) {
-            throw new Exception("Le groupe $groupName n'existe pas");
+            throw new Exception("Group <b>$groupName</b> does not exist");
         }
 
         /**
@@ -1632,7 +1632,7 @@ class Host
                  *  On vérifie que l'Id de l'hôte spécifié existe en base de données
                  */
                 if ($this->model->existsId($hostId) === false) {
-                    throw new Exception("L'Id de l'hôte $hostId spécifié n'existe pas");
+                    throw new Exception("Specified host <b>$hostId</b> Id does not exist");
                 }
 
                 /**
@@ -1665,6 +1665,6 @@ class Host
             }
         }
 
-        \Models\History::set($_SESSION['username'], 'Modifications des hôtes membres du groupe <span class="label-white">' . $groupName . '</span>', 'success');
+        \Models\History::set($_SESSION['username'], 'Modification of hosts members of the group <span class="label-white">' . $groupName . '</span>', 'success');
     }
 }

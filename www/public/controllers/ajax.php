@@ -33,7 +33,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La description a été modifiée");
+            response(HTTP_OK, "Description has been saved");
         }
 
         /**
@@ -59,7 +59,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Les paramètres d'affichage ont été pris en compte");
+            response(HTTP_OK, "Display settings has been saved");
         }
 
 

@@ -40,7 +40,7 @@ if (
      *  Cas où on tente d'utiliser une autre méthode
      */
     http_response_code(405);
-    echo json_encode(["return" => "405", "message" => "La méthode n'est pas autorisée."]);
+    echo json_encode(["return" => "405", "message" => "Method not allowed."]);
 }
 
 exit;

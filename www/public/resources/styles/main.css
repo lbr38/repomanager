@@ -1345,7 +1345,7 @@ footer p { color: gray; }
     flex: 0 0 100%;
 }
 
-#maintenance-container {
+#maintenance-container, #update-log-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -1356,7 +1356,7 @@ footer p { color: gray; }
     z-index: 1;
 }
 
-#maintenance {
+#maintenance, #update-log {
     position: absolute;
     top: 40%;
     left: 50%;

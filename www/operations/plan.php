@@ -5,7 +5,7 @@
  */
 
 if (empty($argv)) {
-    exit("Erreur : aucun paramètre n'a été passé");
+    exit("Error: no parameter was specified");
 }
 
 define('ROOT', dirname(__FILE__, 2));
@@ -17,7 +17,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
  *  Si il y a eu un pb lors du chargement des constantes alors on quitte
  */
 if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-    exit('Erreur lors du chargement des constantes');
+    exit('Error while loading constants');
 }
 
 /**
@@ -197,7 +197,7 @@ if (!empty($planToReminder)) {
          */
         $plan->setId($planId);
         $msg = $plan->generateReminders();
-        $reminder_msg .= '<span><b>Planification du ' . DateTime::createFromFormat('Y-m-d', $plan->getDate())->format('d-m-Y') . ' à ' . $plan->getTime() . ":</b></span><br><span>$msg</span><br><hr>";
+        $reminder_msg .= '<span><b>Planification of the ' . DateTime::createFromFormat('Y-m-d', $plan->getDate())->format('d-m-Y') . ' at ' . $plan->getTime() . ":</b></span><br><span>$msg</span><br><hr>";
     }
 
     if (!empty($reminder_msg)) {
@@ -205,7 +205,7 @@ if (!empty($planToReminder)) {
          *  Inclu une variable $template contenant le corps du mail avec $reminder_msg :
          */
         include_once(ROOT . "/templates/plan_reminder_mail.inc.php");
-        $plan->sendMail("[ RAPPEL ] Planification(s) à venir sur " . WWW_HOSTNAME, $template);
+        $plan->sendMail("[ Reminder ] Planification(s) to come on " . WWW_HOSTNAME, $template);
     }
 }
 

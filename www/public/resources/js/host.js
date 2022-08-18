@@ -391,7 +391,7 @@ $(document).on('submit','.groupForm',function () {
  */
 $(document).on('click','.deleteGroupButton',function () {
     var name = $(this).attr('name');
-    deleteConfirm('Êtes vous sûr de vouloir supprimer le groupe ' + name + ' ?', function () {
+    deleteConfirm('Are you sure you want to delete group ' + name + '?', function () {
         deleteGroup(name)});
 });
 
@@ -496,13 +496,13 @@ $(document).on('click','.hostsActionBtn',function () {
      *  Selon l'action on demande une confirmation
      */
     if (action == 'update') {
-        deleteConfirm('Demander aux hôtes sélectionnés de se mettre à jour ?', function () {
+        deleteConfirm('Request selected hosts to update their packages?', function () {
             execAction(action, hosts_array)}, 'Mettre à jour');
     } else if (action == 'delete') {
-        deleteConfirm('Supprimer les hôtes sélectionnés ?', function () {
+        deleteConfirm('Delete selected hosts?', function () {
             execAction(action, hosts_array)});
     } else if (action == 'reset') {
-        deleteConfirm('Réinitialiser les hôtes sélectionnés ?', function () {
+        deleteConfirm('Reset selected hosts?', function () {
             execAction(action, hosts_array)}, 'Réinitialiser');
     } else {
         execAction(action, hosts_array);
@@ -525,7 +525,7 @@ $(document).on('click','.printHostDetails',function () {
         'host.inc.php',
         {id:host_id},
         function (data, status, jqXHR) {
-            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Fermer" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + data + '</div>');
+            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + data + '</div>');
         }
     );
 
@@ -818,7 +818,7 @@ function editGroupHosts(name, hostsId)
  */
 function execAction(action, hosts_array)
 {
-    printAlert('Demande en cours d\'envoi <img src="resources/images/loading.gif" class="icon" />');
+    printAlert('Request being sent <img src="resources/images/loading.gif" class="icon" />');
     $.ajax({
         type: "POST",
         url: "controllers/hosts/ajax.php",
@@ -915,7 +915,7 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Fermer" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + jsonValue.message + '</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + jsonValue.message + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

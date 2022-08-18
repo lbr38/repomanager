@@ -20,7 +20,7 @@
     if (__ACTUAL_URI__ == "/run.php") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/run.css">';
     }
-    if (__ACTUAL_URI__ == "/explore.php") {
+    if (__ACTUAL_URI__ == "/browse.php") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/explore.css">';
     }
     if (__ACTUAL_URI__ == "/stats.php") {
@@ -50,23 +50,23 @@
     } elseif (__ACTUAL_URI__ == "/planifications.php") {
         echo '<title>Repomanager - Planifications</title>';
     } elseif (__ACTUAL_URI__ == "/run.php") {
-        echo '<title>Repomanager - Journal</title>';
-    } elseif (__ACTUAL_URI__ == "/explore.php") {
-        echo '<title>Repomanager - Explorer</title>';
+        echo '<title>Repomanager - Operations</title>';
+    } elseif (__ACTUAL_URI__ == "/browse.php") {
+        echo '<title>Repomanager - Browse</title>';
     } elseif (__ACTUAL_URI__ == "/stats.php") {
-        echo '<title>Repomanager - Statistiques</title>';
+        echo '<title>Repomanager - Statistics and metrics</title>';
     } elseif (__ACTUAL_URI__ == "/hosts.php") {
-        echo '<title>Repomanager - Gestion des hôtes</title>';
+        echo '<title>Repomanager - Manage hosts</title>';
     } elseif (__ACTUAL_URI__ == "/host.php") {
-        echo '<title>Repomanager - Gestion des hôtes</title>';
+        echo '<title>Repomanager - Manage host</title>';
     } elseif (__ACTUAL_URI__ == "/profiles.php") {
-        echo '<title>Repomanager - Gestion des profils</title>';
+        echo '<title>Repomanager - Manage profiles</title>';
     } elseif (__ACTUAL_URI__ == "/configuration.php") {
         echo '<title>Repomanager - Configuration</title>';
     } elseif (__ACTUAL_URI__ == "/history.php") {
-        echo '<title>Repomanager - Historique</title>';
+        echo '<title>Repomanager - History</title>';
     } elseif (__ACTUAL_URI__ == "/user.php") {
-        echo '<title>Repomanager - Espace utilisateur</title>';
+        echo '<title>Repomanager - User space</title>';
     } else {
         echo '<title>Repomanager</title>';
     }

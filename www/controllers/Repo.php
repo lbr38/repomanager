@@ -523,7 +523,7 @@ class Repo
         $fullUrl = $this->model->getFullSource($source);
 
         if (empty($fullUrl)) {
-            throw new Exception('impossible de déterminer l\'URL du repo source');
+            throw new Exception('cannot determine repo source URL');
         }
 
         /**
@@ -542,10 +542,10 @@ class Repo
         $root = str_replace($hostUrl, '', $fullUrl);
 
         if (empty($hostUrl)) {
-            throw new Exception('impossible de déterminer l\'adresse du repo source');
+            throw new Exception('cannot determine repo source address');
         }
         if (empty($root)) {
-            throw new Exception('impossible de déterminer la racine de l\'URL du repo source');
+            throw new Exception('cannot determine repo source URL root');
         }
 
         $this->setSourceHostUrl($hostUrl);
@@ -798,13 +798,13 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-new-local.inc.php');
 
-            $this->op->step('CREATION DU REPO');
+            $this->op->step('CREATING REPO');
 
             /**
              *  2. On vérifie que le nom du repo n'est pas vide
              */
             if (empty($this->name)) {
-                throw new Exception('le nom du repo ne peut être vide');
+                throw new Exception('repo name cannot be empty');
             }
 
             /**
@@ -813,14 +813,14 @@ class Repo
             if ($this->packageType == 'rpm') {
                 if (!file_exists(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/Packages')) {
                     if (!mkdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/Packages', 0770, true)) {
-                        throw new Exception("impossible de créer le répertoire du repo {$this->name}");
+                        throw new Exception("cannot create repo directory $this->name");
                     }
                 }
             }
             if ($this->packageType == 'deb') {
                 if (!file_exists(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section)) {
                     if (!mkdir(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section, 0770, true)) {
-                        throw new Exception('impossible de créer le répertoire de la section');
+                        throw new Exception('cannot create section directory');
                     }
                 }
             }
@@ -836,7 +836,7 @@ class Repo
                     exec('cd ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/ && ln -sfn ' . $this->targetDateFormatted . '_' . $this->section . ' ' . $this->section . '_' . $this->targetEnv, $output, $result);
                 }
                 if ($result != 0) {
-                    throw new Exception('impossible de créer le repo');
+                    throw new Exception('cannot set repo environment');
                 }
             }
 
@@ -921,7 +921,7 @@ class Repo
              *  7. Ajout de la section à un groupe si un groupe a été renseigné
              */
             if (!empty($this->targetGroup)) {
-                $this->op->step('AJOUT A UN GROUPE');
+                $this->op->step('ADDING TO GROUP');
                 $this->addRepoIdToGroup($this->repoId, $this->targetGroup);
                 $this->op->stepOK();
             }
@@ -1128,13 +1128,13 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-duplicate.inc.php');
 
-            $this->op->step('DUPLICATION');
+            $this->op->step('DUPLICATING');
 
             /**
              *  On vérifie que le snapshot source existe
              */
             if ($this->model->existsSnapId($this->snapId) === false) {
-                throw new Exception("Le snapshot de repo source n'existe pas");
+                throw new Exception("Source repo snapshot does not exist");
             }
 
             /**
@@ -1142,12 +1142,12 @@ class Repo
              */
             if ($this->packageType == "rpm") {
                 if ($this->model->isActive($this->targetName) === true) {
-                    throw new Exception('un repo <span class="label-black">' . $this->targetName . '</span> existe déjà');
+                    throw new Exception('a repo <span class="label-black">' . $this->targetName . '</span> already exists');
                 }
             }
             if ($this->packageType == "deb") {
                 if ($this->model->isActive($this->targetName, $this->dist, $this->section) === true) {
-                    throw new Exception('un repo <span class="label-black">' . $this->targetName . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> existe déjà');
+                    throw new Exception('a repo <span class="label-black">' . $this->targetName . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> already exists');
                 }
             }
 
@@ -1157,14 +1157,14 @@ class Repo
             if ($this->packageType == "rpm") {
                 if (!file_exists(REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName)) {
                     if (!mkdir(REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->targetName, 0770, true)) {
-                        throw new Exception("impossible de créer le répertoire du nouveau repo <b>" . $this->targetName . "</b>");
+                        throw new Exception("cannot create directory for the new repo <b>" . $this->targetName . "</b>");
                     }
                 }
             }
             if ($this->packageType == "deb") {
                 if (!file_exists(REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section)) {
                     if (!mkdir(REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section, 0770, true)) {
-                        throw new Exception("impossible de créer le répertoire du nouveau repo <b>" . $this->targetName . "</b>");
+                        throw new Exception("cannot create directory for the new repo <b>" . $this->targetName . "</b>");
                     }
                 }
             }
@@ -1180,7 +1180,7 @@ class Repo
                 exec('\cp -r ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . '/* ' . REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section . '/', $output, $result);
             }
             if ($result != 0) {
-                throw new Exception('impossible de copier les données du repo source vers le nouveau repo');
+                throw new Exception('cannot copy data from the source repo to the new repo');
             }
 
             $this->op->stepOK();
@@ -1206,7 +1206,7 @@ class Repo
                 $this->setName($backupName);
             }
 
-            $this->op->step('FINALISATION');
+            $this->op->step('FINALISING');
 
             /**
              *  Création du lien symbolique
@@ -1220,7 +1220,7 @@ class Repo
                     exec('cd ' . REPOS_DIR . '/' . $this->targetName . '/' . $this->dist . '/ && ln -sfn ' . $this->dateFormatted . '_' . $this->section . ' ' . $this->section . '_' . $this->targetEnv, $output, $result);
                 }
                 if ($result != 0) {
-                    throw new Exception('impossible de créer le nouveau repo');
+                    throw new Exception('cannot set repo environment');
                 }
             }
 
@@ -1277,7 +1277,7 @@ class Repo
              *  10. Ajout de la section à un groupe si un groupe a été renseigné
              */
             if (!empty($this->targetGroup)) {
-                $this->op->step('AJOUT A UN GROUPE');
+                $this->op->step('ADDING TO GROUP');
 
                 /**
                  *  Ajout du repo créé au groupe spécifié
@@ -1445,7 +1445,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-delete.inc.php');
 
-            $this->op->step('SUPPRESSION');
+            $this->op->step('DELETING');
 
             /**
              *  2. Suppression du snapshot
@@ -1464,7 +1464,7 @@ class Repo
             }
 
             if ($result != 0) {
-                throw new Exception('impossible de supprimer le snapshot du <span class="label-black">' . $this->dateFormatted . '</span>');
+                throw new Exception('cannot delete snapshot of the <span class="label-black">' . $this->dateFormatted . '</span>');
             }
 
             $this->op->stepOK();
@@ -1577,7 +1577,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-remove-env.inc.php');
 
-            $this->op->step('SUPPRESSION');
+            $this->op->step('DELETING');
 
             /**
              *  2. Suppression du lien symbolique de l'environnement
@@ -1606,7 +1606,7 @@ class Repo
             $snapshotsRemoved = $this->cleanSnapshots();
 
             if (!empty($snapshotsRemoved)) {
-                $this->op->step('NETTOYAGE');
+                $this->op->step('CLEANING');
                 $this->op->stepOK($snapshotsRemoved);
             }
 
@@ -1681,13 +1681,13 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-env.inc.php');
 
-            $this->op->step('NOUVEL ENVIRONNEMENT ' . \Controllers\Common::envtag($this->targetEnv));
+            $this->op->step('ADDING NEW ENVIRONMENT ' . \Controllers\Common::envtag($this->targetEnv));
 
             /**
              *  2. On vérifie si le snapshot source existe
              */
             if ($this->model->existsSnapId($this->snapId) === false) {
-                throw new Exception('Le snapshot cible n\'existe pas');
+                throw new Exception('Target snapshot does not exist');
             }
 
             /**
@@ -1695,11 +1695,11 @@ class Repo
              */
             if ($this->model->existsSnapIdEnv($this->snapId, $this->targetEnv) === true) {
                 if ($this->packageType == 'rpm') {
-                    throw new Exception('Un environnement ' . \Controllers\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('A ' . \Controllers\Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
 
                 if ($this->packageType == 'deb') {
-                    throw new Exception('Un environnement ' . \Controllers\Common::envtag($this->targetEnv) . ' existe déjà sur <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('A ' . \Controllers\Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
             }
 
@@ -1864,7 +1864,7 @@ class Repo
                 }
             }
 
-            $this->op->step('FINALISATION');
+            $this->op->step('FINALISING');
 
             /**
              *  8. Application des droits sur le repo/la section modifié
@@ -1890,7 +1890,7 @@ class Repo
             $snapshotsRemoved = $this->cleanSnapshots();
 
             if (!empty($snapshotsRemoved)) {
-                $this->op->step('NETTOYAGE');
+                $this->op->step('CLEANING');
                 $this->op->stepOK($snapshotsRemoved);
             }
 
@@ -1968,7 +1968,7 @@ class Repo
     {
         ob_start();
 
-        $this->op->step('RÉCUPÉRATION DES PAQUETS');
+        $this->op->step('SYNCING PACKAGES');
 
         //// CHECKS ////
 
@@ -1976,10 +1976,10 @@ class Repo
          *  Operation type must be specified ('new' or 'update')
          */
         if (empty($this->op->getAction())) {
-            throw new Exception("Type d'opération inconnu (vide)");
+            throw new Exception('Operation type unknow (empty)');
         }
         if ($this->op->getAction() != "new" and $this->op->getAction() != "update") {
-            throw new Exception("Erreur : Type d'opération invalide");
+            throw new Exception('Operation type is invalid');
         }
 
         /**
@@ -1987,7 +1987,7 @@ class Repo
          *  If it must be a local repo then quit because we can't update a local repo
          */
         if ($this->type == 'local') {
-            throw new Exception("Il n'est pas possible de mettre à jour un snapshot de repo local");
+            throw new Exception('Local repo snapshot cannot be updated');
         }
 
         /**
@@ -2006,12 +2006,12 @@ class Repo
         if ($this->op->getAction() == "new") {
             if ($this->packageType == "rpm") {
                 if ($this->model->isActive($this->name) === true) {
-                    throw new Exception('Un repo <span class="label-white">' . $this->name . '</span> existe déjà');
+                    throw new Exception('Repo <span class="label-white">' . $this->name . '</span> already exists');
                 }
             }
             if ($this->packageType == "deb") {
                 if ($this->model->isActive($this->name, $this->dist, $this->section) == true) {
-                    throw new Exception('Un repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> existe déjà');
+                    throw new Exception('Repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> already exists');
                 }
             }
         }
@@ -2020,7 +2020,7 @@ class Repo
          *  Target arch must be specified
          */
         if (empty($this->targetArch)) {
-            throw new Exception('Packages arch must be specified.');
+            throw new Exception('Packages arch must be specified');
         }
 
         /**
@@ -2031,7 +2031,7 @@ class Repo
              *  Vérifie si le snapshot qu'on souhaite mettre à jour existe bien en base de données
              */
             if ($this->model->existsSnapId($this->snapId) === false) {
-                throw new Exception("Le snapshot de repo spécifié n'existe pas");
+                throw new Exception("Specified repo snapshot does not exist");
             }
 
             /**
@@ -2043,12 +2043,12 @@ class Repo
             if ($this->model->getSnapDateById($this->snapId) != $this->targetDate) {
                 if ($this->packageType == 'rpm') {
                     if ($this->model->existsRepoSnapDate($this->targetDate, $this->name) === true) {
-                        throw new Exception('Un snapshot existe déjà en date du <span class="label-black">' . $this->targetDateFormatted . '</span>');
+                        throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->targetDateFormatted . '</span>');
                     }
                 }
                 if ($this->packageType == 'deb') {
                     if ($this->model->existsRepoSnapDate($this->targetDate, $this->name, $this->dist, $this->section) === true) {
-                        throw new Exception('Un snapshot existe déjà en date du <span class="label-black">' . $this->targetDateFormatted . '</span>');
+                        throw new Exception('A snapshot already exists on the <span class="label-black">' . $this->targetDateFormatted . '</span>');
                     }
                 }
             }
@@ -2078,7 +2078,7 @@ class Repo
          *  Création du répertoire
          */
         if (!mkdir($repoPath, 0770, true)) {
-            throw new Exception("la création du répertoire <b>" . $repoPath . "</b> a échouée");
+            throw new Exception("creating directory <b>" . $repoPath . "</b> has failed");
         }
 
         /**
@@ -2145,7 +2145,7 @@ class Repo
                 $yumUtilsVersion = exec("rpm -qi yum-utils | grep 'Version' | awk '{print $3}'");
             }
             if (empty($yumUtilsVersion)) {
-                throw new Exception('Impossible de déterminer la version de yum-utils installée.');
+                throw new Exception('Cannot determine yum-utils installed version.');
             }
 
             /**
@@ -2172,7 +2172,7 @@ class Repo
                     $reposyncGpgParam = '';
                 }
             } else {
-                throw new Exception('La version de yum-utils installée est incompatible ou invalide.');
+                throw new Exception('yum-utils version is not compatible or invalid.');
             }
 
             /**
@@ -2295,7 +2295,7 @@ class Repo
                 exec('rm -rf "' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . '"');
             }
 
-            throw new Exception('erreur lors de la récupération des paquets');
+            throw new Exception('error while retrieving packages');
         }
 
         $this->op->stepOK();
@@ -2318,7 +2318,7 @@ class Repo
          *  Redhat seulement car sur Debian c'est le fichier Release qui est signé lors de la création du repo
          */
         if ($this->packageType == "rpm" and $this->targetGpgResign == "yes") {
-            $this->op->step('SIGNATURE DES PAQUETS (GPG)');
+            $this->op->step('SIGNING PACKAGES (GPG)');
 
             echo '<div class="hide signRepoDiv"><pre>';
             $this->op->stepWriteToLog();
@@ -2348,7 +2348,7 @@ class Repo
                              */
                             $myprocess = new \Controllers\Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName());
                         } else {
-                            throw new Exception("Le programme rpmresign est introuvable sur le système.");
+                            throw new Exception("rpmresign bin is not found on this system");
                         }
                     }
 
@@ -2365,7 +2365,7 @@ class Repo
                              */
                             $myprocess = new \Controllers\Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName(), array('GPG_TTY' => '$(tty)'));
                         } else {
-                            throw new Exception("Le fichier de macros pour rpm n'est pas généré.");
+                            throw new Exception("GPG macros file for rpm does not exist.");
                         }
                     }
 
@@ -2442,7 +2442,7 @@ class Repo
                     exec('rm -rf "' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '"');
                 }
 
-                throw new Exception('la signature des paquets a échouée');
+                throw new Exception('packages signature has failed');
             }
 
             $this->op->stepOK();
@@ -2461,7 +2461,7 @@ class Repo
 
         ob_start();
 
-        $this->op->step('CRÉATION DU REPO');
+        $this->op->step('CREATING REPO');
 
         echo '<div class="hide createRepoDiv"><pre>';
 
@@ -2539,7 +2539,7 @@ class Repo
             $TMP_DIR = REPOS_DIR . "/{$this->op->log->pid}_deb_packages";
 
             if (!mkdir($TMP_DIR, 0770, true)) {
-                throw new Exception("impossible de créer le répertoire temporaire <b>" . $TMP_DIR . '</b>');
+                throw new Exception("cannot create temporary directory <b>" . $TMP_DIR . '</b>');
             }
 
             $this->op->stepWriteToLog();
@@ -2550,10 +2550,10 @@ class Repo
             $sectionPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
 
             if (!is_dir($sectionPath)) {
-                throw new Exception("le répertoire du repo n'existe pas");
+                throw new Exception("repo directory does not exist");
             }
             if (!is_dir($TMP_DIR)) {
-                throw new Exception("le répertoire temporaire n'existe pas");
+                throw new Exception("temporary directory does not exist");
             }
 
             /**
@@ -2603,7 +2603,7 @@ class Repo
              */
             if (!is_dir($sectionPath . '/conf')) {
                 if (!mkdir($sectionPath . '/conf', 0770, true)) {
-                    throw new Exception("impossible de créer le répertoire de configuration du repo <b>$sectionPath/conf</b>");
+                    throw new Exception("cannot create repo configuration directory <b>$sectionPath/conf</b>");
                 }
             }
 
@@ -2638,7 +2638,7 @@ class Repo
             $distributionsFileContent .= 'Pull: ' . $this->section;
 
             if (!file_put_contents($sectionPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
-                throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/distributions</b>");
+                throw new Exception("cannot create repo distributions file <b>$sectionPath/conf/distributions</b>");
             }
 
             /**
@@ -2650,14 +2650,14 @@ class Repo
             }
 
             if (!file_put_contents($sectionPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
-                throw new Exception("impossible de créer le fichier de configuration du repo <b>$sectionPath/conf/options</b>");
+                throw new Exception("cannot create repo options file <b>$sectionPath/conf/options</b>");
             }
 
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
             if (\Controllers\Common::dirIsEmpty($TMP_DIR) === true) {
-                echo "Il n'y a aucun paquet dans ce repo";
+                echo 'There is no packages in this repo';
                 echo '</pre></div>';
 
                 $return = 1;
@@ -2856,7 +2856,7 @@ class Repo
                 }
             }
 
-            throw new Exception('la création du repo a échouée');
+            throw new Exception('repo creation has failed');
         }
 
         $this->op->stepWriteToLog();
@@ -2874,7 +2874,7 @@ class Repo
                     exec('cd ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/ && ln -sfn ' . $this->targetDateFormatted . '_' . $this->section . ' ' . $this->section . '_' . $this->targetEnv, $output, $result);
                 }
                 if ($result != 0) {
-                    throw new Exception('la finalisation du repo a échouée');
+                    throw new Exception('repo finalization has failed');
                 }
             }
         }
@@ -2891,16 +2891,16 @@ class Repo
     {
         ob_start();
 
-        $this->op->step('FINALISATION');
+        $this->op->step('FINALISING');
 
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
          */
         if (empty($this->op->getAction())) {
-            throw new Exception("type d'opération inconnu (vide)");
+            throw new Exception('operation type unknown (empty)');
         }
         if ($this->op->getAction() != "new" and $this->op->getAction() != "update") {
-            throw new Exception("type d'opération invalide");
+            throw new Exception('operation type is invalid');
         }
 
         /**
@@ -3076,7 +3076,7 @@ class Repo
          *  Uniquement si il s'agit d'un nouveau repo/section ($this->op->getAction() = new)
          */
         if ($this->op->getAction() == 'new' and !empty($this->targetGroup)) {
-            $this->op->step('AJOUT A UN GROUPE');
+            $this->op->step('ADDING TO GROUP');
             $this->addRepoIdToGroup($this->repoId, $this->targetGroup);
             $this->op->stepOK();
         }
@@ -3087,7 +3087,7 @@ class Repo
         $snapshotsRemoved = $this->cleanSnapshots();
 
         if (!empty($snapshotsRemoved)) {
-            $this->op->step('NETTOYAGE');
+            $this->op->step('CLEANING');
             $this->op->stepOK($snapshotsRemoved);
         }
 
@@ -3116,7 +3116,7 @@ class Repo
                  *  On vérifie que l'Id de repo spécifié existe en base de données
                  */
                 if ($this->model->existsId($repoId) === false) {
-                    throw new Exception("L'Id de repo $repoId spécifié n'existe pas");
+                    throw new Exception("Specified repo Id $repoId does not exist");
                 }
 
                 $repo = $this->getAllById($repoId);
@@ -3155,7 +3155,7 @@ class Repo
             }
         }
 
-        \Models\History::set($_SESSION['username'], 'Modifications des repos membres du groupe <span class="label-white">' . $groupName . '</span>', 'success');
+        \Models\History::set($_SESSION['username'], 'Modification of repos members of the group <span class="label-white">' . $groupName . '</span>', 'success');
 
         \Controllers\Common::clearCache();
     }
@@ -3193,7 +3193,7 @@ class Repo
          *  On vérifie que le groupe existe
          */
         if ($mygroup->exists($groupName) === false) {
-            throw new Exception("Le groupe $groupName n'existe pas");
+            throw new Exception("Group $groupName does not exist");
         }
 
         /**
@@ -3546,7 +3546,7 @@ class Repo
          */
         echo '<div class="item-repo">';
         if ($printRepoName == "yes") {
-            echo $this->name . '<span class="item-pkgtype lowopacity" title="Repo de paquets ' . $this->packageType . '"><img src="resources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
+            echo $this->name . '<span class="item-pkgtype lowopacity" title="This repository contains ' . $this->packageType . ' packages"><img src="resources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
         }
         echo '</div>';
 
@@ -3584,7 +3584,7 @@ class Repo
                  */
                 if ($this->snapId != $this->lastSnapId) :
                     if ($this->snapOpIsRunning($this->snapId) === true) : ?>
-                        <img src="resources/images/loading.gif" class="icon" title="Une opération est en cours sur ce snapshot de repo." />
+                        <img src="resources/images/loading.gif" class="icon" title="An operation is running on this repo snaphot." />
                     <?php else : ?>
                         <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>" title="Select and execute an action.">
                     <?php endif ?>
@@ -3626,11 +3626,11 @@ class Repo
              */
             if (PRINT_REPO_TYPE == 'yes') {
                 if ($this->type == "mirror") {
-                    echo "<img class=\"icon lowopacity\" src=\"resources/icons/world.png\" title=\"Type : miroir (source : $this->source)\" />";
+                    echo '<img class="icon lowopacity" src="resources/icons/world.png" title="Type: mirror (source : ' . $this->source . ')" />';
                 } elseif ($this->type == "local") {
-                    echo '<img class="icon lowopacity" src="resources/icons/pin.png" title="Type : local" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/pin.png" title="Type: local" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Type : inconnu" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Type: unknow" />';
                 }
             }
             /**
@@ -3638,28 +3638,28 @@ class Repo
              */
             if (PRINT_REPO_SIGNATURE == 'yes') {
                 if ($this->signed == "yes") {
-                    echo '<img class="icon lowopacity" src="resources/icons/key.png" title="Repo signé avec GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key.png" title="Signed with GPG" />';
                 } elseif ($this->signed == "no") {
-                    echo '<img class="icon lowopacity" src="resources/icons/key2.png" title="Repo non-signé avec GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key2.png" title="Not signed with GPG" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Signature GPG : inconnue" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="GPG signature: unknow" />';
                 }
             }
             /**
              *  Affichage de l'icone "explorer"
              */
             if ($this->packageType == "rpm") {
-                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Explorer le repo $this->name ($this->dateFormatted)\" /></a>";
+                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Browse $this->name ($this->dateFormatted) snapshot\" /></a>";
             }
             if ($this->packageType == "deb") {
-                echo "<a href=\"explore.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Explorer la section {$this->section} ($this->dateFormatted)\" /></a>";
+                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Browse $this->section ($this->dateFormatted) snapshot\" /></a>";
             }
             if (!empty($this->reconstruct)) {
                 if ($this->reconstruct == 'needed') {
-                    echo '<img class="icon" src="resources/icons/warning.png" title="Le repo contient des paquets qui n\'ont pas été intégré. Vous devez reconstruire le repo pour les intégrer." />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot contains package(s) that have not been integrated to the repo metadata. You must rebuild metadata of the snapshot to include them." />';
                 }
                 if ($this->reconstruct == 'failed') {
-                    echo '<img class="icon" src="resources/icons/redcircle.png" title="La construction des métadonnées du repo a échouée." />';
+                    echo '<img class="icon" src="resources/icons/redcircle.png" title="Metadata building has failed." />';
                 }
             }
                 echo '</div>';
@@ -3694,10 +3694,10 @@ class Repo
              *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
              */
             if ($this->packageType == "rpm") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Afficher la configuration client" />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
             }
             if ($this->packageType == "deb") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Afficher la configuration client" />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
             }
 
             /**
@@ -3705,32 +3705,33 @@ class Repo
              */
             if (STATS_ENABLED == "yes") {
                 if ($this->packageType == "rpm") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Voir les stats du repo $this->name ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Visualize stats and metrics of $this->name ($this->env)\" /></a>";
                 }
                 if ($this->packageType == "deb") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Voir les stats de la section $this->section ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Visualize stats and metrics of $this->section ($this->env)\" /></a>";
                 }
             }
+
             /**
              *  Affichage de l'icone "warning" si le répertoire du repo n'existe plus sur le serveur
              */
             if ($this->packageType == "rpm") {
                 if (!is_dir(REPOS_DIR . "/{$this->dateFormatted}_{$this->name}")) {
-                    echo '<img class="icon" src="resources/icons/warning.png" title="Le répertoire de ce repo semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot directory is missing on the server." />';
                 }
             }
             if ($this->packageType == "deb") {
                 if (!is_dir(REPOS_DIR . "/$this->name/$this->dist/{$this->dateFormatted}_{$this->section}")) {
-                    echo '<img class="icon" src="resources/icons/warning.png" title="Le répertoire de cette section semble inexistant sur le serveur" />';
+                    echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot directory is missing on the server." />';
                 }
             }
         }
 
-            /**
-             *  Icone suppression de l'environnement
-             */
+        /**
+         *  Icone suppression de l'environnement
+         */
         if (!empty($this->env) and \Controllers\Common::isadmin()) {
-            echo '<img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Supprimer l\'environnement ' . $this->env . '" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
+            echo '<img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Remove ' . $this->env . ' environment" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
         }
 
         echo '</div>';
@@ -3740,7 +3741,7 @@ class Repo
          */
         echo '<div class="item-desc">';
         if (!empty($this->env)) {
-            echo '<input type="text" class="repoDescriptionInput" env-id="' . $this->envId . '" placeholder="🖉 ajouter une description" value="' . $this->description . '" />';
+            echo '<input type="text" class="repoDescriptionInput" env-id="' . $this->envId . '" placeholder="🖉 add a description" value="' . $this->description . '" />';
         }
         echo '</div>';
     }

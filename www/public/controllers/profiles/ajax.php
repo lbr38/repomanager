@@ -44,7 +44,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La configuration du serveur a été enregistrée");
+            response(HTTP_OK, "Server configuration has been saved");
         }
 
         /*
@@ -65,7 +65,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le profil <b>" . $_POST['name'] . "</b> a été créé");
+            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been created");
         }
 
         /**
@@ -86,7 +86,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le profil <b>" . $_POST['name'] . "</b> a été supprimé");
+            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been deleted");
         }
 
         /**
@@ -107,7 +107,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le profil <b>" . $_POST['name'] . "</b> a été renommé en <b>" . $_POST['newname'] . "</b>");
+            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
         }
 
         /**
@@ -128,7 +128,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Le profil <b>" . $_POST['name'] . "</b> a été dupliqué");
+            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been duplicated");
         }
 
         /**
@@ -200,7 +200,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Configuration du profil <b>" . $_POST['name'] . "</b> enregistrée");
+            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> configuration has been saved");
         }
 
         /**

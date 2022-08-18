@@ -112,7 +112,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
      */
     if (!is_dir($targetDir)) {
         if (!mkdir($targetDir, 0770, true)) {
-            \Controllers\Common::printAlert("Erreur : impossible de créer le répertoire d'upload : <b>$target_dir</b>", 'error');
+            \Controllers\Common::printAlert("Error: cannot create upload directory <b>$target_dir</b>", 'error');
             return;
         }
     }
@@ -189,9 +189,9 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
     }
 
     if ($uploadError === 0) {
-        \Controllers\Common::printAlert('Les fichiers ont été chargés', 'success');
+        \Controllers\Common::printAlert('Files have been uploaded', 'success');
     } else {
-        \Controllers\Common::printAlert("Certains fichiers n'ont pas pu être chargé", 'error');
+        \Controllers\Common::printAlert('Some files have not been uploaded', 'error');
     }
 }
 
@@ -268,26 +268,27 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                     /**
                      *  Si une opération est déjà en cours sur ce repo alors on affiche un message
                      */
-                    if (!empty($reconstruct) and $reconstruct == 'running') {
-                        echo '<p>';
-                        echo '<img src="resources/images/loading.gif" class="icon" /> ';
-                        echo 'Une opération est en cours sur ce repo.';
-                        echo '</p>';
-                    }
+                    if (!empty($reconstruct) and $reconstruct == 'running') : ?>
+                        <p>
+                            <img src="resources/images/loading.gif" class="icon" /> 
+                            An operation is running on this repo.
+                        </p>
+                        <?php
+                    endif;
 
                     /**
                      *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                      */
                     if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct != 'running')) { ?>
                             <div class="div-generic-gray">
-                                <h5><img src="resources/icons/products/package.png" class="icon" />Uploader des paquets</h5>
+                                <h5><img src="resources/icons/products/package.png" class="icon" />Upload packages</h5>
                                 
-                                <p>Sélectionnez des paquets à intégrer au repo.</p>
+                                <p>Select package(s) to import into the repo.</p>
                                 <br>
                                 <form action="" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="action" value="uploadPackage" />
                                     <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
-                                    <button type="submit" class="btn-large-blue">Ajouter</button>
+                                    <button type="submit" class="btn-large-blue">Add</button>
                                 </form>
 
                                 <?php
@@ -295,26 +296,26 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                                  *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
                                  */
                                 if (!empty($packageExists)) {
-                                    echo '<br><span class="redtext">Les paquets suivants existent déjà et n\'ont pas été chargés : <b>' . rtrim($packageExists, ', ') . '</b></span>';
+                                    echo '<br><span class="redtext">Following packages already exist and have not been uploaded: <b>' . rtrim($packageExists, ', ') . '</b></span>';
                                 }
                                 if (!empty($packagesError)) {
-                                    echo '<br><span class="redtext">Les paquets suivants sont en erreur et n\'ont pas été chargés : <b>' . rtrim($packagesError, ', ') . '</b></span>';
+                                    echo '<br><span class="redtext">Following packages encountered error and have not been uploaded: <b>' . rtrim($packagesError, ', ') . '</b></span>';
                                 }
                                 if (!empty($packageEmpty)) {
-                                    echo '<br><span class="redtext">Les paquets suivants semblent vides et n\'ont pas été chargés : <b>' . rtrim($packageEmpty, ', ') . '</b></span>';
+                                    echo '<br><span class="redtext">Following packages are empty and have not been uploaded: <b>' . rtrim($packageEmpty, ', ') . '</b></span>';
                                 }
                                 if (!empty($packageInvalid)) {
-                                    echo '<br><span class="redtext">Les paquets suivants sont invalides et n\'ont pas été chargés : <b>' . rtrim($packageInvalid, ', ') . '</b></span>';
+                                    echo '<br><span class="redtext">Following packages are invalid and have not been uploaded: <b>' . rtrim($packageInvalid, ', ') . '</b></span>';
                                 }
                                 ?>
                             </div>
                             
                             <div class="div-generic-gray">
-                                <h5><img src="resources/icons/update.png" class="icon" />Reconstruire les fichiers de metadonnées du repo</h5>
+                                <h5><img src="resources/icons/update.png" class="icon" />Rebuild repo metadata files</h5>
                                 <form id="hidden-form" action="" method="post">
                                     <input type="hidden" name="action" value="reconstruct">
                                     <input type="hidden" name="snapId" value="<?= $snapId ?>">
-                                    <span>Signer avec GPG </span>
+                                    <span>Sign with GPG </span>
                                     <label class="onoff-switch-label">
                                         <?php
                                         $resignChecked = '';
@@ -333,15 +334,15 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                                         <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?= $resignChecked ?>>
                                         <span class="onoff-switch-slider"></span>
                                     </label>
-                                    <span class="graytext">  (La signature avec GPG peut rallonger le temps de l'opération)</span>
+                                    <span class="graytext">  (Signature can extend the operation duration)</span>
                                     <br><br>
-                                    <button type="submit" class="btn-large-red"><img src="resources/icons/rocket.png" class="icon" />Exécuter</button>
+                                    <button type="submit" class="btn-large-red"><img src="resources/icons/rocket.png" class="icon" />Execute</button>
                                 </form>
                             </div>
                         <?php
                     }
                 } else {
-                    echo '<p>Vous ne pouvez pas exécuter d\'action.</p>';
+                    echo '<p>You can\'t execute any actions.</p>';
                 } ?>
             </section>
         </section>
@@ -349,23 +350,23 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
 
     <section class="mainSectionLeft">
         <section class="left">
-            <h3>EXPLORER</h3>
+            <h3>BROWSE</h3>
 
             <?php
             if ($pathError !== 0) {
-                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+                echo '<p>Error: specified repo does not exist.</p>';
             }
 
             if ($pathError === 0) {
                 if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
-                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+                    echo '<p>Explore <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
                 } else {
-                    echo '<p>Explorer le contenu du repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+                    echo '<p>Explore <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
                 }
 
                 if ($myrepo->getReconstruct() == 'needed' or is_dir($repoPath . '/my_uploaded_packages')) {
                     if (!Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
-                        echo '<span class="yellowtext">Le contenu de ce repo a été modifié, vous devez lancer la reconstruction des fichiers de metadonnées.</span>';
+                        echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo\'s metadata.</span>';
                     }
                 }
             }
@@ -373,36 +374,35 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
 
             <br>
 
-            <span id="loading">Génération de l'arborescence<img src="resources/images/loading.gif" class="icon" /></span>
+            <span id="loading">Generating tree structure<img src="resources/images/loading.gif" class="icon" /></span>
 
             <div id="explorer" class="hide">
 
                 <?php
-
                 /**
                  *  On appelle la fonction tree permettant de construire l'arborescence de fichiers si on a bien reçu toutes les infos
                  */
-
                 if ($pathError === 0) {
                     echo '<form action="" method="post" />';
-                    if (Controllers\Common::isadmin()) {
-                        echo '<input type="hidden" name="action" value="deletePackages" />';
-                        echo '<input type="hidden" name="snapId" value="' . $snapId . '" />';
-                        echo '<span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Supprimer</button></span>';
-                    }
+                    if (Controllers\Common::isadmin()) : ?>
+                        <input type="hidden" name="action" value="deletePackages" />
+                        <input type="hidden" name="snapId" value="<?= $snapId ?>" />
+                        <span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Delete</button></span>
+                        <?php
+                    endif;
 
                     /**
                      *  Si des paquets qu'on a tenté de supprimer n'existent pas alors on affiche la liste à cet endroit
                      */
                     if (!empty($packagesToDeleteNonExists)) {
-                        echo '<br><span class="redtext">Les paquets suivants n\'existent pas et n\'ont pas été supprimés : <b>' . rtrim($packagesToDeleteNonExists, ', ') . '</b></span>';
+                        echo '<br><span class="redtext">Following packages does not exist and have not been deleted: <b>' . rtrim($packagesToDeleteNonExists, ', ') . '</b></span>';
                     }
 
                     /**
                      *  Si des paquets ont été supprimés alors on affiche la liste à cet endroit
                      */
                     if (!empty($packagesDeleted)) {
-                        echo '<br><span class="greentext">Les paquets suivants ont été supprimés :</span>';
+                        echo '<br><span class="greentext">Following packages have been deleted:</span>';
                         foreach ($packagesDeleted as $packageDeleted) {
                             echo '<br><span class="greentext"><b>' . $packageDeleted . '</b></span>';
                         }

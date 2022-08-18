@@ -173,11 +173,11 @@ $(document).on('click','.deletePlanButton',function () {
     var planType = $(this).attr('plan-type');
 
     if (planType == 'plan') {
-        deleteConfirm('Êtes vous sûr de vouloir supprimer cette planification ?', function () {
+        deleteConfirm('Are you sure you want to delete this planification?', function () {
             deletePlan(planId)});
     }
     if (planType == 'regular') {
-        deleteConfirm('Êtes vous sûr de vouloir supprimer cette tâche récurrente ?', function () {
+        deleteConfirm('Are you sure you want to delete this regular plan task?', function () {
             deletePlan(planId)});
     }
 });

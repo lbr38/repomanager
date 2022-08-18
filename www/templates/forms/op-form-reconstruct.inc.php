@@ -2,16 +2,16 @@
     <td colspan="100%">
         <?php
         if ($myrepo->getPackageType() == 'rpm') {
-            echo 'L\'opération va reconstruire les metadonnées de : <br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+            echo 'Operation will rebuild metadata of: <br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
         }
         if ($myrepo->getPackageType() == 'deb') {
-            echo 'L\'opération va reconstruire les metadonnées de : <br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+            echo 'Operation will rebuild metadata of: <br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
         } ?>
     </td>
 </tr>
 
 <tr>
-    <td class="td-30">Signer avec GPG</td>
+    <td class="td-30">Sign with GPG</td>
     <td>
         <label class="onoff-switch-label">
             <?php if ($myrepo->getPackageType() == 'rpm') : ?>

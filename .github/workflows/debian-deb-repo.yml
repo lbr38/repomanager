@@ -51,6 +51,7 @@ jobs:
           sudo cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           sudo cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
           sudo cp $GITHUB_WORKSPACE/repomanager /var/lib/repomanager/
+          sudo cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
 
       - name: Set up repomanager main config
         run: |

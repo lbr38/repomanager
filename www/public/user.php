@@ -57,18 +57,18 @@ if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty
 <article>
     <section class="main">
         <section class="section-center">
-            <h3><?php echo strtoupper($_SESSION['username']);?></h3>
+            <h3><?= strtoupper($_SESSION['username']) ?></h3>
 
             <div class="div-flex div-generic-gray">
                 <div class="flex-div-100">
                     <table class="table-generic table-small opacity-80">
                         <tr>
                             <td>LOGIN</td>
-                            <td><?php echo $_SESSION['username'];?></td>
+                            <td><?= $_SESSION['username'] ?></td>
                         </tr>
                         <tr>
                             <td>ROLE</td>
-                            <td><?php echo $_SESSION['role'];?></td>
+                            <td><?= $_SESSION['role'] ?></td>
                         </tr>
                     </table>
                 </div>
@@ -76,41 +76,41 @@ if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty
 
             <div class="div-flex">
                 <div class="flex-div-50 div-generic-gray">
-                    <h4>INFORMATIONS PERSONNELLES</h4>
+                    <h4>PERSONAL INFORMATIONS</h4>
                     <form action="user.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="editPersonnalInfos" />
-                        <p>Prénom :</p>
+                        <p>First name:</p>
                         <input type="text" class="input-large" name="first_name" value="<?php echo !empty($_SESSION['first_name']) ? $_SESSION['first_name'] : ''; ?>">
 
-                        <p>Nom :</p>
+                        <p>Last name:</p>
                         <input type="text" class="input-large" name="last_name" value="<?php echo !empty($_SESSION['last_name']) ? $_SESSION['last_name'] : ''; ?>">
 
-                        <p>Email :</p>
+                        <p>Email:</p>
                         <input type="email" class="input-large" name="email" value="<?php echo !empty($_SESSION['email']) ? $_SESSION['email'] : ''; ?>">
 
                         <br>
                         <br>
-                        <button class="btn-medium-blue">Enregistrer</button>
+                        <button class="btn-medium-blue">Save</button>
                     </form>
                 </div>
 
                 <div class="flex-div-50 div-generic-gray">
-                    <h4>MODIFIER LE MOT DE PASSE</h4>
+                    <h4>CHANGE PASSWORD</h4>
                     <form action="user.php" method="post" autocomplete="off">
                         <input type="hidden" name="action" value="changePassword" />
 
-                        <p>Mot de passe actuel :</p>
+                        <p>Current password:</p>
                         <input type="password" class="input-large" name="actual_password" required />
 
-                        <p>Nouveau mot de passe :</p>
+                        <p>New password:</p>
                         <input type="password" class="input-large" name="new_password" required />
 
-                        <p>Nouveau mot de passe (saisir de nouveau) :</p>
+                        <p>New password (re-type) :</p>
                         <input type="password" class="input-large" name="new_password2" required />
 
                         <br>
                         <br>
-                        <button class="btn-medium-blue">Enregistrer</button>
+                        <button class="btn-medium-blue">Save</button>
                     </form>                    
                 </div>
             </div>

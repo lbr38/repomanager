@@ -22,4 +22,5 @@ try {
 }
 
 echo PHP_EOL . 'Disabling maintenance page.' . PHP_EOL;
+
 $myupdate->setMaintenance('off');

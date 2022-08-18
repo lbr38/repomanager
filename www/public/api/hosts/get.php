@@ -32,7 +32,7 @@ if (!empty($datas->getConfiguration) and $datas->getConfiguration == 'server') {
         echo json_encode(["return" => "201", "configuration" => $configuration]);
         exit;
     } catch (\Exception $e) {
-        $message_error[] = "Erreur lors de la récuperation de la configuration du serveur.";
+        $message_error[] = "Error while retrieving server configuration.";
         http_response_code(400);
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
@@ -58,7 +58,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
      *  D'abord on vérifie que l'ID et le token transmis sont valides
      */
     if (!$myhost->checkIdToken()) {
-        $message_error[] = "Hôte inconnu.";
+        $message_error[] = "Unknown host.";
         http_response_code(400);
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
@@ -79,7 +79,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
          *  On vérifie que le profil spécifié existe
          */
         if (!$myprofile->exists($profile)) {
-            $message_error[] = "Le profil $profile est inconnu.";
+            $message_error[] = "Unknown profile $profile";
             http_response_code(400);
             echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
@@ -94,7 +94,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
                 echo json_encode(["return" => "201", "configuration" => $configuration]);
                 exit;
             } catch (\Exception $e) {
-                $message_error[] = "Erreur lors de la récuperation de la configuration du profil.";
+                $message_error[] = "Error while retrieving profile configuration.";
                 http_response_code(400);
                 echo json_encode(["return" => "400", "message_error" => $message_error]);
                 exit;
@@ -110,7 +110,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
                 echo json_encode(["return" => "201", "configuration" => $configuration]);
                 exit;
             } catch (\Exception $e) {
-                $message_error[] = "Erreur lors de la récuperation de la configuration du profil.";
+                $message_error[] = "Error while retrieving profile configuration.";
                 http_response_code(400);
                 echo json_encode(["return" => "400", "message_error" => $message_error]);
                 exit;
@@ -121,7 +121,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
     /**
      *  Cas où aucun type de configuration à récupérer n'a été spécifié
      */
-    $message_error[] = "Requête incomplète";
+    $message_error[] = "Incomplete request";
     echo json_encode(["return" => "400", "message_error" => $message_error]);
     exit;
 
@@ -153,7 +153,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
         exit;
     }
 } else {
-    $message_error[] = "Erreur d'authentification.";
+    $message_error[] = "Authentication error.";
     http_response_code(400);
     echo json_encode(["return" => "400", "message_error" => $message_error]);
     exit;

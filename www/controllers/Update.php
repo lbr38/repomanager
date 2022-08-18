@@ -7,12 +7,25 @@ use Exception;
 class Update
 {
     private $model;
-    private $workingDir;
-    private $log = array();
+    private $workingDir = '/tmp/repomanager-update_' . GIT_VERSION;
 
     public function __construct()
     {
         $this->model = new \Models\Update();
+    }
+
+    /**
+     *  Acquit update log window, delete update log files
+     */
+    public function acquit()
+    {
+        if (file_exists(UPDATE_SUCCESS_LOG)) {
+            unlink(UPDATE_SUCCESS_LOG);
+        }
+
+        if (file_exists(UPDATE_ERROR_LOG)) {
+            unlink(UPDATE_ERROR_LOG);
+        }
     }
 
     /**
@@ -136,6 +149,7 @@ class Update
         if (is_dir(DATA_DIR . '/tools')) {
             exec("rm -rf " . DATA_DIR . '/tools');
         }
+
         exec("\cp -r " . $this->workingDir . '/repomanager/tools ' . DATA_DIR . '/', $output, $return);
         if ($return != 0) {
             $this->log[] = $output;
@@ -145,6 +159,7 @@ class Update
         if (is_file(DATA_DIR . '/repomanager')) {
             unlink(DATA_DIR . '/repomanager');
         }
+
         exec("\cp " . $this->workingDir . '/repomanager/repomanager ' . DATA_DIR . '/repomanager', $output, $return);
         if ($return != 0) {
             $this->log[] = $output;
@@ -158,11 +173,25 @@ class Update
     public function update()
     {
         try {
+            if (!is_dir(LOGS_DIR . '/update')) {
+                mkdir(LOGS_DIR . '/update', 0770, true);
+            }
+
+            /**
+             *  Delete old log files
+             */
+            if (file_exists(UPDATE_ERROR_LOG)) {
+                unlink(UPDATE_ERROR_LOG);
+            }
+            if (file_exists(UPDATE_SUCCESS_LOG)) {
+                unlink(UPDATE_SUCCESS_LOG);
+            }
+
             /**
              *  Quit if actual version is the same as the available version
              */
             if (VERSION == GIT_VERSION) {
-                return '<span>Already up to date.</span>';
+                throw new Exception('Already up to date');
             }
 
             /**
@@ -174,11 +203,6 @@ class Update
              *  Create backup before update
              */
             $this->backup();
-
-            /**
-             *  Update
-             */
-            $this->workingDir = '/tmp/repomanager-update_' . GIT_VERSION;
 
             /**
              *  Delete working dir if already exist
@@ -208,7 +232,7 @@ class Update
             $this->updateDB();
 
             /**
-             *  Apply permissions on repomanager service script
+             *  Set permissions on repomanager service script
              */
             chmod(DATA_DIR . '/tools/service/repomanager-service', octdec('0550'));
 
@@ -217,31 +241,18 @@ class Update
              */
             exec("rm '$this->workingDir' -rf ");
 
-            return '<span class="greentext">Update to ' . GIT_VERSION . ' successful</span>';
+            /**
+             *  Write to success log to file
+             */
+            $updateJSON = json_encode(array('Version' => GIT_VERSION, 'Message' => 'Update successful'));
+            file_put_contents(UPDATE_SUCCESS_LOG, $updateJSON);
         } catch (Exception $e) {
             /**
-             *  If an error occured, insert error log into update.log
+             *  Write to error log to file
              */
-            if (!empty($this->log)) {
-                if (!is_dir(DATA_DIR . '/logs/update')) {
-                    mkdir(DATA_DIR . '/logs/update', 0770, true);
-                }
+            $updateJSON = json_encode(array('Version' => GIT_VERSION, 'Message' => 'Error while update Repomanager: ' . $e->getMessage()));
 
-                if (file_exists(DATA_DIR . '/logs/update/update.log')) {
-                    unlink(DATA_DIR . '/logs/update/update.log');
-                }
-
-                touch(DATA_DIR . '/logs/update/update.log');
-
-                foreach ($this->log as $log) {
-                    file_put_contents(DATA_DIR . '/logs/update/update.log', $log . PHP_EOL, FILE_APPEND);
-                }
-            }
-
-            /**
-             *  Return catched error message
-             */
-            return '<span class="redtext">Error while updating to ' . GIT_VERSION . ': ' . $e->getMessage() . '</span>';
+            file_put_contents(UPDATE_ERROR_LOG, $updateJSON);
         }
 
         $this->setMaintenance('off');
