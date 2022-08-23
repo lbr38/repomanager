@@ -8,13 +8,31 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 define("ROOT", dirname(__FILE__, 4));
 require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::loadFromApi();
+\Controllers\Autoloader::api();
 
 /**
  *  Cas où on a demandé le status du serveur, on renvoi 201
  */
 if (isset($datas->status)) {
     http_response_code(201);
+    exit;
+}
+
+/**
+ *  Si il y a eu la moindre erreur de chargement lors de l'autoload alors on quitte
+ */
+if (__LOAD_GENERAL_ERROR != 0) {
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver configuration error. Please contact the administrator.")]);
+    exit;
+}
+
+/**
+ *  Return 400 if an update is running
+ */
+if (UPDATE_RUNNING == 'yes') {
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver is actually being updated. Please try again later.")]);
     exit;
 }
 

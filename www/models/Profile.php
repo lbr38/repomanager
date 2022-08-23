@@ -459,9 +459,13 @@ class Profile extends Model
 
         $hosts = array();
 
-        $stmt = $myhost->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
-        $stmt->bindValue(':profile', $profile);
-        $result = $stmt->execute();
+        try {
+            $stmt = $myhost->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
+            $stmt->bindValue(':profile', $profile);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $hosts[] = $row;
@@ -470,5 +474,19 @@ class Profile extends Model
         $myhost->db->close();
 
         return count($hosts);
+    }
+
+    /**
+     *  Remove repo Id from profile members
+     */
+    public function removeRepoMemberId(int $id)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM profile_repo_members WHERE Id_repo = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
     }
 }

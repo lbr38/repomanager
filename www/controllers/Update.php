@@ -57,16 +57,17 @@ class Update
         if (UPDATE_BACKUP_ENABLED == 'yes') {
             $backupName = DATE_YMD . '_' . TIME . '_repomanager_full_backup.tar.gz';
 
-            // exec("tar --exclude='" . BACKUP_DIR . "' --exclude='" . DATA_DIR . "/db/repomanager-stats.db' -czf /tmp/${backupName} " . ROOT, $output, $result);
-            exec("tar --exclude='" . BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $result);
-
-            if ($result != 0) {
+            exec("tar --exclude='" . BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $return);
+            if ($return != 0) {
                 throw new Exception('Error while backuping actual repomanager configuration.');
-            } else {
-                /**
-                 *  Move backup file to backup dir
-                 */
-                exec("mv /tmp/${backupName} " . BACKUP_DIR . "/");
+            }
+
+            /**
+             *  Move backup file to backup dir
+             */
+            exec("mv /tmp/${backupName} " . BACKUP_DIR . "/", $output, $return);
+            if ($return != 0) {
+                throw new Exception('Error while moving backup file to the backup dir.');
             }
         }
     }
@@ -85,7 +86,6 @@ class Update
 
         exec('wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/' . GIT_VERSION . '/repomanager_' . GIT_VERSION . '.tar.gz" -O "' . $this->workingDir . '/repomanager_' . GIT_VERSION . '.tar.gz"', $output, $return);
         if ($return != 0) {
-            $this->log[] = $output;
             throw new Exception('Error while downloading new release.');
         }
 
@@ -94,7 +94,6 @@ class Update
          */
         exec('tar xzf ' . $this->workingDir . '/repomanager_' . GIT_VERSION . '.tar.gz -C ' . $this->workingDir . '/', $output, $return);
         if ($return != 0) {
-            $this->log[] = $output;
             throw new Exception('Error while extracting new release archive.');
         }
     }
@@ -131,38 +130,55 @@ class Update
     private function updateWeb()
     {
         /**
-         *  Delete actual root webdir and copy it from the new release
+         *  Delete actual web root dir content
          */
         if (is_dir(ROOT)) {
-            exec("rm -rf '" . ROOT . "/*");
-        }
-
-        exec("\cp -r " . $this->workingDir . '/repomanager/www/* ' . ROOT . '/', $output, $return);
-        if ($return != 0) {
-            $this->log[] = $output;
-            throw new Exception('Error while copying <b>' . $this->workingDir . '/repomanager/www</b> to <b>' . ROOT . '/</b>');
+            exec("rm -rf '" . ROOT . "/*", $output, $return);
+            if ($return != 0) {
+                throw new Exception('Error while deleting web root content <b>' . ROOT . '</b>');
+            }
         }
 
         /**
-         *  Copy scripts and tools to datadir
+         *  Copy new files to web root dir
          */
-        if (is_dir(DATA_DIR . '/tools')) {
-            exec("rm -rf " . DATA_DIR . '/tools');
+        exec("\cp -r " . $this->workingDir . '/repomanager/www/* ' . ROOT . '/', $output, $return);
+        if ($return != 0) {
+            throw new Exception('Error while copying <b>' . $this->workingDir . '/repomanager/www/</b> content to <b>' . ROOT . '/</b>');
         }
 
+        /**
+         *  Delete actual data dir tools content
+         */
+        if (is_dir(DATA_DIR . '/tools')) {
+            exec('rm -rf ' . DATA_DIR . '/tools', $output, $return);
+            if ($return != 0) {
+                throw new Exception('Error while deleting tools directory content <b>' . DATA_DIR . '/tools/</b>');
+            }
+        }
+
+        /**
+         *  Copy new tools dir content
+         */
         exec("\cp -r " . $this->workingDir . '/repomanager/tools ' . DATA_DIR . '/', $output, $return);
         if ($return != 0) {
-            $this->log[] = $output;
             throw new Exception('Error while copying <b>' . $this->workingDir . '/repomanager/tools</b> to <b>' . DATA_DIR . '/</b>');
         }
 
+        /**
+         *  Delete actual repomanager bash script
+         */
         if (is_file(DATA_DIR . '/repomanager')) {
-            unlink(DATA_DIR . '/repomanager');
+            if (!unlink(DATA_DIR . '/repomanager')) {
+                throw new Exception('Error while deleting repomanager bash script <b>' . DATA_DIR . '/repomanager</b>');
+            }
         }
 
+        /**
+         *  Copy new repomanager bash script
+         */
         exec("\cp " . $this->workingDir . '/repomanager/repomanager ' . DATA_DIR . '/repomanager', $output, $return);
         if ($return != 0) {
-            $this->log[] = $output;
             throw new Exception('Error while copying <b>' . $this->workingDir . '/repomanager/repomanager</b> to <b>' . DATA_DIR . '/repomanager</b>');
         }
     }
@@ -178,7 +194,7 @@ class Update
             }
 
             /**
-             *  Delete old log files
+             *  Delete old log files if exist
              */
             if (file_exists(UPDATE_ERROR_LOG)) {
                 unlink(UPDATE_ERROR_LOG);
@@ -195,7 +211,7 @@ class Update
             }
 
             /**
-             *  Enable maintenance
+             *  Enable maintenance page
              */
             $this->setMaintenance('on');
 
@@ -208,13 +224,18 @@ class Update
              *  Delete working dir if already exist
              */
             if (is_dir($this->workingDir)) {
-                exec("rm '$this->workingDir' -rf");
+                exec("rm '$this->workingDir' -rf", $output, $return);
+                if ($return != 0) {
+                    throw new Exception('Error while deleting old working directory <b>' . $this->workingDir . '</b>');
+                }
             }
 
             /**
              *  Then create it
              */
-            mkdir($this->workingDir, 0770, true);
+            if (!mkdir($this->workingDir, 0770, true)) {
+                throw new Exception('Error while trying to create working directory <b>' . $this->workingDir . '</b>');
+            }
 
             /**
              *  Download new release
@@ -234,12 +255,24 @@ class Update
             /**
              *  Set permissions on repomanager service script
              */
-            chmod(DATA_DIR . '/tools/service/repomanager-service', octdec('0550'));
+            if (!chmod(DATA_DIR . '/tools/service/repomanager-service', octdec('0550'))) {
+                throw new Exception('Error while trying to set permissions on <b>' . DATA_DIR . '/tools/service/repomanager-service</b>');
+            }
 
             /**
              *  Delete working dir
              */
-            exec("rm '$this->workingDir' -rf ");
+            if (is_dir($this->workingDir)) {
+                exec("rm '$this->workingDir' -rf", $output, $return);
+                if ($return != 0) {
+                    throw new Exception('Error while cleaning working directory <b>' . $this->workingDir . '</b>');
+                }
+            }
+
+            /**
+             *  Clear cache if any
+             */
+            Common::clearCache();
 
             /**
              *  Write to success log to file
@@ -255,6 +288,9 @@ class Update
             file_put_contents(UPDATE_ERROR_LOG, $updateJSON);
         }
 
+        /**
+         *  Disable maintenance page
+         */
         $this->setMaintenance('off');
     }
 }

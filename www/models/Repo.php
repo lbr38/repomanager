@@ -491,6 +491,34 @@ class Repo extends Model
     }
 
     /**
+     *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
+     */
+    public function getUnusedRepos()
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Dist, repos.Section FROM repos
+            WHERE repos.Id NOT IN (
+            SELECT DISTINCT repos.Id FROM repos
+            LEFT JOIN repos_snap
+            ON repos_snap.Id_repo = repos.Id
+            LEFT JOIN repos_env
+            ON repos_env.Id_snap = repos_snap.Id
+            WHERE repos_snap.Status = 'active')");
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        $data = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Liste les snapshots de repos inutilisés en fonction de l'Id de repo et du paramètre de retention spécifié
      */
     public function getUnunsedSnapshot(string $repoId, string $retention)

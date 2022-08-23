@@ -8,14 +8,23 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 define("ROOT", dirname(__FILE__, 4));
 require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::loadFromApi();
+\Controllers\Autoloader::api();
 
 /**
  *  Si il y a eu la moindre erreur de chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
-    echo json_encode(["return" => "400", "message" => "Reposerver configuration error. Please contact the administrator."]);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver configuration error. Please contact the administrator.")]);
+    exit;
+}
+
+/**
+ *  Return 400 if an update is running
+ */
+if (UPDATE_RUNNING == 'yes') {
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver is actually being updated. Please try again later.")]);
     exit;
 }
 
@@ -42,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         if (!$myhost->checkIdToken()) {
             $message_error[] = "Unknown host.";
             http_response_code(400);
-            echo json_encode(["return" => "400", "message" => $message_error]);
+            echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
 
@@ -54,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         if ($unregister === true) {
             $message_success[] = "Host has been deleted.";
             http_response_code(201);
-            echo json_encode(["return" => "201", "message" => $message_success]);
+            echo json_encode(["return" => "201", "message_success" => $message_success]);
             exit;
         }
 
         if ($unregister == "2") {
             $message_error[] = "Authentication has failed.";
             http_response_code(400);
-            echo json_encode(["return" => "400", "message" => $message_error]);
+            echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
     } else {

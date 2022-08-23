@@ -561,6 +561,14 @@ class Repo
     }
 
     /**
+     *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
+     */
+    public function getUnusedRepos()
+    {
+        return $this->model->getUnusedRepos();
+    }
+
+    /**
      *  Retoune true si l'Id de repo existe en base de données
      */
     public function existsId(string $repoId)

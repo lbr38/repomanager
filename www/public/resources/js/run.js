@@ -17,6 +17,7 @@ $(document).ready(function () {
         // Création d'un cookie (expiration 15min)
         document.cookie = "printAllOp=yes;max-age=900;";
     });
+
     /**
      *  Afficher toutes les opérations récurrentes terminées
      */

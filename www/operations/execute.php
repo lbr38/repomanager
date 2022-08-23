@@ -2,7 +2,7 @@
 
 define("ROOT", dirname(__FILE__, 2));
 require_once(ROOT . "/controllers/Autoloader.php");
-\Controllers\Autoloader::loadFromApi();
+\Controllers\Autoloader::api();
 
 /**
  *  Ce script renvoie un code de sortie et un message d'erreur le cas écheant.

@@ -1097,11 +1097,11 @@ class Planification
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $plan_title   = "[ OK ] - Planification number $this->id on " . WWW_HOSTNAME;
+                    $plan_title   = "[ OK ] - Planification Id $this->id on " . WWW_HOSTNAME;
                     $plan_pre_msg = "A plan has completed.";
                 }
                 if ($this->type == 'regular') {
-                    $plan_title   = "[ OK ] - Regular planification number $this->id on " . WWW_HOSTNAME;
+                    $plan_title   = "[ OK ] - Regular planification Id $this->id on " . WWW_HOSTNAME;
                     $plan_pre_msg = "A regular plan has completed.";
                 }
                 $plan_msg = "Plan has completed successfully." . PHP_EOL;
