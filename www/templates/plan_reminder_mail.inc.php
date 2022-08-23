@@ -371,7 +371,7 @@ $template = "<!doctype html>
                       <td>
                         $reminder_msg
                         <br><br>
-                        <p>Vous pouvez à tout moment annuler une planification depuis l'onglet Planifications</p>
+                        <p>You can cancel a plan from the planifications tab</p>
                         <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">
                           <tbody>
                             <tr>

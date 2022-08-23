@@ -137,7 +137,7 @@ class Common
             echo '<div class="alert">';
         }
 
-        echo "<span>$message</span>";
+        echo '<span>' . $message . '</span>';
         echo '</div>';
 
         echo '<script type="text/javascript">';
@@ -167,8 +167,8 @@ class Common
         echo "<div id=\"$divID\" class=\"hide confirmAlert\">";
             echo "<span class=\"confirmAlert-message\">$message</span>";
             echo '<div class="confirmAlert-buttons-container">';
-                echo "<a href=\"$url\"><span class=\"btn-doConfirm\">Supprimer</span></a>";
-                echo "<span class=\"$aID btn-doCancel pointer\">Annuler</span>";
+                echo "<a href=\"$url\"><span class=\"btn-doConfirm\">Delete</span></a>";
+                echo "<span class=\"$aID btn-doCancel pointer\">Cancel</span>";
             echo '</div>';
 
         echo "<script>";
@@ -215,9 +215,9 @@ class Common
          *  Si le mode debug est activé alors on affiche l'exception dans le message d'erreur
          */
         if (!empty($exception) and DEBUG_MODE == 'enabled') {
-            throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>' . $exception . '<br>');
+            throw new Exception('An error occured while executing request in database <br>' . $exception . '<br>');
         } else {
-            throw new Exception('Une erreur est survenue lors de l\'exécution de la requête en base de données <br>');
+            throw new Exception('An error occured while executing request in database <br>');
         }
     }
 
@@ -408,19 +408,19 @@ class Common
          *  On vérifie que la valeur des paramètres est 'yes' ou 'no'
          */
         if ($printRepoSize != 'yes' and $printRepoSize != 'no') {
-            throw new Exception("Le paramètre d'affichage de la taille du repo est invalide");
+            throw new Exception("Repo size display param is invalid");
         }
 
         if ($printRepoType != 'yes' and $printRepoType != 'no') {
-            throw new Exception("Le paramètre d'affichage du type du repo est invalide");
+            throw new Exception("Repo type display param is invalid");
         }
 
         if ($printRepoSignature != 'yes' and $printRepoSignature != 'no') {
-            throw new Exception("Le paramètre d'affichage de la signature du repo est invalide");
+            throw new Exception("Repo signature display param is invalid");
         }
 
         if ($cacheReposList != 'yes' and $cacheReposList != 'no') {
-            throw new Exception('Le paramètre de mise en cache est invalide');
+            throw new Exception('Caching param is invalid');
         }
 
         /**

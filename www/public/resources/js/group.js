@@ -79,7 +79,7 @@ $(document).on('submit','.groupForm',function () {
  */
 $(document).on('click','.deleteGroupButton',function () {
     var name = $(this).attr('name');
-    deleteConfirm('Êtes vous sûr de vouloir supprimer le groupe ' + name + ' ?', function () {
+    deleteConfirm('Are you sure you want to delete group ' + name + '?', function () {
         deleteGroup(name)});
 });
 

@@ -1,14 +1,14 @@
 <section class="right" id="groupsDiv">
-    <img id="groupsDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
-    <h3>GROUPES</h3>
-    <p>Les groupes permettent de regrouper plusieurs repos afin de les trier ou d'effectuer une action commune.</p>
+    <img id="groupsDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
+    <h3>GROUPS</h3>
+    <p>Regroup repos in order to sort them or perform a common action.</p>
     <br>
 
-    <h5>Créer un groupe</h5>
+    <h5>Create a group</h5>
 
     <form id="newGroupForm" autocomplete="off">
         <input id="newGroupInput" type="text" class="input-medium" />
-        <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
+        <button type="submit" class="btn-xxsmall-blue" title="Add">+</button>
     </form>
 <br>
     <br>
@@ -27,46 +27,47 @@
     /**
      *  2. Affichage des groupes si il y en a
      */
-    if (!empty($groupsList)) {
-        echo '<div class="div-generic-gray">';
-            echo "<h5>Groupes actuels</h5>";
+    if (!empty($groupsList)) : ?>
+        <div class="div-generic-gray">
+            <h5>Current groups</h5>
 
+            <?php
             $myrepo = new \Controllers\Repo();
 
-        foreach ($groupsList as $groupName) {?>
+            foreach ($groupsList as $groupName) : ?>
                 <div class="header-container">
                     <div class="header-blue-min">
-                        <form class="groupForm" groupname="<?php echo $groupName;?>" autocomplete="off">
-                            <input type="hidden" name="actualGroupName" value="<?php echo $groupName;?>" />
+                        <form class="groupForm" groupname="<?= $groupName ?>" autocomplete="off">
+                            <input type="hidden" name="actualGroupName" value="<?= $groupName ?>" />
                             <table class="table-large">
                                 <tr>
                                     <td>
-                                        <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?php echo $groupName;?>" type="text" value="<?php echo $groupName;?>" />
+                                        <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?= $groupName ?>" type="text" value="<?= $groupName ?>" />
                                     </td>
                                     <td class="td-fit">
-                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?php echo $groupName;?>" title="Configuration de <?php echo $groupName;?>" src="resources/icons/cog.png" />
-                                        <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?php echo $groupName;?>" title="Supprimer le groupe <?php echo $groupName;?>" />
+                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> configuration" src="resources/icons/cog.png" />
+                                        <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
                                     </td>
                                 </tr>
                             </table>
                         </form>
                     </div>
 
-                    <div id="groupConfigurationDiv-<?php echo $groupName;?>" class="hide">
-                        <form class="groupReposForm" groupname="<?php echo $groupName;?>" autocomplete="off">
+                    <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide">
+                        <form class="groupReposForm" groupname="<?= $groupName ?>" autocomplete="off">
                             <div class="detailsDiv">
                                 <h5>Repos</h5>
-
                                 <?php $myrepo->selectRepoByGroup($groupName); ?>
-
                                 <br>
                                 <br>
-                                <button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>
+                                <button type="submit" class="btn-large-blue" title="Save">Save</button>
                             </div>
                         </form>
                     </div>
                 </div>
-        <?php }
-        echo '</div>';
-    } ?>
+                <?php
+            endforeach; ?>
+        </div>
+        <?php
+    endif; ?>
 </section>

@@ -107,6 +107,13 @@ function countChecked()
  */
 
 /**
+ *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
+ */
+$(document).on('click','#ReposListDisplayToggleButton, #displayDivCloseButton',function () {
+    $("#displayDiv").slideToggle('slow');
+});
+
+/**
  *  Event : affichage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoToggleButton',function () {
@@ -166,7 +173,7 @@ $(document).on('click','.delete-env-btn',function () {
     var envId = $(this).attr('env-id');
     var envName = $(this).attr('env-name');
 
-    deleteConfirm('Supprimer l\'environnement ' + envName + ' ?', function () {
+    deleteConfirm('Remove environment ' + envName + '?', function () {
         removeEnv(repoId, snapId, envId)});
 });
 
@@ -419,7 +426,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Fermer" class="divReposConf-close icon-lowopacity" src="resources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close icon-lowopacity" src="resources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage

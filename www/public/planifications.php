@@ -29,11 +29,9 @@ include_once('../includes/head.inc.php');
             <h3>PLANIFICATIONS</h3>
 
             <?php
-
             /**
              *  1. Récupération de la liste des planifications en liste d'attente ou en cours d'exécution
              */
-
             $plans = new \Controllers\Planification();
             $planQueueList = $plans->listQueue();
             $planRunningList = $plans->listRunning();
@@ -44,7 +42,7 @@ include_once('../includes/head.inc.php');
              */
             if (!empty($planList)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<h5><img src="resources/icons/calendar.png" class="icon" />Planifications actives</h5>';
+                echo '<h5><img src="resources/icons/calendar.png" class="icon" />Current plans</h5>';
 
                 foreach ($planList as $plan) {
                     $planId = $plan['Id'];
@@ -79,7 +77,7 @@ include_once('../includes/head.inc.php');
                     if (!empty($plan['Reminder'])) {
                         $planReminder = $plan['Reminder'];
                     } else {
-                        $planReminder = 'Aucun';
+                        $planReminder = 'None';
                     }
 
                     /**
@@ -92,9 +90,9 @@ include_once('../includes/head.inc.php');
                                     <td class="td-10">
                                     <?php
                                     if ($planAction == "update") {
-                                        echo '<img class="icon" src="resources/icons/update.png" title="Type d\'opération : ' . $planAction . '" />';
+                                        echo '<img class="icon" src="resources/icons/update.png" title="Operation type: ' . $planAction . '" />';
                                     } else {
-                                        echo '<img class="icon" src="resources/icons/link.png" title="Type d\'opération : ' . $planAction . '" />';
+                                        echo '<img class="icon" src="resources/icons/link.png" title="Operation type: ' . $planAction . '" />';
                                     } ?>
                                     </td>
                                     <td class="td-small">
@@ -103,17 +101,17 @@ include_once('../includes/head.inc.php');
                                          *  Affichage du type de planification
                                          */
                                         if ($planType == "plan") {
-                                            echo 'Prévue le <b>' . $planDate . '</b> à <b>' . $planTime . '</b>';
+                                            echo 'Planed on <b>' . $planDate . '</b> at <b>' . $planTime . '</b>';
                                         }
                                         if ($planType == "regular") {
                                             if ($planFrequency == "every-hour") {
-                                                echo 'Toutes les heures</b>';
+                                                echo 'Every hour</b>';
                                             }
                                             if ($planFrequency == "every-day") {
-                                                echo 'Tous les jours à <b>' . $planTime . '</b>';
+                                                echo 'Every day at <b>' . $planTime . '</b>';
                                             }
                                             if ($planFrequency == "every-week") {
-                                                echo 'Toutes les semaines';
+                                                echo 'Every week';
                                             }
                                         } ?>
                                     </td>
@@ -129,12 +127,12 @@ include_once('../includes/head.inc.php');
                                              *  On vérifie que le groupe spécifié existe toujours (il a peut être été supprimé entre temps)
                                              */
                                             if ($group->existsId($planGroupId) === false) {
-                                                $planGroup = "inconnu (supprimé)";
+                                                $planGroup = "Unknow group (deleted)";
                                             } else {
-                                                $planGroup = '<span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
+                                                $planGroup = 'Group <span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
                                             }
 
-                                            echo 'Groupe ' . $planGroup;
+                                            echo $planGroup;
                                         }
                                         /**
                                          *  Si la planification traite un repo, on récupère ses informations à partir de son Id
@@ -146,7 +144,7 @@ include_once('../includes/head.inc.php');
                                              *  On vérifie que le repo spécifié existe toujours (il a peut être été supprimé entre temps)
                                              */
                                             if ($repo->existsSnapId($planSnapId) === false) {
-                                                $repo = "Repo inconnu (supprimé)";
+                                                $repo = "Unknown repo (deleted)";
                                             } else {
                                                 /**
                                                  *  Récupération de toutes les infos concernant le repo
@@ -180,15 +178,15 @@ include_once('../includes/head.inc.php');
                                      */ ?>
                                     <td class="td-fit">
                                         <span>
-                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="resources/icons/search.png" />
+                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details." src="resources/icons/search.png" />
                                         </span>
                                         <span>
                                         <?php
                                         if ($planStatus == "queued") {
-                                            echo '<img class="deletePlanButton icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Supprimer la planification" src="resources/icons/bin.png" />';
+                                            echo '<img class="deletePlanButton icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Delete plan." src="resources/icons/bin.png" />';
                                         }
                                         if ($planStatus == "running") {
-                                            echo 'en cours<img src="resources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
+                                            echo 'running<img src="resources/images/loading.gif" class="icon" title="Plan is currently running." />';
                                         }
                                         ?>
                                         </span>
@@ -209,9 +207,9 @@ include_once('../includes/head.inc.php');
                                  */
                                 if ($planAction == "update") {
                                     if (!empty($planGroup)) {
-                                        echo '<p>Mise à jour des repos du groupe ' . $planGroup . '</p>';
+                                        echo '<p>Update repos of the ' . $planGroup . ' group</p>';
                                     } else {
-                                        echo '<p>Mise à jour du repo ' . $repo . '</p>';
+                                        echo '<p>Update ' . $repo . ' repo</p>';
                                     }
                                 }
 
@@ -223,30 +221,30 @@ include_once('../includes/head.inc.php');
                                 if ($planType == "regular") {
                                     if (!empty($planDay)) {
                                         echo '<div>';
-                                        echo '<span>Jour(s)</span>';
+                                        echo '<span>Day(s)</span>';
                                         echo '<span>';
                                         $planDay = explode(',', $planDay);
                                         foreach ($planDay as $day) {
                                             if ($day == "monday") {
-                                                echo 'lundi';
+                                                echo 'monday';
                                             }
                                             if ($day == "tuesday") {
-                                                echo 'mardi';
+                                                echo 'tuesday';
                                             }
                                             if ($day == "wednesday") {
-                                                echo 'mercredi';
+                                                echo 'wednesday';
                                             }
                                             if ($day == "thursday") {
-                                                echo 'jeudi';
+                                                echo 'thursday';
                                             }
                                             if ($day == "friday") {
-                                                echo 'vendredi';
+                                                echo 'friday';
                                             }
                                             if ($day == "saturday") {
-                                                echo 'samedi';
+                                                echo 'saturday';
                                             }
                                             if ($day == "sunday") {
-                                                echo 'dimanche';
+                                                echo 'sunday';
                                             }
                                             echo '<br>';
                                         }
@@ -260,7 +258,7 @@ include_once('../includes/head.inc.php');
                                  */
                                 if (!empty($planTime)) {
                                     echo '<div>';
-                                        echo '<span>Heure</span>';
+                                        echo '<span>Time</span>';
                                         echo '<span>' . $planTime . '</span>';
                                     echo '</div>';
                                 }
@@ -270,22 +268,22 @@ include_once('../includes/head.inc.php');
                                      *  GPG Check
                                      */
                                     echo '<div>';
-                                        echo '<span>Vérif. des signatures GPG</span>';
+                                        echo '<span>Check GPG signatures</span>';
                                     if ($planGpgCheck == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     }
                                     echo '</div>';
                                     /**
                                      *  GPG Resign
                                      */
                                     echo '<div>';
-                                        echo '<span>Signature des paquets avec GPG</span>';
+                                        echo '<span>Sign packages/repo with GPG</span>';
                                     if ($planGpgResign == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     }
                                     echo '</div>';
                                 }
@@ -296,30 +294,30 @@ include_once('../includes/head.inc.php');
                                  *  Rappels mail
                                  */
                                 echo '<div>';
-                                echo '<span>Rappels</span>';
+                                echo '<span>Reminder</span>';
                                 echo '<span>';
-                                if ($planReminder == 'Aucun') {
-                                    echo 'Aucun';
+                                if ($planReminder == 'None') {
+                                    echo 'None';
                                 } else {
                                     $planReminder = explode(',', $planReminder);
                                     foreach ($planReminder as $reminder) {
                                         if (!empty($reminder)) {
-                                            echo $reminder . ' jours avant<br>';
+                                            echo $reminder . ' days before<br>';
                                         }
                                     }
                                 }
-                                    echo '</span>';
-                                    echo '</div>';
+                                echo '</span>';
+                                echo '</div>';
 
                                 /**
                                  *  Notification en cas d'erreur
                                  */
-                                    echo '<div>';
-                                    echo '<span>Notification en cas d\'erreur</span>';
+                                echo '<div>';
+                                echo '<span>Notification on error</span>';
                                 if ($planNotificationOnError == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 }
                                     echo '</div>';
 
@@ -327,11 +325,11 @@ include_once('../includes/head.inc.php');
                                  *  Notification en cas de succès
                                  */
                                     echo '<div>';
-                                    echo '<span>Notification en cas de succès</span>';
+                                    echo '<span>Notification on success</span>';
                                 if ($planNotificationOnSuccess == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 }
                                     echo '</div>';
 
@@ -356,7 +354,7 @@ include_once('../includes/head.inc.php');
                                  *  Log
                                  */
                                 if (!empty($planLogfile)) {
-                                    echo '<div><span>Log</span><span><a href="run.php?logfile=' . $planLogfile . '"><button class="btn-xsmall-blue"><b>Voir</b></button></a></span></div>';
+                                    echo '<div><span>Log</span><span><a href="run.php?logfile=' . $planLogfile . '"><button class="btn-small-blue"><b>See log</b></button></a></span></div>';
                                 } ?>
                             </div>
                         </div>
@@ -366,43 +364,43 @@ include_once('../includes/head.inc.php');
 
             <?php if (Controllers\Common::isadmin()) { ?>
                 <form id="newPlanForm" class="div-generic-gray" autocomplete="off">
-                    <h5><img src="resources/icons/plus.png" class="icon" />Créer une planification</h5>
+                    <h5><img src="resources/icons/plus.png" class="icon" />Create a plan</h5>
                     <table class="table-large">
                         <tr>
                             <td>Type</td>
                             <td class="td-medium">
                                 <div class="switch-field">
                                     <input type="radio" id="addPlanType-plan" name="planType" value="plan" checked />
-                                    <label for="addPlanType-plan">Tâche unique</label>
+                                    <label for="addPlanType-plan">Unique task</label>
                                     <input type="radio" id="addPlanType-regular" name="planType" value="regular" />
-                                    <label for="addPlanType-regular">Tâche récurrente</label>
+                                    <label for="addPlanType-regular">Recurrent task</label>
                                 </div>
                             </td>
                         </tr>
 
                         <tr class="__regular_plan_input hide">
-                            <td class="td-10">Fréquence</td>
+                            <td class="td-10">Frequency</td>
                             <td>
                                 <select id="planFrequencySelect">
-                                    <option value="">Sélectionner...</option>
-                                    <option id="planFrequency-every-hour" value="every-hour">toutes les heures</option>
-                                    <option id="planFrequency-every-day" value="every-day">tous les jours</option>
-                                    <option id="planFrequency-every-week" value="every-week">toutes les semaines</option>
+                                    <option value="">Select...</option>
+                                    <option id="planFrequency-every-hour" value="every-hour">every hour</option>
+                                    <option id="planFrequency-every-day" value="every-day">every day</option>
+                                    <option id="planFrequency-every-week" value="every-week">every week</option>
                                 </select>
                             </td>
                         </tr>
 
                         <tr class="__regular_plan_input __regular_plan_day_input hide">
-                            <td class="td-10">Jour(s)</td>
+                            <td class="td-10">Day(s)</td>
                             <td>
                                 <select id="planDayOfWeekSelect" multiple>
-                                    <option value="monday">Lundi</option>
-                                    <option value="tuesday">Mardi</option>
-                                    <option value="wednesday">Mercredi</option>
-                                    <option value="thursday">Jeudi</option>
-                                    <option value="friday">Vendredi</option>
-                                    <option value="saturday">Samedi</option>
-                                    <option value="sunday">Dimanche</option>
+                                    <option value="monday">Monday</option>
+                                    <option value="tuesday">Tuesday</option>
+                                    <option value="wednesday">Wednesday</option>
+                                    <option value="thursday">Thursday</option>
+                                    <option value="friday">Friday</option>
+                                    <option value="saturday">Saturday</option>
+                                    <option value="sunday">Sunday</option>
                                 </select>
                             </td>
                         </tr>
@@ -413,7 +411,7 @@ include_once('../includes/head.inc.php');
                         </tr>
 
                         <tr class="__plan_hour_input">
-                            <td class="td-10">Heure</td>
+                            <td class="td-10">Time</td>
                             <td><input id="addPlanTime" type="time" /></td>
                         </tr>
 
@@ -422,12 +420,7 @@ include_once('../includes/head.inc.php');
                             <td>
                                 <select id="planActionSelect">
                                     <option></option>
-                                    <?php
-                                    // foreach (ENVS as $env) {
-                                    //     echo '<option value="' . $env . '">Faire pointer un environnement ' . \Controllers\Common::envtag($env) . '</option>';
-                                    // }
-                                    ?>
-                                    <option value="update" id="updateRepoSelect">Mise à jour</option>
+                                    <option value="update" id="updateRepoSelect">Update</option>
                                 </select>
                             </td>
                         </tr>
@@ -436,7 +429,7 @@ include_once('../includes/head.inc.php');
                             <td class="td-10">Repo</td>
                             <td>
                                 <select id="addPlanSnapId">
-                                    <option value="">Sélectionnez un repo...</option>
+                                    <option value="">Select a repo...</option>
                                     <?php
                                     /**
                                      *  Récupération de la liste des repos qui possèdent un environnement DEFAULT_ENV
@@ -478,10 +471,10 @@ include_once('../includes/head.inc.php');
                         </tr>
 
                         <tr>
-                            <td class="td-10">ou Groupe</td>
+                            <td class="td-10">or Group</td>
                             <td>
                                 <select id="addPlanGroupId">
-                                    <option value="">Sélectionnez un groupe...</option>
+                                    <option value="">Select a group...</option>
                                     <?php
                                     $group = new \Controllers\Group('repo');
                                     $groupsList = $group->listAll();
@@ -498,7 +491,7 @@ include_once('../includes/head.inc.php');
                         </tr>
 
                         <tr>
-                            <td>Faire pointer un environnement</td>
+                            <td>Point an environment</td>
                             <td>
                                 <select id="addPlanTargetEnv">
                                     <option value=""></option>
@@ -517,7 +510,7 @@ include_once('../includes/head.inc.php');
                         <tr id="update-preview" class="hide">
                             <td colspan="100%">
                                 <br><hr><br>
-                                <p>La mise à jour créera un nouveau snapshot pour chaque repo sélectionné :<br></p>
+                                <p>The update will create a new snapshot for every selected repo:<br></p>
                                 <span id="update-preview-date" class="label-black"></span><span id="update-preview-target-env">⟵</span>
                                 <br><br>
                             </td>
@@ -526,12 +519,12 @@ include_once('../includes/head.inc.php');
                         <tr class="__plan_gpg_input hide">
                             <td colspan="100%">
                                 <hr>
-                                <p><b>Paramètres GPG</b></p>
+                                <p><b>GPG params</b></p>
                             </td>
                         </tr>
 
                         <tr class="__plan_gpg_input hide">
-                            <td class="td-10">Vérif. des sign. GPG</td>
+                            <td class="td-10">Check GPG signatures</td>
                             <td>
                                 <label class="onoff-switch-label">
                                     <input id="addPlanGpgCheck" type="checkbox" name="addPlanGpgCheck" class="onoff-switch-input" value="yes" checked />
@@ -541,7 +534,7 @@ include_once('../includes/head.inc.php');
                         </tr>     
 
                         <tr class="__plan_gpg_input hide">
-                            <td class="td-10">Signer avec GPG</td>
+                            <td class="td-10">Sign packages/repo with GPG</td>
                             <td>
                                 <label class="onoff-switch-label">
                                     <?php
@@ -561,45 +554,45 @@ include_once('../includes/head.inc.php');
 
                         <tr>
                             <td colspan="100%">
-                                <hr><p><b>Notifications mail</b></p>
+                                <hr><p><b>Mail notifications</b></p>
                             </td>
                         </tr>
 
                         <tr>
-                            <td>Destinataire(s)</td>
-                            <td><input type="email" id="addPlanMailRecipient" placeholder="Adresses emails séparées par une virgule" value="<?= EMAIL_DEST ?>" multiple /></td>
+                            <td>Recipient(s)</td>
+                            <td><input type="email" id="addPlanMailRecipient" placeholder="Mails addresses seperated by a comma." value="<?= EMAIL_DEST ?>" multiple /></td>
                         </tr>
 
                         <tr class="__plan_input __plan_input_reminder">
-                            <td class="td-10">Envoyer un rappel</td>
+                            <td class="td-10">Send a reminder</td>
                             <td>
                                 <select id="planReminderSelect" name="addPlanReminder[]" multiple>
-                                    <option value="1">1 jour avant</option>
-                                    <option value="2">2 jours avant</option>
-                                    <option value="3" selected>3 jours avant</option>
-                                    <option value="4">4 jours avant</option>
-                                    <option value="5">5 jours avant</option>
-                                    <option value="6">6 jours avant</option>
-                                    <option value="7" selected>7 jours avant</option>
-                                    <option value="8">8 jours avant</option>
-                                    <option value="9">9 jours avant</option>
-                                    <option value="10">10 jours avant</option>
-                                    <option value="15">15 jours avant</option>
-                                    <option value="20">20 jours avant</option>
-                                    <option value="25">25 jours avant</option>
-                                    <option value="30">30 jours avant</option>
-                                    <option value="35">35 jours avant</option>
-                                    <option value="40">40 jours avant</option>
-                                    <option value="45">45 jours avant</option>
-                                    <option value="50">50 jours avant</option>
-                                    <option value="55">55 jours avant</option>
-                                    <option value="60">60 jours avant</option>
+                                    <option value="1">1 day before</option>
+                                    <option value="2">2 days before</option>
+                                    <option value="3" selected>3 days before</option>
+                                    <option value="4">4 days before</option>
+                                    <option value="5">5 days before</option>
+                                    <option value="6">6 days before</option>
+                                    <option value="7" selected>7 days before</option>
+                                    <option value="8">8 days before</option>
+                                    <option value="9">9 days before</option>
+                                    <option value="10">10 days before</option>
+                                    <option value="15">15 days before</option>
+                                    <option value="20">20 days before</option>
+                                    <option value="25">25 days before</option>
+                                    <option value="30">30 days before</option>
+                                    <option value="35">35 days before</option>
+                                    <option value="40">40 days before</option>
+                                    <option value="45">45 days before</option>
+                                    <option value="50">50 days before</option>
+                                    <option value="55">55 days before</option>
+                                    <option value="60">60 days before</option>
                                 </select>
                             </td>
                         </tr>
 
                         <tr>
-                            <td class="td-10">Planification en erreur</td>
+                            <td class="td-10">On plan error</td>
                             <td>
                                 <label class="onoff-switch-label">
                                     <input id="addPlanNotificationOnError" name="addPlanNotificationOnError" type="checkbox" class="onoff-switch-input" value="yes" checked />
@@ -609,7 +602,7 @@ include_once('../includes/head.inc.php');
                         </tr>
 
                         <tr>
-                            <td class="td-10">Planification terminée</td>
+                            <td class="td-10">On plan success</td>
                             <td>
                                 <label class="onoff-switch-label">
                                     <input id="addPlanNotificationOnSuccess" type="checkbox" class="onoff-switch-input" value="yes" checked />
@@ -619,7 +612,7 @@ include_once('../includes/head.inc.php');
                         </tr>
 
                         <tr>
-                            <td colspan="100%"><button type="submit" class="btn-large-blue">Ajouter</button></td>
+                            <td colspan="100%"><button type="submit" class="btn-large-blue">Add</button></td>
                         </tr>
                     </table>
                 </form>
@@ -633,7 +626,7 @@ include_once('../includes/head.inc.php');
 
             if (!empty($plansDone)) {
                 echo '<div class="div-generic-gray">';
-                    echo '<h5><img src="resources/icons/history.png" class="icon" />Historique des planifications</h5>';
+                echo '<h5><img src="resources/icons/history.png" class="icon" />Plans history</h5>';
 
                 foreach ($plansDone as $plan) {
                     $planId                    = $plan['Id'];
@@ -655,7 +648,7 @@ include_once('../includes/head.inc.php');
                     if (!empty($plan['Reminder'])) {
                         $planReminder  = $plan['Reminder'];
                     } else {
-                        $planReminder = 'Aucun';
+                        $planReminder = 'None';
                     }
                     if (empty($planDate)) {
                         $planDate = '?';
@@ -684,14 +677,14 @@ include_once('../includes/head.inc.php');
                                 <table>
                                     <tr>
                                         <td class="td-10">
-                                        <?php
-                                        if ($planAction == "update") {
-                                            echo "<img class=\"icon\" src=\"resources/icons/update.png\" title=\"Type d'opération : $planAction\" />";
-                                        } else {
-                                            echo "<img class=\"icon\" src=\"resources/icons/link.png\" title=\" Type d'opération : $planAction\" />";
-                                        } ?>
+                                            <?php
+                                            if ($planAction == "update") {
+                                                echo '<img class="icon" src="resources/icons/update.png" title="Operation type: ' . $planAction . '" />';
+                                            } else {
+                                                echo '<img class="icon" src="resources/icons/link.png" title="Operation type: ' . $planAction . '" />';
+                                            } ?>
                                         </td>
-                                        <td class="td-small">Le <b><?=$planDate?></b> à <b><?=$planTime?></b></td>
+                                        <td class="td-small">On <b><?= $planDate ?></b> at <b><?= $planTime ?></b></td>
 
                                         <td>
                                             <?php
@@ -702,7 +695,7 @@ include_once('../includes/head.inc.php');
                                                 $group = new \Controllers\Group('repo');
                                                 $planGroup = $group->getNameById($planGroupId);
 
-                                                echo 'Groupe <span class="label-white">' . $planGroup . '</span>';
+                                                echo '<span>Group</span> <span class="label-white">' . $planGroup . '</span>';
                                                 unset($group);
                                             }
                                             if (!empty($planSnapId)) {
@@ -730,7 +723,7 @@ include_once('../includes/head.inc.php');
                                         </td>
                                         <td class="td-fit">
                                             <span>
-                                                <img class="planDetailsBtn icon-lowopacity" plan-id="<?=$planId?>" title="Afficher les détails" src="resources/icons/search.png" />
+                                                <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details." src="resources/icons/search.png" />
                                             </span>
                                             <span>
                                                 <?php
@@ -738,11 +731,11 @@ include_once('../includes/head.inc.php');
                                                  *  Affichage d'une pastille verte ou rouge en fonction du status de la planification
                                                  */
                                                 if ($planStatus == "done") {
-                                                    echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Planification terminée" />';
+                                                    echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Plan completed." />';
                                                 } elseif ($planStatus == "error") {
-                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Planification en erreur" />';
+                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Plan has failed." />';
                                                 } elseif ($planStatus == "stopped") {
-                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Planification stoppée par l\'utilisateur" />';
+                                                    echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Plan stopped by the user." />';
                                                 } ?>
                                             </span>
                                         </td>
@@ -767,92 +760,93 @@ include_once('../includes/head.inc.php');
                                  *  GPG Check
                                  */
                                 echo '<div>';
-                                    echo '<span>Vérif. des signatures GPG</span>';
+                                    echo '<span>Check GPG signatures</span>';
                                 if ($planGpgCheck == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 }
-                                    echo '</div>';
+                                echo '</div>';
 
-                                    /**
-                                     *  GPG Resign
-                                     */
-                                    echo '<div>';
-                                    echo '<span>Signature des paquets avec GPG</span>';
+                                /**
+                                 *  GPG Resign
+                                 */
+                                echo '<div>';
+                                echo '<span>Sign packages/repo with GPG</span>';
                                 if ($planGpgResign == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 }
-                                    echo '</div>';
+                                echo '</div>';
                             }
 
                             /**
-                             *  Rappels
+                             *  Reminders
                              */
                             echo '<div>';
-                                echo '<span>Rappels</span>';
-                                echo '<span>';
-                            if ($planReminder == 'Aucun') {
-                                echo 'Aucun';
+                            echo '<span>Reminders</span>';
+                            echo '<span>';
+                            if ($planReminder == 'None') {
+                                echo 'None';
                             } else {
                                 $planReminder = explode(',', $planReminder);
                                 foreach ($planReminder as $reminder) {
-                                    echo "$reminder jours avant<br>";
+                                    echo "$reminder days before<br>";
                                 }
                             }
-                                echo '</span>';
-                                echo '</div>';
+                            echo '</span>';
+                            echo '</div>';
 
-                                /**
-                                 *  Notification en cas d'erreur
-                                 */
-                                echo '<div>';
-                                echo '<span>Notification en cas d\'erreur</span>';
+                            /**
+                             *  Notification on error
+                             */
+                            echo '<div>';
+                            echo '<span>Notification on error</span>';
                             if ($planNotificationOnError == "yes") {
-                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                             } else {
-                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                             }
-                                echo '</div>';
+                            echo '</div>';
 
-                                /**
-                                 *  Notification en cas de succès
-                                 */
-                                echo '<div>';
-                                echo '<span>Notification en cas de succès</span>';
+                            /**
+                             *  Notification on success
+                             */
+                            echo '<div>';
+                            echo '<span>Notification on success</span>';
                             if ($planNotificationOnSuccess == "yes") {
-                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Activé</span>';
+                                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                             } else {
-                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Désactivé</span>';
+                                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                             }
-                                echo '</div>';
+                            echo '</div>';
 
-                                /**
-                                 *  Destinataire mail
-                                 */
+                            /**
+                             *  Mail recipient
+                             */
                             if (!empty($planMailRecipient)) {
                                 echo '<div>';
-                                    echo '<span>Contact</span>';
-                                    echo '<span>';
-                                        $planMailRecipient = explode(',', $planMailRecipient);
+                                echo '<span>Contact</span>';
+                                echo '<span>';
+                                $planMailRecipient = explode(',', $planMailRecipient);
+
                                 foreach ($planMailRecipient as $recipient) {
                                     if (!empty($recipient)) {
                                         echo $recipient . '<br>';
                                     }
                                 }
-                                    echo '</span>';
+                                echo '</span>';
                                 echo '</div>';
                             }
 
-                                /**
-                                 *  Log
-                                 */
-                                echo '<div>';
+                            /**
+                             *  Log
+                             */
+                            echo '<div>';
                             if (!empty($planLogfile)) {
                                 echo '<span>Log</span>';
-                                echo "<span><a href='run.php?logfile=$planLogfile'><button class='btn-xsmall-blue'><b>Voir</b></button></a></></span>";
+                                echo "<span><a href='run.php?logfile=$planLogfile'><button class='btn-small-blue'><b>See log</b></button></a></></span>";
                             } ?>
                                 </div>
                             </div>

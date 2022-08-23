@@ -46,7 +46,7 @@ class History
          *  On vérifie que l'Id est valide
          */
         if (!is_numeric($userId)) {
-            printAlert("L'Id de l'utilisateur est invalide", 'error');
+            printAlert('User Id is invalid', 'error');
             return;
         }
 
@@ -110,7 +110,7 @@ class History
                 throw new Exception();
             }
         } catch (\Exception $e) {
-            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.01)', 'error');
+            \Controllers\Common::dbError($e);
             return;
         }
 
@@ -123,8 +123,7 @@ class History
             $stmt->bindValue(':state', $state);
             $stmt->execute();
         } catch (\Exception $e) {
-            \Controllers\Common::printAlert('Une erreur est survenue lors de l\'exécution de la requête en base de données (Err. CH.02)', 'error');
-            return;
+            \Controllers\Common::dbError($e);
         }
     }
 }

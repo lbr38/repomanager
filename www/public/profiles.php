@@ -64,13 +64,14 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 <article>
 <section class="mainSectionLeft">
     <section id="profilesDiv" class="left">
-        <h3>PROFILS</h3>
-        <p>Vous pouvez créer des profils de configuration pour vos hôtes et serveurs clients utilisant <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>A chaque exécution d'une mise à jour, les clients récupèreront automatiquement leur configuration et leurs fichiers de repo depuis ce serveur de repo.</p>
+        <h3>PROFILES</h3>
+        <p>You can create and manage configuration profiles for your hosts that use <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>
+            On every package update, hosts will automaticaly get their configuration from this reposerver.</p>
         <br>
-        <p>Créer un nouveau profil :</p>
+        <p>Create a profile:</p>
         <form id="newProfileForm" action="profiles.php" method="post" autocomplete="off">
             <input id="newProfileInput" type="text" class="input-medium" />
-            <button type="submit" class="btn-xxsmall-blue" title="Ajouter">+</button>
+            <button type="submit" class="btn-xxsmall-blue" title="Add">+</button>
         </form>
         <br>
         <?php
@@ -78,11 +79,10 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
         /**
          *  Récupération de tous les noms de profils
          */
-
         $profiles = $myprofile->list();
 
         if (!empty($profiles)) {
-            echo '<h5>PROFILS ACTIFS</h5>';
+            echo '<h5>CURRENT PROFILES</h5>';
             echo '<div class="profileDivContainer">';
 
             /**
@@ -124,11 +124,11 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 <td class="td-fit">
                                     <?php
                                     if (MANAGE_HOSTS == 'yes' and $hostsCount > 0) {
-                                        echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' hôte(s) utilise(nt) ce profil">' . $hostsCount . '<img src="resources/icons/server.png" class="icon" /></span>';
+                                        echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="resources/icons/server.png" class="icon" /></span>';
                                     } ?>
-                                    <span><img src="resources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Configuration de <?=$profileName?>" /></span>
-                                    <span><img src="resources/icons/duplicate.png" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Créer un nouveau profil en dupliquant la configuration de <?=$profileName?>" /></span>
-                                    <span><img src="resources/icons/bin.png" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Supprimer le profil <?=$profileName?>" /></span>
+                                    <span><img src="resources/icons/cog.png" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
+                                    <span><img src="resources/icons/duplicate.png" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Create a new profile from <?=$profileName?> configuration" /></span>
+                                    <span><img src="resources/icons/bin.png" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Delete <?=$profileName?> profile" /></span>
                                 </td>
                             </tr>
                         </table>
@@ -137,16 +137,16 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                     <div id="profileConfigurationDiv-<?=$profileName?>" class="hide profileDivConf">
                         <form class="profileConfigurationForm" profilename="<?=$profileName?>" autocomplete="off">
 
-                            <h4>Paramétrage de linupdate</h4>
+                            <h4>linupdate configuration</h4>
 
                             <?php
                             if ($serverManageClientRepos == "no" and $serverManageClientConf == "no") {
-                                echo "<p>Ce serveur n'est pas configuré pour gérer la configuration des clients.</p>";
+                                echo "<p>This reposerver is not configured to manage hosts linupdate configuration.</p>";
                             }
 
                             if ($serverManageClientRepos == "yes") : ?>
-                                <h5>Repos :</h5>
-
+                                <h5>Access following repositories:</h5>
+                                <p>Specify what repositories the host(s) will have access to.<br>Repos files will be retrieved by hosts on each linupdate execution.</p>
                                 <table class="table-large">
                                     <tr>
                                         <td colspan="100%">
@@ -196,19 +196,19 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                              */
                             if ($serverManageClientConf == "yes") {
                                 $myprofile = new \Controllers\Profile();
-
-                                echo '<h5>Paquets à exclure en cas de version majeure :</h5>';
-
+                                $listPackages = $myprofile->getPackages();
                                 /**
                                  *  Liste des paquets sélectionnables dans la liste des paquets à exclure
                                  *  explode cette liste pour retourner un tableau, puis tri par ordre alpha
                                  */
-                                $listPackages = $myprofile->getPackages();
                                 sort($listPackages);
 
                                 /**
                                  *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConfExcludeMajor alors on l'affiche comme sélectionné "selected"
                                  */ ?>
+
+                                <h5>Packages to exclude on major version update:</h5>
+
                                 <select class="select-exclude-major" profilename="<?= $profileName ?>" name="profileConfExcludeMajor[]" multiple>
 
                                     <?php
@@ -230,7 +230,8 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                     } ?>
                                 </select>
                                 <br>
-                                <h5>Paquets à exclure (toute version) :</h5>
+
+                                <h5>Packages to exclude (no matter the version):</h5>
                                 <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
 
                                     <?php
@@ -253,7 +254,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 </select>
                                 <br>
 
-                                <h5>Services à redémarrer en cas de mise à jour :</h5>
+                                <h5>Services to restart after package update:</h5>
 
                                 <?php
                                 /**
@@ -297,14 +298,14 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                     </tr>
                                 </table>
 
-                                <h5>Notes :</h5>
-                                <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes; ?></textarea>
+                                <h5>Notes:</h5>
+                                <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes ?></textarea>
                             <?php   }
                             /**
                              *  On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no
                              */
                             if ($serverManageClientRepos == "yes" or $serverManageClientConf == "yes") {
-                                echo '<button type="submit" class="btn-large-green">Enregistrer</button>';
+                                echo '<button type="submit" class="btn-large-green">Save</button>';
                             } ?>
                         </form>
                     </div>
@@ -317,28 +318,27 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 
 <section class="mainSectionRight">
     <section class="right">
-        <h3>CONFIGURATION</h3>
+        <h3>SERVER SETTINGS</h3>
 
         <form id="applyServerConfigurationForm" class="operation-form-container" autocomplete="off">
             <?php
-                /**
-                 *  Si une des valeurs était vide alors on indique à l'utilisateur qu'il faut valider le formulaire au moins une fois pour valider et appliquer la configuration.
-                 */
+            /**
+             *  Si une des valeurs était vide alors on indique à l'utilisateur qu'il faut valider le formulaire au moins une fois pour valider et appliquer la configuration.
+             */
             if ($serverConfApplyNeeded > 0) {
-                echo '<p><img src="resources/icons/warning.png" class="icon" />Certains paramètres étaient vides et ont été générés automatiquement, vous devez valider ce formulaire pour appliquer la configuration.<br><br></p>';
-            }
-            ?>
-            
-            <h5>Configuration générale</h5>
+                echo '<p><img src="resources/icons/warning.png" class="icon" />Some parameters were empty and have been generated automatically. You must validate this form to apply configuration.<br><br></p>';
+            } ?>
+
+            <h5></h5>
 
             <div class="operation-form">
                 <span>
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Type de paquets" />Type de paquets diffusés
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Inform the hosts what package type this server manages." />Package type
                 </span>
                 <input type="text" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
 
                 <span>
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les repos à déployer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des repos sur les hôtes clients
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files of each profile's configuration. However, hosts that retrieve their profile's configuration from this server will remain entitled to accept or not that this server manages their configuration." />Manage profiles repos configuration
                 </span>
 
                 <label class="onoff-switch-label">
@@ -347,7 +347,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                 </label>
 
                 <span>
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, ce serveur pourra choisir les paquets à exclure ou quels service redémarrer pour chaque profil de configuration. Cependant les clients qui téléchargeront la configuration de leur profil resteront en droit d'accepter ou non que ce serveur gère leur configuration." />Gérer la configuration des paquets sur les hôtes clients
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will be able to specify which package(s) to exclude on each profile's configuration. However, hosts that retrieve their profile's configuration from this server will remain entitled to accept or not that this server manages their configuration." />Manage profiles packages configuration
                 </span>
 
                 <label class="onoff-switch-label">
@@ -356,7 +356,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                 </label>
             </div>
             <br>
-            <button type="submit" class="btn-large-green">Enregistrer</button>
+            <button type="submit" class="btn-large-green">Save</button>
         </form>
     </section>
 </section>

@@ -64,29 +64,29 @@ if (!empty($_GET['repo_access_chart_filter'])) {
 <article>
     <section class="main">
         <section class="section-center">
-            <h3>STATISTIQUES</h3>
+            <h3>STATISTICS</h3>
 
             <?php
             if ($repoError !== 0) {
-                echo "<p>Erreur : le repo spécifié n'existe pas.</p>";
+                echo "<p>Error: specified repo does not exist.</p>";
             }
 
             if ($repoError === 0) {
                 if ($myrepo->getPackageType() == 'rpm') {
-                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
+                    echo '<p>Statistics of <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
                 if ($myrepo->getPackageType() == 'deb') {
-                    echo '<p>Statistiques de <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
+                    echo '<p>Statistics of <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟶' . \Controllers\Common::envtag($myrepo->getEnv()) . '</p>';
                 }
             }
 
             echo '<br>';
 
             if (!file_exists(STATS_LOG_PATH)) {
-                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . STATS_LOG_PATH . ') n\'existe pas ou n\'est pas correctement configuré.</span></p>';
+                echo '<p><span class="yellowtext">Access log file to scan (' . STATS_LOG_PATH . ') does not exist.</span></p>';
             }
             if (!is_readable(STATS_LOG_PATH)) {
-                echo '<p><span class="yellowtext">Le fichier de log à analyser (' . STATS_LOG_PATH . ') n\'est pas accessible en lecture.</span></p>';
+                echo '<p><span class="yellowtext">Access log file to scan (' . STATS_LOG_PATH . ') is not readable.</span></p>';
             }
 
             /**
@@ -131,77 +131,77 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                      *  Affichage de la taille du repo et du nombre de paquets actuel
                      */ ?>
                     <div class="flex-div-15">
-                        <p class="center">Propriétés</p>
+                        <p class="center">Properties</p>
                         <div class="round-div">
-                            <br><p class="lowopacity">Taille du repo</p><br>
+                            <br><p class="lowopacity">Repo size</p><br>
                             <div class="round-div-container">
-                                <span><?php echo $repoSize;?></span>
+                                <span><?= $repoSize ?></span>
                             </div>
                         </div>
 
                         <div class="round-div">
-                            <br><p class="lowopacity">Nombre de paquets</p><br>
+                            <br><p class="lowopacity">Total packages</p><br>
                             <div class="round-div-container">
-                                <span><?php echo $packagesCount;?></span>
+                                <span><?= $packagesCount ?></span>
                             </div>
                         </div>
                     </div>
 
-                    <?php
-                    /**
-                     *  Affichage du nombre d'accès au repo en temps réel et des 5 dernières minutes
-                     */
-                    echo '<div id="refresh-me" class="flex-div-15">';
+                    <div id="refresh-me" class="flex-div-15">
 
-                    /**
-                     *  Détails des requêtes en temps réel (+/-5 sec)
-                     */
-                    if ($myrepo->getPackageType() == 'rpm') {
-                        $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), '', '', $myrepo->getEnv());
-                    }
-                    if ($myrepo->getPackageType() == 'deb') {
-                        $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
-                    }
+                        <?php
+                        /**
+                         *  Détails des requêtes en temps réel (+/-5 sec)
+                         */
+                        if ($myrepo->getPackageType() == 'rpm') {
+                            $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), '', '', $myrepo->getEnv());
+                        }
+                        if ($myrepo->getPackageType() == 'deb') {
+                            $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
+                        }
 
-                    /**
-                     *  Comptage du nombre de requêtes précédemment récupérées
-                     */
-                    $realTimeAccessCount = count($realTimeAccess);
+                        /**
+                         *  Comptage du nombre de requêtes précédemment récupérées
+                         */
+                        $realTimeAccessCount = count($realTimeAccess);
 
-                    /**
-                     *  Détails des requêtes des 5 dernières minutes
-                     */
-                    if ($myrepo->getPackageType() == 'rpm') {
-                        $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), '', '', $myrepo->getEnv());
-                    }
-                    if ($myrepo->getPackageType() == 'deb') {
-                        $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
-                    }
+                        /**
+                         *  Détails des requêtes des 5 dernières minutes
+                         */
+                        if ($myrepo->getPackageType() == 'rpm') {
+                            $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), '', '', $myrepo->getEnv());
+                        }
+                        if ($myrepo->getPackageType() == 'deb') {
+                            $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
+                        }
 
-                    /**
-                     *  Comptage du nombre de requêtes précédemment récupérées
-                     */
-                    $lastMinutesAccessCount = count($lastMinutesAccess);
+                        /**
+                         *  Comptage du nombre de requêtes précédemment récupérées
+                         */
+                        $lastMinutesAccessCount = count($lastMinutesAccess);
 
-                    /**
-                     *  Réorganise le détails des requêtes de la plus récente à la plus ancienne
-                     */
-                    if (!empty($realTimeAccess)) {
-                        array_multisort(array_column($realTimeAccess, 'Date'), SORT_DESC, array_column($realTimeAccess, 'Time'), SORT_DESC, $realTimeAccess);
-                    }
-                    if (!empty($lastMinutesAccess)) {
-                        array_multisort(array_column($lastMinutesAccess, 'Date'), SORT_DESC, array_column($lastMinutesAccess, 'Time'), SORT_DESC, $lastMinutesAccess);
-                    }
-                    ?>
+                        /**
+                         *  Réorganise le détails des requêtes de la plus récente à la plus ancienne
+                         */
+                        if (!empty($realTimeAccess)) {
+                            array_multisort(array_column($realTimeAccess, 'Date'), SORT_DESC, array_column($realTimeAccess, 'Time'), SORT_DESC, $realTimeAccess);
+                        }
+                        if (!empty($lastMinutesAccess)) {
+                            array_multisort(array_column($lastMinutesAccess, 'Date'), SORT_DESC, array_column($lastMinutesAccess, 'Time'), SORT_DESC, $lastMinutesAccess);
+                        } ?>
 
-                        <p class="center">Nombre d'accès au repo</p>
+                        <p class="center">Repo access count</p>
+
                         <div class="round-div">
-                            <br><p class="lowopacity">Temps réel</p><br>
+                            <br>
+                            <p class="lowopacity">Real time</p>
+                            <br>
                             <div class="round-div-container pointer">
-                                <span><?php echo $realTimeAccessCount;?></span>
+                                <span><?= $realTimeAccessCount ?></span>
                             </div>
 
-                            <?php if (!empty($realTimeAccess)) {
+                            <?php
+                            if (!empty($realTimeAccess)) {
                                 echo '<span class="stats-info-requests">';
                                 foreach ($realTimeAccess as $line) {
                                     /**
@@ -223,12 +223,15 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         </div>
 
                         <div class="round-div">
-                            <br><p class="lowopacity" title="5 dernières minutes">Dernières minutes</p><br>
+                            <br>
+                            <p class="lowopacity" title="5 dernières minutes">Last minutes</p>
+                            <br>
                             <div class="round-div-container">
-                                <span class="pointer"><?php echo $lastMinutesAccessCount;?></span>
+                                <span class="pointer"><?= $lastMinutesAccessCount ?></span>
                             </div>
 
-                            <?php if (!empty($lastMinutesAccess)) {
+                            <?php
+                            if (!empty($lastMinutesAccess)) {
                                 echo '<span class="stats-info-requests">';
                                 foreach ($lastMinutesAccess as $line) {
                                     /**
@@ -251,72 +254,72 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     </div>
 
                     <div id="repo-access-chart-div" class="flex-div-65 div-generic-gray">
-                    <?php
-                    /**
-                     *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
-                     */
-                    if (empty($repo_access_chart_filter)) {
-                        $repo_access_chart_filter = "1week";
-                    }
-
-                    /**
-                     *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
-                     */
-                    if ($repo_access_chart_filter == "1week") {
-                        $dateCounter = date('Y-m-d', strtotime('-1 week', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
-                    }
-                    if ($repo_access_chart_filter == "1month") {
-                        $dateCounter = date('Y-m-d', strtotime('-1 month', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 mois
-                    }
-                    if ($repo_access_chart_filter == "3months") {
-                        $dateCounter = date('Y-m-d', strtotime('-3 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois
-                    }
-                    if ($repo_access_chart_filter == "6months") {
-                        $dateCounter = date('Y-m-d', strtotime('-6 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
-                    }
-
-                    $repoAccessChartLabels = '';
-                    $repoAccessChartData = '';
-
-                    /**
-                     *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
-                     */
-                    while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
-                        if ($myrepo->getPackageType() == 'rpm') {
-                            $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
-                        }
-                        if ($myrepo->getPackageType() == 'deb') {
-                            $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
-                        }
-
-                        if (!empty($dateAccessCount)) {
-                            $repoAccessChartData .= $dateAccessCount . ', ';
-                        } else {
-                            $repoAccessChartData .= '0, ';
+                        <?php
+                        /**
+                         *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
+                         */
+                        if (empty($repo_access_chart_filter)) {
+                            $repo_access_chart_filter = "1week";
                         }
 
                         /**
-                         *  Ajout de la date en cours aux labels
+                         *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
                          */
-                        $repoAccessChartLabels .= "'$dateCounter', ";
+                        if ($repo_access_chart_filter == "1week") {
+                            $dateCounter = date('Y-m-d', strtotime('-1 week', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
+                        }
+                        if ($repo_access_chart_filter == "1month") {
+                            $dateCounter = date('Y-m-d', strtotime('-1 month', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 mois
+                        }
+                        if ($repo_access_chart_filter == "3months") {
+                            $dateCounter = date('Y-m-d', strtotime('-3 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois
+                        }
+                        if ($repo_access_chart_filter == "6months") {
+                            $dateCounter = date('Y-m-d', strtotime('-6 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
+                        }
+
+                        $repoAccessChartLabels = '';
+                        $repoAccessChartData = '';
 
                         /**
-                         *  On incrémente de 1 jour pour pouvori traiter la date suivante
+                         *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
                          */
-                        $dateCounter = date('Y-m-d', strtotime('+1 day', strtotime($dateCounter)));
-                    }
+                        while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
+                            if ($myrepo->getPackageType() == 'rpm') {
+                                $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
+                            }
+                            if ($myrepo->getPackageType() == 'deb') {
+                                $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
+                            }
 
-                    /**
-                     *  Suppression de la dernière virgule
-                     */
-                    $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
-                    $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
+                            if (!empty($dateAccessCount)) {
+                                $repoAccessChartData .= $dateAccessCount . ', ';
+                            } else {
+                                $repoAccessChartData .= '0, ';
+                            }
 
-                    if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) { ?>
-                            <span class="btn-small-blue repo-access-chart-filter-button" filter="1week">1 semaine</span>
-                            <span class="btn-small-blue repo-access-chart-filter-button" filter="1month">1 mois</span>
-                            <span class="btn-small-blue repo-access-chart-filter-button" filter="3months">3 mois</span>
-                            <span class="btn-small-blue repo-access-chart-filter-button" filter="6months">6 mois</span>
+                            /**
+                             *  Ajout de la date en cours aux labels
+                             */
+                            $repoAccessChartLabels .= "'$dateCounter', ";
+
+                            /**
+                             *  On incrémente de 1 jour pour pouvori traiter la date suivante
+                             */
+                            $dateCounter = date('Y-m-d', strtotime('+1 day', strtotime($dateCounter)));
+                        }
+
+                        /**
+                         *  Suppression de la dernière virgule
+                         */
+                        $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
+                        $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
+
+                        if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) { ?>
+                            <span class="btn-small-blue repo-access-chart-filter-button" filter="1week">1 week</span>
+                            <span class="btn-small-blue repo-access-chart-filter-button" filter="1month">1 month</span>
+                            <span class="btn-small-blue repo-access-chart-filter-button" filter="3months">3 months</span>
+                            <span class="btn-small-blue repo-access-chart-filter-button" filter="6months">6 months</span>
                             <?php
                             /**
                              *  On place deux span à l'intérieur du canvas, qui contiennent les valeurs 'labels' et 'data' du chart en cours
@@ -334,7 +337,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         labels: [<?= $repoAccessChartLabels ?>],
                                         datasets: [{
                                             data: [<?= $repoAccessChartData ?>],
-                                            label: "Nombre d'accès",
+                                            label: "Total access",
                                             borderColor: '#3e95cd',
                                             fill: false
                                         }]
@@ -355,66 +358,72 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     }
                                 });
                             </script>
-                        </div>
-                        <?php
-                    }
-
+                            <?php
+                        } ?>
+                    </div>
+                        
+                    <?php
                     /**
                      *  Tableau des derniers logs d'accès
-                     */
-                    echo '<div class="flex-div-100 div-generic-gray">';
-                        echo '<p class="center lowopacity">Dernières requêtes d\'accès</p>';
-                        echo '<table class="stats-access-table">';
-                    if (!empty($lastAccess)) {
-                        echo '<thead>';
-                            echo '<tr>';
-                            echo '<td class="td-10"></td>';
-                            echo '<td class="td-100">Date</td>';
-                            echo '<td class="td-100">Source</td>';
-                            echo '<td>Cible</td>';
-                            echo '</tr>';
-                        echo '</thead>';
-                        echo '<tbody>';
-                        foreach ($lastAccess as $access) {
-                            /**
-                             *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
-                             *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
-                             *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
-                             *
-                             *  Par exemple :
-                             *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
-                             *                                                                      |                                                   |
-                             *                                                                      |_                                                  |_
-                             *                                                                        |                                                   |
-                             *                                                                preg_match récupère l'occurence située entre un slash et un espace
-                             *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
-                             */
-                            preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
-                            $accessTarget[0] = str_replace('/', '', $accessTarget[0]);
+                     */ ?>
+                    <div class="flex-div-100 div-generic-gray">
+                        <p class="center lowopacity">Last access requests</p>
+                        <table class="stats-access-table">
 
-                            echo '<tr>';
-                            echo '<td class="td-10">';
-                            if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                            <?php
+                            if (!empty($lastAccess)) { ?>
+                                <thead>
+                                    <tr>
+                                        <td class="td-10"></td>
+                                        <td class="td-100">Date</td>
+                                        <td class="td-100">Source</td>
+                                        <td>Cible</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <?php
+                                    foreach ($lastAccess as $access) :
+                                        /**
+                                         *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
+                                         *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
+                                         *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
+                                         *
+                                         *  Par exemple :
+                                         *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
+                                         *                                                                      |                                                   |
+                                         *                                                                      |_                                                  |_
+                                         *                                                                        |                                                   |
+                                         *                                                                preg_match récupère l'occurence située entre un slash et un espace
+                                         *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
+                                         */
+                                        preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
+                                        $accessTarget[0] = str_replace('/', '', $accessTarget[0]); ?>
+
+                                        <tr>
+                                            <td class="td-10">
+                                                <?php
+                                                if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
+                                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                                } else {
+                                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                                } ?>
+                                            </td>
+                                            <td class="td-100"><?= DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' at ' . $access['Time'] ?></td>
+                                            <td class="td-100"><?= $access['Source'] . ' (' . $access['IP'] . ')' ?></td>
+                                            <td><span title="<?= str_replace('"', '', $access['Request']) ?>"><?= $accessTarget[0] ?></span></td>
+                                        </tr>
+                                        <?php
+                                    endforeach; ?>
+                                </tbody>
+                                <?php
                             } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
-                            }
-                            echo '</td>';
-                            echo '<td class="td-100">' . DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' à ' . $access['Time'] . '</td>';
-                            echo '<td class="td-100">' . $access['Source'] . ' (' . $access['IP'] . ')</td>';
+                                echo "<tr><td>No access request was found.</td></tr>";
+                            } ?>
+                        </table>
+                    </div>
 
-                            // retrait des double quotes " dans la requête complète :
-                            echo '<td><span title="' . str_replace('"', '', $access['Request']) . '">' . $accessTarget[0] . '</span></td>';
-                            echo '</tr>';
-                        }
-
-                        echo '</tbody>';
-                    } else {
-                        echo "<tr><td>Aucune requête d'accès récente n'a été trouvée</td></tr>";
-                    }
-                    echo '</table>';
-                    echo '</div>';
-
+                    <?php
                     /**
                      *  Graphique taille du repo et nombre de paquets
                      *  On récupère le contenu de la table stats qui concerne le repo
@@ -454,7 +463,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         /**
                          *  Affichage du graphique taille du repo/section
                          */
-                        if (!empty($dateLabels) and !empty($sizeData)) { ?>
+                        if (!empty($dateLabels) and !empty($sizeData)) : ?>
                             <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoSizeChart"></canvas>
                                 <script>
@@ -465,7 +474,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             labels: [<?= $dateLabels ?>],    
                                             datasets: [{
                                                 data: [<?= $sizeData ?>],
-                                                label: 'Taille en Mo',
+                                                label: 'Size in MB',
                                                 borderColor: '#3e95cd',
                                                 fill: false
                                             }]
@@ -484,19 +493,19 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             },
                                             title: {
                                                 display: true,
-                                                text: 'Taille en Mo'
+                                                text: 'Size in MB'
                                             }
                                         }
                                     });
                                 </script>
                             </div>
                             <?php
-                        }
+                        endif;
 
                         /**
                          *  Affichage du graphique nombre de paquets du repo/section
                          */
-                        if (!empty($dateLabels) and !empty($countData)) { ?>
+                        if (!empty($dateLabels) and !empty($countData)) : ?>
                             <div class="flex-div-50 div-generic-gray">
                                 <canvas id="repoPackagesCountChart"></canvas>
                                 <script>
@@ -507,7 +516,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             labels: [<?= $dateLabels ?>],    
                                             datasets: [{
                                                 data: [<?= $countData ?>],
-                                                label: 'Nombre de paquets',
+                                                label: 'Total packages',
                                                 borderColor: '#3e95cd',
                                                 fill: false
                                             }]
@@ -526,14 +535,14 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             },
                                             title: {
                                                 display: true,
-                                                text: 'Nombre de paquets'
+                                                text: 'Total packages'
                                             }
                                         }
                                     });
                                 </script>
                             </div>
                             <?php
-                        }
+                        endif;
                     }
                 } ?>
             </div>

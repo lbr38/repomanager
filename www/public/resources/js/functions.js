@@ -7,17 +7,6 @@ setInterval(function () {
 }, 5000);
 
 /**
- *  Events listeners
- */
-
-/**
- *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
- */
-$(document).on('click','#ReposListDisplayToggleButton, #displayDivCloseButton',function () {
-    $("#displayDiv").slideToggle('slow');
-});
-
-/**
  *
  *  Fonctions utiles
  *
@@ -59,7 +48,7 @@ function printAlert(message, type = null, timeout = 2500)
     }
 }
 
-function deleteConfirm(message, myfunction, confirmBox = 'Supprimer')
+function deleteConfirm(message, myfunction, confirmBox = 'Delete')
 {
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
@@ -131,7 +120,7 @@ function copyToClipboard(containerid)
     document.execCommand("copy");
     window.getSelection().removeAllRanges();
 
-    printAlert('Copié', 'success');
+    printAlert('Copied', 'success');
 }
 
 /**

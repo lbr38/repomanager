@@ -518,52 +518,52 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
 <article>
 <section class="mainSectionLeft">
     <section class="left">
-        <h3>CONFIGURATION GÉNÉRALE</h3>
+        <h3>MAIN CONFIGURATION</h3>
         <form action="configuration.php" method="post" autocomplete="off">
         <input type="hidden" name="action" value="applyConfiguration" />
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />Famille d'OS
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS family
                 </td>
                 <td>
                     <input type="text" value="<?= OS_FAMILY ?>" readonly />
                 </td>
                 <td class="td-fit">
                     <?php if (empty(OS_FAMILY)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />Nom de l'OS
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS name
                 </td>
                 <td>
                     <input type="text" value="<?= OS_NAME ?>" readonly />
                 </td>
                 <td class="td-fit">
                     <?php if (empty(OS_NAME)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />Version d'OS
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS version
                 </td>
                 <td>
                     <input type="text" value="<?= OS_VERSION ?>" readonly />
                 </td>
                 <td class="td-fit">
                     <?php if (empty(OS_VERSION)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager se mettra à jour automatiquement si une mise à jour est disponible" />Mise à jour automatique
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />Automatic update
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -573,13 +573,13 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(UPDATE_AUTO)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Choisir quelle version de mise à jour recevoir" />Branche de mise à jour
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />Update target branch
                 </td>
                 <td>
                     <select name="updateBranch">
@@ -590,11 +590,11 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 <?php
                 if (UPDATE_AVAILABLE == "yes") {
                     echo '<td class="td-fit">';
-                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Mettre à jour repomanager vers : ' . GIT_VERSION . '" value="↻">';
+                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Update repomanager to: ' . GIT_VERSION . '" value="↻">';
                     echo '</td>';
                 }
                 if (empty(UPDATE_BRANCH)) {
-                    echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                 }
                 ?>
             </tr>
@@ -609,7 +609,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Si activé, repomanager créera un backup dans le répertoire indiqué avant de se mettre à jour" />Sauvegarde avant mise à jour
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />Backup before update
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -619,7 +619,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(UPDATE_BACKUP_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
@@ -627,7 +627,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (UPDATE_BACKUP_ENABLED == "yes") : ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Répertoire de destination des backups avant mise à jour" />Répertoire de sauvegarde
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repomanager backup before update target directory." />Backup before update target directory
                     </td>
                     <td>
                         <input type="text" name="updateBackupDir" autocomplete="off" value="<?= BACKUP_DIR ?>">
@@ -636,7 +636,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     <td class="td-fit">
                         <?php
                         if (empty(BACKUP_DIR)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
                 </tr>
@@ -644,38 +644,38 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             endif ?>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="L'adresse renseignée recevra les mails d'erreurs et les rappels de planification. Il est possible de renseigner plusieurs adresses séparées par une virgule" />Contact
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />Contact
                 </td>
                 <td>
                     <input type="text" name="emailDest" autocomplete="off" value="<?= EMAIL_DEST ?>">
                 </td>
                 <td class="td-fit">
                     <?php if (empty(EMAIL_DEST)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
         </table>
 
-        <br><h3>REPOS</h3>
+        <br><h3>REPOSITORIES</h3>
 
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Répertoire local de stockage des repos" />Répertoire des repos
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." /> Repositories storage directory
                 </td>
                 <td>
                     <input type="text" autocomplete="off" name="reposDir" value="<?= REPOS_DIR ?>" />
                 </td>
                 <td class="td-fit">
                     <?php if (empty(REPOS_DIR)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Activer la collecte de statistiques d'accès au repo, sa taille, son nombre de paquets. Ce paramètre nécessite de la configuration supplémentaire dans le vhost de ce serveur, ainsi qu'un accès aux logs d'accès de ce serveur à <?= WWW_USER ?>." />Activer les statistiques
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." />Enable statistics
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -685,7 +685,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(STATS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
@@ -693,7 +693,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (STATS_ENABLED == "yes") : ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Chemin vers le fichier de log du serveur web contenant des requêtes d\'accès aux repos. Ce fichier est parsé pour générer des statistiques." />Fichier de log à analyser pour les statistiques
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />Path to access log to scan for statistics
                     </td>
                     <td>
                         <input type="text" autocomplete="off" name="statsLogPath" value="<?= STATS_LOG_PATH ?>" />
@@ -701,7 +701,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     <td class="td-fit">
                         <?php
                         if (empty(STATS_LOG_PATH)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         }
                         ?>
                     </td>
@@ -714,7 +714,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title=""> Repo de paquets RPM
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories"> Enable RPM repositories
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -726,7 +726,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <?php if (RPM_REPO == "enabled") : ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Signer les paquets du repo avec GPG après création ou mise à jour d'un miroir de repo."> Signer les paquets avec GPG
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key."> Sign packages with GPG
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -735,28 +735,28 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <?php if (empty(RPM_SIGN_PACKAGES)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </tr>
 
                 <?php if (RPM_SIGN_PACKAGES == 'yes') : ?>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="Adresse email liée à la clé GPG utilisée pour signer les paquets."> Identifiant email de la clé GPG
+                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign packages."> GPG key email address identifier
                         </td>
                         <td>
                             <input type="email" name="rpmGpgKeyID" autocomplete="off" value="<?= RPM_SIGN_GPG_KEYID ?>">
                         </td>
                         <td>
                             <?php if (empty(RPM_SIGN_GPG_KEYID)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title=""> Méthode de signature GPG
+                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7)."> GPG signature method
                         </td>
                         <td>
                             <select name="rpmSignMethod">
@@ -765,36 +765,36 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             </select>
                         </td>
                         <?php if (empty(RPM_SIGN_METHOD)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </tr>
                 <?php endif ?>
 
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Ce serveur créera des miroirs de repos pour CentOS <?= RELEASEVER ?>. Attention cette valeur est globale à yum et peut impacter les mises à jour du serveur <?= WWW_HOSTNAME ?> si elle est modifiée." />Version de paquets gérée
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." /> Release version
                     </td>
                     <td>
                         <input type="text" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
                     </td>
                     <td class="td-fit">
                         <?php if (!file_exists('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'existe pas" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver does not exist." />';
                         }?>
                         <?php if (!is_readable('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas accessible pour ' . WWW_USER . '" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not readable for ' . WWW_USER . '" />';
                         }?>
                         <?php if (!is_writable('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Le fichier /etc/yum/vars/releaserver n\'est pas modifiable pour ' . WWW_USER . '" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not writeable for ' . WWW_USER . '" />';
                         }?>
                         <?php if (empty(RELEASEVER)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         }?>
                     </td>
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default architecture to use when creating rpm mirror."> Default architecture to use when creating rpm mirror
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror."> Default package architecture
                     </td>
                     <td>
                         <select id="rpmArchitectureSelect" name="rpmDefaultArchitecture[]" multiple>
@@ -805,7 +805,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -822,7 +822,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title=""> Repo de paquets DEB
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories"> Enable DEB repositories
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -835,7 +835,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <?php if (DEB_REPO == "enabled") : ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Signer les repos avec GPG."> Signer les repos avec GPG
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Sign DEB repos with a GPG key."> Sign repos with GPG
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -844,28 +844,28 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <?php if (empty(DEB_SIGN_REPO)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </tr>
 
                 <?php if (DEB_SIGN_REPO == 'yes') : ?>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="Adresse email liée à la clé GPG utilisée pour signer les repos."> Identifiant email de la clé GPG
+                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign repositories."> GPG key email address identifier
                         </td>
                         <td>
                             <input type="text" name="debGpgKeyID" autocomplete="off" value="<?= DEB_SIGN_GPG_KEYID ?>">
                         </td>
                         <td>
                             <?php if (empty(DEB_SIGN_GPG_KEYID)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
                     </tr>
                 <?php endif ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default architecture to use when creating deb mirror."> Default architecture to use when creating deb mirror
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror."> Default package architecture
                     </td>
                     <td>
                         <select id="debArchitectureSelect" name="debDefaultArchitecture[]" multiple>
@@ -888,7 +888,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages specific translation when creating deb mirror
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages translation(s) when creating deb mirror
                     </td>
                     <td>
                         <select id="debTranslationSelect" name="debDefaultTranslation[]" multiple>
@@ -900,55 +900,55 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <?php endif ?>
         </table>
 
-        <br><h3>CONFIGURATION WEB</h3>
+        <br><h3>WEB CONFIGURATION</h3>
 
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Utilisateur Linux exécutant le service web de ce serveur" />Utilisateur web
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify Linux web dedied user that execute this web server. Usually www-data or nginx." /> Web user
                 </td>
                 <td>
                     <input type="text" name="wwwUser" autocomplete="off" value="<?= WWW_USER ?>">
                 </td>
                 <td class="td-fit">
                     <?php if (empty(WWW_USER)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />Nom Hôte
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repomanager dedied hostname." /> Hostname
                 </td>
                 <td>
                     <input type="text" name="wwwHostname" autocomplete="off" value="<?= WWW_HOSTNAME ?>">
                 </td>
                 <td class="td-fit">
                     <?php if (empty(WWW_HOSTNAME)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />Url d'accès aux repos
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify target URL for Repomanager's repos root directory. Usually http://.../repo" /> Repos URL
                 </td>
                 <td>
                     <input type="text" name="wwwReposDirUrl" autocomplete="off" value="<?= WWW_REPOS_DIR_URL ?>">
                 </td>
                 <td class="td-fit">
                     <?php if (empty(WWW_REPOS_DIR_URL)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
         </table>
 
-        <br><h3>GESTION DU PARC</h3>
+        <br><h3>HOSTS MANAGEMENT</h3>
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Activer la gestion des hôtes utilisant yum-update-auto / apt-update-auto" />Activer la gestion des hôtes
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable hosts managing. For hosts using linupdate." /> Manage hosts
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -958,13 +958,13 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(MANAGE_HOSTS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Activer la gestion des profils pour les clients yum-update-auto / apt-update-auto (en cours de dev)" />Activer la gestion des profils
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable hosts profiles managing. For hosts using linupdate." /> Manage profiles
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -974,15 +974,14 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(MANAGE_PROFILES)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
         <?php   if (MANAGE_PROFILES == "yes") : ?>
                     <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Préfixe pouvant s'ajouter aux noms de fichiers .repo / .list lors de l'installation sur les hôtes clients" />
-                        Préfixe des fichiers de configuration client
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Prefix that can be added to repo's configuration file name (e.g. 'myprefix-debian.list')." /> Repo file name prefix
                     </td>
                     <td>
                         <input type="text" name="repoConfPrefix" autocomplete="off" value="<?= REPO_CONF_FILES_PREFIX ?>">
@@ -995,8 +994,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         <table class="table-medium">
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Activer les planifications" />
-                    Activer les planifications
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable planifications" /> Enable plans
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -1006,15 +1004,14 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(PLANS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
     <?php if (PLANS_ENABLED == "yes") { ?>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à mettre à jour un repo ou un groupe de repos spécifié par une tâche planifiée" />
-                    Autoriser la mise à jour automatique des repos
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, plans will be able to update repos by creating new repo snapshot on the planned day and time." /> Allow automatic repos updates by plans
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -1024,14 +1021,13 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(ALLOW_AUTOUPDATE_REPOS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à supprimer les plus vieux snapshots de repo en date en fonction du paramètre de rétention renseigné" />
-                    Supprimer automatiquement les plus vieux snapshots de repos
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, plans will be able to delete oldest repos snapshots, depending on the specified retention parameter." /> Allow automatic deletion of old repos snapshots
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -1041,28 +1037,26 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr> 
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Nombre maximal de snapshots à conserver par repos" />
-                    Retention
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." /> Retention
                 </td>
                 <td>
                     <input type="number" name="retention" autocomplete="off" value="<?= RETENTION ?>">
                 </td>
                 <td class="td-fit">
                     <?php if (empty(RETENTION)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr>
             <tr>
                 <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Autoriser repomanager à envoyer des rappels par mail des tâches planifiées à venir. Un service d'envoi de mail doit être configuré sur le serveur (e.g. sendmail)." />
-                    Recevoir des rappels de planifications
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." /> Enable plan reminders
                 </td>
                 <td>
                     <label class="onoff-switch-label">
@@ -1072,13 +1066,13 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
                 <td class="td-fit">
                     <?php if (empty(PLAN_REMINDERS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Ce paramètre doit prendre une valeur" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
                 </td>
             </tr> 
     <?php } ?>
             <tr>
-                <td><button type="submit" class="btn-medium-green">Enregistrer</button></td>
+                <td><button type="submit" class="btn-medium-green">Save</button></td>
             </tr>
         </table>
         </form>
@@ -1087,7 +1081,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
 
 <section class="mainSectionRight">
     <section class="right">
-        <h3>ENVIRONNEMENTS</h3>
+        <h3>ENVIRONMENTS</h3>
         <table class="table-medium">
         <form action="configuration.php" method="post" autocomplete="off">
             <input type="hidden" name="action" value="applyEnvConfiguration" />
@@ -1099,33 +1093,34 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 $myenvs = new \Models\Environment();
                 $envs = $myenvs->listAll();
 
-                foreach ($envs as $envName) {
-                    echo '<tr>';
-                    echo '<td>';
-                    echo '<input type="text" name="actualEnv[]" value="' . $envName . '" />';
-                    echo '</td>';
-                    echo '<td class="td-fit center">';
-                    echo "<img src=\"resources/icons/bin.png\" class=\"envDeleteToggle-${envName} icon-lowopacity\" title=\"Supprimer l'environnement ${envName}\"/>";
-                    \Controllers\Common::deleteConfirm("Êtes-vous sûr de vouloir supprimer l'environnement $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}");
-                    echo '</td>';
+                foreach ($envs as $envName) : ?>
+                    <tr>
+                        <td>
+                        <input type="text" name="actualEnv[]" value="<?= $envName ?>" />
+                    </td>
+                    <td class="td-fit center">
+                        <img src="resources/icons/bin.png" class="envDeleteToggle-<?= $envName ?> icon-lowopacity" title="Delete environment <?= $envName ?>"/>
+                        <?php \Controllers\Common::deleteConfirm("Are you sure you want to delete environment $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}"); ?>
+                    </td>
+                    <?php
                     if ($envName == DEFAULT_ENV) {
                         echo '<td>(defaut)</td>';
                     } else {
                         echo '<td></td>';
                     }
                     echo '</tr>';
-                } ?>
+                endforeach ?>
             <input type="submit" class="hide" value="Valider" /> <!-- bouton caché, afin de taper Entrée pour appliquer les modifications -->
         </form>
 
         <form action="configuration.php" method="post" autocomplete="off">
             <input type="hidden" name="action" value="addNewEnv" />
             <tr>
-                <td><input type="text" name="newEnv" placeholder="Ajouter un nouvel environnement" /></td>
+                <td><input type="text" name="newEnv" placeholder="Add a new environment" /></td>
                 <td class="td-fit"><button type="submit" class="btn-xxsmall-blue">+</button></td>
                 <td class="td-fit">
                     <?php if (empty(ENVS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="Au moins un environnement doit être configuré" />';
+                        echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
                     } ?>
                 </td>
                 <td></td>
@@ -1133,19 +1128,21 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         </form>
         </table>
 
-        <br><h3>BASES DE DONNÉES</h3>
+        <br><h3>DATABASES</h3>
         <table class="table-generic-blue table-large">
             <tr>
-                <td class="td-50"><img src="resources/icons/info.png" class="icon-verylowopacity" title="Base de données principale de repomanager. L'application ne peut fonctionner si la base de données est en erreur." /> Principale</td>
+                <td class="td-50">
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Main database. Repomanager cannot run if database is on error." /> Main
+                </td>
                 <td>
                     <?php
                     /**
                      *  Vérification de la lisibilité du fichier de base de données
                      */
-                    if (!is_readable(DB_DIR . "/repomanager.db")) {
-                        echo "Impossible de lire la base principale";
+                    if (!is_readable(DB) or !is_writable(DB)) {
+                        echo "Main database is not readable / writable.";
                     } else {
-                        echo '<span title="OK">Accès</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="OK">Access</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
                 </td>
                 <td>
@@ -1156,9 +1153,9 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     $myconn = new \Models\Connection('main');
 
                     if (!$myconn->checkMainTables()) {
-                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="resources/icons/redcircle.png" class="icon-small" />';
+                        echo '<span title="One or more table are missing.">Tables state</span><img src="resources/icons/redcircle.png" class="icon-small" />';
                     } else {
-                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="All tables are present.">Tables state</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
                 </td>
             </tr>
@@ -1167,17 +1164,17 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (STATS_ENABLED == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Base de données des statistiques des repos." /> Stats
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repositories' statistics database." /> Statistics
                 </td>
                 <td>
                     <?php
                     /**
                      *  Vérification de la lisibilité du fichier
                      */
-                    if (!is_readable(DB_DIR . "/repomanager-stats.db")) {
-                        echo "Impossible de lire la base de données des statistiques";
+                    if (!is_readable(STATS_DB) or !is_writable(STATS_DB)) {
+                        echo "Stats database is not readable / writable.";
                     } else {
-                        echo '<span title="OK">Accès</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="OK">Access</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
                 </td>
                 <td>
@@ -1188,9 +1185,9 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     $myconn = new \Models\Connection('stats');
 
                     if (!$myconn->checkStatsTables()) {
-                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="resources/icons/redcircle.png" class="icon-small" />';
+                        echo '<span title="One or more table are missing.">Tables state</span><img src="resources/icons/redcircle.png" class="icon-small" />';
                     } else {
-                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="All tables are present.">Tables state</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
                 </td>
             </tr>
@@ -1199,17 +1196,17 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (MANAGE_HOSTS == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Base de données des hôtes." /> Hosts
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Hosts' database." /> Hosts
                 </td>
                 <td>
                     <?php
                     /**
                      *  Vérification de la lisibilité du fichier
                      */
-                    if (!is_readable(DB_DIR . "/repomanager-hosts.db")) {
-                        echo "Impossible de lire la base de données des hôtes";
+                    if (!is_readable(HOSTS_DB) or !is_writable(HOSTS_DB)) {
+                        echo "Hosts database is not readable / writable.";
                     } else {
-                        echo '<span title="OK">Accès</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="OK">Access</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
 
                 </td>
@@ -1221,9 +1218,9 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     $myconn = new \Models\Connection('hosts');
 
                     if (!$myconn->checkHostsTables()) {
-                        echo '<span title="Une ou plusieurs tables semblent manquantes">Etat des tables</span><img src="resources/icons/redcircle.png" class="icon-small" />';
+                        echo '<span title="One or more table are missing.">Tables state</span><img src="resources/icons/redcircle.png" class="icon-small" />';
                     } else {
-                        echo '<span title="Toutes les tables sont présentes">Etat des tables</span><img src="resources/icons/greencircle.png" class="icon-small" />';
+                        echo '<span title="All tables are present.">Tables state</span><img src="resources/icons/greencircle.png" class="icon-small" />';
                     } ?>
                 </td>
             </tr>
@@ -1236,15 +1233,14 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <table class="table-generic-blue table-large">
                 <tr>
                     <td class="td-50">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Le service systemd repomanager permet d'exécuter des actions régulières telles que la réapplication des bonnes permissions sur les répertoires de repos, l'exécution de planifications (si activé), l'envoi de rappels de planifications (si activé)." /> 
-                        Etat du service repomanager
+                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Systemd repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />  Repomanager service state
                     </td>
                     <td>
                         <?php
                         if (SERVICE_RUNNING) {
-                            echo '<span title="Le service est en cours d\'exécution">Status <img src="resources/icons/greencircle.png" class="icon-small" /></span>';
+                            echo '<span title="Service is running">Status <img src="resources/icons/greencircle.png" class="icon-small" /></span>';
                         } else {
-                            echo '<span title="Le service est stoppé">Status <img src="resources/icons/redcircle.png" class="icon-small" /></span>';
+                            echo '<span title="Service is not running">Status <img src="resources/icons/redcircle.png" class="icon-small" /></span>';
                         }
                         ?>
                     </td>
@@ -1253,76 +1249,85 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         </form>
     </section>
 
-<?php
+    <?php
     /**
      *  Cette section est accessible uniquement pour les utilisateurs dont le role est 'super-administrator'
      */
-if ($_SESSION['role'] === 'super-administrator') { ?>
+    if ($_SESSION['role'] === 'super-administrator') : ?>
         <section class="right">
-            <h3>UTILISATEURS</h3>
-                <form action="configuration.php" method="post" autocomplete="off">
-                    <input type="hidden" name="action" value="createUser" />
+            <h3>USERS</h3>
+            <form action="configuration.php" method="post" autocomplete="off">
 
-                    <p>Créer un utilisateur :</p>
-                    <input class="input-medium" type="text" name="username" placeholder="Nom d'utilisateur" />
-                    <select name="role" class="select-medium">
-                        <option value="">Sélectionner role...</option>
-                        <option value="usage">usage</option>
-                        <option value="administrator">administrateur</option>
-                    </select>
-                    <button class="btn-xxsmall-blue">+</button>
-                </form>
+                <input type="hidden" name="action" value="createUser" />
+                <p>Create an user:</p>
+                <input class="input-medium" type="text" name="username" placeholder="Username" />
+                <select name="role" class="select-medium">
+                    <option value="">Select role...</option>
+                    <option value="usage">usage</option>
+                    <option value="administrator">administrateur</option>
+                </select>
+                <button class="btn-xxsmall-blue">+</button>
+            </form>
+            <?php
+            /**
+             *  Cas où un nouveau mot de passe a été généré
+             */
+            if (!empty($newUserUsername) and !empty($newUserPassword)) {
+                echo '<p class="greentext">Temporary password generated for <b>' . $newUserUsername . '</b>: ' . $newUserPassword . '</p>';
+            }
+            /**
+             *  Cas où un mot de passe a été reset
+             */
+            if (!empty($newResetedPwdUsername) and !empty($newResetedPwdPassword)) {
+                echo '<p class="greentext">A new password has been generated for <b>' . $newResetedPwdUsername . '</b>: ' . $newResetedPwdPassword . '</p>';
+            }
+
+            echo '<br>';
+
+            /**
+             *  Affichage des utilisateurs existants
+             */
+            $myuser = new \Models\Login();
+            $users = $myuser->getUsers();
+
+            if (!empty($users)) : ?>
+                <table class="table-generic-blue">
+                    <tr class="no-bkg">
+                        <td>Username</td>
+                        <td>Role</td>
+                        <td>Account type</td>
+                        <td></td>
+                    </tr>
+                    <?php
+                    foreach ($users as $user) : ?>
+                        <tr>
+                            <td>
+                                <?= $user['Username'] ?>
+                            </td>
+                            <td>
+                                <?= $user['Role_name'] ?>
+                            </td>
+                            <td>
+                                <?= $user['Type'] ?>
+                            </td>
+                            <?php
+                            if ($user['Username'] != 'admin') {
+                                echo '<td class="td-fit">';
+                                echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Réinitialiser le mot de passe de ' . $user['Username'] . '"><img src="resources/icons/update.png" class="icon-lowopacity" /></a>';
+                                echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Supprimer l\'utilisateur ' . $user['Username'] . '"><img src="resources/icons/bin.png" class="icon-lowopacity" /></a>';
+                                echo '</td>';
+                            } else {
+                                echo '<td></td>';
+                            } ?>
+                        </tr>
+                        <?php
+                    endforeach; ?>
+                </table>
                 <?php
-                /**
-                 *  Cas où un nouveau mot de passe a été généré
-                 */
-                if (!empty($newUserUsername) and !empty($newUserPassword)) {
-                    echo '<p class="greentext">Mot de passe temporaire généré pour <b>' . $newUserUsername . '</b> : ' . $newUserPassword . '</p>';
-                }
-                /**
-                 *  Cas où un mot de passe a été reset
-                 */
-                if (!empty($newResetedPwdUsername) and !empty($newResetedPwdPassword)) {
-                    echo '<p class="greentext">Un nouveau mot de passe a été généré pour <b>' . $newResetedPwdUsername . '</b> : ' . $newResetedPwdPassword . '</p>';
-                }
-
-                echo '<br>';
-
-                /**
-                 *  Affichage des utilisateurs existants
-                 */
-                $myuser = new \Models\Login();
-                $users = $myuser->getUsers();
-
-                if (!empty($users)) { ?>
-                        <table class="table-generic-blue">
-                            <tr class="no-bkg">
-                                <td>Nom d'utilisateur</td>
-                                <td>Role</td>
-                                <td>Type de compte</td>
-                                <td></td>
-                            </tr>
-                    <?php   foreach ($users as $user) { ?>
-                            <tr>
-                                <td><?php echo $user['Username'];?></td>
-                                <td><?php echo $user['Role_name'];?></td>
-                                <td><?php echo $user['Type'];?></td>
-                                <?php
-                                if ($user['Username'] != 'admin') {
-                                    echo '<td class="td-fit">';
-                                    echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Réinitialiser le mot de passe de ' . $user['Username'] . '"><img src="resources/icons/update.png" class="icon-lowopacity" /></a>';
-                                    echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Supprimer l\'utilisateur ' . $user['Username'] . '"><img src="resources/icons/bin.png" class="icon-lowopacity" /></a>';
-                                    echo '</td>';
-                                } else {
-                                    echo '<td></td>';
-                                } ?>
-                            </tr>
-                    <?php   }
-                    echo '</table>';
-                }
-                ?>
+            endif; ?>
         </section>
-<?php } ?>
+        <?php
+    endif ?>
 </section>
 </article>
 

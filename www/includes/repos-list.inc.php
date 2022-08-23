@@ -3,7 +3,6 @@
 /**
  *  Récupération de tous les noms de groupes
  */
-
 $mygroup = new \Controllers\Group('repo');
 $groupsList = $mygroup->listAllWithDefault();
 
@@ -34,7 +33,7 @@ if (!empty($groupsList)) {
             $myrepo->printRepoList($reposList);
             unset($myrepo);
         } else {
-            echo '<span class="lowopacity">(vide)</span>';
+            echo '<span class="lowopacity">(empty)</span>';
         }
         echo '</div>';
     }
@@ -45,10 +44,10 @@ if (!empty($groupsList)) {
  */
 if (Controllers\Common::isadmin()) : ?>
     <div id="repo-actions-btn-container" class="action hide">
-        <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Mettre à jour le(s) snapshot(s) sélectionné(s)"><img class="icon" src="resources/icons/update.png" />Mettre à jour</button>
-        <button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Dupliquer le(s) snapshot(s) sélectionné(s)"><img class="icon" src="resources/icons/duplicate.png" />Dupliquer</button>
-        <button class="repo-action-btn btn-medium-blue" action="env" type="active-btn"><img class="icon" src="resources/icons/link.png" />Nouvel env.</button>
-        <button class="repo-action-btn btn-medium-blue" action="reconstruct" type="active-btn" title="Reconstruire les métadonnées de(s) snapshot(s) sélectionné(s)"><img class="icon" src="resources/icons/update.png" />Reconstruire</button>
-        <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Supprimer le(s) snapshot(s) sélectionné(s)"><img class="icon" src="resources/icons/bin.png" />Supprimer</button>
+        <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="resources/icons/update.png" />Update</button>
+        <button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.png" />Duplicate</button>
+        <button class="repo-action-btn btn-medium-blue" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="resources/icons/link.png" />Point an env.</button>
+        <button class="repo-action-btn btn-medium-blue" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="resources/icons/update.png" />Rebuild</button>
+        <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Delete selected snapshot(s)"><img class="icon" src="resources/icons/bin.png" />Delete</button>
     </div>
 <?php endif ?>

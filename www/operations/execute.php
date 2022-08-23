@@ -22,7 +22,7 @@ $getOptions = getopt(null, ["id:"]);
  *  Récupération de l'Id de l'opération à traiter
  */
 if (empty($getOptions['id'])) {
-    echo "Erreur : l'Id d'opération n'est pas défini." . PHP_EOL;
+    echo "Error: operation Id is not defined." . PHP_EOL;
     exit(1);
 }
 
@@ -32,7 +32,7 @@ $id = $getOptions['id'];
  *  Récupération des détails de l'opération à traiter, sous forme d'array
  */
 if (!file_exists(POOL . '/' . $id . '.json')) {
-    echo "Erreur : impossible de récupérer les détails de l'opération (Id $id) : le fichier est introuvable." . PHP_EOL;
+    echo "Error: cannot get operation details (Id $id) from pool file: file not found." . PHP_EOL;
     exit(1);
 }
 
@@ -43,7 +43,7 @@ $operation_params = json_decode(file_get_contents(POOL . '/' . $id . '.json'), t
  */
 foreach ($operation_params as $operation) {
     if (empty($operation['action'])) {
-        echo "Operation inconnue : action non spécifiée." . PHP_EOL;
+        echo "Unknown operation: action not specified." . PHP_EOL;
         $exitCode++;
         continue;
     }
@@ -59,7 +59,7 @@ foreach ($operation_params as $operation) {
         and $action != 'delete'
         and $action != 'env'
         and $action != 'reconstruct') {
-        echo "Operation inconnue : action invalide." . PHP_EOL;
+        echo "Unknown operation: invalid action." . PHP_EOL;
         $exitCode++;
         continue;
     }
@@ -76,7 +76,7 @@ foreach ($operation_params as $operation) {
      */
     if ($action == 'new') {
         if (empty($operation['packageType'])) {
-            echo "Operation 'new' - Erreur : le paramètre packageType n'est pas défini." . PHP_EOL;
+            echo "Operation 'new' - Error: parameter 'packageType' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -121,7 +121,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre Type n'est pas défini, on quitte
          */
         if (empty($operation['type'])) {
-            echo "Operation 'new' - Erreur : le paramètre Type n'est pas défini." . PHP_EOL;
+            echo "Operation 'new' - Error: parameter 'Type' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -132,7 +132,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Dist n'est pas défini, on quitte
              */
             if (empty($operation['dist'])) {
-                echo "Operation 'new' - Erreur : le paramètre Dist n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'Dist' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -142,7 +142,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Section n'est pas défini, on quitte
              */
             if (empty($operation['section'])) {
-                echo "Operation 'new' - Erreur : le paramètre Section n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'Section' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -168,7 +168,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Source n'est pas défini, on quitte
              */
             if (empty($operation['source'])) {
-                echo "Operation 'new' - Erreur : le paramètre Source n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'Source' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -177,7 +177,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre GPG Check n'est pas défini, on quitte
              */
             if (empty($operation['targetGpgCheck'])) {
-                echo "Operation 'new' - Erreur : le paramètre GPG Check n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'GPG Check' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -187,7 +187,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre GPG Resign n'est pas défini, on quitte
              */
             if (empty($operation['targetGpgResign'])) {
-                echo "Operation 'new' - Erreur : le paramètre GPG Resign n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -214,7 +214,7 @@ foreach ($operation_params as $operation) {
              *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
              */
             if (empty($operation['alias'])) {
-                echo "Operation 'new' - Erreur : le paramètre Alias (Name) n'est pas défini." . PHP_EOL;
+                echo "Operation 'new' - Error: parameter 'Alias' (Name) not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
             }
@@ -222,7 +222,7 @@ foreach ($operation_params as $operation) {
         }
 
         if (empty($operation['targetArch'])) {
-            echo "Operation 'new' - Error: package arch must be specified." . PHP_EOL;
+            echo "Operation 'new' - Error: parameter 'Arch' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -285,7 +285,7 @@ foreach ($operation_params as $operation) {
          *  Si l'opération est en erreur alors on incrémente le code de sortie
          */
         if ($repo->getOpStatus() == 'error') {
-            echo "Une erreur est survenue pendant l'opération : " . $repo->getOpError() . PHP_EOL;
+            echo "Error while running operation: " . $repo->getOpError() . PHP_EOL;
             $exitCode++;
         }
     }
@@ -297,7 +297,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Check n'est pas défini on quitte
          */
         if (empty($operation['targetGpgCheck'])) {
-            echo "Operation 'update' - Erreur : le paramètre GPG Check n'est pas défini." . PHP_EOL;
+            echo "Operation 'update' - Error: parameter 'GPG Check' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -307,7 +307,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Resign n'est pas défini on quitte
          */
         if (empty($operation['targetGpgResign'])) {
-            echo "Operation 'update' - Erreur : le paramètre GPG Resign n'est pas défini." . PHP_EOL;
+            echo "Operation 'update' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -376,7 +376,7 @@ foreach ($operation_params as $operation) {
          *  Si l'opération est en erreur alors on incrémente le code de sortie
          */
         if ($repo->getOpStatus() == 'error') {
-            echo "Une erreur est survenue pendant l'opération : " . $repo->getOpError() . PHP_EOL;
+            echo "Error while running operation: " . $repo->getOpError() . PHP_EOL;
             $exitCode++;
         }
     }
@@ -388,7 +388,7 @@ foreach ($operation_params as $operation) {
          *  Si le nouveau nom n'est pas défini on quitte
          */
         if (empty($operation['targetName'])) {
-            echo "Operation 'duplicate' - Erreur : le nouveau nom n'est pas défini." . PHP_EOL;
+            echo "Operation 'duplicate' - Error: new repo name not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -459,7 +459,7 @@ foreach ($operation_params as $operation) {
          *  Si l'opération est en erreur alors on incrémente le code de sortie
          */
         if ($repo->getOpStatus() == 'error') {
-            echo "Une erreur est survenue pendant l'opération : " . $repo->getOpError() . PHP_EOL;
+            echo "Error while running operation: " . $repo->getOpError() . PHP_EOL;
             $exitCode++;
         }
     }
@@ -499,7 +499,7 @@ foreach ($operation_params as $operation) {
          *  Si le l'environnement cible n'est pas défini on quitte
          */
         if (empty($operation['targetEnv'])) {
-            echo "Operation 'env' - Erreur : l'env cible n'est pas défini." . PHP_EOL;
+            echo "Operation 'env' - Erreur: target environment not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -536,7 +536,7 @@ foreach ($operation_params as $operation) {
          *  Si l'opération est en erreur alors on incrémente le code de sortie
          */
         if ($repo->getOpStatus() == 'error') {
-            echo "Une erreur est survenue pendant l'opération : " . $repo->getOpError() . PHP_EOL;
+            echo "Error while running operation: " . $repo->getOpError() . PHP_EOL;
             $exitCode++;
         }
     }
@@ -548,7 +548,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Resign n'est pas défini on quitte
          */
         if (empty($operation['targetGpgResign'])) {
-            echo "Operation 'reconstruct' - Erreur : le paramètre GPG Resign n'est pas défini." . PHP_EOL;
+            echo "Operation 'reconstruct' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
             $exitCode++;
             continue;
         }
@@ -585,7 +585,7 @@ foreach ($operation_params as $operation) {
          *  Si l'opération est en erreur alors on incrémente le code de sortie
          */
         if ($repo->getOpStatus() == 'error') {
-            echo "Une erreur est survenue pendant l'opération : " . $repo->getOpError() . PHP_EOL;
+            echo "Error while running operation: " . $repo->getOpError() . PHP_EOL;
             $exitCode++;
         }
     }

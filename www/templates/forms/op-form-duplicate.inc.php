@@ -1,6 +1,6 @@
 <tr>
     <td colspan="100%">
-        Dupliquer
+        Duplicate
         <?php
         if ($myrepo->getPackageType() == 'rpm') {
             echo ' <span class="label-white">' . $myrepo->getName() . '</span>';
@@ -13,7 +13,7 @@
 </tr>
 
 <tr>
-    <td class="td-30">Nouveau nom du repo :</td>
+    <td class="td-30">New repo name</td>
     <td>
         <input type="text" class="operation_param" param-name="targetName" required />
         <?php /*if ($myrepo->getPackageType() == 'deb') : ?>
@@ -24,7 +24,7 @@
 </tr>
 
 <tr>
-    <td class="td-30">Faire pointer un environnement</td>
+    <td class="td-30">Point an environment</td>
     <td>
         <select id="duplicate-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="operation_param" param-name="targetEnv">
             <option value=""></option>
@@ -41,8 +41,12 @@
 </tr>
 
 <tr id="duplicate-repo-target-description-tr">
-    <td class="td-30">Description (fac.) :</td>
-    <td><input type="text" class="operation_param" param-name="targetDescription" /></td>
+    <td class="td-30">
+        <span>Description</span> <span class="lowopacity">(optionnal)</span>
+    </td>
+    <td>
+        <input type="text" class="operation_param" param-name="targetDescription" />
+    </td>
 </tr>
 
 <?php
@@ -55,10 +59,12 @@ $groupList = $group->listAllName();
 
 if (!empty($groupList)) : ?>
     <tr>
-        <td class="td-30">Ajouter à un groupe (fac.)</td>
+        <td class="td-30">
+            <span>Add to group</span> <span class="lowopacity">(optionnal)</span>
+        </td>
         <td>
             <select class="operation_param" param-name="targetGroup">
-                <option value="">Sélectionner un groupe...</option>
+                <option value="">Select group...</option>
                 <?php
                 foreach ($groupList as $groupName) {
                     echo '<option value="' . $groupName . '">' . $groupName . '</option>';

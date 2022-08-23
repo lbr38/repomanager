@@ -17,7 +17,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
-    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    echo json_encode(["return" => "400", "message" => "Reposerver configuration error. Please contact the administrator."]);
     exit;
 }
 
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
          *  Si l'enregistrement a été effectué, on retourne l'id et le token généré pour cet hôte
          */
         if ($register === true) {
-            $message_succes[] = "L'enregistrement a ete effectue.";
+            $message_succes[] = "Register is done.";
             http_response_code(201);
             $authId = $myhost->getAuthId();
             $token  = $myhost->getToken();
@@ -56,27 +56,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if ($register == "2") {
-            $message_error[] = "Impossible de déterminer l'adresse IP de l'hote.";
+            $message_error[] = "Cannot determine host IP address.";
             http_response_code(400);
             echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
 
         if ($register == "3") {
-            $message_error[] = "Cet hôte est déjà enregistre.";
+            $message_error[] = "This host is already registered.";
             http_response_code(400);
             echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
 
         if ($register == "5") {
-            $message_error[] = "Le serveur n'a pas pu finaliser l'enregistrement.";
+            $message_error[] = "The server could not finalize registering.";
             http_response_code(400);
             echo json_encode(["return" => "400", "message_error" => $message_error]);
             exit;
         }
     } else {
-        $message_error[] = "Les donnees transmises sont invalides.";
+        $message_error[] = "Sended data are invalid.";
         http_response_code(400);
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 /**
  *  Cas où on tente d'utiliser une autre méthode que POST
  */
-$message_error[] = "La méthode n'est pas autorisée.";
+$message_error[] = "Method not allowed.";
 http_response_code(405);
 echo json_encode(["return" => "405", "message_error" => $message_error]);
 exit;

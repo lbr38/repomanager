@@ -43,7 +43,7 @@ class Operation
     public function setType(string $type)
     {
         if ($type !== 'manual' and $type !== 'plan') {
-            throw new Exception("Le type d'opération est invalide");
+            throw new Exception("Operation type is invalid");
         }
 
         $this->type = \Controllers\Common::validateData($type);
@@ -201,7 +201,7 @@ class Operation
             unset($myplan);
         }
 
-        \Controllers\Common::printAlert("L'opération a été arrêtée", 'success');
+        \Controllers\Common::printAlert('Operation has been stopped', 'success');
 
         \Controllers\Common::clearCache();
     }
@@ -212,11 +212,11 @@ class Operation
     private function checkParamRepoId(string $id)
     {
         if (empty($id)) {
-            throw new Exception("L'Id du repo ne peut pas être vide");
+            throw new Exception("Repo Id cannot be empty");
         }
 
         if (!is_numeric($id)) {
-            throw new Exception("L'Id du repo doit être un nombre");
+            throw new Exception("Repo Id must be numeric");
         }
 
         /**
@@ -224,7 +224,7 @@ class Operation
          */
         $myrepo = new \Controllers\Repo();
         if (!$myrepo->existsId($id)) {
-            throw new Exception("Le repo spécifié n'existe pas");
+            throw new Exception("Specified repo does not exist");
         }
 
         unset($myrepo);
@@ -236,11 +236,11 @@ class Operation
     private function checkParamSnapId(string $id)
     {
         if (empty($id)) {
-            throw new Exception("L'Id du snapshot ne peut pas être vide");
+            throw new Exception("Snapshot Id cannot be empty");
         }
 
         if (!is_numeric($id)) {
-            throw new Exception("L'Id du snapshot doit être un nombre");
+            throw new Exception("Snapshot Id must be numeric");
         }
 
         /**
@@ -248,7 +248,7 @@ class Operation
          */
         $myrepo = new Repo();
         if (!$myrepo->existsSnapId($id)) {
-            throw new Exception("Le snapshot spécifié n'existe pas");
+            throw new Exception("Specified snapshot does not exist");
         }
 
         unset($myrepo);
@@ -260,11 +260,11 @@ class Operation
     private function checkParamEnvId(string $id)
     {
         if (empty($id)) {
-            throw new Exception("L'Id de l'environnement ne peut pas être vide");
+            throw new Exception("Environment Id cannot be empty");
         }
 
         if (!is_numeric($id)) {
-            throw new Exception("L'Id de l'environnement doit être un nombre");
+            throw new Exception("Environment Id must be numeric");
         }
 
         /**
@@ -272,7 +272,7 @@ class Operation
          */
         $myrepo = new Repo();
         if (!$myrepo->existsEnvId($id)) {
-            throw new Exception("L'Id d'environnement spécifié n'existe pas");
+            throw new Exception("Environment Id does not exist");
         }
 
         unset($myrepo);
@@ -281,22 +281,22 @@ class Operation
     private function checkParamSource(string $source)
     {
         if (empty($source)) {
-            throw new Exception("La source ne peut pas être vide");
+            throw new Exception("Source repo cannot be empty");
         }
 
         if (!\Controllers\Common::isAlphanumDash($source, array('.'))) {
-            throw new Exception('La source du repo contient des caractères invalides');
+            throw new Exception('Source repo contains invalid characters');
         }
     }
 
     private function checkParamType(string $type)
     {
         if (empty($type)) {
-            throw new Exception("Le type du repo ne peut pas être vide");
+            throw new Exception("Repo type cannot be empty");
         }
 
         if ($type !== "mirror" and $type !== "local") {
-            throw new Exception('Le type du repo est invalide');
+            throw new Exception('Repo type is invalid');
         }
     }
 
@@ -304,7 +304,7 @@ class Operation
     {
         if (!empty($alias)) {
             if (!\Controllers\Common::isAlphanum($alias, array('-'))) {
-                throw new Exception('Le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
+                throw new Exception('Repo name cannot contain special characters except hyphen');
             }
         }
     }
@@ -318,64 +318,64 @@ class Operation
          *  Pour le moment seuls les types de paquets 'rpm' et 'deb' sont supportés
          */
         if ($packageType != 'rpm' and $packageType != 'deb') {
-            throw new Exception('Le type de paquets spécifié est invalide');
+            throw new Exception('Package type is invalid');
         }
     }
 
     private function checkParamName(string $name)
     {
         if (empty($name)) {
-            throw new Exception('Le nom du repo ne peut pas être vide');
+            throw new Exception('Repo name cannot be empty');
         }
 
         if (!\Controllers\Common::isAlphanum($name, array('-'))) {
-            throw new Exception('Le nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
+            throw new Exception('Repo name cannot contain special characters except hyphen');
         }
     }
 
     private function checkParamTargetName(string $targetName)
     {
         if (empty($targetName)) {
-            throw new Exception('Vous devez spécifier un nouveau nom de repo');
+            throw new Exception('New repo name cannot be empty');
         }
         if (!\Controllers\Common::isAlphanum($targetName, array('-'))) {
-            throw new Exception('Le nouveau nom du repo ne peut pas contenir de caractères spéciaux hormis le tiret -');
+            throw new Exception('New repo name cannot contain special characters except hyphen');
         }
     }
 
     private function checkParamDist(string $dist)
     {
         if (empty($dist)) {
-            throw new Exception('Le nom de la distribution ne peut pas être vide');
+            throw new Exception('Distribution name cannot be empty');
         }
 
         if (!\Controllers\Common::isAlphanum($dist, array('-', '/'))) {
-            throw new Exception('Le nom de la distribution ne peut pas contenir de caractères spéciaux hormis le tiret -');
+            throw new Exception('Distribution name cannot contain special characters except hyphen');
         }
     }
 
     private function checkParamSection(string $section)
     {
         if (empty($section)) {
-            throw new Exception('Le nom de la section ne peut pas être vide');
+            throw new Exception('Section name cannot be empty');
         }
 
         if (!\Controllers\Common::isAlphanum($section, array('-'))) {
-            throw new Exception('Le nom de la section ne peut pas contenir de caractères spéciaux hormis le tiret -');
+            throw new Exception('Section name cannot contain special characters except hyphen');
         }
     }
 
     private function checkParamGpgCheck(string $gpgCheck)
     {
         if ($gpgCheck !== "yes" and $gpgCheck !== "no") {
-            throw new Exception('Le paramètre de vérification des signatures GPG est invalide');
+            throw new Exception('GPG check param is invalid');
         }
     }
 
     private function checkParamGpgResign(string $gpgResign)
     {
         if ($gpgResign !== "yes" and $gpgResign !== "no") {
-            throw new Exception('Le paramètre de signature avec GPG est invalide');
+            throw new Exception('GPG signature param is invalid');
         }
     }
 
@@ -383,7 +383,7 @@ class Operation
     {
         if (!empty($group)) {
             if (!\Controllers\Common::isAlphanumDash($group, array('-'))) {
-                throw new Exception('Le groupe comporte des caractères invalides');
+                throw new Exception('Group contains invalid characters');
             }
         }
     }
@@ -396,7 +396,7 @@ class Operation
              *  On accepte certains caractères spéciaux
              */
             if (!\Controllers\Common::isAlphanumDash($description, array('.', '(', ')', '@', 'é', 'è', 'à', 'ç', 'ù', 'ê', 'ô', '+', '\'', ' '))) {
-                throw new Exception('La description comporte des caractères invalides');
+                throw new Exception('Description contains invalid characters');
             }
         }
     }
@@ -404,10 +404,10 @@ class Operation
     private function checkParamEnv(string $env)
     {
         if (empty($env)) {
-            throw new Exception("Le nom de l'environnement ne peut pas être vide");
+            throw new Exception("Environment name cannot be empty");
         }
         if (!\Controllers\Common::isAlphanum($env, array('-'))) {
-            throw new Exception("L'environnement comporte des caractères invalides");
+            throw new Exception("Environment name contains invalid characters");
         }
     }
 
@@ -416,20 +416,20 @@ class Operation
     private function checkParamTargetEnv(string $targetEnv)
     {
         if (empty($targetEnv)) {
-            throw new Exception("Le nom de l'environnement cible ne peut pas être vide");
+            throw new Exception("Target environment name cannot be empty");
         }
         if (!\Controllers\Common::isAlphanum($targetEnv, array('-'))) {
-            throw new Exception("L'environnement comporte des caractères invalides");
+            throw new Exception("Target environment name contains invalid characters");
         }
     }
 
     private function checkParamDate(string $date)
     {
         if (empty($date)) {
-            throw new Exception("La date ne peut pas être vide");
+            throw new Exception("Date cannot be empty");
         }
         if (preg_match('#^(\d\d\d\d)-(\d\d)-(\d\d)$#', $date) == false) {
-            throw new Exception("Le format de la date est invalide");
+            throw new Exception("Date format is invalid");
         }
     }
 
@@ -440,7 +440,7 @@ class Operation
 
         foreach ($targetArch as $arch) {
             if (!\Controllers\Common::isAlphanumdash($arch)) {
-                throw new Exception("L'architecture à inclure comporte des caractères invalides");
+                throw new Exception("Architecture contains invalid characters");
             }
         }
     }
@@ -448,7 +448,7 @@ class Operation
     private function checkParamIncludeSource(string $targetPackageSource)
     {
         if ($targetPackageSource !== "yes" and $targetPackageSource !== "no") {
-            throw new Exception('Le paramètre d\'inclusion des sources de paquets est invalide');
+            throw new Exception('Package source param is invalid');
         }
     }
 
@@ -456,7 +456,7 @@ class Operation
     {
         foreach ($targetPackageTranslation as $translation) {
             if (!\Controllers\Common::isAlphanum($translation)) {
-                throw new Exception("La traduction à inclure comporte des caractères invalides");
+                throw new Exception("Traduction param contains invalid characters");
             }
         }
     }
@@ -566,7 +566,7 @@ class Operation
          */
         $this->duration = microtime(true) - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
 
-        $this->step('DUREE TOTALE', false);
+        $this->step('DURATION', false);
         $this->log->steplogDuration($this->stepId, \Controllers\Common::convertMicrotime($this->duration));
 
         /**
@@ -799,26 +799,26 @@ class Operation
                         <td class="td-fit">
                             <?php
                             if ($action == "new") {
-                                echo '<img class="icon" src="resources/icons/plus.png" title="Nouveau" />';
+                                echo '<img class="icon" src="resources/icons/plus.png" title="New repo" />';
                             }
                             if ($action == "update") {
-                                echo '<img class="icon" src="resources/icons/update.png" title="Mise à jour" />';
+                                echo '<img class="icon" src="resources/icons/update.png" title="Update repo" />';
                             }
                             if ($action == "reconstruct") {
-                                echo '<img class="icon" src="resources/icons/update.png" title="Reconstruction des métadonnées" />';
+                                echo '<img class="icon" src="resources/icons/update.png" title="Rebuild metadata" />';
                             }
                             if ($action == "env" or strpos(htmlspecialchars_decode($action), '->') !== false) {
-                                echo '<img class="icon" src="resources/icons/link.png" title="Nouvel environnement" />';
+                                echo '<img class="icon" src="resources/icons/link.png" title="Point an environment" />';
                             }
                             if ($action == "duplicate") {
-                                echo '<img class="icon" src="resources/icons/duplicate.png" title="Duplication" />';
+                                echo '<img class="icon" src="resources/icons/duplicate.png" title="Duplicate" />';
                             }
                             if ($action == "delete" or $action == "removeEnv") {
-                                echo '<img class="icon" src="resources/icons/bin.png" title="Suppression" />';
+                                echo '<img class="icon" src="resources/icons/bin.png" title="Delete" />';
                             } ?>
                         </td>
                         <td class="td-small">
-                            <a href="run.php?logfile=<?=$logfile?>">Le <b><?=$date?></b> à <b><?=$time?></b></a>
+                            <a href="run.php?logfile=<?=$logfile?>"><b><?=$date?></b> at <b><?=$time?></b></a>
                         </td>
 
                         <td>
@@ -840,16 +840,16 @@ class Operation
                              *  Affichage de l'icone en cours ou terminée ou en erreur
                              */
                             if ($status == "running") {
-                                echo 'en cours <img src="resources/images/loading.gif" class="icon" title="en cours d\'exécution" />';
+                                echo 'en cours <img src="resources/images/loading.gif" class="icon" title="running" />';
                             }
                             if ($status == "done") {
-                                echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Opération terminée" />';
+                                echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Operation completed" />';
                             }
                             if ($status == "error") {
-                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Opération en erreur" />';
+                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Operation has failed" />';
                             }
                             if ($status == "stopped") {
-                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Opération stoppée par l\'utilisateur" />';
+                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Operation stopped by the user" />';
                             }
                             ?>
                         </td>
@@ -903,14 +903,14 @@ class Operation
              *  Vérification de l'id spécifié
              */
             if (!is_numeric($repoId)) {
-                throw new Exception("L'Id du repo est invalide");
+                throw new Exception("Repo Id is invalid");
             }
             if (!is_numeric($snapId)) {
-                throw new Exception("L'Id du snapshot est invalide");
+                throw new Exception("Snapshot Id is invalid");
             }
             if (!empty($envId)) {
                 if (!is_numeric($envId)) {
-                    throw new Exception("L'Id de l'environnement est invalide");
+                    throw new Exception("Environment Id is invalid");
                 }
             }
 
@@ -925,16 +925,11 @@ class Operation
              *  On vérifie que les Id spécifiés existent en base de données
              */
             if (!$myrepo->model->existsId($repoId)) {
-                throw new Exception("L'Id de repo spécifié n'existe pas");
+                throw new Exception("Repo Id does not exist");
             }
             if (!$myrepo->model->existsSnapId($snapId)) {
-                throw new Exception("L'Id de snapshot spécifié n'existe pas");
+                throw new Exception("Snapshot Id does not exist");
             }
-            // if (!empty($envId)) {
-            //     if (!$myrepo->model->existsEnvId($envId)) {
-            //         throw new Exception("L'Id d'environnement spécifié n'existe pas");
-            //     }
-            // }
 
             /**
              *  On récupère toutes les données du repo à partir des Id transmis
@@ -1013,7 +1008,7 @@ class Operation
              *  Récupération de l'action à exécuter sur le repo
              */
             if (empty($operation_params['action'])) {
-                throw new Exception("Aucune action n'a été spécifié.");
+                throw new Exception("No action has been specified");
             }
 
             $action = \Controllers\Common::validateData($operation_params['action']);
@@ -1029,7 +1024,7 @@ class Operation
                 $action !== 'delete' and
                 $action !== 'env'
             ) {
-                throw new Exception("L'action spécifiée est invalide.");
+                throw new Exception("Specified action is invalid");
             }
 
             /**
@@ -1037,7 +1032,7 @@ class Operation
              */
             if ($action !== 'new') {
                 if (empty($operation_params['snapId'])) {
-                    throw new Exception("Aucun Id de snapshot n'a été spécifié.");
+                    throw new Exception("No snapshot Id has been specified");
                 }
 
                 $snapId = \Controllers\Common::validateData($operation_params['snapId']);
@@ -1061,7 +1056,7 @@ class Operation
                  *  On récupère le type de paquet du repo à créer
                  */
                 if (empty($operation_params['packageType'])) {
-                    throw new Exception("Le type de paquets du repo n'est pas spécifié.");
+                    throw new Exception("Package type must be specified");
                 } else {
                     $packageType = $operation_params['packageType'];
                     $this->checkParamPackageType($packageType);
@@ -1133,7 +1128,7 @@ class Operation
                         throw new Exception('You must specify architecture.');
                     }
                     if (empty($operation_params['targetPackageSource'])) {
-                        throw new Exception('You must specify if package source should be mirrored or not.');
+                        throw new Exception('You must specify if package source should also be mirrored or not.');
                     }
                     $this->checkParamIncludeArch($operation_params['targetArch']);
                     $this->checkParamIncludeSource($operation_params['targetPackageSource']);
@@ -1146,10 +1141,10 @@ class Operation
                  *  On vérifie qu'un/une repo/section du même nom n'est pas déjà actif avec des snapshots
                  */
                 if ($packageType == 'rpm' and $myrepo->isActive($operation_params['alias']) === true) {
-                    throw new Exception('Un repo de même nom existe déjà');
+                    throw new Exception('A repo with the same name already exists');
                 }
                 if ($packageType == 'deb' and $myrepo->isActive($operation_params['alias'], $operation_params['dist'], $operation_params['section']) === true) {
-                    throw new Exception('Une section de repo du même nom existe déjà');
+                    throw new Exception('A section with the same name already exists');
                 }
 
                 /**
@@ -1162,7 +1157,7 @@ class Operation
                     if ($packageType == 'rpm') {
                         $checkifRepoRealnameExist = exec("grep '^\\[" . $operation_params['source'] . "\\]' " . REPOMANAGER_YUM_DIR . "/*.repo");
                         if (empty($checkifRepoRealnameExist)) {
-                            throw new Exception("Il n'existe aucun repo source nommé " . $operation_params['source']);
+                            throw new Exception("There is no source repo named " . $operation_params['source']);
                         }
                     }
                     /**
@@ -1171,16 +1166,16 @@ class Operation
                     if ($packageType == 'deb') {
                         $mysource = new \Models\Source();
                         if ($mysource->exists($operation_params['source']) === false) {
-                            throw new Exception("Il n'existe aucun repo source nommé " . $operation_params['source']);
+                            throw new Exception("There is no source repo named " . $operation_params['source']);
                         }
                     }
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : Nouveau repo <span class="label-white">' . $targetName . ' ❯ ' . $operation_params['dist'] . ' ❯ ' . $operation_params['section'] . '</span> (' . $operation_params['type'] . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . ' ❯ ' . $operation_params['dist'] . ' ❯ ' . $operation_params['section'] . '</span> (' . $operation_params['type'] . ')', 'success');
                 }
             }
 
@@ -1192,17 +1187,17 @@ class Operation
                 $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : mise à jour du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
 
                 if (empty($operation_params['targetArch'])) {
-                    throw new Exception('You must specify architecture.');
+                    throw new Exception('You must specify an architecture.');
                 }
                 if (empty($operation_params['targetPackageSource'])) {
-                    throw new Exception('You must specify if package source should be mirrored or not.');
+                    throw new Exception('You must specify if package source should also be mirrored or not.');
                 }
                 $this->checkParamIncludeArch($operation_params['targetArch']);
                 $this->checkParamIncludeSource($operation_params['targetPackageSource']);
@@ -1234,20 +1229,20 @@ class Operation
                  */
                 if ($packageType == 'rpm') {
                     if ($myrepo->isActive($operation_params['targetName']) === true) {
-                        throw new Exception('un repo <span class="label-black">' . $operation_params['targetName'] . '</span> existe déjà');
+                        throw new Exception('a <span class="label-black">' . $operation_params['targetName'] . '</span> repo already exists');
                     }
                 }
                 if ($packageType == 'deb') {
                     if ($myrepo->isActive($operation_params['targetName'], $myrepo->getDist(), $myrepo->getSection()) === true) {
-                        throw new Exception('un repo <span class="label-black">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> existe déjà');
+                        throw new Exception('a <span class="label-black">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
                     }
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: duplicate repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : duplication d\'un repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: duplicate repo  <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -1259,14 +1254,14 @@ class Operation
                  *  On vérifie que le repo mentionné existe
                  */
                 if ($myrepo->existsSnapId($snapId) === false) {
-                    throw new Exception("Il n'existe aucun Id de snapshot " . $snapId);
+                    throw new Exception("Snapshot Id $snapId does not exist");
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du snapshot de repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : suppression du snapshot de repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
             }
 
@@ -1278,10 +1273,10 @@ class Operation
                 $this->checkParamDescription($operation_params['targetDescription']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : nouvel environnement <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
                 }
             }
 
@@ -1292,10 +1287,10 @@ class Operation
                 $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Lancement d\'une opération : reconstruction des métadonnées du repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    \Models\History::set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
             }
         }
@@ -1337,7 +1332,7 @@ class Operation
     public function executeId(int $operationId)
     {
         if (!file_exists(POOL . '/' . $operationId . '.json')) {
-            throw new Exception('Error: specified pool Id does not exists.');
+            throw new Exception('Error: specified pool Id does not exist.');
         }
 
         exec('php ' . ROOT . "/operations/execute.php --id='$operationId' >/dev/null 2>/dev/null &");

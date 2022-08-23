@@ -2,17 +2,17 @@
     <td colspan="100%">
         <?php
         if ($myrepo->getPackageType() == 'rpm') {
-            echo 'Faire pointer un environnement sur :<br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+            echo 'Point an environment on:<br><br><span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
         }
         if ($myrepo->getPackageType() == 'deb') {
-            echo 'Faire pointer un environnement sur :<br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
+            echo 'Point an environment on:<br><br><span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>';
         } ?>
         <br><br>
     </td>
 </tr>
 
 <tr>
-    <td class="td-30">Environnement cible :</td>
+    <td class="td-30">Target environment</td>
     <td>
         <select class="operation_param" param-name="targetEnv" required>
             <?php
@@ -29,6 +29,8 @@
 </tr>
 
 <tr>
-    <td class="td-30">Description (fac.) :</td>
+    <td class="td-30">
+        <span>Description</span> <span class="lowopacity">(optionnal)</span>
+    </td>
     <td><input type="text" class="operation_param" param-name="targetDescription" /></td>
 </tr>

@@ -16,16 +16,16 @@
     </tr>
 
     <tr>
-    <th>ENVIRONMENT:</th>
-    <td>
-        <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
-    </td>
-</tr>
-<?php
-if (!empty($this->targetDescription)) : ?>
-    <tr>
-        <th>DESCRIPTION:</th>
-        <td><?=$this->targetDescription?></td>
+        <th>ENVIRONMENT:</th>
+        <td>
+            <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
+        </td>
     </tr>
-<?php endif ?>
+    <?php
+    if (!empty($this->targetDescription)) : ?>
+        <tr>
+            <th>DESCRIPTION:</th>
+            <td><?=$this->targetDescription?></td>
+        </tr>
+    <?php endif ?>
 </table>

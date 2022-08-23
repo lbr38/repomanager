@@ -176,7 +176,7 @@ class Autoloader
          *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
          */
         if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
-            \Models\History::set($_SESSION['username'], "Session expirée, déconnexion", 'success');
+            \Models\History::set($_SESSION['username'], "Expired session expirée, deconnection", 'success');
             header('Location: logout.php');
             exit();
         }
@@ -249,6 +249,12 @@ class Autoloader
         if (!defined('SERVICE_LOG')) {
             define('SERVICE_LOG', SERVICE_LOG_DIR . '/repomanager-service.log');
         }
+        if (!defined('UPDATE_SUCCESS_LOG')) {
+            define('UPDATE_SUCCESS_LOG', LOGS_DIR . '/update/update.success');
+        }
+        if (!defined('UPDATE_ERROR_LOG')) {
+            define('UPDATE_ERROR_LOG', LOGS_DIR . '/update/update.error');
+        }
         // Pool de taches asynchrones
         if (!defined('POOL')) {
             define('POOL', DATA_DIR . "/operations/pool");
@@ -283,6 +289,19 @@ class Autoloader
         }
         if (!defined('PASSPHRASE_FILE')) {
             define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
+        }
+
+        /**
+         *  Version actuelle et version disponible sur github
+         */
+        if (!defined('VERSION')) {
+            define('VERSION', trim(file_get_contents(ROOT . '/version')));
+        }
+
+        if (!defined('GIT_VERSION')) {
+            if (file_exists(DATA_DIR . '/version.available')) {
+                define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
+            }
         }
     }
 
@@ -510,7 +529,7 @@ class Autoloader
          *  A partir d'ici si OS_FAMILY n'est pas défini alors le système sur lequel est installé Repomanager est incompatible
          */
         if (!defined('OS_FAMILY')) {
-            die('Erreur : Repomanager est incompatible sur cet OS');
+            die('Error: Repomanager is not compatible with this system');
         }
 
         if (!defined('OS_NAME')) {
@@ -1015,19 +1034,6 @@ class Autoloader
      */
     private static function checkForUpdate()
     {
-        /**
-         *  Version actuelle et version disponible sur github
-         */
-        if (!defined('VERSION')) {
-            define('VERSION', trim(file_get_contents(ROOT . '/version')));
-        }
-
-        if (!defined('GIT_VERSION')) {
-            if (file_exists(DATA_DIR . '/version.available')) {
-                define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
-            }
-        }
-
         if (defined('VERSION') and defined('GIT_VERSION')) {
             if (VERSION !== GIT_VERSION) {
                 if (!defined('UPDATE_AVAILABLE')) {

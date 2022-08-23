@@ -15,7 +15,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
-    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    echo json_encode(["return" => "400", "message" => "Reposerver configuration error. Please contact the administrator."]);
     exit;
 }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
          *  D'abord on vérifie que l'ID et le token transmis sont valides
          */
         if (!$myhost->checkIdToken()) {
-            $message_error[] = "Hôte inconnu.";
+            $message_error[] = "Unknown host.";
             http_response_code(400);
             echo json_encode(["return" => "400", "message" => $message_error]);
             exit;
@@ -52,20 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         $unregister = $myhost->unregister();
 
         if ($unregister === true) {
-            $message_success[] = "L'hote a ete supprime.";
+            $message_success[] = "Host has been deleted.";
             http_response_code(201);
             echo json_encode(["return" => "201", "message" => $message_success]);
             exit;
         }
 
         if ($unregister == "2") {
-            $message_error[] = "L'authentification a echoue.";
+            $message_error[] = "Authentication has failed.";
             http_response_code(400);
             echo json_encode(["return" => "400", "message" => $message_error]);
             exit;
         }
     } else {
-        $message_error[] = "Erreur d'authentification.";
+        $message_error[] = "Authentication error.";
         http_response_code(400);
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 /**
  *  Cas où on tente d'utiliser une autre méthode que DELETE
  */
-$message_error[] = "La méthode n'est pas autorisée.";
+$message_error[] = "Method not allowed.";
 http_response_code(405);
 echo json_encode(["return" => "405", "message_error" => $message_error]);
 

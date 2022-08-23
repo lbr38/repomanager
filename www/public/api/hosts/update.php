@@ -15,7 +15,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
-    echo json_encode(["return" => "400", "message" => "Erreur de configuration sur le serveur Repomanager. Contactez l'administrateur du serveur."]);
+    echo json_encode(["return" => "400", "message" => "Reposerver configuration error. Please contact the administrator."]);
     exit;
 }
 
@@ -45,9 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          *  D'abord on vérifie que l'ID et le token transmis sont valides
          */
         if (!$myhost->checkIdToken()) {
-            $message_error[] = "Hôte inconnu.";
             http_response_code(400);
-            echo json_encode(["return" => "400", "message_error" => $message_error]);
+            echo json_encode(["return" => "400", "message_error" => "Unknown host."]);
             exit;
         }
 
@@ -63,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setOS($datas->os);
 
             if ($myhost->updateOS()) {
-                $message_success[] = "Mise à jour de l'OS effectuée.";
+                $message_success[] = "OS update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de l'OS échouée.";
+                $message_error[] = "OS update has failed.";
             }
         }
 
@@ -76,9 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setOsVersion($datas->os_version);
 
             if ($myhost->updateOsVersion()) {
-                $message_success[] = "Mise à jour de la version d'OS effectuée.";
+                $message_success[] = "OS version update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de la version d'OS échouée.";
+                $message_error[] = "OS version update has failed.";
             }
         }
 
@@ -89,9 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setOsFamily($datas->os_family);
 
             if ($myhost->updateOsFamily()) {
-                $message_success[] = "Mise à jour de la famille d'OS effectuée.";
+                $message_success[] = "OS family update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de la famille d'OS échouée.";
+                $message_error[] = "OS family update has failed.";
             }
         }
 
@@ -102,9 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setType($datas->type);
 
             if ($myhost->updateType()) {
-                $message_success[] = "Mise à jour du type effectuée.";
+                $message_success[] = "Virtualization type update taken into account.";
             } else {
-                $message_error[] = "Mise à jour du type échouée.";
+                $message_error[] = "Virtualization type update has failed.";
             }
         }
 
@@ -115,9 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setKernel($datas->kernel);
 
             if ($myhost->updateKernel()) {
-                $message_success[] = "Mise à jour du kernel effectuée.";
+                $message_success[] = "Kernel update taken into account.";
             } else {
-                $message_error[] = "Mise à jour du kernel échouée.";
+                $message_error[] = "Kernel update has failed.";
             }
         }
 
@@ -128,9 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setArch($datas->arch);
 
             if ($myhost->updateArch()) {
-                $message_success[] = "Mise à jour de l'arch effectuée.";
+                $message_success[] = "Arch update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de l'arch échouée.";
+                $message_error[] = "Arch update has failed.";
             }
         }
 
@@ -141,9 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setProfile($datas->profile);
 
             if ($myhost->updateProfile()) {
-                $message_success[] = "Mise à jour du profil effectuée.";
+                $message_success[] = "Profile update taken into account.";
             } else {
-                $message_error[] = "Mise à jour du profile échouée.";
+                $message_error[] = "Profile update has failed.";
             }
         }
 
@@ -154,9 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             $myhost->setEnv($datas->env);
 
             if ($myhost->updateEnv()) {
-                $message_success[] = "Mise à jour de l'environnement effectuée.";
+                $message_success[] = "Environment update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de l'environnement échouée.";
+                $message_error[] = "Environment update has failed.";
             }
         }
 
@@ -166,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         if (!empty($datas->agent_status)) {
             try {
                 $myhost->setAgentStatus($datas->agent_status);
-                $message_success[] = "Mise à jour du status de l'agent effectuée.";
+                $message_success[] = "Agent status taken into account.";
             } catch (\Exception $e) {
                 $message_error[] = $e->getMessage();
             }
@@ -177,9 +176,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          */
         if (!empty($datas->installed_packages)) {
             if ($myhost->setPackagesInventory($datas->installed_packages)) {
-                $message_success[] = "Mise à jour des informations relatives aux paquets installés effectuée.";
+                $message_success[] = "Packages informations update taken into account.";
             } else {
-                $message_error[] = "Mise à jour des informations relatives aux paquets installés a échouée.";
+                $message_error[] = "Packages informations update has failed.";
             }
         }
 
@@ -188,9 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          */
         if (!empty($datas->available_packages)) {
             if ($myhost->setPackagesAvailable($datas->available_packages)) {
-                $message_success[] = "Mise à jour des informations relatives aux paquets disponibles effectuée.";
+                $message_success[] = "Available packages informations update taken into account.";
             } else {
-                $message_error[] = "Mise à jour des informations relatives aux paquets disponibles échouée.";
+                $message_error[] = "Available packages informations update has failed.";
             }
         }
 
@@ -199,9 +198,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          */
         if (!empty($datas->events)) {
             if ($myhost->setEventsFullHistory($datas->events) === true) {
-                $message_success[] = "Mise à jour de l'historique effectuée.";
+                $message_success[] = "Package history update taken into account.";
             } else {
-                $message_error[] = "Mise à jour de l'historique a échouée.";
+                $message_error[] = "Package history update has failed.";
             }
         }
 
@@ -210,9 +209,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          */
         if (!empty($datas->set_update_request_type) and !empty($datas->set_update_request_status)) {
             if ($myhost->setUpdateRequestStatus($datas->set_update_request_type, $datas->set_update_request_status) === false) {
-                $message_error[] = "Impossible d'acquitter la demande auprès du serveur repomanager.";
+                $message_error[] = "Unable to acknowledge the request to the reposerver.";
             } else {
-                $message_success[] = "L'acquittement a été pris en compte";
+                $message_success[] = "Acknowledge has been taken into account.";
             }
         }
 
@@ -242,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             exit;
         }
     } else {
-        $message_error[] = "Erreur d'authentification.";
+        $message_error[] = "Authentication error.";
         http_response_code(400);
         echo json_encode(["return" => "400", "message_error" => $message_error]);
         exit;
@@ -254,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
 /**
  *  Cas où on tente d'utiliser une autre méthode que PUT
  */
-$message_error[] = "La méthode n'est pas autorisée.";
+$message_error[] = "Method not allowed.";
 http_response_code(405);
 echo json_encode(["return" => "405", "message_error" => $message_error]);
 

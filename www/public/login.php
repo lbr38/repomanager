@@ -24,7 +24,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
      */
     if ($_POST['authType'] != 'local' and $_POST['authType'] != 'ldap') {
         $error++;
-        $loginErrors[] = 'Le type de connexion sélectionné est invalide';
+        $loginErrors[] = 'Specified connection type is invalid';
     }
 
     /**
@@ -66,7 +66,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
             //     exit();
             // }
 
-            $loginErrors[] = 'Login et/ou mot de passe incorrect(s)';
+            $loginErrors[] = 'Login and/or password incorrect';
         }
 
 
@@ -113,7 +113,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                 exit();
             }
 
-            $loginErrors[] = 'Login et/ou mot de passe incorrect(s)';
+            $loginErrors[] = 'Login and/or password incorrect';
         }
     }
 } ?>
@@ -130,7 +130,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 <body>
     <div id="loginDiv-container">
         <div id="loginDiv">
-            <h3>CONNEXION</h3>
+            <h3>LOGIN</h3>
             <br>
             <form action="login.php" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />
@@ -141,14 +141,17 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                     <label for="authType_ldap">LDAP</label>
                 </div>   
                 <br> -->
-                <input class="input-large" type="text" name="username" placeholder="Nom d'utilisateur" required />
+                <input class="input-large" type="text" name="username" placeholder="Username" required />
                 <br>
-                <input class="input-large" type="password" name="password" placeholder="Mot de passe" required />
+                <input class="input-large" type="password" name="password" placeholder="Password" required />
                 <br>
-                <button class="btn-large-blue" type="submit">Se connecter</button>
+                <button class="btn-large-blue" type="submit">Login</button>
             </form>
 
             <?php
+            /**
+             *  Display errors if any
+             */
             if (!empty($loginErrors)) {
                 foreach ($loginErrors as $loginError) {
                     echo '<p>' . $loginError . '</p>';

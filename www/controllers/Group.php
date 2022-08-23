@@ -22,7 +22,7 @@ class Group
          */
 
         if ($type != 'repo' and $type != 'host') {
-            throw new Exception("Le type de groupe est invalide");
+            throw new Exception("Group type is invalid");
         }
 
         $this->type = $type;
@@ -64,7 +64,7 @@ class Group
          *  On vérifie que le groupe existe
          */
         if ($this->exists($name) === false) {
-            throw new Exception("Le groupe <b>$name</b> n'existe pas");
+            throw new Exception("Group <b>$name</b> does not exist");
         }
 
         return $this->model->getIdByName($name);
@@ -79,7 +79,7 @@ class Group
          *  On vérifie que le groupe existe
          */
         if ($this->existsId($id) === false) {
-            throw new Exception("L'Id de groupe <b>$id</b> n'existe pas");
+            throw new Exception("Group Id <b>$id</b> does not exist");
         }
 
         return $this->model->getNameById($id);
@@ -113,14 +113,14 @@ class Group
          *  1. On vérifie que le nom du groupe ne contient pas de caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Le groupe <b>$name</b> contient des caractères invalides");
+            throw new Exception("Group <b>$name</b> contains invalid characters");
         }
 
         /**
          *  2. On vérifie que le groupe n'existe pas déjà
          */
         if ($this->exists($name) === true) {
-            throw new Exception("Le groupe <b>$name</b> existe déjà");
+            throw new Exception("Group name <b>$name</b> already exists");
         }
 
         /**
@@ -128,7 +128,7 @@ class Group
          */
         $this->model->add($name);
 
-        \Models\History::set($_SESSION['username'], 'Création d\'un nouveau groupe <span class="label-white">' . $name . '</span> (type : ' . $this->type . ')', 'success');
+        \Models\History::set($_SESSION['username'], 'Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
 
         \Controllers\Common::clearCache();
     }
@@ -144,17 +144,17 @@ class Group
          *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($actualName) === false) {
-            throw new Exception("Le nom actuel du groupe <b>$actualName</b> contient des caractères invalides");
+            throw new Exception("Actual group name <b>$actualName</b> contains invalid characters");
         }
         if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception("Le nouveau nom du groupe <b>$newName</b> contient des caractères invalides");
+            throw new Exception("New group name <b>$newName</b> contains invalid characters");
         }
 
         /**
          *  2. On vérifie que le nouveau nom de groupe n'existe pas déjà
          */
         if ($this->model->exists($newName) === true) {
-            throw new Exception("Le groupe <b>$newName</b> existe déjà");
+            throw new Exception("Group name <b>$newName</b> already exists");
         }
 
         /**
@@ -162,7 +162,7 @@ class Group
          */
         $this->model->rename($actualName, $newName);
 
-        \Models\History::set($_SESSION['username'], 'Renommage d\'un groupe : <span class="label-white">' . $actualName . '</span> en <span class="label-white">' . $newName . '</span> (type : ' . $this->type . ')', 'success');
+        \Models\History::set($_SESSION['username'], 'Rename group: <span class="label-white">' . $actualName . '</span> to <span class="label-white">' . $newName . '</span> (type: ' . $this->type . ')', 'success');
 
         \Controllers\Common::clearCache();
     }
@@ -177,7 +177,7 @@ class Group
          *  1. On vérifie que le groupe existe
          */
         if ($this->model->exists($name) === false) {
-            throw new Exception("Le groupe <b>$name</b> n'existe pas");
+            throw new Exception("Group <b>$name</b> does not exist");
         }
 
         /**
@@ -185,7 +185,7 @@ class Group
          */
         $this->model->delete($name);
 
-        \Models\History::set($_SESSION['username'], 'Suppression du groupe <span class="label-white">' . $name . '</span> (type : '. $this->type . ')', 'success');
+        \Models\History::set($_SESSION['username'], 'Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
 
         \Controllers\Common::clearCache();
     }

@@ -76,10 +76,10 @@ class Connection extends SQLite3
              *  Cas où la base de données ne correspond à aucun cas ci-dessus
              */
             } else {
-                throw new Exception("base de données inconnue : $database");
+                throw new Exception("unknown database: $database");
             }
         } catch (\Exception $e) {
-            die('Erreur lors de la connexion à la base de données : ' . $e->getMessage());
+            die('Error while opening database: ' . $e->getMessage());
         }
 
         /**
@@ -88,7 +88,7 @@ class Connection extends SQLite3
         try {
             $this->busyTimeout(10000);
         } catch (\Exception $e) {
-            die('Erreur lors de la configuration du timeout de la base de données : ' . $e->getMessage());
+            die('Error while configuring timeout on database: ' . $e->getMessage());
         }
     }
 

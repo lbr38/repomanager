@@ -17,20 +17,20 @@
         $debGpgKeys = explode("\n\n", $debGpgKeys);
     } ?>
 
-    <img id="reposSourcesDivCloseButton" title="Fermer" class="icon-lowopacity float-right" src="resources/icons/close.png" />
+    <img id="reposSourcesDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
     <h3>REPOS SOURCES</h3>
 
-    <p>Pour créer un miroir, repomanager doit connaitre l'URL du repo source.</p>
+    <p>To create mirrors, you must specify source repositories URL.</p>
     <br>
 
     <div class="div-generic-gray">
 
-        <h5>Ajouter un nouveau repo source</h5>
+        <h5>Add a new source repository</h5>
 
         <form id="addSourceForm" autocomplete="off">
             <table>
                 <tr>
-                    <td class="td-30">Type de repo source</td>
+                    <td class="td-30">Repo type</td>
                     <td colspan="100%">
                         <div class="switch-field">
                         <?php
@@ -51,14 +51,14 @@
                 </tr>
 
                 <tr>
-                    <td class="td-30">Nom</td>
+                    <td class="td-30">Name</td>
                     <td colspan="100%">
                         <input type="text" name="addSourceName" required />
                     </td>
                 </tr>
 
                 <tr>
-                    <td class="td-30">Url</td>
+                    <td class="td-30">URL</td>
                     <td class="td-10" field-type="rpm">
                         <select id="addSourceUrlType" class="select-small" required>
                             <option value="baseurl">baseurl</option>
@@ -73,11 +73,11 @@
                 </tr>
 
                 <tr field-type="rpm">
-                    <td>Ce repo source dispose d'une clé GPG</td>
+                    <td>This source repo has a GPG pub key</td>
                     <td class="td-10">
                         <select id="newRepoGpgSelect" class="select-small">
-                            <option id="newRepoGpgSelect_no">Non</option>
-                            <option id="newRepoGpgSelect_yes">Oui</option>
+                            <option id="newRepoGpgSelect_no">No</option>
+                            <option id="newRepoGpgSelect_yes">Yes</option>
                         </select>
                     </td>
                 </tr>
@@ -85,11 +85,11 @@
                 <tr field-type="rpm">
                     <td colspan="100%">
                         <div class="sourceGpgDiv hide">
-                            <span>Vous pouvez utiliser une clé déjà présente dans le trousseau de repomanager ou renseignez l'URL vers la clé GPG ou bien importer une nouvelle clé GPG au format texte ASCII dans le trousseau de repomanager.</span><br><br>
-                            <p>Clé GPG du trousseau de repomanager :</p>
+                            <span>You can use a known GPG key or specify URL to the GPG key or import a new GPG key (ASCII text).</span><br><br>
+                            <p>Pub keys imported into repomanager keychain:</p>
 
                             <select name="existingGpgKey">
-                                <option value="">Choisir une clé GPG...</option>
+                                <option value="">Select a GPG key...</option>
                                 <?php
                                 if (!empty($rpmGpgKeys)) {
                                     foreach ($rpmGpgKeys as $gpgFile) {
@@ -100,25 +100,28 @@
                                 } ?>
                             </select>
 
-                            <p>URL ou fichier vers une clé GPG :</p>
-                            <input type="text" name="gpgKeyURL" placeholder="https://www... ou file:///etc...">
+                            <p>URL or file to the GPG key:</p>
+                            <input type="text" name="gpgKeyURL" placeholder="https://www... or file:///etc...">
                             
                             <br>
 
-                            <p>Importer une nouvelle clé GPG :</p>
-                            <textarea id="rpmGpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+                            <p>Import a new GPG key:</p>
+                            <textarea id="rpmGpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
                         </div>
                     </td>
                 </tr>
 
                 <tr field-type="deb">
                     <td colspan="100%">
-                        <p>Clé GPG (fac.) :</p>
-                        <textarea id="debGpgKeyText" class="textarea-100" placeholder="Format ASCII"></textarea>
+                        <p>
+                            <span>Import a GPG key</span>
+                            <span class="lowopacity">(optionnal)</span>
+                        </p>
+                        <textarea id="debGpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
                     </td>
                 </tr>
             </table>
-            <button type="submit" class="btn-large-blue" title="Ajouter">Ajouter</button>
+            <button type="submit" class="btn-large-blue" title="Add">Add</button>
 
         </form>
     </div>
@@ -131,14 +134,14 @@
     if (!empty($rpmGpgKeys) or !empty($debGpgKeys)) : ?>
         <div class="div-generic-gray">
         
-            <h5>Clés GPG importées</h5>
+            <h5>Imported GPG pub keys</h5>
 
             <?php
             if (!empty($rpmGpgKeys)) {
                 foreach ($rpmGpgKeys as $gpgKey) {
                     if (($gpgKey != "..") and ($gpgKey != ".")) : ?>
                         <p>
-                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Supprimer la clé GPG <?= $gpgKey ?>" />
+                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Delete GPG key <?= $gpgKey ?>" />
                             <?= $gpgKey ?>
                         </p>
                     <?php endif;
@@ -164,7 +167,7 @@
 
                     if (!empty($gpgKeyID) and !empty($gpgKeyName)) : ?>
                         <p>
-                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Supprimer la clé GPG <?= $gpgKeyID ?>" />
+                            <img src="resources/icons/bin.png" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Delete GPG key <?= $gpgKeyID ?>" />
                             <?= $gpgKeyName . " ($gpgKeyID)" ?>
                         </p>
                     <?php endif;
@@ -189,11 +192,11 @@
      */
     if (!empty($rpmSourcesList) or !empty($debSourcesList)) : ?>
             <div class="div-generic-gray">
-                <h5>Repos sources actuels</h5>
+                <h5>Current source repositories</h5>
 
                 <?php
                 if (!empty($rpmSourcesList)) {
-                    echo '<h4>Rpm</h4>';
+                    echo '<h4>RPM</h4>';
 
                     foreach ($rpmSourcesList as $source) {
                         /**
@@ -219,8 +222,8 @@
                                             <input class="sourceFormInput input-medium invisibleInput-blue" type="text" sourcename="<?= $sourceName ?>" value="<?= $sourceName ?>" repotype="rpm" />
                                         </td>
                                         <td class="td-fit">
-                                            <img src="resources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="<?= $sourceName ?>" title="Configuration de <?= $sourceName ?>" />
-                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="rpm" title="Supprimer le repo source <?= $sourceName ?>" />
+                                            <img src="resources/icons/cog.png" class="sourceConfigurationBtn icon-mediumopacity" sourcename="<?= $sourceName ?>" title="<?= $sourceName ?> configuration" />
+                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="rpm" title="Delete <?= $sourceName ?> source repo" />
                                         </td>
                                     </tr>
                                 </table>
@@ -228,7 +231,7 @@
 
                             <div id="sourceConfigurationDiv-<?= $sourceName ?>" class="hide detailsDiv">
                         
-                                <p>Paramètres :</p>
+                                <p>Parameters:</p>
         
                                 <form class="sourceConfForm" sourcename="<?= $sourceName ?>" autocomplete="off">
                                     <?php
@@ -302,11 +305,11 @@
                                         ++$j;
                                     } ?>
 
-                                    <p>Notes :</p>
+                                    <p>Notes:</p>
 
-                                    <textarea name="comments" class="textarea-100" placeholder="Écrire un commentaire..."><?= trim($comments) ?></textarea>                                    
+                                    <textarea name="comments" class="textarea-100" placeholder="Write a note..."><?= trim($comments) ?></textarea>                                    
 
-                                    <button type="submit" class="btn-large-blue" title="Enregistrer">Enregistrer</button>
+                                    <button type="submit" class="btn-large-blue" title="Save">Save</button>
                                 </form>
                                 <br>
                             </div>
@@ -314,10 +317,10 @@
                     <?php }
                 }
 
-                if (!empty($debSourcesList)) {
-                    echo '<h4>Deb</h4>';
+                if (!empty($debSourcesList)) :
+                    echo '<h4>DEB</h4>';
 
-                    foreach ($debSourcesList as $source) {
+                    foreach ($debSourcesList as $source) :
                         $sourceName = $source['Name'];
                         $sourceUrl = $source['Url'];
                         ?>
@@ -334,14 +337,17 @@
                                         </td>
                                 
                                         <td class="td-fit">
-                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="deb" title="Supprimer le repo source <?= $sourceName ?>" />
+                                            <img src="resources/icons/bin.png" class="sourceDeleteToggleBtn icon-lowopacity" sourcename="<?= $sourceName ?>" repotype="deb" title="Delete <?= $sourceName ?> source repo" />
                                         </td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-                    <?php }
-                }
+                        <?php
+                    endforeach;
+                endif; ?>
+            </div>
+            <?php
     endif; ?>
     </table>
 </section>

@@ -103,7 +103,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La planification a été créée");
+            response(HTTP_OK, "Plan has been created");
         }
 
         /**
@@ -124,7 +124,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "La planification a été supprimée");
+            response(HTTP_OK, "Plan has been deleted");
         }
 
         /**
