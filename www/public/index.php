@@ -104,7 +104,7 @@ include_once('../includes/head.inc.php');
                             </div>
 
                             <div>
-                                <span><a href="planifications.php">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' à ' . $lastPlan['Time']?>)</a></span>
+                                <span><a href="planifications.php">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' at ' . $lastPlan['Time']?>)</a></span>
                             </div>
                         </div>
                         <?php
@@ -143,7 +143,7 @@ include_once('../includes/head.inc.php');
                                 </span>
                             </div>
                             <div>
-                                <span><a href="planifications.php">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' à ' . $nextPlan['Time']?>)</a></span>
+                                <span><a href="planifications.php">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' at ' . $nextPlan['Time']?>)</a></span>
                             </div>
                         </div>
                         <?php

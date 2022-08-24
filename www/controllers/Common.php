@@ -53,7 +53,6 @@ class Common
          */
         } else {
             if (!ctype_alnum($data)) {
-                ;
                 return false;
             }
         }
