@@ -8,7 +8,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 - Create mirrors, update them, duplicate them
 - Sign packages/mirror with GPG
-- Create environments (eg. preprod, prod...) and make your mirrors availables only for specific envs.
+- Create environments (eg. preprod, prod...) and make your mirrors available only for specific envs.
 - Automatic tasks plans
 
 ![alt text](https://github.com/lbr38/repomanager-docs/blob/main/screenshots/repomanager.png?raw=true)
@@ -31,7 +31,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 | **Stats** ||
 | Visualize metrics on repos' evolution and utilisation | ✅ |
 | **Hosts management** ||
-| Analyze et manage installed packages on clients hosts (linupdate agent needed) | ✅ |
+| Analyze and manage installed packages on hosts (hosts using linupdate) | ✅ |
 | **General** ||
 | Create users (ro-user or admin) | ✅ |
 | See history of actions taken by users | ✅ |
@@ -52,7 +52,7 @@ Disk space required depends on the size of the repos you need to clone.
 
 <b>Dependencies</b>
 
-Repomanager requires packages commonly found on every Linux distributions such as:
+Repomanager requires packages commonly found on Linux distributions such as:
 ```
 curl, mlocate, wget, gnupg2
 ```
