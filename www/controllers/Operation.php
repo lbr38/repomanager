@@ -582,6 +582,13 @@ class Operation
          *  Nettoyage du cache de repos-list
          */
         \Controllers\Common::clearCache();
+
+        /**
+         *  Clean unused repos from profiles
+         */
+        $myprofile = new \Controllers\Profile();
+        $myprofile->cleanProfiles();
+        unset($myprofile);
     }
 
     /**

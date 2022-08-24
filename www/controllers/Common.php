@@ -106,9 +106,11 @@ class Common
          */
         $files = glob(WWW_CACHE . '/repomanager-repos-*');
 
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                unlink($file);
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
             }
         }
     }

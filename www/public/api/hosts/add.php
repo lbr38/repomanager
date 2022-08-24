@@ -10,14 +10,23 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 define("ROOT", dirname(__FILE__, 4));
 require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::loadFromApi();
+\Controllers\Autoloader::api();
 
 /**
  *  Si il y a eu la moindre erreur de chargement lors de l'autoload alors on quitte
  */
 if (__LOAD_GENERAL_ERROR != 0) {
     http_response_code(400);
-    echo json_encode(["return" => "400", "message" => "Reposerver configuration error. Please contact the administrator."]);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver configuration error. Please contact the administrator.")]);
+    exit;
+}
+
+/**
+ *  Return 400 if an update is running
+ */
+if (UPDATE_RUNNING == 'yes') {
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message_error" => array("Reposerver is actually being updated. Please try again later.")]);
     exit;
 }
 
@@ -47,11 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
          *  Si l'enregistrement a été effectué, on retourne l'id et le token généré pour cet hôte
          */
         if ($register === true) {
-            $message_succes[] = "Register is done.";
+            $message_success[] = "Register is done.";
             http_response_code(201);
             $authId = $myhost->getAuthId();
             $token  = $myhost->getToken();
-            echo json_encode(["return" => "201", "message" => $message_succes, "id" => "$authId", "token" => "$token"]);
+            echo json_encode(["return" => "201", "message_success" => $message_success, "id" => "$authId", "token" => "$token"]);
             exit;
         }
 

@@ -7,7 +7,8 @@ if (UPDATE_RUNNING == "yes") :
         <div id="maintenance-container">    
             <div id="maintenance">
                 <h3>UPDATE</h3>
-                <p>Repomanager update is running et will be available soon.</p>
+                <p>Repomanager update is running and will be available soon.</p>
+                <br>
                 <button class="btn-medium-blue" onClick="window.location.reload();">Refresh</button>
             </div>
         </div>

@@ -28,7 +28,7 @@ class Autoloader
     }
 
     /**
-     *  Chargement de tous les paramètres nécessaires pour le fonctionnement des pages web (voir loadFromApi() pour l'api)
+     *  Chargement de tous les paramètres nécessaires pour le fonctionnement des pages web (voir api() pour l'api)
      *  - chargement des sessions
      *  - constantes
      *  - vérifications de la présence de tous les répertoires et fichiers nécessaires
@@ -102,7 +102,7 @@ class Autoloader
      *  Chargement de tous les paramètres nécessaires pour le fonctionnement de l'api
      *  Charge moins de fonctions que load() notamment les sessions ne sont par démarrées car empêcheraient le bon fonctionnement de l'api
      */
-    public static function loadFromApi()
+    public static function api()
     {
         $__LOAD_GENERAL_ERROR = 0;
         $__LOAD_ERROR_MESSAGES = array();
@@ -292,15 +292,27 @@ class Autoloader
         }
 
         /**
-         *  Version actuelle et version disponible sur github
+         *  Actual release version and available version on github
          */
         if (!defined('VERSION')) {
             define('VERSION', trim(file_get_contents(ROOT . '/version')));
         }
-
         if (!defined('GIT_VERSION')) {
             if (file_exists(DATA_DIR . '/version.available')) {
                 define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
+            }
+        }
+
+        /**
+         *  Check if a repomanager update is running
+         */
+        if (file_exists(ROOT . "/update-running")) {
+            if (!defined('UPDATE_RUNNING')) {
+                define('UPDATE_RUNNING', 'yes');
+            }
+        } else {
+            if (!defined('UPDATE_RUNNING')) {
+                define('UPDATE_RUNNING', 'no');
             }
         }
     }
@@ -1046,19 +1058,6 @@ class Autoloader
             }
         } else {
             define('UPDATE_AVAILABLE', 'no');
-        }
-
-        /**
-         *  Vérification si une mise à jour de repomanager est en cours
-         */
-        if (file_exists(ROOT . "/update-running")) {
-            if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'yes');
-            }
-        } else {
-            if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'no');
-            }
         }
 
         /**

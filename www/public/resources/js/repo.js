@@ -417,7 +417,7 @@ $(document).on('click','.client-configuration-btn',function () {
     var www_hostname = $(this).attr('www_hostname');
 
     if (packageType == "rpm") {
-        var commands = 'echo -e "# Repo ' + repoName + ' (' + repoEnv + ') sur ' + www_hostname + '\n[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=Repo ' + repoName + ' sur ' + www_hostname + '\ncomment=Repo ' + repoName + ' sur ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
+        var commands = 'echo -e "# Repo ' + repoName + ' (' + repoEnv + ') on ' + www_hostname + '\n[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=Repo ' + repoName + ' sur ' + www_hostname + '\ncomment=Repo ' + repoName + ' sur ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
     if (packageType == "deb") {
         var commands = 'wget -qO - ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | sudo apt-key add -\n\necho "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
@@ -426,7 +426,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close icon-lowopacity" src="resources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Installer ce repo sur une machine cliente</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.png" class="icon-lowopacity" title="Copier" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close icon-lowopacity" src="resources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Install this repo on a host</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.png" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage

@@ -484,4 +484,35 @@ class Profile
     {
         return $this->model->reposMembersIdList($profileId);
     }
+
+    /**
+     *  Remove unused repos from profiles (repos that have no active snapshot)
+     */
+    public function cleanProfiles()
+    {
+        /**
+         *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
+         */
+        $myrepo = new \Controllers\Repo();
+        $unusedRepos = $myrepo->getUnusedRepos();
+
+        /**
+         *  Remove those repos Id from profiles
+         */
+        if (!empty($unusedRepos)) {
+            foreach ($unusedRepos as $unusedRepo) {
+                $this->removeRepoMemberId($unusedRepo['Id']);
+            }
+        }
+
+        unset($myrepo);
+    }
+
+    /**
+     *  Remove repo Id from profile members
+     */
+    public function removeRepoMemberId(int $id)
+    {
+        $this->model->removeRepoMemberId($id);
+    }
 }

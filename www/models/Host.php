@@ -1542,7 +1542,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile");
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE Profile = :profile AND Status = 'active'");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (\Exception $e) {

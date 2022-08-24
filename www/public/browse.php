@@ -166,7 +166,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
         /**
          *  On vérifie que le paquet n'existe pas déjà, sinon on l'ignore et on l'ajoute à une liste de paquets déjà existants qu'on affichera après
          */
-        if (file_exists("$targetDir/$packageName")) {
+        if (file_exists($targetDir . '/' . $packageName)) {
             $uploadError++;
             $packageExists .= "$packageName, ";
             continue;

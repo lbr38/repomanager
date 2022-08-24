@@ -185,8 +185,16 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                             </select>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="td-fit" title="Linupdate should automatically get its repos files from this profile on each execution">Linupdate should automatically get its repos files from this profile on each execution</td>
+                                        <td>
+                                            <label class="onoff-switch-label">
+                                                <input id="profile-conf-allow-repos-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowReposOverwrite == "yes") ? 'checked' : ''; ?>>
+                                                <span class="onoff-switch-slider"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
                                 </table>
-                                <br>
                                 <hr>
                                 <?php
                             endif;
@@ -194,7 +202,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                             /**
                              *  Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
                              */
-                            if ($serverManageClientConf == "yes") {
+                            if ($serverManageClientConf == "yes") :
                                 $myprofile = new \Controllers\Profile();
                                 $listPackages = $myprofile->getPackages();
                                 /**
@@ -232,8 +240,8 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                 <br>
 
                                 <h5>Packages to exclude (no matter the version):</h5>
-                                <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
 
+                                <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
                                     <?php
                                     foreach ($listPackages as $package) {
                                         if (in_array($package, $profileConfExclude)) {
@@ -279,19 +287,10 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 
                                 <table class="table-large">
                                     <tr>
-                                        <td class="td-fit" title="Sur l'hôte client, autoriser linupdate à récupérer la configuration de ce profil à chaque exécution">Autoriser la mise à jour auto. de la configuration</td>
+                                        <td class="td-fit" title="Linupdate should automatically get its configuration from this profile on each execution">Linupdate should automatically get its configuration from this profile on each execution</td>
                                         <td>
                                             <label class="onoff-switch-label">
                                                 <input id="profile-conf-allow-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowOverwrite == "yes") ? 'checked' : ''; ?>>
-                                                <span class="onoff-switch-slider"></span>
-                                            </label>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="td-fit" title="Sur l'hôte client, autoriser linupdate à récupérer la configuration des repos de ce profil à chaque exécution">Autoriser la mise à jour auto. des fichiers de repo</td>
-                                        <td>
-                                            <label class="onoff-switch-label">
-                                                <input id="profile-conf-allow-repos-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowReposOverwrite == "yes") ? 'checked' : ''; ?>>
                                                 <span class="onoff-switch-slider"></span>
                                             </label>
                                         </td>
@@ -300,7 +299,8 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 
                                 <h5>Notes:</h5>
                                 <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes ?></textarea>
-                            <?php   }
+                                <?php
+                            endif;
                             /**
                              *  On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no
                              */
@@ -332,10 +332,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
             <h5></h5>
 
             <div class="operation-form">
-                <span>
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Inform the hosts what package type this server manages." />Package type
-                </span>
-                <input type="text" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
+                <input type="hidden" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
 
                 <span>
                     <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files of each profile's configuration. However, hosts that retrieve their profile's configuration from this server will remain entitled to accept or not that this server manages their configuration." />Manage profiles repos configuration
