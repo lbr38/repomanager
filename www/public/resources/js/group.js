@@ -2,7 +2,7 @@ $(document).ready(function () {
     // Script Select2 pour transformer un select multiple en liste déroulante
     $('.reposSelectList').select2({
         closeOnSelect: false,
-        placeholder: 'Ajouter un repo...'
+        placeholder: 'Add repo...'
     });
 });
 
@@ -19,7 +19,7 @@ function reloadGroupsDiv()
     $("#groupsDiv").load(" #groupsDiv > *",function () {
         $('.reposSelectList').select2({
             closeOnSelect: false,
-            placeholder: 'Ajouter un repo...'
+            placeholder: 'Add repo...'
         });
     });
 }
@@ -33,7 +33,7 @@ function reloadGroupsDivSlideGroup(groupName)
     $("#groupsDiv").load(" #groupsDiv > *",function () {
         $('.reposSelectList').select2({
             closeOnSelect: false,
-            placeholder: 'Ajouter un repo...'
+            placeholder: 'Add repo...'
         });
 
         $("#groupConfigurationDiv-" + groupName).show();

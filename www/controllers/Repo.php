@@ -1214,7 +1214,7 @@ class Repo
                 $this->setName($backupName);
             }
 
-            $this->op->step('FINALISING');
+            $this->op->step('FINALIZING');
 
             /**
              *  Création du lien symbolique
@@ -1872,7 +1872,7 @@ class Repo
                 }
             }
 
-            $this->op->step('FINALISING');
+            $this->op->step('FINALIZING');
 
             /**
              *  8. Application des droits sur le repo/la section modifié
@@ -2899,7 +2899,7 @@ class Repo
     {
         ob_start();
 
-        $this->op->step('FINALISING');
+        $this->op->step('FINALIZING');
 
         /**
          *  Le type d'opération doit être renseigné pour cette fonction (soit "new" soit "update")
@@ -3339,10 +3339,10 @@ class Repo
                              */
                             if ($result == 0) {
                                 if ($packageType == 'rpm') {
-                                    $removedSnaps[] = 'Le snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> a été supprimé';
+                                    $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                                 }
                                 if ($packageType == 'deb') {
-                                    $removedSnaps[] = 'Le snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> a été supprimé';
+                                    $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                                 }
 
                                 /**
@@ -3355,10 +3355,10 @@ class Repo
                              */
                             } else {
                                 if ($packageType == 'rpm') {
-                                    $removedSnapsError[] = 'Erreur lors de la suppression automatique du snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                                    $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
                                 }
                                 if ($packageType == 'deb') {
-                                    $removedSnapsError[] = 'Erreur lors de la suppression automatique du snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                                    $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
                                 }
 
                                 /**

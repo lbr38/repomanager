@@ -57,7 +57,7 @@ class Autoloader
          *  Erreur liées au chargement de la configuration principale
          */
         if (__LOAD_MAIN_CONF_ERROR > 0) {
-            $__LOAD_ERROR_MESSAGES[] = "Certains paramètres généraux ne sont pas configurés :<br>";
+            $__LOAD_ERROR_MESSAGES[] = "Some main parameters are not configured:<br>";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_MAIN_CONF_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
@@ -66,7 +66,7 @@ class Autoloader
          *  Erreur liées au chargement des environnements
          */
         if (__LOAD_ERROR_EMPTY_ENVS > 0) {
-            $__LOAD_ERROR_MESSAGES[] = 'Vous devez configurer au moins 1 environnement . ';
+            $__LOAD_ERROR_MESSAGES[] = 'You must at least configure 1 environment.';
             ++$__LOAD_GENERAL_ERROR;
         }
 
@@ -176,7 +176,7 @@ class Autoloader
          *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
          */
         if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
-            \Models\History::set($_SESSION['username'], "Expired session expirée, deconnection", 'success');
+            \Models\History::set($_SESSION['username'], "Expired session, deconnection", 'success');
             header('Location: logout.php');
             exit();
         }
@@ -384,7 +384,7 @@ class Autoloader
          */
         if (defined('BACKUP_DIR') and !empty(BACKUP_DIR) and !is_dir(BACKUP_DIR)) {
             if (!mkdir(BACKUP_DIR, 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de sauvegarde : ' . BACKUP_DIR;
+                $GENERAL_ERROR_MESSAGES[] = 'Cannot create backup directory: ' . BACKUP_DIR;
             }
         }
         /**
@@ -392,7 +392,7 @@ class Autoloader
          */
         if (!is_dir(ROOT . "/update")) {
             if (!mkdir(ROOT . "/update", 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Impossible de créer le répertoire de mise à jour : ' . ROOT . '/update';
+                $GENERAL_ERROR_MESSAGES[] = 'Cannot create release update directory: ' . ROOT . '/update';
             }
         }
 
@@ -489,7 +489,7 @@ class Autoloader
          *  Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
          */
         if (!is_readable('/etc/os-release')) {
-            echo 'Erreur : impossible de détecter la version du système';
+            echo 'Error: cannot determine OS release';
             die;
         }
         $os      = file_get_contents('/etc/os-release');
@@ -567,7 +567,7 @@ class Autoloader
          *  Vérification de la présence de repomanager.conf
          */
         if (!file_exists(REPOMANAGER_CONF)) {
-            echo "Erreur : fichier de configuration introuvable. Vous devez relancer l'installation de repomanager.";
+            echo "Error: configuration file is missing. You must relaunch Repomanager installation.";
             die();
         }
 
@@ -606,11 +606,11 @@ class Autoloader
                  */
                 if (!is_writable(REPOS_DIR)) {
                     ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de stockage des repos '" . REPOS_DIR . "' n'est pas accessible en écriture.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Repos directory '" . REPOS_DIR . "' is not writeable.";
                 }
             } else {
                 define('REPOS_DIR', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'Le répertoire de stockage des repos n\'est pas renseigné . ';
+                $__LOAD_MAIN_CONF_MESSAGES[] = 'Repos directory is not defined. ';
             }
         }
 
@@ -619,7 +619,7 @@ class Autoloader
                 define('EMAIL_DEST', $repomanager_conf_array['EMAIL_DEST']);
             } else {
                 define('EMAIL_DEST', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'Aucune adresse mail de contact n\'est renseignée . ';
+                $__LOAD_MAIN_CONF_MESSAGES[] = 'No recipient email adress is defined. ';
             }
         }
 
@@ -628,7 +628,7 @@ class Autoloader
                 define('UPDATE_AUTO', $repomanager_conf_array['UPDATE_AUTO']);
             } else {
                 define('UPDATE_AUTO', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des mises à jour automatiques de repomanager n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling automatic update is not defined.";
             }
         }
 
@@ -637,7 +637,7 @@ class Autoloader
                 define('UPDATE_BRANCH', $repomanager_conf_array['UPDATE_BRANCH']);
             } else {
                 define('UPDATE_BRANCH', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "La branche de mise à jour n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Update target branch is not defined.";
             }
         }
 
@@ -646,7 +646,7 @@ class Autoloader
                 define('UPDATE_BACKUP_ENABLED', $repomanager_conf_array['UPDATE_BACKUP_ENABLED']);
             } else {
                 define('UPDATE_BACKUP_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des sauvegardes avant mise à jour n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling backup before update is not defined.";
             }
         }
 
@@ -659,11 +659,11 @@ class Autoloader
                      */
                     if (!is_writable(BACKUP_DIR)) {
                         ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de sauvegarde pre-mise à jour '" . BACKUP_DIR . "' n'est pas accessible en écriture.";
+                        $__LOAD_MAIN_CONF_MESSAGES[] = "Backup before update directory '" . BACKUP_DIR . "' is not writeable.";
                     }
                 } else {
                     define('BACKUP_DIR', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Le répertoire de stockage des sauvegardes avant mises à jour n'est pas renseigné.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Backup before update directory is not defined.";
                 }
             }
         }
@@ -684,7 +684,7 @@ class Autoloader
                 define('WWW_HOSTNAME', $repomanager_conf_array['WWW_HOSTNAME']);
             } else {
                 define('WWW_HOSTNAME', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Repomanager dedied hostname is not defined.";
             }
         }
 
@@ -693,7 +693,7 @@ class Autoloader
                 define('WWW_REPOS_DIR_URL', $repomanager_conf_array['WWW_REPOS_DIR_URL']);
             } else {
                 define('WWW_REPOS_DIR_URL', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Target URL to repo directory is not defined.";
             }
         }
 
@@ -702,7 +702,7 @@ class Autoloader
                 define('WWW_USER', $repomanager_conf_array['WWW_USER']);
             } else {
                 define('WWW_USER', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'utilisateur exécutant le service web de ce serveur n'est pas renseigné.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Linux web dedied user is not defined.";
             }
         }
 
@@ -737,7 +737,7 @@ class Autoloader
                  *  On affiche un message uniquement si la signature est activée
                  */
                 if (RPM_SIGN_PACKAGES == 'yes') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing RPM packages is not defined.";
                 }
             }
         }
@@ -755,7 +755,7 @@ class Autoloader
                  *  On affiche un message uniquement si la signature est activée
                  */
                 if (RPM_SIGN_PACKAGES == 'yes') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune méthode de signature des paquets avec GPG n'est renseignée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG signing method for signing RPM packages is not defined.";
                 }
             }
         }
@@ -770,7 +770,7 @@ class Autoloader
                  *  On affiche un message uniquement si les repos RPM sont activés.
                  */
                 if (RPM_REPO == 'enabled') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune version de release n'est renseignée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Release version for RPM repositories is not defined.";
                 }
             }
         }
@@ -818,7 +818,7 @@ class Autoloader
                  *  On affiche un message uniquement si la signature est activée
                  */
                 if (DEB_SIGN_REPO == 'yes') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucun Id de clé de signature GPG n'est renseigné.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing DEB packages is not defined.";
                 }
             }
         }
@@ -855,7 +855,7 @@ class Autoloader
                 define('PLANS_ENABLED', $repomanager_conf_array['PLANS_ENABLED']);
             } else {
                 define('PLANS_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling plans is not defined.";
             }
         }
 
@@ -865,21 +865,21 @@ class Autoloader
             } else {
                 define('ALLOW_AUTOUPDATE_REPOS', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de mise à jour de repo n'est pas renseignée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to update repositories is not defined.";
                 }
             }
         }
 
-        if (!defined('ALLOW_AUTOUPDATE_REPOS_ENV')) {
-            if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV'])) {
-                define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
-            } else {
-                define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
-                }
-            }
-        }
+        // if (!defined('ALLOW_AUTOUPDATE_REPOS_ENV')) {
+        //     if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV'])) {
+        //         define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
+        //     } else {
+        //         define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
+        //         if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
+        //             $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
+        //         }
+        //     }
+        // }
 
         if (!defined('ALLOW_AUTODELETE_ARCHIVED_REPOS')) {
             if (!empty($repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS'])) {
@@ -887,7 +887,7 @@ class Autoloader
             } else {
                 define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la suppression automatique des repos archivés n'est pas renseignée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to delete old repos snapshots is not defined.";
                 }
             }
         }
@@ -898,7 +898,7 @@ class Autoloader
             } else {
                 define('RETENTION', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Aucune rétention de sauvegarde n'est configurée.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Old repos snapshots retention is not defined.";
                 }
             }
         }
@@ -911,7 +911,7 @@ class Autoloader
                 define('MANAGE_HOSTS', $repomanager_conf_array['MANAGE_HOSTS']);
             } else {
                 define('MANAGE_HOSTS', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la gestion des hôtes n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling hosts management is not defined.";
             }
         }
 
@@ -923,7 +923,7 @@ class Autoloader
                 define('MANAGE_PROFILES', $repomanager_conf_array['MANAGE_PROFILES']);
             } else {
                 define('MANAGE_PROFILES', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation de la gestion des profils d'hôtes n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling profiles management is not defined.";
             }
         }
 
@@ -943,7 +943,7 @@ class Autoloader
                 define('STATS_ENABLED', $repomanager_conf_array['STATS_ENABLED']);
             } else {
                 define('STATS_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des statistiques n'est pas renseignée.";
+                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling repos statistics is not defined.";
             }
         }
 
@@ -957,11 +957,11 @@ class Autoloader
                      */
                     if (!is_readable(STATS_LOG_PATH)) {
                         ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Le fichier de log (access log) à analyser pour les statistiques n'est pas accessible en lecture : '" . STATS_LOG_PATH . "'";
+                        $__LOAD_MAIN_CONF_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
                     }
                 } else {
                     define('STATS_LOG_PATH', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Le chemin d'accès au fichier de log (access log) à analyser pour les statistiques n'est pas renseigné.";
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "Access log file to scan for statistics is not defined.";
                 }
             }
         }

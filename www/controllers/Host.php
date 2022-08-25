@@ -1360,7 +1360,7 @@ class Host
          *  Génération des messages pour les hôtes dont l'id est invalide
          */
         if (!empty($hostIdError)) {
-            $message .= "Les ID d'hôtes suivants sont invalides :<br>";
+            $message .= "Following hosts Id are invalid:<br>";
 
             foreach ($hostIdError as $id) {
                 $message .= $id . '<br>';
@@ -1371,14 +1371,14 @@ class Host
          *  Génération des messages pour une action de type 'update'
          */
         if (!empty($hostUpdateError)) {
-            $message .= 'La demande de mise à jour a échouée pour les hôtes suivants (injoignables) :<br>';
+            $message .= 'Update request has failed on the following hosts (unreachable) :<br>';
 
             foreach ($hostUpdateError as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
             }
         }
         if (!empty($hostUpdateOK)) {
-            $message .= 'La demande de mise à jour a été envoyée aux hôtes suivants :<br>';
+            $message .= 'Update request has been send to the following hosts:<br>';
 
             foreach ($hostUpdateOK as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
@@ -1389,14 +1389,14 @@ class Host
          *  Génération des messages pour une action de type 'reset'
          */
         if (!empty($hostErrorError)) {
-            $message .= 'La réinitialisation a échouée pour les hôtes suivants :<br>';
+            $message .= 'Reset has failed for the following hosts:<br>';
 
             foreach ($hostErrorError as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
             }
         }
         if (!empty($hostResetOK)) {
-            $message .= 'Les hôtes suivants ont été réinitialisé :<br>';
+            $message .= 'Following hosts have been reseted:<br>';
 
             foreach ($hostResetOK as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
@@ -1407,14 +1407,14 @@ class Host
          *  Génération des messages pour une action de type 'delete'
          */
         if (!empty($hostDeleteError)) {
-            $message .= "Les hôtes suivants n'ont pas pu être supprimés :<br>";
+            $message .= "Following hosts could not have been deleted:<br>";
 
             foreach ($hostDeleteError as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
             }
         }
         if (!empty($hostDeleteOK)) {
-            $message .= 'Les hôtes suivants ont été supprimés :<br>';
+            $message .= 'Following hosts have been deleted:<br>';
 
             foreach ($hostDeleteOK as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
@@ -1425,14 +1425,14 @@ class Host
          *  Génération des messages pour une action de type 'general-status-update'
          */
         if (!empty($hostGeneralUpdateError)) {
-            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+            $message .= "Request has not been sent to the following host:<br>";
 
             foreach ($hostGeneralUpdateError as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
             }
         }
         if (!empty($hostGeneralUpdateOK)) {
-            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+            $message .= 'Request has been sent to the following hosts:<br>';
 
             foreach ($hostGeneralUpdateOK as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
@@ -1443,14 +1443,14 @@ class Host
          *  Génération des messages pour une action de type 'packages-status-update'
          */
         if (!empty($hostPackagesStatusUpdateError)) {
-            $message .= "La demande n'a pas pu être envoyée aux hôtes suivants :<br>";
+            $message .= "Request has not been sent to the following host:<br>";
 
             foreach ($hostPackagesStatusUpdateError as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';
             }
         }
         if (!empty($hostPackagesStatusUpdateOK)) {
-            $message .= 'La demande a été envoyée aux hôtes suivants :<br>';
+            $message .= 'Request has been sent to the following hosts:<br>';
 
             foreach ($hostPackagesStatusUpdateOK as $host) {
                 $message .= $host['hostname'] . ' (' . $host['ip'] . ')<br>';

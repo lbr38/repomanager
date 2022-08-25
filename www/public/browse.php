@@ -283,7 +283,9 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                             <div class="div-generic-gray">
                                 <h5><img src="resources/icons/products/package.png" class="icon" />Upload packages</h5>
                                 
-                                <p>Select package(s) to import into the repo.</p>
+                                <p>Select package(s) to import into the repo.
+                                    <br><span class="lowopacity">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</span>
+                                </p>
                                 <br>
                                 <form action="" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="action" value="uploadPackage" />

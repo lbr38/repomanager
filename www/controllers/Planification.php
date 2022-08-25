@@ -504,9 +504,9 @@ class Planification
             /**
              *  6. Si l'action est '->' alors on vérifie que cette action est autorisée
              */
-            if (strpos(htmlspecialchars_decode($this->action), '->') !== false) {
-                $this->checkActionEnvAllowed();
-            }
+            // if (strpos(htmlspecialchars_decode($this->action), '->') !== false) {
+            //     $this->checkActionEnvAllowed();
+            // }
 
             /**
              *  7. Vérification si il s'agit d'un repo ou d'un groupe
@@ -951,20 +951,20 @@ class Planification
          */
         if ($planError == 1) {
             echo '<span class="redtext">' . $plan_msg_error . '</span>';
-            echo '<p><b>Détails de la planification :</b></p>';
+            echo '<p><b>Plan details:</b></p>';
             echo '<table>';
-            echo '<tr><td><b>Action : </b></td><td>' . $this->action . '</td></tr>';
+            echo '<tr><td><b>Action: </b></td><td>' . $this->action . '</td></tr>';
             if (!empty($this->group->getName())) {
-                echo "<tr><td><b>Groupe : </b></td><td>" . $this->group->getName() . "</td></tr>";
+                echo "<tr><td><b>Group: </b></td><td>" . $this->group->getName() . "</td></tr>";
             }
             if (!empty($this->repo->getName())) {
-                echo "<tr><td><b>Repo : </b></td><td>" . $this->repo->getName() . "</td></tr>";
+                echo "<tr><td><b>Repo: </b></td><td>" . $this->repo->getName() . "</td></tr>";
             }
             if (!empty($this->repo->getDist())) {
-                echo "<tr><td><b>Dist : </b></td><td>" . $this->repo->getDist() . "</td></tr>";
+                echo "<tr><td><b>Distribution: </b></td><td>" . $this->repo->getDist() . "</td></tr>";
             }
             if (!empty($this->repo->getSection())) {
-                echo "<tr><td><b>Section : </b></td><td>" . $this->repo->getSection() . "</td></tr>";
+                echo "<tr><td><b>Section: </b></td><td>" . $this->repo->getSection() . "</td></tr>";
             }
             echo '</table>';
         }
@@ -1054,7 +1054,7 @@ class Planification
             /**
              *  Ajout de l'action effectuée
              */
-            $msg_processed_repos = '<br><br><b>Action</b> : ';
+            $msg_processed_repos = '<br><br><b>Action:</b>';
 
             if ($this->action == 'update') {
                 $msg_processed_repos .= 'update';

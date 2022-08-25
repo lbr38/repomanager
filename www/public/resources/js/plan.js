@@ -4,13 +4,13 @@ $(document).ready(function () {
      */
     $('#planActionSelect').select2({
         closeOnSelect: true,
-        placeholder: 'Sélectionner...',
+        placeholder: 'Select...',
         minimumResultsForSearch: Infinity
     });
 
     $('#planReminderSelect, #planDayOfWeekSelect').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner...'
+        placeholder: 'Select...'
     });
 });
 
@@ -23,7 +23,7 @@ function reloadPlanDiv()
     $("#planDiv").load(" #planDiv > *",function () {
         $('#planReminderSelect, #planDayOfWeekSelect').select2({
             closeOnSelect: false,
-            placeholder: 'Sélectionner...'
+            placeholder: 'Select...'
         });
     });
 }
