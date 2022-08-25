@@ -13,7 +13,7 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 - Système d'environnements (ex: preprod, prod...) permettant de rendre accessible les miroirs à des environnements de serveurs particuliers
 - Planifications automatiques permettant d'exécuter les actions ci-dessus à une date/heure souhaitée.
 
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager.png?raw=true)
+![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/demo-1.gif?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-4.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-2.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-5.png?raw=true)
