@@ -162,7 +162,7 @@ class Log
         if (!empty($message)) {
             echo '<div class="op-step-title-ok">' . $message . '</div>';
         } else {
-            echo '<div class="op-step-title-ok">Terminé</div>';
+            echo '<div class="op-step-title-ok">Completed</div>';
         }
 
         /**
@@ -235,7 +235,7 @@ class Log
      */
     public function steplogLoading(string $stepId)
     {
-        echo "<span class=\"${stepId}-loading-{$this->pid} op-step-loading\">En cours<img src=\"resources/images/loading.gif\" class=\"icon\" /></span>";
+        echo "<span class=\"${stepId}-loading-{$this->pid} op-step-loading\">Running<img src=\"resources/images/loading.gif\" class=\"icon\" /></span>";
         $this->steplogWrite();
     }
 

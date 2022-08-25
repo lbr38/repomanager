@@ -394,7 +394,7 @@ if (!empty($_GET['logfile'])) {
                  */
                 if (!empty($opsFromRegularPlanDone)) {
                     echo '<div class="div-generic-gray">';
-                    echo '<h5>Finished regular tasks</h5>';
+                    echo '<h5>Completed regular tasks</h5>';
 
                     /**
                      *  Nombre maximal d'opérations qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"

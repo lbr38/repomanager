@@ -226,7 +226,7 @@ while true; do
         execPlan
     fi
 
-    # Send plans reminder (if plan et plan reminders enabled)
+    # Send plans reminder (if plan and plan reminders enabled)
     if [ "$PLANS_ENABLED" == "yes" ] && [ "$PLAN_REMINDERS_ENABLED" == "yes" ];then
         sendPlanReminder
     fi

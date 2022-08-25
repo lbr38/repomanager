@@ -57,7 +57,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, 'Operation is running : <a href="run.php"><b>visualize</b></a>');
+            response(HTTP_OK, 'Operation is running: <a href="run.php"><b>visualize</b></a>');
         }
 
         /**

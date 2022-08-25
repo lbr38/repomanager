@@ -327,11 +327,11 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
     /**
      *  Autoriser ou non le changement d'environnement par l'automatisation
      */
-    if (!empty($_POST['allowAutoUpdateReposEnv']) and \Controllers\Common::validateData($_POST['allowAutoUpdateReposEnv']) === "yes") {
-        $repomanager_conf_array['PLANS']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'yes';
-    } else {
-        $repomanager_conf_array['PLANS']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'no';
-    }
+    // if (!empty($_POST['allowAutoUpdateReposEnv']) and \Controllers\Common::validateData($_POST['allowAutoUpdateReposEnv']) === "yes") {
+    //     $repomanager_conf_array['PLANS']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'yes';
+    // } else {
+    //     $repomanager_conf_array['PLANS']['ALLOW_AUTOUPDATE_REPOS_ENV'] = 'no';
+    // }
 
     /**
      *  Autoriser ou non la suppression des repos archivés par l'automatisation
@@ -1104,7 +1104,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     </td>
                     <?php
                     if ($envName == DEFAULT_ENV) {
-                        echo '<td>(defaut)</td>';
+                        echo '<td>(default)</td>';
                     } else {
                         echo '<td></td>';
                     }

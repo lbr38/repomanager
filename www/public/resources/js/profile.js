@@ -13,21 +13,21 @@ function loadProfilesSelect2()
 {
     $('.select-repos').select2({
         closeOnSelect: false,
-        placeholder: 'Ajouter un repo ✎'
+        placeholder: 'Add repo ✎'
     });
     $('.select-exclude-major').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un paquet 🖉',
+        placeholder: 'Select package 🖉',
         tags: true
     });
     $('.select-exclude').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un paquet 🖉',
+        placeholder: 'Select package 🖉',
         tags: true
     });
     $('.select-need-restart').select2({
         closeOnSelect: false,
-        placeholder: 'Sélectionner un service 🖉',
+        placeholder: 'Select service 🖉',
         tags: true
     });
 }

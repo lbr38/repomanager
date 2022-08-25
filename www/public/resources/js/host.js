@@ -4,7 +4,7 @@ $(document).ready(function () {
      */
     $('.hostsSelectList').select2({
         closeOnSelect: false,
-        placeholder: 'Ajouter un hôte...'
+        placeholder: 'Add host...'
     });
 });
 
@@ -47,7 +47,7 @@ function reloadGroupsDiv()
     $("#groupsHostDiv").load(" #groupsHostDiv > *",function () {
         $('.hostsSelectList').select2({
             closeOnSelect: false,
-            placeholder: 'Ajouter un hôte...'
+            placeholder: 'Add host...'
         });
     });
 }

@@ -847,7 +847,7 @@ class Operation
                              *  Affichage de l'icone en cours ou terminée ou en erreur
                              */
                             if ($status == "running") {
-                                echo 'en cours <img src="resources/images/loading.gif" class="icon" title="running" />';
+                                echo 'running<img src="resources/images/loading.gif" class="icon" title="running" />';
                             }
                             if ($status == "done") {
                                 echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Operation completed" />';
@@ -997,7 +997,7 @@ class Operation
             $content .= ob_get_clean();
         }
 
-        $content .= '<br><button class="btn-large-red">Confirmer et exécuter<img src="resources/icons/rocket.png" class="icon" /></button></form>';
+        $content .= '<br><button class="btn-large-red">Confirm and execute<img src="resources/icons/rocket.png" class="icon" /></button></form>';
 
         return $content;
     }
