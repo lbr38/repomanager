@@ -133,7 +133,7 @@ class Update
          *  Delete actual web root dir content
          */
         if (is_dir(ROOT)) {
-            exec("rm -rf '" . ROOT . "/*", $output, $return);
+            exec('rm -rf ' . ROOT . '/*', $output, $return);
             if ($return != 0) {
                 throw new Exception('Error while deleting web root content <b>' . ROOT . '</b>');
             }
@@ -283,7 +283,7 @@ class Update
             /**
              *  Write to error log to file
              */
-            $updateJSON = json_encode(array('Version' => GIT_VERSION, 'Message' => 'Error while update Repomanager: ' . $e->getMessage()));
+            $updateJSON = json_encode(array('Version' => GIT_VERSION, 'Message' => 'Error while updating Repomanager: ' . $e->getMessage()));
 
             file_put_contents(UPDATE_ERROR_LOG, $updateJSON);
         }

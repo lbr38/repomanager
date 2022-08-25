@@ -43,7 +43,7 @@ if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
             <p><?= $updateLogMessage ?></p>
 
             <br>
-            <p class="lowopacity">From version: <?= VERSION ?></p>
+            <p class="lowopacity">From release version: <?= VERSION ?></p>
             <p class="lowopacity">To target release version: <?= $updateVersion ?></p>
             <br>
 
