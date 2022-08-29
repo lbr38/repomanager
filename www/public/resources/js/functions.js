@@ -55,7 +55,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Delete')
      */
     $("#newConfirmAlert").remove();
 
-    var $content = '<div id="newConfirmAlert" class="confirmAlert"><span class="confirmAlert-message">' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Annuler</span></div></div>';
+    var $content = '<div id="newConfirmAlert" class="confirmAlert"><span class="confirmAlert-message">' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
 
     $('footer').append($content);
 
