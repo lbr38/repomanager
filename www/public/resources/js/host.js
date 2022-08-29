@@ -87,7 +87,6 @@ function countTotalCheckboxInGroup(group)
  */
 function searchHost()
 {
-
     var div, tr, td, txtValue;
     var filter_os = '';
     var filter_os_version = '';
@@ -218,7 +217,7 @@ function searchHost()
      *  Puis on traite chaque tr récupéré et on affiche uniquement ceux correspondant à la recherche
      */
     $.each(tr, function () {
-        td = $(this).find("td")[1];
+        td = $(this).find("td")[2];
         if (td) {
             txtValue = td.textContent || td.innerText;
             if (txtValue.toUpperCase().indexOf(search) > -1) {

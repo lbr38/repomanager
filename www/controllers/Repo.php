@@ -3702,10 +3702,10 @@ class Repo
              *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
              */
             if ($this->packageType == "rpm") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
             }
             if ($this->packageType == "deb") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo_dir_url="' . WWW_REPOS_DIR_URL . '" repo_conf_files_prefix="' . REPO_CONF_FILES_PREFIX . '" www_hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
             }
 
             /**

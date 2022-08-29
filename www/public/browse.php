@@ -4,7 +4,6 @@
 require_once('../controllers/Autoloader.php');
 \Controllers\Autoloader::load();
 include_once('../includes/head.inc.php');
-require_once('../functions/explore.functions.php');
 
 /**
  *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
@@ -120,7 +119,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
     /**
      *  On ré-arrange la liste des fichiers transmis
      */
-    $packages = reArrayFiles($_FILES['packages']);
+    $packages = \Controllers\Browse::reArrayFiles($_FILES['packages']);
 
     $packageExists = ''; // contiendra la liste des paquets ignorés car existent déjà
     $packagesError = ''; // contiendra la liste des paquets uploadé avec une erreur
@@ -414,7 +413,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                     /**
                      *  Appel à la fonction qui construit l'arborescence de fichiers
                      */
-                    tree($repoPath);
+                    \Controllers\Browse::tree($repoPath);
 
                     echo '</form>';
                 }

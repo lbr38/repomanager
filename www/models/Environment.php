@@ -6,128 +6,58 @@ use Exception;
 
 class Environment extends Model
 {
-    public $name;
-
-    public function __construct(array $variables = [])
+    public function __construct()
     {
-        extract($variables);
-
         /**
-         *  Ouverture d'une connexion à la base de données
+         *  Open database
          */
         $this->getConnection('main');
-
-        if (!empty($envName)) {
-            $this->name = $envName;
-        }
     }
 
     /**
-     *  Création d'un nouvel environnement
+     *  Add new environment in database
      */
-    public function new()
+    public function new(string $name)
     {
-        if (!\Controllers\Common::isAlphanumDash($this->name)) {
-            \Controllers\Common::printAlert("Environment name contains invalid characters", 'error');
-            return;
-        }
-
-        /**
-         *  On ajoute le nouvel env en BDD
-         */
         try {
             $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
-            $stmt->bindValue(':name', $this->name);
+            $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        /**
-         *  Puis rechargement de la page pour voir les modifications de configuration
-         */
-        header('Location: configuration.php');
-        exit;
     }
 
     /**
-     *  Suppression d'un environnement
+     *  Delete env from database
      */
-    public function delete()
+    public function delete(string $name)
     {
         try {
-            $stmt = $this->db->prepare("DELETE FROM env WHERE Name=:name");
-            $stmt->bindValue(':name', \Controllers\Common::validateData($_GET['deleteEnv']));
+            $stmt = $this->db->prepare("DELETE FROM env WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        /**
-         *  Puis rechargement de la page pour voir les modifications de configuration
-         */
-        header('Location: configuration.php');
-        exit;
     }
 
     /**
-     *  Edite les environnements actuels
+     *  Delete all env from database
      */
-    public function edit(array $envs)
+    public function deleteAll()
     {
-        /**
-         *  D'abord on vérifie que les environnements qu'on souhaite insérer sont valides
-         *  On place ces environnements valides dans un nouveau array, ceux qui sont invaldes sont ignorés
-         */
-        foreach ($envs as $env) {
-            if (\Controllers\Common::isAlphanumDash(\Controllers\Common::validateData($env))) {
-                $envsToInsert[] = $env;
-            }
-        }
-
-        /**
-         *  Si l'array contient des environnements valides à insérer alors on traite
-         */
-        if (!empty($envsToInsert)) {
-            /**
-             *  D'abord on supprime tous les environnements actuels avant d'insérer les nouveaux
-             */
-            $this->db->exec("DELETE FROM env");
-
-            foreach ($envsToInsert as $env) {
-                if (!\Controllers\Common::isAlphanumDash($env)) {
-                    \Controllers\Common::printAlert("Environment name '$env' contains invalid characters", 'error');
-                    return;
-                }
-
-                /**
-                 *  On ajoute le nouvel env en BDD
-                 */
-                try {
-                    $stmt = $this->db->prepare("INSERT INTO env (Name) VALUES (:name)");
-                    $stmt->bindValue(':name', $env);
-                    $stmt->execute();
-                } catch (\Exception $e) {
-                    \Controllers\Common::dbError($e);
-                }
-            }
-        }
-
-        /**
-         *  Puis rechargement de la page pour voir les modifications de configuration
-         */
-        header('Location: configuration.php');
-        exit;
+        $this->db->exec("DELETE FROM env");
     }
 
     /**
-     *  Liste tous les environnements
+     *  List all environments
      */
     public function listAll()
     {
-        $result = $this->db->query("SELECT Name FROM env");
-
         $datas = array();
+
+        $result = $this->db->query("SELECT Name FROM env");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $datas[] = $row['Name'];
@@ -137,13 +67,13 @@ class Environment extends Model
     }
 
     /**
-     *  Liste l'environnement par défaut
+     *  List default environment
      */
     public function default()
     {
-        $result = $this->db->query("SELECT Name FROM env LIMIT 1");
-
         $default = '';
+
+        $result = $this->db->query("SELECT Name FROM env LIMIT 1");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $default = $row['Name'];
@@ -153,13 +83,13 @@ class Environment extends Model
     }
 
     /**
-     *  Liste le dernier environnement de la liste
+     *  List last environment name
      */
     public function last()
     {
-        $result = $this->db->query("SELECT Id, Name FROM env ORDER BY Id DESC LIMIT 1");
-
         $last = '';
+
+        $result = $this->db->query("SELECT Id, Name FROM env ORDER BY Id DESC LIMIT 1");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $last = $row['Name'];
@@ -169,25 +99,13 @@ class Environment extends Model
     }
 
     /**
-     *  Compte le nombre total d'environnements
+     *  Return true if env exists in database
      */
-    public function total()
-    {
-        $result = $this->db->query("SELECT Name FROM env");
-
-        $total = $this->db->count($result);
-
-        return $total;
-    }
-
-    /**
-     *  Vérifie si l'env renseigné existe
-     */
-    public function exists(string $env)
+    public function exists(string $name)
     {
         try {
             $stmt = $this->db->prepare("SELECT Id FROM env WHERE Name = :env");
-            $stmt->bindValue(':env', \Controllers\Common::validateData($env));
+            $stmt->bindValue(':env', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

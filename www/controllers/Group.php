@@ -6,7 +6,6 @@ use Exception;
 
 class Group
 {
-    // public $id;
     private $id;
     private $name;
     private $type;

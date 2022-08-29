@@ -391,17 +391,22 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                 <table class="hosts-table">
                                     <thead>
                                         <tr>
-                                            <td class="td-fit"></td>
-                                            <td class="td-fit"></td>
-                                            <td class="td-10"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
                                             <td title="Total installed packages."><span>Inst.</span></td>
                                             <td title="Total available updates."><span>Avail.</span></td>
-                                            <td class="hostDetails-td"></td>
-                                            <?php if (\Controllers\Common::isadmin()) { ?>
-                                                <td class="td-fit"><span class='js-select-all-button pointer' group='<?=$groupName?>'>Select all</span></td>
-                                            <?php } ?>
-                                            <td class="td-10"></td>
-                                            <td class="td-10"></td>
+                                            <td></td>
+                                            <?php
+                                            if (\Controllers\Common::isadmin()) : ?>
+                                                <td>
+                                                    <span class='js-select-all-button pointer' group='<?=$groupName?>'>Select all</span>
+                                                </td>
+                                                <?php
+                                            endif ?>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -505,45 +510,50 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                              *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
                                              */ ?>
                                             <tr class="host-tr" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>">
-                                                <?php
-                                                /**
-                                                 *  Linupdate agent state
-                                                 */
-                                                echo '<td class="td-fit">';
-                                                if ($agentStatus == 'running') {
-                                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                }
-                                                if ($agentStatus == "disabled") {
-                                                    echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                }
-                                                if ($agentStatus == "stopped") {
-                                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                }
-                                                if ($agentStatus == "seems-stopped") {
-                                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                }
-                                                if ($agentStatus == "unknow") {
-                                                    echo '<img src="resources/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
-                                                }
-                                                echo '</td>';
+                                                <td>
+                                                    <?php
+                                                    /**
+                                                     *  Linupdate agent state
+                                                     */
+                                                    if ($agentStatus == 'running') {
+                                                        echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                    }
+                                                    if ($agentStatus == "disabled") {
+                                                        echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                    }
+                                                    if ($agentStatus == "stopped") {
+                                                        echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                    }
+                                                    if ($agentStatus == "seems-stopped") {
+                                                        echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                    }
+                                                    if ($agentStatus == "unknow") {
+                                                        echo '<img src="resources/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
+                                                    } ?>
+                                                </td>
 
-                                                /**
-                                                 *  Nom de l'hôte + ip
-                                                 */
-                                                echo '<td class="td-fit">';
-                                                if (preg_match('/centos/i', $os)) {
-                                                    echo '<img src="resources/icons/centos.png" class="icon" />';
-                                                } elseif (preg_match('/debian/i', $os)) {
-                                                    echo '<img src="resources/icons/debian.png" class="icon" />';
-                                                } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
-                                                    echo '<img src="resources/icons/ubuntu.png" class="icon" />';
-                                                } else {
-                                                    echo '<img src="resources/icons/tux.png" class="icon" />';
-                                                }
-                                                echo '<span title="Hostname and IP address">' . $host['Hostname'] . ' (' . $ip . ')</span>' ;
-                                                echo '</td>'; ?>
+                                                <td>
+                                                    <?php
+                                                    if (preg_match('/centos/i', $os)) {
+                                                        echo '<img src="resources/icons/centos.png" class="icon" />';
+                                                    } elseif (preg_match('/debian/i', $os)) {
+                                                        echo '<img src="resources/icons/debian.png" class="icon" />';
+                                                    } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
+                                                        echo '<img src="resources/icons/ubuntu.png" class="icon" />';
+                                                    } else {
+                                                        echo '<img src="resources/icons/tux.png" class="icon" />';
+                                                    } ?>
+                                                </td>
 
-                                                <td class="hostType-td td-10 lowopacity">
+                                                <td>
+                                                    <?php
+                                                    /**
+                                                     *  Nom de l'hôte + ip
+                                                     */
+                                                    echo '<span title="Hostname and IP address">' . $host['Hostname'] . ' (' . $ip . ')</span>'; ?>
+                                                </td>
+
+                                                <td class="hostType-td lowopacity">
                                                     <span title="Type <?=$type?>"><?=$type?></span>
                                                 </td>
 
@@ -562,17 +572,19 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                     } ?>
                                                 </td>
 
-                                                <td class="hostDetails-td" title="See the details for this host.">
+                                                <td title="See the details for this host.">
                                                     <span class="printHostDetails pointer" host_id="<?=$id?>">Details</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="resources/icons/external-link.png" class="icon-lowopacity" /></a>
                                                 </td>
 
-                                                <?php if (\Controllers\Common::isadmin()) : ?>
-                                                    <td class="td-fit" title="Select <?=$hostname?>">
+                                                <?php
+                                                if (\Controllers\Common::isadmin()) : ?>
+                                                    <td title="Select <?=$hostname?>">
                                                         <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$groupName?>" value="<?=$id?>">
                                                     </td>
-                                                <?php endif ?>
+                                                    <?php
+                                                endif ?>
 
-                                                <td class="host-update-status td-10">
+                                                <td class="host-update-status">
                                                     <?php
                                                     /**
                                                      *  Status de la dernière demande
@@ -614,7 +626,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                         }
                                                     } ?>
                                                 </td>
-                                                <td class="host-additionnal-info td-10">
+                                                <td class="host-additionnal-info">
                                                 </td>
                                             </tr>
                                             <?php

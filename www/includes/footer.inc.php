@@ -37,6 +37,7 @@ if (__ACTUAL_URI__ == "/stats.php") {
 }
 if (__ACTUAL_URI__ == "/configuration.php") {
     echo '<script src="resources/js/configuration.js"></script>';
+    echo '<script src="resources/js/environment.js"></script>';
 }
 if (__ACTUAL_URI__ == "/run.php") {
     echo '<script src="resources/js/run.js"></script>';

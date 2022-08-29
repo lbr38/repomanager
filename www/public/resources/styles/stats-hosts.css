@@ -54,13 +54,11 @@
 }
 
 .stats-access-table tbody tr:hover,
-.hosts-table tbody tr:hover,
 .packages-table tr:hover {
     opacity: 1;
 }
 
 .stats-access-table td,
-.hosts-table td,
 .packages-table td {
     padding-left: 5px;
 }
@@ -83,25 +81,7 @@
     text-align: left;
     vertical-align: bottom;
 }
-.hosts-table thead th.rotate {
-    height: 130px;
-    white-space: nowrap;
-    vertical-align: inherit;
-}
-.hosts-table thead th.rotate > div {
-    transform:
-    translate(5px, 51px) /* Magic Numbers */
-    rotate(315deg);     /* 45 is really 360 - 45 */
-    width: 30px;
-}
-.hosts-table thead th.rotate > div > span {
-    padding: 5px 10px;
-}
-.hosts-table .hostDetails-td {
-    padding-left: 25px;
-}
 .hosts-table .packagesCount-td {
-    width: 30px;
     padding: 0 5px 0 5px;
 }
 .hosts-table .packagesCount-td span {
@@ -117,6 +97,49 @@
     box-shadow: 0px 1px 1px 0px rgb(0 0 0 / 50%) inset, 0px 2px 2px 0px rgb(109 109 109 / 20%);
 }
 
+.hosts-table {
+    table-layout: fixed !important;
+}
+.hosts-table td:nth-child(1) {
+    width: 3%;
+    text-align: center;
+}
+.hosts-table td:nth-child(2) { /* hostname */
+    width: 3%;
+}
+.hosts-table td:nth-child(3) { /* hostname */
+    width: 34%;
+}
+.hosts-table td:nth-child(4) { /* type */
+    width: 9%;
+    text-align: center;
+}
+.hosts-table td:nth-child(5) { /* inst. packages */
+    width: 5%;
+    text-align: center;
+}
+.hosts-table td:nth-child(6) { /* avail. packages */
+    width: 5%;
+    text-align: center;
+}
+.hosts-table td:nth-child(7) { /* Details */
+    width: 9%;
+    text-align: center;
+}
+.hosts-table td:nth-child(8) { /* checkbox */
+    width: 5%;
+    text-align: center;
+}
+.hosts-table td:nth-child(9) { /* update status */
+    min-width: 0;
+    width: 27%;
+}
+.hosts-table td:nth-child(10) { /* additionnal info */
+    min-width: 0;
+    max-width: 27%;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
 .hosts-table td.host-additionnal-info span {
     padding-top: 5px;
     padding-bottom: 5px;

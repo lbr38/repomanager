@@ -417,55 +417,6 @@ function save(array $array)
 }
 
 /**
- *  Gestion des environnements
- *  Récupère la liste des environnements envoyés sous forme de tableau actualEnv[]
- *  Valeurs retournées dans le cas du renommage d'un environnement par exemple
- */
-if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) === "addNewEnv") {
-
-    /**
-     *  Ajout d'un nouvel environnement
-     */
-    if (!empty($_POST['newEnv'])) {
-        $myenv = new \Models\Environment(array('envName' => \Controllers\Common::validateData($_POST['newEnv'])));
-        $myenv->new();
-    }
-
-    /**
-     *  Nettoyage du cache de repos-list
-     */
-    \Controllers\Common::clearCache();
-}
-
-/**
- *  Renommage d'un environnement / changement de sens des environnements
- */
-if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) === "applyEnvConfiguration") {
-    if (!empty($_POST['actualEnv'])) {
-        $myenv = new \Models\Environment();
-        $myenv->edit($_POST['actualEnv']);
-    }
-
-    /**
-     *  Nettoyage du cache de repos-list
-     */
-    \Controllers\Common::clearCache();
-}
-
-/**
- *  Suppression d'un environnement
- */
-if (!empty($_GET['deleteEnv'])) {
-    $myenv = new \Models\Environment(array('envName' => \Controllers\Common::validateData($_GET['deleteEnv'])));
-    $myenv->delete();
-
-    /**
-     *  Nettoyage du cache de repos-list
-     */
-    \Controllers\Common::clearCache();
-}
-
-/**
  *  Création d'un nouvel utilisateur
  */
 if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'createUser' and !empty($_POST['username']) and !empty($_POST['role'])) {
@@ -979,14 +930,16 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </td>
             </tr>
             <tr>
-        <?php   if (MANAGE_PROFILES == "yes") : ?>
+                <?php
+                if (MANAGE_PROFILES == "yes") : ?>
                     <td class="td-large">
                         <img src="resources/icons/info.png" class="icon-verylowopacity" title="Prefix that can be added to repo's configuration file name (e.g. 'myprefix-debian.list')." /> Repo file name prefix
                     </td>
                     <td>
                         <input type="text" name="repoConfPrefix" autocomplete="off" value="<?= REPO_CONF_FILES_PREFIX ?>">
                     </td>
-        <?php   endif ?>
+                    <?php
+                endif ?>
             </tr>
         </table>
 
@@ -1082,57 +1035,61 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
 <section class="mainSectionRight">
     <section class="right">
         <h3>ENVIRONMENTS</h3>
-        <table class="table-medium">
-        <form action="configuration.php" method="post" autocomplete="off">
-            <input type="hidden" name="action" value="applyEnvConfiguration" />
-                <?php
+        <div id="envDiv">
+            <table class="table-medium">
+                <form id="environmentForm" autocomplete="off">
+                    <?php
+                    /**
+                     *  Affichage des environnements actuels
+                     */
+                    $myenv = new \Controllers\Environment();
+                    $envs = $myenv->listAll();
 
-                /**
-                 *  Affichage des environnements actuels
-                 */
-                $myenvs = new \Models\Environment();
-                $envs = $myenvs->listAll();
+                    foreach ($envs as $envName) : ?>
+                        <tr>
+                            <td>
+                                <input type="text" class="actual-env-input" value="<?= $envName ?>" />
+                            </td>
+                            <td class="td-fit center">
+                                <img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
+                            </td>
+                            <td>
+                                <?php
+                                if ($envName == DEFAULT_ENV) {
+                                    echo '(default)';
+                                } ?>
+                            <td>
+                        </tr>
+                        <?php
+                    endforeach;
+                    unset($myenv, $envs);?>
+                    <input type="submit" class="hide" /> <!-- hidden button, to validate form with Enter -->
+                </form>
 
-                foreach ($envs as $envName) : ?>
+                <form id="newEnvironmentForm" autocomplete="off">
                     <tr>
                         <td>
-                        <input type="text" name="actualEnv[]" value="<?= $envName ?>" />
-                    </td>
-                    <td class="td-fit center">
-                        <img src="resources/icons/bin.png" class="envDeleteToggle-<?= $envName ?> icon-lowopacity" title="Delete environment <?= $envName ?>"/>
-                        <?php \Controllers\Common::deleteConfirm("Are you sure you want to delete environment $envName", "?deleteEnv=${envName}", "envDeleteDiv-${envName}", "envDeleteToggle-${envName}"); ?>
-                    </td>
-                    <?php
-                    if ($envName == DEFAULT_ENV) {
-                        echo '<td>(default)</td>';
-                    } else {
-                        echo '<td></td>';
-                    }
-                    echo '</tr>';
-                endforeach ?>
-            <input type="submit" class="hide" value="Valider" /> <!-- bouton caché, afin de taper Entrée pour appliquer les modifications -->
-        </form>
-
-        <form action="configuration.php" method="post" autocomplete="off">
-            <input type="hidden" name="action" value="addNewEnv" />
-            <tr>
-                <td><input type="text" name="newEnv" placeholder="Add a new environment" /></td>
-                <td class="td-fit"><button type="submit" class="btn-xxsmall-blue">+</button></td>
-                <td class="td-fit">
-                    <?php if (empty(ENVS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
-                    } ?>
-                </td>
-                <td></td>
-            </tr>
-        </form>
-        </table>
+                            <input id="new-env-input" type="text" placeholder="Add a new environment" />
+                        </td>
+                        <td class="td-fit">
+                            <button type="submit" class="btn-xxsmall-blue">+</button>
+                        </td>
+                        <td class="td-fit">
+                            <?php if (empty(ENVS)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
+                            } ?>
+                        </td>
+                        <td></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
 
         <br><h3>DATABASES</h3>
         <table class="table-generic-blue table-large">
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Main database. Repomanager cannot run if database is on error." /> Main
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." /> Main
                 </td>
                 <td>
                     <?php
@@ -1164,7 +1121,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (STATS_ENABLED == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repositories' statistics database." /> Statistics
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Statistics database." /> Statistics
                 </td>
                 <td>
                     <?php
@@ -1196,7 +1153,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (MANAGE_HOSTS == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Hosts' database." /> Hosts
+                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Hosts database." /> Hosts
                 </td>
                 <td>
                     <?php

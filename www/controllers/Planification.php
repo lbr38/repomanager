@@ -294,7 +294,7 @@ class Planification
              */
             $envs = explode('->', $this->action);
 
-            $myenv = new \Models\Environment();
+            $myenv = new \Controllers\Environment();
 
             foreach ($envs as $env) {
                 if ($myenv->exists($env) === false) {
@@ -357,7 +357,7 @@ class Planification
             /**
              *  On vérifie que l'environnement existe
              */
-            $myenv = new \Models\Environment();
+            $myenv = new \Controllers\Environment();
 
             if ($myenv->exists($this->targetEnv) === false) {
                 throw new Exception("Environment " . $this->targetEnv . " does not exist");
