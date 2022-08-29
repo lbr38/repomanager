@@ -497,13 +497,13 @@ $(document).on('click','.hostsActionBtn',function () {
      */
     if (action == 'update') {
         deleteConfirm('Request selected hosts to update their packages?', function () {
-            execAction(action, hosts_array)}, 'Mettre à jour');
+            execAction(action, hosts_array)}, 'Update');
     } else if (action == 'delete') {
         deleteConfirm('Delete selected hosts?', function () {
             execAction(action, hosts_array)});
     } else if (action == 'reset') {
         deleteConfirm('Reset selected hosts?', function () {
-            execAction(action, hosts_array)}, 'Réinitialiser');
+            execAction(action, hosts_array)}, 'Reset');
     } else {
         execAction(action, hosts_array);
     }
