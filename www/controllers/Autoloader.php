@@ -1012,7 +1012,7 @@ class Autoloader
         /**
          *  Récupération des environnements en base de données
          */
-        $myenv = new \Models\Environment();
+        $myenv = new \Controllers\Environment();
         if (!defined('ENVS')) {
             define('ENVS', $myenv->listAll());
         }

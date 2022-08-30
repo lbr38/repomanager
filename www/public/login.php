@@ -130,7 +130,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 <body>
     <div id="loginDiv-container">
         <div id="loginDiv">
-            <h3>LOGIN</h3>
+            <h3>AUTHENTICATION</h3>
             <br>
             <form action="login.php" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />

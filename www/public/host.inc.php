@@ -668,6 +668,7 @@ $(document).ready(function(){
     };
     // Options
     var lineChartOptions = {
+        tension: 0.2,
         responsive: true,
         maintainAspectRatio: false,
         borderWidth: 1.5,

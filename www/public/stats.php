@@ -190,7 +190,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                             array_multisort(array_column($lastMinutesAccess, 'Date'), SORT_DESC, array_column($lastMinutesAccess, 'Time'), SORT_DESC, $lastMinutesAccess);
                         } ?>
 
-                        <p class="center">Repo access count</p>
+                        <p class="center">Total repo access</p>
 
                         <div class="round-div">
                             <br>
@@ -343,6 +343,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         }]
                                     },
                                     options: {
+                                        tension: 0.2,
                                         scales: {
                                             x: {
                                                 display: true,
@@ -377,7 +378,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                         <td class="td-10"></td>
                                         <td class="td-100">Date</td>
                                         <td class="td-100">Source</td>
-                                        <td>Cible</td>
+                                        <td>Target file</td>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -480,6 +481,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             }]
                                         },
                                         options: {
+                                            tension: 0.2,
                                             scales: {
                                                 x: {
                                                     display: true,
@@ -522,6 +524,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                             }]
                                         },
                                         options: {
+                                            tension: 0.2,
                                             scales: {
                                                 x: {
                                                     display: true,
