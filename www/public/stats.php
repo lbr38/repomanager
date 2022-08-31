@@ -215,7 +215,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     /**
                                      *  Affichage des détails de la/les requête(s)
                                      */
-                                    echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' à ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
+                                    echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' at ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
                                     echo '<br>';
                                 }
                                 echo '</span>';
@@ -245,7 +245,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                                     /**
                                      *  Affichage des détails de la/les requête(s)
                                      */
-                                    echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' à ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
+                                    echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' at ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
                                     echo '<br>';
                                 }
                                 echo '</span>';

@@ -37,14 +37,14 @@ class Update
             /**
              *  Create 'update-running' file to enable maintenance page on the site
              */
-            if (!file_exists(ROOT . "/update-running")) {
-                touch(ROOT . "/update-running");
+            if (!file_exists(DATA_DIR . "/update-running")) {
+                touch(DATA_DIR . "/update-running");
             }
         }
 
         if ($status == 'off') {
-            if (file_exists(ROOT . "/update-running")) {
-                unlink(ROOT . "/update-running");
+            if (file_exists(DATA_DIR . "/update-running")) {
+                unlink(DATA_DIR . "/update-running");
             }
         }
     }
@@ -273,6 +273,13 @@ class Update
              *  Clear cache if any
              */
             Common::clearCache();
+
+            /**
+             *  Create a file to restart repomanager service
+             */
+            if (!file_exists(DATA_DIR . '/service.restart')) {
+                touch(DATA_DIR . '/service.restart');
+            }
 
             /**
              *  Write to success log to file

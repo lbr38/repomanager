@@ -453,7 +453,7 @@ class Planification
          *  On génère un nouveau log pour cette planification
          *  Ce log général reprendra tous les sous-logs de chaque opération lancée par cette planification.
          */
-        $this->log = new \Models\Log('plan');
+        $this->log = new \Controllers\Log('plan');
 
         /**
          *  Passe le status de la planification à "running", jusqu'à maintenant le status était "queued"

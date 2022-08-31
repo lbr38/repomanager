@@ -1,6 +1,6 @@
 <?php
 
-namespace Models;
+namespace Controllers;
 
 use Exception;
 
@@ -20,7 +20,7 @@ class Log
     public function __construct(string $type)
     {
         if (empty($type)) {
-            throw new Error('Erreur : le type de fichier de log ne peut pas être vide');
+            throw new Exception('Error: log file type cannot be empty');
         }
 
         /**
@@ -40,7 +40,7 @@ class Log
         if ($type == "repomanager" or $type == "plan") {
             $this->type = $type;
         } else {
-            throw new Error('Erreur : le type de fichier de log est invalide');
+            throw new Exception('Error:log file type is invalid');
         }
 
         $this->date = date('Y-m-d');
@@ -58,10 +58,10 @@ class Log
          *  Génération du fichier de log
          */
         if (file_exists($this->location)) {
-            throw new Error("Erreur : un fichier de log du même nom ($this->location) existe déjà");
+            throw new Exception("Error: a log file with the same name ($this->location) already exists");
         }
         if (!touch($this->location)) {
-            throw new Error('Erreur : impossible de générer le fichier de log');
+            throw new Exception('Error: cannot create log file');
         }
 
         /**
@@ -125,7 +125,7 @@ class Log
      */
     public function steplogInitialize(string $stepId)
     {
-        echo "<div class=\"${stepId}-maindiv-{$this->pid} op-step-div\">";
+        echo '<div class="' . $stepId . '-maindiv-' . $this->pid . ' op-step-div">';
     }
 
     /**
@@ -235,7 +235,7 @@ class Log
      */
     public function steplogLoading(string $stepId)
     {
-        echo "<span class=\"${stepId}-loading-{$this->pid} op-step-loading\">Running<img src=\"resources/images/loading.gif\" class=\"icon\" /></span>";
+        echo '<span class="' . $stepId . '-loading-' . $this->pid . ' op-step-loading">Running<img src="resources/images/loading.gif" class="icon" /></span>';
         $this->steplogWrite();
     }
 

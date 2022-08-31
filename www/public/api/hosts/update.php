@@ -62,108 +62,118 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         /**
          *  Récupération de l'ID en BDD de l'hôte, il sera utile pour certaines opérations.
          */
-        $myhost->setId($myhost->getIdByAuth());
+        try {
+            $myhost->setId($myhost->getIdByAuth());
+        } catch (\Exception $e) {
+            http_response_code(400);
+            echo json_encode(["return" => "400", "message_error" => $e->getMessage()]);
+            exit;
+        }
 
         /**
-         *  Si l'OS a été transmis alors on le met à jour en BDD
+         *  If hostname has been specified then update it in database
+         */
+        if (!empty($datas->hostname)) {
+            try {
+                $myhost->updateHostname($datas->hostname);
+                $message_success[] = "Hostname update taken into account.";
+            } catch (\Exception $e) {
+                $message_error[] = "Hostname update has failed.";
+            }
+        }
+
+        /**
+         *  If OS has been specified then update it in database
          */
         if (!empty($datas->os)) {
-            $myhost->setOS($datas->os);
-
-            if ($myhost->updateOS()) {
+            try {
+                $myhost->updateOS($datas->os);
                 $message_success[] = "OS update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "OS update has failed.";
             }
         }
 
         /**
-         *  Si la version d'OS a été transmise alors on la met à jour en BDD
+         *  If OS release version has been specified then update it in database
          */
         if (!empty($datas->os_version)) {
-            $myhost->setOsVersion($datas->os_version);
-
-            if ($myhost->updateOsVersion()) {
+            try {
+                $myhost->updateOsVersion($datas->os_version);
                 $message_success[] = "OS version update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "OS version update has failed.";
             }
         }
 
         /**
-         *  Si la famille d'OS a été transmise alors on la met à jour en BDD
+         *  If OS family has been specified then update it in database
          */
         if (!empty($datas->os_family)) {
-            $myhost->setOsFamily($datas->os_family);
-
-            if ($myhost->updateOsFamily()) {
+            try {
+                $myhost->updateOsFamily($datas->os_family);
                 $message_success[] = "OS family update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "OS family update has failed.";
             }
         }
 
         /**
-         *  Si le type a été transmis alors on le met à jour en BDD
+         *  If virt type has been specified then update it in database
          */
         if (!empty($datas->type)) {
-            $myhost->setType($datas->type);
-
-            if ($myhost->updateType()) {
+            try {
+                $myhost->updateType($datas->type);
                 $message_success[] = "Virtualization type update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "Virtualization type update has failed.";
             }
         }
 
         /**
-         *  Si le kernel a été transmis alors on le met à jour en BDD
+         *  If kernel has been specified then update it in database
          */
         if (!empty($datas->kernel)) {
-            $myhost->setKernel($datas->kernel);
-
-            if ($myhost->updateKernel()) {
+            try {
+                $myhost->updateKernel($datas->kernel);
                 $message_success[] = "Kernel update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "Kernel update has failed.";
             }
         }
 
         /**
-         *  Si l'architecture a été transmis alors on la met à jour en BDD
+         *  If architecture has been specified then update it in database
          */
         if (!empty($datas->arch)) {
-            $myhost->setArch($datas->arch);
-
-            if ($myhost->updateArch()) {
+            try {
+                $myhost->updateArch($datas->arch);
                 $message_success[] = "Arch update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "Arch update has failed.";
             }
         }
 
         /**
-         *  Si le profil a été transmis alors on le met à jour en BDD
+         *  If profile has been specified then update it in database
          */
         if (!empty($datas->profile)) {
-            $myhost->setProfile($datas->profile);
-
-            if ($myhost->updateProfile()) {
+            try {
+                $myhost->updateProfile($datas->profile);
                 $message_success[] = "Profile update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "Profile update has failed.";
             }
         }
 
         /**
-         *  Si l'env a été transmis alors on le met à jour en BDD
+         *  If environment has been specified then update it in database
          */
         if (!empty($datas->env)) {
-            $myhost->setEnv($datas->env);
-
-            if ($myhost->updateEnv()) {
+            try {
+                $myhost->updateEnv($datas->env);
                 $message_success[] = "Environment update taken into account.";
-            } else {
+            } catch (\Exception $e) {
                 $message_error[] = "Environment update has failed.";
             }
         }
@@ -173,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
          */
         if (!empty($datas->agent_status)) {
             try {
-                $myhost->setAgentStatus($datas->agent_status);
+                $myhost->updateAgentStatus($datas->agent_status);
                 $message_success[] = "Agent status taken into account.";
             } catch (\Exception $e) {
                 $message_error[] = $e->getMessage();

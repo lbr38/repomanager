@@ -161,7 +161,23 @@ class Host extends Model
  *
  */
     /**
-     *  Mise à jour de l'OS en BDD
+     *  Update hostname in database
+     */
+    public function updateHostname(string $authId, string $token, string $hostname)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Hostname = :hostname WHERE AuthId = :authId and Token = :token");
+            $stmt->bindValue(':hostname', $hostname);
+            $stmt->bindValue(':authId', $authId);
+            $stmt->bindValue(':token', $token);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update OS in database
      */
     public function updateOS(string $authId, string $token, string $os)
     {
@@ -174,12 +190,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour de la version d'OS en BDD
+     *  Update OS release version in database
      */
     public function updateOsVersion(string $authId, string $token, string $osVersion)
     {
@@ -192,12 +206,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour de la famille d'OS en BDD
+     *  Update OS family in database
      */
     public function updateOsFamily(string $authId, string $token, string $osFamily)
     {
@@ -210,12 +222,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour du type de virtualisation
+     *  Update virtualization type in database
      */
     public function updateType(string $authId, string $token, string $type)
     {
@@ -228,12 +238,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour de la version du kernel de l'hôte en BDD
+     *  Update kernel version in database
      */
     public function updateKernel(string $authId, string $token, string $kernel)
     {
@@ -246,12 +254,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour de l'architecture de l'hôte en BDD
+     *  Update arch in database
      */
     public function updateArch(string $authId, string $token, string $arch)
     {
@@ -264,12 +270,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour du profil en BDD
+     *  Update profile in database
      */
     public function updateProfile(string $authId, string $token, string $profile)
     {
@@ -282,12 +286,10 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        return true;
     }
 
     /**
-     *  Mise à jour de l'env de l'hôte en BDD
+     *  Update environment in database
      */
     public function updateEnv(string $authId, string $token, string $env)
     {
@@ -300,8 +302,23 @@ class Host extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
+    }
 
-        return true;
+    /**
+     *  Update agent status in database
+     */
+    public function updateAgentStatus(string $id, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :hostId");
+            $stmt->bindValue(':onlineStatus', $status);
+            $stmt->bindValue(':onlineStatusDate', date('Y-m-d'));
+            $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
+            $stmt->bindValue(':hostId', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
     }
 
     /**
@@ -1554,22 +1571,5 @@ class Host extends Model
         }
 
         return count($hosts);
-    }
-
-    /**
-     *  Mise à jour du status de l'agent en base de données
-     */
-    public function setAgentStatus(string $id, string $status)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :hostId");
-            $stmt->bindValue(':onlineStatus', $status);
-            $stmt->bindValue(':onlineStatusDate', date('Y-m-d'));
-            $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
-            $stmt->bindValue(':hostId', $id);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
     }
 }

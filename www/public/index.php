@@ -138,7 +138,7 @@ include_once('../includes/head.inc.php');
                                             echo $time_left->format('%hh%im');
                                         }
                                     } else {
-                                        echo $days_left->days . 'j';
+                                        echo $days_left->days . 'd';
                                     } ?>
                                 </span>
                             </div>

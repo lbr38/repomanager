@@ -648,7 +648,7 @@ $(document).on('mouseenter', '.showEventDetailsBtn', function () {
     /**
      *  On crée un nouveau span showEventDetails
      */
-    $(this).append('<span class="showEventDetails">Chargement<img src="../resources/images/loading.gif" class="icon"/></span>');
+    $(this).append('<span class="showEventDetails">Loading<img src="../resources/images/loading.gif" class="icon"/></span>');
     $('.showEventDetails').show();
 
     getEventDetails(hostId, eventId, packageState);
