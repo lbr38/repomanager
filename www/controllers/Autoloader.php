@@ -306,7 +306,7 @@ class Autoloader
         /**
          *  Check if a repomanager update is running
          */
-        if (file_exists(ROOT . "/update-running")) {
+        if (file_exists(DATA_DIR . "/update-running")) {
             if (!defined('UPDATE_RUNNING')) {
                 define('UPDATE_RUNNING', 'yes');
             }
@@ -1066,8 +1066,9 @@ class Autoloader
          *  La mise à jour mettra en place une page de maintenance automatiquement
          */
         if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
-            if (!file_exists(ROOT . "/update-running")) {
-                \Controllers\Common::repomanagerUpdate();
+            if (!file_exists(DATA_DIR . "/update-running")) {
+                $myupdate = new \Controllers\Update();
+                $myupdate->update();
             }
         }
     }

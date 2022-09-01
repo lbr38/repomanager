@@ -39,7 +39,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Profile <b>$profile</b> does not exist");
+            throw new Exception("<b>$profile</b> profile does not exist");
         }
 
         /**
@@ -62,7 +62,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("Profile <b>$profile</b> does not exist");
+            throw new Exception("<b>$profile</b> profile does not exist");
         }
 
         /**
@@ -174,14 +174,14 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Profile <b>$name</b> contains invalid characters");
+            throw new Exception("<b>$name</b> profile contains invalid characters");
         }
 
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà
          */
         if ($this->model->exists($name) === true) {
-            throw new Exception("Profile <b>$name</b> already exist");
+            throw new Exception("<b>$name</b> profile already exists");
         }
 
         /**
@@ -204,18 +204,18 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Profile name <b>$name</b> contains invalid characters");
+            throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
         if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception("Profile name <b>$newName</b> contains invalid characters");
+            throw new Exception("<b>$newName</b> profile name contains invalid characters");
         }
 
         /**
          *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
          */
         if ($this->model->exists($newName) === true) {
-            throw new Exception("Profile <b>$newName</b> already exist");
+            throw new Exception("<b>$newName</b> profile already exists");
         }
 
         /**
@@ -223,7 +223,7 @@ class Profile
          */
         $this->model->rename($name, $newName);
 
-        \Models\History::set($_SESSION['username'], "Profile <b>$name</b> renamed to <b>$newName</b>", 'success');
+        \Models\History::set($_SESSION['username'], "<b>$name</b> profile renamed to <b>$newName</b>", 'success');
     }
 
     /**
@@ -269,7 +269,7 @@ class Profile
         /**
          *  Copie de la configuration du profil dupliqué vers le nouveau profil
          */
-        $this->model->configure($newProfileId, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Allow_overwrite'], $profileConf['Allow_repos_overwrite']);
+        $this->model->configure($newProfileId, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Allow_overwrite'], $profileConf['Allow_repos_overwrite'], $profileConf['Notes']);
 
         /**
          *  Récupération des repos membres du profil source
@@ -297,7 +297,7 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Profile name <b>$name</b> contains invalid characters");
+            throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
         /**
@@ -305,7 +305,7 @@ class Profile
          */
         $this->model->delete($name);
 
-        \Models\History::set($_SESSION['username'], "Delete profile <b>$name</b>", 'success');
+        \Models\History::set($_SESSION['username'], "Delete <b>$name</b> profile", 'success');
     }
 
     /**
@@ -323,14 +323,14 @@ class Profile
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
         if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception("Profile name <b>$name</b> contains invalid characters");
+            throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
         /**
          *  2. On vérifie que le profil existe en base de données
          */
         if ($this->model->exists($name) === false) {
-            throw new Exception("Profile <b>$name</b> does not exist");
+            throw new Exception("<b>$name</b> profile does not exist");
         }
 
         /**

@@ -468,19 +468,6 @@ class Host
     }
 
     /**
-     *  Mise à jour du status de l'agent (démarré ou non de l'hôte)
-     *  L'agent du l'hôte envoi régulièrement un signe de vie qu'on met à jour en base de données
-     */
-    public function setAgentStatus(string $status)
-    {
-        if ($status != 'running' and $status != 'stopped' and $status != 'disabled') {
-            throw new Exception('Agent status is invalid');
-        }
-
-        $this->model->setAgentStatus($this->id, $status);
-    }
-
-    /**
      *  Ajout d'un état de paquet en BDD
      */
     public function setPackageState(string $name, string $version, string $state, string $date, string $time, string $id_event = null)
@@ -1552,67 +1539,87 @@ class Host
     }
 
     /**
-     *  Mise à jour de l'OS en BDD
+     *  Update hostname in database
      */
-    public function updateOS()
+    public function updateHostname(string $hostname)
     {
-        return $this->model->updateOS($this->authId, $this->token, \Controllers\Common::validateData($this->os));
+        $this->model->updateHostname($this->authId, $this->token, \Controllers\Common::validateData($hostname));
     }
 
     /**
-     *  Mise à jour de la version d'OS en BDD
+     *  Update OS in database
      */
-    public function updateOsVersion()
+    public function updateOS(string $os)
     {
-        return $this->model->updateOsVersion($this->authId, $this->token, \Controllers\Common::validateData($this->os_version));
+        $this->model->updateOS($this->authId, $this->token, \Controllers\Common::validateData($os));
     }
 
     /**
-     *  Mise à jour de la famille d'OS en BDD
+     *  Update OS version in database
      */
-    public function updateOsFamily()
+    public function updateOsVersion(string $osVersion)
     {
-        return $this->model->updateOsFamily($this->authId, $this->token, \Controllers\Common::validateData($this->os_family));
+        $this->model->updateOsVersion($this->authId, $this->token, \Controllers\Common::validateData($osVersion));
     }
 
     /**
-     *  Mise à jour du type de virtualisation
+     *  Update OS family in database
      */
-    public function updateType()
+    public function updateOsFamily(string $osFamily)
     {
-        return $this->model->updateType($this->authId, $this->token, \Controllers\Common::validateData($this->type));
+        $this->model->updateOsFamily($this->authId, $this->token, \Controllers\Common::validateData($osFamily));
     }
 
     /**
-     *  Mise à jour de la version du kernel de l'hôte en BDD
+     *  Update virtualization type in database
      */
-    public function updateKernel()
+    public function updateType(string $virtType)
     {
-        return $this->model->updateKernel($this->authId, $this->token, \Controllers\Common::validateData($this->kernel));
+        $this->model->updateType($this->authId, $this->token, \Controllers\Common::validateData($virtType));
     }
 
     /**
-     *  Mise à jour de l'architecture de l'hôte en BDD
+     *  Update kernel version in database
      */
-    public function updateArch()
+    public function updateKernel(string $kernel)
     {
-        return $this->model->updateArch($this->authId, $this->token, \Controllers\Common::validateData($this->arch));
+        $this->model->updateKernel($this->authId, $this->token, \Controllers\Common::validateData($kernel));
     }
 
     /**
-     *  Mise à jour du profil en BDD
+     *  Update arch in database
      */
-    public function updateProfile()
+    public function updateArch(string $arch)
     {
-        return $this->model->updateProfile($this->authId, $this->token, \Controllers\Common::validateData($this->profile));
+        $this->model->updateArch($this->authId, $this->token, \Controllers\Common::validateData($arch));
     }
 
     /**
-     *  Mise à jour de l'env de l'hôte en BDD
+     *  Update profile in database
      */
-    public function updateEnv()
+    public function updateProfile(string $profile)
     {
-        return $this->model->updateEnv($this->authId, $this->token, \Controllers\Common::validateData($this->env));
+        $this->model->updateProfile($this->authId, $this->token, \Controllers\Common::validateData($profile));
+    }
+
+    /**
+     *  Update environment in database
+     */
+    public function updateEnv(string $env)
+    {
+        $this->model->updateEnv($this->authId, $this->token, \Controllers\Common::validateData($env));
+    }
+
+    /**
+     *  Update agent status in database
+     */
+    public function updateAgentStatus(string $status)
+    {
+        if ($status != 'running' and $status != 'stopped' and $status != 'disabled') {
+            throw new Exception('Agent status is invalid');
+        }
+
+        $this->model->updateAgentStatus($this->id, $status);
     }
 
     /**

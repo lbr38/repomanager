@@ -43,6 +43,16 @@ function getVars
     PLAN_REMINDERS_ENABLED=$(grep "^PLAN_REMINDERS_ENABLED =" ${DATA_DIR}/configurations/repomanager.conf | sed 's|PLAN_REMINDERS_ENABLED = ||g' | sed 's|"||g')
 }
 
+# Check if this service needs to be restarted
+function checkRestartNeeded
+{
+    if [ -f "$DATA_DIR/service.restart" ];then
+        echo "A restart of this service is required. Restarting..."
+        rm "$DATA_DIR/service.restart" -f
+        exec systemctl --quiet restart repomanager
+    fi
+}
+
 function generalChecks
 {
     # Check if www user is defined
@@ -111,7 +121,7 @@ function statsGenerate
     fi
 
     # Generate stats for each repos
-    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/tools/stats-generator.php
+    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/tools/stats-generator.php"
 }
 
 # Start parsing of access log to generete statistics on clients accessing the repos 
@@ -138,13 +148,17 @@ function statsParseAccessLog
         return
     fi
 
-    # Do not start log analize if an analyze is already running
+    # Do not start log analyze if an analyze is already running
     if [ "$STATS_LOG_PARSING_RUNNING" == "no" ];then
         # Loop that get every new lines in the 'STATS_ACCESS_LOG_FILE' file
         # New lines are parsed to get date, time, IP and request
         tail -n0 -F "$STATS_ACCESS_LOG_FILE" | \
         while read LINE; do
             if echo "$LINE" | grep -q -E 'urlgrabber|APT-CURL|APT-HTTP';then
+                # If a repomanager release update is running, then wait to don't alter the database
+                while [ -f "${DATA_DIR}/update-running" ]; do
+                    sleep 2
+                done
                 # Parse the line and insert in database
                 DATE=$(echo "$LINE" | awk '{print $4}' | sed 's/\[//g' | cut -d':' -f1 | sed 's|/|-|g')
                 DATE=$(date -d "$DATE" +%Y-%m-%d)
@@ -169,7 +183,7 @@ function execPlan
     fi        
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/operations/plan.php 'exec' & > /dev/null
+    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/operations/plan.php" 'exec' & > /dev/null
 }
 
 # Send plan reminder (every day at 00:00)
@@ -185,7 +199,7 @@ function sendPlanReminder
     fi
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php $WWW_DIR/operations/plan.php 'send-reminders' & > /dev/null
+    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/operations/plan.php" 'send-reminders' & > /dev/null
 }
 
 # Execution
@@ -199,6 +213,9 @@ while true; do
 
     # Check that vars are defined
     generalChecks
+
+    # Check if a restart of this service is needed
+    checkRestartNeeded
 
     # Execute actions on service start (COUNTER = 0) and then every hour (COUNTER = 720)
     # 3600 / 5sec (sleep 5) = 720

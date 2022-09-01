@@ -65,7 +65,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been created");
+            response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been created");
         }
 
         /**
@@ -86,7 +86,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been deleted");
+            response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been deleted");
         }
 
         /**
@@ -107,7 +107,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
+            response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been renamed to <b>" . $_POST['newname'] . "</b>");
         }
 
         /**
@@ -128,7 +128,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> has been duplicated");
+            response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been duplicated");
         }
 
         /**
@@ -200,7 +200,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  Si il n'y a pas eu d'erreur
              */
-            response(HTTP_OK, "Profile <b>" . $_POST['name'] . "</b> configuration has been saved");
+            response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile configuration has been saved");
         }
 
         /**

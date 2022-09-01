@@ -430,17 +430,17 @@ class Repo
     /**
      *  Récupère toutes les informations d'un repo, snapshot en env en base de données
      */
-    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
+    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null, bool $getFullSource = true)
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
-        $this->getAllByParser($data);
+        $this->getAllByParser($data, $getFullSource);
     }
 
     /**
      *  Fonction qui parse et récupère les résultats des fonctions getAllBy*
      */
-    private function getAllByParser(array $data)
+    private function getAllByParser(array $data, bool $getFullSource)
     {
         if (!empty($data['Source'])) {
             $this->setSource($data['Source']);
@@ -490,9 +490,6 @@ class Repo
         if (!empty($data['envId'])) {
             $this->setEnvId($data['envId']);
         }
-        if ($this->packageType == 'deb' and $this->type == "mirror") {
-            $this->getFullSource($this->source);
-        }
         if (!empty($data['Arch'])) {
             $this->setArch(explode(',', $data['Arch']));
         }
@@ -501,6 +498,14 @@ class Repo
         }
         if (!empty($data['Pkg_translation'])) {
             $this->setPackageTranslation(explode(',', $data['Pkg_translation']));
+        }
+        /**
+         *  Get URL full source unless getFullSource is false
+         */
+        if ($getFullSource !== false) {
+            if ($this->packageType == 'deb' and $this->type == "mirror") {
+                $this->getFullSource($this->source);
+            }
         }
     }
 

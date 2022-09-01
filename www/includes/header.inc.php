@@ -243,8 +243,7 @@ if (DEBUG_MODE == "enabled") {
                                     /**
                                      *  Affichage du nom du repo ou du groupe en cours de traitement
                                      */
-                                    $op->printRepoOrGroup($opId);
-                                    ?>
+                                    $op->printRepoOrGroup($opId); ?>
                                     </a>
                                 </span>
                                 <span title="Stop operation">

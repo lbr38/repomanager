@@ -473,7 +473,7 @@ class Operation
         $this->time = date("H:i:s");
         $this->timeStart = microtime(true); // timeStart sera destiné à calculer le temps écoulé pour l'opération.
         $this->status = 'running';
-        $this->log = new \Models\Log('repomanager');
+        $this->log = new \Controllers\Log('repomanager');
 
         $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->pid, $this->poolId, $this->log->name, $this->status);
 
@@ -701,7 +701,7 @@ class Operation
 
         if (!empty($opInfo['Id_repo_source'])) {
             if (is_numeric($opInfo['Id_repo_source'])) {
-                $myrepo->getAllById($opInfo['Id_repo_source']);
+                $myrepo->getAllById($opInfo['Id_repo_source'], '', '', false);
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -715,14 +715,14 @@ class Operation
             }
         } else if (!empty($opInfo['Id_snap_source'])) {
             if (is_numeric($opInfo['Id_snap_source'])) {
-                $myrepo->getAllById('', $opInfo['Id_snap_source']);
+                $myrepo->getAllById('', $opInfo['Id_snap_source'], '', false);
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
             }
         } else if (!empty($opInfo['Id_repo_target'])) {
             if (is_numeric($opInfo['Id_repo_target'])) {
-                $myrepo->getAllById($opInfo['Id_repo_target']);
+                $myrepo->getAllById($opInfo['Id_repo_target'], '', '', false);
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -736,7 +736,7 @@ class Operation
             }
         } else if (!empty($opInfo['Id_snap_target'])) {
             if (is_numeric($opInfo['Id_snap_target'])) {
-                $myrepo->getAllById('', $opInfo['Id_snap_target']);
+                $myrepo->getAllById('', $opInfo['Id_snap_target'], '', false);
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -796,8 +796,7 @@ class Operation
         } else {
             $containerClass = 'header-container';
             $subContainerClass = 'header-blue';
-        }
-        ?>
+        } ?>
 
         <div class="<?=$containerClass?>">
             <div class="<?=$subContainerClass?>">
@@ -942,9 +941,9 @@ class Operation
              *  On récupère toutes les données du repo à partir des Id transmis
              */
             if (!empty($envId)) {
-                $myrepo->getAllById($repoId, $snapId, $envId);
+                $myrepo->getAllById($repoId, $snapId, $envId, false);
             } else {
-                $myrepo->getAllById($repoId, $snapId);
+                $myrepo->getAllById($repoId, $snapId, '', false);
             }
 
             /**
@@ -1079,9 +1078,9 @@ class Operation
 
                 if (!empty($envId)) {
                     $myrepo->setEnvId($envId);
-                    $myrepo->getAllById('', $snapId, $envId);
+                    $myrepo->getAllById('', $snapId, $envId, false);
                 } else {
-                    $myrepo->getAllById('', $snapId);
+                    $myrepo->getAllById('', $snapId, '', false);
                 }
 
                 /**

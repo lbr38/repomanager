@@ -365,10 +365,8 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                     echo '<p>Explore <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
                 }
 
-                if ($myrepo->getReconstruct() == 'needed' or is_dir($repoPath . '/my_uploaded_packages')) {
-                    if (!Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages")) {
-                        echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo\'s metadata.</span>';
-                    }
+                if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
+                    echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo metadata.</span>';
                 }
             }
             ?>

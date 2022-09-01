@@ -109,6 +109,8 @@
 }
 .hosts-table td:nth-child(3) { /* hostname */
     width: 34%;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 .hosts-table td:nth-child(4) { /* type */
     width: 9%;
