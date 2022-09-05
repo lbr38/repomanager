@@ -318,7 +318,9 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         <div class="searchInput-container">
                             <div class="searchInput-subcontainer">
                                 <div>
-                                    <p>Search host:</p>
+                                    <p>
+                                        <img src="resources/icons/info.png" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>" />Search host:                                            
+                                    </p>
                                     <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                 </div>
                                 <div>
@@ -535,13 +537,15 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                 <td>
                                                     <?php
                                                     if (preg_match('/centos/i', $os)) {
-                                                        echo '<img src="resources/icons/centos.png" class="icon" />';
+                                                        echo '<img src="resources/icons/centos.png" class="icon" title="' . $os . '" />';
                                                     } elseif (preg_match('/debian/i', $os)) {
-                                                        echo '<img src="resources/icons/debian.png" class="icon" />';
-                                                    } elseif (preg_match('/ubuntu/i', $os) or preg_match('/mint/i', $os)) {
-                                                        echo '<img src="resources/icons/ubuntu.png" class="icon" />';
+                                                        echo '<img src="resources/icons/debian.png" class="icon" title="' . $os . '" />';
+                                                    } elseif (preg_match('/ubuntu/i', $os)) {
+                                                        echo '<img src="resources/icons/ubuntu.png" class="icon" title="' . $os . '" />';
+                                                    } elseif (preg_match('/mint/i', $os)) {
+                                                        echo '<img src="resources/icons/ubuntu.png" class="icon" title="' . $os . '" />';
                                                     } else {
-                                                        echo '<img src="resources/icons/tux.png" class="icon" />';
+                                                        echo '<img src="resources/icons/tux.png" class="icon" title="' . $os . '" />';
                                                     } ?>
                                                 </td>
 
@@ -635,7 +639,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                 </table>
                                 <?php
                             } else {
-                                echo '<table class="hosts-table-empty"><tr class="host-tr"><td class="lowopacity">(empty)</td></tr></table>';
+                                echo '<table class="hosts-table-empty"><tr><td class="lowopacity">(empty)</td></tr></table>';
                             } ?>
                         </div>
                         <?php

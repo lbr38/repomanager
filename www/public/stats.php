@@ -36,7 +36,7 @@ if (!is_numeric($envId)) {
 if ($repoError == 0) {
     $myrepo = new \Controllers\Repo();
     $myrepo->setEnvId($envId);
-    $myrepo->getAllById('', '', $envId);
+    $myrepo->getAllById('', '', $envId, false);
 }
 
 /**
@@ -54,6 +54,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
     }
     if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "6months") {
         $repo_access_chart_filter = "6months";
+    }
+    if (Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1year") {
+        $repo_access_chart_filter = "1year";
     }
 }
 ?>
@@ -277,6 +280,9 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                         if ($repo_access_chart_filter == "6months") {
                             $dateCounter = date('Y-m-d', strtotime('-6 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
                         }
+                        if ($repo_access_chart_filter == "1year") {
+                            $dateCounter = date('Y-m-d', strtotime('-1 year', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 an
+                        }
 
                         $repoAccessChartLabels = '';
                         $repoAccessChartData = '';
@@ -320,6 +326,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="1month">1 month</span>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="3months">3 months</span>
                             <span class="btn-small-blue repo-access-chart-filter-button" filter="6months">6 months</span>
+                            <span class="btn-small-blue repo-access-chart-filter-button" filter="1year">1 year</span>
                             <?php
                             /**
                              *  On place deux span à l'intérieur du canvas, qui contiennent les valeurs 'labels' et 'data' du chart en cours

@@ -34,6 +34,11 @@ class Process
      */
     public function exec()
     {
+        /**
+         *  File descriptors for each subprocess.
+         *  http://phptutorial.info/?proc-open
+         *  https://gist.github.com/swichers/027d5ae903350cbd4af8
+         */
         $descriptors = array(
             0 => array("pipe", "r"), // stdin is a pipe that the child will read from
             1 => array("pipe", "w"), // stdout is a pipe that the child will write to

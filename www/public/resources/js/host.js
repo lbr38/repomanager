@@ -178,7 +178,6 @@ function searchHost()
      *  Suppression de tous les espaces blancs de la recherche globale
      */
     search = search.replaceAll(' ', '');
-
     /**
      *  Si un filtre a été précisé alors on récupère uniquement les tr '.host-tr' correspondant à ce filtre
      */

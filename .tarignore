@@ -3,7 +3,7 @@
 logs
 README*
 repomanager.conf
-create-version
+new-release
 .tarignore
 repomanager.png
 wip

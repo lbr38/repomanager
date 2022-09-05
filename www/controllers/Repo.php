@@ -2100,53 +2100,31 @@ class Repo
         echo '<div class="hide getPackagesDiv"><pre>';
         $this->op->stepWriteToLog();
 
-        // File descriptors for each subprocess. http://phptutorial.info/?proc-open
-        /* $descriptors = [
-            0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-            1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
-            2 => array("file", "{$this->op->log->steplog}", "a") // stderr is a file to write to
-        ];*/
-        // https://gist.github.com/swichers/027d5ae903350cbd4af8
-        $descriptors = array(
-            // Must use php://stdin(out) in order to allow display of command output
-            // and the user to interact with the process.
-            0 => array('file', 'php://stdin', 'r'),
-            1 => array('file', 'php://stdout', 'w'),
-            2 => array('pipe', 'w'),
-        );
-
         if ($this->packageType == "rpm") {
             /**
-             *  Vérification de la présence d'un lock de yum (autre tâche yum déjà en cours)
-             *  Si c'est le cas on attend que le lock soit libéré
+             *  Checking if another reposync process is already running as it is impossible to run multiple process because of
+             *  the yum lock being holded.
              */
-            // $lockFile = 0;
+            while (true) {
+                $myprocess = new \Controllers\Process("ps -ef | grep 'reposync' | grep -vq 'grep'");
+                $myprocess->exec();
 
-            /**
-             *  Compte le nombre de répertoires de lock présents
-             */
-            // foreach (glob("/var/tmp/yum-*") as $lockFound) {
-            //     $lockFile++;
-            // }
+                $myprocess->getOutput();
 
-            // if ($lockFile != 0) {
-            //     echo 'En attente de la libération du lock yum...';
-
-            //     $this->op->stepWriteToLog();
-
-            //     /**
-            //      *  On boucle tant que le lock est en place
-            //      */
-            //     while ($lockFile != 0) {
-            //         sleep(2);
-
-            //         $lockFile = 0;
-
-            //         foreach (glob("/var/tmp/yum-*") as $lockFound) {
-            //             $lockFile++;
-            //         }
-            //     }
-            // }
+                /**
+                 *  If no other process is running then break the loop and continue
+                 */
+                if ($myprocess->getReturnCode() != 0) {
+                    break;
+                /**
+                 *  Waiting 5sec if another process is running.
+                 */
+                } else {
+                    echo 'Another package syncing is running and holding the yum lock, waiting...' . PHP_EOL;
+                    $this->op->stepWriteToLog();
+                    sleep(30);
+                }
+            }
 
             /**
              *  Détermine la version de yum-utils installée sur le système pour être en mesure de passer les bons paramètres à reposync

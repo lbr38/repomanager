@@ -30,7 +30,8 @@ fi
 echo -ne "\n Specify release version (e.g: 3.2.0): "; read -p "" VERSION
 
 # Final version name
-VERSION="v${VERSION}-${DEV_BRANCH}"
+#VERSION="v${VERSION}-${DEV_BRANCH}"
+
 echo " Release version: ${YELLOW}${VERSION}${RESET}"
 echo -ne " Confirm (y/n) : "; read -p "" CONFIRM
 if [ "$CONFIRM" != "y" ];then

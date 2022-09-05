@@ -62,6 +62,21 @@ class Stat
     }
 
     /**
+     *  Clean oldest repos statistics by deleting rows in database
+     */
+    public function clean(string $period = '366 days')
+    {
+        /**
+         *  Time period starts from the very beginning of repomanager existence
+         *  And ends 1 year ago before the current day
+         */
+        $dateStart = '2020-01-01';
+        $dateEnd = date('Y-m-d', strtotime('-' . $period, strtotime(DATE_YMD)));
+
+        $this->model->clean($dateStart, $dateEnd);
+    }
+
+    /**
      *  Fermeture de la connexion à la base de données
      */
     public function closeConnection()
