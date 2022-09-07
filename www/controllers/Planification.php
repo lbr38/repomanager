@@ -878,7 +878,7 @@ class Planification
              *  Cas où l'action prévue est une mise à jour
              */
             if ($this->action == "update") {
-                $message = 'Update repos members of the group <span class="label-white">' . $this->group->getName() . '</span> :<br>';
+                $message = 'Update repos members of the <span class="label-white">' . $this->group->getName() . '</span> group:<br>';
             }
 
             foreach ($this->groupReposList as $line) {
@@ -1057,7 +1057,7 @@ class Planification
             $msg_processed_repos = '<br><br><b>Action:</b>';
 
             if ($this->action == 'update') {
-                $msg_processed_repos .= 'update';
+                $msg_processed_repos .= ' update';
             }
 
             $msg_processed_repos .= '<br><br><b>Processed repos:</b><br>';
@@ -1131,7 +1131,7 @@ class Planification
                  */
                 if ($this->type == 'plan') {
                     $plan_title   = "[ Error ] - Planification number $this->id on " . WWW_HOSTNAME;
-                    $plan_pre_msg = "Une planification s'est mal terminée.";
+                    $plan_pre_msg = "A plan has failed.";
                 }
                 if ($this->type == 'regular') {
                     $plan_title   = "[ Error ] - Regular planification number $this->id on " . WWW_HOSTNAME;

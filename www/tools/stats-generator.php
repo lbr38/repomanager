@@ -2,7 +2,6 @@
 
 /**
  *  Génération des données de statistiques des repos
- *  Les actions sont exécutées par cron avec l'utilisateur WWW_USER
  */
 
 define('ROOT', dirname(__FILE__, 2));

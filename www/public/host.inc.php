@@ -416,7 +416,7 @@ if (Controllers\Common::isadmin()) { ?>
                     <div id="eventsContainer">
                             <?php
                             if (empty($allEventsList)) {
-                                echo '<p>Aucun historique</p>';
+                                echo '<p>No history</p>';
                             } else { ?>
                                 <span>Show sending requests </span>
                                 <label class="onoff-switch-label">

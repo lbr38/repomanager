@@ -169,6 +169,31 @@ class Stat extends Model
     }
 
     /**
+     *  Clean oldest repos statistics by deleting rows in database between specified dates
+     */
+    public function clean(string $dateStart, string $dateEnd)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM stats WHERE Date >= :dateStart and Date <= :dateEnd");
+            $stmt->bindValue(':dateStart', $dateStart);
+            $stmt->bindValue(':dateEnd', $dateEnd);
+            $stmt->execute();
+
+            $stmt = $this->db->prepare("DELETE FROM access WHERE Date >= :dateStart and Date <= :dateEnd");
+            $stmt->bindValue(':dateStart', $dateStart);
+            $stmt->bindValue(':dateEnd', $dateEnd);
+            $stmt->execute();
+
+            /**
+             *  Clean empty space
+             */
+            $this->db->exec("VACUUM");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
      *  Fermeture de la connexion à la base de données
      */
     public function closeConnection()

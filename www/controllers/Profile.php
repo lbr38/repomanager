@@ -247,7 +247,9 @@ class Profile
          *  On vérifie que le nouveau nom n'existe pas déjà
          */
         while ($this->model->exists($newName) === true) {
-            // Re-génération d'un nom si celui-ci est déjà prit
+            /**
+             *  Re-génération d'un nom si celui-ci est déjà prit
+             */
             $newName = $name . '-' . mt_rand(100000, 200000);
         }
 

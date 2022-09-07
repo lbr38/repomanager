@@ -175,6 +175,22 @@ function statsParseAccessLog
     fi
 }
 
+# Clean old stats for each repos
+function statsClean
+{
+    if [ ! -f "$STATS_DB" ];then
+        echo "Error: Database '$STATS_DB' not found." >> "$LOG"
+        return
+    fi
+
+    if [ ! -f "/usr/bin/sqlite3" ];then
+        echo "Error: '/usr/bin/sqlite3' not found." >> "$LOG"
+        return
+    fi
+
+    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/tools/stats-cleaner.php"
+}
+
 # Execute plans every minute
 function execPlan
 {
@@ -225,6 +241,11 @@ while true; do
 
         # Cleanup files
         cleanUp
+
+        if [ "$STATS_ENABLED" == "yes" ];then
+            # Clean old statistics
+            statsClean
+        fi
 
         # Reset counter
         COUNTER="0"
