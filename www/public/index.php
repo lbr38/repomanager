@@ -28,22 +28,20 @@ include_once('../includes/head.inc.php');
             <?php include_once('../includes/manage-sources.inc.php'); ?>
         <?php endif ?>
 
-        <section class="right">
+        <div>
             <h3>PROPERTIES</h3>
 
-            <div class="div-generic-gray server-properties-container">
+            <div class="div-generic-blue circle-div-container-container">
                 <?php
-
                 /**
                  *  Récupération du total des repos actifs et repos archivés
                  */
-
                 $myrepo = new \Controllers\Repo();
                 $totalRepos = $myrepo->count('active'); ?>
 
                 <div>
-                    <div class="server-properties">
-                        <div class="server-properties-count">
+                    <div class="circle-div-container">
+                        <div class="circle-div-container-count-green">
                             <span>
                                 <?= $totalRepos ?>
                             </span>
@@ -80,85 +78,119 @@ include_once('../includes/head.inc.php');
             </div>
 
             <?php
-            if (PLANS_ENABLED == "yes") {
+            if (PLANS_ENABLED == "yes") :
                 $plan = new \Controllers\Planification();
                 $lastPlan = $plan->listLast();
                 $nextPlan = $plan->listNext();
 
-                if (!empty($lastPlan or !empty($nextPlan))) { ?>
-                    <div class="div-generic-gray">
-                    <?php
-                    if (!empty($lastPlan)) :
-                        if ($lastPlan['Status'] == 'done') {
-                            $planStatus = 'OK';
-                            $borderColor = '-green';
-                        } else {
-                            $planStatus = 'Error';
-                            $borderColor = '-red';
-                        } ?>
-                        <div class="server-properties">
-                            <div class="server-properties-count<?=$borderColor?>">
-                                <span>
-                                    <?= $planStatus ?>
-                                </span>
-                            </div>
-
-                            <div>
-                                <span><a href="planifications.php">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' at ' . $lastPlan['Time']?>)</a></span>
-                            </div>
-                        </div>
+                if (!empty($lastPlan or !empty($nextPlan))) : ?>
+                    <div class="div-generic-blue">
                         <?php
-                    endif;
+                        if (!empty($lastPlan)) :
+                            if ($lastPlan['Status'] == 'done') {
+                                $planStatus = 'OK';
+                                $borderColor = 'green';
+                            } else {
+                                $planStatus = 'Error';
+                                $borderColor = 'red';
+                            } ?>
+                            <div class="circle-div-container">
+                                <div class="circle-div-container-count-<?=$borderColor?>">
+                                    <span>
+                                        <?= $planStatus ?>
+                                    </span>
+                                </div>
 
-                    if (!empty($nextPlan)) :
-                        /**
-                         *  Calcul du nombre de jours restants avant la prochaine planification
-                         */
-                        $date_now = new DateTime(DATE_YMD);
-                        $date_plan = new DateTime($nextPlan['Date']);
-                        $time_now = new DateTime(date('H:i'));
-                        $time_plan = new DateTime($nextPlan['Time']);
+                                <div>
+                                    <span>
+                                        <a href="planifications.php">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' at ' . $lastPlan['Time']?>)</a>
+                                    </span>
+                                </div>
+                            </div>
+                            <?php
+                        endif;
 
-                        $days_left = $date_plan->diff($date_now);
-                        $time_left = $time_plan->diff($time_now); ?>
-                        <div class="server-properties">
-                            <div class="server-properties-count">
-                                <span>
-                                    <?php
-                                    /**
-                                     *  Si le nombre de jours restants = 0 (jour même) alors on affiche le nombre d'heures restantes
-                                     */
-                                    if ($days_left->days == 0) {
+                        if (!empty($nextPlan)) :
+                            /**
+                             *  Calcul du nombre de jours restants avant la prochaine planification
+                             */
+                            $date_now = new DateTime(DATE_YMD);
+                            $date_plan = new DateTime($nextPlan['Date']);
+                            $time_now = new DateTime(date('H:i'));
+                            $time_plan = new DateTime($nextPlan['Time']);
+
+                            $days_left = $date_plan->diff($date_now);
+                            $time_left = $time_plan->diff($time_now); ?>
+                            <div class="circle-div-container">
+                                <div class="circle-div-container-count">
+                                    <span>
+                                        <?php
                                         /**
-                                         *  Si le nombre d'heures restantes = 0 alors on affiche les minutes restantes
+                                         *  Si le nombre de jours restants = 0 (jour même) alors on affiche le nombre d'heures restantes
                                          */
-                                        if ($time_left->format('%h') == 0) {
-                                            echo $time_left->format('%im');
+                                        if ($days_left->days == 0) {
+                                            /**
+                                             *  Si le nombre d'heures restantes = 0 alors on affiche les minutes restantes
+                                             */
+                                            if ($time_left->format('%h') == 0) {
+                                                echo $time_left->format('%im');
+                                            } else {
+                                                echo $time_left->format('%hh%im');
+                                            }
                                         } else {
-                                            echo $time_left->format('%hh%im');
-                                        }
-                                    } else {
-                                        echo $days_left->days . 'd';
-                                    } ?>
-                                </span>
+                                            echo $days_left->days . 'd';
+                                        } ?>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span>
+                                        <a href="planifications.php">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' at ' . $nextPlan['Time']?>)</a>
+                                    </span>
+                                </div>
                             </div>
-                            <div>
-                                <span><a href="planifications.php">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' at ' . $nextPlan['Time']?>)</a></span>
-                            </div>
-                        </div>
-                        <?php
-                    endif;
+                            <?php
+                        endif; ?>
+                    </div>
+                    <?php
+                endif;
+            endif; ?>
+
+            <div class="div-generic-blue circle-div-container-container">
+                <?php
+                /**
+                 *  Print current CPU load
+                 */
+                $currentLoad = sys_getloadavg();
+                $currentLoad = substr($currentLoad[0], 0, 4);
+                $borderColor = 'green';
+
+                if ($currentLoad >= 1) {
+                    $borderColor = 'yellow';
                 }
-            } ?>
-        </section>
+                if ($currentLoad >= 2) {
+                    $borderColor = 'red';
+                } ?>
+
+                <div class="circle-div-container">
+                    <div class="circle-div-container-count-<?=$borderColor?>">
+                        <span>
+                            <?= $currentLoad ?>
+                        </span>
+                    </div>
+                    <div>
+                        <span>CPU load</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- section 'conteneur' principal englobant toutes les sections de gauche -->
     <!-- On charge la section de gauche après celle de droite car elle peut mettre plus de temps à charger (si bcp de repos) -->
     <section class="mainSectionLeft">
-        <section class="left reposList">
+        <div class="reposList">
             <?php include_once('../includes/repos-list-container.inc.php'); ?>
-        </section>
+        </div>
     </section>
 </article>
 

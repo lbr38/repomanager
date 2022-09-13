@@ -322,35 +322,35 @@ class Host
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'gray';
-                $content_text = '<img src="../resources/icons/products/package.png" class="icon" /> Inventored';
+                $content_text = '<img src="../resources/icons/package.svg" class="icon" /> Inventored';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installed';
+                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Installed';
             }
             if ($event['State'] == "dep-installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Installed (as depencency)';
+                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Installed (as depencency)';
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/update.png" class="icon" /> Updated';
+                $content_text = '<img src="../resources/icons/update.svg" class="icon" /> Updated';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Uninstalled';
+                $content_text = '<img src="../resources/icons/bin.svg" class="icon" /> Uninstalled';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/arrow-back.png" class="icon" /> Downgraded';
+                $content_text = '<img src="../resources/icons/arrow-back.svg" class="icon" /> Downgraded';
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/arrow-circle-down.png" class="icon" /> Reinstalled';
+                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Reinstalled';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.png" class="icon" /> Purged';
+                $content_text = '<img src="../resources/icons/bin.svg" class="icon" /> Purged';
             }
             $content_version = $event['Version'];
 

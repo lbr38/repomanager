@@ -32,70 +32,70 @@ if (!empty($_GET['logfile'])) {
 
 <article>
     <section class="mainSectionLeft">
-        <section class="left">
-            <h3>LOG</h3>
-            <div id="log-container">
-                <div id="scrollButtons-container">
-                    <div id="scrollButtons">
+        <h3>LOG</h3>
+    
+        <div id="log-container">
+            <div id="scrollButtons-container">
+                <div id="scrollButtons">
+                    <?php
+                    /**
+                     *  Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
+                     */
+                    if (!empty($_COOKIE['displayFullLogs']) and $_COOKIE['displayFullLogs'] == "yes") { ?>
+                        <div id="displayFullLogs-no" class="button-top-down-details pointer" title="Hide details.">
+                            <img src="resources/icons/search.svg" />
+                        </div> 
+                        <style>
+                            .getPackagesDiv { display: block; }
+                            .signRepoDiv { display: block; }
+                            .createRepoDiv { display: block; }
+                        </style>
                         <?php
+                    } else {
+                        echo '<div id="displayFullLogs-yes" class="button-top-down-details pointer" title="Show details."><img src="resources/icons/search.svg" /></div>';
+                    } ?>
 
-                            /**
-                             *  Si on a activé l'affichage de tous les logs alors on fait apparaitre tous les div cachés
-                             */
+                    <br><br>
 
-                        if (!empty($_COOKIE['displayFullLogs']) and $_COOKIE['displayFullLogs'] == "yes") { ?>
-                                <button id="displayFullLogs-no" class="button-top-down-details pointer" title="Hide details."><img src="resources/icons/search.png" /></button>
-                                <style>
-                                    .getPackagesDiv { display: block; }
-                                    .signRepoDiv { display: block; }
-                                    .createRepoDiv { display: block; }
-                                </style>
-                            <?php
-                        } else {
-                            echo '<button id="displayFullLogs-yes" class="button-top-down-details pointer" title="Show details."><img src="resources/icons/search.png" /></button>';
-                        }
-                        ?>
-                        <br>
-                        <br>
-                        <a href="#top" class="button-top-down" title="Go to the top."><img src="resources/icons/arrow-circle-up.png" /></a>
-                        <a href="#bottom" class="button-top-down" title="Go to the bottom."><img src="resources/icons/arrow-circle-down.png" /></a>
+                    <div>
+                        <a href="#top" class="button-top-down" title="Go to the top."><img src="resources/icons/up.svg" /></a>
                     </div>
-                </div>
-
-                <div id="log-refresh-container">
-                    <div id="log">
-                        <?php
-                        if ($logfile == 'none') {
-                            $logfiles = array_diff(scandir(MAIN_LOGS_DIR, SCANDIR_SORT_DESCENDING), array('..', '.', 'lastlog.log'));
-                            if (!empty($logfiles[1])) {
-                                $logfile = $logfiles[1];
-                            }
-                        }
-
-                        /**
-                         *  Récupération du contenu du fichier de log
-                         */
-                        if (!empty($logfile)) {
-                            $output = file_get_contents(MAIN_LOGS_DIR . '/' . $logfile);
-                        } else {
-                            $output = '';
-                        }
-
-                        /**
-                         *  Suppression des codes ANSI (couleurs) dans le fichier
-                         */
-                        $output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "", $output);
-                        echo $output;
-                        ?>
+                    <div>
+                        <a href="#bottom" class="button-top-down" title="Go to the bottom."><img src="resources/icons/down.svg" /></a>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <div id="log-refresh-container">
+                <div id="log">
+                    <?php
+                    if ($logfile == 'none') {
+                        $logfiles = array_diff(scandir(MAIN_LOGS_DIR, SCANDIR_SORT_DESCENDING), array('..', '.', 'lastlog.log'));
+                        if (!empty($logfiles[1])) {
+                            $logfile = $logfiles[1];
+                        }
+                    }
+                    /**
+                     *  Récupération du contenu du fichier de log
+                     */
+                    if (!empty($logfile)) {
+                        $output = file_get_contents(MAIN_LOGS_DIR . '/' . $logfile);
+                    } else {
+                        $output = '';
+                    }
+                    /**
+                     *  Suppression des codes ANSI (couleurs) dans le fichier
+                     */
+                    $output = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "", $output);
+                    echo $output;
+                    ?>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section class="mainSectionRight">
-        <section class="right">
-            <h3>HISTORY</h3>
+        <h3>HISTORY</h3>
 
             <?php
             /**
@@ -156,8 +156,7 @@ if (!empty($_GET['logfile'])) {
             /**
              *  Affichage des données en cours d'exécution
              */
-            if (!empty($totalRunning)) {
-                echo '<div class="div-generic-gray">';
+            if (!empty($totalRunning)) :
                 echo '<h5>Running</h5>';
 
                 foreach ($totalRunning as $itemRunning) {
@@ -197,7 +196,7 @@ if (!empty($_GET['logfile'])) {
                                         <table>
                                             <tr>
                                                 <td class="td-fit">
-                                                    <img class="icon" src="resources/icons/calendar.png" title="Planification" />
+                                                    <img class="icon" src="resources/icons/calendar.svg" title="Planification" />
                                                 </td>
                                                 <?php
                                                 /**
@@ -249,8 +248,7 @@ if (!empty($_GET['logfile'])) {
 
                     unset($planOpsRunning, $planOpsDone);
                 }
-                echo '</div>';
-            }
+            endif;
 
             /**
              *  Affichage des données terminées
@@ -261,7 +259,6 @@ if (!empty($_GET['logfile'])) {
                  *  Affichage des tâches terminées
                  */
                 if (!empty($totalDone)) {
-                    echo '<div class="div-generic-gray">';
                     echo '<h5>Done</h5>';
 
                     /**
@@ -327,7 +324,7 @@ if (!empty($_GET['logfile'])) {
                                     <table>
                                         <tr>
                                             <td class="td-fit">
-                                                <img class="icon" src="resources/icons/calendar.png" title="Planification" />
+                                                <img class="icon" src="resources/icons/calendar.svg" title="Planification" />
                                             </td>
                                             <?php
                                             if ($planType == "plan") {
@@ -382,18 +379,15 @@ if (!empty($_GET['logfile'])) {
                          *  On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
                          */
                         if (!isset($_COOKIE['printAllOp']) or (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] != "yes")) {
-                            echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
+                            echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="resources/icons/down.svg" class="icon" /></p>';
                         }
                     }
-                    echo '</div>';
                 }
-
 
                 /**
                  *  Affichage des tâches récurrentes terminées
                  */
                 if (!empty($opsFromRegularPlanDone)) {
-                    echo '<div class="div-generic-gray">';
                     echo '<h5>Completed regular tasks</h5>';
 
                     /**
@@ -430,13 +424,11 @@ if (!empty($_GET['logfile'])) {
                          *  On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
                          */
                         if (!isset($_COOKIE['printAllRegularOp']) or (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] != "yes")) {
-                            echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="resources/icons/chevron-circle-down.png" class="icon" /></p>';
+                            echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="resources/icons/down.svg" class="icon" /></p>';
                         }
                     }
-                        echo '</div>';
                 }
             } ?>
-        </section>
     </section>
 </article>
 

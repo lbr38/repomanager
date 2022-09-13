@@ -2136,7 +2136,11 @@ class Repo
                 $yumUtilsVersion = exec("rpm -qi yum-utils | grep 'Version' | awk '{print $3}'");
             }
             if (empty($yumUtilsVersion)) {
-                throw new Exception('Cannot determine yum-utils installed version.');
+                /**
+                 *  Closing getPackagesDiv before exiting
+                 */
+                $this->op->stepWriteToLog('</div>');
+                throw new Exception('Cannot determine yum-utils version.');
             }
 
             /**
@@ -2163,6 +2167,10 @@ class Repo
                     $reposyncGpgParam = '';
                 }
             } else {
+                /**
+                 *  Closing getPackagesDiv before exiting
+                 */
+                $this->op->stepWriteToLog('</div>');
                 throw new Exception('yum-utils version is not compatible or invalid.');
             }
 
@@ -3537,7 +3545,7 @@ class Repo
          */
         echo '<div class="item-repo">';
         if ($printRepoName == "yes") {
-            echo $this->name . '<span class="item-pkgtype lowopacity" title="This repository contains ' . $this->packageType . ' packages"><img src="resources/icons/products/package.png" class="icon-small" /> ' . $this->packageType . '</span>';
+            echo $this->name . '<span class="item-pkgtype-' . $this->packageType  . '" title="This repository contains ' . $this->packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /> ' . $this->packageType . '</span>';
         }
         echo '</div>';
 
@@ -3617,11 +3625,11 @@ class Repo
              */
             if (PRINT_REPO_TYPE == 'yes') {
                 if ($this->type == "mirror") {
-                    echo '<img class="icon lowopacity" src="resources/icons/world.png" title="Type: mirror (source : ' . $this->source . ')" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source : ' . $this->source . ')" />';
                 } elseif ($this->type == "local") {
-                    echo '<img class="icon lowopacity" src="resources/icons/pin.png" title="Type: local" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/pin.svg" title="Type: local" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="Type: unknow" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.svg" title="Type: unknow" />';
                 }
             }
             /**
@@ -3629,21 +3637,21 @@ class Repo
              */
             if (PRINT_REPO_SIGNATURE == 'yes') {
                 if ($this->signed == "yes") {
-                    echo '<img class="icon lowopacity" src="resources/icons/key.png" title="Signed with GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key.svg" title="Signed with GPG" />';
                 } elseif ($this->signed == "no") {
-                    echo '<img class="icon lowopacity" src="resources/icons/key2.png" title="Not signed with GPG" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/key2.svg" title="Not signed with GPG" />';
                 } else {
-                    echo '<img class="icon lowopacity" src="resources/icons/unknow.png" title="GPG signature: unknow" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/unknow.svg" title="GPG signature: unknow" />';
                 }
             }
             /**
              *  Affichage de l'icone "explorer"
              */
             if ($this->packageType == "rpm") {
-                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Browse $this->name ($this->dateFormatted) snapshot\" /></a>";
+                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->name ($this->dateFormatted) snapshot\" /></a>";
             }
             if ($this->packageType == "deb") {
-                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.png\" title=\"Browse $this->section ($this->dateFormatted) snapshot\" /></a>";
+                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->section ($this->dateFormatted) snapshot\" /></a>";
             }
             if (!empty($this->reconstruct)) {
                 if ($this->reconstruct == 'needed') {
@@ -3685,10 +3693,10 @@ class Repo
              *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
              */
             if ($this->packageType == "rpm") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $this->name . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/download.svg" title="Show repo installation commands." />';
             }
             if ($this->packageType == "deb") {
-                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/code.png" title="Print client configuration." />';
+                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $this->name . '" dist="' . $this->dist . '" section="' . $this->section . '" env="' . $this->env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/download.svg" title="Show repo installation commands." />';
             }
 
             /**
@@ -3696,10 +3704,10 @@ class Repo
              */
             if (STATS_ENABLED == "yes") {
                 if ($this->packageType == "rpm") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Visualize stats and metrics of $this->name ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->name ($this->env)\" /></a>";
                 }
                 if ($this->packageType == "deb") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.png\" title=\"Visualize stats and metrics of $this->section ($this->env)\" /></a>";
+                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->section ($this->env)\" /></a>";
                 }
             }
 
@@ -3722,7 +3730,7 @@ class Repo
          *  Icone suppression de l'environnement
          */
         if (!empty($this->env) and \Controllers\Common::isadmin()) {
-            echo '<img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" title="Remove ' . $this->env . ' environment" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
+            echo '<img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $this->env . ' environment" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
         }
 
         echo '</div>';

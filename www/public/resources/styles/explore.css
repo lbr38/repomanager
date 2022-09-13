@@ -14,7 +14,7 @@
 }
 
 #explorer li span {
-    background-color: #2b426e;
+    background-color: #5473e8;
     margin-top: 4px;
     margin-bottom: 4px;
     padding-top: 10px;
@@ -25,7 +25,7 @@
 }
 
 #explorer li span:hover {
-    background-color: #263859;
+    background-color: #4e69cd;
 }
 
 #explorer ul {
@@ -33,11 +33,11 @@
 }
 
 #explorer span.explorer-file-pkg {
-    background-color: #d9534f;
+    background-color: #ff0044;
 }
 
 #explorer span.explorer-file-pkg:hover {
-    background-color: #b14440;
+    background-color: #dc0044;
 }
 
 input[type=file] {

@@ -468,628 +468,640 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
 
 <article>
 <section class="mainSectionLeft">
-    <section class="left">
-        <h3>MAIN CONFIGURATION</h3>
-        <form action="configuration.php" method="post" autocomplete="off">
-        <input type="hidden" name="action" value="applyConfiguration" />
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS family
-                </td>
-                <td>
-                    <input type="text" value="<?= OS_FAMILY ?>" readonly />
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(OS_FAMILY)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS name
-                </td>
-                <td>
-                    <input type="text" value="<?= OS_NAME ?>" readonly />
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(OS_NAME)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="" />OS version
-                </td>
-                <td>
-                    <input type="text" value="<?= OS_VERSION ?>" readonly />
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(OS_VERSION)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />Automatic update
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                    <input name="updateAuto" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (UPDATE_AUTO == "yes") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(UPDATE_AUTO)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />Update target branch
-                </td>
-                <td>
-                    <select name="updateBranch">
-                        <option value="stable" <?php echo (UPDATE_BRANCH == "stable") ? 'selected' : ''; ?>>stable</option>
-                        <option value="dev" <?php echo (UPDATE_BRANCH == "dev") ? 'selected' : ''; ?>>dev</option>
-                    </select>
-                </td>
-                <?php
-                if (UPDATE_AVAILABLE == "yes") {
-                    echo '<td class="td-fit">';
-                    echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Update repomanager to: ' . GIT_VERSION . '" value="↻">';
-                    echo '</td>';
-                }
-                if (empty(UPDATE_BRANCH)) {
-                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                }
-                ?>
-            </tr>
-                <?php
-                if (!empty($updateStatus)) : ?>
-                    <tr>
-                        <td></td>
-                        <td colspan="2"><?= $updateStatus ?></td>
-                    </tr>
-                    <?php
-                endif ?>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />Backup before update
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="updateBackup" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (UPDATE_BACKUP_ENABLED == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(UPDATE_BACKUP_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <?php
-            if (UPDATE_BACKUP_ENABLED == "yes") : ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repomanager backup before update target directory." />Backup before update target directory
-                    </td>
-                    <td>
-                        <input type="text" name="updateBackupDir" autocomplete="off" value="<?= BACKUP_DIR ?>">
-                    </td>
-                    </td>
-                    <td class="td-fit">
-                        <?php
-                        if (empty(BACKUP_DIR)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </td>
-                </tr>
-                <?php
-            endif ?>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />Contact
-                </td>
-                <td>
-                    <input type="text" name="emailDest" autocomplete="off" value="<?= EMAIL_DEST ?>">
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(EMAIL_DEST)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-        </table>
+    
+    <h3>MAIN CONFIGURATION</h3>
 
-        <br><h3>REPOSITORIES</h3>
-
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." /> Repositories storage directory
-                </td>
-                <td>
-                    <input type="text" autocomplete="off" name="reposDir" value="<?= REPOS_DIR ?>" />
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(REPOS_DIR)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." />Enable statistics
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="cronStatsEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (STATS_ENABLED == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(STATS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <?php
-            if (STATS_ENABLED == "yes") : ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />Path to access log to scan for statistics
-                    </td>
-                    <td>
-                        <input type="text" autocomplete="off" name="statsLogPath" value="<?= STATS_LOG_PATH ?>" />
-                    </td>
-                    <td class="td-fit">
-                        <?php
-                        if (empty(STATS_LOG_PATH)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        }
-                        ?>
-                    </td>
-                </tr>
-            <?php endif ?>
-        </table>
-
-        <h5>RPM</h5>
-
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories"> Enable RPM repositories
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="rpmRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (RPM_REPO == "enabled") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-            </tr>
-            <?php if (RPM_REPO == "enabled") : ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key."> Sign packages with GPG
-                    </td>
-                    <td>
-                        <label class="onoff-switch-label">
-                            <input name="rpmSignPackages" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </td>
-                    <?php if (empty(RPM_SIGN_PACKAGES)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </tr>
-
-                <?php if (RPM_SIGN_PACKAGES == 'yes') : ?>
-                    <tr>
-                        <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign packages."> GPG key email address identifier
-                        </td>
-                        <td>
-                            <input type="email" name="rpmGpgKeyID" autocomplete="off" value="<?= RPM_SIGN_GPG_KEYID ?>">
-                        </td>
-                        <td>
-                            <?php if (empty(RPM_SIGN_GPG_KEYID)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7)."> GPG signature method
-                        </td>
-                        <td>
-                            <select name="rpmSignMethod">
-                                <option value="rpmsign" <?php echo (RPM_SIGN_METHOD == 'rpmsign' ? 'selected' : '') ?>>rpmsign</option>
-                                <option value="rpmresign" <?php echo (RPM_SIGN_METHOD == 'rpmresign' ? 'selected' : '') ?>>rpmresign (RPM4 perl module)</option>
-                            </select>
-                        </td>
-                        <?php if (empty(RPM_SIGN_METHOD)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </tr>
-                <?php endif ?>
-
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." /> Release version
-                    </td>
-                    <td>
-                        <input type="text" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
-                    </td>
-                    <td class="td-fit">
-                        <?php if (!file_exists('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver does not exist." />';
-                        }?>
-                        <?php if (!is_readable('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not readable for ' . WWW_USER . '" />';
-                        }?>
-                        <?php if (!is_writable('/etc/yum/vars/releasever')) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not writeable for ' . WWW_USER . '" />';
-                        }?>
-                        <?php if (empty(RELEASEVER)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        }?>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror."> Default package architecture
-                    </td>
-                    <td>
-                        <select id="rpmArchitectureSelect" name="rpmDefaultArchitecture[]" multiple>
-                            <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
-                            <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
-                    </td>
-                    <td>
-                        <label class="onoff-switch-label">
-                            <input name="rpmIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </td>
-                </tr>
-            <?php endif ?>
-        </table>
-
-        <h5>DEB</h5>
-
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories"> Enable DEB repositories
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="debRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (DEB_REPO == "enabled") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-            </tr>
-        
-            <?php if (DEB_REPO == "enabled") : ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Sign DEB repos with a GPG key."> Sign repos with GPG
-                    </td>
-                    <td>
-                        <label class="onoff-switch-label">
-                            <input name="debSignRepo" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </td>
-                    <?php if (empty(DEB_SIGN_REPO)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </tr>
-
-                <?php if (DEB_SIGN_REPO == 'yes') : ?>
-                    <tr>
-                        <td class="td-large">
-                            <img src="resources/icons/info.png" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign repositories."> GPG key email address identifier
-                        </td>
-                        <td>
-                            <input type="text" name="debGpgKeyID" autocomplete="off" value="<?= DEB_SIGN_GPG_KEYID ?>">
-                        </td>
-                        <td>
-                            <?php if (empty(DEB_SIGN_GPG_KEYID)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </td>
-                    </tr>
-                <?php endif ?>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror."> Default package architecture
-                    </td>
-                    <td>
-                        <select id="debArchitectureSelect" name="debDefaultArchitecture[]" multiple>
-                            <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
-                            <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
-                            <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages sources when creating deb mirror."> Include packages sources when creating deb mirror
-                    </td>
-                    <td>
-                        <label class="onoff-switch-label">
-                            <input name="debIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages translation(s) when creating deb mirror
-                    </td>
-                    <td>
-                        <select id="debTranslationSelect" name="debDefaultTranslation[]" multiple>
-                            <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
-                            <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
-                        </select>
-                    </td>
-                </tr>
-            <?php endif ?>
-        </table>
-
-        <br><h3>WEB CONFIGURATION</h3>
-
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify Linux web dedied user that execute this web server. Usually www-data or nginx." /> Web user
-                </td>
-                <td>
-                    <input type="text" name="wwwUser" autocomplete="off" value="<?= WWW_USER ?>">
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(WWW_USER)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Repomanager dedied hostname." /> Hostname
-                </td>
-                <td>
-                    <input type="text" name="wwwHostname" autocomplete="off" value="<?= WWW_HOSTNAME ?>">
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(WWW_HOSTNAME)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Specify target URL for Repomanager's repos root directory. Usually http://.../repo" /> Repos URL
-                </td>
-                <td>
-                    <input type="text" name="wwwReposDirUrl" autocomplete="off" value="<?= WWW_REPOS_DIR_URL ?>">
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(WWW_REPOS_DIR_URL)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-        </table>
-
-        <br><h3>HOSTS MANAGEMENT</h3>
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable hosts managing. For hosts using linupdate." /> Manage hosts
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="manageHosts" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (MANAGE_HOSTS == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(MANAGE_HOSTS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable hosts profiles managing. For hosts using linupdate." /> Manage profiles
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="manageProfiles" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (MANAGE_PROFILES == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(MANAGE_PROFILES)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <?php
-                if (MANAGE_PROFILES == "yes") : ?>
-                    <td class="td-large">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Prefix that can be added to repo's configuration file name (e.g. 'myprefix-debian.list')." /> Repo file name prefix
-                    </td>
-                    <td>
-                        <input type="text" name="repoConfPrefix" autocomplete="off" value="<?= REPO_CONF_FILES_PREFIX ?>">
-                    </td>
-                    <?php
-                endif ?>
-            </tr>
-        </table>
-
-        <br><h3>PLANIFICATIONS</h3>
-        <table class="table-medium">
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Enable planifications" /> Enable plans
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="automatisationEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (PLANS_ENABLED == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(PLANS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-    <?php if (PLANS_ENABLED == "yes") { ?>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, plans will be able to update repos by creating new repo snapshot on the planned day and time." /> Allow automatic repos updates by plans
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="allowAutoUpdateRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (ALLOW_AUTOUPDATE_REPOS == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(ALLOW_AUTOUPDATE_REPOS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, plans will be able to delete oldest repos snapshots, depending on the specified retention parameter." /> Allow automatic deletion of old repos snapshots
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="allowAutoDeleteArchivedRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr> 
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." /> Retention
-                </td>
-                <td>
-                    <input type="number" name="retention" autocomplete="off" value="<?= RETENTION ?>">
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(RETENTION)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="td-large">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." /> Enable plan reminders
-                </td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="cronSendReminders" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (PLAN_REMINDERS_ENABLED == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-                <td class="td-fit">
-                    <?php if (empty(PLAN_REMINDERS_ENABLED)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                    } ?>
-                </td>
-            </tr> 
-    <?php } ?>
-            <tr>
-                <td><button type="submit" class="btn-medium-green">Save</button></td>
-            </tr>
-        </table>
-        </form>
-    </section>
-</section>
-
-<section class="mainSectionRight">
-    <section class="right">
-        <h3>ENVIRONMENTS</h3>
-        <div id="envDiv">
+    <form action="configuration.php" method="post" autocomplete="off">
+        <div class="div-generic-blue">
+            <input type="hidden" name="action" value="applyConfiguration" />
             <table class="table-medium">
-                <form id="environmentForm" autocomplete="off">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS family
+                    </td>
+                    <td>
+                        <input type="text" value="<?= OS_FAMILY ?>" readonly />
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(OS_FAMILY)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS name
+                    </td>
+                    <td>
+                        <input type="text" value="<?= OS_NAME ?>" readonly />
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(OS_NAME)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS version
+                    </td>
+                    <td>
+                        <input type="text" value="<?= OS_VERSION ?>" readonly />
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(OS_VERSION)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />Automatic update
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                        <input name="updateAuto" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (UPDATE_AUTO == "yes") ? 'checked' : ''; ?>>
+                        <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(UPDATE_AUTO)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />Update target branch
+                    </td>
+                    <td>
+                        <select name="updateBranch">
+                            <option value="stable" <?php echo (UPDATE_BRANCH == "stable") ? 'selected' : ''; ?>>stable</option>
+                            <option value="dev" <?php echo (UPDATE_BRANCH == "dev") ? 'selected' : ''; ?>>dev</option>
+                        </select>
+                    </td>
                     <?php
-                    /**
-                     *  Affichage des environnements actuels
-                     */
-                    $myenv = new \Controllers\Environment();
-                    $envs = $myenv->listAll();
-
-                    foreach ($envs as $envName) : ?>
+                    if (UPDATE_AVAILABLE == "yes") {
+                        echo '<td class="td-fit">';
+                        echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Update repomanager to: ' . GIT_VERSION . '" value="↻">';
+                        echo '</td>';
+                    }
+                    if (empty(UPDATE_BRANCH)) {
+                        echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                    } ?>
+                </tr>
+                    <?php
+                    if (!empty($updateStatus)) : ?>
                         <tr>
-                            <td>
-                                <input type="text" class="actual-env-input" value="<?= $envName ?>" />
-                            </td>
-                            <td class="td-fit center">
-                                <img src="resources/icons/bin.png" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
-                            </td>
-                            <td>
-                                <?php
-                                if ($envName == DEFAULT_ENV) {
-                                    echo '(default)';
-                                } ?>
-                            <td>
+                            <td></td>
+                            <td colspan="2"><?= $updateStatus ?></td>
                         </tr>
                         <?php
-                    endforeach;
-                    unset($myenv, $envs);?>
-                    <input type="submit" class="hide" /> <!-- hidden button, to validate form with Enter -->
-                </form>
-
-                <form id="newEnvironmentForm" autocomplete="off">
+                    endif ?>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />Backup before update
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="updateBackup" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (UPDATE_BACKUP_ENABLED == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(UPDATE_BACKUP_ENABLED)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <?php
+                if (UPDATE_BACKUP_ENABLED == "yes") : ?>
                     <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />Backup before update target directory
+                        </td>
                         <td>
-                            <input id="new-env-input" type="text" placeholder="Add a new environment" />
+                            <input type="text" name="updateBackupDir" autocomplete="off" value="<?= BACKUP_DIR ?>">
+                        </td>
                         </td>
                         <td class="td-fit">
-                            <button type="submit" class="btn-xxsmall-blue">+</button>
-                        </td>
-                        <td class="td-fit">
-                            <?php if (empty(ENVS)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
+                            <?php
+                            if (empty(BACKUP_DIR)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
-                        <td></td>
                     </tr>
-                </form>
+                    <?php
+                endif ?>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />Contact
+                    </td>
+                    <td>
+                        <input type="text" name="emailDest" autocomplete="off" value="<?= EMAIL_DEST ?>">
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(EMAIL_DEST)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
             </table>
         </div>
 
-        <br><h3>DATABASES</h3>
-        <table class="table-generic-blue table-large">
+        <br><h3>REPOSITORIES</h3>
+
+        <div class="div-generic-blue">
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." /> Repositories storage directory
+                    </td>
+                    <td>
+                        <input type="text" autocomplete="off" name="reposDir" value="<?= REPOS_DIR ?>" />
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(REPOS_DIR)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." />Enable statistics
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="cronStatsEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (STATS_ENABLED == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(STATS_ENABLED)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <?php
+                if (STATS_ENABLED == "yes") : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />Path to access log to scan for statistics
+                        </td>
+                        <td>
+                            <input type="text" autocomplete="off" name="statsLogPath" value="<?= STATS_LOG_PATH ?>" />
+                        </td>
+                        <td class="td-fit">
+                            <?php
+                            if (empty(STATS_LOG_PATH)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                <?php endif ?>
+            </table>
+
+            <h5>RPM</h5>
+
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories"> Enable RPM repositories
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="rpmRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (RPM_REPO == "enabled") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                </tr>
+                <?php if (RPM_REPO == "enabled") : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key."> Sign packages with GPG
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="rpmSignPackages" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                        <?php if (empty(RPM_SIGN_PACKAGES)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </tr>
+
+                    <?php if (RPM_SIGN_PACKAGES == 'yes') : ?>
+                        <tr>
+                            <td class="td-large">
+                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign packages."> GPG key email address identifier
+                            </td>
+                            <td>
+                                <input type="email" name="rpmGpgKeyID" autocomplete="off" value="<?= RPM_SIGN_GPG_KEYID ?>">
+                            </td>
+                            <td>
+                                <?php if (empty(RPM_SIGN_GPG_KEYID)) {
+                                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                } ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="td-large">
+                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7)."> GPG signature method
+                            </td>
+                            <td>
+                                <select name="rpmSignMethod">
+                                    <option value="rpmsign" <?php echo (RPM_SIGN_METHOD == 'rpmsign' ? 'selected' : '') ?>>rpmsign</option>
+                                    <option value="rpmresign" <?php echo (RPM_SIGN_METHOD == 'rpmresign' ? 'selected' : '') ?>>rpmresign (RPM4 perl module)</option>
+                                </select>
+                            </td>
+                            <?php if (empty(RPM_SIGN_METHOD)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </tr>
+                    <?php endif ?>
+
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." /> Release version
+                        </td>
+                        <td>
+                            <input type="text" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
+                        </td>
+                        <td class="td-fit">
+                            <?php if (!file_exists('/etc/yum/vars/releasever')) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver does not exist." />';
+                            }?>
+                            <?php if (!is_readable('/etc/yum/vars/releasever')) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not readable for ' . WWW_USER . '" />';
+                            }?>
+                            <?php if (!is_writable('/etc/yum/vars/releasever')) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not writeable for ' . WWW_USER . '" />';
+                            }?>
+                            <?php if (empty(RELEASEVER)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            }?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror."> Default package architecture
+                        </td>
+                        <td>
+                            <select id="rpmArchitectureSelect" name="rpmDefaultArchitecture[]" multiple>
+                                <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                                <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="rpmIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (RPM_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                <?php endif ?>
+            </table>
+
+            <h5>DEB</h5>
+
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories"> Enable DEB repositories
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="debRepo" type="checkbox" class="onoff-switch-input" value="enabled" <?php echo (DEB_REPO == "enabled") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                </tr>
+            
+                <?php if (DEB_REPO == "enabled") : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Sign DEB repos with a GPG key."> Sign repos with GPG
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="debSignRepo" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                        <?php if (empty(DEB_SIGN_REPO)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </tr>
+
+                    <?php if (DEB_SIGN_REPO == 'yes') : ?>
+                        <tr>
+                            <td class="td-large">
+                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign repositories."> GPG key email address identifier
+                            </td>
+                            <td>
+                                <input type="text" name="debGpgKeyID" autocomplete="off" value="<?= DEB_SIGN_GPG_KEYID ?>">
+                            </td>
+                            <td>
+                                <?php if (empty(DEB_SIGN_GPG_KEYID)) {
+                                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                } ?>
+                            </td>
+                        </tr>
+                    <?php endif ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror."> Default package architecture
+                        </td>
+                        <td>
+                            <select id="debArchitectureSelect" name="debDefaultArchitecture[]" multiple>
+                                <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
+                                <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
+                                <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages sources when creating deb mirror."> Include packages sources when creating deb mirror
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="debIncludeSource" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (DEB_INCLUDE_SOURCE == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages translation(s) when creating deb mirror
+                        </td>
+                        <td>
+                            <select id="debTranslationSelect" name="debDefaultTranslation[]" multiple>
+                                <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+                                <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                            </select>
+                        </td>
+                    </tr>
+                <?php endif ?>
+            </table>
+        </div>
+
+        <br><h3>WEB CONFIGURATION</h3>
+
+        <div class="div-generic-blue">
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify Linux web dedied user that execute this web server. Usually www-data or nginx." /> Web user
+                    </td>
+                    <td>
+                        <input type="text" name="wwwUser" autocomplete="off" value="<?= WWW_USER ?>">
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(WWW_USER)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager dedied hostname." /> Hostname
+                    </td>
+                    <td>
+                        <input type="text" name="wwwHostname" autocomplete="off" value="<?= WWW_HOSTNAME ?>">
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(WWW_HOSTNAME)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify target URL for Repomanager's repos root directory. Usually http://.../repo" /> Repos URL
+                    </td>
+                    <td>
+                        <input type="text" name="wwwReposDirUrl" autocomplete="off" value="<?= WWW_REPOS_DIR_URL ?>">
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(WWW_REPOS_DIR_URL)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <br><h3>HOSTS MANAGEMENT</h3>
+
+        <div class="div-generic-blue">
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable hosts managing. For hosts using linupdate." /> Manage hosts
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="manageHosts" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (MANAGE_HOSTS == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(MANAGE_HOSTS)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable hosts profiles managing. For hosts using linupdate." /> Manage profiles
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="manageProfiles" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (MANAGE_PROFILES == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(MANAGE_PROFILES)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <tr>
+                    <?php
+                    if (MANAGE_PROFILES == "yes") : ?>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repo's configuration file name (e.g. 'myprefix-debian.list')." /> Repo file name prefix
+                        </td>
+                        <td>
+                            <input type="text" name="repoConfPrefix" autocomplete="off" value="<?= REPO_CONF_FILES_PREFIX ?>">
+                        </td>
+                        <?php
+                    endif ?>
+                </tr>
+            </table>
+        </div>
+
+        <br><h3>PLANIFICATIONS</h3>
+
+        <div class="div-generic-blue">
+            <table class="table-medium">
+                <tr>
+                    <td class="td-large">
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable planifications" /> Enable plans
+                    </td>
+                    <td>
+                        <label class="onoff-switch-label">
+                            <input name="automatisationEnable" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (PLANS_ENABLED == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(PLANS_ENABLED)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </td>
+                </tr>
+                <?php
+                if (PLANS_ENABLED == "yes") : ?>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to update repos by creating new repo snapshot on the planned day and time." /> Allow automatic repos updates by plans
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="allowAutoUpdateRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (ALLOW_AUTOUPDATE_REPOS == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                        <td class="td-fit">
+                            <?php if (empty(ALLOW_AUTOUPDATE_REPOS)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to delete oldest repos snapshots, depending on the specified retention parameter." /> Allow automatic deletion of old repos snapshots
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="allowAutoDeleteArchivedRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (ALLOW_AUTODELETE_ARCHIVED_REPOS == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                        <td class="td-fit">
+                            <?php if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </td>
+                    </tr> 
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." /> Retention
+                        </td>
+                        <td>
+                            <input type="number" name="retention" autocomplete="off" value="<?= RETENTION ?>">
+                        </td>
+                        <td class="td-fit">
+                            <?php if (empty(RETENTION)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td-large">
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." /> Enable plan reminders
+                        </td>
+                        <td>
+                            <label class="onoff-switch-label">
+                                <input name="cronSendReminders" type="checkbox" class="onoff-switch-input" value="yes" <?php echo (PLAN_REMINDERS_ENABLED == "yes") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </td>
+                        <td class="td-fit">
+                            <?php if (empty(PLAN_REMINDERS_ENABLED)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </td>
+                    </tr> 
+                    <?php
+                endif ?>
+            </table>
+        </div>
+        <button type="submit" class="btn-medium-green">Save</button>
+    </form>
+</section>
+
+<section class="mainSectionRight">
+    
+    <h3>ENVIRONMENTS</h3>
+    
+    <div id="envDiv" class="div-generic-blue">
+        <table class="table-medium">
+            <form id="environmentForm" autocomplete="off">
+                <?php
+                /**
+                 *  Affichage des environnements actuels
+                 */
+                $myenv = new \Controllers\Environment();
+                $envs = $myenv->listAll();
+                foreach ($envs as $envName) : ?>
+                    <tr>
+                        <td>
+                            <input type="text" class="actual-env-input" value="<?= $envName ?>" />
+                        </td>
+                        <td class="td-fit center">
+                            <img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
+                        </td>
+                        <td>
+                            <?php
+                            if ($envName == DEFAULT_ENV) {
+                                echo '(default)';
+                            } ?>
+                        <td>
+                    </tr>
+                    <?php
+                endforeach;
+                unset($myenv, $envs);?>
+                <input type="submit" class="hide" /> <!-- hidden button, to validate form with Enter -->
+            </form>
+            <form id="newEnvironmentForm" autocomplete="off">
+                <tr>
+                    <td>
+                        <input id="new-env-input" type="text" placeholder="Add a new environment" />
+                    </td>
+                    <td class="td-fit">
+                        <button type="submit" class="btn-xxsmall-green">+</button>
+                    </td>
+                    <td class="td-fit">
+                        <?php if (empty(ENVS)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
+                        } ?>
+                    </td>
+                    <td></td>
+                </tr>
+            </form>
+        </table>
+    </div>
+
+    <br><h3>DATABASES</h3>
+
+    <div class="div-generic-blue">
+        <table class="table-large">
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." /> Main
+                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." /> Main
                 </td>
                 <td>
                     <?php
@@ -1121,7 +1133,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (STATS_ENABLED == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Statistics database." /> Statistics
+                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Statistics database." /> Statistics
                 </td>
                 <td>
                     <?php
@@ -1153,7 +1165,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             if (MANAGE_HOSTS == "yes") { ?>
             <tr>
                 <td class="td-50">
-                    <img src="resources/icons/info.png" class="icon-verylowopacity" title="Hosts database." /> Hosts
+                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Hosts database." /> Hosts
                 </td>
                 <td>
                     <?php
@@ -1183,14 +1195,17 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </tr>
             <?php   } ?>
         </table>
+    </div>
 
-        <br><h3>SERVICE</h3>
+    <br><h3>SERVICE</h3>
+
+    <div class="div-generic-blue">
         <form action="configuration.php" method="post">
             <input type="hidden" name="action" value="applyCronConfiguration" />
-            <table class="table-generic-blue table-large">
+            <table class="table-large">
                 <tr>
                     <td class="td-50">
-                        <img src="resources/icons/info.png" class="icon-verylowopacity" title="Systemd repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />  Repomanager service state
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Systemd repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />  Repomanager service state
                     </td>
                     <td>
                         <?php
@@ -1204,15 +1219,15 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </tr>
             </table>
         </form>
-    </section>
+    </div>
 
     <?php
     /**
      *  Cette section est accessible uniquement pour les utilisateurs dont le role est 'super-administrator'
      */
     if ($_SESSION['role'] === 'super-administrator') : ?>
-        <section class="right">
-            <h3>USERS</h3>
+        <br><h3>USERS</h3>
+        <div class="div-generic-blue">
             <form action="configuration.php" method="post" autocomplete="off">
 
                 <input type="hidden" name="action" value="createUser" />
@@ -1223,7 +1238,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     <option value="usage">usage</option>
                     <option value="administrator">administrateur</option>
                 </select>
-                <button class="btn-xxsmall-blue">+</button>
+                <button class="btn-xxsmall-green">+</button>
             </form>
             <?php
             /**
@@ -1270,19 +1285,19 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             <?php
                             if ($user['Username'] != 'admin') {
                                 echo '<td class="td-fit">';
-                                echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Réinitialiser le mot de passe de ' . $user['Username'] . '"><img src="resources/icons/update.png" class="icon-lowopacity" /></a>';
-                                echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Supprimer l\'utilisateur ' . $user['Username'] . '"><img src="resources/icons/bin.png" class="icon-lowopacity" /></a>';
+                                echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Réinitialiser le mot de passe de ' . $user['Username'] . '"><img src="resources/icons/update.svg" class="icon-lowopacity" /></a>';
+                                echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Supprimer l\'utilisateur ' . $user['Username'] . '"><img src="resources/icons/bin.svg" class="icon-lowopacity" /></a>';
                                 echo '</td>';
                             } else {
                                 echo '<td></td>';
                             } ?>
                         </tr>
                         <?php
-                    endforeach; ?>
+                    endforeach ?>
                 </table>
                 <?php
-            endif; ?>
-        </section>
+            endif ?>
+        </div>
         <?php
     endif ?>
 </section>

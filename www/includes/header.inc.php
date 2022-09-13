@@ -32,7 +32,7 @@ if (DEBUG_MODE == "enabled") {
                     } else {
                         echo '<span class="header-link">';
                     } ?>
-                    <img src="resources/icons/menu.png" class="icon" />REPOS
+                    <img src="resources/icons/menu.svg" class="icon" />REPOS
                     </span>
                 </a>
             </div>
@@ -49,7 +49,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="resources/icons/calendar.png" class="icon" />PLANIFICATIONS
+                            <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
                         </span>
                     </a>
                 </div>
@@ -68,7 +68,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="resources/icons/server.png" class="icon" />MANAGE HOSTS
+                            <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
                         </span>
                     </a>
                 </div>
@@ -87,7 +87,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                            <img src="resources/icons/stack.png" class="icon" />MANAGE PROFILES
+                            <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
                         </span>
                     </a>
                 </div>
@@ -106,7 +106,7 @@ if (DEBUG_MODE == "enabled") {
                         } else {
                             echo '<span class="header-link">';
                         } ?>
-                           <img src="resources/icons/settings.png" class="icon" />SETTINGS
+                           <img src="resources/icons/settings.svg" class="icon" />SETTINGS
                         </span>
                     </a>
                 </div>
@@ -123,7 +123,7 @@ if (DEBUG_MODE == "enabled") {
                     } else {
                         echo '<span class="header-link">';
                     } ?>
-                    <img src="resources/icons/rocket.png" class="icon" />OPERATIONS
+                    <img src="resources/icons/rocket.svg" class="icon" />OPERATIONS
                     </span>
                 </a>
 
@@ -279,7 +279,7 @@ if (DEBUG_MODE == "enabled") {
                         ?>
                     </a>
                     <a href="logout.php" title="Logout">
-                        <img src="resources/icons/power.png" class="icon" />
+                        <img src="resources/icons/power.svg" class="icon" />
                     </a>
                 </span>
             </div>

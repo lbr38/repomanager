@@ -102,8 +102,11 @@ $(document).on('submit','.groupReposForm',function () {
 /**
  *  Event : Affichage / masquage du div permettant de gérer les groupes
  */
-$(document).on('click','#GroupsListToggleButton, #groupsDivCloseButton',function () {
-    $("#groupsDiv").slideToggle();
+$(document).on('click','#GroupsListToggleButton',function () {
+    openSlide("#groupsDiv");
+});
+$(document).on('click','#groupsDivCloseButton',function () {
+    closeSlide("#groupsDiv");
 });
 
 /**
