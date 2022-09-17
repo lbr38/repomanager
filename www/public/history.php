@@ -48,7 +48,7 @@ if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty(
                 /**
                  *  Récupération de tous les utilisateurs en base de données
                  */
-                $myusers = new \Models\Login();
+                $myusers = new \Controllers\Login();
                 $users = $myusers->getUsers(); ?>
                 <select name="userid" class="select-large">
                     <option value="">All</option>

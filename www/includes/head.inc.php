@@ -66,7 +66,7 @@
     } elseif (__ACTUAL_URI__ == "/history.php") {
         echo '<title>Repomanager - History</title>';
     } elseif (__ACTUAL_URI__ == "/user.php") {
-        echo '<title>Repomanager - User space</title>';
+        echo '<title>Repomanager - Userspace</title>';
     } else {
         echo '<title>Repomanager</title>';
     }

@@ -156,9 +156,9 @@ echo '<h3>' . strtoupper($hostname) . '</h3>';
 
 if (Controllers\Common::isadmin()) : ?>
     <div class="hostActionBtn-container">
-        <span class="btn-large-blue"><img src="../resources/icons/rocket.svg" class="icon-lowopacity" />Actions</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
-        <span class="hostActionBtn btn-large-blue" hostid="<?= $id ?>" action="packages-status-update" title="Send packages informations (available, installed, updated...).">Request to send packages info.</span>
+        <span class="btn-large-green"><img src="../resources/icons/rocket.svg" class="icon-lowopacity" />Actions</span>
+        <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
+        <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="packages-status-update" title="Send packages informations (available, installed, updated...).">Request to send packages info.</span>
         <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Update all available packages using linupdate.">Update packages</span>
         <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="reset" title="Reset known data.">Reset</span>
         <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="delete" title="Delete this host">Delete</span>
@@ -343,7 +343,7 @@ endif ?>
             </div>
             <div id="packagesInstalledDiv" class="hide">
                 <h4>Package inventory of this host</h4>
-                <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Rechercher...">
+                <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Search...">
                 <table id="packagesIntalledTable" class="packages-table">
                     <thead>
                         <tr>

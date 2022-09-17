@@ -47,7 +47,7 @@ if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
             <p class="lowopacity">To target release version: <?= $updateVersion ?></p>
             <br>
 
-            <button id="update-continue-btn" class="btn-medium-blue">Continue</button>
+            <button id="update-continue-btn" class="btn-medium-green">Continue</button>
         </div>
     </div>
     <?php

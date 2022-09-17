@@ -8,7 +8,7 @@ include_once('../includes/head.inc.php');
 /**
  *  Seuls les admins ont accès à configuration.php
  */
-if (!Controllers\Common::isadmin()) {
+if (!\Controllers\Common::isadmin()) {
     header('Location: index.php');
     exit;
 }
@@ -422,17 +422,14 @@ function save(array $array)
 if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'createUser' and !empty($_POST['username']) and !empty($_POST['role'])) {
     $username = \Controllers\Common::validateData($_POST['username']);
     $role = \Controllers\Common::validateData($_POST['role']);
-    $myuser = new \Models\Login();
+    $mylogin = new \Controllers\Login();
 
-    $result = $myuser->addUser($username, $role);
-
-    /**
-     *  Si la fonction a renvoyé false alors il y a eu une erreur lors de la création de l'utilisateur
-     *  Sinon on récupère le mot de passe généré
-     */
-    if ($result !== false) {
+    try {
         $newUserUsername = $username;
-        $newUserPassword = $result;
+        $newUserPassword = $mylogin->addUser($username, $role);
+        \Controllers\Common::printAlert("User <b>$username</b> has been created", 'success');
+    } catch (Exception $e) {
+        \Controllers\Common::printAlert($e->getMessage(), 'error');
     }
 }
 
@@ -440,17 +437,16 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
  *  Réinitialisation du mot de passe d'un utilisateur
  */
 if (isset($_GET['resetPassword']) and !empty($_GET['username'])) {
-    $mylogin = new \Models\Login();
+    $mylogin = new \Controllers\Login();
 
     $result = $mylogin->resetPassword($_GET['username']);
 
-    /**
-     *  Si la fonction a renvoyé false alors il y a eu une erreur lors de la création de l'utilisateur
-     *  Sinon on récupère le mot de passe généré
-     */
-    if ($result !== false) {
+    try {
         $newResetedPwdUsername = $_GET['username'];
-        $newResetedPwdPassword = $result;
+        $newResetedPwdPassword = $mylogin->resetPassword($_GET['username']);
+        \Controllers\Common::printAlert('Password has been regenerated', 'success');
+    } catch (Exception $e) {
+        \Controllers\Common::printAlert($e->getMessage(), 'error');
     }
 }
 
@@ -458,8 +454,14 @@ if (isset($_GET['resetPassword']) and !empty($_GET['username'])) {
  *  Suppression d'un utilisateur
  */
 if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
-    $mylogin = new \Models\Login();
-    $mylogin->deleteUser($_GET['username']);
+    $mylogin = new \Controllers\Login();
+
+    try {
+        $mylogin->deleteUser($_GET['username']);
+        \Controllers\Common::printAlert('User <b>' . $_GET['username'] . '</b> has been deleted', 'success');
+    } catch (Exception $e) {
+        \Controllers\Common::printAlert($e->getMessage(), 'error');
+    }
 }
 ?>
 
@@ -610,7 +612,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </table>
         </div>
 
-        <br><h3>REPOSITORIES</h3>
+        <h3>REPOSITORIES</h3>
 
         <div class="div-generic-blue">
             <table class="table-medium">
@@ -855,7 +857,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </table>
         </div>
 
-        <br><h3>WEB CONFIGURATION</h3>
+        <h3>WEB CONFIGURATION</h3>
 
         <div class="div-generic-blue">
             <table class="table-medium">
@@ -901,7 +903,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </table>
         </div>
 
-        <br><h3>HOSTS MANAGEMENT</h3>
+        <h3>HOSTS MANAGEMENT</h3>
 
         <div class="div-generic-blue">
             <table class="table-medium">
@@ -952,7 +954,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             </table>
         </div>
 
-        <br><h3>PLANIFICATIONS</h3>
+        <h3>PLANIFICATIONS</h3>
 
         <div class="div-generic-blue">
             <table class="table-medium">
@@ -1095,7 +1097,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         </table>
     </div>
 
-    <br><h3>DATABASES</h3>
+    <h3>DATABASES</h3>
 
     <div class="div-generic-blue">
         <table class="table-large">
@@ -1197,7 +1199,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
         </table>
     </div>
 
-    <br><h3>SERVICE</h3>
+    <h3>SERVICE</h3>
 
     <div class="div-generic-blue">
         <form action="configuration.php" method="post">
@@ -1226,7 +1228,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
      *  Cette section est accessible uniquement pour les utilisateurs dont le role est 'super-administrator'
      */
     if ($_SESSION['role'] === 'super-administrator') : ?>
-        <br><h3>USERS</h3>
+        <h3>USERS</h3>
         <div class="div-generic-blue">
             <form action="configuration.php" method="post" autocomplete="off">
 
@@ -1259,7 +1261,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             /**
              *  Affichage des utilisateurs existants
              */
-            $myuser = new \Models\Login();
+            $myuser = new \Controllers\Login();
             $users = $myuser->getUsers();
 
             if (!empty($users)) : ?>

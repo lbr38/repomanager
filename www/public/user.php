@@ -6,50 +6,68 @@ require_once('../controllers/Autoloader.php');
 include_once('../includes/head.inc.php');
 
 /**
- *  Modification des informations personnelles
+ *  Update user personnal informations
  */
 if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
     $username = $_SESSION['username'];
 
     /**
-     *  Récupération des informations transmises
+     *  Retrieving sended infos
      */
-    // Prénom
+
+    /**
+     *  First name
+     */
     if (!empty($_POST['first_name'])) {
-        $firstName = \Controllers\Common::validateData($_POST['first_name']);
+        $firstName = $_POST['first_name'];
     } else {
         $firstName = '';
     }
 
-    // Nom
+    /**
+     *  Last name
+     */
     if (!empty($_POST['last_name'])) {
-        $lastName = \Controllers\Common::validateData($_POST['last_name']);
+        $lastName = $_POST['last_name'];
     } else {
         $lastName = '';
     }
 
-    // Email
+    /**
+     *  Email address
+     */
     if (!empty($_POST['email'])) {
-        $email = \Controllers\Common::validateData($_POST['email']);
+        $email = $_POST['email'];
     } else {
         $email = '';
     }
 
     /**
-     *  Modification des informations en base de données
+     *  Update in database
      */
-    $mylogin = new \Models\Login();
-    $mylogin->edit($username, $firstName, $lastName, $email);
+    $mylogin = new \Controllers\Login();
+
+    try {
+        $mylogin->edit($username, $firstName, $lastName, $email);
+        \Controllers\Common::printAlert('Changes have been taken into account', 'success');
+    } catch (Exception $e) {
+        \Controllers\Common::printAlert($e->getMessage(), 'error');
+    }
 }
 
 /**
- *  Modification du mot de passe de l'utilisateur
+ *  Changing user password
  */
-if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty($_POST['actual_password']) and !empty($_POST['new_password']) and !empty($_POST['new_password2'])) {
-    $mylogin = new \Models\Login();
-    $mylogin->changePassword($_SESSION['username'], $_POST['actual_password'], $_POST['new_password'], $_POST['new_password2']);
-}
-?>
+if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty($_POST['actual_password']) and !empty($_POST['new_password']) and !empty($_POST['new_password_retype'])) {
+    $mylogin = new \Controllers\Login();
+
+    try {
+        $mylogin->changePassword($_SESSION['username'], $_POST['actual_password'], $_POST['new_password'], $_POST['new_password_retype']);
+        \Controllers\Common::printAlert('Password has been changed', 'success');
+    } catch (Exception $e) {
+        \Controllers\Common::printAlert($e->getMessage(), 'error');
+    }
+} ?>
 
 <body>
 <?php include_once('../includes/header.inc.php'); ?>
@@ -108,7 +126,7 @@ if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty
                         <input type="password" class="input-large" name="new_password" required />
                         <br><br>
                         <p>New password (re-type) :</p>
-                        <input type="password" class="input-large" name="new_password2" required />
+                        <input type="password" class="input-large" name="new_password_retype" required />
                         <br><br>
                         <button class="btn-medium-green">Save</button>
                     </form>

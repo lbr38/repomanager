@@ -7,28 +7,31 @@
 .stats-info-requests {
     display: none;
     position: absolute;
-    top: 110px;
+    top: 75px;
+    right: 0;
     font-size: 13px !important;
-    z-index: 10; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
-    width: 1300px;
+    z-index: 99;
+    width: fit-content;
     margin-top: 10px;
-    padding:5px;
-    text-align: left;
-    font-size: 12px;
+    padding: 5px 10px 5px 5px;
     border-radius: 2px;
-    border: 1px solid #403f3f;
-    background-color: #333333;
-    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+    border: 1px solid #24405c;
+    background-color: #1d3349;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
-.circle-div-container:hover span.stats-info-requests {
-    display: inline-block;
+.stats-info-requests span {
+    font-size: 12px;
+}
+
+.stats-info-requests-container:hover > div.stats-info-requests {
+    display: inline-block !important;
 }
 
 #repo-access-chart-div {
     height: 500px;
-    padding-bottom: 40px;
+    padding-bottom: 100px;
 }
 
 #repo-access-chart-canvas {
@@ -360,9 +363,8 @@
     margin-top: 10px;
     padding:5px;
     text-align: left;
-    border-radius: 2px;
-    border: 1px solid #403f3f;
-    background-color: #333333;
+    border-radius: 4px;
+    background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }

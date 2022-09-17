@@ -20,7 +20,7 @@ $template = "<!doctype html>
       }
 
       body {
-        background-color: #333333;
+        background-color: #112334;
         font-family: sans-serif;
         -webkit-font-smoothing: antialiased;
         font-size: 14px;
@@ -47,7 +47,7 @@ $template = "<!doctype html>
       ------------------------------------- */
 
       .body {
-        background-color: #333333;
+        background-color: #112334;
         width: 100%; 
       }
 

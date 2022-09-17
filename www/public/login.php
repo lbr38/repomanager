@@ -32,8 +32,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
      */
     if ($error == 0) {
         $username = \Controllers\Common::validateData($_POST['username']);
-
-        $mylogin = new \Models\Login();
+        $mylogin = new \Controllers\Login();
 
         /**
          *  Cas où la connexion est avec un compte LDAP
@@ -66,9 +65,8 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
             //     exit();
             // }
 
-            $loginErrors[] = 'Login and/or password incorrect';
+            $loginErrors[] = 'Invalid login and/or password';
         }
-
 
         /**
          *  Cas où la connexion est avec un compte local
@@ -77,7 +75,9 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
             /**
              *  On vérifie en base de données que le couple username/passwd est valide
              */
-            if ($mylogin->checkUsernamePwd($username, $_POST['password']) === true) {
+            try {
+                $mylogin->checkUsernamePwd($username, $_POST['password']);
+
                 /**
                  *  On récupère les informations concernant l'utilisateur en base de données
                  */
@@ -111,9 +111,9 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                  */
                 header('Location: index.php');
                 exit();
+            } catch (Exception $e) {
+                $loginErrors[] = $e->getMessage();
             }
-
-            $loginErrors[] = 'Login and/or password incorrect';
         }
     }
 } ?>
@@ -145,7 +145,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                 <br>
                 <input class="input-large" type="password" name="password" placeholder="Password" required />
                 <br>
-                <button class="btn-large-blue" type="submit">Login</button>
+                <button class="btn-large-green" type="submit">Login</button>
             </form>
 
             <?php

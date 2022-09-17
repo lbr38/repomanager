@@ -183,7 +183,7 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     </div>
                 </div>
 
-                <div>
+                <div class="stats-info-requests-container stats-info-requests-real-time-refresh-me">
                     <div class="circle-div-container">
                         <div class="circle-div-container-count-green">
                             <span>
@@ -196,28 +196,30 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     </div>
                 
                     <?php
-                    if (!empty($realTimeAccess)) {
-                        echo '<span class="stats-info-requests">';
-                        foreach ($realTimeAccess as $line) {
-                            /**
-                             *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
-                             */
-                            if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
-                            } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
-                            }
-                            /**
-                             *  Affichage des détails de la/les requête(s)
-                             */
-                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' at ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
-                            echo '<br>';
-                        }
-                        echo '</span>';
-                    } ?>
+                    if (!empty($realTimeAccess)) : ?>
+                        <div class="stats-info-requests">
+                            <?php
+                            foreach ($realTimeAccess as $line) :
+                                /**
+                                 *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
+                                 */
+                                if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
+                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
+                                } else {
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
+                                }
+                                /**
+                                 *  Affichage des détails de la/les requête(s)
+                                 */
+                                echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' at ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
+                                echo '<br>';
+                            endforeach ?>
+                        </div>
+                        <?php
+                    endif ?>
                 </div>
 
-                <div>
+                <div class="stats-info-requests-container stats-info-requests-last-min-refresh-me">
                     <div class="circle-div-container">
                         <div class="circle-div-container-count-green">
                             <span>
@@ -230,27 +232,29 @@ if (!empty($_GET['repo_access_chart_filter'])) {
                     </div>
 
                     <?php
-                    $lastMinutesAccess = array(array('Request_result' => '200', 'Date' => '2022-08-58', 'Time' => '12:00', 'Source' => '158.588.555.555', 'IP' => '55.555.555.555', 'Request' => 'sdlkjfdsdfkdskfdksfjkfjdskfjkdkjkjksdjksdjkfkdfjfdk'));
-
-                    if (!empty($lastMinutesAccess)) {
-                        echo '<span class="stats-info-requests">';
-                        foreach ($lastMinutesAccess as $line) {
-                            /**
-                             *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
-                             */
-                            if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
-                            } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
-                            }
-                            /**
-                             *  Affichage des détails de la/les requête(s)
-                             */
-                            echo $line['Date'] . ' at ' . $line['Time'] . ' - ' . $line['Source'] . '(' . $line['IP'] . ') - ' . $line['Request'];
-                            echo '<br>';
-                        }
-                        echo '</span>';
-                    } ?>
+                    if (!empty($lastMinutesAccess)) : ?>
+                        <div class="stats-info-requests">
+                            <?php
+                            foreach ($lastMinutesAccess as $line) :
+                                echo '<span>';
+                                /**
+                                 *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
+                                 */
+                                if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
+                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
+                                } else {
+                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
+                                }
+                                /**
+                                 *  Affichage des détails de la/les requête(s)
+                                 */
+                                echo $line['Date'] . ' at ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
+                                echo '</span>';
+                                echo '<br>';
+                            endforeach ?>
+                        </div>
+                        <?php
+                    endif ?>
                 </div>
             </div>
         </div>

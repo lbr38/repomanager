@@ -3,7 +3,8 @@ $(document).ready(function () {
      *  Autorechargement des stats en temps réel
      */
     setInterval(function () {
-        $("#refresh-me").load(" #refresh-me > *");
+        $(".stats-info-requests-real-time-refresh-me").load(" .stats-info-requests-real-time-refresh-me > *");
+        $(".stats-info-requests-last-min-refresh-me").load(" .stats-info-requests-last-min-refresh-me > *");
     }, 1000);
 
     /**
