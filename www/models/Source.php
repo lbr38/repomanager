@@ -374,6 +374,18 @@ class Source extends Model
             } catch (\Exception $e) {
                 \Controllers\Common::dbError($e);
             }
+
+            /**
+             *  Also rename source in repos table
+             */
+            try {
+                $stmt = $this->db->prepare("UPDATE repos SET Source = :newname WHERE Source = :name AND Package_type = 'deb'");
+                $stmt->bindValue(':newname', $newName);
+                $stmt->bindValue(':name', $name);
+                $stmt->execute();
+            } catch (\Exception $e) {
+                \Controllers\Common::dbError($e);
+            }
         }
     }
 

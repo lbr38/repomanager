@@ -177,7 +177,7 @@ class Log
 
         echo '<style>';
         echo ".${stepId}-loading-{$this->pid} { display: none; }";
-        echo ".${stepId}-maindiv-{$this->pid} { background-color: #489f4d; }";
+        echo ".${stepId}-maindiv-{$this->pid} { background-color: #15bf7f; }";
         echo ".${stepId}-time:before { content: '" . $duration . "' }";
         echo '</style>';
 
@@ -203,7 +203,7 @@ class Log
 
         echo '<style>';
         echo ".${stepId}-loading-{$this->pid} { display: none; }";
-        echo ".${stepId}-maindiv-{$this->pid} { background-color: #d9534f; }";
+        echo ".${stepId}-maindiv-{$this->pid} { background-color: #ff0044; }";
         echo ".${stepId}-time:before { content: '" . $duration . "' }";
         echo '</style>';
 
@@ -224,7 +224,7 @@ class Log
 
         echo '<style>';
         echo ".${stepId}-loading-{$this->pid} { display: none; }";
-        echo ".${stepId}-maindiv-{$this->pid} { background-color: #93939373; }";
+        echo ".${stepId}-maindiv-{$this->pid} { background-color: #182b3e; }";
         echo '</style>';
 
         $this->steplogWrite();

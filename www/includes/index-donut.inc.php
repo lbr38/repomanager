@@ -1,16 +1,16 @@
 <?php
 
 if ($diskUsedSpace > 0 && $diskUsedSpace <= 30) {
-    $donutColor = "'rgb(92, 184, 92, 0.80)',";
+    $donutColor = "'#15bf7f',";
 }
 if ($diskUsedSpace > 30 && $diskUsedSpace <= 50) {
-    $donutColor = "'rgb(240, 173, 78, 0.80)',";
+    $donutColor = "'#ffb536',";
 }
 if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
-    $donutColor = "'rgb(240, 116, 78, 0.80)',";
+    $donutColor = "'rgba(255, 124, 73, 0.8)',";
 }
 if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
-    $donutColor = "'rgb(217, 83, 79, 0.80)',";
+    $donutColor = "'#ff0044',";
 }
 $donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacité 0) (Free space)
 ?>

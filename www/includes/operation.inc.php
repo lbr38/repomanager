@@ -1,3 +1,5 @@
-<section id="operationsDiv" class="right hide">
-    <img id="operationsDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
-</section>
+<div id="operationsDiv" class="param-slide-container">
+    <div class="param-slide">
+        <img id="operationsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+    </div>
+</div>

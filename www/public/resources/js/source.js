@@ -38,39 +38,39 @@ function reloadSourcesDiv()
 /**
  *  Event : affichage du div permettant de gérer les sources
  */
- $(document).on('click','#ReposSourcesToggleButton',function () {
-    $("#sourcesDiv").slideToggle();
- });
+$(document).on('click','#ReposSourcesToggleButton',function () {
+    openSlide("#sourcesDiv");
+});
 
 /**
  *  Event : masquage du div permettant de gérer les sources
  */
- $(document).on('click','#reposSourcesDivCloseButton',function () {
-    $("#sourcesDiv").slideToggle();
- });
+$(document).on('click','#reposSourcesDivCloseButton',function () {
+    closeSlide("#sourcesDiv");
+});
 
 /**
  *  Event : affiche/masque des inputs en fonction du type de repo sélectionné
  */
- $(document).on('change','input:radio[name="addSourceRepoType"]',function () {
+$(document).on('change','input:radio[name="addSourceRepoType"]',function () {
     newSourceFormPrintRepoTypeFields();
- });
+});
 
 /**
  *  Event : afficher des inputs supplémentaires pour importer une clé GPG (CentOS)
  */
- $(document).on('change','#newRepoGpgSelect',function () {
+$(document).on('change','#newRepoGpgSelect',function () {
     if ($("#newRepoGpgSelect_yes").is(":selected")) {
         $(".sourceGpgDiv").show();
     } else {
         $(".sourceGpgDiv").hide();
     }
- }).trigger('change');
+}).trigger('change');
 
 /**
  *  Event : ajouter une source
  */
- $(document).on('submit','#addSourceForm',function () {
+$(document).on('submit','#addSourceForm',function () {
     event.preventDefault();
 
     var repoType = '';
@@ -127,13 +127,13 @@ function reloadSourcesDiv()
     addSource(repoType, name, urlType, url, existingGpgKey, gpgKeyURL, gpgKeyText);
 
     return false;
- });
+});
 
 
 /**
  *  Event : Renommage d'une source
  */
- $(document).on('keypress','.sourceFormInput',function () {
+$(document).on('keypress','.sourceFormInput',function () {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
         /**
@@ -146,12 +146,12 @@ function reloadSourcesDiv()
         renameSource(repoType, name, newname);
     }
     event.stopPropagation();
- });
+});
 
 /**
  *  Event : Modification d'une url source (repo source de type deb uniquement)
  */
- $(document).on('keypress','.sourceFormUrlInput',function () {
+$(document).on('keypress','.sourceFormUrlInput',function () {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
         /**
@@ -167,12 +167,12 @@ function reloadSourcesDiv()
         editSourceUrl(name, url);
     }
     event.stopPropagation();
- });
+});
 
 /**
  *  Event : modification de la configuration d'un repo source (repo source de type rpm uniquement)
  */
- $(document).on('submit','.sourceConfForm',function () {
+$(document).on('submit','.sourceConfForm',function () {
     event.preventDefault();
 
     var name = $(this).attr('sourcename');
@@ -236,18 +236,18 @@ function reloadSourcesDiv()
     configureSource(name, options_array, comments);
 
     return false;
- });
+});
 
 /**
  *  Event : Suppression d'une source
  */
- $(document).on('click','.sourceDeleteToggleBtn',function () {
+$(document).on('click','.sourceDeleteToggleBtn',function () {
     var repoType = $(this).attr('repotype');
     var name = $(this).attr('sourcename');
 
     deleteConfirm('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
         deleteSource(repoType, name)});
- });
+});
 
 /**
  * Event : Afficher la configuration d'une source

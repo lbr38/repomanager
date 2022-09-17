@@ -80,9 +80,9 @@ class Browse
          *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
          */
         if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb") {
-            echo '<li><span class="explorer-file-pkg"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="resources/icons/products/package.png" class="icon" />' . $file . '</span></li>';
+            echo '<li><span class="explorer-file-pkg"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="resources/icons/package.svg" class="icon" />' . $file . '</span></li>';
         } else {
-            echo '<li><span class="explorer-file"><img src="resources/icons/file.png" class="icon" />' . $file . '</span></li>';
+            echo '<li><span class="explorer-file"><img src="resources/icons/file.svg" class="icon" />' . $file . '</span></li>';
         }
     }
 
@@ -92,9 +92,9 @@ class Browse
     public static function printSubDir($dir, $path)
     {
         if ($dir == 'my_uploaded_packages') { // Si le nom du répertoire est 'my_uploaded_packages' alors on l'affiche en jaune
-            echo '<li><span class="explorer-toggle yellowtext"><img src="resources/icons/folder.png" class="icon" />' . $dir . '</span>';
+            echo '<li><span class="explorer-toggle yellowtext"><img src="resources/icons/folder.svg" class="icon" />' . $dir . '</span>';
         } else {
-            echo '<li><span class="explorer-toggle"><img src="resources/icons/folder.png" class="icon" />' . $dir . '</span>';
+            echo '<li><span class="explorer-toggle"><img src="resources/icons/folder.svg" class="icon" />' . $dir . '</span>';
         }
 
         \Controllers\Browse::tree($path . '/' . $dir); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier

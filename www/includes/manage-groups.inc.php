@@ -1,34 +1,37 @@
-<section class="right" id="groupsDiv">
-    <img id="groupsDivCloseButton" title="Close" class="icon-lowopacity float-right" src="resources/icons/close.png" />
-    <h3>GROUPS</h3>
-    <p>Regroup repos in order to sort them or perform a common action.</p>
-    <br>
+<div id="groupsDiv" class="param-slide-container">
+    <div class="param-slide">
+        <img id="groupsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
 
-    <h5>Create a group</h5>
+        <h3>REPOS GROUPS</h3>
 
-    <form id="newGroupForm" autocomplete="off">
-        <input id="newGroupInput" type="text" class="input-medium" />
-        <button type="submit" class="btn-xxsmall-blue" title="Add">+</button>
-    </form>
-<br>
-    <br>
-    <?php
+        <p>Regroup repos in order to sort them or perform a common action.</p>
+        <br>
 
-    /**
-     *  AFFICHAGE DES GROUPES ACTUELS
-     */
+        <h5>Create a new group:</h5>
 
-    /**
-     *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
-     */
-    $group = new \Controllers\Group('repo');
-    $groupsList = $group->listAllName();
+        <form id="newGroupForm" autocomplete="off">
+            <input id="newGroupInput" type="text" class="input-medium" />
+            <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
+        </form>
 
-    /**
-     *  2. Affichage des groupes si il y en a
-     */
-    if (!empty($groupsList)) : ?>
-        <div class="div-generic-gray">
+        <br><br>
+
+        <?php
+
+        /**
+         *  AFFICHAGE DES GROUPES ACTUELS
+         */
+
+        /**
+         *  1. Récupération de tous les noms de groupes (en excluant le groupe par défaut)
+         */
+        $group = new \Controllers\Group('repo');
+        $groupsList = $group->listAllName();
+
+        /**
+         *  2. Affichage des groupes si il y en a
+         */
+        if (!empty($groupsList)) : ?>
             <h5>Current groups</h5>
 
             <?php
@@ -45,14 +48,13 @@
                                         <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?= $groupName ?>" type="text" value="<?= $groupName ?>" />
                                     </td>
                                     <td class="td-fit">
-                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> configuration" src="resources/icons/cog.png" />
-                                        <img src="resources/icons/bin.png" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
+                                        <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> configuration" src="resources/icons/cog.svg" />
+                                        <img src="resources/icons/bin.svg" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
                                     </td>
                                 </tr>
                             </table>
                         </form>
                     </div>
-
                     <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide">
                         <form class="groupReposForm" groupname="<?= $groupName ?>" autocomplete="off">
                             <div class="detailsDiv">
@@ -60,14 +62,13 @@
                                 <?php $myrepo->selectRepoByGroup($groupName); ?>
                                 <br>
                                 <br>
-                                <button type="submit" class="btn-large-blue" title="Save">Save</button>
+                                <button type="submit" class="btn-large-green" title="Save">Save</button>
                             </div>
                         </form>
                     </div>
                 </div>
                 <?php
-            endforeach; ?>
-        </div>
-        <?php
-    endif; ?>
-</section>
+            endforeach;
+        endif; ?>
+    </div>
+</div>

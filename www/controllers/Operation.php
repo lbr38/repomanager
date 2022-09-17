@@ -805,22 +805,22 @@ class Operation
                         <td class="td-fit">
                             <?php
                             if ($action == "new") {
-                                echo '<img class="icon" src="resources/icons/plus.png" title="New repo" />';
+                                echo '<img class="icon" src="resources/icons/plus.svg" title="New repo" />';
                             }
                             if ($action == "update") {
-                                echo '<img class="icon" src="resources/icons/update.png" title="Update repo" />';
+                                echo '<img class="icon" src="resources/icons/update.svg" title="Update repo" />';
                             }
                             if ($action == "reconstruct") {
-                                echo '<img class="icon" src="resources/icons/update.png" title="Rebuild metadata" />';
+                                echo '<img class="icon" src="resources/icons/update.svg" title="Rebuild metadata" />';
                             }
                             if ($action == "env" or strpos(htmlspecialchars_decode($action), '->') !== false) {
-                                echo '<img class="icon" src="resources/icons/link.png" title="Point an environment" />';
+                                echo '<img class="icon" src="resources/icons/link.svg" title="Point an environment" />';
                             }
                             if ($action == "duplicate") {
-                                echo '<img class="icon" src="resources/icons/duplicate.png" title="Duplicate" />';
+                                echo '<img class="icon" src="resources/icons/duplicate.svg" title="Duplicate" />';
                             }
                             if ($action == "delete" or $action == "removeEnv") {
-                                echo '<img class="icon" src="resources/icons/bin.png" title="Delete" />';
+                                echo '<img class="icon" src="resources/icons/bin.svg" title="Delete" />';
                             } ?>
                         </td>
                         <td class="td-small">
@@ -839,7 +839,7 @@ class Operation
                              *  Print relaunch button if pool Id JSON file still exists
                              */
                             if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json')) {
-                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="resources/icons/update.png" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
+                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="resources/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
                             }
 
                             /**
@@ -956,7 +956,6 @@ class Operation
              */
             ob_start();
 
-            //echo '<div class="operation-form" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
             echo '<div class="operation-form" snap-id="' . $snapId . '" env-id="' . $envId . '" action="' . $action . '">';
             echo '<table>';
 
@@ -996,7 +995,7 @@ class Operation
             $content .= ob_get_clean();
         }
 
-        $content .= '<br><button class="btn-large-red">Confirm and execute<img src="resources/icons/rocket.png" class="icon" /></button></form>';
+        $content .= '<br><button class="btn-large-red">Confirm and execute<img src="resources/icons/rocket.svg" class="icon" /></button></form><br><br>';
 
         return $content;
     }

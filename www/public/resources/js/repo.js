@@ -83,24 +83,6 @@ function countChecked()
     return countTotal;
 };
 
-/**
- *  Rechargement régulier de la liste des repos pour faire apparaitre les modifications
- */
-// setInterval(function () {
-//     reloadReposList();
-// }, 5000);
-
-/**
- *  Fonctions
- */
-
-/**
- *  Rechargement du bandeau de navigation
- */
-// function reloadReposList()
-// {
-//     $("#repos-list-container").load(" #repos-list-container > *");
-// }
 
 /**
  *  Events listeners
@@ -109,22 +91,26 @@ function countChecked()
 /**
  *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
  */
-$(document).on('click','#ReposListDisplayToggleButton, #displayDivCloseButton',function () {
-    $("#displayDiv").slideToggle('slow');
+$(document).on('click','#ReposListDisplayToggleButton',function () {
+    openSlide("#displayDiv");
+});
+
+$(document).on('click','#displayDivCloseButton',function () {
+    closeSlide("#displayDiv");
 });
 
 /**
  *  Event : affichage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoToggleButton',function () {
-    $("#newRepoDiv").slideToggle();
+    openSlide("#newRepoDiv");
 });
 
 /**
  *  Event : masquage du div permettant de créer un nouveau repo/section
  */
 $(document).on('click','#newRepoCloseButton',function () {
-    $("#newRepoDiv").slideToggle();
+    closeSlide("#newRepoDiv");
 });
 
 /**
@@ -136,7 +122,7 @@ $(document).on('click','#operationsDivCloseButton',function () {
      */
     $("#op-forms-container").html('');
 
-    $("#operationsDiv").slideToggle();
+    closeSlide("#operationsDiv");
 });
 
 /**
@@ -278,7 +264,7 @@ $(document).on('click',".repo-action-btn",function () {
      */
     $("#operationsDiv").load(" #operationsDiv > *",function () {
         getForm(action, repos_array);
-        $('#operationsDiv').show();
+        openSlide("#operationsDiv");
     });
 
     /**
@@ -426,7 +412,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close icon-lowopacity" src="resources/icons/close.png" /></span><h3>INSTALLATION</h3><h5>Install this repo on a host</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.png" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn" src="resources/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use this code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage
@@ -548,7 +534,7 @@ function getForm(action, repos_array)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $("#operationsDiv").append(jsonValue.message);
+            $("#operationsDiv").find('.param-slide').append(jsonValue.message);
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

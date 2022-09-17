@@ -12,6 +12,20 @@ setInterval(function () {
  *
  */
 
+function openSlide(id)
+{
+    $(id).animate({
+        width: '100vw'
+    }).show();
+}
+
+function closeSlide(id)
+{
+    $(id).animate({
+        width: '0'
+    }).hide('100');
+}
+
 /**
  *  Rechargement du bandeau de navigation
  */
@@ -120,7 +134,7 @@ function copyToClipboard(containerid)
     document.execCommand("copy");
     window.getSelection().removeAllRanges();
 
-    printAlert('Copied', 'success');
+    printAlert('Copied to clipboard', 'success');
 }
 
 /**

@@ -333,26 +333,26 @@ function hideGroupDiv()
  *  Event : Affichage du div permettant de gérer les groupes
  */
 $(document).on('click',"#GroupsListToggleButton",function () {
-    $("#groupsHostDiv").show('200');
+    openSlide("#groupsHostDiv");
 });
 /**
  *  Event : Masquage du div permettant de gérer les groupes
  */
 $(document).on('click',"#groupsDivCloseButton",function () {
-    $("#groupsHostDiv").hide('200');
+    closeSlide("#groupsHostDiv")
 });
 
 /**
  *  Event : Affichage du div permettant de gérer les paramètres
  */
 $(document).on('click',"#settingsToggleButton",function () {
-    $("#settingsDiv").show('200');
+    openSlide("#hostsSettingsDiv");
 });
 /**
  *  Event : Masquage du div permettant de gérer les paramètres
  */
-$(document).on('click',"#settingsDivCloseButton",function () {
-    $("#settingsDiv").hide('200');
+$(document).on('click',"#hostsSettingsDivCloseButton",function () {
+    closeSlide("#hostsSettingsDiv");
 });
 
 /**
@@ -523,7 +523,7 @@ $(document).on('click','.printHostDetails',function () {
         'host.inc.php',
         {id:host_id},
         function (data, status, jqXHR) {
-            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + data + '</div>');
+            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="close-btn" src="resources/icons/close.svg" /></span>' + data + '</div>');
         }
     );
 
@@ -913,7 +913,7 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="icon-lowopacity" src="resources/icons/close.png" /></span>' + jsonValue.message + '</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn" src="resources/icons/close.svg" /></span>' + jsonValue.message + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

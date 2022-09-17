@@ -22,7 +22,7 @@ body { background-color: #333333; }
     padding: 0px;
     margin: auto;
     font-family: 'Montserrat', sans-serif;
-    color: whitesmoke;
+    color: white;
     text-align: center;
     border-radius: 4px;
     box-shadow:
@@ -34,7 +34,7 @@ body { background-color: #333333; }
 h1 {
     font-size: 30px;
     font-family: 'ethnocentric';
-    color: whitesmoke;
+    color: white;
     text-align: center;
     margin-bottom: 100px;
     margin-top: 30px;
