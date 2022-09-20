@@ -262,24 +262,31 @@ if (DEBUG_MODE == "enabled") {
             </div>
         </div>
 
-        <div class="menu-sub-container">
-            <div id="userspace">
+        <div id="userspace" class="menu-sub-container">
+            <div>
                 <?php
                 if (__ACTUAL_URI__ == '/user.php') {
                     echo '<span class="underline">';
                 } else {
                     echo '<span class="header-link">';
                 } ?>
-                    <a href="user.php" title="User space">
+                    <a href="user.php" title="Userspace">
+                        <img src="resources/icons/user.svg" class="icon" />
+                        
+                        <?= $_SESSION['username']; ?>
+
                         <?php
-                            echo $_SESSION['username'];
                         if (!empty($_SESSION['first_name'])) {
                             echo ' (' . $_SESSION['first_name'] . ')';
-                        }
-                        ?>
+                        } ?>
                     </a>
+                </span>
+            </div>
+
+            <div>
+                <span class="header-link">
                     <a href="logout.php" title="Logout">
-                        <img src="resources/icons/power.svg" class="icon" />
+                        <img src="resources/icons/power.svg" class="icon" /> Logout
                     </a>
                 </span>
             </div>

@@ -218,7 +218,7 @@ class Common
         if (!empty($exception) and DEBUG_MODE == 'enabled') {
             throw new Exception('An error occured while executing request in database <br>' . $exception . '<br>');
         } else {
-            throw new Exception('An error occured while executing request in database <br>');
+            throw new Exception('An error occured while executing request in database');
         }
     }
 

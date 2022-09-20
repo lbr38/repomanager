@@ -1,6 +1,6 @@
 @font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype');   }
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
-body { background-color: #333333; }
+body { background-color: #112334; }
 
 #errorDiv-container {
     width: 98vw;

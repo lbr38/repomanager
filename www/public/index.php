@@ -155,33 +155,38 @@ include_once('../includes/head.inc.php');
                 endif;
             endif; ?>
 
-            <div class="div-generic-blue circle-div-container-container">
-                <?php
-                /**
-                 *  Print current CPU load
-                 */
-                $currentLoad = sys_getloadavg();
-                $currentLoad = substr($currentLoad[0], 0, 4);
-                $borderColor = 'green';
+            <?php
+            /**
+             *  Get current CPU load
+             */
+            $currentLoad = sys_getloadavg();
+            $currentLoad = substr($currentLoad[0], 0, 4);
+            $borderColor = 'green';
+            if ($currentLoad >= 1) {
+                $borderColor = 'yellow';
+            }
+            if ($currentLoad >= 2) {
+                $borderColor = 'red';
+            }
 
-                if ($currentLoad >= 1) {
-                    $borderColor = 'yellow';
-                }
-                if ($currentLoad >= 2) {
-                    $borderColor = 'red';
-                } ?>
-
-                <div class="circle-div-container">
-                    <div class="circle-div-container-count-<?=$borderColor?>">
-                        <span>
-                            <?= $currentLoad ?>
-                        </span>
-                    </div>
-                    <div>
-                        <span>CPU load</span>
+            /**
+             *  Print CPU load only if >= 1
+             */
+            if ($currentLoad >= 1) : ?>
+                <div class="div-generic-blue circle-div-container-container">
+                    <div class="circle-div-container">
+                        <div class="circle-div-container-count-<?=$borderColor?>">
+                            <span>
+                                <?= $currentLoad ?>
+                            </span>
+                        </div>
+                        <div>
+                            <span>CPU load</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <?php
+            endif ?>
         </div>
     </section>
 

@@ -838,7 +838,7 @@ class Operation
                             /**
                              *  Print relaunch button if pool Id JSON file still exists
                              */
-                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json')) {
+                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json') and \Controllers\Common::isadmin()) {
                                 echo '<img class="icon-lowopacity relaunch-operation-btn" src="resources/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
                             }
 

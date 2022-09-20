@@ -68,7 +68,7 @@ h1, h2, h3, h4 {
 h3 {
     width: fit-content;
     font-size: 18px;
-    margin: 0 0 50px 0;
+    margin: 50px 0 40px 0;
     border-bottom: 1px solid #15bf7f;
 }
 
@@ -142,7 +142,7 @@ td {
 
 header {
     width: 100%;
-    margin-bottom: 70px;
+    margin-bottom: 20px;
     position: relative;
 }
 header li span:not(#title, #version, .underline, .li-operation-not-running, .li-operation-running) {
@@ -224,7 +224,13 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
     display: block;
 }
 #userspace {
-    text-align: right;
+    /* text-align: right; */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+#logout {
+
 }
 
 .div-28 { width: 28%; padding: 10px; }.div-29 { width: 29%; padding: 10px; }.div-30 { width: 30%; padding: 10px; }
@@ -327,15 +333,6 @@ section.missing-param-alert {
     overflow: scroll;
 }
 
-form.actionform {
-    padding: 5px;
-    border-radius: 2px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-     background-color:#333333;
-}
-
 table {
     width: 100%;
     font-size: 14px;
@@ -349,6 +346,11 @@ table {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    margin-top: 50px;
+}
+
+#title-button-div h3 {
+    margin-top: 0;
 }
 
 #title-button-container {
@@ -427,7 +429,7 @@ table {
     position: relative;
     padding: 15px;
     margin-bottom: 20px;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #182b3e;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
@@ -435,6 +437,7 @@ table {
 
 .div-generic-blue h3 {
     border: none;
+    margin-top: 0;
 }
 
 #repos-list-container {
@@ -803,7 +806,7 @@ input:checked { opacity: 1; }
 
 /* Tous les boutons bleus */
 .btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue {
-    background-color: #5473e8
+    background-color: #5473e8;
 }
 /* Tous les boutons verts */
 .btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green {
@@ -1141,7 +1144,7 @@ footer p { color: gray; }
 }
 
 .circle-div-container-container div:first-child .circle-div-container {
-    border-right: 1px solid #3b3b3b;
+    border-right: 1px solid #24405c66;
 }
 
 .circle-div-container div {
@@ -1373,9 +1376,8 @@ footer p { color: gray; }
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     padding: 30px;
-    border-radius: 2px;
-    border: 1px solid #403f3f;
-    background-color: #333333;
+    border-radius: 4px;
+    background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }

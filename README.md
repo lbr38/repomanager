@@ -12,8 +12,8 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 - Automatic tasks plans
 
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/demo-1.gif?raw=true)
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-4.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-2.png?raw=true)
+![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-4.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-5.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-3.png?raw=true)
 
@@ -43,6 +43,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 Runs on following Redhat/CentOS or Debian/Ubuntu systems:
 - Debian 9,10, Ubuntu bionic
 - RHEL 7/8, CentOS 7/8, Fedora 33
+
 Minimal recommanded configuration: Debian 10 or RHEL/CentOS 8.
 
 Repomanager only needs a web service + PHP (7.x or 8.x) and SQLite.
@@ -257,10 +258,9 @@ server {
 <b>Repomanager</b>
 
 The program will need two directories to be choose by the user during installation:
-```
-Main installation directory (default is /var/www/repomanager/)
-Repos directory (default is /home/repo/)
-```
+
+- Main installation directory (default is /var/www/repomanager/)
+- Repos directory (default is /home/repo/)
 
 Installation script must be executed by root or sudo user to make sure that correct permissions are applied on the directories used by repomanager.
 

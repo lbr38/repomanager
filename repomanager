@@ -622,13 +622,14 @@ function installation
 
     #### INSTALLATION ####
 
-    echo -e "➤ Repomanager data files will be stored in ${DATA_DIR}/. ${YELLOW}Please do not remove or move this directory and be sure to make daily backup of this directory.${RESET}"
+    echo -e "➤ Repomanager data files will be stored in ${DATA_DIR}/."
+    echo -e "${YELLOW}Please do not remove or move this directory and be sure to make daily backup of this directory.${RESET}"
 
     ## Repomanager web files installation location
     if [ -z "$WWW_DIR" ];then
         echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager)"
         echo -e "  ${YELLOW}You will have to set up a vhost to serve this location.${RESET}"
-        echo -n "  Leave empty to use default directory or specify a location: "; read -p "" WWW_DIR
+        echo -n "  Leave empty to use default path or specify a location: "; read -p "" WWW_DIR
 
         if [ -z "$WWW_DIR" ];then
             WWW_DIR="/var/www/repomanager"
@@ -661,7 +662,7 @@ function installation
     if [ -z "$REPOS_DIR" ];then
         echo -e "\n➤ Repos storage path (default is /home/repo)"
         echo -e "  ${YELLOW}This directory's size can grow large depending on your usage. Be sure to allow sufficiant disk space on this location.${RESET}"
-        echo -n "  Leave empty to use default directory or specify a location: "; read -p "" REPOS_DIR
+        echo -n "  Leave empty to use default path or specify a location: "; read -p "" REPOS_DIR
 
         if [ -z "$REPOS_DIR" ];then
             REPOS_DIR="/home/repo"

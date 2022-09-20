@@ -22,6 +22,7 @@
     padding: 20px;
 }
 #log-op-title h3 {
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
     border: none;
 }

@@ -46,6 +46,7 @@ Conçu pour un usage en entreprise et pour faciliter le déploiement de mises à
 Installation compatible sur les systèmes Redhat/CentOS et Debian/Ubuntu :
 - Debian 9,10, Ubuntu bionic
 - RHEL 7/8, CentOS 7/8, CentOS Stream, Rocky Linux, Fedora 33
+
 Configuration minimale recommandé : Debian 10 ou RHEL/CentOS 8.
 
 Repomanager ne nécessite qu'un service web + PHP (7.x ou 8.x) et SQLite.
@@ -261,10 +262,9 @@ server {
 <b>Repomanager</b>
 
 Le programme nécessite 2 répertoires choisis par l'utilisateur au moment de l'installation :
-```
-Répertoire d'installation (par défaut /var/www/repomanager/)
-Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
-```
+
+- Répertoire d'installation (par défaut /var/www/repomanager/)
+- Répertoire de stockage des miroirs de repos (par défaut /home/repo/)
 
 L'installation doit s'effectuer en tant que root ou sudo afin que les bonnes permissions soient correctement établies sur les répertoires utilisés par repomanager.
 
