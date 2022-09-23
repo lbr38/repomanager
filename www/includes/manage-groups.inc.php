@@ -1,6 +1,6 @@
 <div id="groupsDiv" class="param-slide-container">
     <div class="param-slide">
-        <img id="groupsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+        <img id="groupsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
 
         <h3>REPOS GROUPS</h3>
 

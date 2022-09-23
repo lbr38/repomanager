@@ -1,6 +1,6 @@
 <div id="displayDiv" class="param-slide-container">
     <div class="param-slide">
-        <img id="displayDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+        <img id="displayDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
         <h3>REPOS LIST DISPLAY SETTINGS</h3>
 
         <?php

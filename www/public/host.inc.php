@@ -22,6 +22,8 @@ if (!empty($_GET['id'])) {
         $ip               = $hostProperties['Ip'];
         $os               = $hostProperties['Os'];
         $os_version       = $hostProperties['Os_version'];
+        $kernel           = $hostProperties['Kernel'];
+        $arch             = $hostProperties['Arch'];
         $profile          = $hostProperties['Profile'];
         $env              = $hostProperties['Env'];
         $status           = $hostProperties['Status'];
@@ -187,7 +189,7 @@ endif ?>
                     } else {
                         echo '<img src="resources/icons/products/tux.png" class="icon" />';
                     }
-                    echo ucfirst($os) . ' ' . $os_version;
+                    echo ucfirst($os) . ' ' . $os_version . ' - ' . $kernel . ' ' . $arch . '';
                     echo '</td>';
                 } else {
                     echo '<td>Unknow</td>';

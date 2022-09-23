@@ -1,5 +1,4 @@
 <?php
-
 /**
  *  Debug mode
  */
@@ -15,264 +14,283 @@ if (DEBUG_MODE == "enabled") {
         print_r($_GET);
         echo '</pre>';
     }
-}
-?>
+} ?>
+
 <header>
     <nav id="menu">
-        <div id="title">
-            <a href="index.php"><span>Repomanager</span></a>
-        </div>
+        <div>
+            <div id="title">
+                <a href="index.php"><span>Repomanager</span></a>
+            </div>
 
-        <div class="menu-sub-container">
-            <div>
+            <?php
+            /**
+             *  REPOS tab
+             */
+            if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/index.php' or __ACTUAL_URI__ == '/browse.php' or __ACTUAL_URI__ == '/stats.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            } ?>
+
+            <div class="<?= $headerMenuClass ?>">
                 <a href="index.php">
-                    <?php
-                    if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/index.php' or __ACTUAL_URI__ == '/browse.php' or __ACTUAL_URI__ == '/stats.php') {
-                        echo '<span class="underline">';
-                    } else {
-                        echo '<span class="header-link">';
-                    } ?>
                     <img src="resources/icons/menu.svg" class="icon" />REPOS
-                    </span>
                 </a>
             </div>
-        </div>
 
-        <div class="menu-sub-container">
             <?php
+            /**
+             *  PLANIFICATIONS tab
+             */
+            if (__ACTUAL_URI__ == '/planifications.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            }
+
             if (PLANS_ENABLED == "yes") : ?>
-                <div>
+                <div class="<?= $headerMenuClass ?>">
                     <a href="planifications.php">
-                        <?php
-                        if (__ACTUAL_URI__ == '/planifications.php') {
-                            echo '<span class="underline">';
-                        } else {
-                            echo '<span class="header-link">';
-                        } ?>
-                            <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
-                        </span>
+                        <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
                     </a>
                 </div>
                 <?php
             endif ?>
-        </div>
 
-        <div class="menu-sub-container">
             <?php
+            /**
+             *  MANAGE HOSTS tab
+             */
+            if (__ACTUAL_URI__ == '/hosts.php' or __ACTUAL_URI__ == '/host.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            }
+
             if (MANAGE_HOSTS == "yes") : ?>
-                <div>
+                <div class="<?= $headerMenuClass ?>">
                     <a href="hosts.php">
-                        <?php
-                        if (__ACTUAL_URI__ == '/hosts.php') {
-                            echo '<span class="underline">';
-                        } else {
-                            echo '<span class="header-link">';
-                        } ?>
-                            <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
-                        </span>
+                        <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
                     </a>
                 </div>
                 <?php
             endif ?>
-        </div>
 
-        <div class="menu-sub-container">
             <?php
+            /**
+             *  MANAGE PROFILES tab
+             */
+            if (__ACTUAL_URI__ == '/profiles.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            }
+
             if (Controllers\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
-                <div>
+                <div class="<?= $headerMenuClass ?>">
                     <a href="profiles.php">
-                        <?php
-                        if (__ACTUAL_URI__ == '/profiles.php') {
-                            echo '<span class="underline">';
-                        } else {
-                            echo '<span class="header-link">';
-                        } ?>
-                            <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
-                        </span>
+                        <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
                     </a>
                 </div>
                 <?php
             endif ?>
-        </div>
 
-        <div class="menu-sub-container">
             <?php
+            /**
+             *  SETTINGS tab
+             */
+            if (__ACTUAL_URI__ == '/configuration.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            }
+
             if (Controllers\Common::isadmin()) : ?>
-                <div>
+                <div class="<?= $headerMenuClass ?>">
                     <a href="configuration.php">
-                        <?php
-                        if (__ACTUAL_URI__ == '/configuration.php') {
-                            echo '<span class="underline">';
-                        } else {
-                            echo '<span class="header-link">';
-                        } ?>
-                           <img src="resources/icons/settings.svg" class="icon" />SETTINGS
-                        </span>
+                        <img src="resources/icons/settings.svg" class="icon" />SETTINGS
                     </a>
                 </div>
                 <?php
             endif ?>
-        </div>
 
-        <div class="menu-sub-container">
-            <div id="header-refresh-container">
-                <a href="run.php">
-                    <?php
-                    if (__ACTUAL_URI__ == '/run.php') {
-                        echo '<span class="underline">';
-                    } else {
-                        echo '<span class="header-link">';
-                    } ?>
-                    <img src="resources/icons/rocket.svg" class="icon" />OPERATIONS
-                    </span>
-                </a>
+            <?php
+            /**
+             *  OPERATIONS tab
+             */
+            if (__ACTUAL_URI__ == '/run.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            } ?>
 
-                <div id="header-refresh">
+            <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
+                <div>
+                    <a href="run.php">
+                        <?php
+                        if (__ACTUAL_URI__ == '/run.php') {
+                            echo '<span class="underline">';
+                        } else {
+                            echo '<span class="header-link">';
+                        } ?>
+                        <img src="resources/icons/rocket.svg" class="icon" />OPERATIONS
+                        </span>
+                    </a>
 
-                    <?php
-                    $op = new \Controllers\Operation();
-                    /**
-                     *  On récupère les opérations ou les planifications en cours si il y en a
-                     */
-                    $opsRunning = $op->listRunning('manual');
-                    $plansRunning = $op->listRunning('plan');
+                    <div id="header-refresh">
 
-                    /**
-                     *  On les compte
-                     */
-                    $opsRunningCount = count($opsRunning);
-                    $plansRunningCount = count($plansRunning);
-
-                    /**
-                     *  On les additionne
-                     */
-                    $totalRunningCount = $opsRunningCount + $plansRunningCount;
-
-                    /**
-                     *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
-                     */
-                    if ($totalRunningCount > 0) {
-                        echo '<span class="op-total-running bkg-red">' . $totalRunningCount . '</span>';
-                    }
-
-                    /**
-                     *  Si il y a au moins 1 opération est en cours alors on affiche ses détails
-                     */
-                    if ($totalRunningCount > 0) {
-                        echo '<div class="header-op-container">';
+                        <?php
+                        $op = new \Controllers\Operation();
+                        /**
+                         *  On récupère les opérations ou les planifications en cours si il y en a
+                         */
+                        $opsRunning = $op->listRunning('manual');
+                        $plansRunning = $op->listRunning('plan');
 
                         /**
-                         *  On affiche chaque opération en cours
+                         *  On les compte
                          */
-                        foreach ($opsRunning as $opRunning) {
-                            $opId = $opRunning['Id'];
-                            $opPid = $opRunning['Pid'];
-                            $opLogfile = $opRunning['Logfile'];
-                            if (!empty($opRunning['Action'])) {
-                                $opAction = $opRunning['Action'];
-                            } ?>
+                        $opsRunningCount = count($opsRunning);
+                        $plansRunningCount = count($plansRunning);
 
-                            <div class="header-op-subdiv btn-large-red">
-                                <span>
-                                    <a href="run.php?logfile=<?=$opLogfile?>">
+                        /**
+                         *  On les additionne
+                         */
+                        $totalRunningCount = $opsRunningCount + $plansRunningCount;
+
+                        /**
+                         *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
+                         */
+                        if ($totalRunningCount > 0) {
+                            echo '<span class="op-total-running bkg-red">' . $totalRunningCount . '</span>';
+                        }
+
+                        /**
+                         *  Si il y a au moins 1 opération est en cours alors on affiche ses détails
+                         */
+                        if ($totalRunningCount > 0) {
+                            echo '<div class="header-op-container">';
+
+                            /**
+                             *  On affiche chaque opération en cours
+                             */
+                            foreach ($opsRunning as $opRunning) {
+                                $opId = $opRunning['Id'];
+                                $opPid = $opRunning['Pid'];
+                                $opLogfile = $opRunning['Logfile'];
+                                if (!empty($opRunning['Action'])) {
+                                    $opAction = $opRunning['Action'];
+                                } ?>
+
+                                <div class="header-op-subdiv btn-large-red">
+                                    <span>
+                                        <a href="run.php?logfile=<?=$opLogfile?>">
+                                            <?php
+                                            if ($opAction == "new") {
+                                                echo 'New repo ';
+                                            }
+                                            if ($opAction == "update") {
+                                                echo 'Update ';
+                                            }
+                                            if ($opAction == "env") {
+                                                echo 'New env. ';
+                                            }
+                                            if ($opAction == "removeEnv") {
+                                                echo 'Remove env. ';
+                                            }
+                                            if ($opAction == "reconstruct") {
+                                                echo 'Building metadata ';
+                                            }
+                                            if ($opAction == "duplicate") {
+                                                echo 'Duplicate ';
+                                            }
+                                            if ($opAction == "delete") {
+                                                echo 'Delete ';
+                                            }
+
+                                            /**
+                                             *  Affichage du nom du repo ou du groupe en cours de traitement
+                                             */
+                                            $op->printRepoOrGroup($opId); ?>
+                                        </a>
+                                    </span>
+                                    <span title="Stop operation">
+                                        <a href="run.php?stop=<?=$opPid?>">⛔</a>
+                                    </span>
+                                </div>
+                                <?php
+                            }
+
+                            /**
+                             *  On affiche chaque planification en cours
+                             */
+                            foreach ($plansRunning as $planRunning) {
+                                $opId = $planRunning['Id'];
+                                $opPid = $planRunning['Pid'];
+                                $opLogfile = $planRunning['Logfile'];
+                                if (!empty($planRunning['Action'])) {
+                                    $planAction = $planRunning['Action'];
+                                }
+                                if (!empty($planRunning['Id_repo_source'])) {
+                                    $opRepoSource = $planRunning['Id_repo_source'];
+                                }
+                                ?>
+                    
+                                <div class="header-op-subdiv btn-large-red">
+                                    <span>
+                                        <a href="run.php?logfile=<?= $opLogfile ?>">
                                         <?php
-                                        if ($opAction == "new") {
+                                        if ($planAction == "new") {
                                             echo 'New repo ';
                                         }
-                                        if ($opAction == "update") {
+                                        if ($planAction == "update") {
                                             echo 'Update ';
                                         }
-                                        if ($opAction == "env") {
+                                        if ($planAction == "env") {
                                             echo 'New env. ';
-                                        }
-                                        if ($opAction == "removeEnv") {
-                                            echo 'Remove env. ';
-                                        }
-                                        if ($opAction == "reconstruct") {
-                                            echo 'Building metadata ';
-                                        }
-                                        if ($opAction == "duplicate") {
-                                            echo 'Duplicate ';
-                                        }
-                                        if ($opAction == "delete") {
-                                            echo 'Delete ';
                                         }
 
                                         /**
                                          *  Affichage du nom du repo ou du groupe en cours de traitement
                                          */
                                         $op->printRepoOrGroup($opId); ?>
-                                    </a>
-                                </span>
-                                <span title="Stop operation">
-                                    <a href="run.php?stop=<?=$opPid?>">⛔</a>
-                                </span>
-                            </div>
-                            <?php
-                        }
-
-                        /**
-                         *  On affiche chaque planification en cours
-                         */
-                        foreach ($plansRunning as $planRunning) {
-                            $opId = $planRunning['Id'];
-                            $opPid = $planRunning['Pid'];
-                            $opLogfile = $planRunning['Logfile'];
-                            if (!empty($planRunning['Action'])) {
-                                $planAction = $planRunning['Action'];
+                                        </a>
+                                    </span>
+                                    <span title="Stop operation">
+                                        <a href="run.php?stop=<?=$opPid?>">⛔</a>
+                                    </span>
+                                </div>
+                                <?php
                             }
-                            if (!empty($planRunning['Id_repo_source'])) {
-                                $opRepoSource = $planRunning['Id_repo_source'];
-                            }
-                            ?>
-                
-                            <div class="header-op-subdiv btn-large-red">
-                                <span>
-                                    <a href="run.php?logfile=<?= $opLogfile ?>">
-                                    <?php
-                                    if ($planAction == "new") {
-                                        echo 'New repo ';
-                                    }
-                                    if ($planAction == "update") {
-                                        echo 'Update ';
-                                    }
-                                    if ($planAction == "env") {
-                                        echo 'New env. ';
-                                    }
 
-                                    /**
-                                     *  Affichage du nom du repo ou du groupe en cours de traitement
-                                     */
-                                    $op->printRepoOrGroup($opId); ?>
-                                    </a>
-                                </span>
-                                <span title="Stop operation">
-                                    <a href="run.php?stop=<?=$opPid?>">⛔</a>
-                                </span>
-                            </div>
-                            <?php
+                            echo '</div>';
+
+                            unset($opsRunning, $plansRunning);
                         }
-
-                        echo '</div>';
-
-                        unset($opsRunning, $plansRunning);
-                    }
-                    ?>
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="userspace" class="menu-sub-container">
-            <div>
-                <?php
-                if (__ACTUAL_URI__ == '/user.php') {
-                    echo '<span class="underline">';
-                } else {
-                    echo '<span class="header-link">';
-                } ?>
+        <div>
+            <?php
+            /**
+             *  USERSPACE tab
+             */
+            if (__ACTUAL_URI__ == '/user.php') {
+                $headerMenuClass = 'menu-sub-container-underline';
+            } else {
+                $headerMenuClass = 'menu-sub-container';
+            } ?>
+
+            <?php
+            if (Controllers\Common::isadmin()) : ?>
+                <div class="<?= $headerMenuClass ?>">
                     <a href="user.php" title="Userspace">
                         <img src="resources/icons/user.svg" class="icon" />
-                        
+
                         <?= $_SESSION['username']; ?>
 
                         <?php
@@ -280,15 +298,14 @@ if (DEBUG_MODE == "enabled") {
                             echo ' (' . $_SESSION['first_name'] . ')';
                         } ?>
                     </a>
-                </span>
-            </div>
+                </div>
+                <?php
+            endif ?>
 
-            <div>
-                <span class="header-link">
-                    <a href="logout.php" title="Logout">
-                        <img src="resources/icons/power.svg" class="icon" /> Logout
-                    </a>
-                </span>
+            <div class="menu-sub-container">
+                <a href="logout.php" title="Logout">
+                    <img src="resources/icons/power.svg" class="icon" /> Logout
+                </a>
             </div>
         </div>
     </nav>

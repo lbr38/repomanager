@@ -341,7 +341,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
 
 <div id="profileServerSettingsDiv" class="param-slide-container">
     <div class="param-slide">
-        <img id="profileServerSettingsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+        <img id="profileServerSettingsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
         <h3>SERVER SETTINGS</h3>
         <form id="applyServerConfigurationForm" autocomplete="off">
             <?php

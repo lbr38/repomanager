@@ -11,7 +11,7 @@
     right: 0;
     font-size: 13px !important;
     z-index: 99;
-    width: fit-content;
+    width: max-content;
     margin-top: 10px;
     padding: 5px 10px 5px 5px;
     border-radius: 2px;
@@ -232,7 +232,7 @@
 }
 .packageDetails {
     width: 50%;
-    height:fit-content;
+    height: max-content;
     max-height: 100vh;
     overflow: auto;
     padding-bottom: 30px;
@@ -359,7 +359,7 @@
     display: none;
     position: absolute;
     z-index: 1; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
-    width: fit-content;
+    width: max-content;
     margin-top: 10px;
     padding:5px;
     text-align: left;

@@ -15,7 +15,7 @@ $(document).ready(function () {
         $("#print-all-op").hide();    // On masque le bouton "Afficher tout"
 
         // Création d'un cookie (expiration 15min)
-        document.cookie = "printAllOp=yes;max-age=900;";
+        document.cookie = "printAllOp=yes;max-age=900; Secure";
     });
 
     /**
@@ -26,19 +26,19 @@ $(document).ready(function () {
         $("#print-all-regular-op").hide();    // On masque le bouton "Afficher tout"
 
         // Création d'un cookie (expiration 15min)
-        document.cookie = "printAllRegularOp=yes;max-age=900;";
+        document.cookie = "printAllRegularOp=yes;max-age=900; Secure";
     });
 
     /**
      *  Afficher ou non tout le détail d'une opération
      */
     $(document).on('click','#displayFullLogs-yes',function () {
-        document.cookie = "displayFullLogs=yes";
+        document.cookie = "displayFullLogs=yes; Secure";
         $(".mainSectionLeft").load(" .mainSectionLeft > *");
     });
 
     $(document).on('click','#displayFullLogs-no',function () {
-        document.cookie = "displayFullLogs=no";
+        document.cookie = "displayFullLogs=no; Secure";
         $(".mainSectionLeft").load(" .mainSectionLeft > *");
     });
 });
