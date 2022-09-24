@@ -90,8 +90,8 @@ class Profile
                 $repoArray =
                 array(
                     'filename' => REPO_CONF_FILES_PREFIX . $name . '.repo',
-                    'description' => 'Repo ' . $name . ' sur ' . __SERVER_URL__,
-                    'content' => '[' . REPO_CONF_FILES_PREFIX . $name . '___ENV__]' . PHP_EOL . 'name=Repo ' . $name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'comment=Repo ' . $name . ' sur ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $name . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1'
+                    'description' => $name . ' repo on ' . __SERVER_URL__,
+                    'content' => '[' . REPO_CONF_FILES_PREFIX . $name . '___ENV__]' . PHP_EOL . 'name=' . $name . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'comment=' . $name . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $name . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1'
                 );
             }
 
@@ -99,7 +99,7 @@ class Profile
                 $repoArray =
                 array(
                     'filename' => REPO_CONF_FILES_PREFIX . $name . '.list',
-                    'description' => 'Repo ' . $name . ' sur ' . __SERVER_URL__,
+                    'description' => $name . ' repo on ' . __SERVER_URL__,
                     'content' => 'deb ' . __SERVER_URL__ . '/repo/' . $name . '/' . $dist . '/' . $section . '___ENV__ ' . $dist . ' ' . $section
                 );
             }

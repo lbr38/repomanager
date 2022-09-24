@@ -523,7 +523,7 @@ $(document).on('click','.printHostDetails',function () {
         'host.inc.php',
         {id:host_id},
         function (data, status, jqXHR) {
-            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="close-btn" src="resources/icons/close.svg" /></span>' + data + '</div>');
+            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + data + '</div>');
         }
     );
 
@@ -670,13 +670,13 @@ $(document).on('click','#showUpdateRequests',function () {
      *  Si le slide est coché alors on affiche
      */
     if (this.checked) {
-        document.cookie = "showUpdateRequests=yes";
+        document.cookie = "showUpdateRequests=yes; Secure";
 
     /**
      *  Si le slide est décoché alors on masque
      */
     } else {
-        document.cookie = "showUpdateRequests=no";
+        document.cookie = "showUpdateRequests=no; Secure";
     }
 
     $("#eventsContainer").load(" #eventsContainer > *");
@@ -913,7 +913,7 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn" src="resources/icons/close.svg" /></span>' + jsonValue.message + '</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + jsonValue.message + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

@@ -18,7 +18,7 @@
             $debGpgKeys = explode("\n\n", $debGpgKeys);
         } ?>
 
-        <img id="reposSourcesDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+        <img id="reposSourcesDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
         <h3>REPOS SOURCES</h3>
 
         <p>To create mirrors, you must specify source repositories URL.</p>

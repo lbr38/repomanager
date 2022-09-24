@@ -1,15 +1,18 @@
 <h1>REPOMANAGER</h1>
 
-Repomanager is a web mirroring tool for .rpm or .deb packages repository, based on reposync (Redhat/CentOS) & debmirror (Debian).
+**Repomanager** is a web mirroring tool for RPM or DEB packages repositories, using reposync & debmirror.
 
-Designed for an enterprise usage and to help deployment of packages updates on large Linux servers farms, it can create mirrors of public repos (eg. Debian or CentOS official repos or third-party editors) and manage several versions and environments.
+Designed for an enterprise usage and to help deployment of packages updates on large Linux servers farms, it can create mirrors of public repositories (eg. Debian or CentOS official repos or third-party editors) and manage several snapshots versions and environments.
 
-<b>Main features:</b>
+<h2>Main features</h2>
 
-- Create mirrors, update them, duplicate them
-- Sign packages/mirror with GPG
-- Create environments (eg. preprod, prod...) and make your mirrors available only for specific envs.
-- Automatic tasks plans
+- Create deb or rpm repo mirror
+- Sign repo with GPG
+- Upload packages into repositories
+- Create environments (eg. preprod, prod...) and make mirrors available only for specific envs.
+- Manage hosts packages updates
+- Plan tasks
+- ...
 
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/demo-1.gif?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-2.png?raw=true)
@@ -17,94 +20,71 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-5.png?raw=true)
 ![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-3.png?raw=true)
 
-<b>Features</b>
-
-| **Functions** ||
-|----------|---------------|
-| Create mirrors from public repos | ✅ |
-| Create local repos | ✅ |
-| Sign repos / packages with GPG key | ✅ |
-| Load custom packages into repos (e.g: patch zero-day) | ✅ |
-| **Automatisation** ||
-| Create automatic tasks tp update mirrors | ✅ |
-| Send automatic task reminder (mail) | ✅ |
-| **Stats** ||
-| Visualize metrics on repos' evolution and utilisation | ✅ |
-| **Hosts management** ||
-| Analyze and manage installed packages on hosts (hosts using linupdate) | ✅ |
-| **General** ||
-| Create users (ro-user or admin) | ✅ |
-| See history of actions taken by users | ✅ |
-| Automatic or manual update of repomanager | ✅ |
-
-
 <h2>Requirements</h2>
 
-Runs on following Redhat/CentOS or Debian/Ubuntu systems:
-- Debian 9,10, Ubuntu bionic
-- RHEL 7/8, CentOS 7/8, Fedora 33
+<h3>OS</h3>
 
-Minimal recommanded configuration: Debian 10 or RHEL/CentOS 8.
+Repomanager runs on following systems:
+- Debian 9,10
+- RHEL 7/8, CentOS 7/8
 
-Repomanager only needs a web service + PHP (7.x or 8.x) and SQLite.
+**Recommended system:** Debian 10 or RHEL/CentOS 8.
 
-CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
-Disk space required depends on the size of the repos you need to clone.
+<h3>Hardware</h3>
 
-<b>Dependencies</b>
+- CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
+- Disk space depends on the size of the repos you need to clone.
 
-Repomanager requires packages commonly found on Linux distributions such as:
-```
-curl, mlocate, wget, gnupg2
-```
+<h3>Software</h3>
 
-And specific packages needed to build mirrors such as:
-```
-- yum-utils and createrepo (RPM)
-- rpmresign (perl RPM4 module) to sign repos (RPM)
-- debmirror (DEB)
-```
+- Common packages (curl, wget, gnupg2...). Repomanager will automatically install them during the installation process.
+- A web service + PHP and SQLite.
 
-Repomanager will automatically install those dependencies. Please check that the server has at least access to its OS base repositories to be able to install those deps.
+**Recommended:** nginx + PHP-FPM (PHP 8.1)
 
+<h2>Prepare installation</h2>
 
-<h2>Installation</h2>
+<h3>Nginx + PHP</h3>
 
-<b>Web service + PHP</b>
+You must install a web service + PHP and then configure a dedicated vhost.
 
-You must install a web service + PHP then configure a dedicated vhost.
+**Note for Redhat/CentOS systems:** you may adapt **SELinux** configuration (or disable SELinux) to make sure it will not prevent PHP scripts execution.
 
-Repomanager has been only tested with nginx+php-fpm (PHP 7.x) but an apache/httpd compatibility is not excluded.
-
-Note for Redhat/CentOS systems: you may adapt SELinux configuration to make sure it will not prevent PHP execution.
+**Installation on a Redhat/CentOS system:**
 
 ```
-# Redhat / CentOS
-yum install nginx php-fpm php-cli php-pdo php-json sqlite # PHP 7.4
-yum install nginx php-fpm php-cli php-pdo sqlite # PHP 8.1
-
-# Debian
-apt update && apt install nginx php-fpm php-cli php7.4-json php7.4-sqlite3 sqlite3 # PHP 7.4
-apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3 # PHP 8.1
+yum install nginx php-fpm php-cli php-pdo sqlite
 ```
 
-<b>SQLite</b>
-
-Be sure that sqlite module for php is enabled:
+**Installation on a Debian system:**
 
 ```
-# Debian
-vim /etc/php/7.4/mods-available/sqlite3.ini
+apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3
+```
 
-# Redhat/CentOS
+<h3>SQLite</h3>
+
+Be sure that sqlite module for php is enabled.
+
+**On a Redhat/CentOS system:**
+
+```
 vim /etc/php.d/20-sqlite3.ini
 
 extension=sqlite3.so
 ```
 
-<b>Vhost</b>
+**On a Debian system:**
 
-eg. vhost for nginx below.
+```
+vim /etc/php/8.1/mods-available/sqlite3.ini
+
+extension=sqlite3.so
+```
+
+<h3>Vhost</h3>
+
+Create a new repomanager <b>dedicated vhost</b>. eg. nginx vhost below:
 
 Adapt the following values:
  - path to php's unix socket
@@ -254,25 +234,30 @@ server {
 }
 ```
 
+Check configuration and reload nginx:
 
-<b>Repomanager</b>
+```
+nginx -t
+systemctl reload nginx
+```
 
-The program will need two directories to be choose by the user during installation:
+<h2>Installation</h2>
+
+The **installation wizard** will need **two** paths to be specified by the user during installation:
 
 - Main installation directory (default is /var/www/repomanager/)
 - Repos directory (default is /home/repo/)
 
-Installation script must be executed by root or sudo user to make sure that correct permissions are applied on the directories used by repomanager.
+Installation script must be executed by **root** or **sudo** user to make sure that correct permissions are applied on the directories used by repomanager.
 
-Clone:
+Clone the project:
 
 ```
-cd /tmp
-git clone https://github.com/lbr38/repomanager.git
+git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
 ```
 
-Proceed the installation:
+Execute the installation wizard:
+
 ```
-cd /tmp/repomanager/
-sudo ./repomanager --install
+sudo /tmp/repomanager/repomanager --install
 ```

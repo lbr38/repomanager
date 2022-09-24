@@ -42,7 +42,7 @@ class Autoloader
          *  On défini un cookie contenant l'URI en cours, utile pour rediriger directement vers cette URI après s'être identifié sur la page de login
          */
         if (!empty($_SERVER['REQUEST_URI'])) {
-            setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+            setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), array('secure' => true, 'httponly' => true));
         }
 
         /**

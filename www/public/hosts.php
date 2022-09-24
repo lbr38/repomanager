@@ -198,7 +198,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
             <?php if (\Controllers\Common::isadmin()) : ?>
                 <div id="hostsSettingsDiv" class="param-slide-container">
                     <div class="param-slide">
-                        <img id="hostsSettingsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+                        <img id="hostsSettingsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
                         <h3>HOSTS DISPLAY SETTINGS</h3>
 
                         <form id="hostsSettingsForm" action="hosts.php" method="post" autocomplete="off">
@@ -220,7 +220,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
 
                 <div id="groupsHostDiv" class="param-slide-container">
                     <div class="param-slide">
-                        <img id="groupsDivCloseButton" title="Close" class="close-btn float-right" src="resources/icons/close.svg" />
+                        <img id="groupsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
 
                         <h3>GROUPS</h3>
 
@@ -467,6 +467,16 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                     } else {
                                                         $arch = 'unknow';
                                                     }
+                                                    if (!empty($host['Profile'])) {
+                                                        $profile = $host['Profile'];
+                                                    } else {
+                                                        $profile = 'unknow';
+                                                    }
+                                                    if (!empty($host['Env'])) {
+                                                        $env = $host['Env'];
+                                                    } else {
+                                                        $env = 'unknow';
+                                                    }
                                                     /**
                                                      *  On défini le status de l'agent
                                                      *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
@@ -560,9 +570,18 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                         <td>
                                                             <?php
                                                             /**
-                                                             *  Nom de l'hôte + ip
+                                                             *  Print hostname and IP, with more infos about the host in the tooltip box
                                                              */
-                                                            echo '<span title="Hostname and IP address">' . $host['Hostname'] . ' (' . $ip . ')</span>'; ?>
+                                                            $tooltip  = 'Hostname: '. $hostname . '&#10;';
+                                                            $tooltip .= 'IP: '. $ip . '&#10;';
+                                                            $tooltip .= 'OS Family: '. $os_family . '&#10;';
+                                                            $tooltip .= 'OS: '. $os . ' ' . $os_version . '&#10;';
+                                                            $tooltip .= 'Kernel: '. $kernel . '&#10;';
+                                                            $tooltip .= 'Arch: '. $arch . '&#10;';
+                                                            $tooltip .= 'Profile: '. $profile . '&#10;';
+                                                            $tooltip .= 'Env: '. $env . '&#10;';
+
+                                                            echo '<span title="' . $tooltip . '">' . $hostname . ' (' . $ip . ')</span>'; ?>
                                                         </td>
 
                                                         <td class="hostType-td">

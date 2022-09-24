@@ -66,7 +66,7 @@ h1, h2, h3, h4 {
 }
 
 h3 {
-    width: fit-content;
+    width: max-content;
     font-size: 18px;
     margin: 50px 0 40px 0;
     border-bottom: 1px solid #15bf7f;
@@ -145,19 +145,24 @@ header {
     margin-bottom: 20px;
     position: relative;
 }
-header li span:not(#title, #version, .underline, .li-operation-not-running, .li-operation-running) {
-    opacity: 0.55;
-}
-
 #menu {
     width: 100%;
     display: grid;
-    grid-template-columns: auto auto auto auto auto auto auto 1fr;
+    grid-template-columns: 80% 20%;
     align-items: center;
     font-size: 14px;
     -webkit-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
+}
+#menu > div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+#menu > div:last-child {
+    /* align userspace and logout buttons to the right */
+    justify-content: flex-end;
 }
 #title {
     margin-left: 20px;
@@ -171,22 +176,22 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
     font-family: 'ethnocentric';
     font-size: 18px;
 }
-#menu .menu-sub-container > div {
-    padding: 22px 25px 22px 25px;
+[class^="menu-sub-container"] {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-left: 25px;
+    margin-right: 25px;
 }
-#menu div span {
-    vertical-align: middle !important;
-}
-#menu div span.header-link {
+.menu-sub-container a {
     opacity: 0.50;
 }
-#menu div span.header-link:hover {
+.menu-sub-container-underline {
+    border-bottom: 2px solid #5473e8;
     opacity: 1;
 }
-#menu div span.underline {
-    border-bottom: 2px solid #5473e8;
-    padding-bottom: 22px;
-    vertical-align: middle;
+.menu-sub-container:hover a {
+    opacity: 1;
 }
 #header-refresh {
     position: relative;
@@ -219,18 +224,13 @@ header li span:not(#title, #version, .underline, .li-operation-not-running, .li-
 .header-op-subdiv span {
     line-height: 1.5em !important;
 }
-
 #header-refresh-container:hover .header-op-container {
     display: block;
 }
 #userspace {
-    /* text-align: right; */
     display: flex;
     justify-content: flex-end;
     align-items: center;
-}
-#logout {
-
 }
 
 .div-28 { width: 28%; padding: 10px; }.div-29 { width: 29%; padding: 10px; }.div-30 { width: 30%; padding: 10px; }
@@ -545,7 +545,7 @@ table {
 }
 
 .item-dist-section-sub {
-    max-width: fit-content;
+    max-width: max-content;
     font-size: 12px;
     padding-left: 10px !important;
     padding-right: 10px !important;
@@ -587,7 +587,7 @@ table {
 .item-info {
     padding: 2px 0 0 2px !important;
     position: inherit !important;
-    max-width: fit-content;
+    max-width: max-content;
 }
 
 .item-info img, .item-env-info img {
@@ -743,7 +743,7 @@ td {
 }
 #divReposConfCommands-container {
     position: relative;
-    width: fit-content;
+    width: max-content;
 }
 #divReposConfCommands-container img {
     position: absolute;
@@ -752,7 +752,7 @@ td {
 }
 #divReposConfCommands {
     min-width: 500px;
-    width: fit-content;
+    width: max-content;
     border-radius: 4px;
     padding-left: 30px !important;
     padding-right: 30px !important;
