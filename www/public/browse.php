@@ -264,6 +264,10 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
 
             <h3>UPLOAD PACKAGES</h3>
 
+            <p>Import <?= $myrepo->getPackageType() ?> packages into the repository</p>
+
+            <br>
+
             <?php
             if ($pathError == 0) {
                 /**
@@ -281,16 +285,15 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                  *  Si il n'y a aucune opération en cours, on affiche les boutons permettant d'effectuer des actions sur le repo/section
                  */
                 if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct != 'running')) : ?>
-                    <div class="div-generic-blue">                           
-                        <p>Select package(s) to import into the repo.
-                            <br><span class="lowopacity">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</span>
-                        </p>
-                        <br>
+                    <div class="div-generic-blue">
                         <form action="" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="uploadPackage" />
                             <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
+                            <p class="lowopacity">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</p>
+                            <br>
                             <button type="submit" class="btn-large-green">Add package(s)</button>
                         </form>
+
                         <?php
                         /**
                          *  On affiche les messages d'erreurs issus du script d'upload (plus haut dans ce fichier) si il y en a
@@ -306,11 +309,13 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                         }
                         if (!empty($packageInvalid)) {
                             echo '<br><span class="redtext">Following packages are invalid and have not been uploaded: <b>' . rtrim($packageInvalid, ', ') . '</b></span>';
-                        }
-                        ?>
+                        } ?>
                     </div>
                     
-                    <h3>REBUILD REPO METADATA</h3>
+                    <h3>REBUILD REPO</h3>
+
+                    <p>Rebuild repository metadata files</p>
+                    <br>
 
                     <div class="div-generic-blue">
                         <form id="hidden-form" action="" method="post">
@@ -329,8 +334,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                                     if (DEB_SIGN_REPO == 'yes') {
                                         $resignChecked = 'checked';
                                     }
-                                }
-                                ?>
+                                } ?>
                                 <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?= $resignChecked ?>>
                                 <span class="onoff-switch-slider"></span>
                             </label>
@@ -351,23 +355,25 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
     <section class="mainSectionLeft">
         <h3>BROWSE</h3>
 
+        <?php
+        if ($pathError !== 0) {
+            echo '<p>Error: specified repo does not exist.</p>';
+        }
+        if ($pathError === 0) {
+            if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
+                echo '<p>Explore <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+            } else {
+                echo '<p>Explore <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
+            }
+        } ?>
+
+        <br>
+
         <div class="div-generic-blue">
             <?php
-            if ($pathError !== 0) {
-                echo '<p>Error: specified repo does not exist.</p>';
-            }
-            if ($pathError === 0) {
-                if (!empty($myrepo->getName()) and !empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
-                    echo '<p>Explore <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
-                } else {
-                    echo '<p>Explore <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span></p>';
-                }
-                if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
-                    echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo metadata.</span>';
-                }
+            if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
+                echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo metadata.</span>';
             } ?>
-
-            <br>
 
             <span id="loading">Generating tree structure<img src="resources/images/loading.gif" class="icon" /></span>
 
@@ -382,7 +388,10 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                         if (Controllers\Common::isadmin()) : ?>
                             <input type="hidden" name="action" value="deletePackages" />
                             <input type="hidden" name="snapId" value="<?= $snapId ?>" />
-                            <span id="delete-packages-btn" class="hide"><button type="submit" class="btn-medium-red">Delete</button></span>
+                            <span id="delete-packages-btn" class="hide">
+                                <button type="submit" class="btn-medium-red">Delete</button>
+                            </span>
+                            <br>
                             <?php
                         endif;
 

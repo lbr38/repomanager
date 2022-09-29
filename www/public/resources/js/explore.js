@@ -8,10 +8,10 @@ $(document).ready(function () {
         $('#explorer').show();
 
         // hide all the sub-menus
-        $("span.explorer-toggle").next().hide();
+        $("div.explorer-toggle").next().hide();
 
         // add a link nudging animation effect to each link
-        $("#explorer a, #explorer span.explorer-toggle").hover(
+        $("#explorer a, #explorer div.explorer-toggle").hover(
             function () {
                 $(this).stop().animate({
                     paddingLeft: '10px',
@@ -25,14 +25,14 @@ $(document).ready(function () {
         );
 
         // set the cursor of the toggling span elements
-        $("span.explorer-toggle").css("cursor", "pointer");
+        $("div.explorer-toggle").css("cursor", "pointer");
 
         // prepend a plus sign to signify that the sub-menus aren't expanded
-        $("span.explorer-toggle").prepend("+ ");
+        $("div.explorer-toggle").prepend("+ ");
 
         // add a click function that toggles the sub-menu when the corresponding
         // span element is clicked
-        $("span.explorer-toggle").click(function () {
+        $("div.explorer-toggle").click(function () {
             $(this).next().toggle(200);
 
             // switch the plus to a minus sign or vice-versa

@@ -27,7 +27,7 @@ class Source extends Model
          *  On vérifie que le nom du repo source ne contient pas de caractères invalides
          */
         if (!\Controllers\Common::isAlphanumDash($name)) {
-            throw new Exception('Repo source name cannot contain special characters except hyphen and underscore');
+            throw new Exception('Source repo name cannot contain special characters except hyphen and underscore');
         }
 
         /**
@@ -40,10 +40,10 @@ class Source extends Model
          *  Si l'URL contient des caractères non-autorisés ou si elle ne commence pas par http(s) alors elle est invalide
          */
         if (!\Controllers\Common::isAlphanumDash($url, array('=', ':', '/', '.', '?', '$', '&', ','))) {
-            throw new Exception('Repo source URL contains invalid characters');
+            throw new Exception('Source repo URL contains invalid characters');
         }
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception('Repo source URL must start with <b>http(s)://</b>');
+            throw new Exception('Source repo URL must start with <b>http(s)://</b>');
         }
 
         /**
@@ -51,7 +51,7 @@ class Source extends Model
          */
         if ($repoType == 'rpm') {
             if (file_exists(REPOMANAGER_YUM_DIR . '/' . $name . '.repo')) {
-                throw new Exception("Repo source <b>$name</b> already exists");
+                throw new Exception("Source repo <b>$name</b> already exists");
             }
 
             /**
@@ -144,7 +144,7 @@ class Source extends Model
              */
             $newRepoFileConf  = "[$name]" . PHP_EOL;
             $newRepoFileConf .= 'enabled=1' . PHP_EOL;
-            $newRepoFileConf .= "name=Repo source $name sur " . WWW_HOSTNAME . PHP_EOL;
+            $newRepoFileConf .= "name=$name source repo on " . WWW_HOSTNAME . PHP_EOL;
 
             /**
              *  Forge l'url en fonction de son type (baseurl, mirrorlist...)
@@ -180,7 +180,9 @@ class Source extends Model
             /**
              *  Ecriture de la configuration dans le fichier de repo source
              */
-            file_put_contents(REPOMANAGER_YUM_DIR . "/${name}.repo", $newRepoFileConf . PHP_EOL);
+            if (!file_put_contents(REPOMANAGER_YUM_DIR . '/' . $name  . '.repo', $newRepoFileConf . PHP_EOL)) {
+                throw new Exception('Error: could not write to ' . REPOMANAGER_YUM_DIR . '/' . $name  . '.repo');
+            }
         }
 
 

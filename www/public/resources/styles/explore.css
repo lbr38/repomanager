@@ -13,31 +13,32 @@
     text-decoration: none;
 }
 
-#explorer li span {
-    background-color: #5473e8;
+#explorer li div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
     margin-top: 4px;
     margin-bottom: 4px;
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 8px !important;
-    border-radius: 2px;
-    display: block;
 }
 
-#explorer li span:hover {
-    background-color: #4e69cd;
+#explorer li div input[type=checkbox] {
+    margin-right: 8px;
+}
+
+#explorer li span {
+    display: block;
 }
 
 #explorer ul {
     padding-left: 15px;
 }
 
-#explorer span.explorer-file-pkg {
-    background-color: #ff0044;
-}
-
-#explorer span.explorer-file-pkg:hover {
-    background-color: #dc0044;
+#delete-packages-btn {
+    margin-left: 15px;
 }
 
 input[type=file] {

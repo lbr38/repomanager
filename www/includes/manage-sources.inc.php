@@ -32,19 +32,22 @@
                     <td class="td-30">Repo type</td>
                     <td colspan="100%">
                         <div class="switch-field">
-                        <?php
-                        if (RPM_REPO == 'enabled' and DEB_REPO == 'enabled') : ?>
-                            <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
-                            <label for="repoType_rpm">rpm</label>
-                            <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
-                            <label for="repoType_deb">deb</label>
-                        <?php elseif (RPM_REPO == 'enabled') : ?>
-                            <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
-                            <label for="repoType_rpm">rpm</label>     
-                        <?php elseif (DEB_REPO == 'enabled') : ?>
-                            <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" checked />
-                            <label for="repoType_deb">deb</label> 
-                        <?php endif ?>
+                            <?php
+                            if (RPM_REPO == 'enabled' and DEB_REPO == 'enabled') : ?>
+                                <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
+                                <label for="repoType_rpm">rpm</label>
+                                <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
+                                <label for="repoType_deb">deb</label>
+                                <?php
+                            elseif (RPM_REPO == 'enabled') : ?>
+                                <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
+                                <label for="repoType_rpm">rpm</label>     
+                                <?php
+                            elseif (DEB_REPO == 'enabled') : ?>
+                                <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" checked />
+                                <label for="repoType_deb">deb</label> 
+                                <?php
+                            endif ?>
                         </div>
                     </td>
                 </tr>
@@ -77,10 +80,12 @@
                     </td>
                 </tr>
                 <tr field-type="rpm">
-                    <td colspan="100%">
+                    <td field-type="rpm" colspan="100%">
                         <div class="sourceGpgDiv hide">
+                            <br>
                             <span>You can use a known GPG key or specify URL to the GPG key or import a new GPG key (ASCII text).</span><br><br>
                             <p>Pub keys imported into repomanager keychain:</p>
+
                             <select name="existingGpgKey">
                                 <option value="">Select a GPG key...</option>
                                 <?php
@@ -92,17 +97,18 @@
                                     }
                                 } ?>
                             </select>
+
                             <p>URL or file to the GPG key:</p>
                             <input type="text" name="gpgKeyURL" placeholder="https://www... or file:///etc...">
                             
                             <br>
-                            <p>Import a new GPG key:</p>
+                            <p>Import a GPG key:</p>
                             <textarea id="rpmGpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
                         </div>
                     </td>
                 </tr>
                 <tr field-type="deb">
-                    <td colspan="100%">
+                    <td field-type="deb" colspan="100%">
                         <p>
                             <br>
                             <span>Import a GPG key</span>
@@ -118,53 +124,66 @@
 
         <?php
         /**
-         * Liste des clés du trousseau de repomanager
+         *  Imported GPG keys list
          */
         if (!empty($rpmGpgKeys) or !empty($debGpgKeys)) : ?>
             <br>
             <h4>Imported GPG pub keys</h4>
 
             <?php
-            if (!empty($rpmGpgKeys)) :
-                foreach ($rpmGpgKeys as $gpgKey) :
-                    if (($gpgKey != "..") and ($gpgKey != ".")) : ?>
-                        <div class="div-generic-blue">
-                            <span>
-                                <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Delete GPG key <?= $gpgKey ?>" />
-                                <?= $gpgKey ?>
-                            </span>
-                        </div>
-                        <?php
-                    endif;
-                endforeach;
+            if (!empty($rpmGpgKeys)) : ?>
+                <table class="table-generic-blue">
+                    <?php
+                    foreach ($rpmGpgKeys as $gpgKey) :
+                        if (($gpgKey != "..") and ($gpgKey != ".")) : ?>
+                            <tr>
+                                <td title="GPG key name <?= $gpgKey ?>">
+                                    <?= $gpgKey ?>
+                                </td>
+                                <td class="td-fit">
+                                    <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKey ?>" repotype="rpm" title="Delete GPG key <?= $gpgKey ?>" />
+                                </td>
+                            </tr>
+                            <?php
+                        endif;
+                    endforeach; ?>
+                </table>
+                <?php
             endif;
 
-            if (!empty($debGpgKeys)) :
-                foreach ($debGpgKeys as $gpgKey) :
-                    /**
-                     *  On récupère uniquement l'ID de la clé GPG
-                     */
-                    $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
+            if (!empty($debGpgKeys)) : ?>
+                <table class="table-generic-blue">
+                    <?php
+                    foreach ($debGpgKeys as $gpgKey) :
+                        /**
+                         *  On récupère uniquement l'ID de la clé GPG
+                         */
+                        $gpgKeyID = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^fpr:' | awk -F':' '{print $10}'");
 
-                    /**
-                     *  Retire tous les espaces blancs
-                     */
-                    $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
+                        /**
+                         *  Retire tous les espaces blancs
+                         */
+                        $gpgKeyID = preg_replace('/\s+/', '', $gpgKeyID);
 
-                    /**
-                     *  Récupère le nom de la clé GPG
-                     */
-                    $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
-                    if (!empty($gpgKeyID) and !empty($gpgKeyName)) : ?>
-                        <div class="div-generic-blue">
-                            <span title="<?= $gpgKeyID ?>">
-                                <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Delete GPG key <?= $gpgKeyID ?>" />
-                                <?= $gpgKeyName ?>
-                            </span>
-                        </div>
-                        <?php
-                    endif;
-                endforeach;
+                        /**
+                         *  Récupère le nom de la clé GPG
+                         */
+                        $gpgKeyName = shell_exec("echo \"$gpgKey\" | sed -n -e '/pub/,/uid/p' | grep '^uid:' | awk -F':' '{print $10}'");
+
+                        if (!empty($gpgKeyID) and !empty($gpgKeyName)) : ?>
+                            <tr>
+                                <td title="GPG key ID <?= $gpgKeyID ?>">
+                                    <?= $gpgKeyName ?>
+                                </td>
+                                <td class="td-fit">
+                                    <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey="<?= $gpgKeyID ?>" repotype="deb" title="Delete GPG key <?= $gpgKeyID ?>" />
+                                </td>
+                            </tr>
+                            <?php
+                        endif;
+                    endforeach; ?>
+                </table>
+                <?php
             endif;
         endif;
 

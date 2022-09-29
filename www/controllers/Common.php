@@ -10,6 +10,8 @@ use Exception;
 
 class Common
 {
+    private $validColors;
+
     /**
      *  Fonction de vérification / conversion des données envoyées par formulaire
      */
@@ -145,9 +147,9 @@ class Common
         echo '$(document).ready(function () {';
         echo 'window.setTimeout(function() {';
         if ($alertType == "error" or $alertType == "success") {
-            echo "$('.alert-${alertType}').fadeTo(1000, 0).slideUp(1000, function(){";
+            echo "$('.alert-${alertType}').fadeTo(1500, 0).slideUp(1000, function(){";
         } else {
-            echo "$('.alert').fadeTo(1000, 0).slideUp(1000, function(){";
+            echo "$('.alert').fadeTo(1500, 0).slideUp(1000, function(){";
         }
         echo '$(this).remove();';
         echo '});';
@@ -374,6 +376,25 @@ class Common
         }
 
         return $randomString;
+    }
+
+    /**
+     *  Get a random color from a valid hex colors list
+     */
+    public function randomColor()
+    {
+        /**
+         *  Refill available color list if there are no more available
+         */
+        if (empty($this->validColors)) {
+            $this->validColors = array('rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f', '#24d794');
+        }
+
+        $randomColorId = array_rand($this->validColors, 1);
+        $randomColor = $this->validColors[$randomColorId];
+        unset($this->validColors[$randomColorId]);
+
+        return $randomColor;
     }
 
     /**

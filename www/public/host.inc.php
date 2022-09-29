@@ -158,7 +158,7 @@ echo '<h3>' . strtoupper($hostname) . '</h3>';
 
 if (Controllers\Common::isadmin()) : ?>
     <div class="hostActionBtn-container">
-        <span class="btn-large-green"><img src="../resources/icons/rocket.svg" class="icon-lowopacity" />Actions</span>
+        <span class="btn-large-green"><img src="../resources/icons/rocket.svg" class="icon" />Actions</span>
         <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
         <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="packages-status-update" title="Send packages informations (available, installed, updated...).">Request to send packages info.</span>
         <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Update all available packages using linupdate.">Update packages</span>
@@ -343,6 +343,7 @@ endif ?>
                     </tbody>
                 </table>
             </div>
+
             <div id="packagesInstalledDiv" class="hide">
                 <h4>Package inventory of this host</h4>
                 <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Search...">
@@ -356,48 +357,52 @@ endif ?>
                     </thead>
                     <tbody>
                         <?php
-                        if (!empty($packagesInventored)) {
-                            foreach ($packagesInventored as $package) {
-                                echo '<tr class="pkg-row">';
-                                echo '<td>';
-                                if (preg_match('/python/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/python.png" class="icon" />';
-                                } elseif (preg_match('/^code$/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/vsdownload.svg" class="icon" />';
-                                } elseif (preg_match('/^firefox/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/firefox.png" class="icon" />';
-                                } elseif (preg_match('/^chrome-/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/chrome.png" class="icon" />';
-                                } elseif (preg_match('/^chromium-/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/chromium.png" class="icon" />';
-                                } elseif (preg_match('/^brave-/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/brave.png" class="icon" />';
-                                } elseif (preg_match('/^filezilla/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/filezilla.png" class="icon" />';
-                                } elseif (preg_match('/^java/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/java.png" class="icon" />';
-                                } elseif (preg_match('/^teams$/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/teams.png" class="icon" />';
-                                } elseif (preg_match('/^teamviewer$/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/teamviewer.png" class="icon" />';
-                                } elseif (preg_match('/^thunderbird/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/thunderbird.png" class="icon" />';
-                                } elseif (preg_match('/^vlc/i', $package['Name'])) {
-                                    echo '<img src="../resources/icons/products/vlc.png" class="icon" />';
-                                } else {
-                                    echo '<img src="../resources/icons/package.svg" class="icon" />';
-                                }
-                                if ($package['State'] == "removed" or $package['State'] == "purged") {
-                                    echo '<span class="redtext">' . $package['Name'] . ' (uninstalled)</span>';
-                                } else {
-                                    echo $package['Name'];
-                                }
-                                echo '</td>';
-                                echo '<td>' . $package['Version'] . '</td>';
-                                echo '<td class="td-10"><span class="getPackageTimeline pointer" hostid="' . $id . '" packagename="' . $package['Name'] . '">History</span></td>';
-                                echo '</tr>';
-                            }
-                        } ?>
+                        if (!empty($packagesInventored)) :
+                            foreach ($packagesInventored as $package) : ?>
+                                <tr class="pkg-row">
+                                    <td>
+                                        <?php
+                                        if (preg_match('/python/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/python.png" class="icon" />';
+                                        } elseif (preg_match('/^code$/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/vsdownload.svg" class="icon" />';
+                                        } elseif (preg_match('/^firefox/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/firefox.png" class="icon" />';
+                                        } elseif (preg_match('/^chrome-/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/chrome.png" class="icon" />';
+                                        } elseif (preg_match('/^chromium-/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/chromium.png" class="icon" />';
+                                        } elseif (preg_match('/^brave-/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/brave.png" class="icon" />';
+                                        } elseif (preg_match('/^filezilla/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/filezilla.png" class="icon" />';
+                                        } elseif (preg_match('/^java/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/java.png" class="icon" />';
+                                        } elseif (preg_match('/^teams$/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/teams.png" class="icon" />';
+                                        } elseif (preg_match('/^teamviewer$/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/teamviewer.png" class="icon" />';
+                                        } elseif (preg_match('/^thunderbird/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/thunderbird.png" class="icon" />';
+                                        } elseif (preg_match('/^vlc/i', $package['Name'])) {
+                                            echo '<img src="../resources/icons/products/vlc.png" class="icon" />';
+                                        } else {
+                                            echo '<img src="../resources/icons/package.svg" class="icon" />';
+                                        }
+                                        if ($package['State'] == "removed" or $package['State'] == "purged") {
+                                            echo '<span class="redtext">' . $package['Name'] . ' (uninstalled)</span>';
+                                        } else {
+                                            echo $package['Name'];
+                                        } ?>
+                                    </td>
+                                    <td><?= $package['Version'] ?></td>
+                                    <td class="td-10">
+                                        <span class="getPackageTimeline pointer label-white" hostid="<?= $id ?>" packagename="<?= $package['Name'] ?>">History</span>
+                                    </td>
+                                </tr>
+                                <?php
+                            endforeach;
+                        endif ?>
                     </tbody>
                 </table>
             </div>

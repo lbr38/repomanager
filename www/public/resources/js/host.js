@@ -6,6 +6,12 @@ $(document).ready(function () {
         closeOnSelect: false,
         placeholder: 'Add host...'
     });
+
+    /**
+     *  Hide loading div and print hosts
+     */
+    $('#hostsDivLoading').hide();
+    $('#hostsDiv').show();
 });
 
 /**

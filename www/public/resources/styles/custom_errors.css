@@ -1,5 +1,5 @@
-@font-face{ font-family: 'ethnocentric'; src: url('../fonts/ethnocentric rg.ttf') format('truetype');   }
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 body { background-color: #112334; }
 
 #errorDiv-container {
@@ -21,14 +21,13 @@ body { background-color: #112334; }
     line-height: 400px;
     padding: 0px;
     margin: auto;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Roboto', sans-serif;
     color: white;
     text-align: center;
     border-radius: 4px;
-    box-shadow:
-    0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-    0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-    background-color:#2b2b2b;
+    background-color: #182b3e;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
 h1 {

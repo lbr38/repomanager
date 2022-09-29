@@ -321,7 +321,7 @@ class Host
              *  Ajout de la date, l'heure et l'état du paquet
              */
             if ($event['State'] == "inventored") {
-                $content_color = 'gray';
+                $content_color = 'blue';
                 $content_text = '<img src="../resources/icons/package.svg" class="icon" /> Inventored';
             }
             if ($event['State'] == "installed") {

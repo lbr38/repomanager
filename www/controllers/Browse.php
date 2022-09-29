@@ -76,14 +76,18 @@ class Browse
      */
     public static function printFile($file, $path)
     {
+        echo '<li>';
+
         /**
          *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
          */
         if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb") {
-            echo '<li><span class="explorer-file-pkg"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="resources/icons/package.svg" class="icon" />' . $file . '</span></li>';
+            echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="resources/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
         } else {
-            echo '<li><span class="explorer-file"><img src="resources/icons/file.svg" class="icon" />' . $file . '</span></li>';
+            echo '<div class="explorer-file header-blue"><img src="resources/icons/file.svg" class="icon" /><span>' . $file . '</span></div>';
         }
+
+        echo '</li>';
     }
 
     /**
@@ -91,13 +95,22 @@ class Browse
      */
     public static function printSubDir($dir, $path)
     {
-        if ($dir == 'my_uploaded_packages') { // Si le nom du répertoire est 'my_uploaded_packages' alors on l'affiche en jaune
-            echo '<li><span class="explorer-toggle yellowtext"><img src="resources/icons/folder.svg" class="icon" />' . $dir . '</span>';
+        echo '<li>';
+
+        /**
+         *  If dir name is 'my_uploaded_packages' then print it in yellow
+         */
+        if ($dir == 'my_uploaded_packages') {
+            echo '<div class="explorer-toggle header-blue yellowtext"><img src="resources/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
         } else {
-            echo '<li><span class="explorer-toggle"><img src="resources/icons/folder.svg" class="icon" />' . $dir . '</span>';
+            echo '<div class="explorer-toggle header-blue"><img src="resources/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
         }
 
-        \Controllers\Browse::tree($path . '/' . $dir); // on rappelle la fonction principale afin d'afficher l'arbsorescence de ce sous-dossier
+        /**
+         *  Calling main tree function again to print this sub-directory tree
+         */
+        \Controllers\Browse::tree($path . '/' . $dir);
+
         echo '</li>';
     }
 

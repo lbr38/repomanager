@@ -9,25 +9,24 @@
  */
 
 $logContent = '
-<h3>PLANIFICATION</h3>
-
-<table class="op-table">
-    <tr>
-        <th>EXECUTED ON</td>
-        <td><b>' . DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y') . '</b> at <b>' . DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s') . '</b></td>
-    </tr>
-    <tr>
-        <th>PID</td>
-        <td>' . $this->log->pid . '</td>
-    </tr>' .
-    ((!empty($this->mailRecipient)) ?
-    '<tr>
-        <th>CONTACT</th>
-        <td>' . $this->getMailRecipientFormatted() . '</td>
-    </tr>
-    ' : '') .
-'</table>
-
+<div class="div-generic-blue">
+    <table class="op-table">
+        <tr>
+            <th>EXECUTED ON</td>
+            <td><b>' . DateTime::createFromFormat('Y-m-d', $this->log->date)->format('d-m-Y') . '</b> at <b>' . DateTime::createFromFormat('H-i-s', $this->log->time)->format('H:i:s') . '</b></td>
+        </tr>
+        <tr>
+            <th>PID</td>
+            <td>' . $this->log->pid . '</td>
+        </tr>' .
+        ((!empty($this->mailRecipient)) ?
+        '<tr>
+            <th>CONTACT</th>
+            <td>' . $this->getMailRecipientFormatted() . '</td>
+        </tr>
+        ' : '') .
+    '</table>
+</div>
 <br>
 <hr>
 <br>
