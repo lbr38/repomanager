@@ -11,7 +11,7 @@ include_once('../includes/head.inc.php');
 
 <article>
     <section class="mainSectionRight">
-        <?php if (Controllers\Common::isadmin()) : ?>
+        <?php if (\Controllers\Common::isadmin()) : ?>
             <!-- GERER L'AFFICHAGE -->
             <?php include_once('../includes/display.inc.php'); ?>
 

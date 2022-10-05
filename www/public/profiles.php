@@ -66,7 +66,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
         <div id="title-button-div">
             <h3>PROFILES</h3>
 
-            <?php if (Controllers\Common::isadmin()) : ?>
+            <?php if (\Controllers\Common::isadmin()) : ?>
                 <div id="title-button-container">
                     <div id="profileServerSettingsToggleButton" class="slide-btn" title="Edit server settings">
                         <img src="resources/icons/cog.svg" />

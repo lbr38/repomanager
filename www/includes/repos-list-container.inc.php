@@ -1,7 +1,7 @@
 <div id="title-button-div">
     <h3>REPOS</h3>
     
-    <?php if (Controllers\Common::isadmin()) : ?>
+    <?php if (\Controllers\Common::isadmin()) : ?>
         <div id="title-button-container">
             <!-- Bouton "Affichage" -->
             <div id="ReposListDisplayToggleButton" class="slide-btn" title="Edit repos list display settings">
@@ -16,7 +16,7 @@
             </div>
 
             <!-- Bouton "Gérer les repos/hôtes sources" -->
-            <div id="ReposSourcesToggleButton" class="slide-btn" title="Manage source repositories">
+            <div id="source-repo-toggle-btn" class="slide-btn" title="Manage source repositories">
                 <img src="resources/icons/internet.svg" />
                 <span>Manage source repos</span>
             </div>

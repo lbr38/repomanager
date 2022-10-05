@@ -4,7 +4,7 @@
         <h3>REPOS LIST DISPLAY SETTINGS</h3>
 
         <?php
-        if (Controllers\Common::isadmin()) : ?>
+        if (\Controllers\Common::isadmin()) : ?>
             <h5>Informations</h5>
                 
             <!-- afficher ou non la taille des repos/sections -->

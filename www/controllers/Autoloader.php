@@ -63,6 +63,15 @@ class Autoloader
         }
 
         /**
+         *  PHP modules errors
+         */
+        if (__LOAD_PHP_MODULES_ERROR > 0) {
+            $__LOAD_ERROR_MESSAGES[] = "Some PHP modules are missing or are disabled:<br>";
+            $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_PHP_MODULES_MESSAGES);
+            ++$__LOAD_GENERAL_ERROR;
+        }
+
+        /**
          *  Erreur liées au chargement des environnements
          */
         if (__LOAD_ERROR_EMPTY_ENVS > 0) {
@@ -150,6 +159,36 @@ class Autoloader
         \Controllers\Autoloader::checkForUpdate();
         \Controllers\Autoloader::serviceIsActive();
         \Controllers\Autoloader::loadReposListDisplayConf();
+        \Controllers\Autoloader::checkPhpModules();
+    }
+
+    private static function checkPhpModules()
+    {
+        $__LOAD_PHP_MODULES_ERROR = 0;
+        $__LOAD_PHP_MODULES_MESSAGES = array();
+
+        /**
+         *  Load PHP modules enabled
+         */
+        $modules = get_loaded_extensions();
+
+        if (empty($modules)) {
+            $__LOAD_PHP_MODULES_ERROR++;
+            $__LOAD_PHP_MODULES_MESSAGES[] = "Cannot retrieve enabled PHP modules list.";
+            return;
+        }
+
+        if (!in_array('xml', $modules)) {
+            $__LOAD_PHP_MODULES_ERROR++;
+            $__LOAD_PHP_MODULES_MESSAGES[] = " - xml module for PHP is not installed or disabled.";
+        }
+
+        if (!defined('__LOAD_PHP_MODULES_ERROR')) {
+            define('__LOAD_PHP_MODULES_ERROR', $__LOAD_PHP_MODULES_ERROR);
+        }
+        if (!defined('__LOAD_PHP_MODULES_MESSAGES')) {
+            define('__LOAD_PHP_MODULES_MESSAGES', $__LOAD_PHP_MODULES_MESSAGES);
+        }
     }
 
     /**
@@ -275,18 +314,7 @@ class Autoloader
         if (!defined('LOGBUILDER')) {
             define('LOGBUILDER', ROOT . '/tools/logbuilder.php');
         }
-        // Répertoires et fichiers supplémentaires pour rpm
-        // Emplacement de la conf yum
-        if (!defined('REPOMANAGER_YUM_DIR')) {
-            define('REPOMANAGER_YUM_DIR', "/etc/yum.repos.d/repomanager");
-        }
-        if (!defined('REPOMANAGER_YUM_CONF')) {
-            define('REPOMANAGER_YUM_CONF', "/etc/yum.repos.d/repomanager/repomanager.conf");
-        }
-        // Emplacement des clés gpg importées par repomanager
-        if (!defined('RPM_GPG_DIR')) {
-            define('RPM_GPG_DIR', "/etc/pki/rpm-gpg/repomanager");
-        }
+
         if (!defined('PASSPHRASE_FILE')) {
             define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
         }
@@ -366,9 +394,6 @@ class Autoloader
         if (!is_dir(HOSTS_DIR)) {
             mkdir(HOSTS_DIR, 0770, true);
         }
-        if (RPM_REPO == 'enabled' and !is_dir(REPOMANAGER_YUM_DIR)) {
-            mkdir(REPOMANAGER_YUM_DIR, 0770, true);
-        }
 
         if (!file_exists(WWW_CACHE)) {
             // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
@@ -425,9 +450,9 @@ class Autoloader
             exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
             exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
         } else if (RPM_SIGN_PACKAGES == 'yes') {
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
         } else if (DEB_SIGN_REPO == 'yes') {
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
         }
     }
 
@@ -492,14 +517,17 @@ class Autoloader
             echo 'Error: cannot determine OS release';
             die;
         }
+
         $os      = file_get_contents('/etc/os-release');
         $listIds = preg_match_all('/.*=/', $os, $matchListIds);
         $listIds = $matchListIds[0];
         $listVal = preg_match_all('/=.*/', $os, $matchListVal);
         $listVal = $matchListVal[0];
+
         array_walk($listIds, function (&$v, $k) {
             $v = strtolower(str_replace('=', '', $v));
         });
+
         array_walk($listVal, function (&$v, $k) {
             $v = preg_replace('/=|"/', '', $v);
         });

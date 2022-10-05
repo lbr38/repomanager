@@ -44,8 +44,6 @@ jobs:
           groupadd repomanager
           usermod -a -G repomanager www-data
           mkdir -p /home/repo
-          mkdir -p /etc/yum/vars
-          mkdir -p /etc/yum.repos.d/repomanager
           mkdir -p /var/www/repomanager
           mkdir -p /var/lib/repomanager
           mkdir -p /var/lib/repomanager/backups
@@ -85,27 +83,6 @@ jobs:
         run: |
           echo -e "pinentry-mode loopback\npassphrase-file /var/lib/repomanager/.gnupg/passphrase" > gpg.conf 
           mv gpg.conf /var/lib/repomanager/.gnupg/gpg.conf
-
-      - name: Set up yum configuration
-        run: |
-          echo "[main]
-          reposdir=/etc/yum.repos.d/repomanager/
-          keepcache=0
-          debuglevel=2
-          exactarch=1
-          obsoletes=1
-          gpgcheck=1
-          plugins=1
-          installonly_limit=5
-          distroverpkg=centos-release" > /etc/yum.repos.d/repomanager/repomanager.conf
-
-      - name: Set up nginx repo source
-        run: |
-          echo "[nginx]
-          name=nginx repo
-          baseurl=http://nginx.org/packages/centos/7/\$basearch/
-          gpgcheck=0
-          enabled=1" > /etc/yum.repos.d/repomanager/nginx.repo
 
       - name: Download jobs
         run: |

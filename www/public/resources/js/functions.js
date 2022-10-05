@@ -160,3 +160,14 @@ function classToSelect2(className)
         placeholder: 'Select...'
     });
 }
+
+/**
+ *  Event: hide slided window on escape button press
+ */
+$(document).keyup(function (e) {
+    if (e.key === "Escape") {
+        $('.param-slide-container').animate({
+            width: '0'
+        }).hide('100');
+    }
+});

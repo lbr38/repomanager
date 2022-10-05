@@ -1497,12 +1497,12 @@ class Host
         $groupId = $mygroup->getIdByName($groupName);
 
         /**
-         *  Récupération de tous les repos membres de ce groupe
+         *  Récupération de tous les hosts membres de ce groupe
          */
         $hostsIn = $this->model->getHostsGroupMembers($groupId);
 
         /**
-         *  Récupération de tous les repos membres d'aucun groupe
+         *  Récupération de tous les hosts membres d'aucun groupe
          */
         $hostsNotIn = $this->model->getHostsNotMembersOfAnyGroup();
 

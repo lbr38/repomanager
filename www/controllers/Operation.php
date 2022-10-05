@@ -445,9 +445,9 @@ class Operation
         }
     }
 
-    private function checkParamIncludeSource(string $targetPackageSource)
+    private function checkParamIncludeSource(string $targetSourcePackage)
     {
-        if ($targetPackageSource !== "yes" and $targetPackageSource !== "no") {
+        if ($targetSourcePackage !== "yes" and $targetSourcePackage !== "no") {
             throw new Exception('Package source param is invalid');
         }
     }
@@ -566,7 +566,7 @@ class Operation
          */
         $this->duration = microtime(true) - $this->timeStart; // $this->duration = nombre de secondes totales pour l'exécution de l'opération
 
-        $this->step('DURATION', false);
+        $this->step('TOTAL DURATION', false);
         $this->log->steplogDuration($this->stepId, \Controllers\Common::convertMicrotime($this->duration));
 
         /**
@@ -890,6 +890,7 @@ class Operation
         }
 
         $content = $title . '<form class="operation-form-container" autocomplete="off">';
+        $totalReposArray = count($repos_array);
 
         foreach ($repos_array as $repo) {
             $repoId = \Controllers\Common::validateData($repo['repoId']);
@@ -930,10 +931,10 @@ class Operation
             /**
              *  On vérifie que les Id spécifiés existent en base de données
              */
-            if (!$myrepo->model->existsId($repoId)) {
+            if (!$myrepo->existsId($repoId)) {
                 throw new Exception("Repo Id does not exist");
             }
-            if (!$myrepo->model->existsSnapId($snapId)) {
+            if (!$myrepo->existsSnapId($snapId)) {
                 throw new Exception("Snapshot Id does not exist");
             }
 
@@ -991,6 +992,14 @@ class Operation
             }
             echo '</table>';
             echo '</div>';
+
+            /**
+             *  Print a <hr> to separate when there are multiple repos to be processed
+             */
+            if ($totalReposArray > 1) {
+                echo '<br><hr><br>';
+            }
+            $totalReposArray--;
 
             $content .= ob_get_clean();
         }
@@ -1093,6 +1102,7 @@ class Operation
              */
             if ($action == 'new') {
                 $myrepo = new \Controllers\Repo();
+                $mysource = new \Controllers\Source();
 
                 $this->checkParamType($operation_params['type']);
 
@@ -1132,13 +1142,13 @@ class Operation
                     if (empty($operation_params['targetArch'])) {
                         throw new Exception('You must specify architecture.');
                     }
-                    if (empty($operation_params['targetPackageSource'])) {
+                    if (empty($operation_params['targetSourcePackage'])) {
                         throw new Exception('You must specify if package source should also be mirrored or not.');
                     }
                     $this->checkParamIncludeArch($operation_params['targetArch']);
-                    $this->checkParamIncludeSource($operation_params['targetPackageSource']);
+                    $this->checkParamIncludeSource($operation_params['targetSourcePackage']);
 
-                    if ($packageType == 'deb') {
+                    if ($packageType == 'deb' and !empty($operation_params['targetPackageTranslation'])) {
                         $this->checkParamIncludeTranslation($operation_params['targetPackageTranslation']);
                     }
                 }
@@ -1156,23 +1166,8 @@ class Operation
                  *  On vérifie que le repo source existe
                  */
                 if ($operation_params['type'] == 'mirror') {
-                    /**
-                     *  Sur Redhat on vérifie que le nom de la source spécifiée apparait bien dans un des fichiers de repo source
-                     */
-                    if ($packageType == 'rpm') {
-                        $checkifRepoRealnameExist = exec("grep '^\\[" . $operation_params['source'] . "\\]' " . REPOMANAGER_YUM_DIR . "/*.repo");
-                        if (empty($checkifRepoRealnameExist)) {
-                            throw new Exception("There is no source repo named " . $operation_params['source']);
-                        }
-                    }
-                    /**
-                     *  Sur Debian on vérifie en base de données que la source spécifiée existe bien
-                     */
-                    if ($packageType == 'deb') {
-                        $mysource = new \Models\Source();
-                        if ($mysource->exists($operation_params['source']) === false) {
-                            throw new Exception("There is no source repo named " . $operation_params['source']);
-                        }
+                    if ($mysource->exists($packageType, $operation_params['source']) === false) {
+                        throw new Exception("There is no source repo named " . $operation_params['source']);
                     }
                 }
 
@@ -1201,13 +1196,13 @@ class Operation
                 if (empty($operation_params['targetArch'])) {
                     throw new Exception('You must specify an architecture.');
                 }
-                if (empty($operation_params['targetPackageSource'])) {
+                if (empty($operation_params['targetSourcePackage'])) {
                     throw new Exception('You must specify if package source should also be mirrored or not.');
                 }
                 $this->checkParamIncludeArch($operation_params['targetArch']);
-                $this->checkParamIncludeSource($operation_params['targetPackageSource']);
+                $this->checkParamIncludeSource($operation_params['targetSourcePackage']);
 
-                if ($packageType == 'deb') {
+                if ($packageType == 'deb' and !empty($operation_params['targetPackageTranslation'])) {
                     $this->checkParamIncludeTranslation($operation_params['targetPackageTranslation']);
                 }
             }
@@ -1234,12 +1229,12 @@ class Operation
                  */
                 if ($packageType == 'rpm') {
                     if ($myrepo->isActive($operation_params['targetName']) === true) {
-                        throw new Exception('a <span class="label-black">' . $operation_params['targetName'] . '</span> repo already exists');
+                        throw new Exception('<span class="label-white">' . $operation_params['targetName'] . '</span> repo already exists');
                     }
                 }
                 if ($packageType == 'deb') {
                     if ($myrepo->isActive($operation_params['targetName'], $myrepo->getDist(), $myrepo->getSection()) === true) {
-                        throw new Exception('a <span class="label-black">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
+                        throw new Exception('<span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> repo already exists');
                     }
                 }
 
@@ -1307,16 +1302,16 @@ class Operation
     public function execute(array $operations_params)
     {
         /**
-         *  Création d'un Id principal pour identifier l'opération asynchrone (mélange du timestamp Unix et d'un nombre aléatoire)
+         *  Création d'un poolId pour identifier l'opération asynchrone (mélange du timestamp Unix et d'un nombre aléatoire)
          */
         while (true) {
-            $operation_id = time() . \Controllers\Common::generateRandom();
+            $poolId = time() . \Controllers\Common::generateRandom();
 
             /**
              *  On crée le fichier JSON et on sort de la boucle si le numéro est disponible
              */
-            if (!file_exists(POOL . '/' . $operation_id . '.json')) {
-                touch(POOL . '/' . $operation_id . '.json');
+            if (!file_exists(POOL . '/' . $poolId . '.json')) {
+                touch(POOL . '/' . $poolId . '.json');
                 break;
             }
         }
@@ -1324,14 +1319,12 @@ class Operation
         /**
          *  Ajout du contenu de l'array dans un fichier au format JSON
          */
-        file_put_contents(POOL . '/' . $operation_id . '.json', json_encode($operations_params, JSON_PRETTY_PRINT));
+        file_put_contents(POOL . '/' . $poolId . '.json', json_encode($operations_params, JSON_PRETTY_PRINT));
 
         /**
          *  Lancement de execute.php qui va s'occuper de traiter le fichier JSON
          */
-        $this->executeId($operation_id);
-
-        return $operation_id;
+        $this->executeId($poolId);
     }
 
     public function executeId(int $operationId)

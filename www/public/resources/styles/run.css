@@ -115,3 +115,7 @@
     position: absolute;
     right: 10px;
 }
+
+.getPackagesDiv pre {
+    font-size: 13px;
+}
