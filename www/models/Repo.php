@@ -466,31 +466,6 @@ class Repo extends Model
     }
 
     /**
-     *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
-     */
-    public function getFullSource(string $sourceName)
-    {
-        $fullUrl = '';
-
-        /**
-         *  Récupère l'url complète
-         */
-        try {
-            $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Name = :name");
-            $stmt->bindValue(':name', $sourceName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $fullUrl = $row['Url'];
-        }
-
-        return $fullUrl;
-    }
-
-    /**
      *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
      */
     public function getUnusedRepos()

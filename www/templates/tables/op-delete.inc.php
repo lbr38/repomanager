@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <tr>
-            <th>REPO:</th>
+            <th>REPO</th>
             <td>
                 <span class="label-white">
                     <?php
@@ -18,7 +18,7 @@
             </td>
         </tr>
         <tr>
-            <th>DATE:</th>
+            <th>DATE</th>
             <td><span class="label-black"><?=$this->dateFormatted?></span></td>
         </tr>
     </table>

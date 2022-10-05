@@ -3,6 +3,8 @@
         <img id="newRepoCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
 
         <?php
+        $mysource = new \Controllers\Source();
+
         /**
          *  Récupération de la liste de tous les groupes
          */
@@ -15,7 +17,7 @@
             <div class="operation-form" repo-id="none" action="new">
                 <table>
                     <tr>
-                        <td>Packages type</td>
+                        <td>Package type</td>
                         <td>
                             <div class="switch-field">
                                 <?php
@@ -57,16 +59,14 @@
                                 <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror rpm" package-type="rpm">
                                     <option value="">Select a source repo...</option>
                                     <?php
-                                    $reposFiles = scandir(REPOMANAGER_YUM_DIR);
+                                    $sourcesList = $mysource->listAll('rpm');
 
-                                    foreach ($reposFiles as $repoFileName) {
-                                        if (($repoFileName != "..") and ($repoFileName != ".") and ($repoFileName != "repomanager.conf")) {
-                                            /**
-                                             *  On retire le suffixe .repo du nom du fichier afin que ça soit plus propre dans la liste
-                                             */
-                                            $repoFileNameFormated = str_replace(".repo", "", $repoFileName);
+                                    if (!empty($sourcesList)) {
+                                        foreach ($sourcesList as $source) {
+                                            $sourceName = $source['Name'];
+                                            $sourceUrl = $source['Url'];
 
-                                            echo '<option value="' . $repoFileNameFormated . '">' . $repoFileNameFormated . '</option>';
+                                            echo '<option value="' . $sourceName . '">' . $sourceName . '</option>';
                                         }
                                     } ?>
                                 </select>
@@ -76,15 +76,14 @@
                                 <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror deb" package-type="deb">
                                     <option value="">Select a source repo...</option>
                                     <?php
-                                    $source = new \Models\Source();
-                                    $sourcesList = $source->listAll();
+                                    $sourcesList = $mysource->listAll('deb');
 
                                     if (!empty($sourcesList)) {
                                         foreach ($sourcesList as $source) {
                                             $sourceName = $source['Name'];
                                             $sourceUrl = $source['Url'];
 
-                                            echo '<option value="' . $sourceName . '">' . $sourceName . ' (' . $sourceUrl . ')</option>';
+                                            echo '<option value="' . $sourceName . '">' . $sourceName . '</option>';
                                         }
                                     } ?>
                                 </select>
@@ -198,7 +197,10 @@
                             <select class="targetArchSelect operation_param" param-name="targetArch" package-type="rpm" multiple>
                                 <option value="">Select architecture...</option>
                                 <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                                <option value="i386" <?php echo (in_array('i386', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                                <option value="aarch64" <?php echo (in_array('aarch64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>aarch64</option>
+                                <option value="ppc64le" <?php echo (in_array('ppc64le', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64le</option>
                             </select>
                         </td>
 
@@ -208,34 +210,43 @@
                                 <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
                                 <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                                <option value="arm64" <?php echo (in_array('arm64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>arm64</option>
+                                <option value="armel" <?php echo (in_array('armel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armel</option>
+                                <option value="mips" <?php echo (in_array('mips', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips</option>
+                                <option value="mipsel" <?php echo (in_array('mipsel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mipsel</option>
+                                <option value="mips64el" <?php echo (in_array('mips64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips64el</option>
+                                <option value="ppc64el" <?php echo (in_array('ppc64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64el</option>
+                                <option value="s390x" <?php echo (in_array('s390x', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>s390x</option>
                             </select>
                         </td>
                     </tr>
 
                     <tr field-type="mirror rpm deb">
-                        <td class="td-30">Include packages sources</td>
+                        <td class="td-30">Include sources packages</td>
                         <td>
                             <label field-type="mirror rpm" class="onoff-switch-label">
-                                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                             <label field-type="mirror deb" class="onoff-switch-label">
-                                <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetPackageSource" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                                <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>
                     </tr>
 
-                    <tr field-type="mirror deb">
-                        <td class="td-30">Include packages translation</td>
+                    <!-- <tr field-type="mirror deb">
+                        <td class="td-30">Include translation</td>
                         <td>
                             <select id="targetPackageTranslationSelect" class="operation_param" param-name="targetPackageTranslation" package-type="deb" multiple>
                                 <option value="">Select translation(s)...</option>
-                                <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
-                                <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                                <option value="en" <?php //echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
+                                <option value="fr" <?php //echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                                <option value="de" <?php //echo (in_array('de', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>de (deutsch)</option>
+                                <option value="it" <?php //echo (in_array('it', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>it (italian)</option>
                             </select>
                         </td>
-                    </tr>
+                    </tr> -->
                 </table>
             </div>
             

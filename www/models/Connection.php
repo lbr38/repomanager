@@ -304,6 +304,7 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Type CHAR(3) NOT NULL,
         Name VARCHAR(255) NOT NULL,
         Url VARCHAR(255) NOT NULL,
         Gpgkey VARCHAR(255))");

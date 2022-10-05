@@ -11,7 +11,7 @@ include_once('../includes/head.inc.php');
 
 <article>
     <section class="mainSectionRight">
-        <?php if (Controllers\Common::isadmin()) : ?>
+        <?php if (\Controllers\Common::isadmin()) : ?>
             <!-- GERER L'AFFICHAGE -->
             <?php include_once('../includes/display.inc.php'); ?>
 
@@ -80,11 +80,7 @@ include_once('../includes/head.inc.php');
                             $planReminder = $plan['Reminder'];
                         } else {
                             $planReminder = 'None';
-                        }
-
-                        /**
-                         *  On définit si la planification traite un repo seul ou un groupe en fonction de si les variables sont vides ou non
-                         */ ?>
+                        } ?>
 
                         <div class="header-container">
                             <div class="header-blue">
@@ -263,105 +259,96 @@ include_once('../includes/head.inc.php');
                                 /**
                                  *  Affichage de l'heure
                                  */
-                                if (!empty($planTime)) {
-                                    echo '<div>';
-                                        echo '<span>Time</span>';
-                                        echo '<span>' . $planTime . '</span>';
-                                    echo '</div>';
-                                }
+                                if (!empty($planTime)) : ?>
+                                    <div>
+                                        <span>Time</span>
+                                        <span><?= $planTime ?></span>
+                                    </div>
+                                    <?php
+                                endif;
 
-                                if ($planAction == "update") {
-                                    /**
-                                     *  GPG Check
-                                     */
-                                    echo '<div>';
-                                        echo '<span>Check GPG signatures</span>';
-                                    if ($planGpgCheck == "yes") {
+                                if ($planAction == "update") : ?>
+                                    <div>
+                                        <span>Check GPG signatures</span>
+                                        <?php
+                                        if ($planGpgCheck == "yes") {
+                                            echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        } else {
+                                            echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        } ?>
+                                    </div>
+
+                                    <div>
+                                        <span>Sign packages/repo with GPG</span>
+                                        <?php
+                                        if ($planGpgResign == "yes") {
+                                            echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        } else {
+                                            echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        } ?>
+                                    </div>
+                                    <?php
+                                endif ?>
+
+                                <hr>
+
+                                <div>
+                                    <span>Reminder</span>
+                                    <span>
+                                        <?php
+                                        if ($planReminder == 'None') {
+                                            echo 'None';
+                                        } else {
+                                            $planReminder = explode(',', $planReminder);
+                                            foreach ($planReminder as $reminder) {
+                                                if (!empty($reminder)) {
+                                                    echo $reminder . ' days before<br>';
+                                                }
+                                            }
+                                        } ?>
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <span>Notification on error</span>
+                                    <?php
+                                    if ($planNotificationOnError == "yes") {
                                         echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
                                         echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-                                    }
-                                    echo '</div>';
-                                    /**
-                                     *  GPG Resign
-                                     */
-                                    echo '<div>';
-                                        echo '<span>Sign packages/repo with GPG</span>';
-                                    if ($planGpgResign == "yes") {
+                                    } ?>
+                                </div>
+
+                                <div>
+                                    <span>Notification on success</span>
+                                    <?php
+                                    if ($planNotificationOnSuccess == "yes") {
                                         echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
                                         echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-                                    }
-                                    echo '</div>';
-                                }
+                                    } ?>
+                                </div>
 
-                                echo '<hr>';
+                                <?php
+                                if (!empty($planMailRecipient)) : ?>
+                                    <div>
+                                        <span>Contact</span>
+                                        <span>
+                                            <?php
+                                            $planMailRecipient = explode(',', $planMailRecipient);
 
-                                /**
-                                 *  Rappels mail
-                                 */
-                                echo '<div>';
-                                echo '<span>Reminder</span>';
-                                echo '<span>';
-                                if ($planReminder == 'None') {
-                                    echo 'None';
-                                } else {
-                                    $planReminder = explode(',', $planReminder);
-                                    foreach ($planReminder as $reminder) {
-                                        if (!empty($reminder)) {
-                                            echo $reminder . ' days before<br>';
-                                        }
-                                    }
-                                }
-                                echo '</span>';
-                                echo '</div>';
+                                            foreach ($planMailRecipient as $recipient) {
+                                                if (!empty($recipient)) {
+                                                    echo $recipient . '<br>';
+                                                }
+                                            } ?>
+                                        </span>
+                                    </div>
+                                    <?php
+                                endif;
 
-                                /**
-                                 *  Notification en cas d'erreur
-                                 */
-                                echo '<div>';
-                                echo '<span>Notification on error</span>';
-                                if ($planNotificationOnError == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
-                                } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-                                }
-                                    echo '</div>';
-
-                                /**
-                                 *  Notification en cas de succès
-                                 */
-                                    echo '<div>';
-                                    echo '<span>Notification on success</span>';
-                                if ($planNotificationOnSuccess == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
-                                } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-                                }
-                                    echo '</div>';
-
-                                /**
-                                 *  Destinataire mail
-                                 */
-                                if (!empty($planMailRecipient)) {
-                                    echo '<div>';
-                                    echo '<span>Contact</span>';
-                                    echo '<span>';
-                                    $planMailRecipient = explode(',', $planMailRecipient);
-                                    foreach ($planMailRecipient as $recipient) {
-                                        if (!empty($recipient)) {
-                                            echo $recipient . '<br>';
-                                        }
-                                    }
-                                    echo '</span>';
-                                    echo '</div>';
-                                }
-
-                                /**
-                                 *  Log
-                                 */
                                 if (!empty($planLogfile)) {
-                                    echo '<div><span>Log</span><span><a href="run.php?logfile=' . $planLogfile . '"><button class="btn-small-blue"><b>See log</b></button></a></span></div>';
+                                    echo '<div><span>Log</span><span><a href="run.php?logfile=' . $planLogfile . '"><button class="btn-small-green"><b>Check log</b></button></a></span></div>';
                                 } ?>
                             </div>
                         </div>
@@ -371,7 +358,7 @@ include_once('../includes/head.inc.php');
                 <?php
             endif;
 
-            if (Controllers\Common::isadmin()) : ?>
+            if (\Controllers\Common::isadmin()) : ?>
                 <form id="newPlanForm" class="div-generic-blue" autocomplete="off">
                     <table class="table-large">
                         <tr>
@@ -857,7 +844,7 @@ include_once('../includes/head.inc.php');
                                     echo '<div>';
                                     if (!empty($planLogfile)) {
                                         echo '<span>Log</span>';
-                                        echo "<span><a href='run.php?logfile=$planLogfile'><button class='btn-small-green'><b>See log</b></button></a></></span>";
+                                        echo "<span><a href='run.php?logfile=$planLogfile'><button class='btn-small-green'><b>Check log</b></button></a></></span>";
                                     }
                                     echo '</div>'; ?>
                                 </div>

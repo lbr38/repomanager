@@ -87,7 +87,7 @@ if (DEBUG_MODE == "enabled") {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (Controllers\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
+            if (\Controllers\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="profiles.php">
                         <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
@@ -106,7 +106,7 @@ if (DEBUG_MODE == "enabled") {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (Controllers\Common::isadmin()) : ?>
+            if (\Controllers\Common::isadmin()) : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="configuration.php">
                         <img src="resources/icons/settings.svg" class="icon" />SETTINGS
@@ -286,7 +286,7 @@ if (DEBUG_MODE == "enabled") {
             } ?>
 
             <?php
-            if (Controllers\Common::isadmin()) : ?>
+            if (\Controllers\Common::isadmin()) : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="user.php" title="Userspace">
                         <img src="resources/icons/user.svg" class="icon" />
@@ -341,7 +341,7 @@ endif;
 /**
  *  Display repomanager service error if there is
  */
-if (filesize(SERVICE_LOG)) {
+if (filesize(SERVICE_LOG)) :
     $serviceLog = file_get_contents(SERVICE_LOG);
     ?>
     <section>
@@ -352,7 +352,13 @@ if (filesize(SERVICE_LOG)) {
         </section>
     </section>
     <?php
-}
+endif;
+
+/**
+ *  Display warning if a required php module is not enabled/installed
+ */
+
+
 
 include('maintenance.inc.php');
 include('update.inc.php'); ?>

@@ -81,7 +81,7 @@ class Browse
         /**
          *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
          */
-        if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb") {
+        if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb" or substr($file, -4) == ".dsc" or substr($file, -7) == ".tar.xz" or substr($file, -7) == ".tar.gz") {
             echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="resources/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
         } else {
             echo '<div class="explorer-file header-blue"><img src="resources/icons/file.svg" class="icon" /><span>' . $file . '</span></div>';

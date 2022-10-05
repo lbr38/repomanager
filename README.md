@@ -1,6 +1,6 @@
 <h1>REPOMANAGER</h1>
 
-**Repomanager** is a web mirroring tool for RPM or DEB packages repositories, using reposync & debmirror.
+**Repomanager** is a web mirroring tool for RPM or DEB packages repositories.
 
 Designed for an enterprise usage and to help deployment of packages updates on large Linux servers farms, it can create mirrors of public repositories (eg. Debian or CentOS official repos or third-party editors) and manage several snapshots versions and environments.
 
@@ -37,7 +37,7 @@ Repomanager runs on following systems:
 
 <h3>Software</h3>
 
-- Common packages (curl, wget, gnupg2...). Repomanager will automatically install them during the installation process.
+- Common packages (curl, gnupg2...). Repomanager will automatically install them during the installation process.
 - A web service + PHP and SQLite.
 
 **Recommended:** nginx + PHP-FPM (PHP 8.1)
@@ -53,13 +53,13 @@ You must install a web service + PHP and then configure a dedicated vhost.
 **Installation on a Redhat/CentOS system:**
 
 ```
-yum install nginx php-fpm php-cli php-pdo sqlite
+yum install nginx php-fpm php-cli php-pdo php-xml sqlite
 ```
 
 **Installation on a Debian system:**
 
 ```
-apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 sqlite3
+apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 php8.1-xml sqlite3
 ```
 
 <h3>SQLite</h3>

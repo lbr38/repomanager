@@ -21,8 +21,7 @@ $logfile = 'none';
 
 if (!empty($_GET['logfile'])) {
     $logfile = \Controllers\Common::validateData($_GET['logfile']);
-}
-?>
+} ?>
 
 <body>
 
@@ -48,6 +47,7 @@ if (!empty($_GET['logfile'])) {
                         <style>
                             .getPackagesDiv { display: block; }
                             .signRepoDiv { display: block; }
+                            .prepareRepoDiv { display: block; }
                             .createRepoDiv { display: block; }
                         </style>
                         <?php

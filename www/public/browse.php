@@ -259,7 +259,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
 
 <article>
     <?php
-    if (Controllers\Common::isadmin()) : ?>
+    if (\Controllers\Common::isadmin()) : ?>
         <section class="mainSectionRight">
 
             <h3>UPLOAD PACKAGES</h3>
@@ -274,10 +274,11 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                  *  Si une opération est déjà en cours sur ce repo alors on affiche un message
                  */
                 if (!empty($reconstruct) and $reconstruct == 'running') : ?>
-                    <p>
-                        <img src="resources/images/loading.gif" class="icon" /> 
-                        An operation is running on this repo.
-                    </p>
+                    <div class="div-generic-blue">
+                        <p>
+                            An operation is running on this repo<img src="resources/images/loading.gif" class="icon" /> 
+                        </p>
+                    </div>
                     <?php
                 endif;
 
@@ -385,7 +386,7 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
                 if ($pathError === 0) : ?>
                     <form action="" method="post">
                         <?php
-                        if (Controllers\Common::isadmin()) : ?>
+                        if (\Controllers\Common::isadmin()) : ?>
                             <input type="hidden" name="action" value="deletePackages" />
                             <input type="hidden" name="snapId" value="<?= $snapId ?>" />
                             <span id="delete-packages-btn" class="hide">

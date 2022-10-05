@@ -4,9 +4,6 @@
 
         <h3>REPOS GROUPS</h3>
 
-        <p>Regroup repos in order to sort them or perform a common action.</p>
-        <br>
-
         <h5>Create a new group:</h5>
 
         <form id="newGroupForm" autocomplete="off">
@@ -17,7 +14,6 @@
         <br><br>
 
         <?php
-
         /**
          *  AFFICHAGE DES GROUPES ACTUELS
          */
@@ -59,10 +55,10 @@
                         <form class="groupReposForm" groupname="<?= $groupName ?>" autocomplete="off">
                             <div class="detailsDiv">
                                 <h5>Repos</h5>
-                                <?php $myrepo->selectRepoByGroup($groupName); ?>
-                                <br>
-                                <br>
-                                <button type="submit" class="btn-large-green" title="Save">Save</button>
+                                <div class="flex flex-align-cnt-center">
+                                    <?php $myrepo->selectRepoByGroup($groupName); ?>
+                                    <button type="submit" class="btn-xxsmall-green" title="Add and save">+</button>
+                                </div>
                             </div>
                         </form>
                     </div>

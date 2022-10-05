@@ -49,7 +49,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
              */
             try {
                 $myop->validateForm($operation_params);
-                $op_id = $myop->execute($operation_params);
+                $myop->execute($operation_params);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
@@ -65,11 +65,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
          */
         if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POST['snapId']) and !empty($_POST['envId']))) {
             $myrepo = new \Controllers\Repo();
-            $myrepo->getAllById(
-                \Controllers\Common::validateData($_POST['repoId']),
-                \Controllers\Common::validateData($_POST['snapId']),
-                \Controllers\Common::validateData($_POST['envId'])
-            );
+            $myrepo->getAllById(\Controllers\Common::validateData($_POST['repoId']), \Controllers\Common::validateData($_POST['snapId']), \Controllers\Common::validateData($_POST['envId']), false);
 
             /**
              *  Vérification des paramètres de l'opération

@@ -156,7 +156,7 @@ $lineChartDates = "'" . implode("','", array_keys($dates)) . "'";
 
 echo '<h3>' . strtoupper($hostname) . '</h3>';
 
-if (Controllers\Common::isadmin()) : ?>
+if (\Controllers\Common::isadmin()) : ?>
     <div class="hostActionBtn-container">
         <span class="btn-large-green"><img src="../resources/icons/rocket.svg" class="icon" />Actions</span>
         <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>

@@ -123,7 +123,6 @@ if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['actio
 
     if (!empty($_POST['releasever']) and is_numeric($_POST['releasever'])) {
         $repomanager_conf_array['RPM']['RELEASEVER'] = $_POST['releasever'];
-        file_put_contents('/etc/yum/vars/releasever', $_POST['releasever']);
     }
 
     /**
@@ -479,46 +478,49 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
             <table class="table-medium">
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS family
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" /> OS family
                     </td>
                     <td>
                         <input type="text" value="<?= OS_FAMILY ?>" readonly />
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(OS_FAMILY)) {
+                        <?php
+                        if (empty(OS_FAMILY)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS name
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" /> OS name
                     </td>
                     <td>
                         <input type="text" value="<?= OS_NAME ?>" readonly />
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(OS_NAME)) {
+                        <?php
+                        if (empty(OS_NAME)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />OS version
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" /> OS version
                     </td>
                     <td>
                         <input type="text" value="<?= OS_VERSION ?>" readonly />
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(OS_VERSION)) {
+                        <?php
+                        if (empty(OS_VERSION)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />Automatic update
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." /> Automatic update
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -527,14 +529,15 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(UPDATE_AUTO)) {
+                        <?php
+                        if (empty(UPDATE_AUTO)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />Update target branch
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." /> Update target branch
                     </td>
                     <td>
                         <select name="updateBranch">
@@ -563,7 +566,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />Backup before update
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." /> Backup before update
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -572,7 +575,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(UPDATE_BACKUP_ENABLED)) {
+                        <?php
+                        if (empty(UPDATE_BACKUP_ENABLED)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -581,7 +585,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 if (UPDATE_BACKUP_ENABLED == "yes") : ?>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />Backup before update target directory
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." /> Backup before update target directory
                         </td>
                         <td>
                             <input type="text" name="updateBackupDir" autocomplete="off" value="<?= BACKUP_DIR ?>">
@@ -598,13 +602,14 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 endif ?>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />Contact
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." /> Contact
                     </td>
                     <td>
                         <input type="text" name="emailDest" autocomplete="off" value="<?= EMAIL_DEST ?>">
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(EMAIL_DEST)) {
+                        <?php
+                        if (empty(EMAIL_DEST)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -624,7 +629,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <input type="text" autocomplete="off" name="reposDir" value="<?= REPOS_DIR ?>" />
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(REPOS_DIR)) {
+                        <?php
+                        if (empty(REPOS_DIR)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -640,7 +646,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(STATS_ENABLED)) {
+                        <?php
+                        if (empty(STATS_ENABLED)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -690,7 +697,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>
-                        <?php if (empty(RPM_SIGN_PACKAGES)) {
+                        <?php
+                        if (empty(RPM_SIGN_PACKAGES)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </tr>
@@ -704,7 +712,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                 <input type="email" name="rpmGpgKeyID" autocomplete="off" value="<?= RPM_SIGN_GPG_KEYID ?>">
                             </td>
                             <td>
-                                <?php if (empty(RPM_SIGN_GPG_KEYID)) {
+                                <?php
+                                if (empty(RPM_SIGN_GPG_KEYID)) {
                                     echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                                 } ?>
                             </td>
@@ -720,7 +729,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                     <option value="rpmresign" <?php echo (RPM_SIGN_METHOD == 'rpmresign' ? 'selected' : '') ?>>rpmresign (RPM4 perl module)</option>
                                 </select>
                             </td>
-                            <?php if (empty(RPM_SIGN_METHOD)) {
+                            <?php
+                            if (empty(RPM_SIGN_METHOD)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </tr>
@@ -734,16 +744,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             <input type="text" name="releasever" autocomplete="off" value="<?= RELEASEVER ?>">
                         </td>
                         <td class="td-fit">
-                            <?php if (!file_exists('/etc/yum/vars/releasever')) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver does not exist." />';
-                            }?>
-                            <?php if (!is_readable('/etc/yum/vars/releasever')) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not readable for ' . WWW_USER . '" />';
-                            }?>
-                            <?php if (!is_writable('/etc/yum/vars/releasever')) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="/etc/yum/vars/releaserver is not writeable for ' . WWW_USER . '" />';
-                            }?>
-                            <?php if (empty(RELEASEVER)) {
+                            <?php
+                            if (empty(RELEASEVER)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             }?>
                         </td>
@@ -755,13 +757,16 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <td>
                             <select id="rpmArchitectureSelect" name="rpmDefaultArchitecture[]" multiple>
                                 <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
+                                <option value="i386" <?php echo (in_array('i386', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
+                                <option value="aarch64" <?php echo (in_array('aarch64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>aarch64</option>
+                                <option value="ppc64le" <?php echo (in_array('ppc64le', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64le</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror."> Include packages sources when creating rpm mirror
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror."> Include sources packages when creating rpm mirror
                         </td>
                         <td>
                             <label class="onoff-switch-label">
@@ -799,7 +804,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>
-                        <?php if (empty(DEB_SIGN_REPO)) {
+                        <?php
+                        if (empty(DEB_SIGN_REPO)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </tr>
@@ -813,7 +819,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                 <input type="text" name="debGpgKeyID" autocomplete="off" value="<?= DEB_SIGN_GPG_KEYID ?>">
                             </td>
                             <td>
-                                <?php if (empty(DEB_SIGN_GPG_KEYID)) {
+                                <?php
+                                if (empty(DEB_SIGN_GPG_KEYID)) {
                                     echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                                 } ?>
                             </td>
@@ -828,12 +835,19 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                                 <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
                                 <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
+                                <option value="arm64" <?php echo (in_array('arm64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>arm64</option>
+                                <option value="armel" <?php echo (in_array('armel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armel</option>
+                                <option value="mips" <?php echo (in_array('mips', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips</option>
+                                <option value="mipsel" <?php echo (in_array('mipsel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mipsel</option>
+                                <option value="mips64el" <?php echo (in_array('mips64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips64el</option>
+                                <option value="ppc64el" <?php echo (in_array('ppc64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64el</option>
+                                <option value="s390x" <?php echo (in_array('s390x', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>s390x</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages sources when creating deb mirror."> Include packages sources when creating deb mirror
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include sources packages when creating deb mirror."> Include sources packages when creating deb mirror
                         </td>
                         <td>
                             <label class="onoff-switch-label">
@@ -844,12 +858,14 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     </tr>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include packages translation(s) when creating deb mirror
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror."> Include translation(s) when creating deb mirror
                         </td>
                         <td>
                             <select id="debTranslationSelect" name="debDefaultTranslation[]" multiple>
                                 <option value="en" <?php echo (in_array('en', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>en (english)</option>
                                 <option value="fr" <?php echo (in_array('fr', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>fr (french)</option>
+                                <option value="de" <?php echo (in_array('de', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>de (deutsch)</option>
+                                <option value="it" <?php echo (in_array('it', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>it (italian)</option>
                             </select>
                         </td>
                     </tr>
@@ -869,7 +885,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <input type="text" name="wwwUser" autocomplete="off" value="<?= WWW_USER ?>">
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(WWW_USER)) {
+                        <?php
+                        if (empty(WWW_USER)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -882,7 +899,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <input type="text" name="wwwHostname" autocomplete="off" value="<?= WWW_HOSTNAME ?>">
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(WWW_HOSTNAME)) {
+                        <?php
+                        if (empty(WWW_HOSTNAME)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -895,7 +913,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <input type="text" name="wwwReposDirUrl" autocomplete="off" value="<?= WWW_REPOS_DIR_URL ?>">
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(WWW_REPOS_DIR_URL)) {
+                        <?php
+                        if (empty(WWW_REPOS_DIR_URL)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -918,7 +937,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(MANAGE_HOSTS)) {
+                        <?php
+                        if (empty(MANAGE_HOSTS)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -934,7 +954,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(MANAGE_PROFILES)) {
+                        <?php
+                        if (empty(MANAGE_PROFILES)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -969,7 +990,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </label>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(PLANS_ENABLED)) {
+                        <?php
+                        if (empty(PLANS_ENABLED)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </td>
@@ -987,7 +1009,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             </label>
                         </td>
                         <td class="td-fit">
-                            <?php if (empty(ALLOW_AUTOUPDATE_REPOS)) {
+                            <?php
+                            if (empty(ALLOW_AUTOUPDATE_REPOS)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
@@ -1003,7 +1026,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             </label>
                         </td>
                         <td class="td-fit">
-                            <?php if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
+                            <?php
+                            if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
@@ -1016,7 +1040,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             <input type="number" name="retention" autocomplete="off" value="<?= RETENTION ?>">
                         </td>
                         <td class="td-fit">
-                            <?php if (empty(RETENTION)) {
+                            <?php
+                            if (empty(RETENTION)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
@@ -1032,7 +1057,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             </label>
                         </td>
                         <td class="td-fit">
-                            <?php if (empty(PLAN_REMINDERS_ENABLED)) {
+                            <?php
+                            if (empty(PLAN_REMINDERS_ENABLED)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </td>
@@ -1087,7 +1113,8 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         <button type="submit" class="btn-xxsmall-green">+</button>
                     </td>
                     <td class="td-fit">
-                        <?php if (empty(ENVS)) {
+                        <?php
+                        if (empty(ENVS)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." />';
                         } ?>
                     </td>
@@ -1215,8 +1242,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                             echo '<span title="Service is running">Status <img src="resources/icons/greencircle.png" class="icon-small" /></span>';
                         } else {
                             echo '<span title="Service is not running">Status <img src="resources/icons/redcircle.png" class="icon-small" /></span>';
-                        }
-                        ?>
+                        } ?>
                     </td>
                 </tr>
             </table>

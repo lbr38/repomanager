@@ -12,138 +12,139 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
 
     if (!empty($_POST['action'])) {
         /*
-         *  Ajouter un nouveau repo source
+         *  Add a new source repo
          */
         if (
             $_POST['action'] == "addSource"
             and !empty($_POST['repoType'])
             and !empty($_POST['name'])
-            and isset($_POST['urlType'])
             and !empty($_POST['url'])
-            and isset($_POST['existingGpgKey'])
             and isset($_POST['gpgKeyURL'])
             and isset($_POST['gpgKeyText'])
         ) {
-            $mysource = new \Models\Source();
+            $mysource = new \Controllers\Source();
 
-            /**
-             *  Tentative d'ajout du nouveau repo source
-             */
             try {
-                $mysource->new($_POST['repoType'], $_POST['name'], $_POST['urlType'], $_POST['url'], $_POST['existingGpgKey'], $_POST['gpgKeyURL'], $_POST['gpgKeyText']);
+                $mysource->new($_POST['repoType'], $_POST['name'], $_POST['url'], $_POST['gpgKeyURL'], $_POST['gpgKeyText']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
-            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been created");
+            response(HTTP_OK, 'Source repo <b>' . $_POST['name'] . '</b> has been created');
         }
 
         /**
-         *  Supprimer un repo source
+         *  Delete a source repo
          */
-        if ($_POST['action'] == "deleteSource" and !empty($_POST['repoType']) and !empty($_POST['name'])) {
-            $mysource = new \Models\Source();
+        if ($_POST['action'] == "deleteSource" and !empty($_POST['sourceId'])) {
+            $mysource = new \Controllers\Source();
 
-            /**
-             *  Tentative de suppression
-             */
             try {
-                $mysource->delete($_POST['repoType'], $_POST['name']);
+                $mysource->delete($_POST['sourceId']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
-            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been deleted");
+            response(HTTP_OK, "Source repo has been deleted");
         }
 
         /**
-         *  Renommer un repo source
+         *  Rename a source repo
          */
-        if ($_POST['action'] == "renameSource" and !empty($_POST['repoType']) and !empty($_POST['name']) and !empty($_POST['newname'])) {
-            $mysource = new \Models\Source();
+        if ($_POST['action'] == "renameSource" and !empty($_POST['type']) and !empty($_POST['name']) and !empty($_POST['newname'])) {
+            $mysource = new \Controllers\Source();
 
-            /**
-             *  Tentative de renommage du repo source
-             */
             try {
-                $mysource->rename($_POST['repoType'], $_POST['name'], $_POST['newname']);
+                $mysource->rename($_POST['type'], $_POST['name'], $_POST['newname']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
             response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> has been renamed to <b>" . $_POST['newname'] . "</b>");
         }
 
         /**
-         *  Modifier l'url d'un repo source (repo source de type deb uniquement)
+         *  Edit source repo URL
          */
-        if ($_POST['action'] == "editSourceUrl" and !empty($_POST['name']) and !empty($_POST['url'])) {
-            $mysource = new \Models\Source();
+        if ($_POST['action'] == "editSourceUrl" and !empty($_POST['type']) and !empty($_POST['name']) and !empty($_POST['url'])) {
+            $mysource = new \Controllers\Source();
 
-            /**
-             *  Tentative de modification de l'url
-             */
             try {
-                $mysource->editUrl($_POST['name'], $_POST['url']);
+                $mysource->editUrl($_POST['type'], $_POST['name'], $_POST['url']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
             response(HTTP_OK, "Source repo URL <b>" . $_POST['name'] . "</b> has been saved");
         }
 
         /**
-         *  Modifier la configuration d'un repo source (repo source de type rpm uniquement)
+         *  Edit source repo GPG key URL
          */
-        if ($_POST['action'] == "configureSource" and !empty($_POST['name']) and !empty($_POST['options_array']) and isset($_POST['comments'])) {
-            $mysource = new \Models\Source();
+        if ($_POST['action'] == "editGpgKey" and !empty($_POST['sourceId']) and isset($_POST['gpgkey'])) {
+            $mysource = new \Controllers\Source();
 
-            /**
-             *  Tentative de configuration du repo source
-             */
             try {
-                $mysource->configureSource($_POST['name'], $_POST['options_array'], $_POST['comments']);
+                $mysource->editGpgKey($_POST['sourceId'], $_POST['gpgkey']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
-            response(HTTP_OK, "Source repo <b>" . $_POST['name'] . "</b> configuration has been saved");
+            response(HTTP_OK, "GPG key URL has been saved");
         }
 
         /**
-         *  Supprimer une clé GPG
+         *  Delete a GPG key
          */
-        if ($_POST['action'] == "deleteGpgKey" and !empty($_POST['repoType']) and !empty($_POST['gpgkey'])) {
-            $mysource = new \Models\Source();
+        if ($_POST['action'] == "deleteGpgKey" and !empty($_POST['gpgKeyId'])) {
+            $mysource = new \Controllers\Source();
 
             /**
              *  Tentative de suppression de la clé GPG
              */
             try {
-                $mysource->removeGpgKey($_POST['repoType'], $_POST['gpgkey']);
+                $mysource->deleteGpgKey($_POST['gpgKeyId']);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }
 
             /**
-             *  Si il n'y a pas eu d'erreur
+             *  If there was no error
              */
-            response(HTTP_OK, "GPG key <b>" . $_POST['gpgkey'] . "</b> has been deleted");
+            response(HTTP_OK, "GPG key <b>" . $_POST['gpgKeyId'] . "</b> has been deleted");
+        }
+
+        /**
+         *  Import a new GPG key
+         */
+        if ($_POST['action'] == "importGpgKey" and !empty($_POST['gpgkey'])) {
+            $mysource = new \Controllers\Source();
+
+            try {
+                $mysource->importGpgKey($_POST['gpgkey']);
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  If there was no error
+             */
+            response(HTTP_OK, "GPG key has been imported");
         }
 
         /**
