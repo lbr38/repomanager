@@ -313,7 +313,7 @@ section.missing-param-alert {
 .param-slide-container {
     width: 0;
     height: 100%;
-    /* background-color: #3b3b3b2b; */
+    background-color: #3b3b3b2b;
     position: fixed;
     top: 0;
     right: 0;
@@ -482,7 +482,7 @@ table {
 
 [class^="item-pkgtype"] {
     position: absolute !important;
-    top: 25px;
+    bottom: -14px;
     left: 7.5px;
     padding: 1.5px 2px 1.5px 2px !important;
     vertical-align: middle;
@@ -1325,11 +1325,11 @@ footer p { color: gray; }
 }
 /* rubans de couleurs */
 .header-green, .header-blue, .header-light-blue, .header-red {
-    border-radius: 2px;
+    border-radius: 4px;
     padding: 0px 8px 0px 8px;
 }
 .header-green-min, .header-blue-min, .header-light-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
-    border-radius: 2px;
+    border-radius: 4px;
     /* pas de padding lorsqu'il y a un <input> */
     padding-bottom: 0px;
     padding-top: 0px;

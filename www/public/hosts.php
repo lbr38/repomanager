@@ -18,19 +18,21 @@ if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['setti
     $pkgs_considered_critical = \Controllers\Common::validateData($_POST['settings-pkgs-considered-critical']);
 
     $myhost = new \Controllers\Host();
-
     $myhost->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
 }
 
 /**
- *  Couleurs disponibles pour les graphiques
+ *  Charts colors
  */
-$validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f', '#24d794']; ?>
+$mycolor = new \Controllers\Common();
+
+?>
 
 <body>
-<?php include_once('../includes/header.inc.php');?>
+<?php include_once('../includes/header.inc.php'); ?>
 
 <article>
+
     <section class="main">
 
         <h3>OVERVIEW</h3>
@@ -90,8 +92,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
              *  Récupération de la liste de tous les profils d'hôtes et comptage
              */
             $profilesList = $myhost->listCountProfile();
-            array_multisort(array_column($profilesList, 'Profile_count'), SORT_DESC, $profilesList);
-            ?>
+            array_multisort(array_column($profilesList, 'Profile_count'), SORT_DESC, $profilesList); ?>
 
             <div class="hosts-charts-container">
 
@@ -108,8 +109,6 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         <div class="hosts-charts-list-column-container">
                             <?php
                             foreach ($kernelList as $kernel) {
-                                $randomHexColor = array_rand($validHexColors, 1);
-
                                 if (empty($kernel['Kernel'])) {
                                     $kernelName = 'Unknow';
                                 } else {
@@ -120,7 +119,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                     <div class="hosts-charts-list-label">
                                         <div>
                                             <!-- square figure -->
-                                            <span style="background-color: <?= $validHexColors[$randomHexColor] ?>"></span>
+                                            <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
                                             <span><?= $kernelName ?></span>
                                         </div>
                                         <span><?= $kernel['Kernel_count'] ?></span>
@@ -135,8 +134,8 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                             } ?>
                         </div>
                     </div>
-
-                <?php endif;
+                    <?php
+                endif;
                 if (!empty($profilesList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-blue">
                         <span class="hosts-chart-title">Profiles</span>
@@ -144,8 +143,6 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         <div class="hosts-charts-list-column-container">
                             <?php
                             foreach ($profilesList as $profile) {
-                                $randomHexColor = array_rand($validHexColors, 1);
-
                                 if (empty($profile['Profile'])) {
                                     $profileName = 'Unknow';
                                 } else {
@@ -156,7 +153,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                     <div class="hosts-charts-list-label">
                                         <div>
                                             <!-- square figure -->
-                                            <span style="background-color: <?= $validHexColors[$randomHexColor] ?>"></span>
+                                            <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
                                             <span><?= $profileName ?></span>
                                         </div>
                                         <span><?= $profile['Profile_count'] ?></span>
@@ -171,31 +168,36 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                             } ?>
                         </div>
                     </div>
-                <?php endif;
+                    <?php
+                endif;
 
                 if (!empty($osList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-blue">
                         <span class="hosts-chart-title">Operating systems</span>
                         <canvas id="hosts-os-chart" class="host-bar-chart"></canvas>
                     </div>
-                <?php endif;
+                    <?php
+                endif;
 
                 if (!empty($archList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-blue">
                         <span class="hosts-chart-title">Architectures</span>
                         <canvas id="hosts-arch-chart" class="host-pie-chart"></canvas>
                     </div>
-                <?php endif;
+                    <?php
+                endif;
 
                 if (!empty($envsList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-blue">
                         <span class="hosts-chart-title">Environments</span>
                         <canvas id="hosts-env-chart" class="host-pie-chart"></canvas>
                     </div>
-                <?php endif ?>
+                    <?php
+                endif ?>
             </div>
 
-            <?php if (\Controllers\Common::isadmin()) : ?>
+            <?php
+            if (\Controllers\Common::isadmin()) : ?>
                 <div id="hostsSettingsDiv" class="param-slide-container">
                     <div class="param-slide">
                         <img id="hostsSettingsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
@@ -287,7 +289,11 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                 <?php
             endif ?>
 
-            <div id="hostsDiv">
+            <div id="hostsDivLoading">
+                <p class="center">Loading data<img src="resources/images/loading.gif" class="icon" /></p>
+            </div>
+
+            <div id="hostsDiv" class="hide">
                 <?php
                 /**
                  *  Récupération des noms des groupes
@@ -488,10 +494,12 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                                                     if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
                                                         $agentStatus = 'seems-stopped';
                                                     }
+
                                                     /**
                                                      *  Message du dernier état connu
                                                      */
                                                     $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' at ' . $host['Online_status_time'];
+
                                                     /**
                                                      *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
                                                      */
@@ -675,7 +683,7 @@ $validHexColors = ['rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f
                         <?php
                     endif; ?>
                 </div>
-        </div>
+            </div>
     </section>
 </article>
 <?php include_once('../includes/footer.inc.php'); ?>
@@ -705,8 +713,6 @@ if (!empty($profilesList)) {
     $profileBackgroundColor = '';
 
     foreach ($profilesList as $profile) {
-        $randomHexColor = array_rand($validHexColors, 1);
-
         /**
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
@@ -720,7 +726,7 @@ if (!empty($profilesList)) {
         /**
          *  On sélectionne une couleur au hasard dans l'array
          */
-        $profileBackgroundColor .= "'" . $validHexColors[$randomHexColor] . "',";
+        $profileBackgroundColor .= "'" . $mycolor->randomColor() . "',";
     }
     $labels = rtrim($profileNameList, ',');
     $datas = rtrim($profileCountList, ',');
@@ -740,8 +746,6 @@ if (!empty($osList)) {
     $osBackgroundColor = '';
 
     foreach ($osList as $os) {
-        $randomHexColor = array_rand($validHexColors, 1);
-
         /**
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
@@ -755,7 +759,7 @@ if (!empty($osList)) {
         /**
          *  On sélectionne une couleur au hasard dans l'array
          */
-        $osBackgroundColor .= "'" . $validHexColors[$randomHexColor] . "',";
+        $osBackgroundColor .= "'" . $mycolor->randomColor() . "',";
     }
     $labels = rtrim($osNameList, ',');
     $datas = rtrim($osCountList, ',');
@@ -775,8 +779,6 @@ if (!empty($archList)) {
     $archBackgroundColor = '';
 
     foreach ($archList as $arch) {
-        $randomHexColor = array_rand($validHexColors, 1);
-
         /**
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
@@ -790,7 +792,7 @@ if (!empty($archList)) {
         /**
          *  On sélectionne une couleur au hasard dans l'array
          */
-        $archBackgroundColor .= "'" . $validHexColors[$randomHexColor] . "',";
+        $archBackgroundColor .= "'" . $mycolor->randomColor() . "',";
     }
     $labels = rtrim($archNameList, ',');
     $datas = rtrim($archCountList, ',');
@@ -810,8 +812,6 @@ if (!empty($envsList)) {
     $envBackgroundColor = '';
 
     foreach ($envsList as $env) {
-        $randomHexColor = array_rand($validHexColors, 1);
-
         /**
          *  Mise en forme du nom de l'OS et son nombre au format ChartJS
          */
@@ -831,7 +831,7 @@ if (!empty($envsList)) {
             /**
              *  On sélectionne une couleur au hasard dans l'array
              */
-            $envBackgroundColor .= "'" . $validHexColors[$randomHexColor] . "',";
+            $envBackgroundColor .= "'" . $mycolor->randomColor() . "',";
         }
     }
     $labels = rtrim($envNameList, ',');

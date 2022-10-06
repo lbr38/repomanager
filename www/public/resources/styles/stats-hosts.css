@@ -269,7 +269,7 @@
 
 .hosts-chart-sub-container {
     position: relative;
-    height: 250px;
+    /* height: 250px; */
 }
 
 .hosts-chart-title {
@@ -478,7 +478,7 @@
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
 .timeline-container-content-gray {
-    background-color: #333333;
+    background-color: #182b3e;
 }
 .timeline-container-content-green {
     background-color: #15bf7f;

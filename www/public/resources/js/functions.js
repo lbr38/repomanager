@@ -55,7 +55,7 @@ function printAlert(message, type = null, timeout = 2500)
 
     if (timeout != 'none') {
         window.setTimeout(function () {
-            $('#newalert').fadeTo(1000, 0).slideUp(1000, function () {
+            $('#newalert').fadeTo(1500, 0).slideUp(1000, function () {
                 $('#newalert').remove();
             });
         }, timeout);

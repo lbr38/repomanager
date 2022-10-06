@@ -130,7 +130,7 @@ include_once('../includes/head.inc.php');
                                              *  On vérifie que le groupe spécifié existe toujours (il a peut être été supprimé entre temps)
                                              */
                                             if ($group->existsId($planGroupId) === false) {
-                                                $planGroup = "Unknow group (deleted)";
+                                                $planGroup = "Unknown group (deleted)";
                                             } else {
                                                 $planGroup = 'Group <span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
                                             }
@@ -702,9 +702,14 @@ include_once('../includes/head.inc.php');
                                                  */
                                                 if (!empty($planGroupId)) {
                                                     $group = new \Controllers\Group('repo');
-                                                    $planGroup = $group->getNameById($planGroupId);
 
-                                                    echo '<span>Group</span> <span class="label-white">' . $planGroup . '</span>';
+                                                    if ($group->existsId($planGroupId) === false) {
+                                                        $planGroup = "Unknown group (deleted)";
+                                                    } else {
+                                                        $planGroup = 'Group <span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
+                                                    }
+
+                                                    echo $planGroup;
                                                     unset($group);
                                                 }
                                                 if (!empty($planSnapId)) {
