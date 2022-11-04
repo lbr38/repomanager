@@ -109,6 +109,42 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
         }
 
         /**
+         *  Edit source repo SSL certificate path
+         */
+        if ($_POST['action'] == "editSslCertificatePath" and !empty($_POST['sourceId']) and isset($_POST['sslCertificatePath'])) {
+            $mysource = new \Controllers\Source();
+
+            try {
+                $mysource->editSslCertificatePath($_POST['sourceId'], $_POST['sslCertificatePath']);
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  If there was no error
+             */
+            response(HTTP_OK, "SSL Certificate file path has been saved");
+        }
+
+        /**
+         *  Edit source repo SSL private key path
+         */
+        if ($_POST['action'] == "editSslPrivateKeyPath" and !empty($_POST['sourceId']) and isset($_POST['sslPrivateKeyPath'])) {
+            $mysource = new \Controllers\Source();
+
+            try {
+                $mysource->editSslPrivateKeyPath($_POST['sourceId'], $_POST['sslPrivateKeyPath']);
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  If there was no error
+             */
+            response(HTTP_OK, "SSL Private key file path has been saved");
+        }
+
+        /**
          *  Delete a GPG key
          */
         if ($_POST['action'] == "deleteGpgKey" and !empty($_POST['gpgKeyId'])) {

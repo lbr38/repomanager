@@ -50,13 +50,13 @@ You must install a web service + PHP and then configure a dedicated vhost.
 
 **Note for Redhat/CentOS systems:** you may adapt **SELinux** configuration (or disable SELinux) to make sure it will not prevent PHP scripts execution.
 
-**Installation on a Redhat/CentOS system:**
+**Installation on a Redhat/CentOS system **(you will need to have access to a repository providing PHP8.1 packages):
 
 ```
 yum install nginx php-fpm php-cli php-pdo php-xml sqlite
 ```
 
-**Installation on a Debian system:**
+**Installation on a Debian system** (you will need to have access to a repository providing PHP8.1 packages):
 
 ```
 apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 php8.1-xml sqlite3

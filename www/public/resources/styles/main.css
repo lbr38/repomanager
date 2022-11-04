@@ -877,7 +877,7 @@ input:checked { opacity: 1; }
 
 /* Menu gestion des profils */
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
-input[type=text].invisibleInput, input[type=text].invisibleInput-blue {
+input[type=text].invisibleInput, input[type=text].invisibleInput-blue, input[type=text].invisibleInput-light-blue {
     border: none;
 }
 
@@ -888,6 +888,16 @@ input[type=text].invisibleInput {
 input[type=text].invisibleInput-blue {
     background-color: #1d3349;
     width: 100%;
+}
+
+input[type=text].invisibleInput-light-blue {
+    background-color: #2b4d6e;
+    width: 100%;
+}
+input[type=text].invisibleInput-light-blue::placeholder {
+    color: white;
+    opacity: 0.4;
+
 }
 
 /* boutons switch-field */

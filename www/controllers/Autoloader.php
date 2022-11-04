@@ -294,6 +294,9 @@ class Autoloader
         if (!defined('UPDATE_ERROR_LOG')) {
             define('UPDATE_ERROR_LOG', LOGS_DIR . '/update/update.error');
         }
+        if (!defined('UPDATE_INFO_LOG')) {
+            define('UPDATE_INFO_LOG', LOGS_DIR . '/update/update.info');
+        }
         // Pool de taches asynchrones
         if (!defined('POOL')) {
             define('POOL', DATA_DIR . "/operations/pool");

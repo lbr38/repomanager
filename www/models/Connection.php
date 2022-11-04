@@ -307,7 +307,9 @@ class Connection extends SQLite3
         Type CHAR(3) NOT NULL,
         Name VARCHAR(255) NOT NULL,
         Url VARCHAR(255) NOT NULL,
-        Gpgkey VARCHAR(255))");
+        Gpgkey VARCHAR(255),
+        Ssl_certificate_path VARCHAR(255),
+        Ssl_private_key_path VARCHAR(255))");
 
         /**
          *  Crée la table users si n'existe pas

@@ -15,6 +15,29 @@ class Source extends Model
     }
 
     /**
+     *  Return all source informations
+     */
+    public function getAll(string $sourceType, string $sourceName)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM sources WHERE Type = :type AND Name = :name");
+            $stmt->bindValue(':type', $sourceType);
+            $stmt->bindValue(':name', $sourceName);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Return source repo URL
      */
     public function getUrl(string $sourceType, string $sourceName)
@@ -155,6 +178,36 @@ class Source extends Model
             $stmt = $this->db->prepare('UPDATE sources SET Gpgkey = :gpgkeyurl WHERE Id = :id');
             $stmt->bindValue(':id', $sourceId);
             $stmt->bindValue(':gpgkeyurl', $url);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Edit source repo SSL certificate file path
+     */
+    public function editSslCertificatePath(string $sourceId, string $path = '')
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Ssl_certificate_path = :path WHERE Id = :id');
+            $stmt->bindValue(':id', $sourceId);
+            $stmt->bindValue(':path', $path);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Edit source repo SSL private key file path
+     */
+    public function editSslPrivateKeyPath(string $sourceId, string $path = '')
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Ssl_private_key_path = :path WHERE Id = :id');
+            $stmt->bindValue(':id', $sourceId);
+            $stmt->bindValue(':path', $path);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
