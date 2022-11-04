@@ -1418,7 +1418,7 @@ class Host extends Model
     }
 
     /**
-     *  Retourne les repos membres d'un groupe à partir de son Id
+     *  Retourne les hosts membres d'un groupe à partir de son Id
      */
     public function getHostsGroupMembers(string $groupId)
     {
@@ -1432,7 +1432,8 @@ class Host extends Model
                 ON hosts.Id = group_members.Id_host
             INNER JOIN groups
                 ON groups.Id = group_members.Id_group
-            WHERE Id_group = :idgroup");
+            WHERE Id_group = :idgroup
+            AND hosts.Status = 'active'");
             $stmt->bindValue(':idgroup', $groupId);
             ;
             $result = $stmt->execute();
@@ -1450,7 +1451,7 @@ class Host extends Model
     }
 
     /**
-     *  Retourne les repos qui ne sont membres d'aucun groupe
+     *  Retourne les hosts qui ne sont membres d'aucun groupe
      */
     public function getHostsNotMembersOfAnyGroup()
     {
@@ -1460,7 +1461,8 @@ class Host extends Model
             hosts.Hostname,
             hosts.Ip
             FROM hosts
-            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members);");
+            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)
+            AND hosts.Status = 'active'");
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }

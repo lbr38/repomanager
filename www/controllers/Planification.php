@@ -950,7 +950,8 @@ class Planification
          *  On ajoute également les données connues de la planification, le tableau récapitulatif n'ayant pas pu être généré par l'opération puisqu'on a rencontré une erreur avant qu'elle ne se lance.
          */
         if ($planError == 1) {
-            echo '<span class="redtext">' . $plan_msg_error . '</span>';
+            echo '<div class="div-generic-blue">';
+            echo '<p class="redtext">' . $plan_msg_error . '</p><br>';
             echo '<p><b>Plan details:</b></p>';
             echo '<table>';
             echo '<tr><td><b>Action: </b></td><td>' . $this->action . '</td></tr>';
@@ -967,6 +968,7 @@ class Planification
                 echo "<tr><td><b>Section: </b></td><td>" . $this->repo->getSection() . "</td></tr>";
             }
             echo '</table>';
+            echo '</div>';
         }
 
         // Contenu du fichier de log de la planification //
@@ -1104,7 +1106,7 @@ class Planification
                     $plan_title   = "[ OK ] - Regular planification Id $this->id on " . WWW_HOSTNAME;
                     $plan_pre_msg = "A regular plan has completed.";
                 }
-                $plan_msg = "Plan has completed successfully." . PHP_EOL;
+                $plan_msg = "This plan has completed successfully." . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message
@@ -1130,14 +1132,14 @@ class Planification
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $plan_title   = "[ Error ] - Planification number $this->id on " . WWW_HOSTNAME;
+                    $plan_title   = "[ ERROR ] - Planification Id $this->id on " . WWW_HOSTNAME;
                     $plan_pre_msg = "A plan has failed.";
                 }
                 if ($this->type == 'regular') {
-                    $plan_title   = "[ Error ] - Regular planification number $this->id on " . WWW_HOSTNAME;
+                    $plan_title   = "[ ERROR ] - Regular planification Id $this->id on " . WWW_HOSTNAME;
                     $plan_pre_msg = "A regular plan has failed.";
                 }
-                $plan_msg = 'This plan has encountered error' . PHP_EOL;
+                $plan_msg = 'This plan has encountered an error.' . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message

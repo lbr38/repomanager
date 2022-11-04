@@ -13,6 +13,84 @@ class Common
     private $validColors;
 
     /**
+     *  Return an array with all editors GPG pub keys that were imported into repomanager keyring
+     */
+    public static function getGpgTrustedKeys()
+    {
+        $knownGpgKeys = array();
+
+        $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons --with-fingerprint | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        /**
+         *  Parsing retrieved content
+         */
+        if (!empty($content)) {
+            $gpgKeys = explode(PHP_EOL.PHP_EOL, $content);
+
+            foreach ($gpgKeys as $gpgKey) {
+                $gpgKeyId = '';
+                $gpgKeyName = '';
+                $gpgKey = explode(PHP_EOL, $gpgKey);
+
+                foreach ($gpgKey as $gpgKeyRow) {
+                    /**
+                     *  Get GPG key Id from fpr row
+                     */
+                    if (preg_match('/^fpr:/', $gpgKeyRow)) {
+                        $gpgKeyId = preg_split('/:/', $gpgKeyRow);
+                        $gpgKeyId = trim($gpgKeyId[9]);
+                    }
+
+                    /**
+                     *  Retrieve GPG key name from uid row
+                     */
+                    if (preg_match('/^uid:/', $gpgKeyRow)) {
+                        $gpgKeyName = preg_split('/:/', $gpgKeyRow);
+                        $gpgKeyName = trim($gpgKeyName[9]);
+                    }
+
+                    /**
+                     *  If both name and Id have been found, had them to the global array
+                     */
+                    if (!empty($gpgKeyId) and !empty($gpgKeyName)) {
+                        $knownGpgKeys[] = array('id' => $gpgKeyId, 'name' => $gpgKeyName);
+
+                        /**
+                         *  Only reset Id because a key can have one name (uid) and multiple Id, so do not reset the name until the next key
+                         */
+                        $gpgKeyId = '';
+                    }
+                }
+            }
+        }
+
+        unset($content, $gpgKeys);
+
+        return $knownGpgKeys;
+    }
+
+    /**
+     *  Get content between two patterns strings
+     */
+    public static function getContentBetween(string $content, string $start, string $end)
+    {
+        $n = explode($start, $content);
+        $result = array();
+
+        foreach ($n as $val) {
+            $pos = strpos($val, $end);
+            if ($pos !== false) {
+                $result[] = substr($val, 0, $pos);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      *  Fonction de vérification / conversion des données envoyées par formulaire
      */
     public static function validateData($data)
@@ -490,5 +568,119 @@ class Common
         }
 
         return $result;
+    }
+
+    /**
+     *  Return an array with the list of files founded in specified directory
+     */
+    public static function findRecursive(string $directoryPath, string $fileExtension = null, bool $returnFullPath = true)
+    {
+        $foundedFiles = array();
+
+        $dir = new \RecursiveDirectoryIterator($directoryPath . '/');
+        $files = new \RecursiveIteratorIterator($dir);
+
+        /**
+         *  Find files with specified extension
+         */
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                /**
+                 *  If an extension has been specified, then check that the file has correct extension
+                 */
+                if (!empty($fileExtension)) {
+                    /**
+                     *  If extension is incorrect, then ignore the current file and process the next one
+                     */
+                    if ($file->getExtension() != $fileExtension) {
+                        continue;
+                    }
+                }
+
+                /**
+                 *  By default, return file's fullpath
+                 */
+                if ($returnFullPath === true) {
+                    $foundedFiles[] = $file->getPathname();
+                /**
+                 *  Else only return filename
+                 */
+                } else {
+                    $foundedFiles[] = $file->getFilename();
+                }
+            }
+        }
+
+        return $foundedFiles;
+    }
+
+    /**
+     *  Delete specified directory recursively
+     */
+    public static function deleteRecursive(string $directoryPath)
+    {
+        if (!is_dir($directoryPath)) {
+            return;
+        }
+
+        $myprocess = new Process('rm -rf "' . $directoryPath . '"');
+        $myprocess->execute();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Uncompress specified gzip file 'file.gz' to 'file'
+     */
+    public static function gunzip(string $filename)
+    {
+        /**
+         *  Output file
+         */
+        $filenameOut = str_replace('.gz', '', $filename);
+
+        /**
+         *  Buffer size, read 4kb at a time
+         */
+        $bufferSize = 4096;
+
+        /**
+         *  Open the files (in binary mode)
+         */
+        $fileOpen = gzopen($filename, 'rb');
+        if ($fileOpen === false) {
+            throw new Exception('Error while opening gziped file: ' . $filename);
+        }
+
+        $fileOut = fopen($filenameOut, 'wb');
+        if ($fileOut === false) {
+            throw new Exception('Error while opening gunzip output file: ' . $filenameOut);
+        }
+
+        /**
+         *  Keep repeating until the end of the input file
+         */
+        while (!gzeof($fileOpen)) {
+            // Read buffer-size bytes
+            // Both fwrite and gzread and binary-safe
+            if (!fwrite($fileOut, gzread($fileOpen, $bufferSize))) {
+                throw new Exception('Error while reading gziped file content: ' . $filename);
+            }
+        }
+
+        /**
+         *  CLose files
+         */
+        if (!fclose($fileOut)) {
+            throw new Exception('Error while closing gunzip output file: ' . $filenameOut);
+        }
+        if (!gzclose($fileOpen)) {
+            throw new Exception('Error while closing gziped file: ' . $filename);
+        }
     }
 }

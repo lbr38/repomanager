@@ -374,6 +374,10 @@ class Profile
             foreach ($packagesMajorExcluded as $packageName) {
                 $packageName = \Controllers\Common::validateData($packageName);
 
+                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                    throw new Exception('Package ' . $packageName . ' contains invalid characters');
+                }
+
                 /**
                  *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
                  *
@@ -384,11 +388,6 @@ class Profile
                 } else {
                     $packageNameFormatted = $packageName;
                 }
-
-                /**
-                 *  On vérifie que le nom du paquet ne contient pas de caractères interdits
-                 */
-                \Controllers\Common::isAlphanumDash($packageNameFormatted);
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
@@ -404,6 +403,10 @@ class Profile
             foreach ($packagesExcluded as $packageName) {
                 $packageName = \Controllers\Common::validateData($packageName);
 
+                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                    throw new Exception('Package ' . $packageName . ' contains invalid characters');
+                }
+
                 /**
                  *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
                  *
@@ -414,11 +417,6 @@ class Profile
                 } else {
                     $packageNameFormatted = $packageName;
                 }
-
-                /**
-                 *  On vérifie que le nom du paquet ne contient pas de caractères interdits
-                 */
-                \Controllers\Common::isAlphanumDash($packageNameFormatted);
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
@@ -437,7 +435,9 @@ class Profile
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                \Controllers\Common::isAlphanumDash($serviceName);
+                if (!\Controllers\Common::isAlphanumDash($serviceName, array('@'))) {
+                    throw new Exception('Service ' . $serviceName . ' contains invalid characters');
+                }
 
                 /**
                  *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.

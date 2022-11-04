@@ -42,7 +42,7 @@ if (!empty($groupsList)) {
 /**
  *  Boutons d'actions
  */
-if (Controllers\Common::isadmin()) : ?>
+if (\Controllers\Common::isadmin()) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="resources/icons/update.svg" />Update</button>
         <button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.svg" />Duplicate</button>

@@ -78,14 +78,9 @@ class Update
     private function download()
     {
         /**
-         *  Quit if wget if not installed
+         *  Dowload new release
          */
-        if (!file_exists('/usr/bin/wget')) {
-            throw new Exception('/usr/bin/wget not found.');
-        }
-
-        exec('wget --no-cache -q "https://github.com/lbr38/repomanager/releases/download/' . GIT_VERSION . '/repomanager_' . GIT_VERSION . '.tar.gz" -O "' . $this->workingDir . '/repomanager_' . GIT_VERSION . '.tar.gz"', $output, $return);
-        if ($return != 0) {
+        if (!copy('https://github.com/lbr38/repomanager/releases/download/' . GIT_VERSION . '/repomanager_' . GIT_VERSION . '.tar.gz', $this->workingDir . '/repomanager_' . GIT_VERSION . '.tar.gz')) {
             throw new Exception('Error while downloading new release.');
         }
 
@@ -101,13 +96,33 @@ class Update
     /**
      *  Execute SQL queries to update database
      */
-    public function updateDB()
+    public function updateDB(string $targetVersion = null)
     {
         $this->sqlQueriesDir = ROOT . '/update/database';
 
         if (!is_dir($this->sqlQueriesDir)) {
             return;
         }
+
+        /**
+         *  If a target release version is specified, only execute database update file that contains this version number
+         */
+        if (!empty($targetVersion)) {
+            $updateFile = $this->sqlQueriesDir . '/' . $targetVersion . '.php';
+
+            /**
+             *  Execute file if exist
+             */
+            if (file_exists($updateFile)) {
+                $this->model->updateDB($updateFile);
+            }
+
+            return;
+        }
+
+        /**
+         *  Else execute all database update files
+         */
 
         /**
          *  Get all the files
@@ -151,8 +166,7 @@ class Update
          *  Delete actual data dir tools content
          */
         if (is_dir(DATA_DIR . '/tools')) {
-            exec('rm -rf ' . DATA_DIR . '/tools', $output, $return);
-            if ($return != 0) {
+            if (!Common::deleteRecursive(DATA_DIR . '/tools')) {
                 throw new Exception('Error while deleting tools directory content <b>' . DATA_DIR . '/tools/</b>');
             }
         }
@@ -250,7 +264,7 @@ class Update
             /**
              *  Apply database update queries if there are
              */
-            $this->updateDB();
+            $this->updateDB(GIT_VERSION);
 
             /**
              *  Set permissions on repomanager service script
@@ -263,8 +277,7 @@ class Update
              *  Delete working dir
              */
             if (is_dir($this->workingDir)) {
-                exec("rm '$this->workingDir' -rf", $output, $return);
-                if ($return != 0) {
+                if (!Common::deleteRecursive($this->workingDir)) {
                     throw new Exception('Error while cleaning working directory <b>' . $this->workingDir . '</b>');
                 }
             }

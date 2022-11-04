@@ -152,7 +152,15 @@ foreach ($operation_params as $operation) {
         /**
          *  Si le type est 'mirror' alors on vérifie des paramètres supplémentaires
          */
-        if ($type === 'mirror') {
+        if ($type == 'mirror') {
+            /**
+             *  Si le paramètre Source n'est pas défini, on quitte
+             */
+            if (empty($operation['source'])) {
+                echo "Operation 'new' - Error: parameter 'Source' not defined." . PHP_EOL;
+                $exitCode++;
+                continue;
+            }
             $source = $operation['source'];
 
             /**
@@ -162,15 +170,6 @@ foreach ($operation_params as $operation) {
                 $alias = $source;
             } else {
                 $alias = $operation['alias'];
-            }
-
-            /**
-             *  Si le paramètre Source n'est pas défini, on quitte
-             */
-            if (empty($operation['source'])) {
-                echo "Operation 'new' - Error: parameter 'Source' not defined." . PHP_EOL;
-                $exitCode++;
-                continue;
             }
 
             /**
@@ -193,9 +192,12 @@ foreach ($operation_params as $operation) {
             }
             $targetGpgResign = $operation['targetGpgResign'];
 
-            if (!empty($operation['targetPackageSource'])) {
-                $targetPackageSource = $operation['targetPackageSource'];
+            if (empty($operation['targetSourcePackage'])) {
+                echo "Operation 'new' - Error: parameter 'Include source packages' not defined." . PHP_EOL;
+                $exitCode++;
+                continue;
             }
+            $targetSourcePackage = $operation['targetSourcePackage'];
 
             /**
              *  Paramètres supplémentaires si deb
@@ -209,7 +211,7 @@ foreach ($operation_params as $operation) {
                 }
             }
         }
-        if ($type === 'local') {
+        if ($type == 'local') {
             /**
              *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
              */
@@ -246,11 +248,11 @@ foreach ($operation_params as $operation) {
         if (!empty($section)) {
             $repo->setSection($section);
         }
-        if ($type === 'mirror') {
+        if ($type == 'mirror') {
             $repo->setSource($source);
             $repo->setTargetGpgCheck($targetGpgCheck);
             $repo->setTargetGpgResign($targetGpgResign);
-            $repo->setTargetPackageSource($targetPackageSource);
+            $repo->setTargetPackageSource($targetSourcePackage);
 
             if ($packageType == 'deb') {
                 if (!empty($targetPackageTranslation)) {
@@ -274,10 +276,10 @@ foreach ($operation_params as $operation) {
         /**
          *  Exécution de l'opération
          */
-        if ($type === 'mirror') {
+        if ($type == 'mirror') {
             $repo->new();
         }
-        if ($type === 'local') {
+        if ($type == 'local') {
             $repo->newLocalRepo();
         }
 
@@ -320,8 +322,8 @@ foreach ($operation_params as $operation) {
             $targetArch = $operation['targetArch'];
         }
 
-        if (!empty($operation['targetPackageSource'])) {
-            $targetPackageSource = $operation['targetPackageSource'];
+        if (!empty($operation['targetSourcePackage'])) {
+            $targetSourcePackage = $operation['targetSourcePackage'];
         }
 
         if (!empty($operation['targetPackageTranslation'])) {
@@ -359,7 +361,7 @@ foreach ($operation_params as $operation) {
 
         $repo->setTargetArch($targetArch);
 
-        $repo->setTargetPackageSource($targetPackageSource);
+        $repo->setTargetPackageSource($targetSourcePackage);
 
         if ($repo->getPackageType() == 'deb') {
             if (!empty($targetPackageTranslation)) {
@@ -380,6 +382,7 @@ foreach ($operation_params as $operation) {
             $exitCode++;
         }
     }
+
     /**
      *  Si l'action est 'duplicate'
      */
@@ -404,7 +407,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId);
+        $repo->getAllById('', $snapId, '', false);
 
         /**
          *  Set du nouveau nom du repo cible
@@ -463,12 +466,13 @@ foreach ($operation_params as $operation) {
             $exitCode++;
         }
     }
+
     /**
      *  Si l'action est 'delete'
      */
     if ($action == 'delete') {
          /**
-         *  Création d'un objet Repo avec les infos du repo à dupliquer
+         *  Création d'un objet Repo avec les infos du snapshot à supprimer
          */
         $repo = new \Controllers\Repo();
         $repo->setPoolId($id);
@@ -477,7 +481,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId);
+        $repo->getAllById('', $snapId, '', false);
 
         /**
          *  Exécution de l'opération
@@ -491,6 +495,7 @@ foreach ($operation_params as $operation) {
             $exitCode++;
         }
     }
+
     /**
      *  Si l'action est 'env'
      */
@@ -515,7 +520,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId);
+        $repo->getAllById('', $snapId, '', false);
 
         /**
          *  Set de l'env cible
@@ -564,7 +569,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId);
+        $repo->getAllById('', $snapId, '', false);
 
         /**
          *  Get the actual repo Arch

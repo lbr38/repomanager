@@ -136,6 +136,7 @@ $mycolor = new \Controllers\Common();
                     </div>
                     <?php
                 endif;
+
                 if (!empty($profilesList)) : ?>
                     <div class="hosts-chart-sub-container div-generic-blue">
                         <span class="hosts-chart-title">Profiles</span>
@@ -267,14 +268,15 @@ $mycolor = new \Controllers\Common();
                                                 </table>
                                             </form>
                                         </div>
-                                        <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide detailsDiv">
+                                        <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide">
                                             <form class="groupHostsForm" groupname="<?= $groupName ?>" autocomplete="off">
-                                                <h5>Hosts</h5>
-                                                
-                                                <?php $myhost->selectServers($groupName); ?>
-                                                
-                                                <br><br>
-                                                <button type="submit" class="btn-large-green" title="Save">Save</button>
+                                                <div class="detailsDiv">
+                                                    <h5>Hosts</h5>
+                                                    <div class="flex flex-align-cnt-center">
+                                                        <?php $myhost->selectServers($groupName); ?>
+                                                        <button type="submit" class="btn-xxsmall-green" title="Add and save">+</button>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>

@@ -239,6 +239,9 @@ header {
 .div-67 { width: 67%; padding: 10px; }.div-68 { width: 68%; padding: 10px; }.div-69 { width: 69%; padding: 10px; }
 .div-70 { width: 70%; padding: 10px; }
 .flex { display: flex; }
+.flex-align-cnt-center {
+    align-content: center;
+}
 .flex-div-15 { flex: 0 0 14%; }
 .flex-div-20 { flex: 0 0 19%; }
 .flex-div-25 { flex: 0 0 24%; }
@@ -287,9 +290,9 @@ section.left, section.right, .section-center, section.missing-param-alert {
     padding: 10px;
     vertical-align: top;
     border-radius: 4px;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    box-shadow: 0px 10px 13px -7px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
-    background-color:#2b2b2b;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    background-color: #182b3e;
 }
 
 /* Paramètres supplémentaires pour les class ci-dessus */
@@ -480,16 +483,21 @@ table {
     font-weight: bold;
 }
 
-[class^="item-pkgtype"] {
+.item-pkgtype {
+    display: flex;
+    align-items: center;
+    column-gap: 3px;
     position: absolute !important;
     bottom: -14px;
     left: 7.5px;
     padding: 1.5px 2px 1.5px 2px !important;
     vertical-align: middle;
-    font-size: 9px;
     border-radius: 4px;
 }
-[class^="item-pkgtype"] .icon-small {
+.item-pkgtype span {
+    font-size: 9px;
+}
+.item-pkgtype .icon-small {
     margin: 0 !important;
 }
 .item-pkgtype-deb {
@@ -1048,7 +1056,8 @@ td .label-white, td .label-black, td .label-green, td .label-red, td .label-yell
 
 textarea {
     width: 100%;
-    resize: none;
+    /* resize: none; */
+    text-indent: 5px;
     font-size: 14px;
     color: white;
     background-color:#25394b;
@@ -1275,18 +1284,18 @@ footer p { color: gray; }
     padding: 5px;
 }
 
-.sourceDivs input[type=text].input-small {
+#sourceDivs input[type=text].input-small {
     background-color: #182b3e;
     border: none;
     margin-right: 5px;
     margin-bottom: 2px;
 }
 
-.sourceDivs input[type=text].input-large {
+#sourceDivs input[type=text].input-large {
     width: 78%;
 }
 
-.sourceDivs textarea {
+#sourceDivs textarea {
     width: 99%;
     margin: auto;
     display: block;

@@ -24,22 +24,19 @@ jobs:
           coverage: none
 
       - name: Install PHP modules
-        # run: sudo apt-get install -y php-cli php7.4-json php7.4-sqlite3 sqlite3
         run: sudo apt-get install -y php-cli php8.1-sqlite3 sqlite3
 
       - name: Print PHP version
         run: php --version
 
       - name: Install dependencies packages
-        # run: sudo apt-get install -y debmirror reprepro curl gnupg2 yum-utils createrepo
-        run: sudo apt-get install -y debmirror reprepro curl gnupg2 findutils
+        run: sudo apt-get install -y reprepro curl gnupg2 findutils
 
       - name: Set up repomanager files & directories
         run: |
           sudo groupadd repomanager
           sudo usermod -a -G repomanager www-data
           sudo mkdir -p /home/repo
-          sudo mkdir -p /etc/yum.repos.d/repomanager
           sudo mkdir -p /var/www/repomanager
           sudo mkdir -p /var/lib/repomanager
           sudo mkdir -p /var/lib/repomanager/backups

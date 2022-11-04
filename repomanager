@@ -25,9 +25,7 @@ DEB_REPO="disabled"
 DEB_SIGN_REPO="no"
 GPG_KEYID=""
 
-REPOMANAGER_YUM_DIR="/etc/yum.repos.d/repomanager"
 REPOMANAGER_APT_DIR="/etc/apt/"
-RPM_GPG_DIR="/etc/pki/rpm-gpg/repomanager"
 
 PROCEED_INSTALLATION="0"
 PROCEED_DEPENDENCIES="0"
@@ -241,22 +239,6 @@ function permissions
             chown ${WWW_USER}:repomanager ${REPOS_DIR}/${WWW_HOSTNAME}.pub
             chmod 440 ${REPOS_DIR}/${WWW_HOSTNAME}.pub
         fi
-        # Permissions on yum files
-        if [ -f "/etc/yum/vars/releasever" ];then
-            chown root:repomanager /etc/yum/vars/releasever
-            chmod 660 /etc/yum/vars/releasever
-        fi
-        if [ -d "$REPOMANAGER_YUM_DIR" ];then
-            chown -R ${WWW_USER}:repomanager "$REPOMANAGER_YUM_DIR"
-            find $REPOMANAGER_YUM_DIR/ -type f -exec chmod 0664 {} \;
-            chmod 775 "$REPOMANAGER_YUM_DIR"
-        fi
-        # Permissions on /etc/pki/rpm-gpg/repomanager
-        if [ -d "$RPM_GPG_DIR" ];then
-            chown -R ${WWW_USER}:repomanager "$RPM_GPG_DIR"
-            find $RPM_GPG_DIR/ -type f -exec chmod 0664 {} \;
-            chmod 770 "$RPM_GPG_DIR"
-        fi
 
         # Permissions on perl's module rpmresign (perl/RPM4)
         # Setting permission to allow WWW_USER to pass through the following RPM4 directories
@@ -331,13 +313,6 @@ function checkDependencies
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
-        CHECK_DEP=$(rpm -qa wget)
-        if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing wget\t" &&
-            yum install wget -y > /dev/null &&
-            echo -e "[${GREEN} OK ${RESET}]"
-        fi
-
         CHECK_DEP=$(rpm -qa git)
         if [ -z "$CHECK_DEP" ];then
             echo -ne "Installing git\t" &&
@@ -369,13 +344,6 @@ function checkDependencies
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
-        CHECK_DEP=$(dpkg --list | grep "^ii  wget ")
-        if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing wget\t" &&
-            apt-get -qq install wget -y > /dev/null &&
-            echo -e "[${GREEN} OK ${RESET}]"
-        fi
-
         CHECK_DEP=$(dpkg --list | grep "^ii  git ")
         if [ -z "$CHECK_DEP" ];then
             echo -ne "Installing git\t" &&
@@ -397,12 +365,6 @@ function checkDependencies
 
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
         if [ "$OS_FAMILY" == "Redhat" ];then
-            CHECK_DEP=$(rpm -qa yum-utils)
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing reposync (yum-utils)\t" &&
-                yum install yum-utils -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
             CHECK_DEP=$(rpm -qa rpm-sign)
             if [ -z "$CHECK_DEP" ];then
                 echo -ne "Installing rpm-sign\t" &&
@@ -418,25 +380,53 @@ function checkDependencies
         fi
 
         if [ "$OS_FAMILY" == "Debian" ];then
-            CHECK_DEP=$(dpkg --list | grep "^ii  yum-utils ")
+            CHECK_DEP=$(dpkg --list | grep "^ii  rpm ")
             if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing yum-utils\t" &&
-                apt-get -qq install yum-utils -y > /dev/null &&
+                echo -ne "Installing rpm\t" &&
+                apt-get -qq install rpm -y > /dev/null &&
                 echo -e "[${GREEN} OK ${RESET}]"
             fi
+            
+            # librpmsign package has different name depending on the Debian version
 
-            CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign8 ")
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing librpmsign8\t" &&
-                apt-get -qq install librpmsign8 -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
+            if [ "$OS_VERSION" == "10" ];then
+                CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign8 ")
+                if [ -z "$CHECK_DEP" ];then
+                    echo -ne "Installing librpmsign8\t" &&
+                    apt-get -qq install librpmsign8 -y > /dev/null &&
+                    echo -e "[${GREEN} OK ${RESET}]"
+                fi
             fi
 
-            CHECK_DEP=$(dpkg --list | grep "^ii  createrepo ")
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing createrepo\t" &&
-                apt-get -qq install createrepo -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
+            if [ "$OS_VERSION" == "11" ];then
+                CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign9 ")
+                if [ -z "$CHECK_DEP" ];then
+                    echo -ne "Installing librpmsign9\t" &&
+                    apt-get -qq install librpmsign9 -y > /dev/null &&
+                    echo -e "[${GREEN} OK ${RESET}]"
+                fi
+            fi
+
+            # createrepo package has different name depending on the Debian version
+
+            # If Debian 10
+            if [ "$OS_VERSION" == "10" ];then
+                CHECK_DEP=$(dpkg --list | grep "^ii  createrepo ")
+                if [ -z "$CHECK_DEP" ];then
+                    echo -ne "Installing createrepo\t" &&
+                    apt-get -qq install createrepo -y > /dev/null &&
+                    echo -e "[${GREEN} OK ${RESET}]"
+                fi
+            fi
+
+            # If Debian 11
+            if [ "$OS_VERSION" == "11" ];then
+                CHECK_DEP=$(dpkg --list | grep "^ii  createrepo-c ")
+                if [ -z "$CHECK_DEP" ];then
+                    echo -ne "Installing createrepo-c\t" &&
+                    apt-get -qq install createrepo-c -y > /dev/null &&
+                    echo -e "[${GREEN} OK ${RESET}]"
+                fi
             fi
         fi
 
@@ -474,7 +464,7 @@ function checkDependencies
     if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
 
         if [ "$OS_FAMILY" == "Redhat" ];then
-            # Installing epel repo to get debmirror and reprepro packages
+            # Installing epel repo to get reprepro package
             CHECK_DEP=$(rpm -qa epel-release)
             if [ -z "$CHECK_DEP" ];then
                 echo -ne "Installing epel-release\t" &&
@@ -483,13 +473,6 @@ function checkDependencies
             fi
 
             yum clean all -q
-
-            CHECK_DEP=$(rpm -qa debmirror)
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing debmirror\t" &&
-                yum install debmirror -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
 
             CHECK_DEP=$(rpm -qa reprepro)
             if [ -z "$CHECK_DEP" ];then
@@ -500,13 +483,6 @@ function checkDependencies
         fi
 
         if [ "$OS_FAMILY" == "Debian" ];then
-            CHECK_DEP=$(dpkg --list | grep "^ii  debmirror ")
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing debmirror\t" &&
-                apt-get -qq install debmirror -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
-
             CHECK_DEP=$(dpkg --list | grep "^ii  reprepro ")
             if [ -z "$CHECK_DEP" ];then
                 echo -ne "Installing reprepro\t" &&
@@ -514,42 +490,7 @@ function checkDependencies
                 echo -e "[${GREEN} OK ${RESET}]"
             fi
         fi
-
-        # Rename debmirror default config file if exists
-        if [ -f "/etc/debmirror.conf" ];then
-            mv "/etc/debmirror.conf" "/etc/debmirror.conf.save"
-        fi
     fi
-}
-
-function createYumFiles
-{
-    mkdir -p "/etc/yum.repos.d/repomanager"
-    mkdir -p "/etc/yum/vars/"
-
-    if [ -f "/etc/yum/vars/releasever" ];then
-        touch "/etc/yum/vars/releasever"
-    fi
-
-    # Create releasever file and set package OS version that will be mirrored and served on this server
-    if [ ! -z "$RELEASEVER" ];then
-        echo "$RELEASEVER" > /etc/yum/vars/releasever
-    fi
-
-    # Create dir where to store GPG public keys imported from Repomanager
-    mkdir -p "$RPM_GPG_DIR"
-
-    ## Repomanager's yum config file "/etc/yum.repos.d/repomanager/repomanager.conf"
-    echo -e "[main]" > /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "reposdir=/etc/yum.repos.d/repomanager/" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "keepcache=0" >> /etc/yum.repos.d/repomanager/repomanager.conf 
-    echo "debuglevel=2" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "exactarch=1" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "obsoletes=1" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "gpgcheck=1" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "plugins=1" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "installonly_limit=5" >> /etc/yum.repos.d/repomanager/repomanager.conf
-    echo "distroverpkg=centos-release" >> /etc/yum.repos.d/repomanager/repomanager.conf
 }
 
 # Deploy repomanager systemd service
@@ -637,14 +578,14 @@ function installation
     fi
 
     if [ -d "$WWW_DIR" ];then
-        echo -n "  Webdir ${YELLOW}${WWW_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
+        echo -n "  Webdir ${YELLOW}${WWW_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
         if [ "$CONFIRM" != "yes" ];then
             exit
         fi
     fi
 
     if [ -d "$DATA_DIR" ];then
-        echo -n "  Datadir ${YELLOW}${DATA_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
+        echo -n "  Datadir ${YELLOW}${DATA_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
         if [ "$CONFIRM" != "yes" ];then
             exit
         fi
@@ -669,7 +610,7 @@ function installation
         fi
 
         if [ -d "$REPOS_DIR" ];then
-            echo -n "  $REPOS_DIR already exist, its content will be deleted. Confirm (yes/no) : "; read -p "" CONFIRM
+            echo -n "  $REPOS_DIR already exist, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
             if [ "$CONFIRM" != "yes" ];then
                 echo "Exiting..."
                 exit
@@ -677,15 +618,19 @@ function installation
         fi
     fi
 
-    # Delete dir content
+    # Delete repo dir content
     rm "$REPOS_DIR" -rf
 
-    # Create dir if not exist
+    # Create repo dir if not exist
     mkdir -p "$REPOS_DIR"
 
-    # Create 'configurations' and 'gnupg' directories
+    # Create main directories
     mkdir -p "${DATA_DIR}/configurations/"
     mkdir -p "${DATA_DIR}/.gnupg/"
+    mkdir -p "${DATA_DIR}/logs/"
+    mkdir -p "${DATA_DIR}/logs/main/"
+    mkdir -p "${DATA_DIR}/logs/service/"
+    mkdir -p "${DATA_DIR}/logs/stats/"
 
     # Copy web sources
     cp -r ${PWD}/www/* ${WWW_DIR}/
@@ -910,10 +855,6 @@ function installation
 
     # Webserver user is added to the group members
     usermod -G repomanager "$WWW_USER"
-
-    if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        createYumFiles
-    fi
 
     # Create symlink to repomanager executable
     ln -sf /var/lib/repomanager/repomanager /usr/bin/repomanager 

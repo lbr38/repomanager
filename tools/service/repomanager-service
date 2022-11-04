@@ -80,12 +80,27 @@ function generalChecks
     fi
 }
 
-# Clean temporary files
+# Clean temporary files and directories
 function cleanUp
 {
-    # Clean files older than 2 days
+    # Clean files older than 7 days in .temp
     if [ -d "$DATA_DIR/.temp" ];then
-        find "$DATA_DIR/.temp"/ -mtime +2 -exec rm -rv {} \;
+        find "$DATA_DIR/.temp"/ -mtime +7 -exec rm -rf {} \;
+    fi
+
+    # Clean pid files older than 7 days
+    if [ -d "$DATA_DIR/operations/pid/" ];then
+        find "$DATA_DIR/operations/pid"/ -name *".pid" -mtime +7 -exec rm -f {} \;
+    fi
+
+    # Clean pool files older than 7 days
+    if [ -d "$DATA_DIR/operations/pool/" ];then
+        find "$DATA_DIR/operations/pool"/ -name *".json" -mtime +7 -exec rm -f {} \;
+    fi
+
+    # Clean temp mirror directories older than 7 days
+    if [ -d "$REPOS_DIR" ];then
+        find "$REPOS_DIR"/ -name "download-mirror-"* -type d -mtime +5 -exec rm -rf {} \;
     fi
 }
 

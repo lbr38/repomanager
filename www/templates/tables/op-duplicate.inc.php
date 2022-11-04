@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <tr>
-            <th>SOURCE REPO:</th>
+            <th>SOURCE REPO</th>
             <td>
                 <?php
                 if ($this->packageType == "rpm") {
@@ -18,14 +18,14 @@
         </tr>
 
         <tr>
-            <th>NEW REPO NAME:</th>
+            <th>NEW REPO NAME</th>
             <td><span class="label-white"><?= $this->targetName ?></span></td>
         </tr>
 
         <?php
         if (!empty($this->targetDescription)) : ?>
             <tr>
-                <th>DESCRIPTION:</th>
+                <th>DESCRIPTION</th>
                 <td><?= $this->targetDescription ?></td>
             </tr>
             <?php
@@ -33,7 +33,7 @@
 
         if (!empty($this->targetGroup)) : ?>
             <tr>
-                <th>ADD TO GROUP:</th>
+                <th>ADD TO GROUP</th>
                 <td><span class="label-white"><?= $this->targetGroup ?></span></td>
             </tr>
             <?php

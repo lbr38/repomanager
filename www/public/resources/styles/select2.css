@@ -51,7 +51,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     box-sizing: border-box;
     border: none;
     font-size: 100%;
-    margin-top: 5px;
+    /* margin-top: 5px; */
+    margin-top: 8px;
     margin-left: 5px;
     padding: 0;
     max-width: 100%;
@@ -206,6 +207,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   cursor: text;
   padding-bottom: 5px;
   padding-right: 5px;
+  height: 100%;
   position: relative; }
   .select2-container--default .select2-selection--multiple.select2-selection--clearable {
     padding-right: 25px; }

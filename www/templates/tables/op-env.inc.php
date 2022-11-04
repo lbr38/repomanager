@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <tr>
-            <th>REPO:</th>
+            <th>REPO</th>
             <td>
                 <span class="label-white">
                     <?php
@@ -20,7 +20,7 @@
         </tr>
 
         <tr>
-            <th>ENVIRONMENT:</th>
+            <th>ENVIRONMENT</th>
             <td>
                 <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
             </td>
@@ -28,7 +28,7 @@
         <?php
         if (!empty($this->targetDescription)) : ?>
             <tr>
-                <th>DESCRIPTION:</th>
+                <th>DESCRIPTION</th>
                 <td><?=$this->targetDescription?></td>
             </tr>
             <?php

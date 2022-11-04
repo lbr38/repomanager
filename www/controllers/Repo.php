@@ -7,7 +7,8 @@ use Datetime;
 
 class Repo
 {
-    public $model;
+    //public $model;
+    private $model;
     private $op;
     private $repoId;
     private $snapId;
@@ -17,8 +18,8 @@ class Repo
     private $source;
     private $packageType;
     private $arch;
-    private $packageSourceIncluded;
-    private $packageTranslationIncluded;
+    private $sourcePackagesIncluded;
+    private $translationIncluded;
     private $dist;
     private $section;
     private $date;
@@ -30,10 +31,16 @@ class Repo
     private $type; // mirror ou local
     private $status;
     private $reconstruct;
+
+    /**
+     *  Mirroring parameters
+     */
+    private $fullUrl;
     private $hostUrl;
     private $rootUrl;
     private $gpgCheck;
     private $gpgResign;
+    private $workingDir;
     private $rpmSignMethod = RPM_SIGN_METHOD;
 
     private $targetName;
@@ -45,7 +52,7 @@ class Repo
     private $targetGpgCheck;
     private $targetGpgResign;
     private $targetArch;
-    private $targetPackageSource = 'no';
+    private $targetSourcePackage = 'no';
     private $targetPackageTranslation = array();
 
     /**
@@ -70,22 +77,22 @@ class Repo
 
     public function setRepoId(string $id)
     {
-        $this->repoId = \Controllers\Common::validateData($id);
+        $this->repoId = Common::validateData($id);
     }
 
     public function setSnapId(string $id)
     {
-        $this->snapId = \Controllers\Common::validateData($id);
+        $this->snapId = Common::validateData($id);
     }
 
     public function setEnvId(string $id)
     {
-        $this->envId = \Controllers\Common::validateData($id);
+        $this->envId = Common::validateData($id);
     }
 
     public function setPlanId(string $id)
     {
-        $this->planId = \Controllers\Common::validateData($id);
+        $this->planId = Common::validateData($id);
     }
 
     public function setName(string $name)
@@ -156,22 +163,12 @@ class Repo
             $description = '';
         }
 
-        $this->description = \Controllers\Common::validateData($description);
+        $this->description = Common::validateData($description);
     }
 
     public function setSource(string $source)
     {
         $this->source = $source;
-    }
-
-    public function setSourceHostUrl(string $hostUrl)
-    {
-        $this->hostUrl = $hostUrl;
-    }
-
-    public function setSourceRoot(string $root)
-    {
-        $this->rootUrl = $root;
     }
 
     public function setPackageType(string $type)
@@ -222,14 +219,14 @@ class Repo
         $this->arch = $arch;
     }
 
-    public function setIncludePackageSource(string $packageSourceIncluded)
+    public function setIncludePackageSource(string $sourcePackagesIncluded)
     {
-        $this->packageSourceIncluded = $packageSourceIncluded;
+        $this->sourcePackagesIncluded = $sourcePackagesIncluded;
     }
 
-    public function setPackageTranslation(array $packageTranslationIncluded)
+    public function setPackageTranslation(array $translationIncluded)
     {
-        $this->packageTranslationIncluded = $packageTranslationIncluded;
+        $this->translationIncluded = $translationIncluded;
     }
 
     public function setTargetArch(array $targetArch)
@@ -237,9 +234,9 @@ class Repo
         $this->targetArch = $targetArch;
     }
 
-    public function setTargetPackageSource(string $targetPackageSource)
+    public function setTargetPackageSource(string $targetSourcePackage)
     {
-        $this->targetPackageSource = $targetPackageSource;
+        $this->targetSourcePackage = $targetSourcePackage;
     }
 
     public function setTargetPackageTranslation(array $targetPackageTranslation)
@@ -374,12 +371,12 @@ class Repo
 
     public function getPackageSource()
     {
-        return $this->packageSourceIncluded;
+        return $this->sourcePackagesIncluded;
     }
 
     public function getPackageTranslation()
     {
-        return $this->packageTranslationIncluded;
+        return $this->translationIncluded;
     }
 
     public function getDescription()
@@ -503,9 +500,7 @@ class Repo
          *  Get URL full source unless getFullSource is false
          */
         if ($getFullSource !== false) {
-            if ($this->packageType == 'deb' and $this->type == "mirror") {
-                $this->getFullSource($this->source);
-            }
+            $this->getFullSource($this->packageType, $this->source);
         }
     }
 
@@ -517,44 +512,45 @@ class Repo
         return $this->model->getIdByName($name, $dist, $section);
     }
 
-    /**
-     *  Récupère l'url source complete avec la racine du dépot (Debian uniquement)
-     */
-    private function getFullSource(string $source)
+    private function getFullSource(string $sourceType, string $sourceName)
     {
-        /**
-         *  Récupère l'url complète en base de données
-         */
-        $fullUrl = $this->model->getFullSource($source);
+        $mysource = new Source();
 
-        if (empty($fullUrl)) {
+        $this->fullUrl = $mysource->getUrl($sourceType, $sourceName);
+
+        if (empty($this->fullUrl)) {
             throw new Exception('cannot determine repo source URL');
         }
 
         /**
          *  On retire http:// ou https:// du début de l'URL
          */
-        $fullUrl = str_replace(array("http://", "https://"), '', $fullUrl);
+        // $this->fullUrl = str_replace(array("http://", "https://"), '', $this->fullUrl);
 
         /**
-         *  Extraction de l'adresse de l'hôte (server.domain.net) à partir de l'url http
+         *  Get more informations if deb
          */
-        $hostUrl = exec("echo '$fullUrl' | cut -d'/' -f1");
+        if ($sourceType == 'deb') {
+            /**
+             *  Extract host address (server.domain.net) from the URL
+             */
+            $splitUrl = preg_split('#/#', $this->fullUrl);
+            $this->hostUrl = $splitUrl[0];
 
-        /**
-         *  Extraction de la racine de l'hôte (ex pour : ftp.fr.debian.org/debian ici la racine sera debian)
-         */
-        $root = str_replace($hostUrl, '', $fullUrl);
+            /**
+             *  Extract root
+             */
+            $this->rootUrl = str_replace($this->hostUrl, '', $this->fullUrl);
 
-        if (empty($hostUrl)) {
-            throw new Exception('cannot determine repo source address');
+            if (empty($this->hostUrl)) {
+                throw new Exception('cannot determine repo source address');
+            }
+            if (empty($this->rootUrl)) {
+                throw new Exception('cannot determine repo source URL root');
+            }
         }
-        if (empty($root)) {
-            throw new Exception('cannot determine repo source URL root');
-        }
 
-        $this->setSourceHostUrl($hostUrl);
-        $this->setSourceRoot($root);
+        unset($mysource, $splitUrl);
     }
 
     /**
@@ -675,7 +671,7 @@ class Repo
          *  l'ID en BDD de ce repo/section créé.
          *  On indique également si on a activé ou non gpgCheck et gpgResign.
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('new');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -707,7 +703,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -775,7 +771,7 @@ class Repo
         /**
          *  Démarrage de l'opération
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('new');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -795,7 +791,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -900,7 +896,7 @@ class Repo
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->model->addSnap($this->targetDate, $this->targetTime, 'no', $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
+            $this->model->addSnap($this->targetDate, $this->targetTime, 'no', $this->targetArch, $this->targetSourcePackage, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
@@ -982,7 +978,7 @@ class Repo
          *  Création d'une opération en BDD, on indique également si on a activé ou non gpgCheck et gpgResign
          *  Si cette fonction est appelée par une planification, alors l'id de cette planification est stockée dans $this->id_plan, on l'indique également à startOperation()
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('update');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -1024,7 +1020,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1095,7 +1091,7 @@ class Repo
         /**
          *  Démarrage de l'opération
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('duplicate');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -1125,7 +1121,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1199,22 +1195,21 @@ class Repo
             $this->op->stepOK();
 
             /**
-             *  Sur Debian il faut reconstruire les données du repo avec le nouveau nom du repo.
+             *  On a deb repo, the duplicated repo must be rebuilded
              */
             if ($this->packageType == "deb") {
                 /**
-                 *  Pour les besoins de la fonction createRepo(), il faut que le nom du repo à créer soit dans $name.
-                 *  Du coup on backup temporairement le nom actuel et on le remplace par $this->targetName
+                 *  For the needs of the createRepo function, name of the repo to create must be in $name
+                 *  Temporary backuping the actual name then replace it with $this->targetName
                  */
                 $backupName = $this->name;
                 $this->setName($this->targetName);
                 $this->setTargetDate($this->date);
 
-                $this->op->log->steplog(2);
                 $this->createRepo();
 
                 /**
-                 *  On remets en place le nom tel qu'il était
+                 *  Set back the backuped name
                  */
                 $this->setName($backupName);
             }
@@ -1255,7 +1250,7 @@ class Repo
             /**
              *  On ajoute le snapshot copié en base de données
              */
-            $this->model->addSnap($this->date, $this->time, $this->signed, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, $this->status, $targetRepoId);
+            $this->model->addSnap($this->date, $this->time, $this->signed, $this->targetArch, $this->targetSourcePackage, $this->targetPackageTranslation, $this->type, $this->status, $targetRepoId);
 
             /**
              *  On récupère l'Id du snapshot créé en base de données
@@ -1339,7 +1334,7 @@ class Repo
          *  Création d'une opération en BDD, on indique également si on a activé ou non gpgCheck et gpgResign
          *  Si cette fonction est appelée par une planification, alors l'id de cette planification est stockée dans $this->id_plan, on l'indique également à startOperation()
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('reconstruct');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -1359,7 +1354,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1377,10 +1372,12 @@ class Repo
              *  Etape 1 : Afficher les détails de l'opération
              */
             $this->printDetails('REBUILD REPO METADATA');
+
             /**
             *   Etape 2 : signature des paquets/du repo
             */
             $this->signPackages();
+
             /**
             *   Etape 3 : Création du repo et liens symboliques
             */
@@ -1427,7 +1424,7 @@ class Repo
      */
     public function delete()
     {
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('delete');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -1442,7 +1439,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1501,7 +1498,7 @@ class Repo
                      *  Suppression des environnements pointant vers ce snapshot en base de données
                      */
                     $myrepo = new Repo();
-                    $myrepo->getAllById('', '', $envId);
+                    $myrepo->getAllById('', '', $envId, false);
 
                     /**
                      *  Si un lien symbolique de cet environnement pointait vers le snapshot supprimé alors on peut supprimer le lien symbolique.
@@ -1557,10 +1554,13 @@ class Repo
      */
     public function removeEnv()
     {
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('removeEnv');
         $this->op->setType('manual');
-        $this->op->setPoolId($this->poolId);
+        /**
+         *  Ce type d'opération ne comporte pas de réel poolId car elle est exécutée en dehors du process habituel
+         */
+        $this->op->setPoolId('00000');
 
         $this->op->startOperation(array(
             'id_snap_target' => $this->snapId,
@@ -1574,7 +1574,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1659,7 +1659,7 @@ class Repo
         /**
          *  Démarrage d'une nouvelle opération
          */
-        $this->op = new \Controllers\Operation();
+        $this->op = new Operation();
         $this->op->setAction('env');
         $this->op->setType('manual');
         $this->op->setPoolId($this->poolId);
@@ -1678,7 +1678,7 @@ class Repo
         /**
          *  Nettoyage du cache
          */
-        \Controllers\Common::clearCache();
+        Common::clearCache();
 
         /**
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
@@ -1694,7 +1694,7 @@ class Repo
              */
             include(ROOT . '/templates/tables/op-env.inc.php');
 
-            $this->op->step('ADDING NEW ENVIRONMENT ' . \Controllers\Common::envtag($this->targetEnv));
+            $this->op->step('ADDING NEW ENVIRONMENT ' . Common::envtag($this->targetEnv));
 
             /**
              *  2. On vérifie si le snapshot source existe
@@ -1708,11 +1708,11 @@ class Repo
              */
             if ($this->model->existsSnapIdEnv($this->snapId, $this->targetEnv) === true) {
                 if ($this->packageType == 'rpm') {
-                    throw new Exception('A ' . \Controllers\Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('A ' . Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
 
                 if ($this->packageType == 'deb') {
-                    throw new Exception('A ' . \Controllers\Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
+                    throw new Exception('A ' . Common::envtag($this->targetEnv) . ' environment already exists on <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>');
                 }
             }
 
@@ -1915,7 +1915,7 @@ class Repo
             /**
              *  Nettoyage du cache
              */
-            \Controllers\Common::clearCache();
+            Common::clearCache();
 
             /**
              *  Passage du status de l'opération en done
@@ -2004,11 +2004,9 @@ class Repo
         }
 
         /**
-         *  2 : Debian seulement : Si la section est un miroir alors il faut récupérer l'URL complète de sa source si ce n'est pas déjà fait
+         *  Get source repo Url
          */
-        if ($this->packageType == 'deb') {
-            $this->getFullSource($this->source);
-        }
+        $this->getFullSource($this->packageType, $this->source);
 
         /**
          *  2. Si il s'agit d'un nouveau repo, on vérifie qu'un repo du même nom avec un ou plusieurs snapshots actifs n'existe pas déjà.
@@ -2072,230 +2070,115 @@ class Repo
         //// TRAITEMENT ////
 
         /**
-         *  2. Création du répertoire du repo/section
+         *  2. Define final repo/section directory path
          */
         if ($this->packageType == "rpm") {
             $repoPath = REPOS_DIR . '/' . DATE_DMY . '_' . $this->name;
+            $this->workingDir = REPOS_DIR . '/download-mirror-' . $this->name . '-' . time();
         }
         if ($this->packageType == "deb") {
             $repoPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section;
+            $this->workingDir = REPOS_DIR . '/download-mirror-' . $this->name . '-' . $this->dist . '-' . $this->section  . '-' . time();
         }
 
         /**
          *  Si le répertoire existe déjà, on le supprime
          */
         if (is_dir($repoPath)) {
-            exec("rm -rf " . $repoPath);
-        }
-        /**
-         *  Création du répertoire
-         */
-        if (!mkdir($repoPath, 0770, true)) {
-            throw new Exception("creating directory <b>" . $repoPath . "</b> has failed");
+            if (!Common::deleteRecursive($repoPath)) {
+                throw new Exception('Cannot delete existing directory: ' . $repoPath);
+            }
         }
 
         /**
-         *  3. Récupération des paquets
+         *  3. Retrieving packages
          */
         echo '<div class="hide getPackagesDiv"><pre>';
         $this->op->stepWriteToLog();
 
-        if ($this->packageType == "rpm") {
-            /**
-             *  Checking if another reposync process is already running as it is impossible to run multiple process because of
-             *  the yum lock being holded.
-             */
-            while (true) {
-                $myprocess = new \Controllers\Process("ps -ef | grep 'reposync' | grep -vq 'grep'");
-                $myprocess->exec();
-
-                $myprocess->getOutput();
+        /**
+         *  If syncing packages using embedded mirroring tool (beta)
+         */
+        if ($this->packageType == 'deb') {
+            try {
+                $mymirror = new Mirror();
+                $mymirror->setType('deb');
+                $mymirror->setUrl($this->fullUrl);
+                $mymirror->setWorkingDir($this->workingDir);
+                $mymirror->setDist($this->dist);
+                $mymirror->setSection($this->section);
+                $mymirror->setArch($this->targetArch);
+                $mymirror->setSyncSource($this->targetSourcePackage);
+                $mymirror->setCheckSignature($this->targetGpgCheck);
+                $mymirror->setTranslation($this->targetPackageTranslation);
+                $mymirror->setOutputFile($this->op->log->steplog);
+                $mymirror->outputToFile(true);
+                $mymirror->mirror();
 
                 /**
-                 *  If no other process is running then break the loop and continue
+                 *  Create repo and dist directories if not exist
                  */
-                if ($myprocess->getReturnCode() != 0) {
-                    break;
+                if (!is_dir(REPOS_DIR . '/' . $this->name . '/' . $this->dist)) {
+                    if (!mkdir(REPOS_DIR . '/' . $this->name . '/' . $this->dist, 0770, true)) {
+                        throw new Exception('Could not create directory: ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist);
+                    }
+                }
+
                 /**
-                 *  Waiting 5sec if another process is running.
+                 *  Renaming working dir name to final name
                  */
-                } else {
-                    echo 'Another package syncing is running and holding the yum lock, waiting...' . PHP_EOL;
-                    $this->op->stepWriteToLog();
-                    sleep(30);
+                if (!rename($this->workingDir, REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section)) {
+                    throw new Exception('Could not rename working directory ' . $this->workingDir);
                 }
+            } catch (Exception $e) {
+                echo '</pre></div>';
+                throw new Exception($e->getMessage());
             }
-
-            /**
-             *  Détermine la version de yum-utils installée sur le système pour être en mesure de passer les bons paramètres à reposync
-             */
-            if (OS_FAMILY == 'Debian') {
-                $yumUtilsVersion = exec("dpkg -l | grep yum-utils | awk '{print $3}'");
-            }
-            if (OS_FAMILY == 'Redhat') {
-                $yumUtilsVersion = exec("rpm -qi yum-utils | grep 'Version' | awk '{print $3}'");
-            }
-            if (empty($yumUtilsVersion)) {
-                /**
-                 *  Closing getPackagesDiv before exiting
-                 */
-                $this->op->stepWriteToLog('</div>');
-                throw new Exception('Cannot determine yum-utils version.');
-            }
-
-            /**
-             *  Cas où la version de yum-utils est 1.1.31 (généralement le cas sur CentOS7 et Debian)
-             */
-            if (preg_match('/1.1.31/', $yumUtilsVersion)) {
-                $reposyncGlobalParams = '-l --norepopath';
-
-                if ($this->getTargetGpgCheck() == "no") {
-                    $reposyncGpgParam = '';
-                } else {
-                    $reposyncGpgParam = '--gpgcheck';
-                }
-
-            /**
-             *  Cas où la version de yum-utils est 4.x (généralement le cas sur CentOS8 et 9)
-             */
-            } elseif (preg_match('/^4/', $yumUtilsVersion)) {
-                $reposyncGlobalParams = '--norepopath';
-
-                if ($this->targetGpgCheck == "no") {
-                    $reposyncGpgParam = '--nogpgcheck';
-                } else {
-                    $reposyncGpgParam = '';
-                }
-            } else {
-                /**
-                 *  Closing getPackagesDiv before exiting
-                 */
-                $this->op->stepWriteToLog('</div>');
-                throw new Exception('yum-utils version is not compatible or invalid.');
-            }
-
-            /**
-             *  Case we want packages sources to be synced
-             */
-            if ($this->targetPackageSource == 'yes') {
-                $reposyncGlobalParams .= ' --source';
-            }
-
-            /**
-             *  Case we want specific package arch to be synced
-             */
-            if (!empty($this->targetArch)) {
-                foreach ($this->targetArch as $arch) {
-                    $reposyncGlobalParams .= ' --arch="' . $arch . '"';
-                }
-            }
-
-            /**
-             *  Instanciation d'un nouveau Process reposync
-             */
-            $myprocess = new \Controllers\Process('/usr/bin/reposync --config=' . REPOMANAGER_YUM_DIR . '/repomanager.conf ' . $reposyncGlobalParams . ' ' . $reposyncGpgParam . ' --repoid=' . $this->source . ' -p "' . $repoPath . '/"');
         }
 
-        if ($this->packageType == "deb") {
-            /**
-             *  debmirror global params
-             */
-
-            /**
-             *  Case we want packages sources to be synced
-             */
-            if ($this->targetPackageSource == 'yes') {
-                $debmirrorGlobalParams = '--source';
+        if ($this->packageType == 'rpm') {
+            try {
+                /**
+                 *  First check if the source repo has a distant http:// GPG signature key Url
+                 */
+                $mysource = new Source();
+                $gpgKeyUrl = $mysource->getGpgKeyUrl('rpm', $this->source);
 
                 /**
-                 *  --arch='source' is also needed to publy source packages
+                 *  Get source repo URL from the specified repo Id
                  */
-                $debmirrorGlobalParams .= ' --arch="source"';
-            } else {
-                $debmirrorGlobalParams = '--nosource';
-            }
-
-            /**
-             *  Specific package arch to be synced
-             */
-            foreach ($this->targetArch as $arch) {
-                $debmirrorGlobalParams .= ' --arch="' . $arch . '"';
-            }
-
-            /**
-             *  Case we want some packages translations to be synced
-             */
-            if (!empty($this->targetPackageTranslation)) {
+                $mymirror = new Mirror();
+                $mymirror->setType('rpm');
+                $mymirror->setUrl($this->fullUrl);
+                $mymirror->setWorkingDir($this->workingDir);
+                $mymirror->setArch($this->targetArch);
+                $mymirror->setSyncSource($this->targetSourcePackage);
+                $mymirror->setCheckSignature($this->targetGpgCheck);
                 /**
-                 *  Add --i18n then include each translation required
+                 *  If the source repo has a http:// GPG signature key, then it will be used to check for package signature
                  */
-                $debmirrorGlobalParams .= ' --i18n';
-
-                foreach ($this->targetPackageTranslation as $translation) {
-                    $debmirrorGlobalParams .= ' --include="Translation-' . $translation . '.*"';
+                if (!empty($gpgKeyUrl)) {
+                    $mymirror->setGpgKeyUrl($gpgKeyUrl);
                 }
-            }
+                $mymirror->setOutputFile($this->op->log->steplog);
+                $mymirror->outputToFile(true);
+                $mymirror->mirror();
 
-            /**
-             *  Case we don't want GPG signature check
-             */
-            if ($this->targetGpgCheck == "no") {
-                $debmirrorGpgParam = '--no-check-gpg';
-            } else {
-                $debmirrorGpgParam = '--check-gpg --keyring=' . GPGHOME . '/trustedkeys.gpg';
-            }
+                unset($mysource, $gpgKeyUrl);
 
-            /**
-             *  Instanciation d'un nouveau Process debmirror
-             */
-            $myprocess = new \Controllers\Process('/usr/bin/debmirror ' . $debmirrorGpgParam . ' ' . $debmirrorGlobalParams . ' --passive --method=http --rsync-extra=none --host="' . $this->hostUrl . '" --root="' . $this->rootUrl . '" --dist="' . $this->dist . '" --section="' . $this->section . '" ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . ' --getcontents --progress --postcleanup');
+                /**
+                 *  Renaming working dir name to final name
+                 */
+                if (!rename($this->workingDir, REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name)) {
+                    throw new Exception('Could not rename working directory ' . $this->workingDir);
+                }
+            } catch (Exception $e) {
+                echo '</pre></div>';
+                throw new Exception($e->getMessage());
+            }
         }
-
-        /**
-         *  Exécution
-         */
-        $myprocess->exec();
-
-        /**
-         *  Récupération du pid du process lancé
-         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
-         */
-        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
-
-        /**
-         *  Affichage de l'output du process en continue dans un fichier
-         */
-        $myprocess->getOutput($this->op->log->steplog);
 
         echo '</pre></div>';
-
-        $this->op->stepWriteToLog();
-
-        /*
-         *  Si il y a un pb avec reposync, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
-         *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente
-         */
-        $reposyncError = 0;
-        if (preg_match('/due to missing GPG key/', file_get_contents($this->op->log->steplog))) {
-            ++$reposyncError;
-        }
-
-        /**
-         *  Si l'exécution de reposync ou debmirror s'est mal terminée, on supprime ce qui a été fait et on quitte avec un message d'erreur
-         */
-        if ($myprocess->getReturnCode() != 0 or $reposyncError != 0) {
-            /**
-             *  Suppression de ce qui a été fait :
-             */
-            if ($this->packageType == "rpm") {
-                exec('rm -rf "' . REPOS_DIR . '/' . DATE_DMY . '_' . $this->name . '"');
-            }
-            if ($this->packageType == "deb") {
-                exec('rm -rf "' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . DATE_DMY . '_' . $this->section . '"');
-            }
-
-            throw new Exception('error while retrieving packages');
-        }
 
         $this->op->stepOK();
 
@@ -2325,8 +2208,8 @@ class Repo
             /**
              *  Récupération de tous les fichiers RPMs de manière récursive
              */
-            $dir = new \RecursiveDirectoryIterator(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/');
-            $rpmFiles = new \RecursiveIteratorIterator($dir);
+            $rpmFiles = Common::findRecursive(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name, 'rpm', true);
+
             $signErrors = 0;
 
             /**
@@ -2334,65 +2217,63 @@ class Repo
              */
             foreach ($rpmFiles as $rpmFile) {
                 /**
-                 *  On traite uniquement si le fichier a bien une extension .rpm
+                 *  Cas où on souhaite utiliser rpmresign pour signer
                  */
-                if ($rpmFile->getExtension() == 'rpm') {
-                    /**
-                     *  Cas où on souhaite utiliser rpmresign pour signer
-                     */
-                    if ($this->rpmSignMethod == 'rpmresign') {
-                        if (file_exists("/usr/bin/rpmresign")) {
-                            /**
-                             *  Instanciation d'un nouveau Process
-                             */
-                            $myprocess = new \Controllers\Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName());
-                        } else {
-                            throw new Exception("rpmresign bin is not found on this system");
-                        }
-                    }
-
-                    /**
-                     *  Cas où on souhaite utiliser nativement gpg pour signer, avec rpmsign (équivalent rpm --sign)
-                     */
-                    if ($this->rpmSignMethod == 'rpmsign') {
+                if ($this->rpmSignMethod == 'rpmresign') {
+                    if (file_exists("/usr/bin/rpmresign")) {
                         /**
-                         *  On a besoin d'un fichier de macros gpg, on signe uniquement si le fichier de macros est présent, sinon on retourne une erreur
+                         *  Instanciation d'un nouveau Process
                          */
-                        if (file_exists(MACROS_FILE)) {
-                            /**
-                             *  Instanciation d'un nouveau Process
-                             */
-                            $myprocess = new \Controllers\Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile->getPath() . '/' . $rpmFile->getFileName(), array('GPG_TTY' => '$(tty)'));
-                        } else {
-                            throw new Exception("GPG macros file for rpm does not exist.");
-                        }
-                    }
-
-                    /**
-                     *  Exécution
-                     */
-                    $myprocess->exec();
-
-                    /**
-                     *  Récupération du pid du process lancé
-                     *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
-                     */
-                    file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
-
-                    /**
-                     *  Affichage de l'output du process en continue dans un fichier
-                     */
-                    $myprocess->getOutput($this->op->log->steplog);
-
-                    /**
-                     *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
-                     *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
-                     */
-                    if ($myprocess->getReturnCode() != 0) {
-                        $signErrors++;
-                        break;
+                        $myprocess = new Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile);
+                    } else {
+                        throw new Exception("rpmresign bin is not found on this system");
                     }
                 }
+
+                /**
+                 *  Cas où on souhaite utiliser nativement gpg pour signer, avec rpmsign (équivalent rpm --sign)
+                 */
+                if ($this->rpmSignMethod == 'rpmsign') {
+                    /**
+                     *  On a besoin d'un fichier de macros gpg, on signe uniquement si le fichier de macros est présent, sinon on retourne une erreur
+                     */
+                    if (file_exists(MACROS_FILE)) {
+                        /**
+                         *  Instanciation d'un nouveau Process
+                         */
+                        $myprocess = new Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile, array('GPG_TTY' => '$(tty)'));
+                    } else {
+                        throw new Exception("GPG macros file for rpm does not exist.");
+                    }
+                }
+
+                /**
+                 *  Exécution
+                 */
+                $myprocess->setBackground(true);
+                $myprocess->execute();
+
+                /**
+                 *  Récupération du pid du process lancé
+                 *  Puis écriture du pid de rpmsign/rpmresign (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                 */
+                file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+
+                /**
+                 *  Affichage de l'output du process en continue dans un fichier
+                 */
+                $myprocess->getOutput($this->op->log->steplog);
+
+                /**
+                 *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                 *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
+                 */
+                if ($myprocess->getExitCode() != 0) {
+                    $signErrors++;
+                    break;
+                }
+
+                $myprocess->close();
             }
             echo '</pre></div>';
 
@@ -2467,54 +2348,72 @@ class Repo
         $this->op->stepWriteToLog();
 
         if ($this->packageType == "rpm") {
+            $repoPath = REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name;
+
             /**
              *  Si un répertoire my_uploaded_packages existe, alors on déplace ses éventuels packages
              */
-            if (is_dir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/')) {
+            if (is_dir($repoPath . '/my_uploaded_packages/')) {
                 /**
                  *  Création du répertoire my_integrated_packages qui intègrera les paquets intégrés au repo
                  */
-                if (!is_dir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_integrated_packages/')) {
-                    mkdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_integrated_packages/', 0770, true);
+                if (!is_dir($repoPath . '/my_integrated_packages/')) {
+                    mkdir($repoPath . '/my_integrated_packages/', 0770, true);
                 }
 
                 /**
                  *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
                  */
-                if (!\Controllers\Common::dirIsEmpty(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/')) {
-                    exec('mv -f ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/*.rpm ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_integrated_packages/');
+                if (!Common::dirIsEmpty($repoPath . '/my_uploaded_packages/')) {
+                    exec('mv -f ' . $repoPath . '/my_uploaded_packages/*.rpm ' . $repoPath . '/my_integrated_packages/');
                 }
 
                 /**
                  *  Suppression de my_uploaded_packages
                  */
-                rmdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/my_uploaded_packages/');
+                rmdir($repoPath . '/my_uploaded_packages/');
+            }
+
+            /**
+             *  Check which of createrepo or createrepo_c is present on the system
+             */
+            if (file_exists('/usr/bin/createrepo')) {
+                $createrepo = '/usr/bin/createrepo';
+            }
+            if (file_exists('/usr/bin/createrepo_c')) {
+                $createrepo = '/usr/bin/createrepo_c';
+            }
+            if (empty($createrepo)) {
+                throw new Exception('Could not find createrepo on the system');
             }
 
             /**
              *  Instanciation d'un nouveau Process
              */
-            $myprocess = new \Controllers\Process('createrepo -v ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/');
+            $myprocess = new Process($createrepo . ' -v ' . $repoPath . '/');
 
             /**
              *  Exécution
              */
-            $myprocess->exec();
+            $myprocess->setBackground(true);
+            $myprocess->execute();
 
             /**
              *  Récupération du pid du process lancé
-             *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+             *  Puis écriture du pid de createrepo (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
              */
-            file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+            file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
             /**
              *  Affichage de l'output du process en continue dans un fichier
              */
             $myprocess->getOutput($this->op->log->steplog);
 
-            if ($myprocess->getReturnCode() != 0) {
+            if ($myprocess->getExitCode() != 0) {
                 $createRepoErrors++;
             }
+
+            $myprocess->close();
 
             echo '</pre></div>';
 
@@ -2522,87 +2421,131 @@ class Repo
         }
 
         if ($this->packageType == "deb") {
+            $sectionPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
             $repreproArchs = '';
             $repreproGpgParams = '';
+
+            if (!is_dir($sectionPath)) {
+                throw new Exception('Repo directory does not exist');
+            }
+
+            /**
+             *  If this section already has a pool directory, then it means that it is an existing section that has been duplicated or that needs to be rebuilded.
+             *  Packages and source packages in pool directory will be moved in dedicated directory as if it was a brand new repo.
+             */
+            if ($this->op->getAction() == 'duplicate' or $this->op->getAction() == 'reconstruct') {
+                /**
+                 *  Create packages and sources directory
+                 */
+                if (!is_dir($sectionPath . '/packages')) {
+                    if (!mkdir($sectionPath . '/packages', 0770, true)) {
+                        throw new Exception('Error: could not create directory ' . $sectionPath . '/packages');
+                    }
+                }
+                if (!is_dir($sectionPath . '/sources')) {
+                    if (!mkdir($sectionPath . '/sources', 0770, true)) {
+                        throw new Exception('Error: could not create directory ' . $sectionPath . '/sources');
+                    }
+                }
+
+                /**
+                 *  Recursively find all packages and sources packages
+                 */
+                $debPackages          = Common::findRecursive($sectionPath . '/pool', 'deb', true);
+                $dscSourcesPackages   = Common::findRecursive($sectionPath . '/pool', 'dsc', true);
+                $tarxzSourcesPackages = Common::findRecursive($sectionPath . '/pool', 'xz', true);
+                $targzSourcesPackages = Common::findRecursive($sectionPath . '/pool', 'gz', true);
+
+                /**
+                 *  Move packages to the packages directory
+                 */
+                if (!empty($debPackages)) {
+                    foreach ($debPackages as $debPackage) {
+                        $debPackageName = preg_split('#/#', $debPackage);
+                        $debPackageName = end($debPackageName);
+
+                        if (!rename($debPackage, $sectionPath . '/packages/' . $debPackageName)) {
+                            throw new Exception('Error: could not move package ' . $debPackage . ' to the packages directory');
+                        }
+                    }
+                }
+
+                /**
+                 *  Move source packages to the sources directory
+                 */
+                if (!empty($dscSourcesPackages)) {
+                    foreach ($dscSourcesPackages as $dscSourcesPackage) {
+                        $dscSourcesPackageName = preg_split('#/#', $dscSourcesPackage);
+                        $dscSourcesPackageName = end($dscSourcesPackageName);
+
+                        if (!rename($dscSourcesPackage, $sectionPath . '/sources/' . $dscSourcesPackageName)) {
+                            throw new Exception('Error: could not move source package ' . $dscSourcesPackage . ' to the sources directory');
+                        }
+                    }
+                }
+
+                if (!empty($tarxzSourcesPackages)) {
+                    foreach ($tarxzSourcesPackages as $tarxzSourcesPackage) {
+                        $tarxzSourcesPackageName = preg_split('#/#', $tarxzSourcesPackage);
+                        $tarxzSourcesPackageName = end($tarxzSourcesPackageName);
+
+                        if (!preg_match('/.tar.xz/i', $tarxzSourcesPackageName)) {
+                            continue;
+                        }
+
+                        if (!rename($tarxzSourcesPackage, $sectionPath . '/sources/' . $tarxzSourcesPackageName)) {
+                            throw new Exception('Error: could not move source package ' . $tarxzSourcesPackage . ' to the sources directory');
+                        }
+                    }
+                }
+
+                if (!empty($targzSourcesPackages)) {
+                    foreach ($targzSourcesPackages as $targzSourcesPackage) {
+                        $targzSourcesPackageName = preg_split('#/#', $targzSourcesPackage);
+                        $targzSourcesPackageName = end($targzSourcesPackageName);
+
+                        if (!preg_match('/.tar.gz/i', $targzSourcesPackageName)) {
+                            continue;
+                        }
+
+                        if (!rename($targzSourcesPackage, $sectionPath . '/sources/' . $targzSourcesPackageName)) {
+                            throw new Exception('Error: could not move source package ' . $targzSourcesPackage . ' to the sources directory');
+                        }
+                    }
+                }
+
+                /**
+                 *  Clean existing directories
+                 */
+                if (!Common::deleteRecursive($sectionPath . '/conf')) {
+                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/conf');
+                }
+                if (!Common::deleteRecursive($sectionPath . '/db')) {
+                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/db');
+                }
+                if (!Common::deleteRecursive($sectionPath . '/dists')) {
+                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/dists');
+                }
+                if (!Common::deleteRecursive($sectionPath . '/pool')) {
+                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/pool');
+                }
+            }
 
             /**
              *  Target arch must be specified
              */
             if (empty($this->targetArch)) {
-                throw new Exception('Packages arch must be specified.');
-            }
-
-            /**
-             *  On va créer et utiliser un répertoire temporaire pour travailler
-             */
-            $TMP_DIR = REPOS_DIR . "/{$this->op->log->pid}_deb_packages";
-
-            if (!mkdir($TMP_DIR, 0770, true)) {
-                throw new Exception("cannot create temporary directory <b>" . $TMP_DIR . '</b>');
+                throw new Exception('Packages arch must be specified');
             }
 
             $this->op->stepWriteToLog();
-
-            /**
-             *  Chemin complet vers la section qu'on est en train de créer
-             */
-            $sectionPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
-
-            if (!is_dir($sectionPath)) {
-                throw new Exception("repo directory does not exist");
-            }
-            if (!is_dir($TMP_DIR)) {
-                throw new Exception("temporary directory does not exist");
-            }
-
-            /**
-             *  Récupération de tous les fichiers DEBs de manière récursive
-             *  On va déplacer ces fichiers deb vers le répertoire temporaire
-             */
-            $dir = new \RecursiveDirectoryIterator($sectionPath . '/');
-            $debFiles = new \RecursiveIteratorIterator($dir);
-
-            /**
-             *  On déplace chaque fichier deb trouvé
-             */
-            foreach ($debFiles as $debFile) {
-                /**
-                 *  Move files that have .deb extension to the temp dir
-                 */
-                if ($debFile->getExtension() == 'deb') {
-                    rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
-                }
-
-                /**
-                 *  Case packages sources must be included in the repo too
-                 *  Move the packages sources to the temp dir
-                 */
-                if ($this->targetPackageSource == 'yes') {
-                    if ($debFile->getExtension() == 'dsc') {
-                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
-                    }
-
-                    if ($debFile->getExtension() == 'gz') {
-                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
-                    }
-
-                    if ($debFile->getExtension() == 'xz') {
-                        rename($debFile->getPath() . '/' . $debFile->getFileName(), $TMP_DIR . '/' . $debFile->getFileName());
-                    }
-                }
-            }
-
-            /**
-             *  Après avoir déplacé tous les paquets on peut supprimer tout le contenu de la section
-             */
-            exec("rm -rf $sectionPath/*");
 
             /**
              *  Création du répertoire 'conf' et des fichiers de conf du repo
              */
             if (!is_dir($sectionPath . '/conf')) {
                 if (!mkdir($sectionPath . '/conf', 0770, true)) {
-                    throw new Exception("cannot create repo configuration directory <b>$sectionPath/conf</b>");
+                    throw new Exception("Could not create repo configuration directory <b>$sectionPath/conf</b>");
                 }
             }
 
@@ -2617,11 +2560,23 @@ class Repo
             foreach ($this->targetArch as $arch) {
                 $repreproArchs .= ' ' . $arch;
             }
+
             /**
              *  If packages sources must be included, then add 'source' to the archs
+             *
+             *  For action like 'duplicate' or 'reconstruct', if the source repo has source packages included, then include them in the new repo
              */
-            if ($this->targetPackageSource == 'yes') {
-                $repreproArchs .= ' source';
+            if ($this->op->getAction() == 'duplicate' or $this->op->getAction() == 'reconstruct') {
+                if ($this->sourcePackagesIncluded == 'yes') {
+                    $repreproArchs .= ' source';
+                }
+            /**
+             *  For other action, include source packages or not, as defined by the user
+             */
+            } else {
+                if ($this->targetSourcePackage == 'yes') {
+                    $repreproArchs .= ' source';
+                }
             }
 
             $distributionsFileContent = 'Origin: ' . $this->name . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
@@ -2637,7 +2592,7 @@ class Repo
             $distributionsFileContent .= 'Pull: ' . $this->section;
 
             if (!file_put_contents($sectionPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
-                throw new Exception("cannot create repo distributions file <b>$sectionPath/conf/distributions</b>");
+                throw new Exception("Could not create repo distributions file <b>$sectionPath/conf/distributions</b>");
             }
 
             /**
@@ -2649,29 +2604,37 @@ class Repo
             }
 
             if (!file_put_contents($sectionPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
-                throw new Exception("cannot create repo options file <b>$sectionPath/conf/options</b>");
+                throw new Exception("Could not create repo options file <b>$sectionPath/conf/options</b>");
             }
 
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
-            if (\Controllers\Common::dirIsEmpty($TMP_DIR) === true) {
-                echo 'There is no packages in this repo';
+            if (Common::dirIsEmpty($sectionPath . '/packages') === true) {
+                echo 'Error: there is no package in this repo.';
                 echo '</pre></div>';
-
-                $return = 1;
+                throw new Exception('No package found in this repo');
 
             /**
              *  Sinon on peut traiter
              */
             } else {
                 /**
-                 *  Get all .deb files in temporary directory
+                 *  Get all .deb and .dsc files in working directory
                  */
-                $debFiles = glob($TMP_DIR . "/*.{deb,dsc}", GLOB_BRACE);
+                $debPackagesFiles = Common::findRecursive($sectionPath . '/packages', 'deb', true);
+                $dscPackagesFiles = Common::findRecursive($sectionPath . '/sources', 'dsc', true);
+                $packagesFiles = array_merge($debPackagesFiles, $dscPackagesFiles);
 
                 /**
-                 *  To avoid 'too many argument list', reprepro will have to import .deb packages by lot of 100.
+                 *  Get all translations files if any
+                 */
+                if (is_dir($sectionPath . '/translations/')) {
+                    $translationsFiles = glob($sectionPath . '/translations/*.bz2', GLOB_BRACE);
+                }
+
+                /**
+                 *  To avoid 'too many argument list' error, reprepro will have to import .deb packages by lot of 100.
                  *  So we are creating arrays of deb packages paths by lot of 100.
                  */
                 $debFilesGlobalArray = array();
@@ -2680,7 +2643,7 @@ class Repo
 
                 $dscFilesGlobalArray = array();
 
-                foreach ($debFiles as $packageFile) {
+                foreach ($packagesFiles as $packageFile) {
                     if (preg_match('/.deb$/', $packageFile)) {
                         /**
                          *  Add deb file path to the array and increment package counter
@@ -2709,6 +2672,7 @@ class Repo
                         $dscFilesGlobalArray[] = $packageFile;
                     }
                 }
+
                 /**
                  *  Add the last generated array, even if has not reached 100 packages, and if not empty
                  */
@@ -2756,18 +2720,19 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -P optionnal --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro -P optionnal --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
                          */
-                        $myprocess->exec();
+                        $myprocess->setBackground(true);
+                        $myprocess->execute();
 
                         /**
                          *  Récupération du pid du process lancé
-                         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                         *  Puis écriture du pid de reprepro (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
                          */
-                        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+                        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
                         /**
                          *  Affichage de l'output du process en continue dans un fichier
@@ -2778,40 +2743,44 @@ class Repo
                          *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
                          *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
                          */
-                        if ($myprocess->getReturnCode() != 0) {
+                        if ($myprocess->getExitCode() != 0) {
                             $repreproErrors++;
                             break;
                         }
+
+                        $myprocess->close();
                     }
                 }
 
                 /**
-                 *  Case packages sources must be included in the repo too
+                 *  Case sources packages must be included in the repo too
                  */
-                if ($this->targetPackageSource == 'yes' and !empty($dscFilesGlobalArray)) {
+                // if ($this->targetSourcePackage == 'yes' and !empty($dscFilesGlobalArray)) {
+                if (!empty($dscFilesGlobalArray)) {
                     /**
                      *  Reprepro can't deal with multiple .dsc files at the same time, so we have to proceed each file one by one
                      *  Known issue https://bugs.launchpad.net/ubuntu/+source/reprepro/+bug/1479148
                      */
                     foreach ($dscFilesGlobalArray as $dscFile) {
-                        $repreproIncludeParams = '-S ' . $this->section . ' -P optional includedsc ' . $this->dist . ' ' . $dscFile;
+                        $repreproIncludeParams = '-S ' . $this->section . ' includedsc ' . $this->dist . ' ' . $dscFile;
 
                         /**
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new \Controllers\Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
                          */
-                        $myprocess->exec();
+                        $myprocess->setBackground(true);
+                        $myprocess->execute();
 
                         /**
                          *  Récupération du pid du process lancé
-                         *  Puis écriture du pid de reposync/debmirror (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
+                         *  Puis écriture du pid de reprepro (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
                          */
-                        file_put_contents(PID_DIR . "/{$this->op->log->pid}.pid", 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+                        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
                         /**
                          *  Affichage de l'output du process en continue dans un fichier
@@ -2822,10 +2791,12 @@ class Repo
                          *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
                          *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
                          */
-                        if ($myprocess->getReturnCode() != 0) {
+                        if ($myprocess->getExitCode() != 0) {
                             $repreproErrors++;
                             break;
                         }
+
+                        $myprocess->close();
                     }
                 }
 
@@ -2834,28 +2805,49 @@ class Repo
                 $this->op->stepWriteToLog();
 
                 /**
-                 *  Suppression du répertoire temporaire
+                 *  Delete temporary directories
                  */
-                if ($this->packageType == "deb" and is_dir($TMP_DIR)) {
-                    exec("rm -rf '$TMP_DIR'");
+                if ($this->packageType == "deb") {
+                    if (is_dir($sectionPath . '/packages')) {
+                        if (!Common::deleteRecursive($sectionPath . '/packages')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/packages');
+                        }
+                    }
+                    if (is_dir($sectionPath . '/sources')) {
+                        if (!Common::deleteRecursive($sectionPath . '/sources')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/sources');
+                        }
+                    }
+                    if (is_dir($sectionPath . '/translations')) {
+                        if (!Common::deleteRecursive($sectionPath . '/translations')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/translations');
+                        }
+                    }
                 }
             }
         }
 
+        /**
+         *  If there was error with createrepo or reprepro
+         */
         if ($createRepoErrors != 0 or $repreproErrors != 0) {
             /**
-             *  Suppression de ce qui a été fait :
+             *  Delete everything to make sure the operation can be relaunched (except if action is 'reconstruct')
              */
             if ($this->op->getAction() != "reconstruct") {
                 if ($this->packageType == "rpm") {
-                    exec('rm -rf "' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '"');
+                    if (!Common::deleteRecursive($repoPath)) {
+                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
+                    }
                 }
                 if ($this->packageType == "deb") {
-                    exec('rm -rf "' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '"');
+                    if (!Common::deleteRecursive($sectionPath)) {
+                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $sectionPath);
+                    }
                 }
             }
 
-            throw new Exception('repo creation has failed');
+            throw new Exception('Repo creation has failed');
         }
 
         $this->op->stepWriteToLog();
@@ -2873,7 +2865,7 @@ class Repo
                     exec('cd ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/ && ln -sfn ' . $this->targetDateFormatted . '_' . $this->section . ' ' . $this->section . '_' . $this->targetEnv, $output, $result);
                 }
                 if ($result != 0) {
-                    throw new Exception('repo finalization has failed');
+                    throw new Exception('Repo finalization has failed');
                 }
             }
         }
@@ -2950,7 +2942,7 @@ class Repo
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
+            $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetSourcePackage, $this->targetPackageTranslation, $this->type, 'active', $this->repoId);
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
@@ -2994,7 +2986,7 @@ class Repo
                 /**
                  *  Cas où un nouveau snapshot a été créé, on l'ajoute en base de données
                  */
-                $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetPackageSource, $this->targetPackageTranslation, 'mirror', 'active', $this->repoId);
+                $this->model->addSnap($this->targetDate, $this->targetTime, $this->targetGpgResign, $this->targetArch, $this->targetSourcePackage, $this->targetPackageTranslation, 'mirror', 'active', $this->repoId);
 
                 /**
                  *  On récupère l'Id du snapshot précédemment créé
@@ -3106,7 +3098,7 @@ class Repo
         /**
          *  On aura besoin d'un objet Group()
          */
-        $mygroup = new \Controllers\Group('repo');
+        $mygroup = new Group('repo');
         $groupId = $mygroup->getIdByName($groupName);
 
         if (!empty($reposId)) {
@@ -3117,12 +3109,6 @@ class Repo
                 if ($this->model->existsId($repoId) === false) {
                     throw new Exception("Specified repo Id $repoId does not exist");
                 }
-
-                $repo = $this->getAllById($repoId);
-
-                $repoName = $this->name;
-                $repoDist = $this->dist;
-                $repoSection = $this->section;
 
                 /**
                  *  Ajout du repo au groupe
@@ -3156,7 +3142,7 @@ class Repo
 
         \Models\History::set($_SESSION['username'], 'Modification of repos members of the group <span class="label-white">' . $groupName . '</span>', 'success');
 
-        \Controllers\Common::clearCache();
+        Common::clearCache();
     }
 
     /**
@@ -3167,7 +3153,7 @@ class Repo
         /**
          *  On aura besoin d'un objet Group()
          */
-        $mygroup = new \Controllers\Group('repo');
+        $mygroup = new Group('repo');
         $groupId = $mygroup->getIdByName($groupName);
 
         $this->model->addToGroup($repoId, $groupId);
@@ -3186,7 +3172,7 @@ class Repo
         /**
          *  On aura besoin d'un objet Group()
          */
-        $mygroup = new \Controllers\Group('repo');
+        $mygroup = new Group('repo');
 
         /**
          *  On vérifie que le groupe existe
@@ -3212,9 +3198,9 @@ class Repo
 
         echo '<select class="reposSelectList" groupname="' . $groupName . '" name="groupAddRepoName[]" multiple>';
 
-            /**
-             *  Les repos membres du groupe seront par défaut sélectionnés dans la liste
-             */
+        /**
+         *  Les repos membres du groupe seront par défaut sélectionnés dans la liste
+         */
         if (!empty($reposIn)) {
             foreach ($reposIn as $repo) {
                 $repoId = $repo['repoId'];
@@ -3232,9 +3218,9 @@ class Repo
             }
         }
 
-            /**
-             *  Les repos non-membres du groupe seront dé-sélectionnés dans la liste
-             */
+        /**
+         *  Les repos non-membres du groupe seront dé-sélectionnés dans la liste
+         */
         if (!empty($reposNotIn)) {
             foreach ($reposNotIn as $repo) {
                 $repoId = $repo['repoId'];
@@ -3545,7 +3531,7 @@ class Repo
          */
         echo '<div class="item-repo">';
         if ($printRepoName == "yes") {
-            echo $this->name . '<span class="item-pkgtype-' . $this->packageType  . '" title="This repository contains ' . $this->packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /> ' . $this->packageType . '</span>';
+            echo $this->name . '<div class="item-pkgtype item-pkgtype-' . $this->packageType  . '" title="This repository contains ' . $this->packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /><span>' . $this->packageType . '</span></div>';
         }
         echo '</div>';
 
@@ -3575,7 +3561,7 @@ class Repo
         /**
          *  Les checkbox sont affichées uniquement pour les utilisateurs administrateurs
          */
-        if (\Controllers\Common::isadmin()) { ?>
+        if (Common::isadmin()) { ?>
             <div class="item-checkbox">
                 <?php
                 /**
@@ -3625,7 +3611,7 @@ class Repo
              */
             if (PRINT_REPO_TYPE == 'yes') {
                 if ($this->type == "mirror") {
-                    echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source : ' . $this->source . ')" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source repo: ' . $this->source . ')" />';
                 } elseif ($this->type == "local") {
                     echo '<img class="icon lowopacity" src="resources/icons/pin.svg" title="Type: local" />';
                 } else {
@@ -3683,7 +3669,7 @@ class Repo
          */
         echo '<div class="item-env">';
         if (!empty($this->env)) {
-            echo \Controllers\Common::envtag($this->env, 'fit');
+            echo Common::envtag($this->env, 'fit');
         }
         echo '</div>';
 
@@ -3729,7 +3715,7 @@ class Repo
         /**
          *  Icone suppression de l'environnement
          */
-        if (!empty($this->env) and \Controllers\Common::isadmin()) {
+        if (!empty($this->env) and Common::isadmin()) {
             echo '<img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $this->env . ' environment" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
         }
 
