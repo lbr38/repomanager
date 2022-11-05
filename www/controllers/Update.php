@@ -26,6 +26,10 @@ class Update
         if (file_exists(UPDATE_ERROR_LOG)) {
             unlink(UPDATE_ERROR_LOG);
         }
+
+        if (file_exists(UPDATE_INFO_LOG)) {
+            unlink(UPDATE_INFO_LOG);
+        }
     }
 
     /**
@@ -215,6 +219,9 @@ class Update
             }
             if (file_exists(UPDATE_SUCCESS_LOG)) {
                 unlink(UPDATE_SUCCESS_LOG);
+            }
+            if (file_exists(UPDATE_INFO_LOG)) {
+                unlink(UPDATE_INFO_LOG);
             }
 
             /**

@@ -26,6 +26,8 @@ class Mirror
     private $workingDir;
     private $outputToFile = false;
     private $outputFile;
+    private $customCertificate;
+    private $customPrivateKey;
 
     public function setType(string $type)
     {
@@ -75,6 +77,16 @@ class Mirror
     public function setSyncSource(string $syncSource)
     {
         $this->syncSource = $syncSource;
+    }
+
+    public function setCustomCertificate(string $path)
+    {
+        $this->customCertificate = $path;
+    }
+
+    public function setCustomPrivateKey(string $path)
+    {
+        $this->customPrivateKey = $path;
     }
 
     /**
@@ -674,19 +686,68 @@ class Mirror
      */
     private function download(string $url, string $savePath)
     {
+        $curlError = 0;
+        $localFile = fopen($savePath, "w");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);         // set remote file url
+        curl_setopt($ch, CURLOPT_FILE, $localFile);  // set output file
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);       // set timeout
+        // curl_setopt($ch, CURLOPT_PORT , 443);
+        // curl_setopt($ch, CURLOPT_VERBOSE, 0);
+        // curl_setopt($ch, CURLOPT_HEADER, 0);
+        // curl_setopt($ch, CURLOPT_SSLCERT, getcwd() . "/public_cert.pem");
+        // curl_setopt($ch, CURLOPT_SSLKEY, getcwd() . "/private.pem");
+        // curl_setopt($ch, CURLOPT_CAINFO, "/etc/ssl/certs/ca-certificates.crt");
+        // curl_setopt($ch, CURLOPT_POST, 1);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
         /**
-         *  Retry at least 3 times before returning false
+         *  If a custom ssl certificate and private key must be used
          */
-        if (!copy($url, $savePath)) {
-            sleep(5);
+        if (!empty($this->customCertificate)) {
+            curl_setopt($ch, CURLOPT_SSLCERT, $this->customCertificate);
+        }
+        if (!empty($this->customPrivateKey)) {
+            curl_setopt($ch, CURLOPT_SSLKEY, $this->customPrivateKey);
+        }
 
-            if (!copy($url, $savePath)) {
-                sleep(5);
+        /**
+         *  Execute curl
+         */
+        curl_exec($ch);
 
-                if (!copy($url, $savePath)) {
-                    return false;
-                }
+        /**
+         *  If curl has failed (meaning a curl param might be invalid)
+         */
+        if (curl_errno($ch)) {
+            curl_close($ch);
+            fclose($localFile);
+
+            $this->logError('Curl error: ' . curl_error($ch), 'Download error');
+        }
+
+        /**
+         *  Check that the http return code is 200 (the file has been downloaded)
+         */
+        $status = curl_getinfo($ch);
+
+        if ($status["http_code"] != 200) {
+            /**
+             *  If return code is 404
+             */
+            if ($status["http_code"] == '404') {
+                $this->logOutput('File not found ');
+            } else {
+                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ') ');
             }
+
+            curl_close($ch);
+            fclose($localFile);
+
+            return false;
         }
 
         return true;
@@ -755,6 +816,12 @@ class Mirror
         $this->logOutput(PHP_EOL . '- Downloading packages from: ' . $url . PHP_EOL);
 
         /**
+         *  Count total packages to print progression during syncing
+         */
+        $totalPackages = count($this->rpmPackagesLocation);
+        $packageCounter = 0;
+
+        /**
          *  Download each package and check its md5
          */
         foreach ($this->rpmPackagesLocation as $rpmPackage) {
@@ -762,11 +829,12 @@ class Mirror
             $rpmPackageChecksum = $rpmPackage['checksum'];
             $rpmPackageName = preg_split('#/#', $rpmPackageLocation);
             $rpmPackageName = end($rpmPackageName);
+            $packageCounter++;
 
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('  ➙ ' . $rpmPackageLocation . ' ... ');
+            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... ');
 
             /**
              *  Download
@@ -839,7 +907,7 @@ class Mirror
             $this->logOK();
         }
 
-        unset($this->rpmPackagesLocation);
+        unset($this->rpmPackagesLocation, $totalPackages, $packageCounter);
     }
 
     /**
@@ -859,6 +927,12 @@ class Mirror
         $this->logOutput(PHP_EOL . '- Downloading packages from: ' . $url . PHP_EOL);
 
         /**
+         *  Count total packages to print progression during syncing
+         */
+        $totalPackages = count($this->debPackagesLocation);
+        $packageCounter = 0;
+
+        /**
          *  Download each package and check its md5
          */
         foreach ($this->debPackagesLocation as $debPackage) {
@@ -866,11 +940,12 @@ class Mirror
             $debPackageMd5 = $debPackage['md5sum'];
             $debPackageName = preg_split('#/#', $debPackageLocation);
             $debPackageName = end($debPackageName);
+            $packageCounter++;
 
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('  ➙ ' . $debPackageLocation . ' ... ');
+            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... ');
 
             /**
              *  Download
@@ -892,7 +967,7 @@ class Mirror
             $this->logOK();
         }
 
-        unset($this->debPackagesLocation);
+        unset($this->debPackagesLocation, $totalPackages, $packageCounter);
     }
 
     /**

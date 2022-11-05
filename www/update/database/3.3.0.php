@@ -79,6 +79,8 @@ if (empty($repoFiles)) {
     return;
 }
 
+ob_start();
+
 /**
  *  Parse all existing RPM repo files if there are, then import their URL in database
  */
@@ -145,4 +147,13 @@ foreach ($repoFiles as $repoFile) {
     }
 
     echo '  WARNING: Could not import this repo. Repo name or baseurl may have not been found inside the repo file. Please import it manualy from the webUI.' . PHP_EOL;
+}
+
+/**
+ *  If there was error while importing the repo files, add these errors to the update info file
+ */
+$content = ob_get_clean();
+
+if (!empty($content)) {
+    file_put_contents(UPDATE_INFO_LOG, $content);
 }

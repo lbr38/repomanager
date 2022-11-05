@@ -4,7 +4,7 @@
  */
 if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
     /**
-     *  Default messages in case they can't be etrieved from log files
+     *  Default messages in case they can't be retrieved from log files
      */
     $updateLogMessage = 'Cannot retrieve update log message.';
     $updateVersion = 'unknow';
@@ -26,6 +26,13 @@ if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
     }
 
     /**
+     *  Get update info log if there are
+     */
+    if (file_exists(UPDATE_INFO_LOG)) {
+        $updateInfoLog = file_get_contents(UPDATE_INFO_LOG);
+    }
+
+    /**
      *  Get release version and update message from log content
      */
     if (!empty($updateLogContent['Message'])) {
@@ -41,13 +48,24 @@ if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
             <h3>REPOMANAGER <?= $updateTitle ?></h3>
 
             <p><?= $updateLogMessage ?></p>
-
+    
             <br>
             <p class="lowopacity">From release version: <?= VERSION ?></p>
             <p class="lowopacity">To target release version: <?= $updateVersion ?></p>
             <br>
 
             <button id="update-continue-btn" class="btn-medium-green">Continue</button>
+
+            <?php
+            if (!empty($updateInfoLog)) : ?>
+                <p>
+                    <br>
+                    Update info:
+                    <br>
+                    <?= $updateInfoLog ?>
+                </p>
+                <?php
+            endif ?>
         </div>
     </div>
     <?php

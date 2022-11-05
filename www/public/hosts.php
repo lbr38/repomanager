@@ -613,7 +613,7 @@ $mycolor = new \Controllers\Common();
                                                             } ?>
                                                         </td>
 
-                                                        <td title="See the details for this host.">
+                                                        <td title="Check the details for this host.">
                                                             <span class="printHostDetails pointer" host_id="<?=$id?>">Details</span><a href="host.php?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="resources/icons/external-link.svg" class="icon-lowopacity" /></a>
                                                         </td>
 

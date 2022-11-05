@@ -6,7 +6,7 @@
         <img id="source-repo-close-btn" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
         <h3>SOURCE REPOSITORIES</h3>
 
-        <p>To create mirrors, you must specify source repositories URL.</p>
+        <p>To create mirrors, you must configure sources repositories.</p>
         <br>
 
         <h4>Add a new source repository</h4>
@@ -140,59 +140,86 @@
             <h4>Current source repositories</h4>
 
             <?php
-            if (!empty($sources)) : ?>
-                <table id="sourceDivs" class="table-generic-blue">
+            if (!empty($sources)) :
+                foreach ($sources as $source) :
+                    $sourceId = $source['Id'];
+                    $sourceName = $source['Name'];
+                    $sourceUrl = $source['Url'];
+                    $sourceType = $source['Type']; ?>
 
+                    <div class="header-container">
+                        <div class="header-blue-min"> 
+                            <table id="sourceDivs">
+                                <tr>
+                                    <td class="td-10">
+                                        <?php
+                                        if ($sourceType == 'rpm') {
+                                            echo '<img src="resources/icons/products/centos.png" class="icon" />';
+                                        }
+                                        if ($sourceType == 'deb') {
+                                            echo '<img src="resources/icons/products/debian.png" class="icon" />';
+                                        } ?>
+                                    </td>
+                                    <td>
+                                        <input class="source-input-name input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceName ?>" />
+                                    </td>
+                                    <td>
+                                        <input class="source-input-url input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceUrl ?>" />
+                                    </td>
+                                    <td class="td-fit">
+                                        <img src="resources/icons/cog.svg" class="icon-lowopacity source-repo-edit-param-btn" source-id="<?= $sourceId ?>" title="Configure repository" />
+                                    </td>
+                                    <td class="td-fit">
+                                        <img src="resources/icons/bin.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="header-container hide source-repo-param-div" source-id="<?= $sourceId ?>">
+                        <div class="header-light-blue-min"> 
+                            <table>
+                                <tr>
+                                    <td>
+                                        <img src="resources/icons/key.svg" class="icon" />
+                                    </td>
+                                    <td>
+                                        GPG signature key URL
+                                    </td>
+                                    <td colspan="3">
+                                        <input class="invisibleInput-light-blue source-repo-gpgkey-input" source-id="<?= $sourceId ?>" type="text" value="<?= $source['Gpgkey'] ?>" placeholder="http://..." />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <img src="resources/icons/file.svg" class="icon" />
+                                    </td>
+                                    <td>
+                                        SSL certificate file path
+                                    </td>
+                                    <td colspan="3">
+                                        <input class="invisibleInput-light-blue source-repo-crt-input" source-id="<?= $sourceId ?>" type="text" value="<?= $source['Ssl_certificate_path'] ?>" placeholder="e.g. /etc/ssl/certificate.crt" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <img src="resources/icons/file.svg" class="icon" />
+                                    </td>
+                                    <td>
+                                        SSL private key file path
+                                    </td>
+                                    <td colspan="3">
+                                        <input class="invisibleInput-light-blue source-repo-key-input" source-id="<?= $sourceId ?>" type="text" value="<?= $source['Ssl_private_key_path'] ?>" placeholder="e.g. /etc/ssl/private.key" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                     <?php
-                    foreach ($sources as $source) :
-                        $sourceId = $source['Id'];
-                        $sourceName = $source['Name'];
-                        $sourceUrl = $source['Url'];
-                        $sourceType = $source['Type']; ?>
-
-                        <tr>
-                            <td class="td-fit">
-                                <?php
-                                if ($sourceType == 'rpm') {
-                                    echo '<img src="resources/icons/products/centos.png" class="icon" />';
-                                }
-                                if ($sourceType == 'deb') {
-                                    echo '<img src="resources/icons/products/debian.png" class="icon" />';
-                                } ?>
-                            </td>
-                            <td>
-                                <input class="source-input-name input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceName ?>" />
-                            </td>
-                            <td>
-                                <input class="source-input-url input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceUrl ?>" />
-                            </td>
-                            <td class="td-fit">
-                                <?php
-                                if ($sourceType == 'rpm') : ?>
-                                    <img src="resources/icons/key.svg" class="icon-lowopacity source-repo-edit-key-btn" source-id="<?= $sourceId ?>" title="Edit GPG signature key URL" />
-                                    <?php
-                                endif ?>
-                            </td>
-                            <td class="td-fit">
-                                <img src="resources/icons/bin.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
-                            </td>
-                        </tr>
-
-                        <tr class="source-repo-key-tr hide" source-id="<?= $sourceId ?>">
-                            <td>
-                                <img src="resources/icons/key.svg" class="icon" />
-                            </td>
-                            <td>
-                                GPG signature key URL
-                            </td>
-                            <td colspan="3">
-                                <input class="invisibleInput-blue source-repo-key-input" source-id="<?= $sourceId ?>" type="text" value="<?= $source['Gpgkey'] ?>" placeholder="GPG signature key URL http://..." />
-                            </td>
-                        </tr>
-                        <?php
-                    endforeach; ?>
-                </table>
-                <?php
+                endforeach;
             endif;
         endif ?>
     </div>

@@ -156,22 +156,50 @@ $(document).on('keypress','.source-input-url',function () {
 /**
  *  Event: Show/hide source repo gpg key
  */
-$(document).on('click','.source-repo-edit-key-btn',function () {
+$(document).on('click','.source-repo-edit-param-btn',function () {
     var sourceId = $(this).attr('source-id');
 
-    $('.source-repo-key-tr[source-id='+sourceId+']').slideToggle();
+    $('.source-repo-param-div[source-id='+sourceId+']').slideToggle();
 });
 
 /**
  *  Event: Edit source repo gpg key
  */
-$(document).on('keypress','.source-repo-key-input',function () {
+$(document).on('keypress','.source-repo-gpgkey-input',function () {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
         var sourceId = $(this).attr('source-id');
         var gpgkey = $(this).val();
 
         editSourceGpgKey(sourceId, gpgkey);
+    }
+    event.stopPropagation();
+});
+
+/**
+ *  Event: Edit source repo SSL certificate file
+ */
+$(document).on('keypress','.source-repo-crt-input',function () {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+        var sourceId = $(this).attr('source-id');
+        var sslCertificatePath = $(this).val();
+
+        editSourceSslCertificatePath(sourceId, sslCertificatePath);
+    }
+    event.stopPropagation();
+});
+
+/**
+ *  Event: Edit source repo SSL private key file
+ */
+$(document).on('keypress','.source-repo-key-input',function () {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+        var sourceId = $(this).attr('source-id');
+        var sslPrivateKeyPath = $(this).val();
+
+        editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath);
     }
     event.stopPropagation();
 });
@@ -390,11 +418,61 @@ function editSourceGpgKey(sourceId, gpgkey)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success
-            */
             printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: Edit source repo SSL certificate path
+ * @param {string} sourceId
+ * @param {string} sslCertificatePath
+ */
+function editSourceSslCertificatePath(sourceId, sslCertificatePath)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/sources/ajax.php",
+        data: {
+            action: "editSslCertificatePath",
+            sourceId: sourceId,
+            sslCertificatePath: sslCertificatePath
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: Edit source repo SSL certificate path
+ * @param {string} sourceId
+ * @param {string} sslPrivateKeyPath
+ */
+function editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/sources/ajax.php",
+        data: {
+            action: "editSslPrivateKeyPath",
+            sourceId: sourceId,
+            sslPrivateKeyPath: sslPrivateKeyPath
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

@@ -14,6 +14,14 @@ class Source
     }
 
     /**
+     *  Return all source informations
+     */
+    public function getAll(string $sourceType, string $sourceName)
+    {
+        return $this->model->getAll($sourceType, $sourceName);
+    }
+
+    /**
      *  Return source repo URL
      */
     public function getUrl(string $sourceType, string $sourceName)
@@ -232,6 +240,60 @@ class Source
 
         $this->model->editGpgKey($sourceId, $url);
     }
+
+
+
+
+
+
+
+
+    /**
+     *  Edit source repo SSL certificate file path
+     */
+    public function editSslCertificatePath(string $sourceId, string $path = '')
+    {
+        /**
+         *  SSL certificate file must be a file that exist and is readable
+         */
+        if (!empty($path)) {
+            if (!file_exists($path)) {
+                throw new Exception('Specified certificate file does not exist');
+            }
+            if (!is_readable($path)) {
+                throw new Exception('Specified certificate file is not readable');
+            }
+        }
+
+        $this->model->editSslCertificatePath($sourceId, $path);
+    }
+
+    /**
+     *  Edit source repo SSL private key file path
+     */
+    public function editSslPrivateKeyPath(string $sourceId, string $path = '')
+    {
+        /**
+         *  SSL private key file must be a file that exists and is readable
+         */
+        if (!empty($path)) {
+            if (!file_exists($path)) {
+                throw new Exception('Specified private key file does not exist');
+            }
+            if (!is_readable($path)) {
+                throw new Exception('Specified private key file is not readable');
+            }
+        }
+
+        $this->model->editSslPrivateKeyPath($sourceId, $path);
+    }
+
+
+
+
+
+
+
 
     /**
      *  Delete a GPG key from Repomanager's trusted keyring

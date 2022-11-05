@@ -519,13 +519,8 @@ class Repo
         $this->fullUrl = $mysource->getUrl($sourceType, $sourceName);
 
         if (empty($this->fullUrl)) {
-            throw new Exception('cannot determine repo source URL');
+            throw new Exception('Cannot determine repo source URL');
         }
-
-        /**
-         *  On retire http:// ou https:// du début de l'URL
-         */
-        // $this->fullUrl = str_replace(array("http://", "https://"), '', $this->fullUrl);
 
         /**
          *  Get more informations if deb
@@ -543,10 +538,10 @@ class Repo
             $this->rootUrl = str_replace($this->hostUrl, '', $this->fullUrl);
 
             if (empty($this->hostUrl)) {
-                throw new Exception('cannot determine repo source address');
+                throw new Exception('Cannot determine repo source address');
             }
             if (empty($this->rootUrl)) {
-                throw new Exception('cannot determine repo source URL root');
+                throw new Exception('Cannot determine repo source URL root');
             }
         }
 
@@ -2101,6 +2096,10 @@ class Repo
          */
         if ($this->packageType == 'deb') {
             try {
+                $mysource = new Source();
+                $sourceDetails = $mysource->getAll('deb', $this->source);
+                unset($mysource);
+
                 $mymirror = new Mirror();
                 $mymirror->setType('deb');
                 $mymirror->setUrl($this->fullUrl);
@@ -2113,6 +2112,12 @@ class Repo
                 $mymirror->setTranslation($this->targetPackageTranslation);
                 $mymirror->setOutputFile($this->op->log->steplog);
                 $mymirror->outputToFile(true);
+                if (!empty($sourceDetails['Ssl_certificate_path'])) {
+                    $mymirror->setCustomCertificate('/etc/ssl/nginx/nginx-repo.crt');
+                }
+                if (!empty($sourceDetails['Ssl_private_key_path'])) {
+                    $mymirror->setCustomPrivateKey('/etc/ssl/nginx/nginx-repo.key');
+                }
                 $mymirror->mirror();
 
                 /**
@@ -2138,15 +2143,10 @@ class Repo
 
         if ($this->packageType == 'rpm') {
             try {
-                /**
-                 *  First check if the source repo has a distant http:// GPG signature key Url
-                 */
                 $mysource = new Source();
-                $gpgKeyUrl = $mysource->getGpgKeyUrl('rpm', $this->source);
+                $sourceDetails = $mysource->getAll('rpm', $this->source);
+                unset($mysource);
 
-                /**
-                 *  Get source repo URL from the specified repo Id
-                 */
                 $mymirror = new Mirror();
                 $mymirror->setType('rpm');
                 $mymirror->setUrl($this->fullUrl);
@@ -2154,17 +2154,21 @@ class Repo
                 $mymirror->setArch($this->targetArch);
                 $mymirror->setSyncSource($this->targetSourcePackage);
                 $mymirror->setCheckSignature($this->targetGpgCheck);
+                $mymirror->setOutputFile($this->op->log->steplog);
+                $mymirror->outputToFile(true);
                 /**
                  *  If the source repo has a http:// GPG signature key, then it will be used to check for package signature
                  */
-                if (!empty($gpgKeyUrl)) {
-                    $mymirror->setGpgKeyUrl($gpgKeyUrl);
+                if (!empty($sourceDetails['Gpgkey'])) {
+                    $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);
                 }
-                $mymirror->setOutputFile($this->op->log->steplog);
-                $mymirror->outputToFile(true);
+                if (!empty($sourceDetails['Ssl_certificate_path'])) {
+                    $mymirror->setCustomCertificate($sourceDetails['Ssl_certificate_path']);
+                }
+                if (!empty($sourceDetails['Ssl_private_key_path'])) {
+                    $mymirror->setCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
+                }
                 $mymirror->mirror();
-
-                unset($mysource, $gpgKeyUrl);
 
                 /**
                  *  Renaming working dir name to final name
