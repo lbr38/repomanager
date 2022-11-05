@@ -1088,16 +1088,18 @@ textarea {
 footer {
     height: 400px;
     margin-top: 100px;
-    padding: 10px; /* marge intérieur */
+    padding-top: 50px;
     box-shadow:
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#182b3e;
+    text-align: center;
 }
-footer p { color: gray; }
-/* lien vers github dans le footer */
-#github img { width: 25px; }
+footer p {
+    color: gray;
+}
 
+footer #github img { width: 25px; }
 
 #hideAllReposGroups {
     position: absolute;

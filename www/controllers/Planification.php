@@ -684,7 +684,7 @@ class Planification
                 /**
                  *  On peut récupérer toutes les informations du repo à partir de l'Id de repo et de l'Id de snapshot
                  */
-                $this->repo->getAllById($repoId, $mostRecentSnapId);
+                $this->repo->getAllById($repoId, $mostRecentSnapId, '', false);
 
                 /**
                  *  Si le snapshot de repo est de type 'local' alors on passe au repo suivant
@@ -1343,7 +1343,7 @@ class Planification
          */
         if (!empty($planInfo['Id_snap'])) {
             $this->repo->setSnapId($planInfo['Id_snap']);
-            $this->repo->getAllById('', $this->repo->getSnapId());
+            $this->repo->getAllById('', $this->repo->getSnapId(), '', false);
         }
         if (!empty($planInfo['Id_group'])) {
             $this->group->setId($planInfo['Id_group']);

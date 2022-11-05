@@ -182,6 +182,10 @@ class Autoloader
             $__LOAD_PHP_MODULES_ERROR++;
             $__LOAD_PHP_MODULES_MESSAGES[] = " - xml module for PHP is not installed or disabled.";
         }
+        if (!in_array('curl', $modules)) {
+            $__LOAD_PHP_MODULES_ERROR++;
+            $__LOAD_PHP_MODULES_MESSAGES[] = " - curl module for PHP is not installed or disabled.";
+        }
 
         if (!defined('__LOAD_PHP_MODULES_ERROR')) {
             define('__LOAD_PHP_MODULES_ERROR', $__LOAD_PHP_MODULES_ERROR);

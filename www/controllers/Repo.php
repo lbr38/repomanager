@@ -1999,11 +1999,6 @@ class Repo
         }
 
         /**
-         *  Get source repo Url
-         */
-        $this->getFullSource($this->packageType, $this->source);
-
-        /**
          *  2. Si il s'agit d'un nouveau repo, on vérifie qu'un repo du même nom avec un ou plusieurs snapshots actifs n'existe pas déjà.
          *  Un repo peut exister et n'avoir aucun snapshot / environnement rattachés (il sera invisible dans la liste) mais dans ce cas cela ne doit pas empêcher la création d'un nouveau repo
          *
@@ -2077,15 +2072,6 @@ class Repo
         }
 
         /**
-         *  Si le répertoire existe déjà, on le supprime
-         */
-        if (is_dir($repoPath)) {
-            if (!Common::deleteRecursive($repoPath)) {
-                throw new Exception('Cannot delete existing directory: ' . $repoPath);
-            }
-        }
-
-        /**
          *  3. Retrieving packages
          */
         echo '<div class="hide getPackagesDiv"><pre>';
@@ -2096,13 +2082,27 @@ class Repo
          */
         if ($this->packageType == 'deb') {
             try {
+                /**
+                 *  Get source repo informations
+                 */
                 $mysource = new Source();
                 $sourceDetails = $mysource->getAll('deb', $this->source);
+
+                /**
+                 *  Check source repo informations
+                 */
+                if (empty($sourceDetails)) {
+                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
+                }
+                if (empty($sourceDetails['Url'])) {
+                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
+                }
+
                 unset($mysource);
 
                 $mymirror = new Mirror();
                 $mymirror->setType('deb');
-                $mymirror->setUrl($this->fullUrl);
+                $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->workingDir);
                 $mymirror->setDist($this->dist);
                 $mymirror->setSection($this->section);
@@ -2113,10 +2113,10 @@ class Repo
                 $mymirror->setOutputFile($this->op->log->steplog);
                 $mymirror->outputToFile(true);
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setCustomCertificate('/etc/ssl/nginx/nginx-repo.crt');
+                    $mymirror->setSslCustomCertificate('/etc/ssl/nginx/nginx-repo.crt');
                 }
                 if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setCustomPrivateKey('/etc/ssl/nginx/nginx-repo.key');
+                    $mymirror->setSslCustomPrivateKey('/etc/ssl/nginx/nginx-repo.key');
                 }
                 $mymirror->mirror();
 
@@ -2131,8 +2131,14 @@ class Repo
 
                 /**
                  *  Renaming working dir name to final name
+                 *  First delete the target directory if it already exists
                  */
-                if (!rename($this->workingDir, REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section)) {
+                if (is_dir($repoPath)) {
+                    if (!Common::deleteRecursive($repoPath)) {
+                        throw new Exception('Cannot delete existing directory: ' . $repoPath);
+                    }
+                }
+                if (!rename($this->workingDir, $repoPath)) {
                     throw new Exception('Could not rename working directory ' . $this->workingDir);
                 }
             } catch (Exception $e) {
@@ -2143,13 +2149,27 @@ class Repo
 
         if ($this->packageType == 'rpm') {
             try {
+                /**
+                 *  Get source repo informations
+                 */
                 $mysource = new Source();
                 $sourceDetails = $mysource->getAll('rpm', $this->source);
+
+                /**
+                 *  Check source repo informations
+                 */
+                if (empty($sourceDetails)) {
+                    throw new Exception('Could not retrieve source repo informations. Does the source repo still exists?');
+                }
+                if (empty($sourceDetails['Url'])) {
+                    throw new Exception('Could not retrieve source repo URL. Check source repo configuration.');
+                }
+
                 unset($mysource);
 
                 $mymirror = new Mirror();
                 $mymirror->setType('rpm');
-                $mymirror->setUrl($this->fullUrl);
+                $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->workingDir);
                 $mymirror->setArch($this->targetArch);
                 $mymirror->setSyncSource($this->targetSourcePackage);
@@ -2163,17 +2183,23 @@ class Repo
                     $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);
                 }
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setCustomCertificate($sourceDetails['Ssl_certificate_path']);
+                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
                 }
                 if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
+                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
                 }
                 $mymirror->mirror();
 
                 /**
                  *  Renaming working dir name to final name
+                 *  First delete the target directory if it already exists
                  */
-                if (!rename($this->workingDir, REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name)) {
+                if (is_dir($repoPath)) {
+                    if (!Common::deleteRecursive($repoPath)) {
+                        throw new Exception('Cannot delete existing directory: ' . $repoPath);
+                    }
+                }
+                if (!rename($this->workingDir, $repoPath)) {
                     throw new Exception('Could not rename working directory ' . $this->workingDir);
                 }
             } catch (Exception $e) {
@@ -3450,6 +3476,7 @@ class Repo
                 $this->time   = $repo['Time'];
                 $this->type   = $repo['Type'];
                 $this->signed = $repo['Signed'];
+                $this->arch   = $repo['Arch'];
                 if (!empty($repo['Description'])) {
                     $this->description = $repo['Description'];
                 } else {
@@ -3573,11 +3600,12 @@ class Repo
                  */
                 if ($this->snapId != $this->lastSnapId) :
                     if ($this->snapOpIsRunning($this->snapId) === true) : ?>
-                        <img src="resources/images/loading.gif" class="icon" title="An operation is running on this repo snaphot." />
+                        <img src="resources/images/loading.gif" class="icon" title="An operation is running on this repository snaphot." />
                     <?php else : ?>
                         <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $this->repoId ?>" snap-id="<?= $this->snapId ?>" <?php echo !empty($this->envId) ? 'env-id="' . $this->envId . '"' : ''; ?> repo-type="<?= $this->type ?>" title="Select and execute an action.">
-                    <?php endif ?>
-                <?php endif ?>
+                        <?php
+                    endif;
+                endif ?>
             </div>   
             <?php
         } else {
@@ -3615,9 +3643,9 @@ class Repo
              */
             if (PRINT_REPO_TYPE == 'yes') {
                 if ($this->type == "mirror") {
-                    echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source repo: ' . $this->source . ')" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source repo: ' . $this->source . ')&#10;Arch: ' . $this->arch . '" />';
                 } elseif ($this->type == "local") {
-                    echo '<img class="icon lowopacity" src="resources/icons/pin.svg" title="Type: local" />';
+                    echo '<img class="icon lowopacity" src="resources/icons/pin.svg" title="Type: local&#10;Arch: ' . $this->arch . '" />';
                 } else {
                     echo '<img class="icon lowopacity" src="resources/icons/unknow.svg" title="Type: unknow" />';
                 }
