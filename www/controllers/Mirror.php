@@ -26,8 +26,8 @@ class Mirror
     private $workingDir;
     private $outputToFile = false;
     private $outputFile;
-    private $customCertificate;
-    private $customPrivateKey;
+    private $sslCustomCertificate;
+    private $sslCustomPrivateKey;
 
     public function setType(string $type)
     {
@@ -79,14 +79,14 @@ class Mirror
         $this->syncSource = $syncSource;
     }
 
-    public function setCustomCertificate(string $path)
+    public function setSslCustomCertificate(string $path)
     {
-        $this->customCertificate = $path;
+        $this->sslCustomCertificate = $path;
     }
 
-    public function setCustomPrivateKey(string $path)
+    public function setSslCustomPrivateKey(string $path)
     {
-        $this->customPrivateKey = $path;
+        $this->sslCustomPrivateKey = $path;
     }
 
     /**
@@ -134,10 +134,22 @@ class Mirror
     {
         $this->logOutput(PHP_EOL . '- Getting <b>Release</b> indices file ... ');
 
-        $this->download($this->url . '/dists/' . $this->dist . '/InRelease', $this->workingDir . '/InRelease');
-        $this->download($this->url . '/dists/' . $this->dist . '/Release', $this->workingDir . '/Release');
-        $this->download($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->workingDir . '/Release.gpg');
+        /**
+         *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
+         */
+        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/InRelease', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            $this->download($this->url . '/dists/' . $this->dist . '/InRelease', $this->workingDir . '/InRelease');
+        }
+        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            $this->download($this->url . '/dists/' . $this->dist . '/Release', $this->workingDir . '/Release');
+        }
+        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            $this->download($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->workingDir . '/Release.gpg');
+        }
 
+        /**
+         *  Print an error and quit if no Release file has been found
+         */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
             $this->logError('Error', 'Could not download Release indices file');
         }
@@ -265,7 +277,7 @@ class Mirror
                 $packageChecksum = $data['checksum'];
 
                 /**
-                 *  If path and md5sum have been parsed, had them to the global rpm packages list array
+                 *  If path and checksum have been parsed, had them to the global rpm packages list array
                  */
                 $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
             }
@@ -312,24 +324,37 @@ class Mirror
              *  Packages pattern to search in the Release file
              *  e.g: main/binary-amd64/Packages
              */
-            $regex = $this->section . '/binary-' . $arch . '/Packages';
+            $regex = $this->section . '/binary-' . $arch . '/Packages($|.gz$|.xz$)';
 
             /**
              *  Parse the whole file, searching for the desired lines
              */
             foreach ($content as $line) {
-                if (preg_match("#$regex$#", $line)) {
+                if (preg_match("#$regex#", $line)) {
                     /**
                      *  Explode the line to separate hashes and location
                      */
                     $splittedLine = explode(' ', trim($line));
 
                     /**
-                     *  We only need the location with its md5sum (32 caracters long)
-                     *  e.g: 006b66a6902a5c0ae6a921f7dab4238c 44688496 main/binary-amd64/Packages
+                     *  We only need the location with its SHA256 (64 caracters long)
+                     *  e.g: bd29d2ec28c10fec66a139d8e9a88ca01ff0f2533ca3fab8dc33c13b533059c1  1279885 main/binary-amd64/Packages
                      */
-                    if (strlen($splittedLine[0]) == '32') {
-                        $this->packagesIndicesLocation[] = array('location' => end($splittedLine), 'md5sum' => $splittedLine[0]);
+                    if (strlen($splittedLine[0]) == '64') {
+                        $location = end($splittedLine);
+                        $checksum = $splittedLine[0];
+
+                        /**
+                         *  Include this Package.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
+                         */
+                        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                            $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
+
+                            /**
+                             *  Then ignore all next Package.xx indices file from the same arch as at least one has been found
+                             */
+                            break 1;
+                        }
                     }
                 }
             }
@@ -446,36 +471,47 @@ class Mirror
          */
         foreach ($this->packagesIndicesLocation as $packageIndice) {
             $packageIndicesLocation = $packageIndice['location'];
-            $packageIndexMd5 = $packageIndice['md5sum'];
+            $packageIndicesChecksum = $packageIndice['checksum'];
+            $packageIndicesName = preg_split('#/#', $packageIndicesLocation);
+            $packageIndicesName = end($packageIndicesName);
 
             /**
-             *  Download Packages.gz file using its location
+             *  Download Packages.xx file using its location
              */
-            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $packageIndicesLocation . '.gz', $this->workingDir . '/Packages.gz')) {
-                $this->logError('Error while downloading Packages.gz indices file: ' . $this->url . '/' . $packageIndicesLocation, 'Could not download Packages indices file');
+            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
+                $this->logError('Error while downloading ' . $packageIndicesName . ' indices file: ' . $this->url . '/' . $packageIndicesLocation, 'Could not download ' . $packageIndicesName . ' indices file');
             }
 
             /**
-             *  Gunzip Packages.gz
+             *  Then check that the Packages.xx file's checksum matches the one that what specified in Release file
              */
-            try {
-                \Controllers\Common::gunzip($this->workingDir . '/Packages.gz');
-            } catch (Exception $e) {
-                $this->logError($e, 'Error while uncompressing Packages.gz');
+            if (hash_file('sha256', $this->workingDir . '/' . $packageIndicesName) !== $packageIndicesChecksum) {
+                $this->logError($packageIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $packageIndicesChecksum, 'Could not verify Packages indices file');
             }
 
             /**
-             *  Then check that the gunzip Packages file's md5 is the same as the one that what specified in Release file
+             *  Uncompress Packages.xx if it is compressed (.gz or .xz)
              */
-            if (md5_file($this->workingDir . '/Packages') !== $packageIndexMd5) {
-                $this->logError('Packages indices file\'s md5 (' . md5_file($this->workingDir . '/Packages') . ') does not match the md5 specified in the Release file ' . $packageIndexMd5, 'Could not verify Packages indices file');
+            if (preg_match('/.gz$/i', $packageIndicesName)) {
+                try {
+                    Common::gunzip($this->workingDir . '/' . $packageIndicesName);
+                } catch (Exception $e) {
+                    $this->logError($e, 'Error while uncompressing ' . $packageIndicesName);
+                }
+            }
+            if (preg_match('/.xz$/i', $packageIndicesName)) {
+                try {
+                    Common::xzUncompress($this->workingDir . '/Packages.xz');
+                } catch (Exception $e) {
+                    $this->logError($e, 'Error while uncompressing Packages.xz');
+                }
             }
 
             /**
              *  Get all .deb packages location from the uncompressed Packages file
              */
             $packageLocation = '';
-            $packageMd5 = '';
+            $packageChecksum = '';
             $handle = fopen($this->workingDir . '/Packages', 'r');
 
             if ($handle) {
@@ -488,19 +524,19 @@ class Mirror
                     }
 
                     /**
-                     *  Get deb md5sum
+                     *  Get deb SHA256
                      */
-                    if (preg_match('/^MD5sum:\s+(.*)/im', $line)) {
-                        $packageMd5 = trim(str_replace('MD5sum: ', '', $line));
+                    if (preg_match('/^SHA256:\s+(.*)/im', $line)) {
+                        $packageChecksum = trim(str_replace('SHA256: ', '', $line));
                     }
 
                     /**
-                     *  If location and md5sum have been parsed, had them to the global deb packages list array
+                     *  If location and checksum have been parsed, had them to the global deb packages list array
                      */
-                    if (!empty($packageLocation) and !empty($packageMd5)) {
-                        $this->debPackagesLocation[] = array('location' => $packageLocation, 'md5sum' => $packageMd5);
+                    if (!empty($packageLocation) and !empty($packageChecksum)) {
+                        $this->debPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
 
-                        unset($packageLocation, $packageMd5);
+                        unset($packageLocation, $packageChecksum);
                     }
                 }
 
@@ -690,28 +726,19 @@ class Mirror
         $localFile = fopen($savePath, "w");
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);         // set remote file url
-        curl_setopt($ch, CURLOPT_FILE, $localFile);  // set output file
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);       // set timeout
-        // curl_setopt($ch, CURLOPT_PORT , 443);
-        // curl_setopt($ch, CURLOPT_VERBOSE, 0);
-        // curl_setopt($ch, CURLOPT_HEADER, 0);
-        // curl_setopt($ch, CURLOPT_SSLCERT, getcwd() . "/public_cert.pem");
-        // curl_setopt($ch, CURLOPT_SSLKEY, getcwd() . "/private.pem");
-        // curl_setopt($ch, CURLOPT_CAINFO, "/etc/ssl/certs/ca-certificates.crt");
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_URL, $url);            // set remote file url
+        curl_setopt($ch, CURLOPT_FILE, $localFile);     // set output file
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);         // set timeout
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
 
         /**
          *  If a custom ssl certificate and private key must be used
          */
-        if (!empty($this->customCertificate)) {
-            curl_setopt($ch, CURLOPT_SSLCERT, $this->customCertificate);
+        if (!empty($this->sslCustomCertificate)) {
+            curl_setopt($ch, CURLOPT_SSLCERT, $this->sslCustomCertificate);
         }
-        if (!empty($this->customPrivateKey)) {
-            curl_setopt($ch, CURLOPT_SSLKEY, $this->customPrivateKey);
+        if (!empty($this->sslCustomPrivateKey)) {
+            curl_setopt($ch, CURLOPT_SSLKEY, $this->sslCustomPrivateKey);
         }
 
         /**
@@ -937,7 +964,7 @@ class Mirror
          */
         foreach ($this->debPackagesLocation as $debPackage) {
             $debPackageLocation = $debPackage['location'];
-            $debPackageMd5 = $debPackage['md5sum'];
+            $debPackageChecksum = $debPackage['checksum'];
             $debPackageName = preg_split('#/#', $debPackageLocation);
             $debPackageName = end($debPackageName);
             $packageCounter++;
@@ -955,10 +982,10 @@ class Mirror
             }
 
             /**
-             *  Check that downloaded deb package's md5 matches the md5sum specified by the Packages file
+             *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
-            if (md5_file($this->workingDir . '/packages/' . $debPackageName) != $debPackageMd5) {
-                $this->logError('md5 does not match', 'Error while retrieving packages');
+            if (hash_file('sha256', $this->workingDir . '/packages/' . $debPackageName) != $debPackageChecksum) {
+                $this->logError('SHA256 does not match', 'Error while retrieving packages');
             }
 
             /**

@@ -683,4 +683,50 @@ class Common
             throw new Exception('Error while closing gziped file: ' . $filename);
         }
     }
+
+    /**
+     *  Uncompress specified xz file 'file.xz' to 'file'
+     */
+    public static function xzUncompress(string $filename)
+    {
+        $myprocess = new Process('/usr/bin/xz --decompress ' . $filename);
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while uncompressing xz file ' . $filename . ': ' . $content);
+        }
+    }
+
+    /**
+     *  Return true if distant URL file exists
+     */
+    public static function urlFileExists(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        /**
+         *  If a custom SSL certificate and key have been specified
+         */
+        if (!empty($sslCertificatePath)) {
+            curl_setopt($ch, CURLOPT_SSLCERT, $sslCertificatePath);
+        }
+        if (!empty($sslPrivateKeyPath)) {
+            curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
+        }
+
+        curl_exec($ch);
+
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($responseCode != 200) {
+            return false;
+        }
+
+        return true;
+    }
 }

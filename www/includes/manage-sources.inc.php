@@ -89,45 +89,6 @@
 
         <?php
         /**
-         *  Get imported GPG signing keys
-         */
-        $knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
-
-        <br>
-        <h4>Imported GPG signing keys</h4>
-
-        <?php
-        if (!empty($knownPublicKeys)) : ?>
-            <p class="lowopacity">These are the public GPG signing keys you have imported.</p>
-
-            <table class="table-generic-blue">
-                <?php
-                foreach ($knownPublicKeys as $knownPublicKey) : ?>
-                    <tr>
-                        <td title="GPG key name <?= $knownPublicKey['name'] ?> with Id <?= $knownPublicKey['id'] ?>">
-                            <?= $knownPublicKey['name'] ?>
-                        </td>
-                        <td class="td-fit">
-                            <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey-id="<?= $knownPublicKey['id'] ?>" gpgkey-name="<?= $knownPublicKey['name'] ?>" title="Delete GPG key <?= $knownPublicKey['name'] ?>" />
-                        </td>
-                    </tr>
-                    <?php
-                endforeach ?>
-            </table>
-            <?php
-        endif; ?>
-
-        <h5>Import a GPG key:</h5>
-
-        <form id="source-repo-add-key-form" autocomplete="off">
-            <div class="flex flex-align-cnt-center">
-                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
-                <button class="btn-xxsmall-green" title="Import">+</button>
-            </div>
-        </form>
-
-        <?php
-        /**
          *  Get all source repos
          */
         $sources = $source->listAll();
@@ -221,6 +182,45 @@
                     <?php
                 endforeach;
             endif;
-        endif ?>
+        endif;
+
+        /**
+         *  Get imported GPG signing keys
+         */
+        $knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
+
+        <br>
+        <h4>Imported GPG signing keys</h4>
+
+        <?php
+        if (!empty($knownPublicKeys)) : ?>
+            <p class="lowopacity">These are the public GPG signing keys you have imported.</p>
+
+            <table class="table-generic-blue">
+                <?php
+                foreach ($knownPublicKeys as $knownPublicKey) : ?>
+                    <tr>
+                        <td title="GPG key name <?= $knownPublicKey['name'] ?> with Id <?= $knownPublicKey['id'] ?>">
+                            <?= $knownPublicKey['name'] ?>
+                        </td>
+                        <td class="td-fit">
+                            <img src="resources/icons/bin.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey-id="<?= $knownPublicKey['id'] ?>" gpgkey-name="<?= $knownPublicKey['name'] ?>" title="Delete GPG key <?= $knownPublicKey['name'] ?>" />
+                        </td>
+                    </tr>
+                    <?php
+                endforeach ?>
+            </table>
+            <?php
+        endif; ?>
+
+        <h5>Import a GPG key:</h5>
+
+        <form id="source-repo-add-key-form" autocomplete="off">
+            <div class="flex flex-align-cnt-center">
+                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
+                <button class="btn-xxsmall-green" title="Import">+</button>
+            </div>
+        </form>
+        <br>
     </div>
 </div>

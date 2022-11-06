@@ -340,7 +340,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId);
+        $repo->getAllById('', $snapId, '', false);
 
         /**
          *  Si un environnement devra pointer sur le nouveau snapshot
