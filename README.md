@@ -50,7 +50,7 @@ You must install a web service + PHP and then configure a dedicated vhost.
 
 **Note for Redhat/CentOS systems:** you may adapt **SELinux** configuration (or disable SELinux) to make sure it will not prevent PHP scripts execution.
 
-**Installation on a Redhat/CentOS system **(you will need to have access to a repository providing PHP8.1 packages):
+**Installation on a Redhat/CentOS system** (you will need to have access to a repository providing PHP8.1 packages):
 
 ```
 yum install nginx php-fpm php-cli php-pdo php-xml sqlite
@@ -84,7 +84,9 @@ extension=sqlite3.so
 
 <h3>Vhost</h3>
 
-Create a new repomanager <b>dedicated vhost</b>. eg. nginx vhost below:
+Set up a new <b>dedicated vhost</b> for repomanager.
+
+E.g. nginx vhost:
 
 Adapt the following values:
  - path to php's unix socket
@@ -261,3 +263,9 @@ Execute the installation wizard:
 ```
 sudo /tmp/repomanager/repomanager --install
 ```
+
+<h2>Documentation</h2>
+
+Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki/Documentation">here</a>.
+
+It should help you starting using **Repomanager**.

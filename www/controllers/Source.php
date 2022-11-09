@@ -241,13 +241,6 @@ class Source
         $this->model->editGpgKey($sourceId, $url);
     }
 
-
-
-
-
-
-
-
     /**
      *  Edit source repo SSL certificate file path
      */

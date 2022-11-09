@@ -206,11 +206,11 @@ class Login
          *  If specified password does not matche database passord, then it is invalid
          */
         if (!password_verify($password, $hashedPassword)) {
-            \Models\History::set($username, 'Authentification', 'error');
+            \Models\History::set($username, 'Authentication', 'error');
             throw new Exception('Invalid login and/or password');
         }
 
-        \Models\History::set($username, 'Authentification', 'success');
+        \Models\History::set($username, 'Authentication', 'success');
     }
 
     /**

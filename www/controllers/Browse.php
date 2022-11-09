@@ -101,7 +101,7 @@ class Browse
          *  If dir name is 'my_uploaded_packages' then print it in yellow
          */
         if ($dir == 'my_uploaded_packages') {
-            echo '<div class="explorer-toggle header-blue yellowtext"><img src="resources/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
+            echo '<div class="explorer-toggle header-blue yellowtext"><img src="resources/icons/folder.svg" class="icon" /><span class="yellowtext">' . $dir . '</span></div>';
         } else {
             echo '<div class="explorer-toggle header-blue"><img src="resources/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
         }

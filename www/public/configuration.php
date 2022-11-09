@@ -546,11 +546,13 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                         </select>
                     </td>
                     <?php
-                    if (UPDATE_AVAILABLE == "yes") {
-                        echo '<td class="td-fit">';
-                        echo '<input type="button" onclick="location.href=\'configuration.php?action=update\'" class="btn-xxsmall-green" title="Update repomanager to: ' . GIT_VERSION . '" value="↻">';
-                        echo '</td>';
-                    }
+                    if (UPDATE_AVAILABLE == "yes") : ?>
+                        <td class="td-fit">
+                            <input type="button" onclick="location.href='configuration.php?action=update'" class="btn-xxsmall-green" title="Update repomanager to: "<?= GIT_VERSION ?>" value="↻">
+                        </td>
+                        <?php
+                    endif;
+
                     if (empty(UPDATE_BRANCH)) {
                         echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                     } ?>
@@ -637,7 +639,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 </tr>
                 <tr>
                     <td class="td-large">
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." />Enable statistics
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." /> Enable statistics
                     </td>
                     <td>
                         <label class="onoff-switch-label">
@@ -656,7 +658,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 if (STATS_ENABLED == "yes") : ?>
                     <tr>
                         <td class="td-large">
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />Path to access log to scan for statistics
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." /> Path to access log to scan for statistics
                         </td>
                         <td>
                             <input type="text" autocomplete="off" name="statsLogPath" value="<?= STATS_LOG_PATH ?>" />

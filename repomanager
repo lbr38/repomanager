@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -u
 export TERM="xterm-256color"
 export COLUMNS=190
 export GPG_TTY=$(tty)
 
 # Main variables
+PWD=$(dirname "$0")
 OS_FAMILY=""
 WWW_DIR=""
 WWW_USER=""
@@ -36,7 +37,6 @@ GREEN=$(tput setaf 2)
 RED=$(tput setaf 1)
 YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
-PWD=$(pwd)
 
 # User detection
 if [ "$(id -u)" -ne "0" ];then
@@ -534,6 +534,8 @@ function deployService
 # Installation wizard
 function installation
 {
+    cd "$PWD"
+
     echo -e " ${YELLOW}Welcome to Repomanager setup wizard${RESET}\n"
 
     getPackageType

@@ -52,7 +52,7 @@ p, label, a, i, span {
 
 span {
     line-height: inherit !important;
-    vertical-align: middle;
+    /* vertical-align: middle; */
 }
 
 b, strong {
@@ -623,7 +623,6 @@ table {
 }
 
 .item-desc [type=text]::placeholder {
-    color: #dfdfdf7a;
     visibility: hidden;
 }
 
@@ -894,10 +893,9 @@ input[type=text].invisibleInput-light-blue {
     background-color: #2b4d6e;
     width: 100%;
 }
-input[type=text].invisibleInput-light-blue::placeholder {
-    color: white;
-    opacity: 0.4;
 
+input::placeholder {
+    color: #ffffff9e;
 }
 
 /* boutons switch-field */

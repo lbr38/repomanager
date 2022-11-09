@@ -149,7 +149,7 @@ include_once('../includes/head.inc.php');
                                                 /**
                                                  *  Récupération de toutes les infos concernant le repo
                                                  */
-                                                $repo->getAllById('', $planSnapId, '', false);
+                                                $repo->getAllById('', $planSnapId, '');
                                                 $planName = $repo->getName();
                                                 $planDist = $repo->getDist();
                                                 $planSection = $repo->getSection();
@@ -705,7 +705,7 @@ include_once('../includes/head.inc.php');
                                                     /**
                                                      *  Récupération de toutes les infos concernant le repo
                                                      */
-                                                    $repo->getAllById('', $planSnapId, '', false);
+                                                    $repo->getAllById('', $planSnapId, '');
                                                     $planName = $repo->getName();
                                                     $planDist = $repo->getDist();
                                                     $planSection = $repo->getSection();

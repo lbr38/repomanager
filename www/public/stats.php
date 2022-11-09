@@ -36,7 +36,7 @@ if (!is_numeric($envId)) {
 if ($repoError == 0) {
     $myrepo = new \Controllers\Repo();
     $myrepo->setEnvId($envId);
-    $myrepo->getAllById('', '', $envId, false);
+    $myrepo->getAllById('', '', $envId);
 }
 
 /**
