@@ -427,17 +427,17 @@ class Repo
     /**
      *  Récupère toutes les informations d'un repo, snapshot en env en base de données
      */
-    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null, bool $getFullSource = true)
+    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
     {
         $data = $this->model->getAllById($repoId, $snapId, $envId);
 
-        $this->getAllByParser($data, $getFullSource);
+        $this->getAllByParser($data);
     }
 
     /**
      *  Fonction qui parse et récupère les résultats des fonctions getAllBy*
      */
-    private function getAllByParser(array $data, bool $getFullSource)
+    private function getAllByParser(array $data)
     {
         if (!empty($data['Source'])) {
             $this->setSource($data['Source']);
@@ -496,12 +496,12 @@ class Repo
         if (!empty($data['Pkg_translation'])) {
             $this->setPackageTranslation(explode(',', $data['Pkg_translation']));
         }
-        /**
-         *  Get URL full source unless getFullSource is false
-         */
-        if ($getFullSource !== false) {
-            $this->getFullSource($this->packageType, $this->source);
-        }
+        // /**
+        //  *  Get URL full source unless getFullSource is false
+        //  */
+        // if ($getFullSource !== false) {
+        //     $this->getFullSource($this->packageType, $this->source);
+        // }
     }
 
     /**
@@ -512,41 +512,41 @@ class Repo
         return $this->model->getIdByName($name, $dist, $section);
     }
 
-    private function getFullSource(string $sourceType, string $sourceName)
-    {
-        $mysource = new Source();
+    // private function getFullSource(string $sourceType, string $sourceName)
+    // {
+    //     $mysource = new Source();
 
-        $this->fullUrl = $mysource->getUrl($sourceType, $sourceName);
+    //     $this->fullUrl = $mysource->getUrl($sourceType, $sourceName);
 
-        if (empty($this->fullUrl)) {
-            throw new Exception('Cannot determine repo source URL');
-        }
+    //     if (empty($this->fullUrl)) {
+    //         throw new Exception('Cannot determine repo source URL');
+    //     }
 
-        /**
-         *  Get more informations if deb
-         */
-        if ($sourceType == 'deb') {
-            /**
-             *  Extract host address (server.domain.net) from the URL
-             */
-            $splitUrl = preg_split('#/#', $this->fullUrl);
-            $this->hostUrl = $splitUrl[0];
+    //     /**
+    //      *  Get more informations if deb
+    //      */
+    //     if ($sourceType == 'deb') {
+    //         /**
+    //          *  Extract host address (server.domain.net) from the URL
+    //          */
+    //         $splitUrl = preg_split('#/#', $this->fullUrl);
+    //         $this->hostUrl = $splitUrl[0];
 
-            /**
-             *  Extract root
-             */
-            $this->rootUrl = str_replace($this->hostUrl, '', $this->fullUrl);
+    //         /**
+    //          *  Extract root
+    //          */
+    //         $this->rootUrl = str_replace($this->hostUrl, '', $this->fullUrl);
 
-            if (empty($this->hostUrl)) {
-                throw new Exception('Cannot determine repo source address');
-            }
-            if (empty($this->rootUrl)) {
-                throw new Exception('Cannot determine repo source URL root');
-            }
-        }
+    //         if (empty($this->hostUrl)) {
+    //             throw new Exception('Cannot determine repo source address');
+    //         }
+    //         if (empty($this->rootUrl)) {
+    //             throw new Exception('Cannot determine repo source URL root');
+    //         }
+    //     }
 
-        unset($mysource, $splitUrl);
-    }
+    //     unset($mysource, $splitUrl);
+    // }
 
     /**
      *  Retourne l'Id du snapshot le + récent du repo
@@ -808,23 +808,23 @@ class Repo
              *  2. On vérifie que le nom du repo n'est pas vide
              */
             if (empty($this->name)) {
-                throw new Exception('repo name cannot be empty');
+                throw new Exception('Repo name cannot be empty');
             }
 
             /**
              *  3. Création du répertoire avec le nom du repo, et les sous-répertoires permettant d'acceuillir les futurs paquets
              */
             if ($this->packageType == 'rpm') {
-                if (!file_exists(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/Packages')) {
-                    if (!mkdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/Packages', 0770, true)) {
-                        throw new Exception("cannot create repo directory $this->name");
+                if (!is_dir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/packages')) {
+                    if (!mkdir(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/packages', 0770, true)) {
+                        throw new Exception('Could not create directory ' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '/packages');
                     }
                 }
             }
             if ($this->packageType == 'deb') {
-                if (!file_exists(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section)) {
+                if (!is_dir(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section)) {
                     if (!mkdir(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section, 0770, true)) {
-                        throw new Exception('cannot create section directory');
+                        throw new Exception('Could not create directory ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section . '/pool/' . $this->section);
                     }
                 }
             }
@@ -840,7 +840,7 @@ class Repo
                     exec('cd ' . REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/ && ln -sfn ' . $this->targetDateFormatted . '_' . $this->section . ' ' . $this->section . '_' . $this->targetEnv, $output, $result);
                 }
                 if ($result != 0) {
-                    throw new Exception('cannot set repo environment');
+                    throw new Exception('Could not point environment to the repository');
                 }
             }
 
@@ -1493,7 +1493,7 @@ class Repo
                      *  Suppression des environnements pointant vers ce snapshot en base de données
                      */
                     $myrepo = new Repo();
-                    $myrepo->getAllById('', '', $envId, false);
+                    $myrepo->getAllById('', '', $envId);
 
                     /**
                      *  Si un lien symbolique de cet environnement pointait vers le snapshot supprimé alors on peut supprimer le lien symbolique.
@@ -2379,31 +2379,45 @@ class Repo
 
         if ($this->packageType == "rpm") {
             $repoPath = REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name;
+        }
+        if ($this->packageType == "deb") {
+            $repoPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
+        }
 
+        /**
+         *  If a 'my_uploaded_packages' directory exists, move them packages into 'packages' directory
+         */
+        if (is_dir($repoPath . '/my_uploaded_packages/')) {
             /**
-             *  Si un répertoire my_uploaded_packages existe, alors on déplace ses éventuels packages
+             *  Create 'packages' directory if not exist
              */
-            if (is_dir($repoPath . '/my_uploaded_packages/')) {
-                /**
-                 *  Création du répertoire my_integrated_packages qui intègrera les paquets intégrés au repo
-                 */
-                if (!is_dir($repoPath . '/my_integrated_packages/')) {
-                    mkdir($repoPath . '/my_integrated_packages/', 0770, true);
+            if (!is_dir($repoPath . '/packages')) {
+                if (!mkdir($repoPath . '/packages', 0770, true)) {
+                    throw new Exception('Could not create ' . $repoPath . '/packages directory');
                 }
-
-                /**
-                 *  Déplacement des paquets dans my_uploaded_packages vers my_integrated_packages
-                 */
-                if (!Common::dirIsEmpty($repoPath . '/my_uploaded_packages/')) {
-                    exec('mv -f ' . $repoPath . '/my_uploaded_packages/*.rpm ' . $repoPath . '/my_integrated_packages/');
-                }
-
-                /**
-                 *  Suppression de my_uploaded_packages
-                 */
-                rmdir($repoPath . '/my_uploaded_packages/');
             }
 
+            /**
+             *  Move packages to the 'packages' directory
+             */
+            if (!Common::dirIsEmpty($repoPath . '/my_uploaded_packages/')) {
+                $myprocess = new Process('mv -f ' . $repoPath . '/my_uploaded_packages/* ' . $repoPath . '/packages/');
+                $myprocess->execute();
+                if ($myprocess->getExitCode() != 0) {
+                    echo $myprocess->getOutput();
+                    throw new Exception('Error while moving packages from ' . $repoPath . '/my_uploaded_packages/ to ' . $repoPath . '/packages/');
+                }
+            }
+
+            /**
+             *  Delete 'my_uploaded_packages' dir
+             */
+            if (!rmdir($repoPath . '/my_uploaded_packages')) {
+                throw new Exception('Could not delete ' .$repoPath . '/my_uploaded_packages/ directory');
+            }
+        }
+
+        if ($this->packageType == "rpm") {
             /**
              *  Check which of createrepo or createrepo_c is present on the system
              */
@@ -2451,11 +2465,11 @@ class Repo
         }
 
         if ($this->packageType == "deb") {
-            $sectionPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
+            // $repoPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
             $repreproArchs = '';
             $repreproGpgParams = '';
 
-            if (!is_dir($sectionPath)) {
+            if (!is_dir($repoPath)) {
                 throw new Exception('Repo directory does not exist');
             }
 
@@ -2467,24 +2481,24 @@ class Repo
                 /**
                  *  Create packages and sources directory
                  */
-                if (!is_dir($sectionPath . '/packages')) {
-                    if (!mkdir($sectionPath . '/packages', 0770, true)) {
-                        throw new Exception('Error: could not create directory ' . $sectionPath . '/packages');
+                if (!is_dir($repoPath . '/packages')) {
+                    if (!mkdir($repoPath . '/packages', 0770, true)) {
+                        throw new Exception('Error: could not create directory ' . $repoPath . '/packages');
                     }
                 }
-                if (!is_dir($sectionPath . '/sources')) {
-                    if (!mkdir($sectionPath . '/sources', 0770, true)) {
-                        throw new Exception('Error: could not create directory ' . $sectionPath . '/sources');
+                if (!is_dir($repoPath . '/sources')) {
+                    if (!mkdir($repoPath . '/sources', 0770, true)) {
+                        throw new Exception('Error: could not create directory ' . $repoPath . '/sources');
                     }
                 }
 
                 /**
                  *  Recursively find all packages and sources packages
                  */
-                $debPackages          = Common::findRecursive($sectionPath . '/pool', 'deb', true);
-                $dscSourcesPackages   = Common::findRecursive($sectionPath . '/pool', 'dsc', true);
-                $tarxzSourcesPackages = Common::findRecursive($sectionPath . '/pool', 'xz', true);
-                $targzSourcesPackages = Common::findRecursive($sectionPath . '/pool', 'gz', true);
+                $debPackages          = Common::findRecursive($repoPath . '/pool', 'deb', true);
+                $dscSourcesPackages   = Common::findRecursive($repoPath . '/pool', 'dsc', true);
+                $tarxzSourcesPackages = Common::findRecursive($repoPath . '/pool', 'xz', true);
+                $targzSourcesPackages = Common::findRecursive($repoPath . '/pool', 'gz', true);
 
                 /**
                  *  Move packages to the packages directory
@@ -2494,7 +2508,7 @@ class Repo
                         $debPackageName = preg_split('#/#', $debPackage);
                         $debPackageName = end($debPackageName);
 
-                        if (!rename($debPackage, $sectionPath . '/packages/' . $debPackageName)) {
+                        if (!rename($debPackage, $repoPath . '/packages/' . $debPackageName)) {
                             throw new Exception('Error: could not move package ' . $debPackage . ' to the packages directory');
                         }
                     }
@@ -2508,7 +2522,7 @@ class Repo
                         $dscSourcesPackageName = preg_split('#/#', $dscSourcesPackage);
                         $dscSourcesPackageName = end($dscSourcesPackageName);
 
-                        if (!rename($dscSourcesPackage, $sectionPath . '/sources/' . $dscSourcesPackageName)) {
+                        if (!rename($dscSourcesPackage, $repoPath . '/sources/' . $dscSourcesPackageName)) {
                             throw new Exception('Error: could not move source package ' . $dscSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2523,7 +2537,7 @@ class Repo
                             continue;
                         }
 
-                        if (!rename($tarxzSourcesPackage, $sectionPath . '/sources/' . $tarxzSourcesPackageName)) {
+                        if (!rename($tarxzSourcesPackage, $repoPath . '/sources/' . $tarxzSourcesPackageName)) {
                             throw new Exception('Error: could not move source package ' . $tarxzSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2538,7 +2552,7 @@ class Repo
                             continue;
                         }
 
-                        if (!rename($targzSourcesPackage, $sectionPath . '/sources/' . $targzSourcesPackageName)) {
+                        if (!rename($targzSourcesPackage, $repoPath . '/sources/' . $targzSourcesPackageName)) {
                             throw new Exception('Error: could not move source package ' . $targzSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2547,17 +2561,17 @@ class Repo
                 /**
                  *  Clean existing directories
                  */
-                if (!Common::deleteRecursive($sectionPath . '/conf')) {
-                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/conf');
+                if (!Common::deleteRecursive($repoPath . '/conf')) {
+                    throw new Exception('Cannot delete existing directory: ' . $repoPath . '/conf');
                 }
-                if (!Common::deleteRecursive($sectionPath . '/db')) {
-                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/db');
+                if (!Common::deleteRecursive($repoPath . '/db')) {
+                    throw new Exception('Cannot delete existing directory: ' . $repoPath . '/db');
                 }
-                if (!Common::deleteRecursive($sectionPath . '/dists')) {
-                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/dists');
+                if (!Common::deleteRecursive($repoPath . '/dists')) {
+                    throw new Exception('Cannot delete existing directory: ' . $repoPath . '/dists');
                 }
-                if (!Common::deleteRecursive($sectionPath . '/pool')) {
-                    throw new Exception('Cannot delete existing directory: ' . $sectionPath . '/pool');
+                if (!Common::deleteRecursive($repoPath . '/pool')) {
+                    throw new Exception('Cannot delete existing directory: ' . $repoPath . '/pool');
                 }
             }
 
@@ -2573,9 +2587,9 @@ class Repo
             /**
              *  Création du répertoire 'conf' et des fichiers de conf du repo
              */
-            if (!is_dir($sectionPath . '/conf')) {
-                if (!mkdir($sectionPath . '/conf', 0770, true)) {
-                    throw new Exception("Could not create repo configuration directory <b>$sectionPath/conf</b>");
+            if (!is_dir($repoPath . '/conf')) {
+                if (!mkdir($repoPath . '/conf', 0770, true)) {
+                    throw new Exception("Could not create repo configuration directory <b>$repoPath/conf</b>");
                 }
             }
 
@@ -2621,26 +2635,26 @@ class Repo
             }
             $distributionsFileContent .= 'Pull: ' . $this->section;
 
-            if (!file_put_contents($sectionPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
-                throw new Exception("Could not create repo distributions file <b>$sectionPath/conf/distributions</b>");
+            if (!file_put_contents($repoPath . '/conf/distributions', $distributionsFileContent . PHP_EOL)) {
+                throw new Exception("Could not create repo distributions file <b>$repoPath/conf/distributions</b>");
             }
 
             /**
              *  Create "options" file
              */
-            $optionsFileContent = "basedir $sectionPath" . PHP_EOL;
+            $optionsFileContent = "basedir $repoPath" . PHP_EOL;
             if ($this->targetGpgResign == "yes") {
                 $optionsFileContent .= 'ask-passphrase';
             }
 
-            if (!file_put_contents($sectionPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
-                throw new Exception("Could not create repo options file <b>$sectionPath/conf/options</b>");
+            if (!file_put_contents($repoPath . '/conf/options', $optionsFileContent . PHP_EOL)) {
+                throw new Exception("Could not create repo options file <b>$repoPath/conf/options</b>");
             }
 
             /**
              *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
              */
-            if (Common::dirIsEmpty($sectionPath . '/packages') === true) {
+            if (Common::dirIsEmpty($repoPath . '/packages') === true) {
                 echo 'Error: there is no package in this repo.';
                 echo '</pre></div>';
                 throw new Exception('No package found in this repo');
@@ -2652,15 +2666,15 @@ class Repo
                 /**
                  *  Get all .deb and .dsc files in working directory
                  */
-                $debPackagesFiles = Common::findRecursive($sectionPath . '/packages', 'deb', true);
-                $dscPackagesFiles = Common::findRecursive($sectionPath . '/sources', 'dsc', true);
+                $debPackagesFiles = Common::findRecursive($repoPath . '/packages', 'deb', true);
+                $dscPackagesFiles = Common::findRecursive($repoPath . '/sources', 'dsc', true);
                 $packagesFiles = array_merge($debPackagesFiles, $dscPackagesFiles);
 
                 /**
                  *  Get all translations files if any
                  */
-                if (is_dir($sectionPath . '/translations/')) {
-                    $translationsFiles = glob($sectionPath . '/translations/*.bz2', GLOB_BRACE);
+                if (is_dir($repoPath . '/translations/')) {
+                    $translationsFiles = glob($repoPath . '/translations/*.bz2', GLOB_BRACE);
                 }
 
                 /**
@@ -2750,7 +2764,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new Process('/usr/bin/reprepro -P optionnal --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro -P optionnal --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
@@ -2798,7 +2812,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $sectionPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
@@ -2838,19 +2852,19 @@ class Repo
                  *  Delete temporary directories
                  */
                 if ($this->packageType == "deb") {
-                    if (is_dir($sectionPath . '/packages')) {
-                        if (!Common::deleteRecursive($sectionPath . '/packages')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/packages');
+                    if (is_dir($repoPath . '/packages')) {
+                        if (!Common::deleteRecursive($repoPath . '/packages')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/packages');
                         }
                     }
-                    if (is_dir($sectionPath . '/sources')) {
-                        if (!Common::deleteRecursive($sectionPath . '/sources')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/sources');
+                    if (is_dir($repoPath . '/sources')) {
+                        if (!Common::deleteRecursive($repoPath . '/sources')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/sources');
                         }
                     }
-                    if (is_dir($sectionPath . '/translations')) {
-                        if (!Common::deleteRecursive($sectionPath . '/translations')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$sectionPath . '/translations');
+                    if (is_dir($repoPath . '/translations')) {
+                        if (!Common::deleteRecursive($repoPath . '/translations')) {
+                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/translations');
                         }
                     }
                 }
@@ -2871,8 +2885,8 @@ class Repo
                     }
                 }
                 if ($this->packageType == "deb") {
-                    if (!Common::deleteRecursive($sectionPath)) {
-                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $sectionPath);
+                    if (!Common::deleteRecursive($repoPath)) {
+                        throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
                     }
                 }
             }

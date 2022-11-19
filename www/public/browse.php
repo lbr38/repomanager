@@ -76,7 +76,7 @@ if (!is_numeric($snapId)) {
 if ($pathError == 0) {
     $myrepo = new \Controllers\Repo();
     $myrepo->setSnapId($snapId);
-    $myrepo->getAllById('', $snapId, '', false);
+    $myrepo->getAllById('', $snapId, '');
     $reconstruct = $myrepo->getReconstruct();
 
     /**

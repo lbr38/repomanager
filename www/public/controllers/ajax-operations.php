@@ -65,7 +65,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
          */
         if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POST['snapId']) and !empty($_POST['envId']))) {
             $myrepo = new \Controllers\Repo();
-            $myrepo->getAllById(\Controllers\Common::validateData($_POST['repoId']), \Controllers\Common::validateData($_POST['snapId']), \Controllers\Common::validateData($_POST['envId']), false);
+            $myrepo->getAllById(\Controllers\Common::validateData($_POST['repoId']), \Controllers\Common::validateData($_POST['snapId']), \Controllers\Common::validateData($_POST['envId']));
 
             /**
              *  Vérification des paramètres de l'opération

@@ -48,38 +48,23 @@
                         <input type="text" name="addSourceUrl" required />
                     </td>
                 </tr>
-                <tr field-type="rpm">
-                    <td>This source repo has a GPG pub key</td>
-                    <td class="td-10">
-                        <select id="newRepoGpgSelect" class="select-small">
-                            <option id="newRepoGpgSelect_no">No</option>
-                            <option id="newRepoGpgSelect_yes">Yes</option>
-                        </select>
-                    </td>
+                <tr>
+                    <td colspan="2">Import a GPG signing key <span class="lowopacity">(optionnal)</span></td>
                 </tr>
-                <tr field-type="rpm">
-                    <td field-type="rpm" colspan="100%">
-                        <div class="sourceGpgDiv hide">
+                <tr>
+                    <td colspan="100%">
+                        <div>
                             <br>
-                            <span>You can either specify an URL to the GPG key or import a plan ASCII text GPG key.</span><br><br>
+                            <span>You can either specify an URL to the GPG key or import a plan ASCII text GPG key.</span>
+                            <br><br>
 
                             <p>URL to the GPG key:</p>
                             <input type="text" name="gpgKeyURL" placeholder="https://...">
                             
                             <br>
                             <p>Import a GPG key:</p>
-                            <textarea id="rpmGpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
+                            <textarea id="gpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
                         </div>
-                    </td>
-                </tr>
-                <tr field-type="deb">
-                    <td field-type="deb" colspan="100%">
-                        <p>
-                            <br>
-                            <span>Import a GPG key</span>
-                            <span class="lowopacity">(optionnal)</span>
-                        </p>
-                        <textarea id="debGpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
                     </td>
                 </tr>
             </table>
@@ -182,20 +167,29 @@
                     <?php
                 endforeach;
             endif;
-        endif;
+        endif; ?>      
 
+        <?php
         /**
          *  Get imported GPG signing keys
          */
         $knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
 
         <br>
-        <h4>Imported GPG signing keys</h4>
+        <h4>GPG signing keys</h4>
+
+        <h5>Import a new GPG key:</h5>
+
+        <form id="source-repo-add-key-form" autocomplete="off">
+            <div class="flex flex-align-cnt-center">
+                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
+                <button class="btn-xxsmall-green" title="Import">+</button>
+            </div>
+        </form>
 
         <?php
         if (!empty($knownPublicKeys)) : ?>
-            <p class="lowopacity">These are the public GPG signing keys you have imported.</p>
-
+            <h5>Imported GPG key(s):</h5>
             <table class="table-generic-blue">
                 <?php
                 foreach ($knownPublicKeys as $knownPublicKey) : ?>
@@ -213,14 +207,6 @@
             <?php
         endif; ?>
 
-        <h5>Import a GPG key:</h5>
-
-        <form id="source-repo-add-key-form" autocomplete="off">
-            <div class="flex flex-align-cnt-center">
-                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
-                <button class="btn-xxsmall-green" title="Import">+</button>
-            </div>
-        </form>
         <br>
     </div>
 </div>

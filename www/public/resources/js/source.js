@@ -1,37 +1,9 @@
-$(document).ready(function () {
-    /**
-     *  Affichage des bons champs dans le formulaire de création de nouveau repo, en fonction du type de paquets qui est sélectionné
-     */
-    newSourceFormPrintRepoTypeFields();
-});
-
-/**
- *  Fonctions
- */
-
-/**
- *  Afficher / masquer les champs de saisie en fonction du type de repo source sélectionné
- */
-function newSourceFormPrintRepoTypeFields()
-{
-    var repoType = $('#addSourceForm').find('input:radio[name=addSourceRepoType]:checked').val();
-
-    /**
-     *  En fonction du type de repo sélectionné, affiche uniquement les champs en lien avec ce type de repo et masque les autres.
-     */
-    $('#addSourceForm').find('[field-type][field-type!='+repoType+']').hide();
-    $('#addSourceForm').find('[field-type][field-type='+repoType+']').show();
-}
-
 /**
  *  Rechargement de la div des sources
  */
 function reloadSourcesDiv()
 {
     $("#sourcesDiv").load(" #sourcesDiv > *");
-    setTimeout(function () {
-        newSourceFormPrintRepoTypeFields();
-    },100);
 }
 
 /**
@@ -50,24 +22,6 @@ $(document).on('click','#source-repo-toggle-btn',function () {
 $(document).on('click','#source-repo-close-btn',function () {
     closeSlide("#sourcesDiv");
 });
-
-/**
- *  Event : affiche/masque des inputs en fonction du type de repo sélectionné
- */
-$(document).on('change','input:radio[name="addSourceRepoType"]',function () {
-    newSourceFormPrintRepoTypeFields();
-});
-
-/**
- *  Event : afficher des inputs supplémentaires pour importer une clé GPG (CentOS)
- */
-$(document).on('change','#newRepoGpgSelect',function () {
-    if ($("#newRepoGpgSelect_yes").is(":selected")) {
-        $(".sourceGpgDiv").show();
-    } else {
-        $(".sourceGpgDiv").hide();
-    }
-}).trigger('change');
 
 /**
  *  Event : ajouter une source
@@ -97,23 +51,8 @@ $(document).on('submit','#addSourceForm',function () {
     /**
      *  Clé GPG
      */
-    /**
-     *  Rpm uniquement
-     *  On récupère le type de clé GPG (fichier, ASCII, URL)
-     */
-    if (repoType == 'rpm') {
-        if ($("#newRepoGpgSelect_yes").is(":selected")) {
-            var gpgKeyURL = $('input[name=gpgKeyURL]').val();
-            var gpgKeyText = $('#rpmGpgKeyText').val();
-        }
-    }
-    if (repoType == 'deb') {
-        /**
-         *  Deb
-         *  La clé GPG est renseignée au format ASCII
-         */
-        var gpgKeyText = $('#debGpgKeyText').val();
-    }
+    var gpgKeyURL = $('input[name=gpgKeyURL]').val();
+    var gpgKeyText = $('#gpgKeyText').val();
 
     addSource(repoType, name, url, gpgKeyURL, gpgKeyText);
 

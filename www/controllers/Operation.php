@@ -701,7 +701,7 @@ class Operation
 
         if (!empty($opInfo['Id_repo_source'])) {
             if (is_numeric($opInfo['Id_repo_source'])) {
-                $myrepo->getAllById($opInfo['Id_repo_source'], '', '', false);
+                $myrepo->getAllById($opInfo['Id_repo_source'], '', '');
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -715,14 +715,14 @@ class Operation
             }
         } else if (!empty($opInfo['Id_snap_source'])) {
             if (is_numeric($opInfo['Id_snap_source'])) {
-                $myrepo->getAllById('', $opInfo['Id_snap_source'], '', false);
+                $myrepo->getAllById('', $opInfo['Id_snap_source'], '');
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
             }
         } else if (!empty($opInfo['Id_repo_target'])) {
             if (is_numeric($opInfo['Id_repo_target'])) {
-                $myrepo->getAllById($opInfo['Id_repo_target'], '', '', false);
+                $myrepo->getAllById($opInfo['Id_repo_target'], '', '');
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -736,7 +736,7 @@ class Operation
             }
         } else if (!empty($opInfo['Id_snap_target'])) {
             if (is_numeric($opInfo['Id_snap_target'])) {
-                $myrepo->getAllById('', $opInfo['Id_snap_target'], '', false);
+                $myrepo->getAllById('', $opInfo['Id_snap_target'], '');
                 $repoName = $myrepo->getName();
                 $repoDist = $myrepo->getDist();
                 $repoSection = $myrepo->getSection();
@@ -942,9 +942,9 @@ class Operation
              *  On récupère toutes les données du repo à partir des Id transmis
              */
             if (!empty($envId)) {
-                $myrepo->getAllById($repoId, $snapId, $envId, false);
+                $myrepo->getAllById($repoId, $snapId, $envId);
             } else {
-                $myrepo->getAllById($repoId, $snapId, '', false);
+                $myrepo->getAllById($repoId, $snapId, '');
             }
 
             /**
@@ -1086,9 +1086,9 @@ class Operation
 
                 if (!empty($envId)) {
                     $myrepo->setEnvId($envId);
-                    $myrepo->getAllById('', $snapId, $envId, false);
+                    $myrepo->getAllById('', $snapId, $envId);
                 } else {
-                    $myrepo->getAllById('', $snapId, '', false);
+                    $myrepo->getAllById('', $snapId, '');
                 }
 
                 /**

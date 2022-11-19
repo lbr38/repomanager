@@ -340,7 +340,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId, '', false);
+        $repo->getAllById('', $snapId, '');
 
         /**
          *  Si un environnement devra pointer sur le nouveau snapshot
@@ -407,7 +407,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId, '', false);
+        $repo->getAllById('', $snapId, '');
 
         /**
          *  Set du nouveau nom du repo cible
@@ -481,7 +481,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId, '', false);
+        $repo->getAllById('', $snapId, '');
 
         /**
          *  Exécution de l'opération
@@ -520,7 +520,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId, '', false);
+        $repo->getAllById('', $snapId, '');
 
         /**
          *  Set de l'env cible
@@ -569,7 +569,7 @@ foreach ($operation_params as $operation) {
         /**
          *  On récupère toutes les infos du repo en base de données
          */
-        $repo->getAllById('', $snapId, '', false);
+        $repo->getAllById('', $snapId, '');
 
         /**
          *  Get the actual repo Arch

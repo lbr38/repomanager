@@ -33,7 +33,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
             /**
              *  If there was no error
              */
-            response(HTTP_OK, 'Source repo <b>' . $_POST['name'] . '</b> has been created');
+            response(HTTP_OK, 'Source repo <b>' . $_POST['name'] . '</b> has been added');
         }
 
         /**
