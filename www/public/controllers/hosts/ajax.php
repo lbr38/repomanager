@@ -12,6 +12,48 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
 
     if (!empty($_POST['action'])) {
         /**
+         *  Get all hosts that have the specified kernel
+         */
+        if ($_POST['action'] == "getHostWithKernel" and !empty($_POST['kernel'])) {
+            $myhost = new \Controllers\Host();
+
+            /**
+             *  Try to get data
+             */
+            try {
+                $content = json_encode($myhost->getHostWithKernel($_POST['kernel']));
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Return data if there was no error
+             */
+            response(HTTP_OK, $content);
+        }
+
+        /**
+         *  Get all hosts that have the specified profile
+         */
+        if ($_POST['action'] == "getHostWithProfile" and !empty($_POST['profile'])) {
+            $myhost = new \Controllers\Host();
+
+            /**
+             *  Try to get data
+             */
+            try {
+                $content = json_encode($myhost->getHostWithProfile($_POST['profile']));
+            } catch (\Exception $e) {
+                response(HTTP_BAD_REQUEST, $e->getMessage());
+            }
+
+            /**
+             *  Return data if there was no error
+             */
+            response(HTTP_OK, $content);
+        }
+
+        /**
          *  Rechercher si un paquet est présent sur un hôte (depuis la liste de tous les hôtes sur hosts.php)
          */
         if ($_POST['action'] == "searchHostPackage" and !empty($_POST['hostid']) and !empty($_POST['package'])) {

@@ -395,6 +395,52 @@ class Host extends Model
     }
 
     /**
+     *  Return hosts that have the specified kernel
+     */
+    public function getHostWithKernel(string $kernel)
+    {
+        $hosts = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts
+            WHERE Kernel = :kernel and Status = 'active'");
+            $stmt->bindValue(':kernel', $kernel);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $hosts[] = $row;
+        }
+
+        return $hosts;
+    }
+
+    /**
+     *  Return hosts that have the specified profile
+     */
+    public function getHostWithProfile(string $profile)
+    {
+        $hosts = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts
+            WHERE Profile = :profile and Status = 'active'");
+            $stmt->bindValue(':profile', $profile);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $hosts[] = $row;
+        }
+
+        return $hosts;
+    }
+
+    /**
      *  Retourne un array avec toutes les informations concernant un paquet
      */
     public function getPackageInfo(string $packageId)
@@ -1087,7 +1133,7 @@ class Host extends Model
             $stmt->bindValue(':state', \Controllers\Common::validateData($packageState));
             $result = $stmt->execute();
         } catch (\Exception $e) {
-            throw new Exception('');
+            \Controllers\Common::dbError($e);
         }
 
         $packages = array();

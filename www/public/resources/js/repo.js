@@ -140,6 +140,7 @@ $(document).on('click','.hideGroup',function () {
     $('.repos-list-group[group=' + groupname + ']').find('.repos-list-group-flex-div').slideToggle();
 });
 
+
 /**
  *  Event : affiche/masque des inputs en fonction du type de repo ou du type de paquets sélectionné
  */

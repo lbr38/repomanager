@@ -160,20 +160,20 @@ $(document).on('submit','.profileConfigurationForm',function () {
     var packagesExcluded = $('select[profilename=' + name + '].select-exclude').val();
     var serviceNeedRestart = $('select[profilename=' + name + '].select-need-restart').val();
 
-    if ($('#profile-conf-allow-overwrite[profilename=' + name + ']').is(':checked')) {
-        var allowOverwrite = 'yes';
+    if ($('#profile-linupdate-get-pkg-conf[profilename=' + name + ']').is(':checked')) {
+        var linupdateGetPkgConf = 'true';
     } else {
-        var allowOverwrite = 'no';
+        var linupdateGetPkgConf = 'false';
     }
-    if ($('#profile-conf-allow-repos-overwrite[profilename=' + name + ']').is(':checked')) {
-        var allowReposFilesOverwrite = 'yes';
+    if ($('#profile-linupdate-get-repos-conf[profilename=' + name + ']').is(':checked')) {
+        var linupdateGetReposConf = 'true';
     } else {
-        var allowReposFilesOverwrite = 'no';
+        var linupdateGetReposConf = 'false';
     }
 
     var notes = $('textarea[profilename=' + name + '].profile-conf-notes').val();
 
-    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite, notes);
+    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, linupdateGetPkgConf, linupdateGetReposConf, notes);
 
     return false;
 });
@@ -331,7 +331,7 @@ function duplicateProfile(name)
 /**
  * Ajax: Modifier la configuration d'un profil
  */
-function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, allowOverwrite, allowReposFilesOverwrite, notes)
+function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, linupdateGetPkgConf, linupdateGetReposConf, notes)
 {
     $.ajax({
         type: "POST",
@@ -343,8 +343,8 @@ function configureProfile(name, reposList, packagesMajorExcluded, packagesExclud
             packagesMajorExcluded: packagesMajorExcluded,
             packagesExcluded: packagesExcluded,
             serviceNeedRestart: serviceNeedRestart,
-            allowOverwrite: allowOverwrite,
-            allowReposFilesOverwrite: allowReposFilesOverwrite,
+            linupdateGetPkgConf: linupdateGetPkgConf,
+            linupdateGetReposConf: linupdateGetReposConf,
             notes: notes
         },
         dataType: "json",

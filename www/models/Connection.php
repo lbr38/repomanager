@@ -466,8 +466,8 @@ class Connection extends SQLite3
         Package_exclude VARCHAR(255),
         Package_exclude_major VARCHAR(255),
         Service_restart VARCHAR(255),
-        Allow_overwrite CHAR(3),
-        Allow_repos_overwrite CHAR(3),
+        Linupdate_get_pkg_conf CHAR(5),
+        Linupdate_get_repos_conf CHAR(5),
         Notes VARCHAR(255))");
 
         /**

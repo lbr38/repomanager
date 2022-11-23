@@ -120,6 +120,22 @@ if (!empty($datas->id) and !empty($datas->token)) {
         }
 
         /**
+         *  Get profile packages configuration
+         */
+        if (!empty($datas->getConfiguration) and $datas->getConfiguration == 'packages') {
+            try {
+                $configuration = $myprofile->getProfilePackagesConfiguration($profile);
+                echo json_encode(["return" => "201", "configuration" => $configuration]);
+                exit;
+            } catch (\Exception $e) {
+                $message_error[] = "Error while retrieving profile packages configuration.";
+                http_response_code(400);
+                echo json_encode(["return" => "400", "message_error" => $message_error]);
+                exit;
+            }
+        }
+
+        /**
          *  Récupération de la liste des repos membres d'un profil
          */
         if (!empty($datas->getConfiguration) and $datas->getConfiguration == 'repos') {
@@ -128,7 +144,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
                 echo json_encode(["return" => "201", "configuration" => $configuration]);
                 exit;
             } catch (\Exception $e) {
-                $message_error[] = "Error while retrieving profile configuration.";
+                $message_error[] = "Error while retrieving profile repos configuration.";
                 http_response_code(400);
                 echo json_encode(["return" => "400", "message_error" => $message_error]);
                 exit;

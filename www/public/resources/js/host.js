@@ -336,11 +336,49 @@ function hideGroupDiv()
  */
 
 /**
+ *  Event: Search hosts on 'kernel' mouse hover
+ */
+$(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function () {
+    var kernel = $(this).attr('kernel');
+
+    /**
+     *  Create a new <div> hosts-charts-list-label-hosts-list
+     */
+    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="../resources/images/loading.gif" class="icon"/></div>');
+    $('.hosts-charts-list-label-hosts-list').show();
+
+    getHostWithKernel(kernel);
+});
+
+/**
+ *  Event: Search hosts on 'profile' mouse hover
+ */
+$(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",function () {
+    var profile = $(this).attr('profile');
+
+    /**
+     *  Create a new <div> hosts-charts-list-label-hosts-list
+     */
+    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="../resources/images/loading.gif" class="icon"/></div>');
+    $('.hosts-charts-list-label-hosts-list').show();
+
+    getHostWithProfile(profile);
+});
+
+/**
+ *  Event: Remove all hosts list <div> from the DOM when mouse has leave
+ */
+$(document).on('mouseleave',".hosts-charts-list-label",function () {
+    $('.hosts-charts-list-label-hosts-list').remove();
+});
+
+/**
  *  Event : Affichage du div permettant de gérer les groupes
  */
 $(document).on('click',"#GroupsListToggleButton",function () {
     openSlide("#groupsHostDiv");
 });
+
 /**
  *  Event : Masquage du div permettant de gérer les groupes
  */
@@ -949,6 +987,86 @@ function getEventDetails(hostId, eventId, packageState)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             $('.showEventDetails').html('<div>' + jsonValue.message + '</div>');
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ *  Ajax: get all hosts that have the specified kernel
+ *  @param {string} kernel
+ */
+function getHostWithKernel(kernel)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/hosts/ajax.php",
+        data: {
+            action: "getHostWithKernel",
+            kernel: kernel
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+
+            hosts = '';
+            hostsArray = jQuery.parseJSON(jsonValue.message);
+            hostsArray.forEach(obj => {
+                Object.entries(obj).forEach(([key, value]) => {
+                    if (key == 'Hostname') {
+                        hostname = value;
+                    }
+                    if (key == 'Ip') {
+                        ip = value;
+                    }
+                });
+                hosts += hostname + ' (' + ip + ') <br>';
+            });
+
+            $('.hosts-charts-list-label-hosts-list').html('<div><span>' + hosts + '</span></div>');
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ *  Ajax: get all hosts that have the specified profile
+ *  @param {string} profile
+ */
+function getHostWithProfile(profile)
+{
+    $.ajax({
+        type: "POST",
+        url: "controllers/hosts/ajax.php",
+        data: {
+            action: "getHostWithProfile",
+            profile: profile
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+
+            hosts = '';
+            hostsArray = jQuery.parseJSON(jsonValue.message);
+            hostsArray.forEach(obj => {
+                Object.entries(obj).forEach(([key, value]) => {
+                    if (key == 'Hostname') {
+                        hostname = value;
+                    }
+                    if (key == 'Ip') {
+                        ip = value;
+                    }
+                });
+                hosts += hostname + ' (' + ip + ') <br>';
+            });
+
+            $('.hosts-charts-list-label-hosts-list').html('<div><span>' + hosts + '</span></div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

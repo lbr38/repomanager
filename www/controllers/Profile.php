@@ -31,26 +31,77 @@ class Profile
     }
 
     /**
-     *  Retourne un array contenant la configuration générale d'un profil (paquets à exclure...)
+     *  Retourne la configuration générale du serveur pour la gestion des profils
      */
-    public function getProfileConfiguration(string $profile)
+    public function getServerConfiguration()
+    {
+        return $this->model->getServerConfiguration();
+    }
+
+    /**
+     *  Get profile full configuration from database
+     */
+    public function getProfileFullConfiguration(string $profile)
     {
         /**
-         *  D'abord on vérifie que le profil spécifié existe en base de données
+         *  Check that profile exists
          */
         if ($this->model->exists($profile) === false) {
             throw new Exception("<b>$profile</b> profile does not exist");
         }
 
         /**
-         *  On récupère l'id du profil spécifié en base de données
+         *  Get profile Id from database
          */
         $profileId = $this->model->getIdByName($profile);
 
         /**
-         *  Récupération de la configuration générale (exclusions de paquets...)
+         *  Get profile full configuration
          */
-        return $this->model->getProfileConfiguration($profileId);
+        return $this->model->getProfileFullConfiguration($profileId);
+    }
+
+    /**
+     *  Get profile configuration
+     */
+    public function getProfileConfiguration(string $profile)
+    {
+        $configuration = array();
+
+        /**
+         *  Get profile full configuration
+         */
+        $fullConfiguration = $this->getProfileFullConfiguration($profile);
+
+        /**
+         *  Return only main configuration
+         */
+        $configuration['Linupdate_get_pkg_conf'] = $fullConfiguration['Linupdate_get_pkg_conf'];
+        $configuration['Linupdate_get_repos_conf'] = $fullConfiguration['Linupdate_get_repos_conf'];
+
+        return $configuration;
+    }
+
+    /**
+     *  Get profile packages excludes configuration
+     */
+    public function getProfilePackagesConfiguration(string $profile)
+    {
+        $configuration = array();
+
+        /**
+         *  Get profile full configuration
+         */
+        $fullConfiguration = $this->getProfileFullConfiguration($profile);
+
+        /**
+         *  Return only packages configuration
+         */
+        $configuration['Package_exclude'] = $fullConfiguration['Package_exclude'];
+        $configuration['Package_exclude_major'] = $fullConfiguration['Package_exclude_major'];
+        $configuration['Service_restart'] = $fullConfiguration['Service_restart'];
+
+        return $configuration;
     }
 
     /**
@@ -108,14 +159,6 @@ class Profile
         }
 
         return $globalArray;
-    }
-
-    /**
-     *  Retourne la configuration générale du serveur pour la gestion des profils
-     */
-    public function getServerConfiguration()
-    {
-        return $this->model->getServerConfiguration();
     }
 
     /**
@@ -266,12 +309,12 @@ class Profile
         /**
          *  Récupération de la configuration générale actuelle du profil source
          */
-        $profileConf = $this->model->getProfileConfiguration($profileId);
+        $profileConf = $this->model->getProfileFullConfiguration($profileId);
 
         /**
          *  Copie de la configuration du profil dupliqué vers le nouveau profil
          */
-        $this->model->configure($newProfileId, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Allow_overwrite'], $profileConf['Allow_repos_overwrite'], $profileConf['Notes']);
+        $this->model->configure($newProfileId, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Linupdate_get_pkg_conf'], $profileConf['Linupdate_get_repos_conf'], $profileConf['Notes']);
 
         /**
          *  Récupération des repos membres du profil source
@@ -315,7 +358,7 @@ class Profile
      *  Gestion des repos du profil
      *  Gestion des paquets à exclure
      */
-    public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $allowOverwrite, string $allowReposOverwrite, string $notes)
+    public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $linupdateGetPkgConf, string $linupdateGetReposConf, string $notes)
     {
         $name = \Controllers\Common::validateData($name);
 
@@ -449,10 +492,10 @@ class Profile
         /**
          *  Si on tente de passer une autre valeur de paramètre differente de 'yes' ou 'no' alors on ne fait rien
          */
-        if ($allowOverwrite != 'yes' and $allowOverwrite != 'no') {
+        if ($linupdateGetPkgConf != 'true' and $linupdateGetPkgConf != 'false') {
             return;
         }
-        if ($allowReposOverwrite != 'yes' and $allowReposOverwrite != 'no') {
+        if ($linupdateGetReposConf != 'true' and $linupdateGetReposConf != 'false') {
             return;
         }
 
@@ -474,7 +517,7 @@ class Profile
         /**
          *  Insertion de la nouvelle configuration en base de données
          */
-        $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $allowOverwrite, $allowReposOverwrite, $notes);
+        $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $linupdateGetPkgConf, $linupdateGetReposConf, $notes);
 
         \Models\History::set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
     }
