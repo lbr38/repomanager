@@ -118,9 +118,12 @@ class Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
+         *  Try with sha256 then sha1
          */
         if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $checksum) {
-            throw new Exception('Error: primary.xml.gz checksum does not match provided checksum');
+            if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $checksum) {
+                throw new Exception('Error: primary.xml.gz checksum does not match provided checksum');
+            }
         }
 
         $this->logOK();
@@ -871,10 +874,13 @@ class Mirror
             }
 
             /**
-             *  Check that downloaded rpm package's sha256 matches the checksum specified by the primary.xml file
+             *  Check that downloaded rpm package's matches the checksum specified by the primary.xml file
+             *  Try with sha256 then sha1
              */
             if (hash_file('sha256', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
-                $this->logError('checksum (sha256) does not match', 'Error while retrieving packages');
+                if (hash_file('sha1', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
+                    $this->logError('checksum (sha256) does not match (tried sha256 and sha1)', 'Error while retrieving packages');
+                }
             }
 
             /**

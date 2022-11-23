@@ -2470,6 +2470,7 @@ class Repo
             $repreproGpgParams = '';
 
             if (!is_dir($repoPath)) {
+                echo '</pre></div>';
                 throw new Exception('Repo directory does not exist');
             }
 
@@ -2483,11 +2484,13 @@ class Repo
                  */
                 if (!is_dir($repoPath . '/packages')) {
                     if (!mkdir($repoPath . '/packages', 0770, true)) {
+                        echo '</pre></div>';
                         throw new Exception('Error: could not create directory ' . $repoPath . '/packages');
                     }
                 }
                 if (!is_dir($repoPath . '/sources')) {
                     if (!mkdir($repoPath . '/sources', 0770, true)) {
+                        echo '</pre></div>';
                         throw new Exception('Error: could not create directory ' . $repoPath . '/sources');
                     }
                 }
@@ -2509,6 +2512,7 @@ class Repo
                         $debPackageName = end($debPackageName);
 
                         if (!rename($debPackage, $repoPath . '/packages/' . $debPackageName)) {
+                            echo '</pre></div>';
                             throw new Exception('Error: could not move package ' . $debPackage . ' to the packages directory');
                         }
                     }
@@ -2523,6 +2527,7 @@ class Repo
                         $dscSourcesPackageName = end($dscSourcesPackageName);
 
                         if (!rename($dscSourcesPackage, $repoPath . '/sources/' . $dscSourcesPackageName)) {
+                            echo '</pre></div>';
                             throw new Exception('Error: could not move source package ' . $dscSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2538,6 +2543,7 @@ class Repo
                         }
 
                         if (!rename($tarxzSourcesPackage, $repoPath . '/sources/' . $tarxzSourcesPackageName)) {
+                            echo '</pre></div>';
                             throw new Exception('Error: could not move source package ' . $tarxzSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2553,6 +2559,7 @@ class Repo
                         }
 
                         if (!rename($targzSourcesPackage, $repoPath . '/sources/' . $targzSourcesPackageName)) {
+                            echo '</pre></div>';
                             throw new Exception('Error: could not move source package ' . $targzSourcesPackage . ' to the sources directory');
                         }
                     }
@@ -2562,15 +2569,19 @@ class Repo
                  *  Clean existing directories
                  */
                 if (!Common::deleteRecursive($repoPath . '/conf')) {
+                    echo '</pre></div>';
                     throw new Exception('Cannot delete existing directory: ' . $repoPath . '/conf');
                 }
                 if (!Common::deleteRecursive($repoPath . '/db')) {
+                    echo '</pre></div>';
                     throw new Exception('Cannot delete existing directory: ' . $repoPath . '/db');
                 }
                 if (!Common::deleteRecursive($repoPath . '/dists')) {
+                    echo '</pre></div>';
                     throw new Exception('Cannot delete existing directory: ' . $repoPath . '/dists');
                 }
                 if (!Common::deleteRecursive($repoPath . '/pool')) {
+                    echo '</pre></div>';
                     throw new Exception('Cannot delete existing directory: ' . $repoPath . '/pool');
                 }
             }
@@ -2579,6 +2590,7 @@ class Repo
              *  Target arch must be specified
              */
             if (empty($this->targetArch)) {
+                echo '</pre></div>';
                 throw new Exception('Packages arch must be specified');
             }
 
@@ -2589,6 +2601,7 @@ class Repo
              */
             if (!is_dir($repoPath . '/conf')) {
                 if (!mkdir($repoPath . '/conf', 0770, true)) {
+                    echo '</pre></div>';
                     throw new Exception("Could not create repo configuration directory <b>$repoPath/conf</b>");
                 }
             }

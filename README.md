@@ -268,4 +268,4 @@ sudo /tmp/repomanager/repomanager --install
 
 Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki/Documentation">here</a>.
 
-It should help you starting using **Repomanager**.
+It should help you starting using Repomanager.

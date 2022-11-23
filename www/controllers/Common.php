@@ -619,8 +619,11 @@ class Common
      */
     public static function deleteRecursive(string $directoryPath)
     {
+        /**
+         *  Return true if there is nothing to delete
+         */
         if (!is_dir($directoryPath)) {
-            return;
+            return true;
         }
 
         $myprocess = new Process('rm -rf "' . $directoryPath . '"');
