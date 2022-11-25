@@ -355,14 +355,14 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
             <div class="operation-form">
                 <input type="hidden" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
                 <span>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files of each profile's configuration. However, hosts that retrieve their profile's configuration from this server will remain entitled to accept or not that this server manages their configuration." />Manage profiles repos configuration
+                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files for each profile." />Manage profiles repos configuration
                 </span>
                 <label class="onoff-switch-label">
                     <input id="serverManageClientRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientRepos == "yes") ? 'checked' : ''; ?>>
                     <span class="onoff-switch-slider"></span>
                 </label>
                 <span>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify which package(s) to exclude on each profile's configuration. However, hosts that retrieve their profile's configuration from this server will remain entitled to accept or not that this server manages their configuration." />Manage profiles packages configuration
+                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify which package(s) to exclude for each profile." />Manage profiles packages configuration
                 </span>
                 <label class="onoff-switch-label">
                     <input id="serverManageClientConf" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientConf == "yes") ? 'checked' : ''; ?>>

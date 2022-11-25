@@ -548,7 +548,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                     <?php
                     if (UPDATE_AVAILABLE == "yes") : ?>
                         <td class="td-fit">
-                            <input type="button" onclick="location.href='configuration.php?action=update'" class="btn-xxsmall-green" title="Update repomanager to: "<?= GIT_VERSION ?>" value="↻">
+                            <input type="button" onclick="location.href='configuration.php?action=update'" class="btn-xxsmall-green" title="Update repomanager to: <?= GIT_VERSION ?>" value="↻">
                         </td>
                         <?php
                     endif;
@@ -1266,7 +1266,7 @@ if (isset($_GET['deleteUser']) and !empty($_GET['username'])) {
                 <select name="role" class="select-medium">
                     <option value="">Select role...</option>
                     <option value="usage">usage</option>
-                    <option value="administrator">administrateur</option>
+                    <option value="administrator">administrator</option>
                 </select>
                 <button class="btn-xxsmall-green">+</button>
             </form>

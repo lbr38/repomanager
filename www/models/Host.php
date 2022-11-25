@@ -322,6 +322,21 @@ class Host extends Model
     }
 
     /**
+     *  Update linupdate version in database
+     */
+    public function updateLinupdateVersion(string $id, string $version)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :hostId");
+            $stmt->bindValue(':version', $version);
+            $stmt->bindValue(':hostId', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
      *  Suppression d'un paquet dans la table packages_available
      */
     public function deletePackageAvailable(string $packageName, string $packageVersion)

@@ -61,6 +61,7 @@ jobs:
         run: |
           curl -s -o /var/lib/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/repomanager.conf 2> /dev/null
           curl -s -L -o /var/lib/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
+          curl -s -L -o /var/lib/repomanager/db/repomanager-hosts.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager-hosts.db 2> /dev/null
           ls -l /var/lib/repomanager/configurations/
           ls -l /var/lib/repomanager/db/
       

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         $myhost = new \Controllers\Host();
         $myhost->setAuthId($datas->id);
         $myhost->setToken($datas->token);
-        $myhost->setFromApi();
+        // $myhost->setFromApi();
 
         /**
          *  2 arrays qui contiendront les messages de succès/erreur à renvoyer à l'hôte

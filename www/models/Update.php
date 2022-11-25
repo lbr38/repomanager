@@ -23,8 +23,6 @@ class Update extends Model
         /**
          *  Include file to execute SQL queries in it.
          */
-        // echo 'Executing ' . $updateFile . PHP_EOL;
-
         include_once($updateFile);
     }
 }

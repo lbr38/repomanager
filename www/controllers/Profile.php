@@ -47,7 +47,7 @@ class Profile
          *  Check that profile exists
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("<b>$profile</b> profile does not exist");
+            throw new Exception("$profile profile does not exist");
         }
 
         /**
@@ -113,7 +113,7 @@ class Profile
          *  D'abord on vérifie que le profil spécifié existe en base de données
          */
         if ($this->model->exists($profile) === false) {
-            throw new Exception("<b>$profile</b> profile does not exist");
+            throw new Exception("$profile profile does not exist");
         }
 
         /**
@@ -188,6 +188,14 @@ class Profile
         }
 
         return true;
+    }
+
+    /**
+     *  Return a list of all profiles names
+     */
+    public function listName()
+    {
+        return $this->model->listName();
     }
 
     /**
@@ -375,7 +383,7 @@ class Profile
          *  2. On vérifie que le profil existe en base de données
          */
         if ($this->model->exists($name) === false) {
-            throw new Exception("<b>$name</b> profile does not exist");
+            throw new Exception("$name profile does not exist");
         }
 
         /**

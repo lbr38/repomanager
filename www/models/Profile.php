@@ -176,7 +176,7 @@ class Profile extends Model
     public function add(string $name)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO profile (Name, Linupdate_get_pkg_conf, Linupdate_get_repos_conf) VALUES (:name, 'false', 'false')");
+            $stmt = $this->db->prepare("INSERT INTO profile (Name, Linupdate_get_pkg_conf, Linupdate_get_repos_conf) VALUES (:name, 'true', 'true')");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -231,6 +231,26 @@ class Profile extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
+    }
+
+    /**
+     *  Return a list of all profiles names
+     */
+    public function listName()
+    {
+        try {
+            $result = $this->db->query("SELECT Name FROM profile ORDER BY Name ASC");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        $profiles = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $profiles[] = $row;
+        }
+
+        return $profiles;
     }
 
     /**

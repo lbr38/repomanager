@@ -188,9 +188,9 @@ server {
         }
 
         # API
-        location ~ ^/api/hosts$ {
+        location /api/v2/ {
                 include fastcgi_params;
-                fastcgi_param SCRIPT_FILENAME $WWW_DIR/public/api/hosts/index.php;
+                fastcgi_param SCRIPT_FILENAME $WWW_DIR/public/api/v2/index.php;
                 fastcgi_param HTTPS on;
                 # Avoid sending the security headers twice
                 fastcgi_param modHeadersAvailable true;

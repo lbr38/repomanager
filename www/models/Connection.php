@@ -596,6 +596,7 @@ class Connection extends SQLite3
         Online_status CHAR(8),
         Online_status_date DATE,
         Online_status_time TIME,
+        Linupdate_version VARCHAR(255),
         Status VARCHAR(8) NOT NULL)");
 
         /**

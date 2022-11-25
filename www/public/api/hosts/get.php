@@ -64,7 +64,7 @@ if (!empty($datas->id) and !empty($datas->token)) {
     $myhost = new \Controllers\Host();
     $myhost->setAuthId($datas->id);
     $myhost->setToken($datas->token);
-    $myhost->setFromApi();
+    // $myhost->setFromApi();
 
     /**
      *  2 arrays qui contiendront les messages de succès/erreur à renvoyer à l'hôte

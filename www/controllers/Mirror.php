@@ -28,6 +28,7 @@ class Mirror
     private $outputFile;
     private $sslCustomCertificate;
     private $sslCustomPrivateKey;
+    private $curlHandle;
 
     public function setType(string $type)
     {
@@ -118,11 +119,13 @@ class Mirror
 
         /**
          *  Check that downloaded file checksum is the same as the provided checksum from repomd.xml
-         *  Try with sha256 then sha1
+         *  Try with sha512, sha256 then sha1
          */
-        if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $checksum) {
-            if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $checksum) {
-                throw new Exception('Error: primary.xml.gz checksum does not match provided checksum');
+        if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $checksum) {
+            if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $checksum) {
+                if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $checksum) {
+                    throw new Exception('Error: primary.xml.gz checksum does not match provided checksum');
+                }
             }
         }
 
@@ -215,6 +218,18 @@ class Mirror
                 if ($data['@attributes']['type'] == 'primary') {
                     $this->primaryLocation = $data['location']['@attributes']['href'];
                     $this->primaryChecksum = $data['checksum'];
+
+                    /**
+                     *  If $data['checksum'] is an array with multiple checksums found (sha, sha256, sha512), then just keep the first of them.
+                     */
+                    if (is_array($data['checksum'])) {
+                        $this->primaryChecksum = $data['checksum'][0];
+                    /**
+                     *  Else if $data['checksum'] is a string
+                     */
+                    } else {
+                        $this->primaryChecksum = $data['checksum'];
+                    }
                 }
             }
         }
@@ -709,15 +724,23 @@ class Mirror
     }
 
     /**
-     *  Create working directories
+     *  Initialize mirroring task
      */
     private function initialize()
     {
+        /**
+         *  Create working dir if not exist
+         */
         if (!is_dir($this->workingDir)) {
             if (!mkdir($this->workingDir, 0770, true)) {
                 throw new Exception('Cannot create temporary working directory');
             }
         }
+
+        /**
+         *  Initialize shared curl handle
+         */
+        $this->curlHandle = curl_init();
     }
 
     /**
@@ -728,41 +751,44 @@ class Mirror
         $curlError = 0;
         $localFile = fopen($savePath, "w");
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);            // set remote file url
-        curl_setopt($ch, CURLOPT_FILE, $localFile);     // set output file
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120);         // set timeout
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
+        /**
+         *  Use a shared curl handle '$this->curlHandle' and do not reinitialize it every time to speed up downloads
+         */
+        curl_setopt($this->curlHandle, CURLOPT_URL, $url);            // set remote file url
+        curl_setopt($this->curlHandle, CURLOPT_FILE, $localFile);     // set output file
+        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);         // set timeout
+        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true); // follow redirect
+        curl_setopt($this->curlHandle, CURLOPT_ENCODING, '');         // use compression if any
 
         /**
          *  If a custom ssl certificate and private key must be used
          */
         if (!empty($this->sslCustomCertificate)) {
-            curl_setopt($ch, CURLOPT_SSLCERT, $this->sslCustomCertificate);
+            curl_setopt($this->curlHandle, CURLOPT_SSLCERT, $this->sslCustomCertificate);
         }
         if (!empty($this->sslCustomPrivateKey)) {
-            curl_setopt($ch, CURLOPT_SSLKEY, $this->sslCustomPrivateKey);
+            curl_setopt($this->curlHandle, CURLOPT_SSLKEY, $this->sslCustomPrivateKey);
         }
 
         /**
          *  Execute curl
          */
-        curl_exec($ch);
+        curl_exec($this->curlHandle);
 
         /**
          *  If curl has failed (meaning a curl param might be invalid)
          */
-        if (curl_errno($ch)) {
-            curl_close($ch);
+        if (curl_errno($this->curlHandle)) {
+            curl_close($this->curlHandle);
             fclose($localFile);
 
-            $this->logError('Curl error: ' . curl_error($ch), 'Download error');
+            $this->logError('Curl error: ' . curl_error($this->curlHandle), 'Download error');
         }
 
         /**
          *  Check that the http return code is 200 (the file has been downloaded)
          */
-        $status = curl_getinfo($ch);
+        $status = curl_getinfo($this->curlHandle);
 
         if ($status["http_code"] != 200) {
             /**
@@ -774,7 +800,7 @@ class Mirror
                 $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ') ');
             }
 
-            curl_close($ch);
+            curl_close($this->curlHandle);
             fclose($localFile);
 
             return false;
