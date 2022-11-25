@@ -137,12 +137,12 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
         if (
             $_POST['action'] == "configureProfile"
             and !empty($_POST['name'])
-            and !empty($_POST['allowOverwrite'])
-            and !empty($_POST['allowReposFilesOverwrite'])
+            and !empty($_POST['linupdateGetPkgConf'])
+            and !empty($_POST['linupdateGetReposConf'])
         ) {
             $name = $_POST['name'];
-            $allowOverwrite = $_POST['allowOverwrite'];
-            $allowReposFilesOverwrite = $_POST['allowReposFilesOverwrite'];
+            $linupdateGetPkgConf = $_POST['linupdateGetPkgConf'];
+            $linupdateGetReposConf = $_POST['linupdateGetReposConf'];
 
             /**
              *  Si aucun repo n'a été transmis, cela signifie que l'utilisateur souhaite vider la liste, on set $reposList à vide
@@ -192,7 +192,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH
              *  Tentative de configuration du profil
              */
             try {
-                $myprofile->configure($name, $reposList, $packagesExcluded, $packagesMajorExcluded, $serviceNeedRestart, $allowOverwrite, $allowReposFilesOverwrite, $notes);
+                $myprofile->configure($name, $reposList, $packagesExcluded, $packagesMajorExcluded, $serviceNeedRestart, $linupdateGetPkgConf, $linupdateGetReposConf, $notes);
             } catch (\Exception $e) {
                 response(HTTP_BAD_REQUEST, $e->getMessage());
             }

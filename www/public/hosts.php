@@ -108,7 +108,7 @@ $mycolor = new \Controllers\Common();
                     
                         <div class="hosts-charts-list-column-container">
                             <?php
-                            foreach ($kernelList as $kernel) {
+                            foreach ($kernelList as $kernel) :
                                 if (empty($kernel['Kernel'])) {
                                     $kernelName = 'Unknow';
                                 } else {
@@ -116,7 +116,7 @@ $mycolor = new \Controllers\Common();
                                 } ?>
 
                                 <div class="hosts-charts-list-container">
-                                    <div class="hosts-charts-list-label">
+                                    <div class="hosts-charts-list-label" chart-type="kernel" kernel="<?= $kernelName ?>">
                                         <div>
                                             <!-- square figure -->
                                             <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
@@ -131,7 +131,7 @@ $mycolor = new \Controllers\Common();
                                 </div>
 
                                 <?php
-                            } ?>
+                            endforeach ?>
                         </div>
                     </div>
                     <?php
@@ -151,7 +151,7 @@ $mycolor = new \Controllers\Common();
                                 } ?>
                                 
                                 <div class="hosts-charts-list-container">
-                                    <div class="hosts-charts-list-label">
+                                    <div class="hosts-charts-list-label" chart-type="profile" profile="<?= $profileName ?>">
                                         <div>
                                             <!-- square figure -->
                                             <span style="background-color: <?= $mycolor->randomColor() ?>"></span>

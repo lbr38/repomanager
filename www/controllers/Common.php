@@ -274,6 +274,7 @@ class Common
          *  Date et heure de l'évènement
          */
         $content = PHP_EOL . date("Y-m-d H:i:s") . PHP_EOL;
+
         /**
          *  Récupération du nom du fichier ayant fait appel à cette fonction
          */
@@ -285,6 +286,7 @@ class Common
         if (!empty($exception)) {
             $content .= 'Error catched ¬' . PHP_EOL . $exception . PHP_EOL;
         }
+
         /**
          *  Ajout du contenu au fichier de log
          */

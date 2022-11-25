@@ -193,6 +193,22 @@ class Host
     }
 
     /**
+     *  Return hosts that have the specified kernel
+     */
+    public function getHostWithKernel(string $kernel)
+    {
+        return $this->model->getHostWithKernel(Common::validateData($kernel));
+    }
+
+    /**
+     *  Return hosts that have the specified profile
+     */
+    public function getHostWithProfile(string $kernel)
+    {
+        return $this->model->getHostWithProfile(Common::validateData($kernel));
+    }
+
+    /**
      *  Récupère la liste des paquets présents sur l'hôte
      */
     public function getPackagesInventory()

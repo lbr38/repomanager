@@ -116,8 +116,8 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                         $profileConfExclude = explode(',', $profile['Package_exclude']);
                         $profileConfExcludeMajor = explode(',', $profile['Package_exclude_major']);
                         $profileConfNeedRestart = explode(',', $profile['Service_restart']);
-                        $profileConfAllowOverwrite = $profile['Allow_overwrite'];
-                        $profileConfAllowReposOverwrite = $profile['Allow_repos_overwrite'];
+                        $linupdateGetPkgConf = $profile['Linupdate_get_pkg_conf'];
+                        $linupdateGetReposConf = $profile['Linupdate_get_repos_conf'];
                         $profileNotes = $profile['Notes'];
                         $profileReposMembersIds = $myprofile->reposMembersIdList($profileId);
 
@@ -209,7 +209,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                                 <td class="td-fit" title="Linupdate should automatically get its repos files from this profile on each execution">Linupdate should automatically get its repos files from this profile on each execution</td>
                                                 <td>
                                                     <label class="onoff-switch-label">
-                                                        <input id="profile-conf-allow-repos-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowReposOverwrite == "yes") ? 'checked' : ''; ?>>
+                                                        <input id="profile-linupdate-get-repos-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetReposConf == 'true') ? 'checked' : ''; ?>>
                                                         <span class="onoff-switch-slider"></span>
                                                     </label>
                                                 </td>
@@ -310,7 +310,7 @@ if (!empty($serverConfiguration['Manage_client_repos'])) {
                                                 <td class="td-fit" title="Linupdate should automatically get its configuration from this profile on each execution">Linupdate should automatically get its configuration from this profile on each execution</td>
                                                 <td>
                                                     <label class="onoff-switch-label">
-                                                        <input id="profile-conf-allow-overwrite" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($profileConfAllowOverwrite == "yes") ? 'checked' : ''; ?>>
+                                                        <input id="profile-linupdate-get-pkg-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetPkgConf == 'true') ? 'checked' : ''; ?>>
                                                         <span class="onoff-switch-slider"></span>
                                                     </label>
                                                 </td>

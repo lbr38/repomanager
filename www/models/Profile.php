@@ -79,15 +79,15 @@ class Profile extends Model
     /**
      *  Retourne les informations d'un profil en base données
      */
-    public function getProfileConfiguration(string $profileId)
+    public function getProfileFullConfiguration(string $profileId)
     {
         try {
             $stmt = $this->db->prepare("SELECT
             Package_exclude,
             Package_exclude_major,
             Service_restart,
-            Allow_overwrite,
-            Allow_repos_overwrite,
+            Linupdate_get_pkg_conf,
+            Linupdate_get_repos_conf,
             Notes
             FROM profile WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
@@ -176,7 +176,7 @@ class Profile extends Model
     public function add(string $name)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO profile (Name) VALUES (:name)");
+            $stmt = $this->db->prepare("INSERT INTO profile (Name, Linupdate_get_pkg_conf, Linupdate_get_repos_conf) VALUES (:name, 'false', 'false')");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -202,16 +202,16 @@ class Profile extends Model
     /**
      *  Modification de la configuration d'un profil en base de données
      */
-    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $allowOverwrite, string $allowReposOverwrite, string $notes)
+    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $linupdateGetPkgConf, string $linupdateGetReposConf, string $notes)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Allow_overwrite = :allowOverwrite, Allow_repos_overwrite = :allowReposOverwrite, Notes = :notes WHERE Id = :profileId");
+            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Linupdate_get_pkg_conf = :linupdateGetPkgConf, Linupdate_get_repos_conf = :linupdateGetReposConf, Notes = :notes WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
             $stmt->bindValue(':packageExclude', $packageExclude);
             $stmt->bindValue(':packageExcludeMajor', $packageExcludeMajor);
             $stmt->bindValue(':serviceRestart', $serviceRestart);
-            $stmt->bindValue(':allowOverwrite', $allowOverwrite);
-            $stmt->bindValue(':allowReposOverwrite', $allowReposOverwrite);
+            $stmt->bindValue(':linupdateGetPkgConf', $linupdateGetPkgConf);
+            $stmt->bindValue(':linupdateGetReposConf', $linupdateGetReposConf);
             $stmt->bindValue(':notes', $notes);
             $stmt->execute();
         } catch (\Exception $e) {
