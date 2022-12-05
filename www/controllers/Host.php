@@ -24,7 +24,6 @@ class Host
     private $authId;
     private $token;
     private $onlineStatus;
-    private $callFromApi = 'no'; // défini si l'appel des fonctions ci-dessous est effectué depuis l'api ou non. N'affichera pas les messages d'erreurs 'printAlert' si c'est le cas (yes).
 
     /**
      *  Propriétés relatives aux paquets de l'hôte
@@ -43,87 +42,82 @@ class Host
 
     public function setId(string $id)
     {
-        $this->id = \Controllers\Common::validateData($id);
+        $this->id = Common::validateData($id);
     }
 
     public function setIp(string $ip)
     {
-        $this->ip = \Controllers\Common::validateData($ip);
+        $this->ip = Common::validateData($ip);
     }
 
     public function setHostname(string $hostname)
     {
-        $this->hostname = \Controllers\Common::validateData($hostname);
+        $this->hostname = Common::validateData($hostname);
     }
 
     public function setOS(string $os)
     {
-        $this->os = \Controllers\Common::validateData($os);
+        $this->os = Common::validateData($os);
     }
 
     public function setOsVersion(string $os_version)
     {
-        $this->os_version = \Controllers\Common::validateData($os_version);
+        $this->os_version = Common::validateData($os_version);
     }
 
     public function setOsFamily(string $os_family)
     {
-        $this->os_family = \Controllers\Common::validateData($os_family);
+        $this->os_family = Common::validateData($os_family);
     }
 
     public function setType(string $type)
     {
-        $this->type = \Controllers\Common::validateData($type);
+        $this->type = Common::validateData($type);
     }
 
     public function setKernel(string $kernel)
     {
-        $this->kernel = \Controllers\Common::validateData($kernel);
+        $this->kernel = Common::validateData($kernel);
     }
 
     public function setArch(string $arch)
     {
-        $this->arch = \Controllers\Common::validateData($arch);
+        $this->arch = Common::validateData($arch);
     }
 
     public function setProfile(string $profile)
     {
-        $this->profile = \Controllers\Common::validateData($profile);
+        $this->profile = Common::validateData($profile);
     }
 
     public function setEnv(string $env)
     {
-        $this->env = \Controllers\Common::validateData($env);
+        $this->env = Common::validateData($env);
     }
 
     public function setPackageId(string $packageId)
     {
-        $this->packageId = \Controllers\Common::validateData($packageId);
+        $this->packageId = Common::validateData($packageId);
     }
 
     public function setPackageName(string $packageName)
     {
-        $this->packageName = \Controllers\Common::validateData($packageName);
+        $this->packageName = Common::validateData($packageName);
     }
 
     public function setPackageVersion(string $packageVersion)
     {
-        $this->packageVersion = \Controllers\Common::validateData($packageVersion);
+        $this->packageVersion = Common::validateData($packageVersion);
     }
 
     public function setAuthId(string $authId)
     {
-        $this->authId = \Controllers\Common::validateData($authId);
+        $this->authId = Common::validateData($authId);
     }
 
     public function setToken(string $token)
     {
-        $this->token = \Controllers\Common::validateData($token);
-    }
-
-    public function setFromApi()
-    {
-        $this->callFromApi = 'yes';
+        $this->token = Common::validateData($token);
     }
 
     public function getId()
@@ -185,7 +179,7 @@ class Host
     public function getAll(string $id)
     {
         if (!is_numeric($id)) {
-            \Controllers\Common::printAlert('Specified Id is invalid', 'error');
+            Common::printAlert('Specified Id is invalid', 'error');
             return false;
         }
 
@@ -270,7 +264,7 @@ class Host
             throw new Exception("Host Id must be specified");
         }
 
-        $packageState = \Controllers\Common::validateData($packageState);
+        $packageState = Common::validateData($packageState);
 
         /**
          *  Ouverture de la BDD dédiée de l'hôte
@@ -466,7 +460,7 @@ class Host
          *  Les paramètres suivants doivent être des chiffres
          */
         if (!is_numeric($pkgs_considered_outdated) or !is_numeric($pkgs_considered_critical)) {
-            \Controllers\Common::printAlert('Params must be numeric', 'error');
+            Common::printAlert('Params must be numeric', 'error');
             return;
         }
 
@@ -474,13 +468,13 @@ class Host
          *  Les paramètres doivent être supérieurs à 0
          */
         if ($pkgs_considered_outdated <= 0 or $pkgs_considered_critical <= 0) {
-            \Controllers\Common::printAlert('Params must be greater than or equal to 0', 'error');
+            Common::printAlert('Params must be greater than or equal to 0', 'error');
             return;
         }
 
         $this->model->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
 
-        \Controllers\Common::printAlert('Params have been taken into account', 'success');
+        Common::printAlert('Params have been taken into account', 'success');
     }
 
     /**
@@ -573,20 +567,20 @@ class Host
          *  Si la liste des paquets est vide, on ne peut pas continuer
          */
         if (empty($packagesInventory)) {
-            return false;
+            throw new Exception('Packages list is empty');
         }
 
         /**
          *  Si l'Id de l'hôte en BDD est vide, on ne peut pas continuer (utile pour ouvrir sa BDD)
          */
         if (empty($this->id)) {
-            return false;
+            throw new Exception('Host Id is empty');
         }
 
         /**
          *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
          */
-        $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesInventory)));
+        $packagesList = array_filter(explode(",", Common::validateData($packagesInventory)));
 
         /**
          *  On traite si l'array n'est pas vide
@@ -672,14 +666,14 @@ class Host
          *  Si la liste des paquets est vide, on ne peut pas continuer
          */
         if (empty($packagesAvailable)) {
-            return false;
+            throw new Exception('Packages list is empty');
         }
 
         /**
          *  Si l'Id de l'hôte en BDD est vide, on ne peut pas continuer (utile pour ouvrir sa BDD)
          */
         if (empty($this->id)) {
-            return false;
+            throw new Exception('Host Id is empty');
         }
 
         /**
@@ -693,7 +687,7 @@ class Host
             /**
              *  Les paquets sont transmis sous forme de chaine, séparés par une virgule. On explode cette chaine en array et on retire les entrées vides.
              */
-            $packagesList = array_filter(explode(",", \Controllers\Common::validateData($packagesAvailable)));
+            $packagesList = array_filter(explode(",", Common::validateData($packagesAvailable)));
         }
 
         /**
@@ -715,7 +709,7 @@ class Host
              *  Si l'hôte a transmis "none" (aucun paquet disponible pour mise à jour) alors on s'arrête là
              */
             if ($packagesList == "none") {
-                return true;
+                return;
             }
 
             foreach ($packagesList as $packageDetails) {
@@ -773,7 +767,7 @@ class Host
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
         if (empty($this->id)) {
-            return false;
+            throw new Exception('Host Id is empty');
         }
 
         /**
@@ -1007,7 +1001,7 @@ class Host
          *  Si on n'a pas renseigné l'IP ou le hostname alors on quitte
          */
         if (empty($this->ip) or empty($this->hostname)) {
-            return 1;
+            throw new Exception('You must provide IP address and hostname.');
         }
 
         /**
@@ -1023,14 +1017,14 @@ class Host
             $status = $this->model->getHostStatus($this->hostname);
 
             if (empty($status)) {
-                return 5;
+                throw new Exception('Server has encountered error while retrieving host status in database');
             }
 
             /**
              *  Si l'hôte en base de données est 'active' alors on ne peut pas l'enregistrer de nouveau
              */
             if ($status == 'active') {
-                return 3;
+                throw new Exception('Host is already registered.');
             }
 
             /**
@@ -1063,7 +1057,7 @@ class Host
          *  Cas où l'hôte existe déjà et qu'il faut le réactiver
          *  On met à jour ses données (réactivation et nouvel id et token)
          */
-        if (!empty($host_exists_and_is_unactive) and $host_exists_and_is_unactive = 'yes') {
+        if (!empty($host_exists_and_is_unactive) and $host_exists_and_is_unactive == 'yes') {
             /**
              *  Mise à jour de l'hôte en base de données
              */
@@ -1087,11 +1081,8 @@ class Host
              *  Création d'un répertoire dédié pour cet hôte, à partir de son ID
              *  Sert à stocker des rapport de mise à jour et une BDD pour l'hôte
              */
-            if (!mkdir(HOSTS_DIR . "/{$this->id}", 0770, true)) {
-                if ($this->callFromApi == 'no') {
-                    \Controllers\Common::printAlert("Cannot register the host", 'error');
-                }
-                return 5;
+            if (!mkdir(HOSTS_DIR . '/' . $this->id, 0770, true)) {
+                throw new Exception('The server could not finalize registering.');
             }
 
             /**
@@ -1103,11 +1094,8 @@ class Host
             /**
              *  Création d'un répertoire 'reports' pour cet hôte
              */
-            if (!mkdir(HOSTS_DIR . "/{$this->id}/reports", 0770, true)) {
-                if ($this->callFromApi == 'no') {
-                    \Controllers\Common::printAlert("Cannot register the host", 'error');
-                }
-                return 5;
+            if (!mkdir(HOSTS_DIR . '/' . $this->id . '/reports', 0770, true)) {
+                throw new Exception('The server could not finalize registering.');
             }
         }
 
@@ -1123,34 +1111,32 @@ class Host
          *  On vérifie que l'ip et le token correspondent bien à un hôte, si ce n'est pas le cas on quitte
          */
         if ($this->checkIdToken() === false) {
-            return 2;
+            throw new Exception('Authentication failed.');
         }
 
         /**
          *  Changement du status de l'hôte en base de données ('deleted')
          */
         $this->model->setHostInactive('', $this->authId, $this->token);
-
-        return true;
     }
 
     public function setUpdateRequestStatus(string $type, string $status)
     {
-        $type = \Controllers\Common::validateData($type);
-        $status = \Controllers\Common::validateData($status);
+        $type = Common::validateData($type);
+        $status = Common::validateData($status);
 
         /**
          *  On vérifie que l'action spécifiée par l'hôte est valide
          */
         if ($type != 'packages-update' and $type != 'general-status-update' and $type != 'packages-status-update' and $type != 'full-history-update') {
-            return false;
+            throw new Exception('Invalid request type');
         }
 
         /**
          *  On vérifie que le status spécifié par l'hôte est valide
          */
-        if ($status != 'running' and $status != 'done') {
-            return false;
+        if ($status != 'running' and $status != 'done' and $status != 'error') {
+            throw new Exception('Invalid request status');
         }
 
         /**
@@ -1200,7 +1186,7 @@ class Host
          *  On traite l'array contenant les Id d'hôtes à traiter
          */
         foreach ($hostsId as $hostId) {
-            $this->setId(\Controllers\Common::validateData($hostId));
+            $this->setId(Common::validateData($hostId));
 
             /**
              *  Si l'Id de l'hôte n'est pas un chiffre, on enregistre son id dans $hostIdError[] puis on passe à l'hôte suivant
@@ -1478,7 +1464,7 @@ class Host
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères invalides
          */
-        if (\Controllers\Common::isAlphanumDash($packageName, array('*')) === false) {
+        if (Common::isAlphanumDash($packageName, array('*')) === false) {
             throw new Exception('Package name contains invalid characters');
         }
 
@@ -1498,7 +1484,7 @@ class Host
         /**
          *  On aura besoin d'un objet Group()
          */
-        $mygroup = new \Controllers\Group('host');
+        $mygroup = new Group('host');
 
         /**
          *  On vérifie que le groupe existe
@@ -1559,7 +1545,7 @@ class Host
      */
     public function updateHostname(string $hostname)
     {
-        $this->model->updateHostname($this->authId, $this->token, \Controllers\Common::validateData($hostname));
+        $this->model->updateHostname($this->authId, $this->token, Common::validateData($hostname));
     }
 
     /**
@@ -1567,7 +1553,7 @@ class Host
      */
     public function updateOS(string $os)
     {
-        $this->model->updateOS($this->authId, $this->token, \Controllers\Common::validateData($os));
+        $this->model->updateOS($this->authId, $this->token, Common::validateData($os));
     }
 
     /**
@@ -1575,7 +1561,7 @@ class Host
      */
     public function updateOsVersion(string $osVersion)
     {
-        $this->model->updateOsVersion($this->authId, $this->token, \Controllers\Common::validateData($osVersion));
+        $this->model->updateOsVersion($this->authId, $this->token, Common::validateData($osVersion));
     }
 
     /**
@@ -1583,7 +1569,7 @@ class Host
      */
     public function updateOsFamily(string $osFamily)
     {
-        $this->model->updateOsFamily($this->authId, $this->token, \Controllers\Common::validateData($osFamily));
+        $this->model->updateOsFamily($this->authId, $this->token, Common::validateData($osFamily));
     }
 
     /**
@@ -1591,7 +1577,7 @@ class Host
      */
     public function updateType(string $virtType)
     {
-        $this->model->updateType($this->authId, $this->token, \Controllers\Common::validateData($virtType));
+        $this->model->updateType($this->authId, $this->token, Common::validateData($virtType));
     }
 
     /**
@@ -1599,7 +1585,7 @@ class Host
      */
     public function updateKernel(string $kernel)
     {
-        $this->model->updateKernel($this->authId, $this->token, \Controllers\Common::validateData($kernel));
+        $this->model->updateKernel($this->authId, $this->token, Common::validateData($kernel));
     }
 
     /**
@@ -1607,7 +1593,7 @@ class Host
      */
     public function updateArch(string $arch)
     {
-        $this->model->updateArch($this->authId, $this->token, \Controllers\Common::validateData($arch));
+        $this->model->updateArch($this->authId, $this->token, Common::validateData($arch));
     }
 
     /**
@@ -1615,7 +1601,7 @@ class Host
      */
     public function updateProfile(string $profile)
     {
-        $this->model->updateProfile($this->authId, $this->token, \Controllers\Common::validateData($profile));
+        $this->model->updateProfile($this->authId, $this->token, Common::validateData($profile));
     }
 
     /**
@@ -1623,7 +1609,7 @@ class Host
      */
     public function updateEnv(string $env)
     {
-        $this->model->updateEnv($this->authId, $this->token, \Controllers\Common::validateData($env));
+        $this->model->updateEnv($this->authId, $this->token, Common::validateData($env));
     }
 
     /**
@@ -1639,6 +1625,14 @@ class Host
     }
 
     /**
+     *  Update host's linupdate version in database
+     */
+    public function updateLinupdateVersion(string $version)
+    {
+        $this->model->updateLinupdateVersion($this->id, Common::validateData($version));
+    }
+
+    /**
      *  Ajouter / supprimer des hôtes dans un groupe
      */
     public function addHostsIdToGroup(array $hostsId = null, string $groupName)
@@ -1646,7 +1640,7 @@ class Host
         /**
          *  On aura besoin d'un objet Group()
          */
-        $mygroup = new \Controllers\Group('host');
+        $mygroup = new Group('host');
         $groupId = $mygroup->getIdByName($groupName);
 
         if (!empty($hostsId)) {

@@ -1361,6 +1361,7 @@ footer #github img { width: 25px; }
 .operation-form {
     width: 100%;
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
 }
 

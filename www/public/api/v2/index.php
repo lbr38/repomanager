@@ -1,4 +1,5 @@
 <?php
+
 define("ROOT", dirname(__FILE__, 4));
 
 /**
@@ -28,17 +29,17 @@ require_once(ROOT . '/controllers/Host.php');
  *  Quit if autoload has encountered any error
  */
 if (__LOAD_GENERAL_ERROR != 0) {
-    http_response_code(400);
-    echo json_encode(["return" => "400", "message_error" => array("Reposerver configuration error. Please contact the administrator.")]);
+    http_response_code(503);
+    echo json_encode(["return" => "503", "message_error" => array('Reposerver configuration error. Please contact the administrator.')]);
     exit;
 }
 
 /**
- *  Return 400 if an update is running
+ *  Return 403 if an update is running
  */
 if (UPDATE_RUNNING == 'yes') {
-    http_response_code(400);
-    echo json_encode(["return" => "400", "message_error" => array("Reposerver is actually being updated. Please try again later.")]);
+    http_response_code(403);
+    echo json_encode(["return" => "403", "message_error" => array('Reposerver is actually being updated. Please try again later.')]);
     exit;
 }
 
@@ -47,14 +48,45 @@ if (UPDATE_RUNNING == 'yes') {
  */
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode('/', $uri);
-$component = $uri[3];
+$route = $uri[3];
 
-// if ($component == 'profile') {
+/**
+ *  If this server API status was requested
+ */
+if ($route == 'status') {
+    http_response_code(201);
+    echo json_encode(["return" => "201", "status" => 'OK']);
+    exit;
+}
 
-// }
+try {
+    /**
+     *  Call profile API controller
+     */
+    if ($route == 'profile') {
+        $myprofile = new \Controllers\Api\Profile();
+        $resultArray = $myprofile->execute();
+        \Controllers\Api\Api::returnSuccess($resultArray);
+    }
 
-// if ($component == 'host') {
+    /**
+     *  Call host API controller
+     */
+    if ($route == 'host') {
+        $myhost = new \Controllers\Api\Host();
+        $resultArray = $myhost->execute();
+        \Controllers\Api\Api::returnSuccess($resultArray);
+    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(["return" => "400", "message_error" => array($e->getMessage())]);
+    exit;
+}
 
-// }
+/**
+ *  If no matching route
+ */
+http_response_code(400);
+echo json_encode(["return" => "404", "message_error" => array('No matching route.')]);
 
 exit;

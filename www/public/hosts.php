@@ -390,12 +390,12 @@ $mycolor = new \Controllers\Common();
                                         <div class="js-buttons-<?=$groupName?> hide">
                                             
                                             <h5>Request selected host(s) to send informations:</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-blue" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="resources/icons/update.svg" class="icon" /><b>General informations</b></button>
-                                            <button class="hostsActionBtn pointer btn-fit-blue" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="resources/icons/update.svg" class="icon" /><b>Packages informations</b></button>
-                                            <h5>Request selected host(s) to execute an action.</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages using linupdate."><img src="resources/icons/update.svg" class="icon" /><b>Update packages</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-green" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="resources/icons/update.svg" class="icon" /><b>General informations</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-green" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="resources/icons/update.svg" class="icon" /><b>Packages informations</b></button>
+                                            <h5>Request selected host(s) to execute an action:</h5>
+                                            <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages."><img src="resources/icons/update.svg" class="icon" /><b>Update packages</b></button>
                                             
-                                            <h5>Delete or reset selected host(s).</h5>
+                                            <h5>Delete or reset selected host(s):</h5>
                                             <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Reset known data."><img src="resources/icons/update.svg" class="icon" /><b>Reset</b></button>
                                             <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Delete."><img src="resources/icons/bin.svg" class="icon" /><b>Delete</b></button>
                                         </div>

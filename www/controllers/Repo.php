@@ -2777,7 +2777,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new Process('/usr/bin/reprepro -P optionnal --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro --keepunusednewfiles -P optionnal --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute
@@ -2812,7 +2812,6 @@ class Repo
                 /**
                  *  Case sources packages must be included in the repo too
                  */
-                // if ($this->targetSourcePackage == 'yes' and !empty($dscFilesGlobalArray)) {
                 if (!empty($dscFilesGlobalArray)) {
                     /**
                      *  Reprepro can't deal with multiple .dsc files at the same time, so we have to proceed each file one by one
@@ -2825,7 +2824,7 @@ class Repo
                          *  Proceed to import those 100 deb packages into the repo
                          *  Instanciate a new Process
                          */
-                        $myprocess = new Process('/usr/bin/reprepro -P optionnal -V --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
+                        $myprocess = new Process('/usr/bin/reprepro --keepunusednewfiles -P optionnal -V --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 
                         /**
                          *  Execute

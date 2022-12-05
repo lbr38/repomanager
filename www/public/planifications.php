@@ -104,13 +104,13 @@ include_once('../includes/head.inc.php');
                                         }
                                         if ($planType == "regular") {
                                             if ($planFrequency == "every-hour") {
-                                                echo 'Every hour</b>';
+                                                echo 'Hourly</b>';
                                             }
                                             if ($planFrequency == "every-day") {
-                                                echo 'Every day at <b>' . $planTime . '</b>';
+                                                echo 'Daily at <b>' . $planTime . '</b>';
                                             }
                                             if ($planFrequency == "every-week") {
-                                                echo 'Every week';
+                                                echo 'Weekly';
                                             }
                                         } ?>
                                     </td>
@@ -378,9 +378,9 @@ include_once('../includes/head.inc.php');
                             <td>
                                 <select id="planFrequencySelect">
                                     <option value="">Select...</option>
-                                    <option id="planFrequency-every-hour" value="every-hour">every hour</option>
-                                    <option id="planFrequency-every-day" value="every-day">every day</option>
-                                    <option id="planFrequency-every-week" value="every-week">every week</option>
+                                    <option value="every-hour">Hourly</option>
+                                    <option value="every-day">Daily</option>
+                                    <option value="every-week">Weekly</option>
                                 </select>
                             </td>
                         </tr>

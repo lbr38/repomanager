@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         $myhost = new \Controllers\Host();
         $myhost->setAuthId($datas->id);
         $myhost->setToken($datas->token);
-        $myhost->setFromApi();
+        // $myhost->setFromApi();
 
         /**
          *  D'abord on vérifie que l'ID et le token transmis sont valides

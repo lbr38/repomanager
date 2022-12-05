@@ -79,24 +79,26 @@ $(document).on('change','input:radio[name="planType"]',function () {
  *  Event : Si on a sélectionné : planification récurrente tous les jours, alors on fait apparaitre l'input de l'heure pour pouvoir renseigner l'heure
  */
 $(document).on('change','#planFrequencySelect',function () {
+    var frequency = $("#planFrequencySelect").val();
+
     /**
      *  Si la fréquence sélectionnée est "toutes les heures"
      */
-    if ($("#planFrequency-every-hour").is(":selected")) {
+    if (frequency == 'every-hour') {
         $(".__regular_plan_day_input").hide();
         $(".__plan_hour_input").hide();
     }
     /**
      *  Si la fréquence sélectionnée est "tous les jours"
      */
-    if ($("#planFrequency-every-day").is(":selected")) {
+    if (frequency == 'every-day') {
         $(".__regular_plan_day_input").hide();
         $(".__plan_hour_input").show();
     }
     /**
      *  Si la fréquence sélectionnée est "toutes les semaines"
      */
-    if ($("#planFrequency-every-week").is(":selected")) {
+    if (frequency == 'every-week') {
         $(".__regular_plan_day_input").show();
         $(".__plan_hour_input").show();
         $(".__plan_input_reminder").show();

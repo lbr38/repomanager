@@ -45,9 +45,9 @@ if (!empty($groupsList)) {
 if (\Controllers\Common::isadmin()) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="resources/icons/update.svg" />Update</button>
-        <button class="repo-action-btn btn-medium-blue" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.svg" />Duplicate</button>
-        <button class="repo-action-btn btn-medium-blue" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="resources/icons/link.svg" />Point an env.</button>
-        <button class="repo-action-btn btn-medium-blue" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="resources/icons/update.svg" />Rebuild</button>
+        <button class="repo-action-btn btn-medium-green" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.svg" />Duplicate</button>
+        <button class="repo-action-btn btn-medium-green" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="resources/icons/link.svg" />Point an env.</button>
+        <button class="repo-action-btn btn-medium-green" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="resources/icons/update.svg" />Rebuild</button>
         <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Delete selected snapshot(s)"><img class="icon" src="resources/icons/bin.svg" />Delete</button>
     </div>
 <?php endif ?>

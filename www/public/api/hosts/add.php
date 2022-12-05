@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $myhost = new \Controllers\Host();
         $myhost->setIp($datas->ip);
         $myhost->setHostname($datas->hostname);
-        $myhost->setFromApi();
+        // $myhost->setFromApi();
 
         /**
          *  Enregistrement du nouvel hôte en BDD
