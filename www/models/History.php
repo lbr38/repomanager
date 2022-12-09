@@ -77,7 +77,7 @@ class History
     /**
      *  Ajouter une nouvelle ligne d'historique en base de données
      */
-    public static function set(string $username, string $action, string $state = null)
+    public static function set(string $username, string $action, string $state)
     {
         date_default_timezone_set('Europe/Paris');
 
@@ -100,14 +100,14 @@ class History
             $result = $stmt->execute();
 
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $user_id = $row['Id'];
+                $userId = $row['Id'];
             }
 
             /**
              *  Si l'Id retourné est vide on lance une exception
              */
-            if (empty($user_id)) {
-                throw new Exception();
+            if (empty($userId)) {
+                throw new Exception('Cannot retrieve user Id from username ' . $username);
             }
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -118,7 +118,7 @@ class History
             $dateNow = date('Y-m-d');
             $timeNow = date('H:i:s');
             $stmt = $db->prepare("INSERT INTO history ('Date', 'Time', 'Id_user', 'Action', 'State') VALUES ('$dateNow', '$timeNow', :id_user, :action, :state)");
-            $stmt->bindValue(':id_user', $user_id);
+            $stmt->bindValue(':id_user', $userId);
             $stmt->bindValue(':action', $action);
             $stmt->bindValue(':state', $state);
             $stmt->execute();

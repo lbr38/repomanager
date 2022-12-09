@@ -3,7 +3,11 @@
  */
 function reloadSourcesDiv()
 {
-    $("#sourcesDiv").load(" #sourcesDiv > *");
+    $("#sourcesDiv").load(" #sourcesDiv > *",function () {
+        $('.param-slide').css({
+            right: 0
+        })
+    });
 }
 
 /**
@@ -189,8 +193,9 @@ function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "addSource",
             repoType: repoType,
             name: name,
@@ -223,8 +228,9 @@ function deleteSource(sourceId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "deleteSource",
             sourceId: sourceId
         },
@@ -253,8 +259,9 @@ function renameSource(type, name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "renameSource",
             type: type,
             name: name,
@@ -287,8 +294,9 @@ function editSourceUrl(type, name, url)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "editSourceUrl",
             type: type,
             name: name,
@@ -318,8 +326,9 @@ function deleteGpgKey(gpgKeyId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "deleteGpgKey",
             gpgKeyId: gpgKeyId
         },
@@ -348,8 +357,9 @@ function editSourceGpgKey(sourceId, gpgkey)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "editGpgKey",
             sourceId: sourceId,
             gpgkey: gpgkey
@@ -375,8 +385,9 @@ function editSourceSslCertificatePath(sourceId, sslCertificatePath)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "editSslCertificatePath",
             sourceId: sourceId,
             sslCertificatePath: sslCertificatePath
@@ -402,8 +413,9 @@ function editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "editSslPrivateKeyPath",
             sourceId: sourceId,
             sslPrivateKeyPath: sslPrivateKeyPath
@@ -428,8 +440,9 @@ function importGpgKey(gpgkey)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/sources/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "source",
             action: "importGpgKey",
             gpgkey: gpgkey
         },

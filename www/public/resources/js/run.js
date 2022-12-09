@@ -60,8 +60,9 @@ function relaunchOperation(poolId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax-operations.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "operation",
             action: "relaunchOperation",
             poolId: poolId
         },

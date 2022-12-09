@@ -379,7 +379,7 @@ $template = "<!doctype html>
                                 <table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">
                                   <tbody>
                                     <tr>
-                                      <td> <a href=\"https://" . WWW_HOSTNAME . "/planifications.php\" target=\"_blank\">Planifications</a> </td>
+                                      <td> <a href=\"https://" . WWW_HOSTNAME . "/plans\" target=\"_blank\">Planifications</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>

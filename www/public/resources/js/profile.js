@@ -187,8 +187,9 @@ function applyServerConfiguration(serverPackageType, serverManageClientConf, ser
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "applyServerConfiguration",
             serverPackageType: serverPackageType,
             serverManageClientConf: serverManageClientConf,
@@ -219,8 +220,9 @@ function newProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "newProfile",
             name: name
         },
@@ -248,8 +250,9 @@ function deleteProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "deleteProfile",
             name: name
         },
@@ -277,8 +280,9 @@ function renameProfile(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "renameProfile",
             name: name,
             newname : newname
@@ -307,8 +311,9 @@ function duplicateProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "duplicateProfile",
             name: name
         },
@@ -335,8 +340,9 @@ function configureProfile(name, reposList, packagesMajorExcluded, packagesExclud
 {
     $.ajax({
         type: "POST",
-        url: "controllers/profiles/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "profile",
             action: "configureProfile",
             name: name,
             reposList: reposList,

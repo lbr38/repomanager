@@ -452,7 +452,7 @@ class Host
     }
 
     /**
-     *  Modifie les paramètres d'affichage sur hosts.php
+     *  Modifie les paramètres d'affichage sur la page des hotes
      */
     public function setSettings(string $pkgs_considered_outdated, string $pkgs_considered_critical)
     {
@@ -639,7 +639,8 @@ class Host
                      *
                      *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
                      */
-                    if ($packageState == 'removed' or $packageState == 'upgraded') {
+                    // if ($packageState == 'removed' or $packageState == 'upgraded') {
+                    if ($packageState == 'removed') {
                         /**
                          *  Ajout du paquet en base de données en état 'inventored'
                          */

@@ -15,7 +15,7 @@ if (!empty($groupsList)) {
             /**
              *  Bouton permettant de masquer le contenu de ce groupe
              */
-            echo '<img src="resources/icons/down.svg" class="hideGroup pointer float-right icon-lowopacity" group="' . $groupName . '" />';
+            echo '<img src="resources/icons/up.svg" class="hideGroup pointer float-right icon-lowopacity" group="' . $groupName . '" state="visible" />';
             echo "<h3>$groupName</h3>";
 
             /**
@@ -42,7 +42,7 @@ if (!empty($groupsList)) {
 /**
  *  Boutons d'actions
  */
-if (\Controllers\Common::isadmin()) : ?>
+if (IS_ADMIN) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="resources/icons/update.svg" />Update</button>
         <button class="repo-action-btn btn-medium-green" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.svg" />Duplicate</button>

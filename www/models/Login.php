@@ -144,11 +144,17 @@ class Login extends Model
             \Controllers\Common::dbError($e);
         }
 
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $user = $row;
+        if ($this->db->isempty($result) === true) {
+            return false;
         }
 
-        return $user;
+        return true;
+
+        // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        //     $user = $row;
+        // }
+
+        // return $user;
     }
 
     /**

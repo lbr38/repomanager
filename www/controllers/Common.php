@@ -734,4 +734,42 @@ class Common
 
         return true;
     }
+
+    public static function getDirectorySize(string $path)
+    {
+        $bytestotal = 0;
+        $path = realpath($path);
+
+        if (!empty($path) and file_exists($path)) {
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)) as $object) {
+                $bytestotal += $object->getSize();
+            }
+        }
+        return $bytestotal;
+    }
+
+    /**
+     *  Convert bytes size to the most suitable human format (B, MB, GB...)
+     */
+    public static function sizeFormat($bytes)
+    {
+        $kb = 1024;
+        $mb = $kb * 1024;
+        $gb = $mb * 1024;
+        $tb = $gb * 1024;
+
+        if (($bytes >= 0) && ($bytes < $kb)) {
+            return $bytes . 'B';
+        } elseif (($bytes >= $kb) && ($bytes < $mb)) {
+            return ceil($bytes / $kb) . 'K';
+        } elseif (($bytes >= $mb) && ($bytes < $gb)) {
+            return ceil($bytes / $mb) . 'M';
+        } elseif (($bytes >= $gb) && ($bytes < $tb)) {
+            return ceil($bytes / $gb) . 'G';
+        } elseif ($bytes >= $tb) {
+            return ceil($bytes / $tb) . 'T';
+        } else {
+            return $bytes . 'B';
+        }
+    }
 }

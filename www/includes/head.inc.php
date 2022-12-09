@@ -6,30 +6,29 @@
     <link rel="stylesheet" type="text/css" href="resources/styles/main.css">
     <?php
 
-        /**
-         *  Chargement de CSS suplémentaires
-         */
+    /**
+     *  Chargement de CSS suplémentaires
+     */
+    // if (!defined('__ACTUAL_URI__')) {
+    //     define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+    // }
 
-    if (!defined('__ACTUAL_URI__')) {
-        define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
-    }
-
-    if (__ACTUAL_URI__ == "/index.php") {
+    if (__ACTUAL_URI__ == "/") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/donut.css">';
     }
-    if (__ACTUAL_URI__ == "/run.php") {
+    if (__ACTUAL_URI__ == "/run") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/run.css">';
     }
-    if (__ACTUAL_URI__ == "/browse.php") {
+    if (__ACTUAL_URI__ == "/browse") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/explore.css">';
     }
-    if (__ACTUAL_URI__ == "/stats.php") {
+    if (__ACTUAL_URI__ == "/stats") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/stats-hosts.css">';
     }
-    if (__ACTUAL_URI__ == "/hosts.php") {
+    if (__ACTUAL_URI__ == "/hosts") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/stats-hosts.css">';
     }
-    if (__ACTUAL_URI__ == "/host.php") {
+    if (__ACTUAL_URI__ == "/host") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/stats-hosts.css">';
     }
     ?>
@@ -45,31 +44,31 @@
     <link rel="icon" href="resources/favicon.ico" />
 
     <?php
-    if (__ACTUAL_URI__ == "/index.php") {
-        echo '<title>Repomanager - Repos</title>';
-    } elseif (__ACTUAL_URI__ == "/planifications.php") {
-        echo '<title>Repomanager - Planifications</title>';
-    } elseif (__ACTUAL_URI__ == "/run.php") {
-        echo '<title>Repomanager - Operations</title>';
-    } elseif (__ACTUAL_URI__ == "/browse.php") {
-        echo '<title>Repomanager - Browse</title>';
-    } elseif (__ACTUAL_URI__ == "/stats.php") {
-        echo '<title>Repomanager - Statistics and metrics</title>';
-    } elseif (__ACTUAL_URI__ == "/hosts.php") {
-        echo '<title>Repomanager - Manage hosts</title>';
-    } elseif (__ACTUAL_URI__ == "/host.php") {
-        echo '<title>Repomanager - Manage host</title>';
-    } elseif (__ACTUAL_URI__ == "/profiles.php") {
-        echo '<title>Repomanager - Manage profiles</title>';
-    } elseif (__ACTUAL_URI__ == "/configuration.php") {
-        echo '<title>Repomanager - Configuration</title>';
-    } elseif (__ACTUAL_URI__ == "/history.php") {
-        echo '<title>Repomanager - History</title>';
-    } elseif (__ACTUAL_URI__ == "/user.php") {
-        echo '<title>Repomanager - Userspace</title>';
-    } else {
-        echo '<title>Repomanager</title>';
-    }
-    ?>
-    <title>Repomanager</title>
+    $title = 'Repomanager';
+
+    if (__ACTUAL_URI__ == "/") {
+        $title .= ' - Repos';
+    } elseif (__ACTUAL_URI__ == "/plans") {
+        $title .= ' - Planifications';
+    } elseif (__ACTUAL_URI__ == "/run") {
+        $title .= ' - Operations';
+    } elseif (__ACTUAL_URI__ == "/browse") {
+        $title .= ' - Browse repo';
+    } elseif (__ACTUAL_URI__ == "/stats") {
+        $title .= ' - Statistics and metrics';
+    } elseif (__ACTUAL_URI__ == "/hosts") {
+        $title .= ' - Manage hosts';
+    } elseif (__ACTUAL_URI__ == "/host") {
+        $title .= ' - Manage host';
+    } elseif (__ACTUAL_URI__ == "/profiles") {
+        $title .= ' - Manage profiles';
+    } elseif (__ACTUAL_URI__ == "/settings") {
+        $title .= ' - Settings';
+    } elseif (__ACTUAL_URI__ == "/history") {
+        $title .= ' - History';
+    } elseif (__ACTUAL_URI__ == "/userspace") {
+        $title .= ' - Userspace';
+    } ?>
+
+    <title><?= $title ?></title>
 </head>

@@ -15,12 +15,11 @@ $loginErrors = array();
 $error = 0;
 
 /**
- *  Tentative de connexion
- *  Vérification de username et du mot de passe
+ *  If username and password have been sent
  */
 if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST['authType'])) {
     /**
-     *  Vérification du type de connexion sélectionné
+     *  Checking auth type (default is local for the moment)
      */
     if ($_POST['authType'] != 'local' and $_POST['authType'] != 'ldap') {
         $error++;
@@ -28,68 +27,45 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
     }
 
     /**
-     *  On continue si il n'y a pas eu d'erreur
+     *  Continue if there is no error
      */
     if ($error == 0) {
         $username = \Controllers\Common::validateData($_POST['username']);
         $mylogin = new \Controllers\Login();
 
         /**
-         *  Cas où la connexion est avec un compte LDAP
+         *  Case auth type is 'ldap'
          */
         if ($_POST['authType'] == 'ldap') {
-            // Commenté car pas encore au point :
-            // if ($mylogin->connLdap($username, $_POST['password']) === true) {
-            //     /**
-            //      *  On récupère les informations concernant l'utilisateur en base de données
-            //      */
-            //     $mylogin->getAll($username);
-
-            //     /**
-            //      *  On ouvre la session
-            //      */
-            //     session_start();
-
-            //     /**
-            //      *  On enregistre les informations concernant l'utilisateur dans les variables de session
-            //      */
-            //     $_SESSION['username']   = $username;
-            //     $_SESSION['role']       = $mylogin->getRole();
-            //     $_SESSION['first_name'] = $mylogin->getName();
-            //     $_SESSION['type']       = 'ldap';
-
-            //     /**
-            //      *  On redirige vers index.php
-            //      */
-            //     header('Location: index.php');
-            //     exit();
-            // }
+            /**
+             *  To do
+             */
 
             $loginErrors[] = 'Invalid login and/or password';
         }
 
         /**
-         *  Cas où la connexion est avec un compte local
+         *  Case auth type is 'local'
          */
         if ($_POST['authType'] == 'local') {
             /**
-             *  On vérifie en base de données que le couple username/passwd est valide
+             *  Checking in database that username/password couple is matching
              */
             try {
                 $mylogin->checkUsernamePwd($username, $_POST['password']);
 
                 /**
-                 *  On récupère les informations concernant l'utilisateur en base de données
+                 *  Getting all user informations in datbase
                  */
                 $mylogin->getAll($username);
 
                 /**
-                 *  On ouvre la session
+                 *  Starting session
                  */
                 session_start();
 
                 /**
-                 *  On enregistre les informations concernant l'utilisateur dans les variables de session
+                 *  Saving user informations in session variable
                  */
                 $_SESSION['username']   = $username;
                 $_SESSION['role']       = $mylogin->getRole();
@@ -98,18 +74,22 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                 $_SESSION['email']      = $mylogin->getEmail();
                 $_SESSION['type']       = 'local';
 
+                \Models\History::set($username, 'Authentication', 'success');
+
                 /**
-                 *  Si un cookie 'origin' existe alors celui-ci contient une URI vers laquelle on redirige l'utilisateur
+                 *  If an 'origin' cookie exists then redirect to the specified URI
                  */
                 if (!empty($_COOKIE['origin'])) {
-                    header('Location: ' . $_COOKIE['origin']);
-                    exit();
+                    if ($_COOKIE['origin'] != '/logout') {
+                        header('Location: ' . $_COOKIE['origin']);
+                        exit();
+                    }
                 }
 
                 /**
-                 *  Sinon on redirige vers index.php
+                 *  Else redirect to default page '/'
                  */
-                header('Location: index.php');
+                header('Location: /');
                 exit();
             } catch (Exception $e) {
                 $loginErrors[] = $e->getMessage();
@@ -132,7 +112,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
         <div id="loginDiv">
             <h3>AUTHENTICATION</h3>
             <br>
-            <form action="login.php" method="post" autocomplete="off">
+            <form action="/login" method="post" autocomplete="off">
                 <input type="hidden" name="authType" value="local" />
                 <!-- <div class="switch-field">
                     <input type="radio" id="authType_local" name="authType" value="local" checked />
@@ -141,23 +121,22 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                     <label for="authType_ldap">LDAP</label>
                 </div>   
                 <br> -->
-                <input class="input-large" type="text" name="username" placeholder="Username" required />
+                <input type="text" name="username" placeholder="Username" required />
                 <br>
-                <input class="input-large" type="password" name="password" placeholder="Password" required />
+                <input type="password" name="password" placeholder="Password" required />
                 <br>
                 <button class="btn-large-green" type="submit">Login</button>
             </form>
 
             <?php
             /**
-             *  Display errors if any
+             *  Display authentication errors if any
              */
             if (!empty($loginErrors)) {
                 foreach ($loginErrors as $loginError) {
                     echo '<p>' . $loginError . '</p>';
                 }
-            }
-            ?>
+            } ?>
         </div>
     </div>
 </body>

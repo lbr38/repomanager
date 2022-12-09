@@ -1,18 +1,12 @@
 <?php
 
-if (!defined('ROOT')) {
-    define('ROOT', dirname(__FILE__, 2));
-}
-require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::load();
-
 $idError = 0;
 
 if (!empty($_GET['id'])) {
     $myhost = new \Controllers\Host();
 
     /**
-     *  Récupération de toutes les informations de base concernant cet hôte
+     *  Getting all informations about this host
      */
     $hostProperties = $myhost->getAll($_GET['id']);
 
@@ -30,24 +24,25 @@ if (!empty($_GET['id'])) {
         $agentStatus      = $hostProperties['Online_status'];
 
         /**
-         *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h (et 10min de "marge")
+         *  Checking that the last time the agent has sended his status was before 1h10m
          */
         if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
             $agentStatus = 'seems-stopped';
         }
+
         /**
-         *  Message du dernier état connu
+         *  Last known agent state message
          */
         $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $hostProperties['Online_status_date'])->format('d-m-Y') . ' at ' . $hostProperties['Online_status_time'];
 
         /**
-         *  Si l'hôte est en status 'deleted' alors on ne l'affiche pas
+         *  If the host has 'deleted' state then don't print it
          */
         if ($status == 'deleted') {
             $idError++;
         } else {
             /**
-             *  On ouvre la base de données de l'hôte
+             *  Open host database
              */
             $myhost->openHostDb($id);
         }
@@ -64,51 +59,58 @@ if ($idError != 0) {
 }
 
 /**
- *  Récupération des seuils généraux des hôtes
+ *  Getting hosts general threshold settings
  */
 $hosts_settings = $myhost->getSettings();
+
 /**
- *  Seuil du nombre de mises à jour disponibles à partir duquel on considère un hôte comme 'non à jour'
+ *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
  */
 $pkgs_count_considered_outdated = $hosts_settings['pkgs_count_considered_outdated'];
+
 /**
- *  Seuil du nombre de mises à jour disponibles à partir duquel on considère un hôte comme 'non à jour' (critique)
+ *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
  */
 $pkgs_count_considered_critical = $hosts_settings['pkgs_count_considered_critical'];
 
 /**
- *  Récupération d'informations dans la BDD dédiée de l'hôte
+ *  Getting informations from host's database
  */
+
 /**
- *  Récupération de la liste des paquets installés sur l'hôte et le total
+ *  Getting installed packages and its total
  */
 $packagesInventored = $myhost->getPackagesInventory();
 $packagesInstalledCount = count($myhost->getPackagesInstalled());
+
 /**
- *  Récupération de la liste des paquets disponibles pour installation sur l'hôte et le total
+ *  Getting available packages and its total
  */
 $packagesAvailable = $myhost->getPackagesAvailable();
 $packagesAvailableTotal = count($packagesAvailable);
+
 /**
- *  Récupération de la liste des mises à jour demandées par repomanager à l'hôte
- */
-$updatesRequestsList = $myhost->getUpdatesRequests();
-/**
- *  Récupération de la liste de toutes les opérations de mises à jour qui ont été exécutées sur l'hôte
+ *  Getting all packages events history
  */
 $eventsList = $myhost->getEventsHistory();
+
 /**
- *  On merge les demandes de mises à jour et les évènement dans un même tableau et on les trie par date et heure
+ *  Getting updates requests that Repomanager has sent to this host
+ */
+$updatesRequestsList = $myhost->getUpdatesRequests();
+
+/**
+ *  Merging events history and updates requests into the same array and order it by date and time
  */
 $allEventsList = array_merge($eventsList, $updatesRequestsList);
 array_multisort(array_column($allEventsList, 'Date'), SORT_DESC, array_column($allEventsList, 'Time'), SORT_DESC, $allEventsList);
 
 /**
- *  Génération des valeurs pour le Chart 'line'
+ *  Generating values for the 'line' chart
  */
 
 /**
- *  D'abord on crée une liste de dates sur une période de 15 jours
+ *  First create a list of dates on a 15days period
  */
 $dates = array();
 $dateStart = date_create(date('Y-m-d'))->modify("-15 days")->format('Y-m-d');
@@ -118,36 +120,39 @@ $period = new DatePeriod(
     new DateInterval('P1D'),
     new DateTime($dateEnd)
 );
+
 /**
- *  On peuple l'array à partir de la période de dates précédemment générée, on initialise chaque date à 0
+ *  Then generate a new array from the date period. Every date is initialized with a 0 value.
  */
 foreach ($period as $key => $value) {
     $dates[$value->format('Y-m-d')] = 0;
 }
 
 /**
- *  Récupération du nombre de paquets installés ces 15 derniers jours, triés par date
+ *  Getting last 15days installed packages
  */
 $lastInstalledPackagesArray = $myhost->getLastPackagesStatusCount('installed', '15');
+
 /**
- *  Récupération du nombre de paquets mis à jour ces 15 derniers jours, triés par date
+ *  Getting last 15days updated packages
  */
 $lastUpgradedPackagesArray = $myhost->getLastPackagesStatusCount('upgraded', '15');
+
 /**
- *  Récupération du nombre de paquets supprimés ces 15 derniers jours, triés par date
+ *  Getting last 15days deleted packages
  */
 $lastRemovedPackagesArray = $myhost->getLastPackagesStatusCount('removed', '15');
 
 /**
- *  On se sert de l'array de dates initialisés à 0 avec l'array retourné par getLastInstalledPackagesCount();
+ *  Merging all arrays with dates array
  */
 $lastInstalledPackagesArray = array_merge($dates, $lastInstalledPackagesArray);
 $lastUpgradedPackagesArray  = array_merge($dates, $lastUpgradedPackagesArray);
 $lastRemovedPackagesArray   = array_merge($dates, $lastRemovedPackagesArray);
 
 /**
- *  Formattage des valeurs retournées au format ChartJS
- *  Formattage de l'array de dates au format ChartJS
+ *  Formating values to ChartJS format
+ *  Formating dates array to ChartJS format
  */
 $lineChartInstalledPackagesCount = "'" . implode("','", $lastInstalledPackagesArray) . "'";
 $lineChartUpgradedPackagesCount  = "'" . implode("','", $lastUpgradedPackagesArray) . "'";
@@ -156,7 +161,7 @@ $lineChartDates = "'" . implode("','", array_keys($dates)) . "'";
 
 echo '<h3>' . strtoupper($hostname) . '</h3>';
 
-if (\Controllers\Common::isadmin()) : ?>
+if (IS_ADMIN) : ?>
     <div class="hostActionBtn-container">
         <span class="btn-large-green"><img src="../resources/icons/rocket.svg" class="icon" />Actions</span>
         <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
@@ -269,7 +274,7 @@ endif ?>
                         echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
                     }
                     /**
-                     *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet disponible
+                     *  Print a 'show details' button if there is at least 1 available package
                      */
                     if ($packagesAvailableTotal > 0) {
                         echo ' <img src="resources/icons/search.svg" id="packagesAvailableButton" class="icon-lowopacity" />';
@@ -279,12 +284,11 @@ endif ?>
                         <?php
                         echo '<span class="label-white">' . $packagesInstalledCount . '</span>';
                         /**
-                         *  Affichage d'un bouton 'Détails' si il y a au moins 1 paquet installé
+                         *  Print a 'show details' button if there is at least 1 installed package
                          */
                         if ($packagesInstalledCount > 0) {
                             echo ' <img src="resources/icons/search.svg" id="packagesInstalledButton" class="icon-lowopacity" />';
-                        }
-                        ?>
+                        } ?>
                     </td>
                 </tr>
             </tbody>
@@ -423,190 +427,197 @@ endif ?>
                         <span class="onoff-switch-slider"></span>
                     </label>
                     <table class="table-generic-blue">
-                    <?php
-                    /**
-                     *  Nombre maximal d'évènements qu'on souhaite afficher par défaut, le reste est masqué et affichable par un bouton "Afficher tout"
-                     *  Lorsque $i a atteint le nombre maximal $printMaxItems, on commence à masquer les opérations
-                     */
-                    $i = 0;
-                    $printMaxItems = 10;
-                    foreach ($allEventsList as $event) {
-                        /**
-                         *  Si le nombre maximal d'évènement à afficher n'est pas encore atteint alors on affiche l'évènement
-                         *  Sinon le masque
-                         */
-                        /**
-                         *  Cas où on masque l'évènement
-                         */
-                        if ($i > $printMaxItems) {
-                            /**
-                             *  Si l'évènement est une demande de mise à jour
-                             */
-                            if ($event['Event_type'] == "update_request") {
-                                /**
-                                 *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
-                                 */
-                                if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
-                                    continue;
-                                }
-                                echo '<tr class="update-request hide">';
-                            }
-                            /**
-                             *  Si l'évènement est un 'event'
-                             */
-                            if ($event['Event_type'] == "event") {
-                                echo '<tr class="event hide">';
-                            }
-                        /**
-                         *  Cas où on affiche l'évènement
-                         */
-                        } else {
-                            /**
-                             *  Si l'évènement est une demande de mise à jour
-                             */
-                            if ($event['Event_type'] == "update_request") {
-                                /**
-                                 *  Si le cookie showUpdateRequest n'est pas défini ou est égal à 'no' alors n'affiche pas les évènement de type 'update_request'
-                                 */
-                                if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
-                                    continue;
-                                }
-                                echo '<tr class="update-request">';
-                            }
-                            /**
-                             *  Si l'évènement est un 'event'
-                             */
-                            if ($event['Event_type'] == "event") {
-                                echo '<tr class="event">';
-                            }
-                        } ?>
-                            <td class="td-fit">
-                                <span><?= '<b>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</b> at <b>' . $event['Time']; ?></b></span>
-                            </td>
-                        
-                            <?php
-                            if ($event['Event_type'] == "update_request") {
-                                echo '<td class="td-10">';
-                                /**
-                                 *  Affichage d'une icone en fonction du status
-                                 */
-                                if ($event['Status'] == 'done') {
-                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
-                                }
-                                if ($event['Status'] == 'error') {
-                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" />';
-                                }
-                                if ($event['Status'] == 'running') {
-                                    echo '<img src="resources/images/loading.gif" class="icon" />';
-                                }
-                                /**
-                                 *  Affichage du type de demande
-                                 */
-                                if ($event['Type'] == 'general-status-update') {
-                                    echo 'Sending general info.';
-                                }
-                                if ($event['Type'] == 'packages-status-update') {
-                                    echo 'Sending packages state';
-                                }
-                                if ($event['Type'] == 'packages-update') {
-                                    echo 'Packages update';
-                                }
-                                /**
-                                 *  Affichage du status
-                                 */
-                                if ($event['Status'] == 'done') {
-                                    echo ' completed';
-                                }
-                                if ($event['Status'] == 'error') {
-                                    echo ' has failed';
-                                }
-                                if ($event['Status'] == 'running') {
-                                    echo ' running';
-                                }
-                                if ($event['Status'] == 'requested') {
-                                    echo ' requested';
-                                }
-                                echo '</td>';
-                            }
-                            if ($event['Event_type'] == "event") {
-                                /**
-                                 *  Récupération des paquets installés par cet évènement
-                                 */
-                                $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
-                                $packagesInstalledCount = count($packagesInstalled);
-                                /**
-                                 *  Récupération des dépendances installées par cet évènement
-                                 */
-                                $dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], 'dep-installed');
-                                $dependenciesInstalledCount = count($dependenciesInstalled);
-                                /**
-                                 *  Récupération des paquets mis à jour par cet évènement
-                                 */
-                                $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
-                                $packagesUpdatedCount = count($packagesUpdated);
-                                /**
-                                 *  Récupération des paquets rétrogradés (downgrade) par cet évènement
-                                 */
-                                $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
-                                $packagesDowngradedCount = count($packagesDowngraded);
-                                /**
-                                 *  Récupération des paquets supprimés par cet évènement
-                                 */
-                                $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
-                                $packagesRemovedCount = count($packagesRemoved); ?>
-                                <?php
-                                if ($packagesInstalledCount > 0) : ?>
-                                    <td class="td-10">
-                                        <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="installed">
-                                        <span class="label-green">Installed</span>
-                                        <span class="label-green"><?= $packagesInstalledCount ?></span>
-                                    </td>
-                                    <?php
-                                endif;
-                                if ($dependenciesInstalledCount > 0) : ?>
-                                    <td class="td-10">
-                                        <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="dep-installed">
-                                        <span class="label-green">Dep. installed</span>
-                                        <span class="label-green"><?= $dependenciesInstalledCount ?></span>
-                                    </td>
-                                    <?php
-                                endif;
-                                if ($packagesUpdatedCount > 0) : ?>
-                                    <td class="td-10">
-                                        <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="upgraded">
-                                        <span class="label-yellow">Updated</span>
-                                        <span class="label-yellow"><?= $packagesUpdatedCount ?></span>
-                                    </td>
-                                    <?php
-                                endif;
-                                if ($packagesDowngradedCount > 0) : ?>
-                                    <td class="td-10">
-                                        <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="downgraded">
-                                        <span class="label-red">Downgraded</span>
-                                        <span class="label-red"><?= $packagesDowngradedCount ?></span>
-                                    </td>
-                                    <?php
-                                endif;
-                                if ($packagesRemovedCount > 0) : ?>
-                                    <td class="td-10">
-                                        <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="removed">
-                                        <span class="label-red">Uninstalled</span>
-                                        <span class="label-red"><?= $packagesRemovedCount ?></span>
-                                    </td>
-                                    <?php
-                                endif;
-                            } ?>
-                            <td colspan="100%"></td>
-                        </tr>
                         <?php
-                        ++$i;
-                    } ?>
+                        /**
+                         *  Default maximum number of printed events (10). Others events can be printed with 'Show all' button.
+                         *  When $i has reached maximal number $printMaxItems, then mask all next events.
+                         */
+                        $i = 0;
+                        $printMaxItems = 10;
+                        foreach ($allEventsList as $event) :
+                            /**
+                             *  Case event must be masked
+                             */
+                            if ($i > $printMaxItems) {
+                                /**
+                                 *  If the event is 'update request' type
+                                 */
+                                if ($event['Event_type'] == "update_request") {
+                                    /**
+                                     *  If 'showUpdateRequest' cookie is not set or is equal to 'no' then don't print 'update_request' events
+                                     */
+                                    if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
+                                        continue;
+                                    }
+                                    echo '<tr class="update-request hide">';
+                                }
+                                /**
+                                 *  If the event is 'event' type
+                                 */
+                                if ($event['Event_type'] == "event") {
+                                    echo '<tr class="event hide">';
+                                }
+                            /**
+                             *  Case event is printed
+                             */
+                            } else {
+                                /**
+                                 *  If the event is 'update request' type
+                                 */
+                                if ($event['Event_type'] == "update_request") {
+                                    /**
+                                     *  If 'showUpdateRequest' cookie is not set or is equal to 'no' then don't print 'update_request' events
+                                     */
+                                    if (empty($_COOKIE['showUpdateRequests']) or $_COOKIE['showUpdateRequests'] == "no") {
+                                        continue;
+                                    }
+                                    echo '<tr class="update-request">';
+                                }
+                                /**
+                                 *  If the event is 'event' type
+                                 */
+                                if ($event['Event_type'] == "event") {
+                                    echo '<tr class="event">';
+                                }
+                            } ?>
+                                <td class="td-fit">
+                                    <span><?= '<b>' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . '</b> at <b>' . $event['Time']; ?></b></span>
+                                </td>
+                            
+                                <?php
+                                if ($event['Event_type'] == "update_request") :
+                                    echo '<td class="td-10">';
+                                    /**
+                                     *  Event status icon
+                                     */
+                                    if ($event['Status'] == 'done') {
+                                        echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
+                                    }
+                                    if ($event['Status'] == 'error') {
+                                        echo '<img src="resources/icons/redcircle.png" class="icon-small" />';
+                                    }
+                                    if ($event['Status'] == 'running') {
+                                        echo '<img src="resources/images/loading.gif" class="icon" />';
+                                    }
+
+                                    /**
+                                     *  Request type
+                                     */
+                                    if ($event['Type'] == 'general-status-update') {
+                                        echo 'Sending general info.';
+                                    }
+                                    if ($event['Type'] == 'packages-status-update') {
+                                        echo 'Sending packages state';
+                                    }
+                                    if ($event['Type'] == 'packages-update') {
+                                        echo 'Packages update';
+                                    }
+
+                                    /**
+                                     *  Status
+                                     */
+                                    if ($event['Status'] == 'done') {
+                                        echo ' completed';
+                                    }
+                                    if ($event['Status'] == 'error') {
+                                        echo ' has failed';
+                                    }
+                                    if ($event['Status'] == 'running') {
+                                        echo ' running';
+                                    }
+                                    if ($event['Status'] == 'requested') {
+                                        echo ' requested';
+                                    }
+                                    echo '</td>';
+                                endif;
+
+                                if ($event['Event_type'] == "event") :
+                                    /**
+                                     *  Getting installed packages from this event
+                                     */
+                                    $packagesInstalled = $myhost->getEventPackagesList($event['Id'], 'installed');
+                                    $packagesInstalledCount = count($packagesInstalled);
+
+                                    /**
+                                     *  Getting isntalled dependencies packages from this event
+                                     */
+                                    $dependenciesInstalled = $myhost->getEventPackagesList($event['Id'], 'dep-installed');
+                                    $dependenciesInstalledCount = count($dependenciesInstalled);
+
+                                    /**
+                                     *  Getting updated packages from this event
+                                     */
+                                    $packagesUpdated = $myhost->getEventPackagesList($event['Id'], 'upgraded');
+                                    $packagesUpdatedCount = count($packagesUpdated);
+
+                                    /**
+                                     *  Getting downgraded packages from this event
+                                     */
+                                    $packagesDowngraded = $myhost->getEventPackagesList($event['Id'], 'downgraded');
+                                    $packagesDowngradedCount = count($packagesDowngraded);
+
+                                    /**
+                                     *  Getting removed packages from this event
+                                     */
+                                    $packagesRemoved = $myhost->getEventPackagesList($event['Id'], 'removed');
+                                    $packagesRemovedCount = count($packagesRemoved);
+
+                                    if ($packagesInstalledCount > 0) : ?>
+                                        <td class="td-10">
+                                            <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="installed">
+                                            <span class="label-green">Installed</span>
+                                            <span class="label-green"><?= $packagesInstalledCount ?></span>
+                                        </td>
+                                        <?php
+                                    endif;
+
+                                    if ($dependenciesInstalledCount > 0) : ?>
+                                        <td class="td-10">
+                                            <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="dep-installed">
+                                            <span class="label-green">Dep. installed</span>
+                                            <span class="label-green"><?= $dependenciesInstalledCount ?></span>
+                                        </td>
+                                        <?php
+                                    endif;
+
+                                    if ($packagesUpdatedCount > 0) : ?>
+                                        <td class="td-10">
+                                            <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="upgraded">
+                                            <span class="label-yellow">Updated</span>
+                                            <span class="label-yellow"><?= $packagesUpdatedCount ?></span>
+                                        </td>
+                                        <?php
+                                    endif;
+
+                                    if ($packagesDowngradedCount > 0) : ?>
+                                        <td class="td-10">
+                                            <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="downgraded">
+                                            <span class="label-red">Downgraded</span>
+                                            <span class="label-red"><?= $packagesDowngradedCount ?></span>
+                                        </td>
+                                        <?php
+                                    endif;
+
+                                    if ($packagesRemovedCount > 0) : ?>
+                                        <td class="td-10">
+                                            <div class="pointer showEventDetailsBtn" host-id="<?= $id ?>" event-id="<?= $event['Id'] ?>" package-state="removed">
+                                            <span class="label-red">Uninstalled</span>
+                                            <span class="label-red"><?= $packagesRemovedCount ?></span>
+                                        </td>
+                                        <?php
+                                    endif;
+                                endif ?>
+                                <td colspan="100%"></td>
+                            </tr>
+                            <?php
+                            ++$i;
+                        endforeach ?>
                     </table>
                     
                     <?php
                     if ($i > $printMaxItems) {
                         /**
-                         *  Affichage du bouton Afficher tout
+                         *  'Show all' button
                          */
                         echo '<p id="print-all-events-btn" class="pointer center"><b>Show all</b> <img src="resources/icons/down.svg" class="icon" /></p>';
                     }
@@ -616,16 +627,16 @@ endif ?>
 </div>
 <?php
 /**
- *  On ferme la connexion à la BDD dédiée de l'hôte
+ *  Closing host database
  */
 $myhost->closeHostDb(); ?>
 
 <script>
 $(document).ready(function(){
     /**
-     *  Graphique chartjs type line
+     *  Line chart
      */
-    // Données
+    // Data
     var lineChartData = {
         labels: [<?=$lineChartDates?>],
         datasets: [
@@ -657,7 +668,7 @@ $(document).ready(function(){
         borderWidth: 1.5,
         scales: {
             x: {
-                display: false // ne pas afficher les dates sur l'axe x
+                display: false // do not print dates on X axis
             },
             y: {
                 beginAtZero: true
@@ -674,7 +685,7 @@ $(document).ready(function(){
             },
         },
     }
-    // Affichage du chart
+    // Print chart
     var ctx = document.getElementById('packages-status-chart').getContext("2d");
     window.myLine = new Chart(ctx, {
         type: "line",

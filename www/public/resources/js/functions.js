@@ -14,16 +14,24 @@ setInterval(function () {
 
 function openSlide(id)
 {
-    $(id).animate({
-        width: '100vw'
-    }).show();
+    $(id).css({
+        visibility: 'visible'
+    }).promise().done(function () {
+        $(id).find('.param-slide').animate({
+            right: '0'
+        })
+    })
 }
 
 function closeSlide(id)
 {
-    $(id).animate({
-        width: '0'
-    }).hide('100');
+    $(id).find('.param-slide').animate({
+        right: '-2000px',
+    }).promise().done(function () {
+        $(id).css({
+            visibility: 'hidden'
+        })
+    })
 }
 
 /**
@@ -31,7 +39,7 @@ function closeSlide(id)
  */
 function reloadHeader()
 {
-    $("#header-refresh").load("run.php?reload #header-refresh > *");
+    $("#header-refresh").load("run?reload #header-refresh > *");
 }
 
 /**
@@ -44,13 +52,13 @@ function printAlert(message, type = null, timeout = 2500)
     $('#newalert').remove();
 
     if (type == null) {
-        $('footer').append('<div id="newalert" class="alert">' + message + '</div>');
+        $('footer').append('<div id="newalert" class="alert"><div>' + message + '</div></div>');
     }
     if (type == "error") {
-        $('footer').append('<div id="newalert" class="alert-error">' + message + '</div>');
+        $('footer').append('<div id="newalert" class="alert-error"><div>' + message + '</div></div>');
     }
     if (type == "success") {
-        $('footer').append('<div id="newalert" class="alert-success">' + message + '</div>');
+        $('footer').append('<div id="newalert" class="alert-success"><div>' + message + '</div></div>');
     }
 
     if (timeout != 'none') {
@@ -69,7 +77,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Delete')
      */
     $("#newConfirmAlert").remove();
 
-    var $content = '<div id="newConfirmAlert" class="confirmAlert"><span class="confirmAlert-message">' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+    var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
 
     $('footer').append($content);
 
@@ -166,8 +174,18 @@ function classToSelect2(className)
  */
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
-        $('.param-slide-container').animate({
-            width: '0'
-        }).hide('100');
+        $('.param-slide-container').find('.param-slide').animate({
+            right: '-2000px',
+        }).promise().done(function () {
+            $('.param-slide-container').css({
+                visibility: 'hidden'
+            })
+        })
+
+        /**
+         *  Close hostDetails div if exists
+         */
+        $(".hostDetails").hide('200');
+        $(".hostDetails").remove();
     }
 });

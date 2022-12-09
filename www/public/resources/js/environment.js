@@ -49,8 +49,9 @@ function newEnv(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/environments/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "environment",
             action: "newEnv",
             name: name
         },
@@ -78,8 +79,9 @@ function deleteEnv(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/environments/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "environment",
             action: "deleteEnv",
             name: name
         },
@@ -107,8 +109,9 @@ function renameEnv(envs)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/environments/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "environment",
             action: "renameEnv",
             envs: envs
         },

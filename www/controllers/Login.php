@@ -203,14 +203,12 @@ class Login
         }
 
         /**
-         *  If specified password does not matche database passord, then it is invalid
+         *  If specified password does not match database passord, then it is invalid
          */
         if (!password_verify($password, $hashedPassword)) {
-            \Models\History::set($username, 'Authentication', 'error');
+            \Models\History::set($username, 'Authentication failed: Invalid password', 'error');
             throw new Exception('Invalid login and/or password');
         }
-
-        \Models\History::set($username, 'Authentication', 'success');
     }
 
     /**
@@ -418,12 +416,6 @@ class Login
      */
     private function userExists(string $username)
     {
-        $user = $this->model->userExists($username);
-
-        if (empty($user)) {
-            return false;
-        }
-
-        return true;
+        return $this->model->userExists($username);
     }
 }

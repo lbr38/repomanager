@@ -6,7 +6,7 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 <h2>Main features</h2>
 
-- Create deb or rpm repo mirror
+- Create deb or rpm mirror repositories
 - Sign repo with GPG
 - Upload packages into repositories
 - Create environments (eg. preprod, prod...) and make mirrors available only for specific envs.
@@ -91,14 +91,15 @@ E.g. nginx vhost:
 Adapt the following values:
  - path to php's unix socket
  - $WWW_DIR and $REPOS_DIR variables
- - server_name, access_log, error_log, ssl_certificate and ssl_certificate_key directives
+ - server_name directive
+ - ssl_certificate and ssl_certificate_key paths
 
 ```
 #### Repomanager vhost ####
 
 # Disable some logging
 map $request_uri $loggable {
-        /run.php?reload 0;
+        /run?reload 0;
         default 1;
 }
 
@@ -109,11 +110,11 @@ upstream php-handler {
 
 server {
         listen SERVER-IP:80 default_server;
-        server_name SERVERNAME.MYDOMAIN.COM;
+        server_name repomanager.mydomain.com;
 
         # Path to log files
-        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_access.log combined if=$loggable;
-        error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_error.log;
+        access_log /var/log/nginx/repomanager_access.log combined if=$loggable;
+        error_log /var/log/nginx/repomanager_error.log;
 
         # Redirect to https
         return 301 https://$server_name$request_uri;
@@ -125,11 +126,11 @@ server {
         set $REPOS_DIR '/home/repo';         # default is /home/repo
 
         listen SERVER-IP:443 default_server ssl;
-        server_name SERVERNAME.MYDOMAIN.COM;
+        server_name repomanager.mydomain.com;
 
         # Path to log files
-        access_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_access.log combined if=$loggable;
-        error_log /var/log/nginx/SERVERNAME.MYDOMAIN.COM_ssl_error.log;
+        access_log /var/log/nginx/repomanager_ssl_access.log combined if=$loggable;
+        error_log /var/log/nginx/repomanager_ssl_error.log;
 
         # Path to SSL certificate/key files
         ssl_certificate PATH-TO-CERTIFICATE.crt;

@@ -129,7 +129,19 @@ $(document).on('click','#operationsDivCloseButton',function () {
  *  Event : afficher/masquer le contenu de tous les groupes de repos actifs
  */
 $(document).on('click','#hideAllReposGroups',function () {
-    $('.repos-list-group-flex-div').slideToggle();
+    var state = $(this).attr('state');
+
+    if (state == 'visible') {
+        $(this).attr('state', 'hidden');
+        $(this).find('img').attr('src', 'resources/icons/down.svg');
+        $('.repos-list-group-flex-div').slideUp();
+    }
+
+    if (state == 'hidden') {
+        $(this).attr('state', 'visible');
+        $(this).find('img').attr('src', 'resources/icons/up.svg');
+        $('.repos-list-group-flex-div').slideDown();
+    }
 });
 
 /**
@@ -137,6 +149,18 @@ $(document).on('click','#hideAllReposGroups',function () {
  */
 $(document).on('click','.hideGroup',function () {
     var groupname = $(this).attr('group');
+    var state = $(this).attr('state');
+
+    if (state == 'visible') {
+        $(this).attr('state', 'hidden');
+        $(this).attr('src', 'resources/icons/down.svg');
+    }
+
+    if (state == 'hidden') {
+        $(this).attr('state', 'visible');
+        $(this).attr('src', 'resources/icons/up.svg');
+    }
+
     $('.repos-list-group[group=' + groupname + ']').find('.repos-list-group-flex-div').slideToggle();
 });
 
@@ -472,8 +496,9 @@ function removeEnv(repoId, snapId, envId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax-operations.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "operation",
             action: "removeEnv",
             repoId: repoId,
             snapId: snapId,
@@ -500,8 +525,9 @@ function setRepoDescription(envId, repoDescription)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "repo",
             action: "setRepoDescription",
             envId: envId,
             description: repoDescription
@@ -527,8 +553,9 @@ function getForm(action, repos_array)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax-operations.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "operation",
             action: "getForm",
             operationAction: action,
             repos_array: repos_array
@@ -553,8 +580,9 @@ function validateExecuteForm(operation_params_json)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax-operations.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "operation",
             action: "validateForm",
             operation_params: operation_params_json,
         },
@@ -587,8 +615,9 @@ function configureReposListDisplay(printRepoSize, printRepoType, printRepoSignat
 {
     $.ajax({
         type: "POST",
-        url: "controllers/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "repo",
             action: "configureReposListDisplay",
             printRepoSize: printRepoSize,
             printRepoType: printRepoType,

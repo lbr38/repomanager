@@ -1,7 +1,7 @@
 <div id="title-button-div">
     <h3>REPOS</h3>
     
-    <?php if (\Controllers\Common::isadmin()) : ?>
+    <?php if (IS_ADMIN) : ?>
         <div id="title-button-container">
             <!-- Bouton "Affichage" -->
             <div id="ReposListDisplayToggleButton" class="slide-btn" title="Edit repos list display settings">
@@ -24,9 +24,9 @@
             <!-- Icone '+' faisant apparaitre la div cachée permettant de créer un nouveau repo/section -->
             <?php
             /**
-             *  On affiche ce bouton uniquement sur index.php :
+             *  On affiche ce bouton uniquement sur / :
              */
-            if ((__ACTUAL_URI__ == "/index.php") or (__ACTUAL_URI__ == "/")) : ?>
+            if (__ACTUAL_URI__ == "/") : ?>
                 <div id="newRepoToggleButton" action="new" class="slide-btn" title="Create a new mirror or local repository">
                     <img src="resources/icons/plus.svg" />
                     <span>Create a new repo</span>
@@ -40,7 +40,7 @@
 
 <!-- Bouton permettant de masquer le contenu de tous les groupes de repos listés -->
 <div class="relative">
-    <span id="hideAllReposGroups" class="lowopacity pointer">Hide all<img src="resources/icons/down.svg" class="icon" /></span>
+    <span id="hideAllReposGroups" class="lowopacity pointer" state="visible">Hide / show all<img src="resources/icons/up.svg" class="icon" /></span>
 </div>
 
 <div id="repos-list-container">

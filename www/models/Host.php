@@ -928,7 +928,7 @@ class Host extends Model
     }
 
     /**
-     *  Modifie les paramètres d'affichage sur hosts.php
+     *  Modifie les paramètres d'affichage sur la page des hotes
      */
     public function setSettings(string $pkgs_considered_outdated, string $pkgs_considered_critical)
     {

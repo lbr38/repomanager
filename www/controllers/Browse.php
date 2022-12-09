@@ -12,7 +12,7 @@ class Browse
      */
     public static function tree($path)
     {
-        global $repoPath;
+        // global $repoPath;
 
         if (is_dir($path)) {
             echo '<ul>';
@@ -46,7 +46,7 @@ class Browse
                      *  Si c'est un fichier alors on l'ajoute à l'array queue qui contient toute la liste des fichiers du répertoire ou sous-répertoire en cours
                      *  On indexe le nom du fichier $file ainsi que son chemin $path/$file auquel on retire le début du chemin complet afin qu'il ne soit pas visible dans le code source
                      */
-                    $queue[$file] = str_replace("$repoPath/", '', "$path/$file");
+                    $queue[$file] = str_replace(REPOS_DIR . '/', '', "$path/$file");
                 }
             }
 
