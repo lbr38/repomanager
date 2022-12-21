@@ -807,6 +807,7 @@
             if (!empty($newUserUsername) and !empty($newUserPassword)) {
                 echo '<p class="greentext">Temporary password generated for <b>' . $newUserUsername . '</b>: ' . $newUserPassword . '</p>';
             }
+
             /**
              *  Cas où un mot de passe a été reset
              */
@@ -828,7 +829,7 @@
                         <td>Username</td>
                         <td>Role</td>
                         <td>Account type</td>
-                        <td></td>
+                        <td class="td-fit"></td>
                     </tr>
                     <?php
                     foreach ($users as $user) : ?>
@@ -842,15 +843,13 @@
                             <td>
                                 <?= $user['Type'] ?>
                             </td>
-                            <?php
-                            if ($user['Username'] != 'admin') {
-                                echo '<td class="td-fit">';
-                                echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Réinitialiser le mot de passe de ' . $user['Username'] . '"><img src="resources/icons/update.svg" class="icon-lowopacity" /></a>';
-                                echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Supprimer l\'utilisateur ' . $user['Username'] . '"><img src="resources/icons/bin.svg" class="icon-lowopacity" /></a>';
-                                echo '</td>';
-                            } else {
-                                echo '<td></td>';
-                            } ?>
+                            <td class="td-fit">
+                                <?php
+                                if ($user['Username'] != 'admin') {
+                                    echo '<a href="?resetPassword&username=' . $user['Username'] . '" title="Reset password of user ' . $user['Username'] . '"><img src="resources/icons/update.svg" class="icon-lowopacity" /></a>';
+                                    echo '<a href="?deleteUser&username=' . $user['Username'] . '" title="Delete user ' . $user['Username'] . '"><img src="resources/icons/bin.svg" class="icon-lowopacity" /></a>';
+                                } ?>
+                            </td>
                         </tr>
                         <?php
                     endforeach ?>

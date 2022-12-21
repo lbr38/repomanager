@@ -1,9 +1,10 @@
 <?php
+include_once(ROOT . '/views/includes/display.inc.php');
+
 if (IS_ADMIN) :
-    include_once(ROOT . '/includes/display.inc.php');
-    include_once(ROOT . '/includes/operation.inc.php');
-    include_once(ROOT . '/includes/manage-groups.inc.php');
-    include_once(ROOT . '/includes/manage-sources.inc.php');
+    include_once(ROOT . '/views/includes/operation.inc.php');
+    include_once(ROOT . '/views/includes/manage-groups.inc.php');
+    include_once(ROOT . '/views/includes/manage-sources.inc.php');
 endif ?>
 
 <section class="mainSectionRight">
@@ -27,6 +28,9 @@ endif ?>
                     $planId = $plan['Id'];
                     $planType = $plan['Type'];
                     $planGroup = '';
+                    $planDate = '';
+                    $planTime = '';
+                    $planReminder = 'None';
 
                     if (!empty($plan['Day'])) {
                         $planDay = $plan['Day'];
@@ -36,13 +40,9 @@ endif ?>
                     }
                     if (!empty($plan['Date'])) {
                         $planDate = DateTime::createFromFormat('Y-m-d', $plan['Date'])->format('d-m-Y');
-                    } else {
-                        $planDate = '';
                     }
                     if (!empty($plan['Time'])) {
                         $planTime = $plan['Time'];
-                    } else {
-                        $planTime = '';
                     }
 
                     $planAction = $plan['Action'];
@@ -58,8 +58,6 @@ endif ?>
 
                     if (!empty($plan['Reminder'])) {
                         $planReminder = $plan['Reminder'];
-                    } else {
-                        $planReminder = 'None';
                     } ?>
 
                     <div class="header-container">
@@ -100,42 +98,41 @@ endif ?>
                                      *  Si la planification traite un groupe, on récupère son nom à partir de son Id
                                      */
                                     if (!empty($planGroupId)) {
-                                        $group = new \Controllers\Group('repo');
                                         /**
                                          *  On vérifie que le groupe spécifié existe toujours (il a peut être été supprimé entre temps)
                                          */
-                                        if ($group->existsId($planGroupId) === false) {
-                                            $planGroup = "Unknown group (deleted)";
+                                        if ($mygroup->existsId($planGroupId) === false) {
+                                            echo 'Unknown group (deleted)';
                                         } else {
-                                            $planGroup = 'Group <span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
+                                            echo '<span class="label-white">' . $mygroup->getNameById($planGroupId) . ' </span> group';
                                         }
-                                        echo $planGroup;
                                     }
+
                                     /**
                                      *  Si la planification traite un repo, on récupère ses informations à partir de son Id
                                      */
                                     if (!empty($planSnapId)) :
-                                        $repo = new \Controllers\Repo();
                                         /**
                                          *  On vérifie que le repo spécifié existe toujours (il a peut être été supprimé entre temps)
                                          */
-                                        if ($repo->existsSnapId($planSnapId) === false) {
+                                        if ($myrepo->existsSnapId($planSnapId) === false) {
                                             $repo = "Unknown repo (deleted)";
                                         } else {
                                             /**
                                              *  Récupération de toutes les infos concernant le repo
                                              */
-                                            $repo->getAllById('', $planSnapId, '');
-                                            $planName = $repo->getName();
-                                            $planDist = $repo->getDist();
-                                            $planSection = $repo->getSection();
-                                            $planDate = $repo->getDateFormatted();
+                                            $myrepo->getAllById('', $planSnapId, '');
+                                            $planName = $myrepo->getName();
+                                            $planDist = $myrepo->getDist();
+                                            $planSection = $myrepo->getSection();
+                                            $planDate = $myrepo->getDateFormatted();
+
                                             /**
                                              *  Formatage
                                              */
-                                            if (!empty($repo->getDist()) and !empty($repo->getSection())) {
-                                                $planDist = $repo->getDist();
-                                                $planSection = $repo->getSection();
+                                            if (!empty($myrepo->getDist()) and !empty($myrepo->getSection())) {
+                                                $planDist = $myrepo->getDist();
+                                                $planSection = $myrepo->getSection();
                                                 $repo = '<span class="label-white">' . $planName . ' ❯ ' . $planDist . ' ❯ ' . $planSection . '</span>';
                                             } else {
                                                 $repo = '<span class="label-white">' . $planName . '</span>';
@@ -166,16 +163,15 @@ endif ?>
                         <div class="hide detailsDiv" plan-id="<?= $planId ?>">
                             <?php
                             /**
-                             *  Div caché contenant les détails de la planification
-                             */
-                            /**
                              *  Affichage de l'action
-                             *
-                             *  Si l'action est 'update'
                              */
                             if ($planAction == "update") {
-                                if (!empty($planGroup)) {
-                                    echo '<p>Update repos of the ' . $planGroup . ' group</p>';
+                                if (!empty($planGroupId)) {
+                                    if ($mygroup->existsId($planGroupId) === false) {
+                                        echo '<p>Update repos of Unknown group (deleted)</p>';
+                                    } else {
+                                        echo '<p>Update repos of the <span class="label-white">' . $mygroup->getNameById($planGroupId) . ' </span> group</p>';
+                                    }
                                 } else {
                                     echo '<p>Update ' . $repo . ' repo</p>';
                                 }
@@ -221,6 +217,7 @@ endif ?>
                                     <?php
                                 endif;
                             endif;
+
                             /**
                              *  Affichage de l'heure
                              */
@@ -242,6 +239,7 @@ endif ?>
                                         echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
+
                                 <div>
                                     <span>Sign packages/repo with GPG</span>
                                     <?php
@@ -272,6 +270,7 @@ endif ?>
                                     } ?>
                                 </span>
                             </div>
+
                             <div>
                                 <span>Notification on error</span>
                                 <?php
@@ -281,6 +280,7 @@ endif ?>
                                     echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 } ?>
                             </div>
+
                             <div>
                                 <span>Notification on success</span>
                                 <?php
@@ -383,25 +383,26 @@ endif ?>
                                 /**
                                  *  Récupération de la liste des repos qui possèdent un environnement DEFAULT_ENV
                                  */
-                                $repo = new \Controllers\Repo();
-                                $reposList = $repo->listForPlan();
+                                $reposList = $myrepo->listForPlan();
 
                                 if (!empty($reposList)) {
-                                    foreach ($reposList as $myrepo) {
-                                        $snapId = $myrepo['snapId'];
-                                        $repoName = $myrepo['Name'];
-                                        $repoDist = $myrepo['Dist'];
-                                        $repoSection = $myrepo['Section'];
-                                        $repoDate = $myrepo['Date'];
+                                    foreach ($reposList as $repo) {
+                                        $snapId = $repo['snapId'];
+                                        $repoName = $repo['Name'];
+                                        $repoDist = $repo['Dist'];
+                                        $repoSection = $repo['Section'];
+                                        $repoDate = $repo['Date'];
                                         $repoDateFormatted = DateTime::createFromFormat('Y-m-d', $repoDate)->format('d-m-Y');
-                                        $repoPackageType = $myrepo['Package_type'];
-                                        $repoType = $myrepo['Type'];
+                                        $repoPackageType = $repo['Package_type'];
+                                        $repoType = $repo['Type'];
+
                                         /**
                                          *  Si le repo est local alors on ne l'affiche pas dans la liste
                                          */
                                         if ($repoType == 'local') {
                                             continue;
                                         }
+
                                         /**
                                          *  On génère une <option> pour chaque repo
                                          */
@@ -422,8 +423,8 @@ endif ?>
                             <select id="addPlanGroupId">
                                 <option value="">Select a group...</option>
                                 <?php
-                                $group = new \Controllers\Group('repo');
-                                $groupsList = $group->listAll();
+                                $groupsList = $mygroup->listAll();
+
                                 if (!empty($groupsList)) {
                                     foreach ($groupsList as $group) {
                                         $groupId = $group['Id'];
@@ -484,8 +485,7 @@ endif ?>
                                  */
                                 if (RPM_SIGN_PACKAGES == 'no' and DEB_SIGN_REPO == 'no') {
                                     $planGpgResign = 'no';
-                                }
-                                ?>
+                                } ?>
                                 <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes" <?php echo ($planGpgResign == "yes") ? 'checked' : ''; ?>>
                                 <span class="onoff-switch-slider"></span>
                             </label>
@@ -556,7 +556,7 @@ endif ?>
         /**
          *  Affichage des planifications terminées si il y en a
          */
-        $plansDone = $plans->listDone();
+        $plansDone = $myplan->listDone();
 
         if (!empty($plansDone)) : ?>
             <h3>PLAN HISTORY</h3>
@@ -623,24 +623,23 @@ endif ?>
                                              *  Affichage du repo ou du groupe
                                              */
                                             if (!empty($planGroupId)) {
-                                                $group = new \Controllers\Group('repo');
-                                                if ($group->existsId($planGroupId) === false) {
+                                                if ($mygroup->existsId($planGroupId) === false) {
                                                     $planGroup = "Unknown group (deleted)";
                                                 } else {
-                                                    $planGroup = 'Group <span class="label-white">' . $group->getNameById($planGroupId) . '</span>';
+                                                    $planGroup = '<span class="label-white">' . $mygroup->getNameById($planGroupId) . '</span> group';
                                                 }
                                                 echo $planGroup;
-                                                unset($group);
                                             }
+
                                             if (!empty($planSnapId)) {
-                                                $repo = new \Controllers\Repo();
                                                 /**
                                                  *  Récupération de toutes les infos concernant le repo
                                                  */
-                                                $repo->getAllById('', $planSnapId, '');
-                                                $planName = $repo->getName();
-                                                $planDist = $repo->getDist();
-                                                $planSection = $repo->getSection();
+                                                $myrepo->getAllById('', $planSnapId, '');
+                                                $planName = $myrepo->getName();
+                                                $planDist = $myrepo->getDist();
+                                                $planSection = $myrepo->getSection();
+
                                                 /**
                                                  *  Formatage
                                                  */
@@ -682,6 +681,7 @@ endif ?>
                                 if ($planStatus == "error") {
                                     echo "<p>$planError</p>";
                                 }
+
                                 if ($planAction == "update") : ?>
                                     <div>
                                         <span>Check GPG signatures</span>
@@ -776,7 +776,7 @@ endif ?>
 
 <section class="mainSectionLeft">
     <div class="reposList">
-        <?php include_once('../includes/repos-list-container.inc.php'); ?>
+        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
     </div>
 </section>
 
@@ -852,6 +852,5 @@ $(document).ready(function(){
         printEnv();
   
     }).trigger('change');
-
 });
 </script>

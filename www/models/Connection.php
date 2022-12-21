@@ -560,7 +560,8 @@ class Connection extends SQLite3
         /**
          *  Crée un index sur certaines colonnes de la table access
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS request_index ON access (Date, Time, Request)");
+        $this->exec("CREATE INDEX IF NOT EXISTS access_index ON access (Date, Time, Request)");
+        $this->exec("CREATE INDEX IF NOT EXISTS stats_index ON stats (Date, Time, Size, Packages_count, Id_env)");
 
         /**
          *  Activation du mode WAL

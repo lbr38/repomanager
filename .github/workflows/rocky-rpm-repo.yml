@@ -2,7 +2,7 @@ name: Run operations on a rpm repo (from a Rocky Linux 8 system)
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ devel ]
   pull_request:
     push:
       branches: [ stable ]

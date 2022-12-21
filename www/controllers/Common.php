@@ -197,7 +197,7 @@ class Common
     public static function generateCache(string $role)
     {
         ob_start();
-        include(ROOT . '/includes/repos-list.inc.php');
+        include(ROOT . '/views/includes/repos-list.inc.php');
 
         $content = ob_get_clean();
         file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
@@ -467,7 +467,7 @@ class Common
          *  Refill available color list if there are no more available
          */
         if (empty($this->validColors)) {
-            $this->validColors = array('rgb(75, 192, 192)', 'rgb(255, 99, 132)', '#5993ec', '#e0b05f', '#24d794');
+            $this->validColors = array('rgb(75, 192, 192)', '#5993ec', '#e0b05f', '#24d794', '#EFBDEB', '#F85A3E', '#8EB1C7', '#1AC8ED', '#E9D758');
         }
 
         $randomColorId = array_rand($this->validColors, 1);

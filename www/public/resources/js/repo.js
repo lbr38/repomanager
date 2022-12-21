@@ -184,7 +184,7 @@ $(document).on('click','.delete-env-btn',function () {
     var envId = $(this).attr('env-id');
     var envName = $(this).attr('env-name');
 
-    deleteConfirm('Remove environment ' + envName + '?', function () {
+    confirmBox('Remove environment ' + envName + '?', function () {
         removeEnv(repoId, snapId, envId)});
 });
 
@@ -438,7 +438,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="resources/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use this code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="resources/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage

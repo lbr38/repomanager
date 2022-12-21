@@ -154,7 +154,7 @@ $(document).on('click','.source-repo-delete-btn',function () {
     var sourceId = $(this).attr('source-id');
     var name = $(this).attr('source-name');
 
-    deleteConfirm('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
+    confirmBox('Are you sure you want to delete <b>' + name + '</b> source repo?', function () {
         deleteSource(sourceId)
     });
 });
@@ -166,7 +166,7 @@ $(document).on('click','.gpgKeyDeleteBtn',function () {
     var gpgKeyId = $(this).attr('gpgkey-id');
     var gpgkeyName = $(this).attr('gpgkey-name');
 
-    deleteConfirm('Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?', function () {
+    confirmBox('Are you sure you want to delete <b>' + gpgkeyName + '</b> GPG key?', function () {
         deleteGpgKey(gpgKeyId)
     });
 });

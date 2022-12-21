@@ -437,7 +437,7 @@ $(document).on('submit','.groupForm',function () {
  */
 $(document).on('click','.deleteGroupButton',function () {
     var name = $(this).attr('name');
-    deleteConfirm('Are you sure you want to delete group ' + name + '?', function () {
+    confirmBox('Are you sure you want to delete group ' + name + '?', function () {
         deleteGroup(name)});
 });
 
@@ -542,13 +542,13 @@ $(document).on('click','.hostsActionBtn',function () {
      *  Selon l'action on demande une confirmation
      */
     if (action == 'update') {
-        deleteConfirm('Request selected hosts to update their packages?', function () {
+        confirmBox('Request selected hosts to update their packages?', function () {
             execAction(action, hosts_array)}, 'Update');
     } else if (action == 'delete') {
-        deleteConfirm('Delete selected hosts?', function () {
+        confirmBox('Delete selected hosts?', function () {
             execAction(action, hosts_array)});
     } else if (action == 'reset') {
-        deleteConfirm('Reset selected hosts?', function () {
+        confirmBox('Reset selected hosts?', function () {
             execAction(action, hosts_array)}, 'Reset');
     } else {
         execAction(action, hosts_array);
@@ -607,7 +607,18 @@ $(document).on('click','.hostActionBtn',function () {
      */
     var action = $(this).attr('action');
 
-    execAction(action, hosts_array);
+    if (action == 'update') {
+        confirmBox('Request host to update its packages?', function () {
+            execAction(action, hosts_array);}, 'Update');
+    } else if (action == 'reset') {
+        confirmBox('Reset host?', function () {
+            execAction(action, hosts_array);}, 'Reset');
+    } else if (action == 'delete') {
+        confirmBox('Delete host?', function () {
+            execAction(action, hosts_array);}, 'Delete');
+    } else {
+        execAction(action, hosts_array);
+    }
 });
 
 /**

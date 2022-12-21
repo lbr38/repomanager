@@ -1,15 +1,31 @@
 <?php
+include_once(ROOT . '/views/includes/display.inc.php');
+
 if (IS_ADMIN) :
-    include_once('../includes/display.inc.php');
-    include_once('../templates/forms/op-form-new.inc.php');
-    include_once('../includes/operation.inc.php');
-    include_once('../includes/manage-groups.inc.php');
-    include_once('../includes/manage-sources.inc.php');
+    include_once(ROOT . '/templates/forms/op-form-new.inc.php');
+    include_once(ROOT . '/views/includes/operation.inc.php');
+    include_once(ROOT . '/views/includes/manage-groups.inc.php');
+    include_once(ROOT . '/views/includes/manage-sources.inc.php');
 endif ?>
 
 <section class="mainSectionRight">
     <div>
         <h3>PROPERTIES</h3>
+
+        <?php
+        /**
+         *  Only print CPU load if >= 2
+         */
+        if ($currentLoad >= 2) : ?>
+            <div class="relative">
+                <div id="currentload" >
+                    <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
+                    <span class="lowopacity">CPU load: <?= $currentLoad ?></span>
+                </div>
+            </div>
+            <?php
+        endif ?>
+
         <div class="div-generic-blue circle-div-container-container">
             <div>
                 <div class="circle-div-container">
@@ -23,13 +39,15 @@ endif ?>
                     </div>
                 </div>
             </div>
-            <div class="donut-chart-container">
-                <p class="donut-legend-title lowopacity"><?= REPOS_DIR ?></p>
-                <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
-                <?php
-                    $donutChartName = 'donut-chart';
-                    include(ROOT . '/includes/index-donut.inc.php');
-                ?>
+            <div>
+                <div class="donut-chart-container">
+                    <p class="donut-legend-title lowopacity"><?= REPOS_DIR ?></p>
+                    <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
+                    <?php
+                        $donutChartName = 'donut-chart';
+                        include(ROOT . '/views/includes/index-donut.inc.php');
+                    ?>
+                </div>
             </div>
         </div>
 
@@ -63,7 +81,7 @@ endif ?>
 
                 if (!empty($nextPlan)) :
                     /**
-                     *  Calcul du nombre de jours restants avant la prochaine planification
+                     *  Calculating of many days left before next plan
                      */
                     $date_now = new DateTime(DATE_YMD);
                     $date_plan = new DateTime($nextPlan['Date']);
@@ -77,11 +95,11 @@ endif ?>
                             <span>
                                 <?php
                                 /**
-                                 *  Si le nombre de jours restants = 0 (jour même) alors on affiche le nombre d'heures restantes
+                                 *  If days left = 0 (current day) then print hours left instead
                                  */
                                 if ($days_left->days == 0) {
                                     /**
-                                     *  Si le nombre d'heures restantes = 0 alors on affiche les minutes restantes
+                                     *  If hours left = 0 then print minutes left instead
                                      */
                                     if ($time_left->format('%h') == 0) {
                                         echo $time_left->format('%im');
@@ -103,45 +121,12 @@ endif ?>
                 endif; ?>
             </div>
             <?php
-        endif;
-
-        /**
-         *  Get current CPU load
-         */
-        $currentLoad = sys_getloadavg();
-        $currentLoad = substr($currentLoad[0], 0, 4);
-        $borderColor = 'green';
-
-        if ($currentLoad >= 1) {
-            $borderColor = 'yellow';
-        }
-        if ($currentLoad >= 2) {
-            $borderColor = 'red';
-        }
-
-        /**
-         *  Print CPU load only if >= 1
-         */
-        if ($currentLoad >= 1) : ?>
-            <div class="div-generic-blue circle-div-container-container">
-                <div class="circle-div-container">
-                    <div class="circle-div-container-count-<?=$borderColor?>">
-                        <span>
-                            <?= $currentLoad ?>
-                        </span>
-                    </div>
-                    <div>
-                        <span>CPU load</span>
-                    </div>
-                </div>
-            </div>
-            <?php
-        endif ?>
+        endif; ?>
     </div>
 </section>
 
 <section class="mainSectionLeft">
     <div class="reposList">
-        <?php include_once('../includes/repos-list-container.inc.php'); ?>
+        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
     </div>
 </section>

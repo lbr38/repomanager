@@ -681,6 +681,57 @@ class Host extends Model
     }
 
     /**
+     *  List all hosts agent status and count them
+     */
+    public function listCountAgentStatus()
+    {
+        $agentStatus = array();
+
+        $stmt = $this->db->prepare("SELECT * FROM
+        (SELECT COUNT(*) as Linupdate_agent_status_online_count
+        FROM hosts
+        WHERE Status = 'active' AND Online_status = 'running' AND Online_status_date = :todayDate AND Online_status_time >= :maxTime),
+        (SELECT COUNT(*) as Linupdate_agent_status_seems_stopped_count
+        FROM hosts
+        WHERE Status = 'active' AND (Online_status_date != :todayDate OR Online_status_time <= :maxTime)),
+        (SELECT COUNT(*) as Linupdate_agent_status_disabled_count
+        FROM hosts
+        WHERE Status = 'active' AND Online_status = 'disabled'),
+        (SELECT COUNT(*) as Linupdate_agent_status_stopped_count
+        FROM hosts
+        WHERE Status = 'active' AND Online_status = 'stopped')");
+        $stmt->bindValue(':todayDate', DATE_YMD);
+        $stmt->bindValue(':maxTime', date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes')));
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $agentStatus['Linupdate_agent_status_online_count'] = $row['Linupdate_agent_status_online_count'];
+            $agentStatus['Linupdate_agent_status_stopped_count'] = $row['Linupdate_agent_status_stopped_count'];
+            $agentStatus['Linupdate_agent_status_seems_stopped_count'] = $row['Linupdate_agent_status_seems_stopped_count'];
+            $agentStatus['Linupdate_agent_status_disabled_count'] = $row['Linupdate_agent_status_disabled_count'];
+        }
+
+        return $agentStatus;
+    }
+
+    /**
+     *  List all hosts agent and count them
+     *  Returns agent version and total
+     */
+    public function listCountAgentVersion()
+    {
+        $agent = array();
+
+        $result = $this->db->query("SELECT Linupdate_version, COUNT(*) as Linupdate_version_count FROM hosts WHERE Status = 'active' GROUP BY Linupdate_version");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $agent[] = $row;
+        }
+
+        return $agent;
+    }
+
+    /**
      *  Vérifie si l'Ip existe en BDD parmis les hôtes actifs
      */
     public function ipExists(string $ip)

@@ -115,7 +115,7 @@ endif ?>
     <div class="div-generic-blue">
         <?php
         if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
-            echo '<span class="yellowtext">Repo\'s content has been modified. You have to rebuild repo metadata.</span>';
+            echo '<span class="yellowtext">This snapshot content has been modified. You have to rebuild metadata.</span>';
         } ?>
         <span id="loading">Generating tree structure<img src="resources/images/loading.gif" class="icon" /></span>
 

@@ -151,6 +151,20 @@ class Controller
             $nextPlan = $plan->listNext();
         }
 
+        /**
+         *  Get current CPU load
+         */
+        $currentLoad = sys_getloadavg();
+        $currentLoad = substr($currentLoad[0], 0, 4);
+        $currentLoadColor = 'green';
+
+        if ($currentLoad >= 2) {
+            $currentLoadColor = 'yellow';
+        }
+        if ($currentLoad >= 3) {
+            $currentLoadColor = 'red';
+        }
+
         ob_start();
         include_once(ROOT . '/views/repos.template.php');
         $content = ob_get_clean();
@@ -163,14 +177,17 @@ class Controller
      */
     private static function renderPlans()
     {
-        $plans = new \Controllers\Planification();
+        $myplan = new \Controllers\Planification();
+        $mygroup = new \Controllers\Group('repo');
+        $myrepo = new \Controllers\Repo();
 
         /**
          *  Récupération de la liste des planifications en liste d'attente ou en cours d'exécution
          */
-        $planQueueList = $plans->listQueue();
-        $planRunningList = $plans->listRunning();
+        $planQueueList = $myplan->listQueue();
+        $planRunningList = $myplan->listRunning();
         $planList = array_merge($planRunningList, $planQueueList);
+        array_multisort(array_column($planList, 'Date'), SORT_ASC, array_column($planList, 'Time'), SORT_ASC, $planList);
 
         ob_start();
         include_once(ROOT . '/views/plans.template.php');
@@ -184,13 +201,12 @@ class Controller
      */
     private static function renderHosts()
     {
-        /**
-         *  Instancie un nouvel objet Group en précisant qu'il faut utiliser la BDD repomanager-hosts.db
-         */
         $group = new \Controllers\Group('host');
+        $myhost = new \Controllers\Host();
+        $mycolor = new \Controllers\Common();
 
         /**
-         *  Cas où le formulaire de modification des paramètres est validé
+         *  Case general hosts threshold settings form has been sent
          */
         if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['settings-pkgs-considered-critical'])) {
             $pkgs_considered_outdated = \Controllers\Common::validateData($_POST['settings-pkgs-considered-outdated']);
@@ -201,9 +217,67 @@ class Controller
         }
 
         /**
-         *  Charts colors
+         *  Getting general hosts threshold settings
          */
-        $mycolor = new \Controllers\Common();
+        $hostsSettings = $myhost->getSettings();
+
+        /**
+         *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
+         */
+        $pkgs_count_considered_outdated = $hostsSettings['pkgs_count_considered_outdated'];
+
+        /**
+         *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
+         */
+        $pkgs_count_considered_critical = $hostsSettings['pkgs_count_considered_critical'];
+
+        /**
+         *  Getting total hosts
+         */
+        $totalHosts = count($myhost->listAll('active'));
+
+        /**
+         *  Initializing counters for doughnut chart
+         */
+        $totalUptodate = 0;
+        $totalNotUptodate = 0;
+
+        /**
+         *  Getting a list of all hosts OS (bar chart)
+         */
+        $osList = $myhost->listCountOS();
+
+        /**
+         *  Getting a list of all hosts kernel
+         */
+        $kernelList = $myhost->listCountKernel();
+        array_multisort(array_column($kernelList, 'Kernel_count'), SORT_DESC, $kernelList);
+
+        /**
+         *  Getting a list of all hosts arch
+         */
+        $archList = $myhost->listCountArch();
+
+        /**
+         *  Getting a list of all hosts environments
+         */
+        $envsList = $myhost->listCountEnv();
+
+        /**
+         *  Getting a list of all hosts profiles
+         */
+        $profilesList = $myhost->listCountProfile();
+        array_multisort(array_column($profilesList, 'Profile_count'), SORT_DESC, $profilesList);
+
+        /**
+         *  Getting a list of all hosts agent status
+         */
+        $agentStatusList = $myhost->listCountAgentStatus();
+
+        /**
+         *  Getting a list of all hosts agent release version
+         */
+        $agentVersionList = $myhost->listCountAgentVersion();
 
         ob_start();
         include_once(ROOT . '/views/hosts.template.php');
@@ -245,10 +319,8 @@ class Controller
             exit;
         }
 
-        /**
-         *  Instanciation d'un objet Profile
-         */
         $myprofile = new \Controllers\Profile();
+        $myrepo = new \Controllers\Repo();
 
         /**
          *  On tente de récupérer la configuration serveur en base de données
@@ -289,6 +361,11 @@ class Controller
             $serverManageClientRepos = 'no';
             $serverConfApplyNeeded++;
         }
+
+        /**
+         *  Getting all profiles names
+         */
+        $profiles = $myprofile->list();
 
         ob_start();
         include_once(ROOT . '/views/profiles.template.php');

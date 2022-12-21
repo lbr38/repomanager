@@ -19,6 +19,7 @@
     if (!is_readable(STATS_LOG_PATH)) {
         echo '<p><span class="yellowtext">Access log file to scan (' . STATS_LOG_PATH . ') is not readable.</span></p>';
     }
+
     /**
      *  Récupération de la liste des derniers logs d'accès au repo, à partir de la BDD
      */
@@ -28,12 +29,14 @@
     if ($myrepo->getPackageType() == 'deb') {
         $lastAccess = $mystats->getLastAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
     }
+
     /**
      *  Tri des valeurs par date et heure
      */
     if (!empty($lastAccess)) {
         array_multisort(array_column($lastAccess, 'Date'), SORT_DESC, array_column($lastAccess, 'Time'), SORT_DESC, $lastAccess);
     }
+
     /**
      *  Comptage de la taille du repo et du nombre de paquets actuel
      */
@@ -45,10 +48,12 @@
         $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection());
         $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection(), 'deb'));
     }
+
     /**
      *  Convert repo size in the most suitable byte format
      */
     $repoSize = \Controllers\Common::sizeFormat($repoSize);
+
     /**
      *  Détails des requêtes en temps réel (+/-5 sec)
      */
@@ -58,10 +63,12 @@
     if ($myrepo->getPackageType() == 'deb') {
         $realTimeAccess = $mystats->getRealTimeAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
     }
+
     /**
      *  Comptage du nombre de requêtes précédemment récupérées
      */
     $realTimeAccessCount = count($realTimeAccess);
+
     /**
      *  Détails des requêtes des 5 dernières minutes
      */
@@ -71,10 +78,12 @@
     if ($myrepo->getPackageType() == 'deb') {
         $lastMinutesAccess = $mystats->getLastMinutesAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
     }
+
     /**
      *  Comptage du nombre de requêtes précédemment récupérées
      */
     $lastMinutesAccessCount = count($lastMinutesAccess);
+
     /**
      *  Réorganise le détails des requêtes de la plus récente à la plus ancienne
      */
@@ -84,6 +93,7 @@
     if (!empty($lastMinutesAccess)) {
         array_multisort(array_column($lastMinutesAccess, 'Date'), SORT_DESC, array_column($lastMinutesAccess, 'Time'), SORT_DESC, $lastMinutesAccess);
     } ?>
+
     <div class="div-generic-blue">
         <div class="div-flex">
             <div>
@@ -135,6 +145,7 @@
                             } else {
                                 echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
                             }
+
                             /**
                              *  Affichage des détails de la/les requête(s)
                              */
@@ -170,6 +181,7 @@
                             } else {
                                 echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
                             }
+
                             /**
                              *  Affichage des détails de la/les requête(s)
                              */
@@ -191,6 +203,7 @@
         if (empty($repo_access_chart_filter)) {
             $repo_access_chart_filter = "1week";
         }
+
         /**
          *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
          */
@@ -230,11 +243,13 @@
              *  Ajout de la date en cours aux labels
              */
             $repoAccessChartLabels .= "'$dateCounter', ";
+
             /**
              *  On incrémente de 1 jour pour pouvori traiter la date suivante
              */
             $dateCounter = date('Y-m-d', strtotime('+1 day', strtotime($dateCounter)));
         }
+
         /**
          *  Suppression de la dernière virgule
          */
@@ -358,6 +373,7 @@
          *  On récupère le contenu de la table stats qui concerne le repo
          */
         $stats = $mystats->getAll($myrepo->getEnvId());
+
         /**
          *  Si le résultat n'est pas vide alors on traite
          */
