@@ -314,19 +314,20 @@ section.missing-param-alert {
 }
 
 .param-slide-container {
-    width: 0;
+    width: 100vw;
     height: 100%;
     background-color: #3b3b3b2b;
     position: fixed;
     top: 0;
+    /* right: -10000; */
     right: 0;
     z-index: 99;
-    display: none;
+    visibility: hidden;
 }
 
 .param-slide {
     position: absolute;
-    right: 0;
+    right: -2000px;
     height: 100%;
     width: 29.5%;
     padding: 20px;
@@ -683,10 +684,6 @@ td {
     white-space: normal;
 }
 
-.hide, .tr-hide, .td-hide {
-    display: none;
-}
-
 /* conf commune à toutes les icones */
 .icon, .icon-small, .icon-lowopacity, .icon-verylowopacity, .icon-invisible, .icon-mediumopacity, .icon-nf {
     height: 13px;
@@ -825,7 +822,7 @@ input:checked { opacity: 1; }
 }
 /* Tous les boutons jaunes */
 .btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow {
-    background-color: #eb984e;
+    background-color: #ffb536;
 }
 /* Boutons taille large */
 .button-large, .btn-large-blue, .btn-large-green, .btn-large-red {
@@ -1107,11 +1104,16 @@ footer #github img { width: 25px; }
 
 .action, .alert, .alert-success, .alert-error, .confirmAlert {
     width: 100%;
-    height: 18px;
-    padding-top: 30px;
-    padding-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(1, auto) !important;
+    justify-content: space-around !important;
+    align-items: center;
+    align-content: center;
+    min-height: 60px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     font-size: 16px;
-    position: fixed; /* on positionne le div au centre de la page */
+    position: fixed;
     bottom: 0;
     left: 0;
     z-index:99;
@@ -1120,28 +1122,21 @@ footer #github img { width: 25px; }
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     color: white;
     text-align: center;
-    vertical-align: middle;
+}
+.confirmAlert {
+    grid-template-columns: repeat(3, 33%) !important;
+    justify-content: space-between !important;
 }
 .alert-success { background-color: #14be7e; }
 .alert-error { background-color: #ff0044; }
 .alert span, .alert-success span, .alert-error span, .confirmAlert span {
     font-size: 16px;
 }
-.confirmAlert-message, .alert-message {
-    font-size: 18px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    -webkit-transform: translateX(-50%) translateY(-50%);
-    -moz-transform: translateX(-50%) translateY(-50%);
-    transform: translateX(-50%) translateY(-50%);
-}
 .confirmAlert-buttons-container {
-    position: absolute;
-    right: 0px;
-    top: 50%;
-    transform: translateY(-50%);
+    display: flex;
+    justify-content: flex-end;
 }
+
 .btn-doConfirm, .btn-doCancel {
     margin-left: 15px;
     margin-right: 15px;
@@ -1238,13 +1233,19 @@ footer #github img { width: 25px; }
     transform: translate(-50%, -50%);
 }
 
-.profileDiv, .serverDiv {
+.profileDivContainer {
+    columns: 2;
+    column-count: 2;
+    width: 100%;
+}
+
+.profileDiv {
     border-radius: 2px;
-    width: 49.3% !important;
-    margin: 4px;
-    display: inline;
+    width: 100%;
+    margin-bottom: 2px;
+    display: inline-block;
     background-color: #1d3349;
-    float: left;
+    break-inside: avoid;
 }
 
 .profileDiv table {
@@ -1412,6 +1413,7 @@ footer #github img { width: 25px; }
     position: relative;
 }
 #loginDiv {
+    width: 250px;
     margin: 0;
     position: absolute;
     top: 50%;
@@ -1429,4 +1431,8 @@ footer #github img { width: 25px; }
 }
 #loginDiv div {
     margin: auto;
+}
+
+.hide, .tr-hide, .td-hide {
+    display: none;
 }

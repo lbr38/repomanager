@@ -63,7 +63,11 @@ function reloadGroupsDiv()
  */
 function reloadHostsDiv()
 {
-    $("#hostsDiv").load(" #hostsDiv > *");
+    $("#hostsDiv").load(" #hostsDiv > *",function () {
+        $('.param-slide').css({
+            right: 0
+        })
+    });
 }
 
 /**
@@ -509,7 +513,7 @@ $(document).on('click',".js-select-all-button",function () {
 });
 
 /**
- *  Event : lorsqu'on clique sur un bouton d'action 'Supprimer', 'Reset', 'Mettre à jour les paquets'... depuis hosts.php
+ *  Event : lorsqu'on clique sur un bouton d'action 'Supprimer', 'Reset', 'Mettre à jour les paquets'... depuis la page des hotes
  */
 $(document).on('click','.hostsActionBtn',function () {
 
@@ -558,16 +562,16 @@ $(document).on('click','.printHostDetails',function () {
     /**
      *  Récupération des infos de l'hôte
      */
-    var host_id = $(this).attr('host_id');
+    var host_id = $(this).attr('host-id');
 
     /**
-     *  Appelle host.inc.php avec l'id de l'hote et affiche le résultat contenant les informations détaillées l'hôte
+     *  Appelle /host-details avec l'id de l'hote en GET et affiche le résultat contenant les informations détaillées l'hôte
      */
     $.get(
-        'host.inc.php',
+        '/host-details',
         {id:host_id},
         function (data, status, jqXHR) {
-            $('body').append('<div class="hostDetails"><span class="hostDetails-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + data + '</div>');
+            $('body').append('<div class="hostDetails"><span class="host-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + data + '</div>');
         }
     );
 
@@ -581,13 +585,13 @@ $(document).on('click','.printHostDetails',function () {
  *  Event : fermeture de .hostDetails généré par la fonction ci-dessus
  *  D'abord on masque le div avec une animation, puis on détruit le div
  */
-$(document).on('click','.hostDetails-close',function () {
+$(document).on('click','.host-close',function () {
     $(".hostDetails").hide('200');
     $(".hostDetails").remove();
 });
 
 /**
- *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis host.php
+ *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis la page d'un hote
  */
 $(document).on('click','.hostActionBtn',function () {
 
@@ -735,8 +739,9 @@ function newGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "newGroup",
             name: name,
             type: "host"
@@ -766,8 +771,9 @@ function deleteGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "deleteGroup",
             name: name,
             type: "host"
@@ -798,8 +804,9 @@ function renameGroup(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "renameGroup",
             name: name,
             newname : newname,
@@ -831,8 +838,9 @@ function editGroupHosts(name, hostsId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "editGroupHosts",
             name: name,
             hostsId : hostsId
@@ -863,8 +871,9 @@ function execAction(action, hosts_array)
     printAlert('Request being sent <img src="resources/images/loading.gif" class="icon" />');
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "hostExecAction",
             exec: action,
             hosts_array: hosts_array
@@ -891,8 +900,9 @@ function searchPackage(hostid, package)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "searchHostPackage",
             hostid: hostid,
             package: package
@@ -948,8 +958,9 @@ function getPackageTimeline(hostid, packagename)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "getPackageTimeline",
             hostid: hostid,
             packagename: packagename
@@ -976,8 +987,9 @@ function getEventDetails(hostId, eventId, packageState)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "getEventDetails",
             hostId: hostId,
             eventId: eventId,
@@ -1003,8 +1015,9 @@ function getHostWithKernel(kernel)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "getHostWithKernel",
             kernel: kernel
         },
@@ -1043,8 +1056,9 @@ function getHostWithProfile(profile)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/hosts/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "host",
             action: "getHostWithProfile",
             profile: profile
         },

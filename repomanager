@@ -870,7 +870,7 @@ function installation
     fi
 
     echo -e "\n ${GREEN}Installation success!${RESET}"
-    echo -e " Before using all Repomanager features, be sure to complete installation on: ${YELLOW}https://${WWW_HOSTNAME}/configuration.php${RESET}"
+    echo -e " Before using all Repomanager features, be sure to complete installation on: ${YELLOW}https://${WWW_HOSTNAME}/settings${RESET}"
     echo -e " Login     :  ${YELLOW}admin${RESET}"
     echo -e " Password  :  ${YELLOW}repomanager${RESET}\n"
 }

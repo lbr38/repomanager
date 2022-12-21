@@ -22,8 +22,9 @@ function continueUpdate()
 {
     $.ajax({
         type: "POST",
-        url: "controllers/general/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "general",
             action: "continueUpdate"
         },
         dataType: "json",

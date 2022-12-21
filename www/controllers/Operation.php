@@ -771,7 +771,7 @@ class Operation
     }
 
     /**
-     *  Affiche l'état d'une opération (run.php)
+     *  Affiche l'état d'une opération
      */
     public function printOperation(string $id, bool $startedByPlan = false)
     {
@@ -824,7 +824,7 @@ class Operation
                             } ?>
                         </td>
                         <td class="td-small">
-                            <a href="run.php?logfile=<?=$logfile?>"><b><?=$date?></b> at <b><?=$time?></b></a>
+                            <a href="/run?logfile=<?=$logfile?>"><b><?=$date?></b> at <b><?=$time?></b></a>
                         </td>
 
                         <td>
@@ -838,7 +838,7 @@ class Operation
                             /**
                              *  Print relaunch button if pool Id JSON file still exists
                              */
-                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json') and \Controllers\Common::isadmin()) {
+                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json') and IS_ADMIN) {
                                 echo '<img class="icon-lowopacity relaunch-operation-btn" src="resources/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
                             }
 

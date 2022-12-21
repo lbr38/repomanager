@@ -7,7 +7,6 @@ use Datetime;
 
 class Repo
 {
-    //public $model;
     private $model;
     private $op;
     private $repoId;
@@ -710,7 +709,7 @@ class Repo
             /**
              *  Etape 1 : Afficher les détails de l'opération
              */
-            $this->printDetails('CREATE A NEW REPO MIRROR');
+            $this->printDetails('CREATE A NEW ' . strtoupper($this->packageType) . ' REPOSITORY MIRROR');
 
             /**
              *   Etape 2 : récupération des paquets
@@ -3618,7 +3617,7 @@ class Repo
         /**
          *  Les checkbox sont affichées uniquement pour les utilisateurs administrateurs
          */
-        if (Common::isadmin()) { ?>
+        if (IS_ADMIN) { ?>
             <div class="item-checkbox">
                 <?php
                 /**
@@ -3639,14 +3638,14 @@ class Repo
         }
 
         /**
-         *  Affichage de la taille
+         *  Get repo size in bytes
          */
         if (PRINT_REPO_SIZE == "yes") {
             if ($this->packageType == "rpm") {
-                $repoSize = exec("du -hs " . REPOS_DIR . "/{$this->dateFormatted}_{$this->name} | awk '{print $1}'");
+                $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $this->dateFormatted . '_' . $this->name);
             }
             if ($this->packageType == "deb") {
-                $repoSize = exec("du -hs " . REPOS_DIR . "/{$this->name}/{$this->dist}/{$this->dateFormatted}_{$this->section} | awk '{print $1}'");
+                $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->dateFormatted . '_' . $this->section);
             }
         }
 
@@ -3656,12 +3655,15 @@ class Repo
         echo '<div class="item-snapshot">';
         if ($this->snapId != $this->lastSnapId) {
             echo '<div class="item-date" title="' . $this->dateFormatted . ' ' . $this->time . '">';
-                echo '<span>' . $this->dateFormatted . '</span>';
+            echo '<span>' . $this->dateFormatted . '</span>';
             echo '</div>';
 
             echo '<div class="item-info">';
             if (PRINT_REPO_SIZE == "yes") {
-                echo '<span class="lowopacity">' . $repoSize . '</span>';
+                /**
+                 *  Print repo size in the most suitable byte format
+                 */
+                echo '<span class="lowopacity">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
             }
 
             /**
@@ -3692,10 +3694,10 @@ class Repo
              *  Affichage de l'icone "explorer"
              */
             if ($this->packageType == "rpm") {
-                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->name ($this->dateFormatted) snapshot\" /></a>";
+                echo "<a href=\"/browse?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->name ($this->dateFormatted) snapshot\" /></a>";
             }
             if ($this->packageType == "deb") {
-                echo "<a href=\"browse.php?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->section ($this->dateFormatted) snapshot\" /></a>";
+                echo "<a href=\"/browse?id={$this->snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $this->section ($this->dateFormatted) snapshot\" /></a>";
             }
             if (!empty($this->reconstruct)) {
                 if ($this->reconstruct == 'needed') {
@@ -3705,7 +3707,7 @@ class Repo
                     echo '<img class="icon" src="resources/icons/redcircle.png" title="Metadata building has failed." />';
                 }
             }
-                echo '</div>';
+            echo '</div>';
         }
         echo '</div>';
 
@@ -3748,10 +3750,10 @@ class Repo
              */
             if (STATS_ENABLED == "yes") {
                 if ($this->packageType == "rpm") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->name ($this->env)\" /></a>";
+                    echo "<a href=\"/stats?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->name ($this->env)\" /></a>";
                 }
                 if ($this->packageType == "deb") {
-                    echo "<a href=\"stats.php?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->section ($this->env)\" /></a>";
+                    echo "<a href=\"/stats?id={$this->envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $this->section ($this->env)\" /></a>";
                 }
             }
 
@@ -3773,7 +3775,7 @@ class Repo
         /**
          *  Icone suppression de l'environnement
          */
-        if (!empty($this->env) and Common::isadmin()) {
+        if (!empty($this->env) and IS_ADMIN) {
             echo '<img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $this->env . ' environment" repo-id="' . $this->repoId . '" snap-id="' . $this->snapId . '" env-id="' . $this->envId . '" env-name="' . $this->env . '" />';
         }
 

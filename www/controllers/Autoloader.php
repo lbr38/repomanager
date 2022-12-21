@@ -20,6 +20,7 @@ class Autoloader
             $className = str_replace('\\', '/', $className);
             $className = str_replace('Models', 'models', $className);
             $className = str_replace('Controllers', 'controllers', $className);
+            $className = str_replace('Views', 'views', $className);
 
             if (file_exists(ROOT . '/' . $className . '.php')) {
                 require_once(ROOT . '/' . $className . '.php');
@@ -42,7 +43,9 @@ class Autoloader
          *  On défini un cookie contenant l'URI en cours, utile pour rediriger directement vers cette URI après s'être identifié sur la page de login
          */
         if (!empty($_SERVER['REQUEST_URI'])) {
-            setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), array('secure' => true, 'httponly' => true));
+            if ($_SERVER["REQUEST_URI"] != '/login' and $_SERVER["REQUEST_URI"] != '/logout') {
+                setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), array('secure' => true, 'httponly' => true));
+            }
         }
 
         /**
@@ -211,16 +214,16 @@ class Autoloader
          *  Si les variables de session username ou role sont vides alors on redirige vers la page de login
          */
         if (empty($_SESSION['username']) or empty($_SESSION['role'])) {
-            header('Location: login.php');
+            header('Location: /login');
             exit();
         }
 
         /**
-         *  Si la session a dépassé les 30min alors on redirige vers logout.php qui se chargera de détruire la session
+         *  Si la session a dépassé les 30min alors on redirige vers logout qui se chargera de détruire la session
          */
         if (isset($_SESSION['start_time']) && (time() - $_SESSION['start_time'] > 1800)) {
             \Models\History::set($_SESSION['username'], "Expired session, deconnection", 'success');
-            header('Location: logout.php');
+            header('Location: /logout');
             exit();
         }
 
@@ -228,6 +231,28 @@ class Autoloader
          *  On défini l'heure de création de la session (ou on la renouvelle si la session est toujours en cours)
          */
         $_SESSION['start_time'] = time();
+
+        /**
+         *  Define IS_ADMIN
+         */
+        if (!defined('IS_ADMIN')) {
+            if ($_SESSION['role'] === 'super-administrator' or $_SESSION['role'] === 'administrator') {
+                define('IS_ADMIN', true);
+            } else {
+                define('IS_ADMIN', false);
+            }
+        }
+
+        /**
+         *  Define IS_SUPERADMIN
+         */
+        if (!defined('IS_SUPERADMIN')) {
+            if ($_SESSION['role'] === 'super-administrator') {
+                define('IS_SUPERADMIN', true);
+            } else {
+                define('IS_SUPERADMIN', false);
+            }
+        }
     }
 
     private static function loadConstant()
@@ -1136,9 +1161,9 @@ class Autoloader
          */
         if (defined('__ACTUAL_URI__')) {
             if (
+                __ACTUAL_URI__ == "" or
                 __ACTUAL_URI__ == "/" or
-                __ACTUAL_URI__ == "/index.php" or
-                __ACTUAL_URI__ == "/planifications.php"
+                __ACTUAL_URI__ == "/plans"
             ) {
                 /**
                  *  Ouverture d'une connexion à la base de données

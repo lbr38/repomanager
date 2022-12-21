@@ -20,21 +20,21 @@ if (DEBUG_MODE == "enabled") {
     <nav id="menu">
         <div>
             <div id="title">
-                <a href="index.php"><span>Repomanager</span></a>
+                <a href="/"><span>Repomanager</span></a>
             </div>
 
             <?php
             /**
              *  REPOS tab
              */
-            if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/index.php' or __ACTUAL_URI__ == '/browse.php' or __ACTUAL_URI__ == '/stats.php') {
+            if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/browse' or __ACTUAL_URI__ == '/stats') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
-                <a href="index.php">
+                <a href="/">
                     <img src="resources/icons/menu.svg" class="icon" />REPOS
                 </a>
             </div>
@@ -43,7 +43,7 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  PLANIFICATIONS tab
              */
-            if (__ACTUAL_URI__ == '/planifications.php') {
+            if (__ACTUAL_URI__ == '/plans') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -51,7 +51,7 @@ if (DEBUG_MODE == "enabled") {
 
             if (PLANS_ENABLED == "yes") : ?>
                 <div class="<?= $headerMenuClass ?>">
-                    <a href="planifications.php">
+                    <a href="plans">
                         <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
                     </a>
                 </div>
@@ -62,7 +62,7 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  MANAGE HOSTS tab
              */
-            if (__ACTUAL_URI__ == '/hosts.php' or __ACTUAL_URI__ == '/host.php') {
+            if (__ACTUAL_URI__ == '/hosts' or __ACTUAL_URI__ == '/host') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -70,7 +70,7 @@ if (DEBUG_MODE == "enabled") {
 
             if (MANAGE_HOSTS == "yes") : ?>
                 <div class="<?= $headerMenuClass ?>">
-                    <a href="hosts.php">
+                    <a href="/hosts">
                         <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
                     </a>
                 </div>
@@ -81,15 +81,15 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  MANAGE PROFILES tab
              */
-            if (__ACTUAL_URI__ == '/profiles.php') {
+            if (__ACTUAL_URI__ == '/profiles') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (\Controllers\Common::isadmin() and MANAGE_PROFILES == "yes") : ?>
+            if (IS_ADMIN and MANAGE_PROFILES == "yes") : ?>
                 <div class="<?= $headerMenuClass ?>">
-                    <a href="profiles.php">
+                    <a href="/profiles">
                         <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
                     </a>
                 </div>
@@ -100,15 +100,15 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  SETTINGS tab
              */
-            if (__ACTUAL_URI__ == '/configuration.php') {
+            if (__ACTUAL_URI__ == '/settings') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (\Controllers\Common::isadmin()) : ?>
+            if (IS_ADMIN) : ?>
                 <div class="<?= $headerMenuClass ?>">
-                    <a href="configuration.php">
+                    <a href="/settings">
                         <img src="resources/icons/settings.svg" class="icon" />SETTINGS
                     </a>
                 </div>
@@ -119,7 +119,7 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  OPERATIONS tab
              */
-            if (__ACTUAL_URI__ == '/run.php') {
+            if (__ACTUAL_URI__ == '/run') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -127,9 +127,9 @@ if (DEBUG_MODE == "enabled") {
 
             <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
                 <div>
-                    <a href="run.php">
+                    <a href="run">
                         <?php
-                        if (__ACTUAL_URI__ == '/run.php') {
+                        if (__ACTUAL_URI__ == '/run') {
                             echo '<span class="underline">';
                         } else {
                             echo '<span class="header-link">';
@@ -185,7 +185,7 @@ if (DEBUG_MODE == "enabled") {
 
                                 <div class="header-op-subdiv btn-large-red">
                                     <span>
-                                        <a href="run.php?logfile=<?=$opLogfile?>">
+                                        <a href="/run?logfile=<?=$opLogfile?>">
                                             <?php
                                             if ($opAction == "new") {
                                                 echo 'New repo ';
@@ -216,7 +216,7 @@ if (DEBUG_MODE == "enabled") {
                                         </a>
                                     </span>
                                     <span title="Stop operation">
-                                        <a href="run.php?stop=<?=$opPid?>">⛔</a>
+                                        <a href="/run?stop=<?=$opPid?>">⛔</a>
                                     </span>
                                 </div>
                                 <?php
@@ -239,7 +239,7 @@ if (DEBUG_MODE == "enabled") {
                     
                                 <div class="header-op-subdiv btn-large-red">
                                     <span>
-                                        <a href="run.php?logfile=<?= $opLogfile ?>">
+                                        <a href="/run?logfile=<?= $opLogfile ?>">
                                         <?php
                                         if ($planAction == "new") {
                                             echo 'New repo ';
@@ -258,7 +258,7 @@ if (DEBUG_MODE == "enabled") {
                                         </a>
                                     </span>
                                     <span title="Stop operation">
-                                        <a href="run.php?stop=<?=$opPid?>">⛔</a>
+                                        <a href="/run?stop=<?=$opPid?>">⛔</a>
                                     </span>
                                 </div>
                                 <?php
@@ -279,31 +279,27 @@ if (DEBUG_MODE == "enabled") {
             /**
              *  USERSPACE tab
              */
-            if (__ACTUAL_URI__ == '/user.php') {
+            if (__ACTUAL_URI__ == '/userspace') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
             } ?>
 
-            <?php
-            if (\Controllers\Common::isadmin()) : ?>
-                <div class="<?= $headerMenuClass ?>">
-                    <a href="user.php" title="Userspace">
-                        <img src="resources/icons/user.svg" class="icon" />
+            <div class="<?= $headerMenuClass ?>">
+                <a href="/userspace" title="Userspace">
+                    <img src="resources/icons/user.svg" class="icon" />
 
-                        <?= $_SESSION['username']; ?>
+                    <?php
+                    echo $_SESSION['username'];
 
-                        <?php
-                        if (!empty($_SESSION['first_name'])) {
-                            echo ' (' . $_SESSION['first_name'] . ')';
-                        } ?>
-                    </a>
-                </div>
-                <?php
-            endif ?>
-
+                    if (!empty($_SESSION['first_name'])) {
+                        echo ' (' . $_SESSION['first_name'] . ')';
+                    } ?>
+                </a>
+            </div>
+                
             <div class="menu-sub-container">
-                <a href="logout.php" title="Logout">
+                <a href="/logout" title="Logout">
                     <img src="resources/icons/power.svg" class="icon" /> Logout
                 </a>
             </div>
@@ -318,7 +314,7 @@ if (DEBUG_MODE == "enabled") {
 if (__LOAD_GENERAL_ERROR > 0) : ?>
     <section>
         <section class="missing-param-alert">
-            <span class="yellowtext">Some settings from the <a href="configuration.php"><b>settings tab</b></a> contain missing value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
+            <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
         </section>
         <section class="missing-param-alert">
             <?php

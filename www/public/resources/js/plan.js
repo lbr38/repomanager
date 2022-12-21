@@ -193,8 +193,9 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
 {
     $.ajax({
         type: "POST",
-        url: "controllers/planifications/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "planification",
             action: "newPlan",
             type: type,
             day: day,
@@ -236,8 +237,9 @@ function deletePlan(id)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/planifications/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "planification",
             action: "deletePlan",
             id: id
         },

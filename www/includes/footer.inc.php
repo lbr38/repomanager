@@ -12,33 +12,33 @@
 <script src="resources/js/functions.js"></script>
 <script src="resources/js/update.js"></script>
 <?php
-if (__ACTUAL_URI__ == "/index.php" or __ACTUAL_URI__ == "/") {
+if (__ACTUAL_URI__ == "" or __ACTUAL_URI__ == "/") {
     echo '<script src="resources/js/repo.js"></script>';
     echo '<script src="resources/js/group.js"></script>';
     echo '<script src="resources/js/source.js"></script>';
 }
-if (__ACTUAL_URI__ == "/planifications.php") {
+if (__ACTUAL_URI__ == "/plans") {
     echo '<script src="resources/js/repo.js"></script>';
     echo '<script src="resources/js/group.js"></script>';
     echo '<script src="resources/js/plan.js"></script>';
     echo '<script src="resources/js/source.js"></script>';
 }
-if (__ACTUAL_URI__ == "/hosts.php" or __ACTUAL_URI__ == "/host.php") {
+if (__ACTUAL_URI__ == "/hosts" or __ACTUAL_URI__ == "/host") {
     echo '<script src="resources/js/host.js"></script>';
 }
-if (__ACTUAL_URI__ == "/browse.php") {
+if (__ACTUAL_URI__ == "/browse") {
     echo '<script src="resources/js/explore.js"></script>';
 }
-if (__ACTUAL_URI__ == "/profiles.php") {
+if (__ACTUAL_URI__ == "/profiles") {
     echo '<script src="resources/js/profile.js"></script>';
 }
-if (__ACTUAL_URI__ == "/stats.php") {
+if (__ACTUAL_URI__ == "/stats") {
     echo '<script src="resources/js/stats.js"></script>';
 }
-if (__ACTUAL_URI__ == "/configuration.php") {
+if (__ACTUAL_URI__ == "/settings") {
     echo '<script src="resources/js/configuration.js"></script>';
     echo '<script src="resources/js/environment.js"></script>';
 }
-if (__ACTUAL_URI__ == "/run.php") {
+if (__ACTUAL_URI__ == "/run") {
     echo '<script src="resources/js/run.js"></script>';
 } ?>

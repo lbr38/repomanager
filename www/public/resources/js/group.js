@@ -21,6 +21,10 @@ function reloadGroupsDiv()
             closeOnSelect: false,
             placeholder: 'Add repo...'
         });
+
+        $('.param-slide').css({
+            right: 0
+        })
     });
 }
 
@@ -35,6 +39,10 @@ function reloadGroupsDivSlideGroup(groupName)
             closeOnSelect: false,
             placeholder: 'Add repo...'
         });
+
+        $('.param-slide').css({
+            right: 0
+        })
 
         $("#groupConfigurationDiv-" + groupName).show();
     });
@@ -126,8 +134,9 @@ function newGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "newGroup",
             name: name,
             type: "repo"
@@ -158,8 +167,9 @@ function deleteGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "deleteGroup",
             name: name,
             type: "repo"
@@ -190,8 +200,9 @@ function renameGroup(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "renameGroup",
             name: name,
             newname : newname,
@@ -223,8 +234,9 @@ function editGroupRepos(name, reposId)
 {
     $.ajax({
         type: "POST",
-        url: "controllers/groups/ajax.php",
+        url: "ajax/controller.php",
         data: {
+            controller: "group",
             action: "editGroupRepos",
             name: name,
             reposId : reposId
