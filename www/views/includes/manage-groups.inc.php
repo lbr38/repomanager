@@ -55,7 +55,7 @@
                         <form class="groupReposForm" groupname="<?= $groupName ?>" autocomplete="off">
                             <div class="detailsDiv">
                                 <h5>Repos</h5>
-                                <div class="flex flex-align-cnt-center">
+                                <div class="flex align-content-center">
                                     <?php $myrepo->selectRepoByGroup($groupName); ?>
                                     <button type="submit" class="btn-xxsmall-green" title="Add and save">+</button>
                                 </div>

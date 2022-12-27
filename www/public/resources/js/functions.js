@@ -70,7 +70,7 @@ function printAlert(message, type = null, timeout = 2500)
     }
 }
 
-function deleteConfirm(message, myfunction, confirmBox = 'Delete')
+function confirmBox(message, myfunction, confirmBox = 'Delete')
 {
     /**
      *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
@@ -93,7 +93,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Delete')
         /**
          *  Puis suppression de l'alerte
          */
-        $("#newConfirmAlert").slideToggle(150, function () {
+        $("#newConfirmAlert").slideToggle(50, function () {
             $("#newConfirmAlert").remove();
         });
     });
@@ -105,7 +105,7 @@ function deleteConfirm(message, myfunction, confirmBox = 'Delete')
         /**
          *  Suppression de l'alerte
          */
-        $("#newConfirmAlert").slideToggle(150, function () {
+        $("#newConfirmAlert").slideToggle(50, function () {
             $("#newConfirmAlert").remove();
         });
     });

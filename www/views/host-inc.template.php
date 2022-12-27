@@ -421,11 +421,14 @@ endif ?>
                 if (empty($allEventsList)) {
                     echo '<p>No history</p>';
                 } else { ?>
-                    <span>Show sending requests </span>
-                    <label class="onoff-switch-label">
-                        <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php echo (!empty($_COOKIE['showUpdateRequests']) and $_COOKIE['showUpdateRequests'] == "yes") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                    </label>
+                    <div class="flex align-item-center column-gap-4">
+                        <span>Show sended requests</span>
+                        <label class="onoff-switch-label">
+                            <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php echo (!empty($_COOKIE['showUpdateRequests']) and $_COOKIE['showUpdateRequests'] == "yes") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </div>
+
                     <table class="table-generic-blue">
                         <?php
                         /**

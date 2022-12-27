@@ -79,7 +79,7 @@ $(document).on('submit','#newProfileForm',function () {
  */
 $(document).on('click','.deleteProfileBtn',function () {
      var name = $(this).attr('profilename');
-    deleteConfirm('Are you sure you want to delete profile <b>' + name + '</b>?', function () {
+    confirmBox('Are you sure you want to delete profile <b>' + name + '</b>?', function () {
         deleteProfile(name)});
 });
 

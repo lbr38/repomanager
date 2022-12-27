@@ -2,7 +2,7 @@ name: Run operations on a deb repo (from an Ubuntu latest system)
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ devel ]
   pull_request:
     push:
       branches: [ stable ]

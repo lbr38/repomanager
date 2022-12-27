@@ -64,11 +64,6 @@
         <br>
 
         <?php
-        /**
-         *  Récupération de tous les noms de profils
-         */
-        $profiles = $myprofile->list();
-
         if (!empty($profiles)) : ?>
             <h5>CURRENT PROFILES</h5>
             
@@ -90,6 +85,7 @@
                     $linupdateGetReposConf = $profile['Linupdate_get_repos_conf'];
                     $profileNotes = $profile['Notes'];
                     $profileReposMembersIds = $myprofile->reposMembersIdList($profileId);
+
                     /**
                      *  On récupère le nombre d'hôtes utilisant ce profil, si il y en a, et si la gestion des hôtes est activée
                      */
@@ -129,6 +125,7 @@
                                 if ($serverManageClientRepos == "no" and $serverManageClientConf == "no") {
                                     echo "<p>This reposerver is not configured to manage hosts linupdate configuration.</p>";
                                 }
+
                                 if ($serverManageClientRepos == "yes") : ?>
                                     <h5>Access following repositories:</h5>
                                     <p>Specify what repositories the host(s) will have access to.<br>Repos files will be retrieved by hosts on each linupdate execution.</p>
@@ -141,8 +138,8 @@
                                                      *  On récupère la liste des repos actifs
                                                      *  Puis pour chaque repos, on regarde si celui-ci est déjà présent dans le profil, si c'est le cas il sera affiché sélectionné dans la liste déroulante, si ce n'est pas le cas il sera disponible dans la liste déroulante
                                                      */
-                                                    $myrepo = new \Controllers\Repo();
                                                     $repos = $myrepo->listNameOnly(true);
+
                                                     foreach ($repos as $repo) {
                                                         $repoId   = $repo['Id'];
                                                         $repoName = $repo['Name'];
@@ -185,13 +182,13 @@
                                  *  Si le serveur est configuré pour gérer la conf des serveurs clients alors on affiche la configuration pour chaque profil
                                  */
                                 if ($serverManageClientConf == "yes") :
-                                    $myprofile = new \Controllers\Profile();
                                     $listPackages = $myprofile->getPackages();
                                     /**
                                      *  Liste des paquets sélectionnables dans la liste des paquets à exclure
                                      *  explode cette liste pour retourner un tableau, puis tri par ordre alpha
                                      */
                                     sort($listPackages);
+
                                     /**
                                      *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConfExcludeMajor alors on l'affiche comme sélectionné "selected"
                                      */ ?>
@@ -215,6 +212,7 @@
                                         } ?>
                                     </select>
                                     <br>
+
                                     <h5>Packages to exclude (no matter the version):</h5>
                                     <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
                                         <?php
@@ -224,6 +222,7 @@
                                             } else {
                                                 echo '<option value="' . $package . '">' . $package . '</option>';
                                             }
+
                                             /**
                                              *  On fait la même chose pour ce même paquet suivi d'un wildcard (ex: apache.*)
                                              */
@@ -235,6 +234,7 @@
                                         } ?>
                                     </select>
                                     <br>
+
                                     <h5>Services to restart after package update:</h5>
                                     <?php
                                     /**
@@ -243,8 +243,8 @@
                                      */
                                     $listServices = $myprofile->getServices();
                                     sort($listServices); ?>
+
                                     <select class="select-need-restart" profilename="<?= $profileName ?>" multiple>
-                                        
                                         <?php
                                         foreach ($listServices as $service) {
                                             if (in_array($service, $profileConfNeedRestart)) {
@@ -254,6 +254,7 @@
                                             }
                                         } ?>
                                     </select>
+
                                     <br>
                                     <table class="table-large">
                                         <tr>
@@ -266,10 +267,12 @@
                                             </td>
                                         </tr>
                                     </table>
+
                                     <h5>Notes:</h5>
                                     <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes ?></textarea>
                                     <?php
                                 endif;
+
                                 /**
                                  *  On n'affiche pas le bouton Enregistrer si les 2 paramètres ci-dessous sont tous les 2 à no
                                  */

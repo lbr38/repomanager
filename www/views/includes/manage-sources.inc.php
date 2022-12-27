@@ -181,7 +181,7 @@
         <h5>Import a new GPG key:</h5>
 
         <form id="source-repo-add-key-form" autocomplete="off">
-            <div class="flex flex-align-cnt-center">
+            <div class="flex align-content-center">
                 <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
                 <button class="btn-xxsmall-green" title="Import">+</button>
             </div>

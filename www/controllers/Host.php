@@ -961,6 +961,23 @@ class Host
     }
 
     /**
+     *  List all hosts agent status and count them
+     */
+    public function listCountAgentStatus()
+    {
+        return $this->model->listCountAgentStatus();
+    }
+
+    /**
+     *  List all hosts agent release version and count them
+     *  Returns agent version and total
+     */
+    public function listCountAgentVersion()
+    {
+        return $this->model->listCountAgentVersion();
+    }
+
+    /**
      *  Retourne le nombre d'hôtes utilisant le profil spécifié
      */
     public function countByProfile(string $profile)

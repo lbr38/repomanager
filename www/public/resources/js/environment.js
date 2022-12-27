@@ -17,7 +17,7 @@ $(document).on('submit','#newEnvironmentForm',function () {
 $(document).on('click','.delete-env-btn',function () {
     var name = $(this).attr('env-name');
 
-    deleteConfirm('Are you sure you want to delete environment <b>' + name + '</b>?', function () {
+    confirmBox('Are you sure you want to delete environment <b>' + name + '</b>?', function () {
         deleteEnv(name)
     });
 });

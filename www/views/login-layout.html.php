@@ -9,7 +9,7 @@ if (!defined('DATA_DIR')) {
 }
 require_once(ROOT . '/controllers/Autoloader.php');
 \Controllers\Autoloader::loadFromLogin();
-include_once(ROOT . '/includes/head.inc.php');
+include_once(ROOT . '/views/includes/head.inc.php');
 
 $loginErrors = array();
 $error = 0;
