@@ -9,7 +9,7 @@
         <p>To create mirrors, you must configure sources repositories.</p>
         <br>
 
-        <h4>Add a new source repository</h4>
+        <h4><b>New source repository</b></h4>
 
         <form id="addSourceForm" autocomplete="off">
             <table>
@@ -18,17 +18,17 @@
                     <td colspan="100%">
                         <div class="switch-field">
                             <?php
-                            if (RPM_REPO == 'enabled' and DEB_REPO == 'enabled') : ?>
+                            if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
                                 <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
                                 <label for="repoType_rpm">rpm</label>
                                 <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
                                 <label for="repoType_deb">deb</label>
                                 <?php
-                            elseif (RPM_REPO == 'enabled') : ?>
+                            elseif (RPM_REPO == 'true') : ?>
                                 <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
                                 <label for="repoType_rpm">rpm</label>     
                                 <?php
-                            elseif (DEB_REPO == 'enabled') : ?>
+                            elseif (DEB_REPO == 'true') : ?>
                                 <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" checked />
                                 <label for="repoType_deb">deb</label> 
                                 <?php
@@ -49,21 +49,21 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2">Import a GPG signing key <span class="lowopacity">(optionnal)</span></td>
+                    <td colspan="2"><br>GPG signing key <span class="lowopacity">(optionnal)</span></td>
                 </tr>
                 <tr>
                     <td colspan="100%">
                         <div>
                             <br>
-                            <span>You can either specify an URL to the GPG key or import a plan ASCII text GPG key.</span>
-                            <br><br>
+                            <p>Specify URL to the GPG key or import a plain ASCII GPG key.</p>
+                            <br>
 
                             <p>URL to the GPG key:</p>
                             <input type="text" name="gpgKeyURL" placeholder="https://...">
                             
-                            <br>
+                            <br><br>
                             <p>Import a GPG key:</p>
-                            <textarea id="gpgKeyText" class="textarea-100" placeholder="ASCII format"></textarea>
+                            <textarea id="gpgKeyText" class="textarea-100" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
                         </div>
                     </td>
                 </tr>
@@ -82,8 +82,8 @@
          *  Print source repos if there are
          */
         if (!empty($sources)) : ?>
-            <br>
-            <h4>Current source repositories</h4>
+            <br><br>
+            <h4><b>Current source repositories</b></h4>
 
             <?php
             if (!empty($sources)) :
@@ -175,21 +175,22 @@
          */
         $knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
 
-        <br>
-        <h4>GPG signing keys</h4>
+        <br><br>
+        <h4><b>GPG signing keys</b></h4>
 
-        <h5>Import a new GPG key:</h5>
+        <p>Import a GPG key:</p>
 
         <form id="source-repo-add-key-form" autocomplete="off">
             <div class="flex align-content-center">
-                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="ASCII format"></textarea>
+                <textarea id="source-repo-add-key-textarea" class="textarea-100" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
                 <button class="btn-xxsmall-green" title="Import">+</button>
             </div>
         </form>
 
         <?php
         if (!empty($knownPublicKeys)) : ?>
-            <h5>Imported GPG key(s):</h5>
+            <br>
+            <p>Imported GPG keys:</p>
             <table class="table-generic-blue">
                 <?php
                 foreach ($knownPublicKeys as $knownPublicKey) : ?>
@@ -206,7 +207,6 @@
             </table>
             <?php
         endif; ?>
-
-        <br>
+        <br><br>
     </div>
 </div>

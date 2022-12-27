@@ -1,15 +1,16 @@
-/**
- *  Event: create a new environment
- */
-$(document).on('submit','#newEnvironmentForm',function () {
-    event.preventDefault();
+function editEnv()
+{
+    var env_array = [];
 
-    var name = $('#new-env-input').val();
+    $('.env-input').each(function () {
+        var env = $(this).val();
 
-    newEnv(name);
+        env_array.push(env);
+    });
 
-    return false;
-});
+    editEnvAjax(env_array);
+}
+
 
 /**
  *  Event: delete an environment
@@ -23,53 +24,19 @@ $(document).on('click','.delete-env-btn',function () {
 });
 
 /**
- *  Event: rename / reorder environment(s)
+ *  Event: add / edit actual environments
  */
-$(document).on('submit','#environmentForm',function () {
-    event.preventDefault();
+$(document).on('keypress','.env-input',function () {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+        editEnv();
+    }
 
-    var env_array = [];
-
-    $('.actual-env-input').each(function () {
-        var name = $(this).val();
-
-        env_array.push(name);
-    });
-
-    renameEnv(env_array);
-
-    return false;
+    event.stopPropagation();
 });
-
-/**
- * Ajax: Create a new environment
- * @param {string} name
- */
-function newEnv(name)
-{
-    $.ajax({
-        type: "POST",
-        url: "ajax/controller.php",
-        data: {
-            controller: "environment",
-            action: "newEnv",
-            name: name
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-            /**
-             *  Reload env div
-             */
-             reloadContentById('envDiv');
-        },
-        error : function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
+$(document).on('click','#edit-env-btn',function () {
+    editEnv();
+});
 
 /**
  * Ajax: Delete an environment
@@ -105,14 +72,14 @@ function deleteEnv(name)
  * Ajax: Rename / reorder environment(s)
  * @param {string} envs
  */
-function renameEnv(envs)
+function editEnvAjax(envs)
 {
     $.ajax({
         type: "POST",
         url: "ajax/controller.php",
         data: {
             controller: "environment",
-            action: "renameEnv",
+            action: "editEnv",
             envs: envs
         },
         dataType: "json",

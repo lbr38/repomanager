@@ -1,5 +1,5 @@
 <?php
-if (UPDATE_RUNNING == "yes") :
+if (UPDATE_RUNNING == "true") :
     /**
      *  La page de maintenance s'affiche sur toutes les pages sauf sur /settings
      */

@@ -471,7 +471,7 @@ class Planification
             /**
              *  1. Si les planifications ne sont pas activées, on quitte
              */
-            if (PLANS_ENABLED != "yes") {
+            if (PLANS_ENABLED != "true") {
                 throw new Exception("Plans are not enabled. You can modify this parameter from the settings page.");
             }
 
@@ -878,11 +878,10 @@ class Planification
              *  Cas où l'action prévue est une mise à jour
              */
             if ($this->action == "update") {
-                $message = 'Update repos members of the <span class="label-white">' . $this->group->getName() . '</span> group:<br>';
+                $message = 'Update repos of the <span class="label-white">' . $this->group->getName() . '</span> group:<br>';
             }
 
             foreach ($this->groupReposList as $line) {
-
                 /**
                  *  Pour chaque ligne on récupère les infos du repo/section
                  */
@@ -949,27 +948,32 @@ class Planification
          *  Si l'erreur est de type 1 (erreur lors des vérifications de l'opération), on affiche les erreurs avec echo, elles seront capturées par ob_get_clean() et affichées dans le fichier de log
          *  On ajoute également les données connues de la planification, le tableau récapitulatif n'ayant pas pu être généré par l'opération puisqu'on a rencontré une erreur avant qu'elle ne se lance.
          */
-        if ($planError == 1) {
-            echo '<div class="div-generic-blue">';
-            echo '<p class="redtext">' . $plan_msg_error . '</p><br>';
-            echo '<p><b>Plan details:</b></p>';
-            echo '<table>';
-            echo '<tr><td><b>Action: </b></td><td>' . $this->action . '</td></tr>';
-            if (!empty($this->group->getName())) {
-                echo "<tr><td><b>Group: </b></td><td>" . $this->group->getName() . "</td></tr>";
-            }
-            if (!empty($this->repo->getName())) {
-                echo "<tr><td><b>Repo: </b></td><td>" . $this->repo->getName() . "</td></tr>";
-            }
-            if (!empty($this->repo->getDist())) {
-                echo "<tr><td><b>Distribution: </b></td><td>" . $this->repo->getDist() . "</td></tr>";
-            }
-            if (!empty($this->repo->getSection())) {
-                echo "<tr><td><b>Section: </b></td><td>" . $this->repo->getSection() . "</td></tr>";
-            }
-            echo '</table>';
-            echo '</div>';
-        }
+        if ($planError == 1) : ?>
+            <div class="div-generic-blue">
+                <p class="redtext"><?= $plan_msg_error ?></p><br>
+                <p><b>Plan details:</b></p>
+                <table>
+                    <tr>
+                        <td><b>Action: </b></td>
+                        <td><?= $this->action ?></td>
+                    </tr>
+                    <?php
+                    if (!empty($this->group->getName())) {
+                        echo "<tr><td><b>Group: </b></td><td>" . $this->group->getName() . "</td></tr>";
+                    }
+                    if (!empty($this->repo->getName())) {
+                        echo "<tr><td><b>Repo: </b></td><td>" . $this->repo->getName() . "</td></tr>";
+                    }
+                    if (!empty($this->repo->getDist())) {
+                        echo "<tr><td><b>Distribution: </b></td><td>" . $this->repo->getDist() . "</td></tr>";
+                    }
+                    if (!empty($this->repo->getSection())) {
+                        echo "<tr><td><b>Section: </b></td><td>" . $this->repo->getSection() . "</td></tr>";
+                    } ?>
+                </table>
+            </div>
+            <?php
+        endif;
 
         // Contenu du fichier de log de la planification //
 
@@ -1196,7 +1200,7 @@ class Planification
         /**
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
          */
-        if (ALLOW_AUTOUPDATE_REPOS != "yes") {
+        if (ALLOW_AUTOUPDATE_REPOS != "true") {
             throw new Exception("Plans are not authorized to update repositories");
         }
     }
@@ -1220,7 +1224,7 @@ class Planification
         /**
          *  Si le changement d'environnement n'est pas autorisé, on quitte
          */
-        if (ALLOW_AUTOUPDATE_REPOS_ENV != "yes") {
+        if (ALLOW_AUTOUPDATE_REPOS_ENV != "true") {
             throw new Exception("Plans are not authorized to manage repos environment");
         }
     }

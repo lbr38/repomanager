@@ -355,10 +355,12 @@
                                                      *  Récupération du status de la dernière mise à jour (si il y en a)
                                                      */
                                                     $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
+
                                                     /**
                                                      *  Fermeture de la base de données de l'hôte
                                                      */
                                                     $myhost->closeHostDb();
+
                                                     /**
                                                      *  Affichage des informations de l'hôte
                                                      *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
@@ -530,10 +532,13 @@ if (IS_ADMIN) : ?>
     <div id="groupsHostDiv" class="param-slide-container">
         <div class="param-slide">
             <img id="groupsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
+            
             <h3>GROUPS</h3>
-            <h5>Create a new group</h5>
+            
+            <h4><b>Create a new group</b></h4>
+
             <form id="newGroupForm" autocomplete="off">
-                <input id="newGroupInput" type="text" class="input-medium" /></td>
+                <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" /></td>
                 <button type="submit" class="btn-xxsmall-green" title="Add">+</button></td>
             </form>
             
@@ -545,7 +550,7 @@ if (IS_ADMIN) : ?>
             $groupsList = $group->listAllName();
 
             if (!empty($groupsList)) : ?>
-                <h5>Current groups</h5>
+                <h4><b>Current groups</b></h4>
                 <div class="groups-list-container">
                     <?php
                     foreach ($groupsList as $groupName) : ?>
@@ -729,25 +734,25 @@ if (!empty($agentStatusList)) {
     if (!empty($agentStatusList['Linupdate_agent_status_online_count'])) {
         $agentStatusNameList .= "'Online',";
         $agentStatusCountList .= "'" . $agentStatusList['Linupdate_agent_status_online_count'] . "',";
-        $agentBackgroundColor = "'#24d794',";
+        $agentBackgroundColor .= "'#24d794',";
     }
 
     if (!empty($agentStatusList['Linupdate_agent_status_seems_stopped_count'])) {
         $agentStatusNameList .= "'Seems stopped',";
         $agentStatusCountList .= "'" . $agentStatusList['Linupdate_agent_status_seems_stopped_count'] . "',";
-        $agentBackgroundColor = "'#e0b05f',";
+        $agentBackgroundColor .= "'#e0b05f',";
     }
 
     if (!empty($agentStatusList['Linupdate_agent_status_stopped_count'])) {
         $agentStatusNameList .= "'Stopped',";
         $agentStatusCountList .= "'" . $agentStatusList['Linupdate_agent_status_stopped_count'] . "',";
-        $agentBackgroundColor = "'rgb(255, 99, 132)',";
+        $agentBackgroundColor .= "'rgb(255, 99, 132)',";
     }
 
     if (!empty($agentStatusList['Linupdate_agent_status_disabled_count'])) {
         $agentStatusNameList .= "'Disabled',";
         $agentStatusCountList .= "'" . $agentStatusList['Linupdate_agent_status_disabled_count'] . "',";
-        $agentBackgroundColor = "'rgb(255, 99, 132)',";
+        $agentBackgroundColor .= "'rgb(255, 99, 132)',";
     }
 
     $labels = rtrim($agentStatusNameList, ',');

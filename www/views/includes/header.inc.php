@@ -49,7 +49,7 @@ if (DEBUG_MODE == "enabled") {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (PLANS_ENABLED == "yes") : ?>
+            if (PLANS_ENABLED == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="plans">
                         <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
@@ -68,7 +68,7 @@ if (DEBUG_MODE == "enabled") {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (MANAGE_HOSTS == "yes") : ?>
+            if (MANAGE_HOSTS == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/hosts">
                         <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
@@ -87,7 +87,7 @@ if (DEBUG_MODE == "enabled") {
                 $headerMenuClass = 'menu-sub-container';
             }
 
-            if (IS_ADMIN and MANAGE_PROFILES == "yes") : ?>
+            if (IS_ADMIN and MANAGE_PROFILES == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/profiles">
                         <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES

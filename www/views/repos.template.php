@@ -52,7 +52,7 @@ endif ?>
         </div>
 
         <?php
-        if (!empty($lastPlan or !empty($nextPlan))) : ?>
+        if (!empty($lastPlan) or !empty($nextPlan)) : ?>
             <div class="div-generic-blue">
                 <?php
                 if (!empty($lastPlan)) :

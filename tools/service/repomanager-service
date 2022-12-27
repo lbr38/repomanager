@@ -14,7 +14,7 @@ STATS_LOG="$STATS_LOG_DIR/stats-log-parser.log"
 STATS_DB="$DATA_DIR/db/repomanager-stats.db"
 CURRENT_TIME=""
 LAST_TIME=""
-STATS_LOG_PARSING_RUNNING="no"
+STATS_LOG_PARSING_RUNNING="false"
 COUNTER="0"
 
 # Create log dirs if not exist
@@ -164,7 +164,7 @@ function statsParseAccessLog
     fi
 
     # Do not start log analyze if an analyze is already running
-    if [ "$STATS_LOG_PARSING_RUNNING" == "no" ];then
+    if [ "$STATS_LOG_PARSING_RUNNING" == "false" ];then
         # Loop that get every new lines in the 'STATS_ACCESS_LOG_FILE' file
         # New lines are parsed to get date, time, IP and request
         tail -n0 -F "$STATS_ACCESS_LOG_FILE" | \
@@ -186,7 +186,7 @@ function statsParseAccessLog
             fi
         done &
 
-        STATS_LOG_PARSING_RUNNING="yes"
+        STATS_LOG_PARSING_RUNNING="true"
     fi
 }
 
@@ -211,7 +211,7 @@ function execPlan
 {
     if [ "$CURRENT_TIME" == "$LAST_TIME" ];then
         return
-    fi        
+    fi
 
     # Execute plans in background as www user
     /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/operations/plan.php" 'exec' & > /dev/null
@@ -257,7 +257,7 @@ while true; do
         # Cleanup files
         cleanUp
 
-        if [ "$STATS_ENABLED" == "yes" ];then
+        if [ "$STATS_ENABLED" == "true" ];then
             # Clean old statistics
             statsClean
         fi
@@ -269,18 +269,18 @@ while true; do
     CURRENT_TIME=$(date +%H:%M)
 
     # Parse access logs to generate stats (if enabled)
-    if [ "$STATS_ENABLED" == "yes" ];then
+    if [ "$STATS_ENABLED" == "true" ];then
         statsGenerate
         statsParseAccessLog
     fi
 
     # Execute plans (if plan enabled)
-    if [ "$PLANS_ENABLED" == "yes" ];then
+    if [ "$PLANS_ENABLED" == "true" ];then
         execPlan
     fi
 
     # Send plans reminder (if plan and plan reminders enabled)
-    if [ "$PLANS_ENABLED" == "yes" ] && [ "$PLAN_REMINDERS_ENABLED" == "yes" ];then
+    if [ "$PLANS_ENABLED" == "true" ] && [ "$PLAN_REMINDERS_ENABLED" == "true" ];then
         sendPlanReminder
     fi
 

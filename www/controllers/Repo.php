@@ -41,6 +41,7 @@ class Repo
     private $gpgResign;
     private $workingDir;
     private $rpmSignMethod = RPM_SIGN_METHOD;
+    private $onlySyncDifference = 'no';
 
     private $targetName;
     private $targetDate;
@@ -53,16 +54,6 @@ class Repo
     private $targetArch;
     private $targetSourcePackage = 'no';
     private $targetPackageTranslation = array();
-
-    /**
-     *  Repo list print properties
-     */
-    private $repoLastName;
-    private $repoLastDist;
-    private $repoLastSection;
-    private $repoLastEnv;
-    private $lastSnapId;
-    private $lastPackageType;
 
     /**
      *  Operation properties
@@ -241,6 +232,11 @@ class Repo
     public function setTargetPackageTranslation(array $targetPackageTranslation)
     {
         $this->targetPackageTranslation = $targetPackageTranslation;
+    }
+
+    public function setOnlySyncDifference(string $onlySyncDifference)
+    {
+        $this->onlySyncDifference = $onlySyncDifference;
     }
 
     public function setPoolId(string $poolId)
@@ -1029,23 +1025,23 @@ class Repo
             $this->printDetails('UPDATE REPO');
 
             /**
-            *   Etape 2 : récupération des paquets
-            */
+             *   Etape 2 : récupération des paquets
+             */
             $this->getPackages();
 
             /**
-            *   Etape 3 : signature des paquets/du repo
-            */
+             *   Etape 3 : signature des paquets/du repo
+             */
             $this->signPackages();
 
             /**
-            *   Etape 4 : Création du repo et liens symboliques
-            */
+             *   Etape 4 : Création du repo et liens symboliques
+             */
             $this->createRepo();
 
             /**
-            *   Etape 6 : Finalisation du repo (ajout en BDD et application des droits)
-            */
+             *   Etape 6 : Finalisation du repo (ajout en BDD et application des droits)
+             */
             $this->finalize();
 
             /**
@@ -2010,7 +2006,7 @@ class Repo
                 }
             }
             if ($this->packageType == "deb") {
-                if ($this->model->isActive($this->name, $this->dist, $this->section) == true) {
+                if ($this->model->isActive($this->name, $this->dist, $this->section) === true) {
                     throw new Exception('Repo <span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span> already exists');
                 }
             }
@@ -2071,6 +2067,64 @@ class Repo
         }
 
         /**
+         *  If onlySyncDifference is true then copy source snapshot content to the working dir to avoid downloading packages that already exists, and only download the new packages.
+         *  This parameter is used in the case of a snapshot update only (operation 'update').
+         */
+        if ($this->onlySyncDifference == 'yes') {
+            /**
+             *  Create working dir
+             */
+            if (!is_dir($this->workingDir)) {
+                if (!mkdir($this->workingDir, 0770, true)) {
+                    throw new Exception('Cannot create temporary working directory ' . $this->workingDir);
+                }
+            }
+            if (!is_dir($this->workingDir . '/packages')) {
+                if (!mkdir($this->workingDir . '/packages', 0770, true)) {
+                    throw new Exception('Cannot create temporary working directory ' . $this->workingDir . '/packages');
+                }
+            }
+
+            /**
+             *  Get all source snapshot informations to retrieve snapshot directory path
+             */
+            $sourceSnapshot = new Repo();
+            $sourceSnapshot->getAllById('', $this->snapId);
+
+            /**
+             *  Retrieve source snapshot directory from the informations
+             */
+            if ($this->packageType == "rpm") {
+                $sourceSnapshotDir = REPOS_DIR . '/' . $sourceSnapshot->getDateFormatted() . '_' . $sourceSnapshot->getName();
+            }
+            if ($this->packageType == "deb") {
+                $sourceSnapshotDir = REPOS_DIR . '/' . $sourceSnapshot->getName() . '/' . $sourceSnapshot->getDist() . '/' . $sourceSnapshot->getDateFormatted() . '_' . $sourceSnapshot->getSection();
+            }
+
+            /**
+             *  Check that source snapshot directory exists
+             */
+            if (!is_dir($sourceSnapshotDir)) {
+                throw new Exception('Source snapshot directory does not exist: ' . $sourceSnapshotDir);
+            }
+
+            /**
+             *  Find source snapshot packages
+             */
+            if ($this->packageType == 'rpm') {
+                $rpmPackages          = Common::findAndCopyRecursive($sourceSnapshotDir, $this->workingDir . '/packages', 'rpm', true);
+            }
+            if ($this->packageType == 'deb') {
+                $debPackages          = Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->workingDir . '/packages', 'deb', true);
+                $dscSourcesPackages   = Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->workingDir . '/packages', 'dsc', true);
+                $tarxzSourcesPackages = Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->workingDir . '/packages', 'xz', true);
+                $targzSourcesPackages = Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->workingDir . '/packages', 'gz', true);
+            }
+
+            unset($sourceSnapshot);
+        }
+
+        /**
          *  3. Retrieving packages
          */
         echo '<div class="hide getPackagesDiv"><pre>';
@@ -2112,10 +2166,10 @@ class Repo
                 $mymirror->setOutputFile($this->op->log->steplog);
                 $mymirror->outputToFile(true);
                 if (!empty($sourceDetails['Ssl_certificate_path'])) {
-                    $mymirror->setSslCustomCertificate('/etc/ssl/nginx/nginx-repo.crt');
+                    $mymirror->setSslCustomCertificate($sourceDetails['Ssl_certificate_path']);
                 }
                 if (!empty($sourceDetails['Ssl_private_key_path'])) {
-                    $mymirror->setSslCustomPrivateKey('/etc/ssl/nginx/nginx-repo.key');
+                    $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
                 }
                 $mymirror->mirror();
 
@@ -2464,7 +2518,6 @@ class Repo
         }
 
         if ($this->packageType == "deb") {
-            // $repoPath = REPOS_DIR . '/' . $this->name . '/' . $this->dist . '/' . $this->targetDateFormatted . '_' . $this->section;
             $repreproArchs = '';
             $repreproGpgParams = '';
 
@@ -3311,7 +3364,7 @@ class Repo
         /**
          *  1. Si le nettoyage automatique n'est pas autorisé alors on quitte la fonction
          */
-        if (ALLOW_AUTODELETE_ARCHIVED_REPOS != "yes") {
+        if (ALLOW_AUTODELETE_ARCHIVED_REPOS != "true") {
             return;
         }
 

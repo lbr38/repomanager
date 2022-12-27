@@ -297,7 +297,7 @@ class Common
          *  Lancement d'une exception qui sera catchée par printAlert
          *  Si le mode debug est activé alors on affiche l'exception dans le message d'erreur
          */
-        if (!empty($exception) and DEBUG_MODE == 'enabled') {
+        if (!empty($exception) and DEBUG_MODE == 'true') {
             throw new Exception('An error occured while executing request in database <br>' . $exception . '<br>');
         } else {
             throw new Exception('An error occured while executing request in database');
@@ -617,6 +617,28 @@ class Common
     }
 
     /**
+     *  Find files and copy them to the specified target directory
+     */
+    public static function findAndCopyRecursive(string $directoryPath, string $targetDirectoryPath, string $fileExtension = null)
+    {
+        $foundedFiles = Common::findRecursive($directoryPath, $fileExtension, true);
+
+        /**
+         *  Copy files if founded
+         */
+        if (!empty($foundedFiles)) {
+            foreach ($foundedFiles as $foundedFile) {
+                $filename = preg_split('#/#', $foundedFile);
+                $filename = end($filename);
+
+                if (!copy($foundedFile, $targetDirectoryPath . '/' . $filename)) {
+                    throw new Exception('Error: could not copy package ' . $foundedFile . ' to ' . $targetDirectoryPath . '/' . $filename);
+                }
+            }
+        }
+    }
+
+    /**
      *  Delete specified directory recursively
      */
     public static function deleteRecursive(string $directoryPath)
@@ -679,7 +701,7 @@ class Common
         }
 
         /**
-         *  CLose files
+         *  Close files
          */
         if (!fclose($fileOut)) {
             throw new Exception('Error while closing gunzip output file: ' . $filenameOut);
@@ -759,17 +781,41 @@ class Common
         $tb = $gb * 1024;
 
         if (($bytes >= 0) && ($bytes < $kb)) {
-            return $bytes . 'B';
+            $value = $bytes;
+            $format = 'B';
         } elseif (($bytes >= $kb) && ($bytes < $mb)) {
-            return ceil($bytes / $kb) . 'K';
+            $value = ceil($bytes / $kb);
+            $format = 'K';
         } elseif (($bytes >= $mb) && ($bytes < $gb)) {
-            return ceil($bytes / $mb) . 'M';
+            $value = ceil($bytes / $mb);
+            $format = 'M';
         } elseif (($bytes >= $gb) && ($bytes < $tb)) {
-            return ceil($bytes / $gb) . 'G';
+            $value = ceil($bytes / $gb);
+            $format = 'G';
         } elseif ($bytes >= $tb) {
-            return ceil($bytes / $tb) . 'T';
+            $value = ceil($bytes / $tb);
+            $format = 'T';
         } else {
-            return $bytes . 'B';
+            $value = $bytes;
+            $format = 'B';
         }
+
+        if ($value >= 1000 and $value <= 1024) {
+            $value = 1;
+
+            if ($format == 'B') {
+                $format = 'K';
+            } elseif ($format == 'K') {
+                $format = 'M';
+            } elseif ($format == 'M') {
+                $format = 'G';
+            } elseif ($format == 'G') {
+                $format = 'T';
+            } elseif ($format == 'T') {
+                $format = 'P';
+            }
+        }
+
+        return $value . $format;
     }
 }

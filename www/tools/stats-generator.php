@@ -10,7 +10,7 @@ require_once(ROOT . '/controllers/Autoloader.php');
 
 $myrepo = new \Controllers\Repo();
 
-if (STATS_ENABLED == "yes") {
+if (STATS_ENABLED == "true") {
     /**
      *  On récupère toute la liste des repos actifs ayant au moins 1 environnement actif
      */

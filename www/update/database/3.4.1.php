@@ -3,6 +3,18 @@
  *  3.4.1 database update
  */
 
+if (!file_exists(HOSTS_DB)) {
+    return;
+}
+
+/**
+ *  hosts db must not be empty
+ */
+clearstatcache();
+if (!filesize(HOSTS_DB)) {
+    return;
+}
+
 /**
  *  Open hosts database
  */

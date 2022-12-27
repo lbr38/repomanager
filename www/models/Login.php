@@ -37,6 +37,28 @@ class Login extends Model
     }
 
     /**
+     *  Get username by user Id
+     */
+    public function getUsernameById(string $id)
+    {
+        $username = '';
+
+        try {
+            $stmt = $this->db->prepare("SELECT Username FROM users WHERE Id = :id and State = 'active'");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $username = $row['Username'];
+        }
+
+        return $username;
+    }
+
+    /**
      *  Return username informations
      */
     public function getAll(string $username)
@@ -118,11 +140,11 @@ class Login extends Model
     /**
      *  Set user status on 'deleted' in database
      */
-    public function deleteUser(string $username)
+    public function deleteUser(string $id)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Username = :username and Type = 'local'");
-            $stmt->bindValue(':username', $username);
+            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Id = :id and Type = 'local'");
+            $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

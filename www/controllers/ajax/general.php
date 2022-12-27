@@ -1,7 +1,20 @@
 <?php
 
-/*
- *  Acquit update log window
+/**
+ *  Update Repomanager
+ */
+if ($action == "updateRepomanager") {
+    $myupdate = new \Controllers\Update();
+    $myupdate->update();
+
+    /**
+     *  Always send HTTP_OK response, error warning on update is handled by a dedicated window
+     */
+    response(HTTP_OK, '');
+}
+
+/**
+ *  Acquit update log window and continue
  */
 if ($action == "continueUpdate") {
     $myupdate = new \Controllers\Update();
@@ -14,5 +27,3 @@ if ($action == "continueUpdate") {
 
     response(HTTP_OK, '');
 }
-
-response(HTTP_BAD_REQUEST, 'Invalid action');

@@ -49,16 +49,20 @@ foreach ($operation_params as $operation) {
     }
 
     /**
-     *  Récupération de l'action
+     *  Default values
+     */
+    $targetGroup = 'nogroup';
+    $targetDescription = 'nodescription';
+
+    /**
+     *  Getting action
      */
     $action = $operation['action'];
 
-    if ($action != 'new'
-        and $action != 'update'
-        and $action != 'duplicate'
-        and $action != 'delete'
-        and $action != 'env'
-        and $action != 'reconstruct') {
+    /**
+     *  Check that action is valid
+     */
+    if ($action != 'new' and $action != 'update' and $action != 'duplicate' and $action != 'delete' and $action != 'env' and $action != 'reconstruct') {
         echo "Unknown operation: invalid action." . PHP_EOL;
         $exitCode++;
         continue;
@@ -88,7 +92,7 @@ foreach ($operation_params as $operation) {
      *  Si un Id d'environnement a été spécifié
      */
     if (!empty($operation['envId'])) {
-        $envId  = $operation['envId'];
+        $envId = $operation['envId'];
     }
 
     /**
@@ -99,17 +103,13 @@ foreach ($operation_params as $operation) {
     }
 
     /**
-     *  Si aucun groupe et/ou description n'a été renseigné alors on set la valeur à 'nogroup' ou 'nodescription'
+     *  Getting target group and description
      */
-    if (empty($operation['targetGroup'])) {
-        $targetGroup = 'nogroup';
-    } else {
+    if (!empty($operation['targetGroup'])) {
         $targetGroup = $operation['targetGroup'];
     }
 
-    if (empty($operation['targetDescription'])) {
-        $targetDescription = 'nodescription';
-    } else {
+    if (!empty($operation['targetDescription'])) {
         $targetDescription = $operation['targetDescription'];
     }
 
@@ -330,6 +330,8 @@ foreach ($operation_params as $operation) {
             $targetPackageTranslation = $operation['targetPackageTranslation'];
         }
 
+        $onlySyncDifference = $operation['onlySyncDifference'];
+
         /**
          *  Création d'un objet Repo avec les infos du repo source
          */
@@ -368,6 +370,8 @@ foreach ($operation_params as $operation) {
                 $repo->setTargetPackageTranslation($targetPackageTranslation);
             }
         }
+
+        $repo->setOnlySyncDifference($onlySyncDifference);
 
         /**
          *  Exécution de l'opération
