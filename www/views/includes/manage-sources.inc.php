@@ -1,6 +1,6 @@
 <div id="sourcesDiv" class="param-slide-container">
     <div class="param-slide">
-        
+
         <?php $source = new \Controllers\Source(); ?>
 
         <img id="source-repo-close-btn" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
@@ -93,35 +93,29 @@
                     $sourceUrl = $source['Url'];
                     $sourceType = $source['Type']; ?>
 
-                    <div class="header-container">
-                        <div class="header-blue-min"> 
-                            <table id="sourceDivs">
-                                <tr>
-                                    <td class="td-10">
-                                        <?php
-                                        if ($sourceType == 'rpm') {
-                                            echo '<img src="resources/icons/products/centos.png" class="icon" />';
-                                        }
-                                        if ($sourceType == 'deb') {
-                                            echo '<img src="resources/icons/products/debian.png" class="icon" />';
-                                        } ?>
-                                    </td>
-                                    <td>
-                                        <input class="source-input-name input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceName ?>" />
-                                    </td>
-                                    <td>
-                                        <input class="source-input-url input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceUrl ?>" />
-                                    </td>
-                                    <td class="td-fit">
-                                        <img src="resources/icons/cog.svg" class="icon-lowopacity source-repo-edit-param-btn" source-id="<?= $sourceId ?>" title="Configure repository" />
-                                    </td>
-                                    <td class="td-fit">
-                                        <img src="resources/icons/bin.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+                    <table class="table-generic-blue">
+                        <tr>
+                            <td class="td-10">
+                                <?php
+                                if ($sourceType == 'rpm') {
+                                    echo ' <span class="label-pkg-rpm">rpm</span>';
+                                }
+                                if ($sourceType == 'deb') {
+                                    echo ' <span class="label-pkg-deb">deb</span>';
+                                } ?>
+                            </td>
+                            <td>
+                                <input class="source-input-name input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceName ?>" />
+                            </td>
+                            <td>
+                                <input class="source-input-url input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceUrl ?>" />
+                            </td>
+                            <td class="td-fit">
+                                <img src="resources/icons/cog.svg" class="icon-lowopacity source-repo-edit-param-btn" source-id="<?= $sourceId ?>" title="Configure repository" />
+                                <img src="resources/icons/bin.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
+                            </td>
+                        </tr>
+                    </table>
 
                     <div class="header-container hide source-repo-param-div" source-id="<?= $sourceId ?>">
                         <div class="header-light-blue-min"> 

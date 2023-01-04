@@ -112,8 +112,10 @@ $(document).on('change','#planFrequencySelect',function () {
 $(document).on('change','#planActionSelect',function () {
     if ($("#updateRepoSelect").is(":selected")) {
         $(".__plan_gpg_input").css('display', 'table-row');
+        $(".__plan_difference_input").css('display', 'table-row');
     } else {
         $(".__plan_gpg_input").hide();
+        $(".__plan_difference_input").hide();
     }
 }).trigger('change');
 
@@ -150,6 +152,11 @@ $(document).on('submit','#newPlanForm',function () {
     } else {
         var gpgResign = 'no';
     }
+    if ($("#onlySyncDifference").is(':checked')) {
+        var onlySyncDifference = 'yes';
+    } else {
+        var onlySyncDifference = 'no';
+    }
     if ($("#addPlanNotificationOnError").is(':checked')) {
         var notificationOnError = 'yes';
     } else {
@@ -161,7 +168,7 @@ $(document).on('submit','#newPlanForm',function () {
         var notificationOnSuccess = 'no';
     }
 
-    newPlan(type, day, date, time, frequency, action, snapId, groupId, targetEnv, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess);
+    newPlan(type, day, date, time, frequency, action, snapId, groupId, targetEnv, gpgCheck, gpgResign, onlySyncDifference, mailRecipient, reminder, notificationOnError, notificationOnSuccess);
 
     return false;
 });
@@ -189,7 +196,7 @@ $(document).on('click','.deletePlanButton',function () {
  * Ajax: Créer une nouvelle planification
  * @param {string} type
  */
-function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, targetEnv, gpgCheck, gpgResign, mailRecipient, reminder, notificationOnError, notificationOnSuccess)
+function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, targetEnv, gpgCheck, gpgResign, onlySyncDifference, mailRecipient, reminder, notificationOnError, notificationOnSuccess)
 {
     $.ajax({
         type: "POST",
@@ -208,6 +215,7 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
             targetEnv: targetEnv,
             gpgCheck: gpgCheck,
             gpgResign: gpgResign,
+            onlySyncDifference: onlySyncDifference,
             mailRecipient: mailRecipient,
             reminder: reminder,
             notificationOnError: notificationOnError,

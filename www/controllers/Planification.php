@@ -11,6 +11,7 @@ class Planification
     private $action;
     private $targetGpgCheck;
     private $targetGpgResign;
+    private $onlySyncDifference;
     private $status;
     private $error;
     private $logfile;
@@ -124,14 +125,6 @@ class Planification
 
     public function setNotification(string $type, string $state)
     {
-        /**
-         *  Si state est différent de yes et no alors c'est invalide
-         */
-        if ($state != 'yes' and $state != 'no') {
-            throw new Exception('Notification type is invalid');
-            die();
-        }
-
         if ($type == "on-error") {
             $this->notificationOnError = $state;
         }
@@ -143,28 +136,17 @@ class Planification
 
     public function setTargetGpgCheck(string $state)
     {
-        /**
-         *  Si state est différent de yes et no alors c'est invalide
-         */
-        if ($state != 'yes' and $state != 'no') {
-            throw new Exception('Target GPG check is invalid');
-            die();
-        }
-
         $this->targetGpgCheck = \Controllers\Common::validateData($state);
     }
 
     public function setTargetGpgResign(string $state)
     {
-        /**
-         *  Si state est différent de yes et no alors c'est invalide
-         */
-        if ($state != 'yes' and $state != 'no') {
-            throw new Exception('Target GPG sign is invalid');
-            die();
-        }
-
         $this->targetGpgResign = $state;
+    }
+
+    public function setOnlySyncDifference(string $state)
+    {
+        $this->onlySyncDifference = $state;
     }
 
     public function setTargetEnv(string $targetEnv)
@@ -415,6 +397,7 @@ class Planification
             $this->targetEnv,
             $this->targetGpgCheck,
             $this->targetGpgResign,
+            $this->onlySyncDifference,
             $this->notificationOnError,
             $this->notificationOnSuccess,
             $this->mailRecipient,
@@ -614,6 +597,11 @@ class Planification
                 $this->repo->setTargetGpgResign($this->targetGpgResign);
 
                 /**
+                 *  Setting onlySyncDifference
+                 */
+                $this->repo->setOnlySyncDifference($this->onlySyncDifference);
+
+                /**
                  *  Exécution de l'action 'update'
                  */
                 if ($this->repo->update() === false) {
@@ -621,6 +609,7 @@ class Planification
                 } else {
                     $status = 'done';
                 }
+
                 /**
                  *  On ajoute le repo à la liste des repo traités par cette planification
                  */
@@ -741,6 +730,11 @@ class Planification
                      *  Set de GPG Resign conformément à ce qui a été défini pour cette planification
                      */
                     $this->repo->setTargetGpgResign($this->targetGpgResign);
+
+                    /**
+                     *  Setting onlySyncDifference
+                    */
+                    $this->repo->setOnlySyncDifference($this->onlySyncDifference);
 
                     /**
                      *  Exécution de l'action 'update'
@@ -1370,6 +1364,10 @@ class Planification
         }
         if (!empty($planInfo['Gpgresign'])) {
             $this->setTargetGpgResign($planInfo['Gpgresign']);
+        }
+
+        if (!empty($planInfo['OnlySyncDifference'])) {
+            $this->onlySyncDifference = $planInfo['OnlySyncDifference'];
         }
 
         /**

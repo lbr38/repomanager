@@ -120,7 +120,7 @@ $(document).on('click','.delete-user-btn',function () {
  */
 function updateRepomanager()
 {
-    printAlert('Update running <img src="resources/images/loading.gif" class="icon" />');
+    printAlert('Update running <img src="resources/images/loading.gif" class="icon" />', '', 'none');
     $.ajax({
         type: "POST",
         url: "ajax/controller.php",

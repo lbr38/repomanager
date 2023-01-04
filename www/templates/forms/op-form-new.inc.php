@@ -152,7 +152,7 @@
                     </tr>
 
                     <tr field-type="mirror rpm deb">
-                        <td class="td-30">Sign repo or packages with GPG</td>
+                        <td class="td-30">Sign with GPG</td>
                         <td>
                             <label class="onoff-switch-label" field-type="mirror rpm">
                                 <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?> />

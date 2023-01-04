@@ -29,13 +29,14 @@ class Planification extends Model
         string $targetEnv = null,
         string $gpgCheck = null,
         string $gpgResign = null,
+        string $onlySyncDifference = null,
         string $notificationOnError,
         string $notificationOnSuccess,
         string $mailRecipient = null,
         string $reminder = null
     ) {
         try {
-            $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Day', 'Date', 'Time', 'Action', 'Id_snap', 'Id_group', 'Target_env', 'Gpgcheck', 'Gpgresign', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :day, :date, :time, :action, :snapId, :groupId, :targetEnv, :gpgcheck, :gpgresign, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
+            $stmt = $this->db->prepare("INSERT INTO Planifications ('Type', 'Frequency', 'Day', 'Date', 'Time', 'Action', 'Id_snap', 'Id_group', 'Target_env', 'Gpgcheck', 'Gpgresign', 'OnlySyncDifference', 'Reminder', 'Notification_error', 'Notification_success', 'Mail_recipient', 'Status') VALUES (:plantype, :frequency, :day, :date, :time, :action, :snapId, :groupId, :targetEnv, :gpgcheck, :gpgresign, :onlySyncDifference, :reminder, :notification_error, :notification_success, :mailrecipient, 'queued')");
             $stmt->bindValue(':plantype', $type);
             $stmt->bindValue(':frequency', $frequency);
             $stmt->bindValue(':day', $day);
@@ -47,6 +48,7 @@ class Planification extends Model
             $stmt->bindValue(':targetEnv', $targetEnv);
             $stmt->bindValue(':gpgcheck', $gpgCheck);
             $stmt->bindValue(':gpgresign', $gpgResign);
+            $stmt->bindValue(':onlySyncDifference', $onlySyncDifference);
             $stmt->bindValue(':notification_error', $notificationOnError);
             $stmt->bindValue(':notification_success', $notificationOnSuccess);
             $stmt->bindValue(':mailrecipient', $mailRecipient);

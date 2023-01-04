@@ -54,6 +54,11 @@ if ($_POST['action'] == "newPlan") {
             } else {
                 $myplan->setTargetGpgResign('no');
             }
+            if (!empty($_POST['onlySyncDifference']) and $_POST['onlySyncDifference'] == "yes") {
+                $myplan->setOnlySyncDifference('yes');
+            } else {
+                $myplan->setOnlySyncDifference('no');
+            }
         }
 
         /**

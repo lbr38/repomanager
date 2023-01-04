@@ -58,12 +58,15 @@ if (file_exists(UPDATE_ERROR_LOG) or file_exists(UPDATE_SUCCESS_LOG)) :
 
             <?php
             if (!empty($updateInfoLog)) : ?>
-                <p>
-                    <br>
-                    Update info:
-                    <br>
-                    <?= $updateInfoLog ?>
-                </p>
+                <br><br>
+
+                <h4>Update info:</h4>
+
+                <div id="update-log-info">
+                    <p>    
+                        <?= $updateInfoLog ?>
+                    </p>
+                </div>
                 <?php
             endif ?>
         </div>

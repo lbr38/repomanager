@@ -43,7 +43,7 @@
         }
 
         if (!empty($this->targetGpgCheck)) {
-            echo "<tr><th>GPG SIGNATURE CHECK</th><td>";
+            echo "<tr><th>CHECK GPG SIGNATURES</th><td>";
 
             if ($this->targetGpgCheck == 'yes') {
                 echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
@@ -54,12 +54,23 @@
             echo "</td></tr>";
         }
         if (!empty($this->targetGpgResign)) {
-            echo '<tr><th>GPG REPO SIGNATURE</th><td>';
+            echo '<tr><th>SIGN WITH GPG</th><td>';
 
             if ($this->targetGpgResign == "yes") {
                 echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
             }
             if ($this->targetGpgResign == "no") {
+                echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+            }
+            echo '</tr>';
+        }
+        if (!empty($this->onlySyncDifference)) {
+            echo '<tr><th>ONLY SYNC THE DIFFERENCE</th><td>';
+
+            if ($this->onlySyncDifference == "yes") {
+                echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+            }
+            if ($this->onlySyncDifference == "no") {
                 echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
             }
             echo '</tr>';

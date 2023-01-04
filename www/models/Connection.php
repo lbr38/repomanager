@@ -433,6 +433,7 @@ class Connection extends SQLite3
         Target_env VARCHAR(255),
         Gpgcheck CHAR(3),
         Gpgresign CHAR(3),
+        OnlySyncDifference CHAR(3),	
         Reminder VARCHAR(255),
         Notification_error CHAR(3),
         Notification_success CHAR(3),
@@ -742,6 +743,20 @@ class Connection extends SQLite3
         }
 
         return $count;
+    }
+
+    /**
+     *  Return true if table name exists
+     */
+    public function tableExist(string $tableName)
+    {
+        $result = $this->query("SELECT name FROM sqlite_master WHERE type='table' AND name='{$tableName}'");
+
+        if ($this->count($result) > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
