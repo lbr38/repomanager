@@ -92,12 +92,21 @@ if (!empty($groupsList)) {
                         $printRepoName = 'no';
                     }
 
+                    if ($packageType == 'rpm') {
+                        if ($name == $repoLastName and !empty($lastSnapId) and $snapId != $lastSnapId) {
+                            $printEmptyLine = 'yes';
+                        }
+                    }
+
                     if ($packageType == "deb") {
                         if ($name == $repoLastName and !empty($repoLastDist) and $dist == $repoLastDist and !empty($repoLastSection) and $section == $repoLastSection) {
                             $printRepoDist = 'no';
                             $printRepoSection = 'no';
                         }
                         if ($name == $repoLastName and $repoLastDist != $dist) {
+                            $printEmptyLine = 'yes';
+                        }
+                        if ($name == $repoLastName and !empty($repoLastDist) and $dist == $repoLastDist and !empty($repoLastSection) and $section == $repoLastSection and !empty($lastSnapId) and $snapId != $lastSnapId) {
                             $printEmptyLine = 'yes';
                         }
                     }
@@ -291,7 +300,7 @@ if (!empty($groupsList)) {
                         /**
                          *  Affichage de l'icone "statistiques"
                          */
-                        if (STATS_ENABLED == "yes") {
+                        if (STATS_ENABLED == "true") {
                             if ($packageType == "rpm") {
                                 echo "<a href=\"/stats?id=${envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $name ($env)\" /></a>";
                             }

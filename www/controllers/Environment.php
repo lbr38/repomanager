@@ -14,36 +14,6 @@ class Environment
     }
 
     /**
-     *  Create new environment
-     */
-    public function new(string $name)
-    {
-        /**
-         *  Check if new env name is valid
-         */
-        if (!\Controllers\Common::isAlphanumDash($name)) {
-            throw new Exception('Environment <b>' . $name . '</b> contains invalid characters');
-        }
-
-        /**
-         *  Check if new env already exists
-         */
-        if ($this->exists($name) === true) {
-            throw new Exception('Environment <b>' . $name . '</b> already exists');
-        }
-
-        /**
-         *  Adding new environment into database
-         */
-        $this->model->new($name);
-
-        /**
-         *  Cleaning repos list cache
-         */
-        \Controllers\Common::clearCache();
-    }
-
-    /**
      *  Delete environment
      */
     public function delete(string $name)
@@ -67,7 +37,7 @@ class Environment
     }
 
     /**
-     *  Edit the actual environments
+     *  Add / edit the actual environments
      */
     public function edit(array $envs)
     {

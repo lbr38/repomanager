@@ -68,12 +68,12 @@ if (IS_ADMIN) : ?>
                             $resignChecked = '';
 
                             if ($myrepo->getPackageType() == "rpm") {
-                                if (RPM_SIGN_PACKAGES == 'yes') {
+                                if (RPM_SIGN_PACKAGES == 'true') {
                                     $resignChecked = 'checked';
                                 }
                             }
                             if ($myrepo->getPackageType() == "deb") {
-                                if (DEB_SIGN_REPO == 'yes') {
+                                if (DEB_SIGN_REPO == 'true') {
                                     $resignChecked = 'checked';
                                 }
                             } ?>

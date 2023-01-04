@@ -58,7 +58,7 @@ class Update
      */
     private function backup()
     {
-        if (UPDATE_BACKUP_ENABLED == 'yes') {
+        if (UPDATE_BACKUP_ENABLED == 'true') {
             $backupName = DATE_YMD . '_' . TIME . '_repomanager_full_backup.tar.gz';
 
             exec("tar --exclude='" . BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $return);
@@ -271,7 +271,8 @@ class Update
             /**
              *  Apply database update queries if there are
              */
-            $this->updateDB(GIT_VERSION);
+            // $this->updateDB(GIT_VERSION);
+            $this->updateDB();
 
             /**
              *  Set permissions on repomanager service script

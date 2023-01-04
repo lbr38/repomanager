@@ -1,20 +1,5 @@
 <?php
 
-/*
- *  Create a new environment
- */
-if ($action == 'newEnv' and !empty($_POST['name'])) {
-    $myenv = new \Controllers\Environment();
-
-    try {
-        $myenv->new($_POST['name']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, 'Environment <b>' . $_POST['name'] . '</b> created');
-}
-
 /**
  *  Delete an environment
  */
@@ -31,9 +16,9 @@ if ($action == 'deleteEnv' and !empty($_POST['name'])) {
 }
 
 /**
- *  Rename an environment / reorder environments
+ *  Add / edit actual envs
  */
-if ($action == 'renameEnv' and !empty($_POST['envs'])) {
+if ($action == 'editEnv' and !empty($_POST['envs'])) {
     $myenv = new \Controllers\Environment();
 
     try {

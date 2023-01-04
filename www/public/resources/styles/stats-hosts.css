@@ -291,6 +291,8 @@
 .hosts-charts-list-container {
     width: 80%;
     margin: auto;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .hosts-charts-list-label {

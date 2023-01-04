@@ -4,10 +4,10 @@
 
         <h3>REPOS GROUPS</h3>
 
-        <h5>Create a new group:</h5>
+        <h4><b>Create a new group</b></h4>
 
         <form id="newGroupForm" autocomplete="off">
-            <input id="newGroupInput" type="text" class="input-medium" />
+            <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" />
             <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
         </form>
 
@@ -28,7 +28,7 @@
          *  2. Affichage des groupes si il y en a
          */
         if (!empty($groupsList)) : ?>
-            <h5>Current groups</h5>
+            <h4><b>Current groups</b></h4>
 
             <?php
             $myrepo = new \Controllers\Repo();

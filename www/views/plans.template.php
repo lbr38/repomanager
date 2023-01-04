@@ -483,7 +483,7 @@ endif ?>
                                 /**
                                  *  Si les deux constantes suivantes valent 'no' alors la signature avec GPG sera désactivée par défaut
                                  */
-                                if (RPM_SIGN_PACKAGES == 'no' and DEB_SIGN_REPO == 'no') {
+                                if (RPM_SIGN_PACKAGES == 'false' and DEB_SIGN_REPO == 'false') {
                                     $planGpgResign = 'no';
                                 } ?>
                                 <input id="addPlanGpgResign" type="checkbox" name="addPlanGpgResign" class="onoff-switch-input" value="yes" <?php echo ($planGpgResign == "yes") ? 'checked' : ''; ?>>
@@ -616,7 +616,7 @@ endif ?>
                                                 echo '<img class="icon" src="resources/icons/link.svg" title="Operation type: ' . $planAction . '" />';
                                             } ?>
                                         </td>
-                                        <td class="td-small">On <b><?= $planDate ?></b> at <b><?= $planTime ?></b></td>
+                                        <td class="td-small"><b><?= $planDate ?></b> at <b><?= $planTime ?></b></td>
                                         <td>
                                             <?php
                                             /**

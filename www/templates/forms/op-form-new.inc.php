@@ -24,15 +24,15 @@
                                 /**
                                  *  Cas où le serveur gère plusieurs types de repo différents
                                  */
-                                if (RPM_REPO == 'enabled' and DEB_REPO == 'enabled') : ?>
+                                if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
                                     <input type="radio" id="packageType_rpm" class="operation_param" param-name="packageType" name="packageType" value="rpm" checked />
                                     <label for="packageType_rpm">rpm</label>
                                     <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" />
                                     <label for="packageType_deb">deb</label>
-                                <?php elseif (RPM_REPO == 'enabled') : ?>
+                                <?php elseif (RPM_REPO == 'true') : ?>
                                     <input type="radio" id="packageType_rpm" class="operation_param" param-name="packageType" name="packageType" value="rpm" checked />
                                     <label for="packageType_rpm">rpm</label>     
-                                <?php elseif (DEB_REPO == 'enabled') : ?>
+                                <?php elseif (DEB_REPO == 'true') : ?>
                                     <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" checked />
                                     <label for="packageType_deb">deb</label> 
                                 <?php endif ?>
@@ -55,7 +55,7 @@
                     <tr field-type="mirror rpm deb">
                         <td class="td-30">Source repo</td>
                         <td>
-                            <?php if (RPM_REPO == 'enabled') : ?>
+                            <?php if (RPM_REPO == true) : ?>
                                 <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror rpm" package-type="rpm">
                                     <option value="">Select a source repo...</option>
                                     <?php
@@ -72,7 +72,7 @@
                                 </select>
                             <?php endif;
 
-                            if (DEB_REPO == 'enabled') : ?>
+                            if (DEB_REPO == 'true') : ?>
                                 <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror deb" package-type="deb">
                                     <option value="">Select a source repo...</option>
                                     <?php
@@ -155,11 +155,11 @@
                         <td class="td-30">Sign repo or packages with GPG</td>
                         <td>
                             <label class="onoff-switch-label" field-type="mirror rpm">
-                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "yes") ? 'checked' : ''; ?> />
+                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                             <label class="onoff-switch-label" field-type="mirror deb">
-                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" param-name="targetGpgResign" package-type="deb" <?php echo (DEB_SIGN_REPO == "yes") ? 'checked' : ''; ?> />
+                                <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" param-name="targetGpgResign" package-type="deb" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>
@@ -225,11 +225,11 @@
                         <td class="td-30">Include sources packages</td>
                         <td>
                             <label field-type="mirror rpm" class="onoff-switch-label">
-                                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                             <label field-type="mirror deb" class="onoff-switch-label">
-                                <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'yes') ? 'checked' : ''; ?> />
+                                <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>

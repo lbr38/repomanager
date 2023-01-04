@@ -53,7 +53,8 @@
         You can create and manage configuration profiles for your hosts that use <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a>.<br>
         On every package update, hosts will automaticaly get their configuration from this reposerver.
     </p>
-    <br>
+
+    <br><br>
 
     <div id="profilesDiv">
         <p>Create a new profile:</p>
@@ -61,7 +62,8 @@
             <input id="newProfileInput" type="text" class="input-medium" />
             <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
         </form>
-        <br>
+        
+        <br><br><br>
 
         <?php
         if (!empty($profiles)) : ?>
@@ -89,7 +91,7 @@
                     /**
                      *  On récupère le nombre d'hôtes utilisant ce profil, si il y en a, et si la gestion des hôtes est activée
                      */
-                    if (MANAGE_HOSTS == 'yes') {
+                    if (MANAGE_HOSTS == 'true') {
                         /**
                          *  Ici on doit redéclarer à nouveau l'objet $myprofile, car lorsque la div '.profileDivContainer' est rechargée par jquery, l'objet $myprofile n'est alors pas défini et provoque une erreur 500.
                          */
@@ -97,6 +99,7 @@
                         $hostsCount = $myhost->countByProfile($profileName);
                         unset($myhost);
                     } ?>
+
                     <div class="profileDiv">
                         <form class="profileForm" profilename="<?=$profileName?>" autocomplete="off">
                             <table class="table-large">
@@ -106,7 +109,7 @@
                                     </td>
                                     <td class="td-fit">
                                         <?php
-                                        if (MANAGE_HOSTS == 'yes' and $hostsCount > 0) {
+                                        if (MANAGE_HOSTS == 'true' and $hostsCount > 0) {
                                             echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="resources/icons/server.svg" class="icon" /></span>';
                                         } ?>
                                         <span><img src="resources/icons/cog.svg" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
@@ -127,8 +130,8 @@
                                 }
 
                                 if ($serverManageClientRepos == "yes") : ?>
-                                    <h5>Access following repositories:</h5>
-                                    <p>Specify what repositories the host(s) will have access to.<br>Repos files will be retrieved by hosts on each linupdate execution.</p>
+                                    <h5>Grant access to following repositories</h5>
+                                    <p>Specify what repositories the host(s) will have access to. Repos files will be retrieved by hosts on each linupdate execution.</p>
                                     <table class="table-large">
                                         <tr>
                                             <td colspan="100%">
@@ -140,7 +143,7 @@
                                                      */
                                                     $repos = $myrepo->listNameOnly(true);
 
-                                                    foreach ($repos as $repo) {
+                                                    foreach ($repos as $repo) :
                                                         $repoId   = $repo['Id'];
                                                         $repoName = $repo['Name'];
                                                         $repoDist = $repo['Dist'];
@@ -161,21 +164,24 @@
                                                                 echo '<option value="' . $repoId . '">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</option>';
                                                             }
                                                         }
-                                                    } ?>
+                                                    endforeach ?>
                                                 </select>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td class="td-fit" title="Linupdate should automatically get its repos files from this profile on each execution">Linupdate should automatically get its repos files from this profile on each execution</td>
-                                            <td>
-                                                <label class="onoff-switch-label">
-                                                    <input id="profile-linupdate-get-repos-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetReposConf == 'true') ? 'checked' : ''; ?>>
-                                                    <span class="onoff-switch-slider"></span>
-                                                </label>
-                                            </td>
-                                        </tr>
                                     </table>
+
+                                    <div class="flex align-item-center column-gap-4">
+                                        <span>Linupdate should automatically get its repos files from this profile on each execution </span>
+                                        <label class="onoff-switch-label">
+                                        <input id="profile-linupdate-get-repos-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetReposConf == 'true') ? 'checked' : ''; ?>>
+                                            <span class="onoff-switch-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <br>
                                     <hr>
+                                    <br>
+
                                     <?php
                                 endif;
                                 /**
@@ -192,7 +198,8 @@
                                     /**
                                      *  Pour chaque paquet de cette liste, si celui-ci apparait dans $profileConfExcludeMajor alors on l'affiche comme sélectionné "selected"
                                      */ ?>
-                                    <h5>Packages to exclude on major version update:</h5>
+                                    <h5>Packages to exclude on major version update</h5>
+
                                     <select class="select-exclude-major" profilename="<?= $profileName ?>" name="profileConfExcludeMajor[]" multiple>
                                         <?php
                                         foreach ($listPackages as $package) {
@@ -211,9 +218,11 @@
                                             }
                                         } ?>
                                     </select>
-                                    <br>
+                                    
+                                    <br><br>
 
-                                    <h5>Packages to exclude (no matter the version):</h5>
+                                    <h5>Packages to exclude (no matter the version)</h5>
+
                                     <select class="select-exclude" profilename="<?= $profileName ?>" multiple>
                                         <?php
                                         foreach ($listPackages as $package) {
@@ -233,9 +242,11 @@
                                             }
                                         } ?>
                                     </select>
-                                    <br>
 
-                                    <h5>Services to restart after package update:</h5>
+                                    <br><br>
+
+                                    <h5>Services to restart after package update</h5>
+
                                     <?php
                                     /**
                                      *  Liste des services sélectionnables dans la liste des services à redémarrer
@@ -255,20 +266,20 @@
                                         } ?>
                                     </select>
 
-                                    <br>
-                                    <table class="table-large">
-                                        <tr>
-                                            <td class="td-fit" title="Linupdate should automatically get its configuration from this profile on each execution">Linupdate should automatically get its configuration from this profile on each execution</td>
-                                            <td>
-                                                <label class="onoff-switch-label">
-                                                    <input id="profile-linupdate-get-pkg-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetPkgConf == 'true') ? 'checked' : ''; ?>>
-                                                    <span class="onoff-switch-slider"></span>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                    <br><br>
 
-                                    <h5>Notes:</h5>
+                                    <div class="flex align-item-center column-gap-4">
+                                        <span>Linupdate should automatically get its configuration from this profile on each execution </span>
+                                        <label class="onoff-switch-label">
+                                            <input id="profile-linupdate-get-pkg-conf" profilename="<?= $profileName ?>" type="checkbox" class="onoff-switch-input" <?php echo ($linupdateGetPkgConf == 'true') ? 'checked' : ''; ?>>
+                                            <span class="onoff-switch-slider"></span>
+                                        </label>
+                                    </div>
+
+                                    <br><br>
+
+                                    <h5>Notes</h5>
+
                                     <textarea class="profile-conf-notes" profilename="<?= $profileName ?>"><?= $profileNotes ?></textarea>
                                     <?php
                                 endif;

@@ -89,6 +89,14 @@ class Login
     }
 
     /**
+     *  Get username by user Id
+     */
+    private function getUsernameById(string $id)
+    {
+        return $this->model->getUsernameById($id);
+    }
+
+    /**
      *  Get username informations
      */
     public function getAll(string $username)
@@ -116,6 +124,10 @@ class Login
      */
     public function addUser(string $username, string $role)
     {
+        if (!IS_SUPERADMIN) {
+            throw new Exception('You are not allowed to execute this action.');
+        }
+
         $username = \Controllers\Common::validateData($username);
         $role = \Controllers\Common::validateData($role);
 
@@ -350,15 +362,19 @@ class Login
     /**
      *  Reset specified user password
      */
-    public function resetPassword(string $username)
+    public function resetPassword(string $id)
     {
-        $username = \Controllers\Common::validateData($username);
+        if (!IS_SUPERADMIN) {
+            throw new Exception('You are not allowed to execute this action.');
+        }
 
         /**
-         *  Check that user exists
+         *  Get username
          */
-        if ($this->userExists($username) !== true) {
-            throw new Exception("User <b>$username</b> does not exist");
+        $username = $this->getUsernameById($id);
+
+        if (empty($username)) {
+            throw new Exception("Specified user does not exist");
         }
 
         /**
@@ -390,15 +406,19 @@ class Login
     /**
      *  Delete specified user
      */
-    public function deleteUser(string $username)
+    public function deleteUser(string $id)
     {
-        $username = \Controllers\Common::validateData($username);
+        if (!IS_SUPERADMIN) {
+            throw new Exception('You are not allowed to execute this action.');
+        }
 
         /**
-         *  Check that user exists
+         *  Get username
          */
-        if ($this->userExists($username) !== true) {
-            throw new Exception("User <b>$username</b> does not exist");
+        $username = $this->getUsernameById($id);
+
+        if (empty($username)) {
+            throw new Exception("Specified user does not exist");
         }
 
         /**
@@ -406,7 +426,7 @@ class Login
          *  The user is being kept in database for history reasons but its status is set on 'deleted' and the user become unusuable
          *  Its password is removed from database
          */
-        $this->model->deleteUser($username);
+        $this->model->deleteUser($id);
 
         \Models\History::set($_SESSION['username'], "Delete user <b>$username</b>", 'success');
     }

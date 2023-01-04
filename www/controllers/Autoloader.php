@@ -42,7 +42,7 @@ class Autoloader
         /**
          *  On défini un cookie contenant l'URI en cours, utile pour rediriger directement vers cette URI après s'être identifié sur la page de login
          */
-        if (!empty($_SERVER['REQUEST_URI'])) {
+        if (!empty($_SERVER['REQUEST_URI']) and !isset($_GET['reload'])) {
             if ($_SERVER["REQUEST_URI"] != '/login' and $_SERVER["REQUEST_URI"] != '/logout') {
                 setcookie('origin', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), array('secure' => true, 'httponly' => true));
             }
@@ -368,11 +368,11 @@ class Autoloader
          */
         if (file_exists(DATA_DIR . "/update-running")) {
             if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'yes');
+                define('UPDATE_RUNNING', 'true');
             }
         } else {
             if (!defined('UPDATE_RUNNING')) {
-                define('UPDATE_RUNNING', 'no');
+                define('UPDATE_RUNNING', 'false');
             }
         }
     }
@@ -478,12 +478,10 @@ class Autoloader
         /**
          *  Si la clé de signature GPG n'existe pas alors on l'exporte
          */
-        if (RPM_SIGN_PACKAGES == 'yes' and DEB_SIGN_REPO == 'yes') {
+        if (RPM_SIGN_PACKAGES == 'true') {
             exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
-        } else if (RPM_SIGN_PACKAGES == 'yes') {
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
-        } else if (DEB_SIGN_REPO == 'yes') {
+        }
+        if (DEB_SIGN_REPO == 'true') {
             exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
         }
     }
@@ -711,7 +709,7 @@ class Autoloader
         }
 
         if (!defined('BACKUP_DIR')) {
-            if (UPDATE_BACKUP_ENABLED == "yes") {
+            if (UPDATE_BACKUP_ENABLED == "true") {
                 if (!empty($repomanager_conf_array['BACKUP_DIR'])) {
                     define('BACKUP_DIR', $repomanager_conf_array['BACKUP_DIR']);
                     /**
@@ -732,7 +730,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['DEBUG_MODE'])) {
                 define('DEBUG_MODE', $repomanager_conf_array['DEBUG_MODE']);
             } else {
-                define('DEBUG_MODE', 'disabled');
+                define('DEBUG_MODE', 'false');
             }
         }
 
@@ -775,7 +773,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['RPM_REPO'])) {
                 define('RPM_REPO', $repomanager_conf_array['RPM_REPO']);
             } else {
-                define('RPM_REPO', 'disabled');
+                define('RPM_REPO', 'false');
             }
         }
 
@@ -783,7 +781,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['RPM_SIGN_PACKAGES'])) {
                 define('RPM_SIGN_PACKAGES', $repomanager_conf_array['RPM_SIGN_PACKAGES']);
             } else {
-                define('RPM_SIGN_PACKAGES', 'no');
+                define('RPM_SIGN_PACKAGES', 'false');
             }
         }
 
@@ -796,7 +794,7 @@ class Autoloader
                 /**
                  *  On affiche un message uniquement si la signature est activée
                  */
-                if (RPM_SIGN_PACKAGES == 'yes') {
+                if (RPM_SIGN_PACKAGES == 'true') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing RPM packages is not defined.";
                 }
             }
@@ -814,7 +812,7 @@ class Autoloader
                 /**
                  *  On affiche un message uniquement si la signature est activée
                  */
-                if (RPM_SIGN_PACKAGES == 'yes') {
+                if (RPM_SIGN_PACKAGES == 'true') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "GPG signing method for signing RPM packages is not defined.";
                 }
             }
@@ -829,7 +827,7 @@ class Autoloader
                 /**
                  *  On affiche un message uniquement si les repos RPM sont activés.
                  */
-                if (RPM_REPO == 'enabled') {
+                if (RPM_REPO == 'true') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Release version for RPM repositories is not defined.";
                 }
             }
@@ -847,7 +845,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['RPM_INCLUDE_SOURCE'])) {
                 define('RPM_INCLUDE_SOURCE', $repomanager_conf_array['RPM_INCLUDE_SOURCE']);
             } else {
-                define('RPM_INCLUDE_SOURCE', 'no');
+                define('RPM_INCLUDE_SOURCE', 'false');
             }
         }
 
@@ -856,7 +854,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['DEB_REPO'])) {
                 define('DEB_REPO', $repomanager_conf_array['DEB_REPO']);
             } else {
-                define('DEB_REPO', 'disabled');
+                define('DEB_REPO', 'false');
             }
         }
 
@@ -864,7 +862,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['DEB_SIGN_REPO'])) {
                 define('DEB_SIGN_REPO', $repomanager_conf_array['DEB_SIGN_REPO']);
             } else {
-                define('DEB_SIGN_REPO', 'no');
+                define('DEB_SIGN_REPO', 'false');
             }
         }
 
@@ -877,7 +875,7 @@ class Autoloader
                 /**
                  *  On affiche un message uniquement si la signature est activée
                  */
-                if (DEB_SIGN_REPO == 'yes') {
+                if (DEB_SIGN_REPO == 'true') {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing DEB packages is not defined.";
                 }
             }
@@ -895,7 +893,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['DEB_INCLUDE_SOURCE'])) {
                 define('DEB_INCLUDE_SOURCE', $repomanager_conf_array['DEB_INCLUDE_SOURCE']);
             } else {
-                define('DEB_INCLUDE_SOURCE', 'no');
+                define('DEB_INCLUDE_SOURCE', 'false');
             }
         }
 
@@ -924,7 +922,7 @@ class Autoloader
                 define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
             } else {
                 define('ALLOW_AUTOUPDATE_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to update repositories is not defined.";
                 }
             }
@@ -935,7 +933,7 @@ class Autoloader
         //         define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
         //     } else {
         //         define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
-        //         if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
+        //         if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
         //             $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
         //         }
         //     }
@@ -946,7 +944,7 @@ class Autoloader
                 define('ALLOW_AUTODELETE_ARCHIVED_REPOS', $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS']);
             } else {
                 define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to delete old repos snapshots is not defined.";
                 }
             }
@@ -957,7 +955,7 @@ class Autoloader
                 define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
             } else {
                 define('RETENTION', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "yes") {
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
                     $__LOAD_MAIN_CONF_MESSAGES[] = "Old repos snapshots retention is not defined.";
                 }
             }
@@ -1007,7 +1005,7 @@ class Autoloader
             }
         }
 
-        if (STATS_ENABLED == "yes") {
+        if (STATS_ENABLED == "true") {
             if (!defined('STATS_LOG_PATH')) {
                 if (!empty($repomanager_conf_array['STATS_LOG_PATH'])) {
                     define('STATS_LOG_PATH', $repomanager_conf_array['STATS_LOG_PATH']);
@@ -1030,7 +1028,7 @@ class Autoloader
             if (!empty($repomanager_conf_array['PLAN_REMINDERS_ENABLED'])) {
                 define('PLAN_REMINDERS_ENABLED', $repomanager_conf_array['PLAN_REMINDERS_ENABLED']);
             } else {
-                define('PLAN_REMINDERS_ENABLED', 'no');
+                define('PLAN_REMINDERS_ENABLED', 'false');
             }
         }
 
@@ -1109,15 +1107,15 @@ class Autoloader
         if (defined('VERSION') and defined('GIT_VERSION')) {
             if (VERSION !== GIT_VERSION) {
                 if (!defined('UPDATE_AVAILABLE')) {
-                    define('UPDATE_AVAILABLE', 'yes');
+                    define('UPDATE_AVAILABLE', 'true');
                 }
             } else {
                 if (!defined('UPDATE_AVAILABLE')) {
-                    define('UPDATE_AVAILABLE', 'no');
+                    define('UPDATE_AVAILABLE', 'false');
                 }
             }
         } else {
-            define('UPDATE_AVAILABLE', 'no');
+            define('UPDATE_AVAILABLE', 'false');
         }
 
         /**
@@ -1125,7 +1123,7 @@ class Autoloader
          *  L'action est effectuée uniquement si une mise à jour n'est pas déjà en cours (présence du fichier update-running)
          *  La mise à jour mettra en place une page de maintenance automatiquement
          */
-        if (UPDATE_AUTO == "yes" and UPDATE_AVAILABLE == "yes") {
+        if (UPDATE_AUTO == "true" and UPDATE_AVAILABLE == "true") {
             if (!file_exists(DATA_DIR . "/update-running")) {
                 $myupdate = new \Controllers\Update();
                 $myupdate->update();

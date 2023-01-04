@@ -19,11 +19,11 @@ CONFIRM=""
 CHECK_DEP=""
 PACKAGE_TYPE=""
 
-RPM_REPO="disabled"
-RPM_SIGN_PACKAGES="no"
+RPM_REPO="false"
+RPM_SIGN_PACKAGES="false"
 RPM_SIGN_METHOD="rpmsign"
-DEB_REPO="disabled"
-DEB_SIGN_REPO="no"
+DEB_REPO="false"
+DEB_SIGN_REPO="false"
 GPG_KEYID=""
 
 REPOMANAGER_APT_DIR="/etc/apt/"
@@ -541,8 +541,7 @@ function installation
     getPackageType
 
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-
-        RPM_REPO="enabled"
+        RPM_REPO="true"
 
         if [ "$OS_FAMILY" == "Redhat" ];then
             RELEASEVER="$OS_VERSION"
@@ -555,8 +554,8 @@ function installation
         fi
     fi
 
-    if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        DEB_REPO="enabled"
+    if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
+        DEB_REPO="true"
     fi
 
     #### DEPENDENCIES ####
@@ -687,10 +686,10 @@ function installation
         # To ask wizard to generate a key
         GENERATE_A_KEY_FOR_ME="yes"
         if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-            RPM_SIGN_PACKAGES="yes"
+            RPM_SIGN_PACKAGES="true"
         fi
         if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
-            DEB_SIGN_REPO="yes"
+            DEB_SIGN_REPO="true"
         fi
         GPG_KEYID=""
         PASSPHRASE=""
@@ -788,8 +787,8 @@ function installation
         mkdir -p ${REPOS_DIR}/gpgkeys/
         gpg2 --no-permission-warning --homedir "$GPGHOME" --export -a "$GPG_KEYID" > ${REPOS_DIR}/gpgkeys/${WWW_HOSTNAME}.pub 2>/dev/null
     else
-        RPM_SIGN_PACKAGES="no"
-        DEB_SIGN_REPO="no"
+        RPM_SIGN_PACKAGES="false"
+        DEB_SIGN_REPO="false"
     fi
 
     echo -e "   ${YELLOW}\nConfiguring repomanager...${RESET}"
@@ -801,11 +800,11 @@ function installation
 
     echo -e "\n[CONFIGURATION]" >> $CONF
     echo "EMAIL_DEST = \"\"" >> $CONF
-    echo "MANAGE_HOSTS = \"no\"" >> $CONF
-    echo "MANAGE_PROFILES = \"no\"" >> $CONF
+    echo "MANAGE_HOSTS = \"false\"" >> $CONF
+    echo "MANAGE_PROFILES = \"false\"" >> $CONF
     echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> $CONF
     echo "BACKUP_DIR = \"${DATA_DIR}/backups\"" >> $CONF
-    echo "DEBUG_MODE = \"disabled\"" >> $CONF
+    echo "DEBUG_MODE = \"false\"" >> $CONF
     
     echo -e "\n[RPM]" >> $CONF
     echo "RPM_REPO = \"${RPM_REPO}\"" >> $CONF
@@ -818,19 +817,19 @@ function installation
         echo "RELEASEVER = \"\"" >> $CONF
     fi
     echo "RPM_DEFAULT_ARCH = \"\"" >> $CONF
-    echo "RPM_INCLUDE_SOURCE = \"no\"" >> $CONF
+    echo "RPM_INCLUDE_SOURCE = \"false\"" >> $CONF
 
     echo -e "\n[DEB]" >> $CONF
     echo "DEB_REPO = \"${DEB_REPO}\"" >> $CONF
     echo "DEB_SIGN_REPO = \"${DEB_SIGN_REPO}\"" >> $CONF
     echo "DEB_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> $CONF
     echo "DEB_DEFAULT_ARCH = \"\"" >> $CONF
-    echo "DEB_INCLUDE_SOURCE = \"no\"" >> $CONF
+    echo "DEB_INCLUDE_SOURCE = \"false\"" >> $CONF
     echo "DEB_DEFAULT_TRANSLATION = \"\"" >> $CONF
 
     echo -e "\n[UPDATE]" >> $CONF
-    echo "UPDATE_AUTO = \"no\"" >> $CONF
-    echo "UPDATE_BACKUP_ENABLED = \"yes\"" >> $CONF
+    echo "UPDATE_AUTO = \"false\"" >> $CONF
+    echo "UPDATE_BACKUP_ENABLED = \"true\"" >> $CONF
     echo "UPDATE_BRANCH = \"stable\"" >> $CONF
 
     echo -e "\n[WWW]" >> $CONF
@@ -839,15 +838,15 @@ function installation
     echo "WWW_REPOS_DIR_URL = \"https://${WWW_HOSTNAME}/repo\"" >> $CONF
 
     echo -e "\n[PLANS]" >> $CONF
-    echo "PLANS_ENABLED = \"no\"" >> $CONF
-    echo "PLAN_REMINDERS_ENABLED = \"no\"" >> $CONF
-    echo "ALLOW_AUTOUPDATE_REPOS = \"no\"" >> $CONF
-    echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"no\"" >> $CONF
-    echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"no\"" >> $CONF
+    echo "PLANS_ENABLED = \"false\"" >> $CONF
+    echo "PLAN_REMINDERS_ENABLED = \"false\"" >> $CONF
+    echo "ALLOW_AUTOUPDATE_REPOS = \"false\"" >> $CONF
+    echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"false\"" >> $CONF
+    echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"false\"" >> $CONF
     echo "RETENTION = \"2\"" >> $CONF
 
     echo -e "\n[STATS]" >> $CONF
-    echo "STATS_ENABLED = \"no\"" >> $CONF
+    echo "STATS_ENABLED = \"false\"" >> $CONF
     echo "STATS_LOG_PATH = \"\"" >> $CONF
 
     # Create repomanager group
@@ -934,8 +933,6 @@ if [ "$PROCEED_PERMISSIONS" == "1" ];then
     permissions
     exit
 fi
-
-
 
 help
 

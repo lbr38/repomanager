@@ -22,7 +22,7 @@ if (__LOAD_GENERAL_ERROR != 0) {
 /**
  *  Return 400 if an update is running
  */
-if (UPDATE_RUNNING == 'yes') {
+if (UPDATE_RUNNING == 'true') {
     http_response_code(400);
     echo json_encode(["return" => "400", "message_error" => array("Reposerver is actually being updated. Please try again later.")]);
     exit;

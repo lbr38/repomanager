@@ -893,7 +893,15 @@ class Mirror
             $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... ');
 
             /**
-             *  Download
+             *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
+             */
+            if (file_exists($this->workingDir . '/packages/' . $rpmPackageName)) {
+                $this->logOutput('already exists (ignoring)' . PHP_EOL);
+                continue;
+            }
+
+            /**
+             *  Download file if it does not already exist
              */
             if (!$this->download($url . '/' . $rpmPackageLocation, $this->workingDir . '/packages/' . $rpmPackageName)) {
                 $this->logError('error', 'Error while retrieving packages');
@@ -1005,6 +1013,24 @@ class Mirror
              *  Output package to download to log file
              */
             $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... ');
+
+            /**
+             *  Check if file does not already exists before downloading it
+             */
+            if (file_exists($this->workingDir . '/packages/' . $debPackageName)) {
+                /**
+                 *  If exist, check that its checksum matches the checksum specified by the Packages file
+                 *  If so, it means that it is exactly the same faile as the distant file to download, then skip it (continue) and process the next file.
+                 */
+                if (hash_file('sha256', $this->workingDir . '/packages/' . $debPackageName) == $debPackageChecksum) {
+                    $this->logOutput(PHP_EOL . '- Ignore package exists: ' . $debPackageName . PHP_EOL);
+                    continue;
+                }
+                if (hash_file('sha1', $this->workingDir . '/packages/' . $debPackageName) == $debPackageChecksum) {
+                    $this->logOutput(PHP_EOL . '- Ignore package exists: ' . $debPackageName . PHP_EOL);
+                    continue;
+                }
+            }
 
             /**
              *  Download

@@ -2,7 +2,7 @@
     <p>Repomanager - release version <?= VERSION ?></p>
     <br>
     <?php
-    if (UPDATE_AVAILABLE == "yes") {
+    if (UPDATE_AVAILABLE == "true") {
         echo '<p class="yellowtext">New release available: ' .GIT_VERSION. '</p>';
     } ?>
     <br>
@@ -36,7 +36,7 @@ if (__ACTUAL_URI__ == "/stats") {
     echo '<script src="resources/js/stats.js"></script>';
 }
 if (__ACTUAL_URI__ == "/settings") {
-    echo '<script src="resources/js/configuration.js"></script>';
+    echo '<script src="resources/js/settings.js"></script>';
     echo '<script src="resources/js/environment.js"></script>';
 }
 if (__ACTUAL_URI__ == "/run") {

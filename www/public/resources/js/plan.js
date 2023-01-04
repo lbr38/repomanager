@@ -111,7 +111,7 @@ $(document).on('change','#planFrequencySelect',function () {
  */
 $(document).on('change','#planActionSelect',function () {
     if ($("#updateRepoSelect").is(":selected")) {
-        $(".__plan_gpg_input").show();
+        $(".__plan_gpg_input").css('display', 'table-row');
     } else {
         $(".__plan_gpg_input").hide();
     }
