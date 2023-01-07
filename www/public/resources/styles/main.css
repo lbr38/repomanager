@@ -483,13 +483,8 @@ table {
 }
 
 .item-pkgtype {
-    display: flex;
-    align-items: center;
-    column-gap: 3px;
     position: absolute !important;
-    padding: 1.5px 2px 1.5px 2px !important;
     margin-top: 5px;
-    border-radius: 4px;
 }
 .item-pkgtype span {
     font-size: 9px;
@@ -549,6 +544,10 @@ table {
 .item-env {
     min-width: 40px;
     padding: 1px 0 0 0 !important;
+}
+
+.item-dist-section {
+    padding: 0px 0px 4px 8px !important;
 }
 
 .item-dist-section-sub {
@@ -1062,6 +1061,20 @@ input::placeholder {
     background-color: #ffb536;
     color: white;
 }
+[class^="label-pkg"] {
+    display: flex !important;
+    align-items: center;
+    column-gap: 3px;
+    padding: 1.5px 2px 1.5px 2px !important;
+    border-radius: 4px;
+    font-size: 9px;
+}
+.label-pkg-rpm {
+    background-color: #5372e7;
+}
+.label-pkg-deb {
+    background-color: #ff0044;
+}
 
 /**
  *  Si le label se trouve dans un td, il faut spécifier un padding top et bottom
@@ -1323,25 +1336,6 @@ footer #github img { width: 25px; }
     padding: 5px;
 }
 
-#sourceDivs input[type=text].input-small {
-    background-color: #182b3e;
-    border: none;
-    margin-right: 5px;
-    margin-bottom: 2px;
-}
-
-#sourceDivs input[type=text].input-large {
-    width: 78%;
-}
-
-#sourceDivs textarea {
-    width: 99%;
-    margin: auto;
-    display: block;
-    margin-bottom: 15px;
-    border: none;
-}
-
 /* Gif de chargement caché par défaut */
 .loading { display: none; }
 
@@ -1429,6 +1423,12 @@ footer #github img { width: 25px; }
     background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+}
+
+#update-log-info {
+    max-width: 1000px;
+    max-height: 400px;
+    overflow: auto;
 }
 
 #maintenance p {

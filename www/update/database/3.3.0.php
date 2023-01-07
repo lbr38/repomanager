@@ -60,11 +60,14 @@ if ($this->db->columnExist('sources', 'Type') === false) {
     $this->db->exec("DROP TABLE sources_new");
 }
 
+/**
+ *  Patch 3.4.5: ignore importing repo from now
+ */
+return;
 
 /**
  *  Import all existing RPM repo files content into database
  */
-
 if (!is_dir('/etc/yum.repos.d/repomanager')) {
     return;
 }

@@ -17,7 +17,7 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td class="td-30">GPG check</td>
+    <td class="td-30">Check GPG signatures</td>
     <td>
         <label class="onoff-switch-label">
             <input name="repoGpgCheck" param-name="targetGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" checked />

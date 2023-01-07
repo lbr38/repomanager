@@ -103,7 +103,10 @@ if (!empty($groupsList)) {
                             $printRepoDist = 'no';
                             $printRepoSection = 'no';
                         }
-                        if ($name == $repoLastName and $repoLastDist != $dist) {
+                        if ($name == $repoLastName and !empty($repoLastDist) and $repoLastDist != $dist) {
+                            $printEmptyLine = 'yes';
+                        }
+                        if ($name == $repoLastName and !empty($repoLastDist) and $repoLastDist == $dist and !empty($repoLastSection) and $section != $repoLastSection) {
                             $printEmptyLine = 'yes';
                         }
                         if ($name == $repoLastName and !empty($repoLastDist) and $dist == $repoLastDist and !empty($repoLastSection) and $section == $repoLastSection and !empty($lastSnapId) and $snapId != $lastSnapId) {
@@ -114,10 +117,11 @@ if (!empty($groupsList)) {
                     /**
                      *  Si le type de paquet n'est pas le même que précédemment alors il faut afficher le nom du repo
                      */
-                    if ($lastPackageType != $packageType) {
+                    if (!empty($lastPackageType) and $lastPackageType != $packageType) {
                         $printRepoName = 'yes';
                         $printRepoDist = 'yes';
                         $printRepoSection = 'yes';
+                        $printEmptyLine = 'yes';
                     }
 
                     if ($printEmptyLine == 'yes') {
@@ -130,7 +134,7 @@ if (!empty($groupsList)) {
                     echo '<div class="item-repo">';
                     if ($printRepoName == "yes") {
                         echo '<span>' . $name . '</span>';
-                        echo '<div class="item-pkgtype item-pkgtype-' . $packageType  . '" title="This repository contains ' . $packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
+                        echo '<div class="label-pkg-' . $packageType  . ' item-pkgtype" title="This repository contains ' . $packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
                     }
                     echo '</div>';
 

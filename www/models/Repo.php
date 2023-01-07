@@ -199,6 +199,8 @@ class Repo extends Model
 
     public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
     {
+        $id = array();
+
         try {
             if (empty($dist) and empty($section)) {
                 $stmt = $this->db->prepare("SELECT repos_env.Id
@@ -230,10 +232,12 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        $id = '';
+        // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        //     $id = $row['Id'];
+        // }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $id = $row['Id'];
+            $id = $row;
         }
 
         return $id;

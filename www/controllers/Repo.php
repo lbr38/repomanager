@@ -1767,13 +1767,15 @@ class Repo
                     /**
                      *  On récupère l'Id de l'environnement déjà existant
                      */
-                    $actualEnvId = $this->model->getEnvIdFromRepoName($this->name, null, null, $this->targetEnv);
+                    $actualEnvIds = $this->model->getEnvIdFromRepoName($this->name, null, null, $this->targetEnv);
 
                     /**
                      *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
                      */
-                    if (!empty($actualEnvId)) {
-                        $this->model->deleteEnv($actualEnvId);
+                    if (!empty($actualEnvIds)) {
+                        foreach ($actualEnvIds as $actualEnvId) {
+                            $this->model->deleteEnv($actualEnvId);
+                        }
                     }
 
                     /**
@@ -1834,13 +1836,15 @@ class Repo
                     /**
                      *  D'abord on récupère l'Id de l'environnement déjà existant car on en aura besoin pour modifier son snapshot lié en base de données.
                      */
-                    $actualEnvId = $this->model->getEnvIdFromRepoName($this->name, $this->dist, $this->section, $this->targetEnv);
+                    $actualEnvIds = $this->model->getEnvIdFromRepoName($this->name, $this->dist, $this->section, $this->targetEnv);
 
                     /**
                      *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
                      */
-                    if (!empty($actualEnvId)) {
-                        $this->model->deleteEnv($actualEnvId);
+                    if (!empty($actualEnvIds)) {
+                        foreach ($actualEnvIds as $actualEnvId) {
+                            $this->model->deleteEnv($actualEnvId);
+                        }
                     }
 
                     /**
@@ -3133,13 +3137,15 @@ class Repo
             /**
              *  On récupère l'Id de l'environnement actuellement an place (si il y en a un)
              */
-            $actualEnvId = $this->model->getEnvIdFromRepoName($this->name, $this->dist, $this->section, $this->targetEnv);
+            $actualEnvIds = $this->model->getEnvIdFromRepoName($this->name, $this->dist, $this->section, $this->targetEnv);
 
             /**
              *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
              */
-            if (!empty($actualEnvId)) {
-                $this->model->deleteEnv($actualEnvId);
+            if (!empty($actualEnvIds)) {
+                foreach ($actualEnvIds as $actualEnvId) {
+                    $this->model->deleteEnv($actualEnvId);
+                }
             }
 
             /**
