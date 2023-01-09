@@ -16,7 +16,7 @@ $(document).on('click','#update-continue-btn',function () {
 });
 
 /**
- * Ajax: acquit repomanager update log and close window
+ *  Ajax: acquit repomanager update log and close window
  */
 function continueUpdate()
 {

@@ -6,9 +6,14 @@
 /**
  *  Check that planifications table exist
  */
-if ($this->db->tableExist('planifications') === false) {
+// if ($this->db->tableExist('planifications') === false) {
+//     return;
+// }
+$result = $this->db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='planifications'");
+if ($this->db->count($result) == 0) {
     return;
 }
+
 
 /**
  *  Check if OnlySyncDifference column exists in planifications table
