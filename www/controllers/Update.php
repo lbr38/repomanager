@@ -271,7 +271,6 @@ class Update
             /**
              *  Apply database update queries if there are
              */
-            // $this->updateDB(GIT_VERSION);
             $this->updateDB();
 
             /**
@@ -307,6 +306,14 @@ class Update
              */
             $updateJSON = json_encode(array('Version' => GIT_VERSION, 'Message' => 'Update successful'));
             file_put_contents(UPDATE_SUCCESS_LOG, $updateJSON);
+
+            /**
+             *  Set actual version as the last version
+             */
+            if (!file_exists(DATA_DIR . '/version.last')) {
+                touch(DATA_DIR . '/version.last');
+            }
+            file_put_contents(DATA_DIR . '/version.last', VERSION);
         } catch (Exception $e) {
             /**
              *  Write to error log to file

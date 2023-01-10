@@ -105,4 +105,34 @@ if ($_POST['action'] == "deletePlan" and !empty($_POST['id'])) {
     response(HTTP_OK, "Plan has been deleted");
 }
 
+/**
+ *  Disable recurrent plan
+ */
+if ($_POST['action'] == "disablePlan" and !empty($_POST['id'])) {
+    $myplan = new \Controllers\Planification();
+
+    try {
+        $myplan->suspend($_POST['id']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, "Recurrent plan has been disabled");
+}
+
+/**
+ *  Enable recurrent plan
+ */
+if ($_POST['action'] == "enablePlan" and !empty($_POST['id'])) {
+    $myplan = new \Controllers\Planification();
+
+    try {
+        $myplan->enable($_POST['id']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, "Recurrent plan has been enabled");
+}
+
 response(HTTP_BAD_REQUEST, 'Invalid action');

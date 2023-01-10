@@ -70,7 +70,7 @@ $(document).on('change','input:radio[name="planType"]',function () {
      */
     } else {
         $(".__plan_hour_input").hide();
-        $(".__regular_plan_input").show();
+        $(".__regular_plan_input").css('display', 'table-row');
         $(".__plan_input").hide();
     }
 });
@@ -177,7 +177,7 @@ $(document).on('submit','#newPlanForm',function () {
 /**
  *  Event : Suppression d'une planification
  */
-$(document).on('click','.deletePlanButton',function () {
+$(document).on('click','.deletePlanBtn',function () {
     var planId = $(this).attr('plan-id');
     var planType = $(this).attr('plan-type');
 
@@ -189,6 +189,26 @@ $(document).on('click','.deletePlanButton',function () {
         confirmBox('Are you sure you want to delete this regular plan task?', function () {
             deletePlan(planId)});
     }
+});
+
+/**
+ *  Disable recurrent plan
+ */
+$(document).on('click','.disablePlanBtn',function () {
+    var planId = $(this).attr('plan-id');
+
+    confirmBox('Disable recurrent plan execution?', function () {
+        disablePlan(planId)}, 'Disable');
+});
+
+/**
+ *  Enable recurrent plan
+ */
+$(document).on('click','.enablePlanBtn',function () {
+    var planId = $(this).attr('plan-id');
+
+    confirmBox('Enable recurrent plan execution?', function () {
+        enablePlan(planId)}, 'Enable');
 });
 
 
@@ -224,9 +244,6 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement de la liste des planifications
-             */
             printAlert(jsonValue.message, 'success');
             reloadPlanDiv();
         },
@@ -254,9 +271,60 @@ function deletePlan(id)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement de la liste des planifications
-             */
+            printAlert(jsonValue.message, 'success');
+            reloadPlanDiv();
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ *  Ajax: Disable recurrent plan
+ *  @param {string} id
+ */
+function disablePlan(id)
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "planification",
+            action: "disablePlan",
+            id: id
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+            reloadPlanDiv();
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ *  Ajax: Enable recurrent plan
+ *  @param {string} id
+ */
+function enablePlan(id)
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "planification",
+            action: "enablePlan",
+            id: id
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPlanDiv();
         },
