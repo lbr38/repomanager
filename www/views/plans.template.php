@@ -74,7 +74,7 @@ endif ?>
                                         } ?>
                                     </td>
 
-                                    <td class="td-small">
+                                    <td class="td-10">
                                         <?php
                                         /**
                                          *  Affichage du type de planification
@@ -95,7 +95,7 @@ endif ?>
                                         } ?>
                                     </td>
 
-                                    <td>
+                                    <td class="wordbreakall">
                                         <?php
                                         /**
                                          *  Si la planification traite un groupe, on récupère son nom à partir de son Id

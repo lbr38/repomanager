@@ -17,20 +17,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install dependencies packages
+        run: sudo apt-get install -y reprepro curl gnupg2 findutils lsb-release ca-certificates apt-transport-https software-properties-common
+
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          coverage: none
+        run: sudo add-apt-repository ppa:ondrej/php -y
+        # uses: shivammathur/setup-php@v2
+        # with:
+        #   php-version: '8.1'
+        #   coverage: none
 
       - name: Install PHP modules
-        run: sudo apt-get install -y php-cli php8.1-sqlite3 sqlite3
+        run: sudo apt update && sudo apt-get install -y php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
 
       - name: Print PHP version
         run: php --version
-
-      - name: Install dependencies packages
-        run: sudo apt-get install -y reprepro curl gnupg2 findutils
 
       - name: Set up repomanager files & directories
         run: |
