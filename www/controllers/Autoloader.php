@@ -362,6 +362,11 @@ class Autoloader
                 define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
             }
         }
+        if (!defined('LAST_VERSION')) {
+            if (file_exists(DATA_DIR . '/version.last')) {
+                define('LAST_VERSION', trim(file_get_contents(DATA_DIR . '/version.last')));
+            }
+        }
 
         /**
          *  Check if a repomanager update is running

@@ -186,7 +186,9 @@ class Controller
          */
         $planQueueList = $myplan->listQueue();
         $planRunningList = $myplan->listRunning();
-        $planList = array_merge($planRunningList, $planQueueList);
+        $planDisabledList = $myplan->listDisabled();
+
+        $planList = array_merge($planRunningList, $planQueueList, $planDisabledList);
         array_multisort(array_column($planList, 'Date'), SORT_ASC, array_column($planList, 'Time'), SORT_ASC, $planList);
 
         ob_start();

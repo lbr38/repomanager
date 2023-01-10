@@ -148,15 +148,25 @@ endif ?>
 
                                     <td class="td-fit">
                                         <span>
-                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details." src="resources/icons/search.svg" />
+                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details" src="resources/icons/search.svg" />
                                         </span>
                                         <span>
                                             <?php
+                                            if ($planStatus != "running") {
+                                                echo '<img class="deletePlanBtn icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Delete plan" src="resources/icons/bin.svg" />';
+                                            }
                                             if ($planStatus == "queued") {
-                                                echo '<img class="deletePlanButton icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Delete plan." src="resources/icons/bin.svg" />';
+                                                if ($planType == 'regular') {
+                                                    echo '<img class="disablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Disable recurrent plan execution" src="resources/icons/disabled.svg" />';
+                                                }
+                                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Plan is enabled" />';
                                             }
                                             if ($planStatus == "running") {
-                                                echo 'running<img src="resources/images/loading.gif" class="icon" title="Plan is currently running." />';
+                                                echo 'running<img src="resources/images/loading.gif" class="icon" title="Plan is currently running" />';
+                                            }
+                                            if ($planStatus == "disabled") {
+                                                echo '<img class="enablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Enable plan" src="resources/icons/enabled.svg" />';
+                                                echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Plan is disabled" />';
                                             } ?>
                                         </span>
                                     </td>
@@ -182,6 +192,10 @@ endif ?>
                             }
 
                             echo '<br>';
+
+                            if ($planStatus == 'disabled') {
+                                echo '<p class="yellowtext"<b>This plan execution is disabled</b></p><br>';
+                            }
 
                             /**
                              *  Affichage des jours où la planification récurrente est active

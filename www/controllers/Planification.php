@@ -410,7 +410,23 @@ class Planification
      */
     public function remove(string $planId)
     {
-        $this->model->remove($planId);
+        $this->model->setStatus($planId, 'canceled');
+    }
+
+    /**
+     *  Disable recurrent plan
+     */
+    public function suspend(string $planId)
+    {
+        $this->model->setStatus($planId, 'disabled');
+    }
+
+    /**
+     *  Enable recurrent plan
+     */
+    public function enable(string $planId)
+    {
+        $this->model->setStatus($planId, 'queued');
     }
 
     /**
@@ -1271,6 +1287,14 @@ class Planification
     public function listRunning()
     {
         return $this->model->listRunning();
+    }
+
+    /**
+     *  List disabled recurrent plan
+     */
+    public function listDisabled()
+    {
+        return $this->model->listDisabled();
     }
 
     /**

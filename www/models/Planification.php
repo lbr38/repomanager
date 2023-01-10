@@ -60,20 +60,6 @@ class Planification extends Model
     }
 
     /**
-     *  Suppression d'une planification en base de données
-     */
-    public function remove(string $planId)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE planifications SET Status = 'canceled' WHERE Id = :id");
-            $stmt->bindValue(':id', $planId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
      *  Retourne true si l'Id de planification spécifié existe en base de données
      */
     public function existsId(string $planId)
@@ -185,6 +171,22 @@ class Planification extends Model
     public function listRunning()
     {
         $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'running' ORDER BY Date DESC, Time DESC");
+
+        $plans = array();
+
+        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
+            $plans[] = $datas;
+        }
+
+        return $plans;
+    }
+
+    /**
+     *  List disabled recurrent plan
+     */
+    public function listDisabled()
+    {
+        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'disabled' ORDER BY Date DESC, Time DESC");
 
         $plans = array();
 
