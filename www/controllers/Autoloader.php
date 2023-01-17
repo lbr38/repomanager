@@ -365,6 +365,8 @@ class Autoloader
         if (!defined('LAST_VERSION')) {
             if (file_exists(DATA_DIR . '/version.last')) {
                 define('LAST_VERSION', trim(file_get_contents(DATA_DIR . '/version.last')));
+            } else {
+                define('LAST_VERSION', VERSION);
             }
         }
 

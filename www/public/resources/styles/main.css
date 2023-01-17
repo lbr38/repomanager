@@ -126,6 +126,7 @@ td {
 .verylowopacity { opacity: 0.08; }
 .lowopacity:hover, .mediumopacity:hover, .verylowopacity:hover { opacity: 1 }
 .opacity-80 { opacity: 0.80; }
+.wordbreakall { word-break: break-all; }
 /* Classes génériques permettant de créer des images de couleurs à partir d'images blanches https://codepen.io/sosuke/pen/Pjoqqp */
 /* .yellowimg {
     filter: brightness(0) saturate(100%) invert(73%) sepia(30%) saturate(901%) hue-rotate(347deg) brightness(97%) contrast(93%);

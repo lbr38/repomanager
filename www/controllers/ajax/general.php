@@ -27,3 +27,5 @@ if ($action == "continueUpdate") {
 
     response(HTTP_OK, '');
 }
+
+response(HTTP_BAD_REQUEST, 'Invalid action');

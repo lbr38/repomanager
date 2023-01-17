@@ -757,6 +757,9 @@ class Common
         return true;
     }
 
+    /**
+     *  Get directory size in bytes
+     */
     public static function getDirectorySize(string $path)
     {
         $bytestotal = 0;

@@ -2736,8 +2736,20 @@ class Repo
                  *  Get all .deb and .dsc files in working directory
                  */
                 $debPackagesFiles = Common::findRecursive($repoPath . '/packages', 'deb', true);
-                $dscPackagesFiles = Common::findRecursive($repoPath . '/sources', 'dsc', true);
-                $packagesFiles = array_merge($debPackagesFiles, $dscPackagesFiles);
+                if (is_dir($repoPath . '/sources')) {
+                    $dscPackagesFiles = Common::findRecursive($repoPath . '/sources', 'dsc', true);
+                }
+
+                /**
+                 *  Merge all packages found into a single array
+                 */
+                if (!empty($debPackagesFiles) and !empty($dscPackagesFiles)) {
+                    $packagesFiles = array_merge($debPackagesFiles, $dscPackagesFiles);
+                } elseif (!empty($debPackagesFiles)) {
+                    $packagesFiles = $debPackagesFiles;
+                } elseif (!empty($dscPackagesFiles)) {
+                    $packagesFiles = $dscPackagesFiles;
+                }
 
                 /**
                  *  Get all translations files if any

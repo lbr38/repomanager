@@ -1,4 +1,7 @@
 <?php
+/**
+ *  v1.0
+ */
 
 define("ROOT", dirname(__FILE__, 3));
 
