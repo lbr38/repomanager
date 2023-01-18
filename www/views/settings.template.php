@@ -507,6 +507,62 @@
                 </div>
             </div>
 
+            <h3>CVE MANAGEMENT (beta)</h3>
+
+            <div class="div-generic-blue">
+                <div class="settings-div">
+                    <div>
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                    </div>
+                    <div>
+                        <p>Import CVEs</p>
+                    </div>
+                    <div>
+                        <label class="onoff-switch-label">
+                            <input class="settings-param onoff-switch-input" param-name="cveImport" type="checkbox" value="true" <?php echo (CVE_IMPORT == "true") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </div>
+                    <div></div>
+                </div>
+
+                <?php
+                if (CVE_IMPORT == 'true') : ?>
+                    <div class="settings-div">
+                        <div>
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                        </div>
+                        <div>
+                            <p>Import scheduled time</p>
+                        </div>
+                        <div>
+                            <input type="time" class="settings-param" param-name="cveImportTime" value="<?= CVE_IMPORT_TIME ?>">
+                        </div>
+                        <div></div>
+                    </div>
+                    <?php
+                endif;
+
+                // if (MANAGE_HOSTS == 'true' && CVE_IMPORT == 'true') : ?>
+                    <!-- <div class="settings-div">
+                        <div>
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                        </div>
+                        <div>
+                            <p>Scan for CVEs affected hosts</p>
+                        </div>
+                        <div>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="cveScanHosts" type="checkbox" value="true" <?php echo (CVE_SCAN_HOSTS == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+                        <div></div>
+                    </div> -->
+                    <?php
+                // endif ?>
+            </div>
+
             <h3>PLANIFICATIONS</h3>
 
             <div class="div-generic-blue">

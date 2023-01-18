@@ -61,4 +61,7 @@ if (__ACTUAL_URI__ == "/settings") {
 }
 if (__ACTUAL_URI__ == "/run") {
     echo '<script src="resources/js/run.js"></script>';
+}
+if (__ACTUAL_URI__ == "/cves") {
+    echo '<script src="resources/js/cve.js"></script>';
 } ?>

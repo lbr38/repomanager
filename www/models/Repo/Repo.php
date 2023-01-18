@@ -20,6 +20,8 @@ class Repo extends \Models\Model
      */
     public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
     {
+        $data = '';
+
         try {
             if (!empty($repoId) and !empty($snapId) and !empty($envId)) {
                 $stmt = $this->db->prepare("SELECT

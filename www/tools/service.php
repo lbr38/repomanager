@@ -8,6 +8,7 @@ $mysignalhandler = new \Controllers\SignalHandler();
 $myservice = new \Controllers\Service\Service();
 $myservicestat = new \Controllers\Service\Statistic();
 $myserviceplan = new \Controllers\Service\Planification();
+$mycveController = new \Controllers\Cve\Tools\Import();
 
 /**
  *  Define a file to create on interrupt
@@ -36,6 +37,14 @@ if (!empty($argv[1]) && $argv[1] == 'plan-exec') {
  */
 if (!empty($argv[1]) && $argv[1] == 'plan-reminder') {
     $myserviceplan->planReminder();
+    exit;
+}
+
+/**
+ *  Run CVE import task
+ */
+if (!empty($argv[1]) && $argv[1] == 'cve-import') {
+    $mycveController->import();
     exit;
 }
 

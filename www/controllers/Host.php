@@ -581,7 +581,6 @@ class Host
          *  On traite si l'array n'est pas vide
          */
         if (!empty($packagesList)) {
-
             /**
              *  Ouverture de la BDD dédiée de l'hôte
              */
@@ -634,7 +633,6 @@ class Host
                      *
                      *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
                      */
-                    // if ($packageState == 'removed' or $packageState == 'upgraded') {
                     if ($packageState == 'removed') {
                         /**
                          *  Ajout du paquet en base de données en état 'inventored'

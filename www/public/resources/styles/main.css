@@ -822,7 +822,8 @@ footer #github img { width: 25px; }
 .header-green, .header-green-min { background-color: #14be7e; }
 .header-red, .header-red-min { background-color: #ff0044; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
-.header-light-blue, .header-light-blue-min { background-color: #2b4d6e; }
+.header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
+.header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
 .operation-form {
     width: 100%;

@@ -30,7 +30,10 @@
     }
     if (__ACTUAL_URI__ == "/settings") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/settings.css">';
-    } ?>
+    }
+    if (__ACTUAL_URI__ == "/cve") {
+        echo '<link rel="stylesheet" type="text/css" href="resources/styles/cve.css">';
+    }?>
 
     <!-- jQuery -->
     <script src="resources/js/jquery/jquery-3.5.1.min.js"></script>

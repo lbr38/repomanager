@@ -144,6 +144,7 @@ function applySettings(settings_params_json)
             /**
              *  Reload missing settings error messages if any
              */
+            reloadContainer('header/menu');
             reloadContainer('header/general-error-messages');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {

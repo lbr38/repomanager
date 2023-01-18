@@ -19,6 +19,8 @@ class Service
     private $reposDir;
     private $plansEnabled;
     private $plansRemindersEnabled;
+    private $cveImportEnabled;
+    private $cveImportTime;
     protected $statsEnabled;
     protected $statsLogPath;
 
@@ -123,6 +125,25 @@ class Service
                     $this->logController->log('error', 'Service', "Could not retrieve 'Enable plan reminders' setting.");
                     // Disable plan reminders
                     $this->plansRemindersEnabled = 'false';
+                }
+            }
+
+            /**
+             *  CVE related settings
+             */
+            if (!empty($settings['CVE_IMPORT'])) {
+                $this->cveImportEnabled = $settings['CVE_IMPORT'];
+            } else {
+                $this->logController->log('error', 'Service', "Could not retrieve 'Import CVEs' setting.");
+                // Disable cve import
+                $this->cveImportEnabled = 'false';
+            }
+
+            if ($this->cveImportEnabled == 'true') {
+                if (!empty($settings['CVE_IMPORT_TIME'])) {
+                    $this->cveImportTime = $settings['CVE_IMPORT_TIME'];
+                } else {
+                    $this->logController->log('error', 'Service', "Could not retrieve 'Import scheduled time' setting.");
                 }
             }
 
@@ -260,11 +281,6 @@ class Service
                 $this->serviceFileController->cleanUp();
 
                 /**
-                 *  Apply permissions
-                 */
-                //$this->serviceFileController->applyPermissions();
-
-                /**
                  *  Reset counter
                  */
                 $counter = 0;
@@ -309,6 +325,13 @@ class Service
                 if ($this->plansRemindersEnabled == 'true') {
                     $this->runService('plan-reminder');
                 }
+            }
+
+            /**
+             *  Import CVEs
+             */
+            if ($this->cveImportEnabled == 'true' && $this->currentTime == $this->cveImportTime) {
+                $this->runService('cve-import');
             }
 
             $this->lastTime = date('H:i');

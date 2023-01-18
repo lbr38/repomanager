@@ -75,6 +75,9 @@ class Main
         if (!defined('UPDATE_INFO_LOG')) {
             define('UPDATE_INFO_LOG', LOGS_DIR . '/update/update.info');
         }
+        if (!defined('CVE_LOG_DIR')) {
+            define('CVE_LOG_DIR', LOGS_DIR . '/cve');
+        }
         // Async tasks pool dir
         if (!defined('POOL')) {
             define('POOL', DATA_DIR . "/operations/pool");
@@ -90,6 +93,10 @@ class Main
         // Hosts databases dir
         if (!defined('HOSTS_DIR')) {
             define('HOSTS_DIR', DATA_DIR . '/hosts');
+        }
+        //
+        if (!defined('CVE_IMPORT_HOSTS_DIR')) {
+            define('CVE_IMPORT_HOSTS_DIR', TEMP_DIR . '/cve');
         }
         // Logbuilder
         if (!defined('LOGBUILDER')) {

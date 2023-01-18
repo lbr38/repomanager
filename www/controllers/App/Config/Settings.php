@@ -283,6 +283,33 @@ class Settings
         }
 
         /**
+         *  CVE settings
+         */
+        if (!defined('CVE_IMPORT')) {
+            if (!empty($settings['CVE_IMPORT'])) {
+                define('CVE_IMPORT', $settings['CVE_IMPORT']);
+            } else {
+                define('CVE_IMPORT', 'false');
+            }
+        }
+
+        if (!defined('CVE_IMPORT_TIME')) {
+            if (!empty($settings['CVE_IMPORT_TIME'])) {
+                define('CVE_IMPORT_TIME', $settings['CVE_IMPORT_TIME']);
+            } else {
+                define('CVE_IMPORT_TIME', '00:00');
+            }
+        }
+
+        if (!defined('CVE_SCAN_HOSTS')) {
+            if (!empty($settings['CVE_SCAN_HOSTS'])) {
+                define('CVE_SCAN_HOSTS', $settings['CVE_SCAN_HOSTS']);
+            } else {
+                define('CVE_SCAN_HOSTS', 'false');
+            }
+        }
+
+        /**
          *  Paramètres des profils
          */
         if (!defined('MANAGE_PROFILES')) {

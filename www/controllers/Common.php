@@ -217,6 +217,7 @@ class Common
         }
 
         closedir($handle);
+
         return true;
     }
 
