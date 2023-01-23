@@ -13,6 +13,7 @@ repomanager.conf
 push.sh
 jsconfig.json
 WIP
+www/cve/cve.json
 
 
 # Compiled source #
