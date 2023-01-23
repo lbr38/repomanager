@@ -178,7 +178,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enabled repositories access, size and packages statistics. Require a read-only access to webserver access logs (only nginx access logs supported) for <?= WWW_USER ?>." />
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable statistics on repositories access, size and packages statistics. Require a read-only access to the webserver access log file (only nginx access logs supported) for <?= WWW_USER ?>." />
                     </div>
                     <div>
                         <p>Enable statistics</p>
@@ -825,6 +825,10 @@
                             $statusError = 0;
                             $statusMsg = '';
 
+                            if (!file_exists(STATS_DB)) {
+                                touch(STATS_DB);
+                            }
+
                             /**
                              *  Checking that database is readable and writable
                              */
@@ -837,7 +841,7 @@
                                  */
                                 $myconn = new \Models\Connection('stats');
 
-                                if (!$myconn->checkMainTables()) {
+                                if (!$myconn->checkStatsTables()) {
                                     $statusError++;
                                     $statusMsg = 'One or more table are missing.';
                                 }
@@ -871,6 +875,10 @@
                             $statusError = 0;
                             $statusMsg = '';
 
+                            if (!file_exists(HOSTS_DB)) {
+                                touch(HOSTS_DB);
+                            }
+
                             /**
                              *  Checking that database is readable and writable
                              */
@@ -883,7 +891,7 @@
                                  */
                                 $myconn = new \Models\Connection('hosts');
 
-                                if (!$myconn->checkMainTables()) {
+                                if (!$myconn->checkHostsTables()) {
                                     $statusError++;
                                     $statusMsg = 'One or more table are missing.';
                                 }
