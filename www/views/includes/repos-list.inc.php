@@ -117,7 +117,7 @@ if (!empty($groupsList)) {
                     /**
                      *  Si le type de paquet n'est pas le même que précédemment alors il faut afficher le nom du repo
                      */
-                    if (!empty($lastPackageType) and $lastPackageType != $packageType) {
+                    if (!empty($lastPackageType) and $lastPackageType != $packageType and $repoLastName == $name) {
                         $printRepoName = 'yes';
                         $printRepoDist = 'yes';
                         $printRepoSection = 'yes';

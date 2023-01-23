@@ -12,7 +12,10 @@
             <?= $content ?>
         </article>
 
-        <?php include_once(ROOT . '/views/includes/footer.inc.php'); ?>
+        <?php
+            include_once(ROOT . '/views/includes/notification.inc.php');
+            include_once(ROOT . '/views/includes/footer.inc.php');
+        ?>
 
         <div id="bottom"></div> <!-- to go to the bottom of the page -->
     </body>

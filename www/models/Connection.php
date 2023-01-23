@@ -23,33 +23,21 @@ class Connection extends SQLite3
              */
             if ($database == "main") {
                 $this->open(DB);
-
-                /**
-                 *  Activation des exception pour SQLite
-                 */
-                $this->enableExceptions(true);
+                $this->checkMainTables();
 
             /**
              *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
              */
             } elseif ($database == "stats") {
                 $this->open(STATS_DB);
-
-                /**
-                 *  Activation des exception pour SQLite
-                 */
-                $this->enableExceptions(true);
+                $this->checkStatsTables();
 
             /**
              *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
              */
             } elseif ($database == "hosts") {
                 $this->open(HOSTS_DB);
-
-                /**
-                 *  Activation des exception pour SQLite
-                 */
-                $this->enableExceptions(true);
+                $this->checkHostsTables();
 
             /**
              *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
@@ -60,17 +48,12 @@ class Connection extends SQLite3
                 /**
                  *  Activation du mode WAL
                  */
-                $this->exec('PRAGMA journal_mode = wal;');
+                $this->enableWAL();
 
                 /**
                  *  Génération des tables si n'existent pas
                  */
                 $this->generateHostTables();
-
-                /**
-                 *  Activation des exception pour SQLite
-                 */
-                $this->enableExceptions(true);
 
             /**
              *  Cas où la base de données ne correspond à aucun cas ci-dessus
@@ -78,6 +61,11 @@ class Connection extends SQLite3
             } else {
                 throw new Exception("unknown database: $database");
             }
+
+            /**
+             *  Enable exception for SQLite
+             */
+            $this->enableExceptions(true);
         } catch (\Exception $e) {
             die('Error while opening database: ' . $e->getMessage());
         }
@@ -140,7 +128,8 @@ class Connection extends SQLite3
         OR name='users'
         OR name='user_role'
         OR name='history'
-        OR name='repos_list_settings'");
+        OR name='repos_list_settings'
+        OR name='notifications'");
 
         /**
          *  On retourne le nombre de tables
@@ -186,15 +175,15 @@ class Connection extends SQLite3
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 18 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 19 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 18) {
+        if ($this->countMainTables() != 19) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 18) {
+            if ($this->countMainTables() != 19) {
                 return false;
             }
         }
@@ -523,6 +512,16 @@ class Connection extends SQLite3
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
         }
+
+        /**
+         *  Generate notifications table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS notifications (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Id_notification CHAR(5) NOT NULL,
+        Title VARCHAR(255) NOT NULL,
+        Message VARCHAR(255) NOT NULL,
+        Status CHAR(9) NOT NULL)"); /* new, acquitted */
 
         /**
          *  Activation du mode WAL

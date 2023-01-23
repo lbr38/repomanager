@@ -1110,10 +1110,18 @@ class Operation
                     $this->checkParamDist($operation_params['dist']);
                     $this->checkParamSection($operation_params['section']);
                 }
+
                 $this->checkParamDescription($operation_params['targetDescription']);
+
                 if (!empty($operation_params['targetGroup'])) {
                     $this->checkParamGroup($operation_params['targetGroup']);
                 }
+
+                if (empty($operation_params['targetArch'])) {
+                    throw new Exception('You must specify architecture.');
+                }
+                $this->checkParamIncludeArch($operation_params['targetArch']);
+
                 /**
                  *  Si le type de repo sélectionné est 'local' alors on vérifie qu'un nom a été fourni (peut rester vide dans le cas d'un miroir)
                  */
@@ -1139,13 +1147,9 @@ class Operation
                     $this->checkParamGpgCheck($operation_params['targetGpgCheck']);
                     $this->checkParamGpgResign($operation_params['targetGpgResign']);
 
-                    if (empty($operation_params['targetArch'])) {
-                        throw new Exception('You must specify architecture.');
-                    }
                     if (empty($operation_params['targetSourcePackage'])) {
                         throw new Exception('You must specify if package source should also be mirrored or not.');
                     }
-                    $this->checkParamIncludeArch($operation_params['targetArch']);
                     $this->checkParamIncludeSource($operation_params['targetSourcePackage']);
 
                     if ($packageType == 'deb' and !empty($operation_params['targetPackageTranslation'])) {

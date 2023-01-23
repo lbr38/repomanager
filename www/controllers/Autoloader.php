@@ -163,6 +163,7 @@ class Autoloader
         \Controllers\Autoloader::serviceIsActive();
         \Controllers\Autoloader::loadReposListDisplayConf();
         \Controllers\Autoloader::checkPhpModules();
+        \Controllers\Autoloader::loadNotifications();
     }
 
     private static function checkPhpModules()
@@ -255,6 +256,9 @@ class Autoloader
         }
     }
 
+    /**
+     *  Load constants
+     */
     private static function loadConstant()
     {
         date_default_timezone_set('Europe/Paris');
@@ -299,6 +303,9 @@ class Autoloader
         // Emplacement du répertoire de clé GPG
         if (!defined('GPGHOME')) {
             define('GPGHOME', DATA_DIR . "/.gnupg");
+        }
+        if (!defined('MACROS_FILE')) {
+            define('MACROS_FILE', DATA_DIR . '/.rpm/.mcs');
         }
         // Répertoire principal des logs
         if (!defined('LOGS_DIR')) {
@@ -382,6 +389,19 @@ class Autoloader
                 define('UPDATE_RUNNING', 'false');
             }
         }
+
+        /**
+         *  Date et heure du jour
+         */
+        if (!defined('DATE_DMY')) {
+            define('DATE_DMY', date("d-m-Y"));
+        }
+        if (!defined('DATE_YMD')) {
+            define('DATE_YMD', date("Y-m-d"));
+        }
+        if (!defined('TIME')) {
+            define('TIME', date("H-i"));
+        }
     }
 
     /**
@@ -399,7 +419,7 @@ class Autoloader
         // Fichier de macros pour rpm
         if (!file_exists(MACROS_FILE)) {
             file_put_contents(MACROS_FILE, '%__gpg /usr/bin/gpg' . PHP_EOL);
-            file_put_contents(MACROS_FILE, '%_gpg_name ' . RPM_SIGN_GPG_KEYID . PHP_EOL, FILE_APPEND);
+            file_put_contents(MACROS_FILE, '%_gpg_name ' . GPG_SIGNING_KEYID . PHP_EOL, FILE_APPEND);
             file_put_contents(MACROS_FILE, '%__gpg_sign_cmd %{__gpg} gpg --homedir ' . GPGHOME . ' --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file ' . PASSPHRASE_FILE . ' %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}' . PHP_EOL, FILE_APPEND);
         }
 
@@ -485,11 +505,8 @@ class Autoloader
         /**
          *  Si la clé de signature GPG n'existe pas alors on l'exporte
          */
-        if (RPM_SIGN_PACKAGES == 'true') {
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . RPM_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_rpm.pub 2>/dev/null');
-        }
-        if (DEB_SIGN_REPO == 'true') {
-            exec("gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . DEB_SIGN_GPG_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '_deb.pub 2>/dev/null');
+        if ((RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') and !file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub')) {
+            Common::exportGpgSigningKey();
         }
     }
 
@@ -792,21 +809,6 @@ class Autoloader
             }
         }
 
-        if (!defined('RPM_SIGN_GPG_KEYID')) {
-            if (!empty($repomanager_conf_array['RPM_SIGN_GPG_KEYID'])) {
-                define('RPM_SIGN_GPG_KEYID', $repomanager_conf_array['RPM_SIGN_GPG_KEYID']);
-            } else {
-                define('RPM_SIGN_GPG_KEYID', '');
-
-                /**
-                 *  On affiche un message uniquement si la signature est activée
-                 */
-                if (RPM_SIGN_PACKAGES == 'true') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing RPM packages is not defined.";
-                }
-            }
-        }
-
         if (!defined('RPM_SIGN_METHOD')) {
             if (!empty($repomanager_conf_array['RPM_SIGN_METHOD'])) {
                 define('RPM_SIGN_METHOD', $repomanager_conf_array['RPM_SIGN_METHOD']);
@@ -873,21 +875,6 @@ class Autoloader
             }
         }
 
-        if (!defined('DEB_SIGN_GPG_KEYID')) {
-            if (!empty($repomanager_conf_array['DEB_SIGN_GPG_KEYID'])) {
-                define('DEB_SIGN_GPG_KEYID', $repomanager_conf_array['DEB_SIGN_GPG_KEYID']);
-            } else {
-                define('DEB_SIGN_GPG_KEYID', '');
-
-                /**
-                 *  On affiche un message uniquement si la signature est activée
-                 */
-                if (DEB_SIGN_REPO == 'true') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing DEB packages is not defined.";
-                }
-            }
-        }
-
         if (!defined('DEB_DEFAULT_ARCH')) {
             if (!empty($repomanager_conf_array['DEB_DEFAULT_ARCH'])) {
                 define('DEB_DEFAULT_ARCH', explode(',', $repomanager_conf_array['DEB_DEFAULT_ARCH']));
@@ -909,6 +896,21 @@ class Autoloader
                 define('DEB_DEFAULT_TRANSLATION', explode(',', $repomanager_conf_array['DEB_DEFAULT_TRANSLATION']));
             } else {
                 define('DEB_DEFAULT_TRANSLATION', array());
+            }
+        }
+
+        if (!defined('GPG_SIGNING_KEYID')) {
+            if (!empty($repomanager_conf_array['GPG_SIGNING_KEYID'])) {
+                define('GPG_SIGNING_KEYID', $repomanager_conf_array['GPG_SIGNING_KEYID']);
+            } else {
+                define('GPG_SIGNING_KEYID', '');
+
+                /**
+                 *  On affiche un message uniquement si la signature est activée
+                 */
+                if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') {
+                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing packages is not defined.";
+                }
             }
         }
 
@@ -1039,26 +1041,6 @@ class Autoloader
             }
         }
 
-        /**
-         *  Paramètres supplémentaires pour rpm / yum
-         */
-        if (!defined('MACROS_FILE')) {
-            define('MACROS_FILE', DATA_DIR . '/.rpm/.mcs');
-        }
-
-        /**
-         *  Date et heure du jour
-         */
-        if (!defined('DATE_DMY')) {
-            define('DATE_DMY', date("d-m-Y"));
-        }
-        if (!defined('DATE_YMD')) {
-            define('DATE_YMD', date("Y-m-d"));
-        }
-        if (!defined('TIME')) {
-            define('TIME', date("H-i"));
-        }
-
         if (!defined('__LOAD_MAIN_CONF_ERROR')) {
             define('__LOAD_MAIN_CONF_ERROR', $__LOAD_MAIN_CONF_ERROR);
         }
@@ -1067,6 +1049,41 @@ class Autoloader
         }
 
         unset($repomanager_conf_array);
+    }
+
+    /**
+     *  Loading notifications
+     */
+    private static function loadNotifications()
+    {
+        $NOTIFICATION = 0;
+        $NOTIFICATION_MESSAGES = array();
+        $mynotification = new Notification();
+
+        /**
+         *  Retrieve unread notifications from database
+         */
+        $NOTIFICATION_MESSAGES = $mynotification->getUnread();
+        $NOTIFICATION = count($NOTIFICATION_MESSAGES);
+
+        /**
+         *  If an update is available, generate a new notification
+         */
+        if (UPDATE_AVAILABLE == 'true') {
+            $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b></span>';
+            $NOTIFICATION_MESSAGES[] = array('Title' => 'Update available', 'Message' =>  $message);
+            $NOTIFICATION++;
+        }
+
+        if (!defined('NOTIFICATION')) {
+            define('NOTIFICATION', $NOTIFICATION);
+        }
+
+        if (!defined('NOTIFICATION_MESSAGES')) {
+            define('NOTIFICATION_MESSAGES', $NOTIFICATION_MESSAGES);
+        }
+
+        unset($NOTIFICATION, $NOTIFICATION_MESSAGES, $mynotification);
     }
 
     /**

@@ -267,17 +267,24 @@ if (DEBUG_MODE == "enabled") {
                             echo '</div>';
 
                             unset($opsRunning, $plansRunning);
-                        }
-                        ?>
+                        } ?>
                     </div>
                 </div>
             </div>
         </div>
 
         <div>
+            <div class="menu-sub-container relative">
+                <img id="print-notification-btn" src="resources/icons/info.svg" class="icon-lowopacity" title="Show notifications" />
+                <?php
+                if (NOTIFICATION != 0) : ?>
+                    <span id="notification-count"><?= NOTIFICATION ?></span>
+                    <?php
+                endif ?>
+            </div>
             <?php
             /**
-             *  USERSPACE tab
+             *  Userspace tab
              */
             if (__ACTUAL_URI__ == '/userspace') {
                 $headerMenuClass = 'menu-sub-container-underline';

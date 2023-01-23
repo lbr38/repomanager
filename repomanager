@@ -107,7 +107,7 @@ function checkSystem
         fi
     fi
 
-    # Case /etc/os-release does not exist
+    # Case /etc/os-release does not exist
     if [ ! -f "/etc/os-release" ];then
         # If apt is present then it is Debian family
         if [ -f "/usr/bin/apt" ];then
@@ -160,7 +160,7 @@ function permissions
 {
     ACTUAL_USER=$(whoami)
 
-    # If /var/www/repomanager does not exist, ask for the installation location
+    # If /var/www/repomanager does not exist, ask for the installation location
     if [ ! -d "/var/www/repomanager" ];then
         if [ -z "$WWW_DIR" ];then
             echo -ne "➤ Repomanager files location (default is /var/www/repomanager) : "; read -p "" WWW_DIR
@@ -222,7 +222,7 @@ function permissions
         chmod 500 ${DATA_DIR}/tools/service/repomanager-service
 
         # Permissions on repos directory
-        # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
+        # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
         chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
 
         # Permissions on .gnupg directory
@@ -306,13 +306,6 @@ function checkDependencies
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
-        CHECK_DEP=$(rpm -qa sudo)
-        if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing sudo\t" &&
-            yum install sudo -y > /dev/null &&
-            echo -e "[${GREEN} OK ${RESET}]"
-        fi
-
         CHECK_DEP=$(rpm -qa git)
         if [ -z "$CHECK_DEP" ];then
             echo -ne "Installing git\t" &&
@@ -334,13 +327,6 @@ function checkDependencies
         if [ -z "$CHECK_DEP" ];then
             echo -ne "Installing findutils\t" &&
             apt-get -qq install findutils -y > /dev/null &&
-            echo -e "[${GREEN} OK ${RESET}]"
-        fi
-
-        CHECK_DEP=$(dpkg --list | grep "^ii  sudo ")
-        if [ -z "$CHECK_DEP" ];then
-            echo -ne "Installing sudo\t" &&
-            apt-get -qq install sudo -y > /dev/null &&
             echo -e "[${GREEN} OK ${RESET}]"
         fi
 
@@ -809,7 +795,6 @@ function installation
     echo -e "\n[RPM]" >> $CONF
     echo "RPM_REPO = \"${RPM_REPO}\"" >> $CONF
     echo "RPM_SIGN_PACKAGES = \"${RPM_SIGN_PACKAGES}\"" >> $CONF
-    echo "RPM_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> $CONF
     echo "RPM_SIGN_METHOD = \"$RPM_SIGN_METHOD\"" >> $CONF
     if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
         echo "RELEASEVER = \"$RELEASEVER\"" >> $CONF
@@ -822,10 +807,12 @@ function installation
     echo -e "\n[DEB]" >> $CONF
     echo "DEB_REPO = \"${DEB_REPO}\"" >> $CONF
     echo "DEB_SIGN_REPO = \"${DEB_SIGN_REPO}\"" >> $CONF
-    echo "DEB_SIGN_GPG_KEYID = \"$GPG_KEYID\"" >> $CONF
     echo "DEB_DEFAULT_ARCH = \"\"" >> $CONF
     echo "DEB_INCLUDE_SOURCE = \"false\"" >> $CONF
     echo "DEB_DEFAULT_TRANSLATION = \"\"" >> $CONF
+
+    echo -e "\n[GPG]" >> $CONF
+    echo "GPG_SIGNING_KEYID = \"$GPG_KEYID\"" >> $CONF
 
     echo -e "\n[UPDATE]" >> $CONF
     echo "UPDATE_AUTO = \"false\"" >> $CONF
