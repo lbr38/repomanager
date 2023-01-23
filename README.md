@@ -59,7 +59,7 @@ yum install nginx php-fpm php-cli php-pdo php-xml sqlite
 **Installation on a Debian system** (you will need to have access to a repository providing PHP8.1 packages):
 
 ```
-apt update && apt install nginx php-fpm php-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
+apt update && apt install nginx php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
 ```
 
 <h3>SQLite</h3>
