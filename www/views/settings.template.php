@@ -269,24 +269,6 @@
                     if (RPM_SIGN_PACKAGES == 'true') : ?>
                         <div class="settings-div">
                             <div>
-                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign packages.">
-                            </div>
-                            <div>
-                                <p>GPG key email address identifier</p>
-                            </div>
-                            <div>
-                                <input class="settings-param" param-name="rpmGpgKeyID" type="email" value="<?= RPM_SIGN_GPG_KEYID ?>">
-                            </div>
-                            <div>
-                                <?php
-                                if (empty(RPM_SIGN_GPG_KEYID)) {
-                                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                                } ?>
-                            </div>
-                        </div>
-
-                        <div class="settings-div">
-                            <div>
                                 <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7).">
                             </div>
                             <div>
@@ -401,28 +383,6 @@
                         </div>
                     </div>
 
-                    <?php
-                    if (DEB_SIGN_REPO == 'true') : ?>
-                        <div class="settings-div">
-                            <div>
-                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign repositories.">
-                            </div>
-                            <div>
-                                <p>GPG key email address identifier</p>
-                            </div>
-                            <div>
-                                <input class="settings-param" param-name="debGpgKeyID" type="text" value="<?= DEB_SIGN_GPG_KEYID ?>">
-                            </div>
-                            <div>
-                                <?php
-                                if (empty(DEB_SIGN_GPG_KEYID)) {
-                                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                                } ?>
-                            </div>
-                        </div>
-                        <?php
-                    endif ?>
-
                     <div class="settings-div">
                         <div>
                             <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror.">
@@ -475,6 +435,29 @@
                                 <option value="de" <?php echo (in_array('de', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>de (deutsch)</option>
                                 <option value="it" <?php echo (in_array('it', DEB_DEFAULT_TRANSLATION)) ? 'selected' : ''; ?>>it (italian)</option>
                             </select>
+                        </div>
+                    </div>
+                    <?php
+                endif;
+
+                if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
+                    <h5>GPG</h5>
+
+                    <div class="settings-div">
+                        <div>
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign RPM packages or DEB repo.">
+                        </div>
+                        <div>
+                            <p>GPG key Id (email address identifier)</p>
+                        </div>
+                        <div>
+                            <input class="settings-param" param-name="rpmGpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
+                        </div>
+                        <div>
+                            <?php
+                            if (empty(GPG_SIGNING_KEYID)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
                         </div>
                     </div>
                     <?php

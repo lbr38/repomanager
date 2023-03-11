@@ -134,6 +134,7 @@ class Controller
         $diskUsedSpace = $diskTotalSpace - $diskFreeSpace;
         $diskTotalSpace = $diskTotalSpace / 1073741824;
         $diskUsedSpace = $diskUsedSpace / 1073741824;
+
         /**
          *  Format data to get a percent result without comma
          */

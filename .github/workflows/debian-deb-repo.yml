@@ -95,9 +95,12 @@ jobs:
         run: sudo /var/lib/repomanager/repomanager -d --package-type deb
 
       - name: Update database
-        run: sudo -u www-data php /var/www/repomanager/tools/update-database.php
+        run: |
+          sudo -u www-data php /var/www/repomanager/tools/initialize-database.php
+          sudo -u www-data php /var/www/repomanager/tools/update-database.php
 
       - name: Run job - Mirror repo
+        #run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo' || sleep 10; sudo cat /var/lib/repomanager/logs/main/lastlog.log; exit 1
         run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo'
 
       - name: Print mirrored repo content

@@ -67,12 +67,6 @@ function generalChecks
         exit 1
     fi
 
-    # Check if sudo exist
-    if [ ! -f "/usr/bin/sudo" ];then
-        echo "Error: sudo command not found."
-        exit 1
-    fi
-
     # Check if repos directory exists
     if [ ! -d "$REPOS_DIR" ];then
         echo "Error: Repos directory '$REPOS_DIR' not found."
@@ -136,7 +130,7 @@ function statsGenerate
     fi
 
     # Generate stats for each repos
-    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/tools/stats-generator.php"
+    /usr/bin/su -s /bin/sh -c "/usr/bin/php $WWW_DIR/tools/stats-generator.php" "$WWW_USER" & > /dev/null
 }
 
 # Start parsing of access log to generete statistics on clients accessing the repos 
@@ -203,7 +197,7 @@ function statsClean
         return
     fi
 
-    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/tools/stats-cleaner.php"
+    /usr/bin/su -s /bin/sh -c "/usr/bin/php $WWW_DIR/tools/stats-cleaner.php" "$WWW_USER" & > /dev/null
 }
 
 # Execute plans every minute
@@ -214,7 +208,7 @@ function execPlan
     fi
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/operations/plan.php" 'exec' & > /dev/null
+    /usr/bin/su -s /bin/sh -c "/usr/bin/php $WWW_DIR/operations/plan.php 'exec'" "$WWW_USER" & > /dev/null
 }
 
 # Send plan reminder (every day at 00:00)
@@ -230,7 +224,13 @@ function sendPlanReminder
     fi
 
     # Execute plans in background as www user
-    /usr/bin/sudo -u "$WWW_USER" php "$WWW_DIR/operations/plan.php" 'send-reminders' & > /dev/null
+    /usr/bin/su -s /bin/sh -c "/usr/bin/php $WWW_DIR/operations/plan.php 'send-reminders'" "$WWW_USER" & > /dev/null
+}
+
+# Get notifications
+function getNotifications
+{
+    /usr/bin/su -s /bin/sh -c "/usr/bin/php $WWW_DIR/tools/get-notifications.php" "$WWW_USER" & > /dev/null
 }
 
 # Execution
@@ -261,6 +261,9 @@ while true; do
             # Clean old statistics
             statsClean
         fi
+
+        # Get notifications
+        getNotifications
 
         # Reset counter
         COUNTER="0"

@@ -11,6 +11,7 @@
 
 <script src="resources/js/functions.js"></script>
 <script src="resources/js/update.js"></script>
+<script src="resources/js/notification.js"></script>
 <?php
 if (__ACTUAL_URI__ == "" or __ACTUAL_URI__ == "/") {
     echo '<script src="resources/js/repo.js"></script>';

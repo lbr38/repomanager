@@ -2311,7 +2311,7 @@ class Repo
                         /**
                          *  Instanciation d'un nouveau Process
                          */
-                        $myprocess = new Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . RPM_SIGN_GPG_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile);
+                        $myprocess = new Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . GPG_SIGNING_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile);
                     } else {
                         throw new Exception("rpmresign bin is not found on this system");
                     }
@@ -2700,7 +2700,7 @@ class Repo
             $distributionsFileContent .= 'Components: ' . $this->section . PHP_EOL;
             $distributionsFileContent .= 'Description: ' . $this->name . ' repo, mirror of ' . $this->source . ' - ' . $this->dist . ' - ' . $this->section . PHP_EOL;
             if ($this->targetGpgResign == "yes") {
-                $distributionsFileContent .= 'SignWith: ' . DEB_SIGN_GPG_KEYID . PHP_EOL;
+                $distributionsFileContent .= 'SignWith: ' . GPG_SIGNING_KEYID . PHP_EOL;
             }
             $distributionsFileContent .= 'Pull: ' . $this->section;
 
@@ -2934,17 +2934,17 @@ class Repo
                 if ($this->packageType == "deb") {
                     if (is_dir($repoPath . '/packages')) {
                         if (!Common::deleteRecursive($repoPath . '/packages')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/packages');
+                            throw new Exception('Cannot delete temporary directory: ' . $repoPath . '/packages');
                         }
                     }
                     if (is_dir($repoPath . '/sources')) {
                         if (!Common::deleteRecursive($repoPath . '/sources')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/sources');
+                            throw new Exception('Cannot delete temporary directory: ' . $repoPath . '/sources');
                         }
                     }
                     if (is_dir($repoPath . '/translations')) {
                         if (!Common::deleteRecursive($repoPath . '/translations')) {
-                            throw new Exception('Cannot delete temporary directory: ' .$repoPath . '/translations');
+                            throw new Exception('Cannot delete temporary directory: ' . $repoPath . '/translations');
                         }
                     }
                 }

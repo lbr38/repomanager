@@ -73,6 +73,14 @@ class Common
     }
 
     /**
+     *  Export GPG signing key
+     */
+    public static function exportGpgSigningKey()
+    {
+        exec("/usr/bin/gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_SIGNING_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
+    }
+
+    /**
      *  Get content between two patterns strings
      */
     public static function getContentBetween(string $content, string $start, string $end)

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  *  Create a new group
  */
 if ($action == "newGroup" and !empty($_POST['name']) and !empty($_POST['type'])) {

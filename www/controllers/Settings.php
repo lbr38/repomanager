@@ -66,14 +66,6 @@ class Settings
             $repomanager_conf_array['RPM']['RPM_SIGN_PACKAGES'] = 'false';
         }
 
-        if (!empty($settings['rpmGpgKeyID'])) {
-            $rpmGpgKeyID = Common::validateData($settings['rpmGpgKeyID']);
-
-            if (Common::isAlphanumDash($rpmGpgKeyID, array('@', '.'))) {
-                $repomanager_conf_array['RPM']['RPM_SIGN_GPG_KEYID'] = trim($rpmGpgKeyID);
-            }
-        }
-
         if (!empty($settings['releasever']) and is_numeric($settings['releasever'])) {
             $repomanager_conf_array['RPM']['RELEASEVER'] = $settings['releasever'];
         }
@@ -106,14 +98,6 @@ class Settings
             $repomanager_conf_array['DEB']['DEB_SIGN_REPO'] = 'true';
         } else {
             $repomanager_conf_array['DEB']['DEB_SIGN_REPO'] = 'false';
-        }
-
-        if (!empty($settings['debGpgKeyID'])) {
-            $debGpgKeyID = Common::validateData($settings['debGpgKeyID']);
-
-            if (Common::isAlphanumDash($debGpgKeyID, array('@', '.'))) {
-                $repomanager_conf_array['DEB']['DEB_SIGN_GPG_KEYID'] = trim($debGpgKeyID);
-            }
         }
 
         if (!empty($settings['debDefaultArchitecture'])) {
@@ -192,6 +176,14 @@ class Settings
 
             if (Common::isAlphanumDash($wwwReposDirUrl, array('.', '/', ':'))) {
                 $repomanager_conf_array['WWW']['WWW_REPOS_DIR_URL'] = rtrim($wwwReposDirUrl, '/');
+            }
+        }
+
+        if (!empty($settings['gpgKeyID'])) {
+            $gpgKeyID = Common::validateData($settings['gpgKeyID']);
+
+            if (Common::isAlphanumDash($gpgKeyID, array('@', '.'))) {
+                $repomanager_conf_array['GPG']['GPG_SIGNING_KEYID'] = trim($gpgKeyID);
             }
         }
 
