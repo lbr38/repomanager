@@ -41,7 +41,7 @@ endif ?>
             </div>
             <div>
                 <div class="donut-chart-container">
-                    <p class="donut-legend-title lowopacity"><?= REPOS_DIR ?></p>
+                    <p class="donut-legend-title lowopacity">Repo storage</p>
                     <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
                     <?php
                         $donutChartName = 'donut-chart';

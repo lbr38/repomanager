@@ -53,8 +53,8 @@ jobs:
           mkdir -p /var/lib/repomanager/db
           mkdir -p /var/lib/repomanager/.gnupg
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/repomanager /var/www/repomanager/bin/repomanager
           cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
-          cp $GITHUB_WORKSPACE/repomanager /var/lib/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
 
       - name: Set up repomanager main config
@@ -84,6 +84,9 @@ jobs:
         run: |
           echo -e "pinentry-mode loopback\npassphrase-file /var/lib/repomanager/.gnupg/passphrase" > gpg.conf 
           mv gpg.conf /var/lib/repomanager/.gnupg/gpg.conf
+          mkdir -p /var/lib/repomanager/.rpm
+          echo -e "%__gpg /usr/bin/gpg2\n%_gpg_path /var/lib/repomanager/.gnupg\n%_gpg_name gpgkey@nomail.com\n%_gpg_passphrase_file /var/lib/repomanager/.gnupg/passphrase\n%__gpg_sign_cmd %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file %{_gpg_passphrase_file} %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" > .mcs          
+          mv .mcs /var/lib/repomanager/.rpm/.mcs
 
       - name: Download jobs
         run: |
@@ -95,7 +98,7 @@ jobs:
           curl -s -o /var/lib/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-reconstruct.json 2> /dev/null
 
       - name: Set up permissions
-        run: /var/lib/repomanager/repomanager -p
+        run: /var/www/repomanager/bin/repomanager -p
 
       - name: Update database
         run: |
@@ -103,6 +106,7 @@ jobs:
           sudo -u www-data php /var/www/repomanager/tools/update-database.php
 
       - name: Run job - Mirror repo
+        # run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo' || sleep 10; sudo cat /var/lib/repomanager/logs/main/lastlog.log; exit 1
         run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo'
 
       - name: Print mirrored repo content

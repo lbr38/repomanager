@@ -284,7 +284,7 @@
 
 .hosts-charts-list-column-container {
     column-count: 2;
-    column-fill: auto;
+    /* column-fill: auto; */
     height: 90%;
 }
 
