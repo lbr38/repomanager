@@ -138,6 +138,29 @@
 
                 <div class="settings-div">
                     <div>
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
+                    </div>
+                    <div>
+                        <p>Timezone</p>
+                    </div>
+                    <div>
+                        <select class="settings-param" param-name="timezone">
+                            <?php
+                            $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+                            foreach ($tzlist as $timezone) {
+                                if ($timezone == TIMEZONE) {
+                                    echo '<option value="' . $timezone . '" selected>' . $timezone . '</option>';
+                                } else {
+                                    echo '<option value="' . $timezone . '">' . $timezone . '</option>';
+                                }
+                            } ?>
+                        </select>
+                    </div>
+                    <div></div>
+                </div>
+
+                <div class="settings-div">
+                    <div>
                         <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
                     </div>
                     <div>

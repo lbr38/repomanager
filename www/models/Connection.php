@@ -14,6 +14,12 @@ class Connection extends SQLite3
          *  Si celle-ci n'existe pas elle est créée automatiquement
          */
         try {
+            if (!is_dir(DB_DIR)) {
+                if (!mkdir(DB_DIR, 0777, true)) {
+                    throw new Exception('Unable to create database directory');
+                }
+            }
+
             /**
              *  Ouverture de la base de données
              */
@@ -23,6 +29,9 @@ class Connection extends SQLite3
              */
             if ($database == "main") {
                 $this->open(DB);
+                $this->busyTimeout(10000);
+                $this->enableExceptions(true);
+                $this->enableWAL();
                 $this->checkMainTables();
 
             /**
@@ -30,6 +39,9 @@ class Connection extends SQLite3
              */
             } elseif ($database == "stats") {
                 $this->open(STATS_DB);
+                $this->busyTimeout(10000);
+                $this->enableExceptions(true);
+                $this->enableWAL();
                 $this->checkStatsTables();
 
             /**
@@ -37,6 +49,9 @@ class Connection extends SQLite3
              */
             } elseif ($database == "hosts") {
                 $this->open(HOSTS_DB);
+                $this->busyTimeout(10000);
+                $this->enableExceptions(true);
+                $this->enableWAL();
                 $this->checkHostsTables();
 
             /**
@@ -44,15 +59,9 @@ class Connection extends SQLite3
              */
             } elseif ($database == "host") {
                 $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
-
-                /**
-                 *  Activation du mode WAL
-                 */
+                $this->busyTimeout(10000);
+                $this->enableExceptions(true);
                 $this->enableWAL();
-
-                /**
-                 *  Génération des tables si n'existent pas
-                 */
                 $this->generateHostTables();
 
             /**
@@ -61,22 +70,8 @@ class Connection extends SQLite3
             } else {
                 throw new Exception("unknown database: $database");
             }
-
-            /**
-             *  Enable exception for SQLite
-             */
-            $this->enableExceptions(true);
         } catch (\Exception $e) {
             die('Error while opening database: ' . $e->getMessage());
-        }
-
-        /**
-         *  Ajout d'un timeout de 10sec pour l'ouverture de la base de données
-         */
-        try {
-            $this->busyTimeout(10000);
-        } catch (\Exception $e) {
-            die('Error while configuring timeout on database: ' . $e->getMessage());
         }
     }
 
@@ -85,10 +80,7 @@ class Connection extends SQLite3
      */
     private function enableWAL()
     {
-        $this->exec('pragma journal_mode = WAL;');
-        $this->exec('pragma synchronous = normal;');
-        $this->exec('pragma temp_store = memory;');
-        $this->exec('pragma mmap_size = 30000000000;');
+        $this->exec('pragma journal_mode = WAL; pragma synchronous = normal; pragma temp_store = memory; pragma mmap_size = 30000000000;');
     }
 
     /**
@@ -129,7 +121,8 @@ class Connection extends SQLite3
         OR name='user_role'
         OR name='history'
         OR name='repos_list_settings'
-        OR name='notifications'");
+        OR name='notifications'
+        OR name='settings'");
 
         /**
          *  On retourne le nombre de tables
@@ -287,6 +280,14 @@ class Connection extends SQLite3
         $this->exec("CREATE TABLE IF NOT EXISTS env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) NOT NULL)");
+
+        /**
+         *  Insert default env if table is empty
+         */
+        $result = $this->query("SELECT Id FROM env");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO env ('Name') VALUES ('preprod')");
+        }
 
         /**
          *  Crée la table sources si n'existe pas
@@ -514,7 +515,7 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Generate notifications table
+         *  Generate notifications table if not exists
          */
         $this->exec("CREATE TABLE IF NOT EXISTS notifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -522,11 +523,6 @@ class Connection extends SQLite3
         Title VARCHAR(255) NOT NULL,
         Message VARCHAR(255) NOT NULL,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
-
-        /**
-         *  Activation du mode WAL
-         */
-        $this->enableWAL();
     }
 
     /**
@@ -562,11 +558,6 @@ class Connection extends SQLite3
          */
         $this->exec("CREATE INDEX IF NOT EXISTS access_index ON access (Date, Time, Request)");
         $this->exec("CREATE INDEX IF NOT EXISTS stats_index ON stats (Date, Time, Size, Packages_count, Id_env)");
-
-        /**
-         *  Activation du mode WAL
-         */
-        $this->enableWAL();
     }
 
     /**
@@ -629,11 +620,6 @@ class Connection extends SQLite3
         if ($this->isempty($result) === true) {
             $this->exec("INSERT INTO settings ('pkgs_count_considered_outdated', 'pkgs_count_considered_critical') VALUES ('1', '10')");
         }
-
-        /**
-         *  Activation du mode WAL
-         */
-        $this->enableWAL();
     }
 
     /**
@@ -697,11 +683,6 @@ class Connection extends SQLite3
         Time TIME NOT NULL,
         Type CHAR(32), /* packages-update, general-status-update, packages-status-update */
         Status VARCHAR(10))"); /* running, done, error */
-
-        /**
-         *  Activation du mode WAL
-         */
-        $this->enableWAL();
     }
 
     /**

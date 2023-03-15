@@ -297,8 +297,10 @@ class Update
             /**
              *  Create a file to restart repomanager service
              */
-            if (!file_exists(DATA_DIR . '/service.restart')) {
-                touch(DATA_DIR . '/service.restart');
+            if (DOCKER == false) {
+                if (!file_exists(DATA_DIR . '/service.restart')) {
+                    touch(DATA_DIR . '/service.restart');
+                }
             }
 
             /**

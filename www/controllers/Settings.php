@@ -30,6 +30,14 @@ class Settings
             }
         }
 
+        if (!empty($settings['timezone'])) {
+            $timezone = Common::validateData($settings['timezone']);
+
+            if (Common::isAlphanumDash($timezone, array('/'))) {
+                $repomanager_conf_array['CONFIGURATION']['TIMEZONE'] = trim($timezone);
+            }
+        }
+
         if (!empty($settings['emailDest'])) {
             $emailDest = Common::validateData($settings['emailDest']);
 

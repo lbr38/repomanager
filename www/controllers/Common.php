@@ -73,14 +73,6 @@ class Common
     }
 
     /**
-     *  Export GPG signing key
-     */
-    public static function exportGpgSigningKey()
-    {
-        exec("/usr/bin/gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_SIGNING_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
-    }
-
-    /**
      *  Get content between two patterns strings
      */
     public static function getContentBetween(string $content, string $start, string $end)
@@ -456,6 +448,22 @@ class Common
     public static function randomString(int $length)
     {
         $characters = 'abcdefghijklmnopqrstuvwxyz';
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $index = rand(0, strlen($characters) - 1);
+            $randomString .= $characters[$index];
+        }
+
+        return $randomString;
+    }
+
+    /**
+     *  Generate random strong string
+     */
+    public static function randomStrongString(int $length)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*%-_{}()';
         $randomString = '';
 
         for ($i = 0; $i < $length; $i++) {

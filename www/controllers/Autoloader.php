@@ -51,7 +51,7 @@ class Autoloader
         /**
          *  Chargement de toutes les fonctions nécessaires
          */
-        \Controllers\Autoloader::loadAll();
+        self::loadAll();
 
         /**
          *  On récupère les éventuelles erreurs de chargement
@@ -62,6 +62,15 @@ class Autoloader
         if (__LOAD_MAIN_CONF_ERROR > 0) {
             $__LOAD_ERROR_MESSAGES[] = "Some main parameters are not configured:<br>";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_MAIN_CONF_MESSAGES);
+            ++$__LOAD_GENERAL_ERROR;
+        }
+
+        /**
+         *  Create dirs and files errors
+         */
+        if (__CREATE_DIRS_AND_FILES_ERROR > 0) {
+            $__LOAD_ERROR_MESSAGES[] = "Some directories or files could not be generated:<br>";
+            $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __CREATE_DIRS_AND_FILES_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
 
@@ -104,10 +113,10 @@ class Autoloader
      */
     public static function loadFromLogin()
     {
-        \Controllers\Autoloader::loadConstant();
-        \Controllers\Autoloader::register();
-        \Controllers\Autoloader::loadConfiguration();
-        \Controllers\Autoloader::loadDirs();
+        self::register();
+        self::loadConstant();
+        self::loadSettings();
+        self::createDirsAndFiles();
     }
 
     /**
@@ -122,11 +131,11 @@ class Autoloader
         /**
          *  Chargement des fonctions nécessaires
          */
-        \Controllers\Autoloader::loadConstant();
-        \Controllers\Autoloader::register();
-        \Controllers\Autoloader::loadConfiguration();
-        \Controllers\Autoloader::loadDirs();
-        \Controllers\Autoloader::loadEnvs();
+        self::register();
+        self::loadConstant();
+        self::loadSettings();
+        self::createDirsAndFiles();
+        self::loadEnvs();
 
         /**
          *  On récupère les éventuelles erreurs de chargement
@@ -153,17 +162,16 @@ class Autoloader
      */
     private static function loadAll()
     {
-        \Controllers\Autoloader::loadConstant();
-        \Controllers\Autoloader::register();
-        \Controllers\Autoloader::loadSession();
-        \Controllers\Autoloader::loadConfiguration();
-        \Controllers\Autoloader::loadDirs();
-        \Controllers\Autoloader::loadEnvs();
-        \Controllers\Autoloader::checkForUpdate();
-        \Controllers\Autoloader::serviceIsActive();
-        \Controllers\Autoloader::loadReposListDisplayConf();
-        \Controllers\Autoloader::checkPhpModules();
-        \Controllers\Autoloader::loadNotifications();
+        self::register();
+        self::loadConstant();
+        self::loadSettings();
+        self::createDirsAndFiles();
+        self::loadSession();
+        self::loadEnvs();
+        self::checkForUpdate();
+        self::loadReposListDisplayConf();
+        self::checkPhpModules();
+        self::loadNotifications();
     }
 
     private static function checkPhpModules()
@@ -261,12 +269,10 @@ class Autoloader
      */
     private static function loadConstant()
     {
-        date_default_timezone_set('Europe/Paris');
-
         /**
          *  Load system constants
          */
-        \Controllers\Autoloader::loadSystemConstant();
+        self::loadSystemConstant();
 
         // Web dir
         if (!defined('ROOT')) {
@@ -292,6 +298,7 @@ class Autoloader
         if (!defined('HOSTS_DB')) {
             define('HOSTS_DB', DB_DIR . "/repomanager-hosts.db");
         }
+
         // Main configuration file
         if (!defined('REPOMANAGER_CONF')) {
             define('REPOMANAGER_CONF', DATA_DIR . '/configurations/repomanager.conf');
@@ -364,10 +371,8 @@ class Autoloader
         if (!defined('VERSION')) {
             define('VERSION', trim(file_get_contents(ROOT . '/version')));
         }
-        if (!defined('GIT_VERSION')) {
-            if (file_exists(DATA_DIR . '/version.available')) {
-                define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
-            }
+        if (!defined('GIT_VERSION') and file_exists(DATA_DIR . '/version.available')) {
+            define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
         }
         if (!defined('LAST_VERSION')) {
             if (file_exists(DATA_DIR . '/version.last')) {
@@ -391,7 +396,7 @@ class Autoloader
         }
 
         /**
-         *  Date et heure du jour
+         *  Date and time
          */
         if (!defined('DATE_DMY')) {
             define('DATE_DMY', date("d-m-Y"));
@@ -402,26 +407,36 @@ class Autoloader
         if (!defined('TIME')) {
             define('TIME', date("H-i"));
         }
+
+        /**
+         *  Installation type
+         */
+        if (file_exists(ROOT . '/.docker')) {
+            if (!defined('DOCKER')) {
+                define('DOCKER', 'true');
+            }
+        } else {
+            if (!defined('DOCKER')) {
+                define('DOCKER', 'false');
+            }
+        }
+
+        /**
+         *  Repomanager service status
+         */
+        if (!defined('SERVICE_RUNNING')) {
+            define('SERVICE_RUNNING', System::serviceStatus());
+        }
     }
 
     /**
      *  Chargement des chemins vers les répertoires et fichiers de base
      *  Création si n'existent pas
      */
-    private static function loadDirs()
+    private static function createDirsAndFiles()
     {
-        /**
-         *  Emplacement des répertoires de bases
-         */
-        if (!is_dir(DATA_DIR . '/.rpm')) {
-            mkdir(DATA_DIR . '/.rpm', 0770, true);
-        }
-        // Fichier de macros pour rpm
-        if (!file_exists(MACROS_FILE)) {
-            file_put_contents(MACROS_FILE, '%__gpg /usr/bin/gpg' . PHP_EOL);
-            file_put_contents(MACROS_FILE, '%_gpg_name ' . GPG_SIGNING_KEYID . PHP_EOL, FILE_APPEND);
-            file_put_contents(MACROS_FILE, '%__gpg_sign_cmd %{__gpg} gpg --homedir ' . GPGHOME . ' --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file ' . PASSPHRASE_FILE . ' %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}' . PHP_EOL, FILE_APPEND);
-        }
+        $__CREATE_DIRS_AND_FILES_ERROR = 0;
+        $__CREATE_DIRS_AND_FILES_MESSAGES = array();
 
         /**
          *  Création des fichiers et répertoires de base si n'existent pas
@@ -453,14 +468,8 @@ class Autoloader
         if (!is_dir(HOSTS_DIR)) {
             mkdir(HOSTS_DIR, 0770, true);
         }
-
-        if (!file_exists(WWW_CACHE)) {
-            // Si /dev/shm/ (répertoire en mémoire) existe, alors on crée un lien symbolique vers ce répertoire, sinon on crée un répertoire 'cache' classique
-            if (file_exists("/dev/shm")) {
-                exec('cd ' . DATA_DIR . ' && ln -sfn /dev/shm cache');
-            } else {
-                mkdir(DATA_DIR . '/cache', 0770, true);
-            }
+        if (!is_dir(WWW_CACHE)) {
+            mkdir(DATA_DIR . '/cache', 0770, true);
         }
 
         /**
@@ -468,7 +477,8 @@ class Autoloader
          */
         if (defined('BACKUP_DIR') and !empty(BACKUP_DIR) and !is_dir(BACKUP_DIR)) {
             if (!mkdir(BACKUP_DIR, 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Cannot create backup directory: ' . BACKUP_DIR;
+                $__CREATE_DIRS_AND_FILES_ERROR++;
+                $__CREATE_DIRS_AND_FILES_MESSAGES[] = 'Cannot create backup directory: ' . BACKUP_DIR;
             }
         }
         /**
@@ -476,38 +486,30 @@ class Autoloader
          */
         if (!is_dir(ROOT . "/update")) {
             if (!mkdir(ROOT . "/update", 0770, true)) {
-                $GENERAL_ERROR_MESSAGES[] = 'Cannot create release update directory: ' . ROOT . '/update';
+                $__CREATE_DIRS_AND_FILES_ERROR++;
+                $__CREATE_DIRS_AND_FILES_MESSAGES[] = 'Cannot create release update directory: ' . ROOT . '/update';
             }
         }
 
         /**
-         *  Vérification de la présence de la base de données
-         *  Si aucun fichier de base de données n'existe ou bien si on a précisé le paramètre ?initialize
+         *  Generate GPG key and configuration if not exists
          */
-        if (!file_exists(DB) or isset($_GET['initialize'])) {
-            /**
-             *  On va vérifier la présence des tables et les créer si nécessaire
-             */
-            $myconn = new \Models\Connection('main');
-
-            if (!$myconn->checkMainTables()) {
-                /**
-                 *  Si la vérification a échouée alors on quitte.
-                 */
-                die();
-            }
+        try {
+            $mygpg = new Gpg();
+            $mygpg->init();
+        } catch (\Exception $e) {
+            $__CREATE_DIRS_AND_FILES_ERROR++;
+            $__CREATE_DIRS_AND_FILES_MESSAGES[] = $e->getMessage();
         }
 
-        if (!is_dir(REPOS_DIR . '/gpgkeys')) {
-            mkdir(REPOS_DIR . '/gpgkeys', 0770, true);
+        if (!defined('__CREATE_DIRS_AND_FILES_ERROR')) {
+            define('__CREATE_DIRS_AND_FILES_ERROR', $__CREATE_DIRS_AND_FILES_ERROR);
+        }
+        if (!defined('__CREATE_DIRS_AND_FILES_MESSAGES')) {
+            define('__CREATE_DIRS_AND_FILES_MESSAGES', $__CREATE_DIRS_AND_FILES_MESSAGES);
         }
 
-        /**
-         *  Si la clé de signature GPG n'existe pas alors on l'exporte
-         */
-        if ((RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') and !file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub')) {
-            Common::exportGpgSigningKey();
-        }
+        unset($__CREATE_DIRS_AND_FILES_ERROR, $__CREATE_DIRS_AND_FILES_MESSAGES, $mygpg);
     }
 
     /**
@@ -627,23 +629,30 @@ class Autoloader
         }
 
         if (!defined('OS_NAME')) {
-            define('OS_NAME', OS_INFO['name']);
+            define('OS_NAME', trim(OS_INFO['name']));
         }
         if (!defined('OS_ID')) {
-            define('OS_ID', OS_INFO['id']);
+            define('OS_ID', trim(OS_INFO['id']));
         }
         if (!defined('OS_VERSION')) {
-            define('OS_VERSION', OS_INFO['version_id']);
+            define('OS_VERSION', trim(OS_INFO['version_id']));
         }
     }
 
     /**
      *  Chargement de la configuration de repomanager
      */
-    private static function loadConfiguration()
+    private static function loadSettings()
     {
         $__LOAD_MAIN_CONF_ERROR = 0;
         $__LOAD_MAIN_CONF_MESSAGES = array();
+
+        /**
+         *  Check that database exists or generate it with default settings
+         */
+        $myconn = new \Controllers\Connection();
+        $myconn->checkDatabase('main');
+        unset($myconn);
 
         /**
          *  Vérification de la présence de repomanager.conf
@@ -695,6 +704,19 @@ class Autoloader
                 $__LOAD_MAIN_CONF_MESSAGES[] = 'Repos directory is not defined. ';
             }
         }
+
+        if (!defined('TIMEZONE')) {
+            if (!empty($repomanager_conf_array['TIMEZONE'])) {
+                define('TIMEZONE', $repomanager_conf_array['TIMEZONE']);
+            } else {
+                define('TIMEZONE', 'Europe/Paris');
+            }
+        }
+
+        /**
+         *  Set default timezone
+         */
+        date_default_timezone_set(TIMEZONE);
 
         if (!defined('EMAIL_DEST')) {
             if (!empty($repomanager_conf_array['EMAIL_DEST'])) {
@@ -903,14 +925,10 @@ class Autoloader
             if (!empty($repomanager_conf_array['GPG_SIGNING_KEYID'])) {
                 define('GPG_SIGNING_KEYID', $repomanager_conf_array['GPG_SIGNING_KEYID']);
             } else {
-                define('GPG_SIGNING_KEYID', '');
-
                 /**
-                 *  On affiche un message uniquement si la signature est activée
+                 *  Define a default key ID
                  */
-                if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG key Id for signing packages is not defined.";
-                }
+                define('GPG_SIGNING_KEYID', 'repomanager@localhost.local');
             }
         }
 
@@ -1152,24 +1170,6 @@ class Autoloader
                 $myupdate = new \Controllers\Update();
                 $myupdate->update();
             }
-        }
-    }
-
-    /**
-     *  Return true if repomanager systemd service is running
-     */
-    private static function serviceIsActive()
-    {
-        exec('systemctl is-active repomanager --quiet', $output, $return);
-
-        if ($return == 0) {
-            if (!defined('SERVICE_RUNNING')) {
-                define('SERVICE_RUNNING', true);
-            }
-        }
-
-        if (!defined('SERVICE_RUNNING')) {
-            define('SERVICE_RUNNING', false);
         }
     }
 

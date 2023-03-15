@@ -47,8 +47,8 @@ jobs:
           sudo mkdir -p /var/lib/repomanager/db
           sudo mkdir -p /var/lib/repomanager/.gnupg
           sudo cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          sudo cp $GITHUB_WORKSPACE/repomanager /var/www/repomanager/bin/repomanager
           sudo cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
-          sudo cp $GITHUB_WORKSPACE/repomanager /var/lib/repomanager/
           sudo cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
 
       - name: Set up repomanager main config
@@ -88,11 +88,11 @@ jobs:
           sudo curl -s -o /var/lib/repomanager/operations/pool/ci-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
           sudo curl -s -o /var/lib/repomanager/operations/pool/ci-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-reconstruct.json 2> /dev/null
 
-      - name: Set up permissions
-        run: sudo /var/lib/repomanager/repomanager -p
-
       - name: Check repomanager dependencies
-        run: sudo /var/lib/repomanager/repomanager -d --package-type deb
+        run: sudo /var/www/repomanager/bin/repomanager -d --package-type deb
+
+      - name: Set up permissions
+        run: sudo /var/www/repomanager/bin/repomanager -p
 
       - name: Update database
         run: |
