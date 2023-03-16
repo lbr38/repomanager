@@ -335,7 +335,7 @@ if (__LOAD_GENERAL_ERROR > 0) : ?>
 if (!SERVICE_RUNNING) : ?>
     <section>
         <section class="missing-param-alert">
-            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">repomanager service is not running</span>
+            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service is not running. <?php echo (DOCKER == "true") ? 'Please restart the container.' : ''; ?></span>
         </section>
     </section>
     <?php
@@ -344,24 +344,19 @@ endif;
 /**
  *  Display repomanager service error if there is
  */
-if (filesize(SERVICE_LOG)) :
-    $serviceLog = file_get_contents(SERVICE_LOG);
-    ?>
-    <section>
-        <section class="missing-param-alert">
-            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">repomanager service has error:</span>
-            <br>
-            <span class="yellowtext"><?= $serviceLog ?></span>
+if (file_exists(SERVICE_LOG)) :
+    if (filesize(SERVICE_LOG)) :
+        $serviceLog = file_get_contents(SERVICE_LOG); ?>
+        <section>
+            <section class="missing-param-alert">
+                <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
+                <br>
+                <span class="yellowtext"><?= $serviceLog ?></span>
+            </section>
         </section>
-    </section>
-    <?php
+        <?php
+    endif;
 endif;
-
-/**
- *  Display warning if a required php module is not enabled/installed
- */
-
-
 
 include('maintenance.inc.php');
 include('update.inc.php'); ?>

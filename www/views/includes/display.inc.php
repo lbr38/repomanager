@@ -34,20 +34,6 @@
             </label>
             <span> Print repo or packages GPG signature</span>
         </div>
-
-        <br>
-
-        <h5>Cache</h5>
-        <!-- mettre en cache ou non la liste des repos -->
-        <div class="flex align-item-center column-gap-4">
-            <label class="onoff-switch-label">
-                <input type="hidden" name="cache_repos_list" value="off" />
-                <input class="onoff-switch-input" type="checkbox" name="cacheReposList" value="on" <?php echo (CACHE_REPOS_LIST == "yes") ? 'checked' : ''; ?>>
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <span>Use <b>/dev/shm</b> to store repo list in cache (recommended for large repo list)</span>
-        </div>
-
         <br>
         <br>
 

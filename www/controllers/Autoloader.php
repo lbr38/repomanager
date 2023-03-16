@@ -59,9 +59,9 @@ class Autoloader
         /**
          *  Erreur liées au chargement de la configuration principale
          */
-        if (__LOAD_MAIN_CONF_ERROR > 0) {
+        if (__LOAD_SETTINGS_ERROR > 0) {
             $__LOAD_ERROR_MESSAGES[] = "Some main parameters are not configured:<br>";
-            $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_MAIN_CONF_MESSAGES);
+            $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_SETTINGS_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
 
@@ -143,7 +143,7 @@ class Autoloader
         /**
          *  Erreur liées au chargement de la configuration principale
          */
-        if (__LOAD_MAIN_CONF_ERROR > 0) {
+        if (__LOAD_SETTINGS_ERROR > 0) {
             ++$__LOAD_GENERAL_ERROR;
         }
 
@@ -298,7 +298,6 @@ class Autoloader
         if (!defined('HOSTS_DB')) {
             define('HOSTS_DB', DB_DIR . "/repomanager-hosts.db");
         }
-
         // Main configuration file
         if (!defined('REPOMANAGER_CONF')) {
             define('REPOMANAGER_CONF', DATA_DIR . '/configurations/repomanager.conf');
@@ -307,9 +306,16 @@ class Autoloader
         if (!defined('WWW_CACHE')) {
             define('WWW_CACHE', DATA_DIR . "/cache");
         }
+        // no need to use /dev/shm anymore so delete symlink if exists
+        if (is_link(WWW_CACHE)) {
+            unlink(WWW_CACHE);
+        }
         // Emplacement du répertoire de clé GPG
         if (!defined('GPGHOME')) {
             define('GPGHOME', DATA_DIR . "/.gnupg");
+        }
+        if (!defined('PASSPHRASE_FILE')) {
+            define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
         }
         if (!defined('MACROS_FILE')) {
             define('MACROS_FILE', DATA_DIR . '/.rpm/.mcs');
@@ -360,18 +366,16 @@ class Autoloader
         if (!defined('LOGBUILDER')) {
             define('LOGBUILDER', ROOT . '/tools/logbuilder.php');
         }
-
-        if (!defined('PASSPHRASE_FILE')) {
-            define('PASSPHRASE_FILE', GPGHOME . '/passphrase');
-        }
-
         /**
          *  Actual release version and available version on github
          */
         if (!defined('VERSION')) {
             define('VERSION', trim(file_get_contents(ROOT . '/version')));
         }
-        if (!defined('GIT_VERSION') and file_exists(DATA_DIR . '/version.available')) {
+        if (!file_exists(DATA_DIR . '/version.available')) {
+            file_put_contents(DATA_DIR . '/version.available', VERSION);
+        }
+        if (!defined('GIT_VERSION')) {
             define('GIT_VERSION', trim(file_get_contents(DATA_DIR . '/version.available')));
         }
         if (!defined('LAST_VERSION')) {
@@ -381,7 +385,6 @@ class Autoloader
                 define('LAST_VERSION', VERSION);
             }
         }
-
         /**
          *  Check if a repomanager update is running
          */
@@ -394,20 +397,18 @@ class Autoloader
                 define('UPDATE_RUNNING', 'false');
             }
         }
-
         /**
          *  Date and time
          */
         if (!defined('DATE_DMY')) {
-            define('DATE_DMY', date("d-m-Y"));
+            define('DATE_DMY', date('d-m-Y'));
         }
         if (!defined('DATE_YMD')) {
-            define('DATE_YMD', date("Y-m-d"));
+            define('DATE_YMD', date('Y-m-d'));
         }
         if (!defined('TIME')) {
-            define('TIME', date("H-i"));
+            define('TIME', date('H-i'));
         }
-
         /**
          *  Installation type
          */
@@ -420,12 +421,17 @@ class Autoloader
                 define('DOCKER', 'false');
             }
         }
-
         /**
          *  Repomanager service status
          */
         if (!defined('SERVICE_RUNNING')) {
             define('SERVICE_RUNNING', System::serviceStatus());
+        }
+        /**
+         *  Debug mode
+         */
+        if (!defined('DEBUG_MODE')) {
+            define('DEBUG_MODE', 'false');
         }
     }
 
@@ -475,10 +481,10 @@ class Autoloader
         /**
          *  Création du répertoire de backup si n'existe pas
          */
-        if (defined('BACKUP_DIR') and !empty(BACKUP_DIR) and !is_dir(BACKUP_DIR)) {
-            if (!mkdir(BACKUP_DIR, 0770, true)) {
+        if (defined('UPDATE_BACKUP_DIR') and !empty(UPDATE_BACKUP_DIR) and !is_dir(UPDATE_BACKUP_DIR)) {
+            if (!mkdir(UPDATE_BACKUP_DIR, 0770, true)) {
                 $__CREATE_DIRS_AND_FILES_ERROR++;
-                $__CREATE_DIRS_AND_FILES_MESSAGES[] = 'Cannot create backup directory: ' . BACKUP_DIR;
+                $__CREATE_DIRS_AND_FILES_MESSAGES[] = 'Cannot create backup directory: ' . UPDATE_BACKUP_DIR;
             }
         }
         /**
@@ -644,429 +650,20 @@ class Autoloader
      */
     private static function loadSettings()
     {
-        $__LOAD_MAIN_CONF_ERROR = 0;
-        $__LOAD_MAIN_CONF_MESSAGES = array();
+        $myconn = new Connection();
+        $mysettings = new Settings();
 
         /**
          *  Check that database exists or generate it with default settings
          */
-        $myconn = new \Controllers\Connection();
         $myconn->checkDatabase('main');
-        unset($myconn);
 
         /**
-         *  Vérification de la présence de repomanager.conf
+         *  Get all constant settings
          */
-        if (!file_exists(REPOMANAGER_CONF)) {
-            echo "Error: configuration file is missing. You must relaunch Repomanager installation.";
-            die();
-        }
+        $mysettings->get();
 
-        /**
-         *  Récupération de tous les paramètres définis dans le fichier repomanager.conf
-         */
-        $repomanager_conf_array = parse_ini_file(REPOMANAGER_CONF);
-
-        /**
-         *  Si certains paramètres sont vides alors on incrémente $EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alertes.
-         *  Certains paramètres font exceptions et peuvent rester vides
-         */
-        foreach ($repomanager_conf_array as $key => $value) {
-            /**
-             *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
-             */
-            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION');
-
-            if (in_array($key, $ignoreEmptyParam)) {
-                continue;
-            }
-
-            if (empty($value)) {
-                ++$__LOAD_MAIN_CONF_ERROR;
-            }
-        }
-
-        /**
-         *  Paramètres généraux
-         */
-        if (!defined('REPOS_DIR')) {
-            if (!empty($repomanager_conf_array['REPOS_DIR'])) {
-                define('REPOS_DIR', $repomanager_conf_array['REPOS_DIR']);
-                /**
-                 *  On teste l'accès au répertoire renseigné
-                 */
-                if (!is_writable(REPOS_DIR)) {
-                    ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Repos directory '" . REPOS_DIR . "' is not writeable.";
-                }
-            } else {
-                define('REPOS_DIR', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'Repos directory is not defined. ';
-            }
-        }
-
-        if (!defined('TIMEZONE')) {
-            if (!empty($repomanager_conf_array['TIMEZONE'])) {
-                define('TIMEZONE', $repomanager_conf_array['TIMEZONE']);
-            } else {
-                define('TIMEZONE', 'Europe/Paris');
-            }
-        }
-
-        /**
-         *  Set default timezone
-         */
-        date_default_timezone_set(TIMEZONE);
-
-        if (!defined('EMAIL_DEST')) {
-            if (!empty($repomanager_conf_array['EMAIL_DEST'])) {
-                define('EMAIL_DEST', $repomanager_conf_array['EMAIL_DEST']);
-            } else {
-                define('EMAIL_DEST', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = 'No recipient email adress is defined. ';
-            }
-        }
-
-        if (!defined('UPDATE_AUTO')) {
-            if (!empty($repomanager_conf_array['UPDATE_AUTO'])) {
-                define('UPDATE_AUTO', $repomanager_conf_array['UPDATE_AUTO']);
-            } else {
-                define('UPDATE_AUTO', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling automatic update is not defined.";
-            }
-        }
-
-        if (!defined('UPDATE_BRANCH')) {
-            if (!empty($repomanager_conf_array['UPDATE_BRANCH'])) {
-                define('UPDATE_BRANCH', $repomanager_conf_array['UPDATE_BRANCH']);
-            } else {
-                define('UPDATE_BRANCH', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Update target branch is not defined.";
-            }
-        }
-
-        if (!defined('UPDATE_BACKUP_ENABLED')) {
-            if (!empty($repomanager_conf_array['UPDATE_BACKUP_ENABLED'])) {
-                define('UPDATE_BACKUP_ENABLED', $repomanager_conf_array['UPDATE_BACKUP_ENABLED']);
-            } else {
-                define('UPDATE_BACKUP_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling backup before update is not defined.";
-            }
-        }
-
-        if (!defined('BACKUP_DIR')) {
-            if (UPDATE_BACKUP_ENABLED == "true") {
-                if (!empty($repomanager_conf_array['BACKUP_DIR'])) {
-                    define('BACKUP_DIR', $repomanager_conf_array['BACKUP_DIR']);
-                    /**
-                     *  On teste l'accès au répertoire renseigné
-                     */
-                    if (!is_writable(BACKUP_DIR)) {
-                        ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Backup before update directory '" . BACKUP_DIR . "' is not writeable.";
-                    }
-                } else {
-                    define('BACKUP_DIR', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Backup before update directory is not defined.";
-                }
-            }
-        }
-
-        if (!defined('DEBUG_MODE')) {
-            if (!empty($repomanager_conf_array['DEBUG_MODE'])) {
-                define('DEBUG_MODE', $repomanager_conf_array['DEBUG_MODE']);
-            } else {
-                define('DEBUG_MODE', 'false');
-            }
-        }
-
-        /**
-         *  Paramètres web
-         */
-        if (!defined('WWW_HOSTNAME')) {
-            if (!empty($repomanager_conf_array['WWW_HOSTNAME'])) {
-                define('WWW_HOSTNAME', $repomanager_conf_array['WWW_HOSTNAME']);
-            } else {
-                define('WWW_HOSTNAME', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Repomanager dedied hostname is not defined.";
-            }
-        }
-
-        if (!defined('WWW_REPOS_DIR_URL')) {
-            if (!empty($repomanager_conf_array['WWW_REPOS_DIR_URL'])) {
-                define('WWW_REPOS_DIR_URL', $repomanager_conf_array['WWW_REPOS_DIR_URL']);
-            } else {
-                define('WWW_REPOS_DIR_URL', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Target URL to repo directory is not defined.";
-            }
-        }
-
-        if (!defined('WWW_USER')) {
-            if (!empty($repomanager_conf_array['WWW_USER'])) {
-                define('WWW_USER', $repomanager_conf_array['WWW_USER']);
-            } else {
-                define('WWW_USER', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Linux web dedied user is not defined.";
-            }
-        }
-
-        /**
-         *  Paramètres de repos
-         */
-
-        // RPM
-        if (!defined('RPM_REPO')) {
-            if (!empty($repomanager_conf_array['RPM_REPO'])) {
-                define('RPM_REPO', $repomanager_conf_array['RPM_REPO']);
-            } else {
-                define('RPM_REPO', 'false');
-            }
-        }
-
-        if (!defined('RPM_SIGN_PACKAGES')) {
-            if (!empty($repomanager_conf_array['RPM_SIGN_PACKAGES'])) {
-                define('RPM_SIGN_PACKAGES', $repomanager_conf_array['RPM_SIGN_PACKAGES']);
-            } else {
-                define('RPM_SIGN_PACKAGES', 'false');
-            }
-        }
-
-        if (!defined('RPM_SIGN_METHOD')) {
-            if (!empty($repomanager_conf_array['RPM_SIGN_METHOD'])) {
-                define('RPM_SIGN_METHOD', $repomanager_conf_array['RPM_SIGN_METHOD']);
-            } else {
-                /**
-                 *  On défini la méthode par défaut en cas de valeur vide
-                 */
-                define('RPM_SIGN_METHOD', 'rpmsign');
-
-                /**
-                 *  On affiche un message uniquement si la signature est activée
-                 */
-                if (RPM_SIGN_PACKAGES == 'true') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "GPG signing method for signing RPM packages is not defined.";
-                }
-            }
-        }
-
-        if (!defined('RELEASEVER')) {
-            if (!empty($repomanager_conf_array['RELEASEVER'])) {
-                define('RELEASEVER', $repomanager_conf_array['RELEASEVER']);
-            } else {
-                define('RELEASEVER', '');
-
-                /**
-                 *  On affiche un message uniquement si les repos RPM sont activés.
-                 */
-                if (RPM_REPO == 'true') {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Release version for RPM repositories is not defined.";
-                }
-            }
-        }
-
-        if (!defined('RPM_DEFAULT_ARCH')) {
-            if (!empty($repomanager_conf_array['RPM_DEFAULT_ARCH'])) {
-                define('RPM_DEFAULT_ARCH', explode(',', $repomanager_conf_array['RPM_DEFAULT_ARCH']));
-            } else {
-                define('RPM_DEFAULT_ARCH', array());
-            }
-        }
-
-        if (!defined('RPM_INCLUDE_SOURCE')) {
-            if (!empty($repomanager_conf_array['RPM_INCLUDE_SOURCE'])) {
-                define('RPM_INCLUDE_SOURCE', $repomanager_conf_array['RPM_INCLUDE_SOURCE']);
-            } else {
-                define('RPM_INCLUDE_SOURCE', 'false');
-            }
-        }
-
-        // DEB
-        if (!defined('DEB_REPO')) {
-            if (!empty($repomanager_conf_array['DEB_REPO'])) {
-                define('DEB_REPO', $repomanager_conf_array['DEB_REPO']);
-            } else {
-                define('DEB_REPO', 'false');
-            }
-        }
-
-        if (!defined('DEB_SIGN_REPO')) {
-            if (!empty($repomanager_conf_array['DEB_SIGN_REPO'])) {
-                define('DEB_SIGN_REPO', $repomanager_conf_array['DEB_SIGN_REPO']);
-            } else {
-                define('DEB_SIGN_REPO', 'false');
-            }
-        }
-
-        if (!defined('DEB_DEFAULT_ARCH')) {
-            if (!empty($repomanager_conf_array['DEB_DEFAULT_ARCH'])) {
-                define('DEB_DEFAULT_ARCH', explode(',', $repomanager_conf_array['DEB_DEFAULT_ARCH']));
-            } else {
-                define('DEB_DEFAULT_ARCH', array());
-            }
-        }
-
-        if (!defined('DEB_INCLUDE_SOURCE')) {
-            if (!empty($repomanager_conf_array['DEB_INCLUDE_SOURCE'])) {
-                define('DEB_INCLUDE_SOURCE', $repomanager_conf_array['DEB_INCLUDE_SOURCE']);
-            } else {
-                define('DEB_INCLUDE_SOURCE', 'false');
-            }
-        }
-
-        if (!defined('DEB_DEFAULT_TRANSLATION')) {
-            if (!empty($repomanager_conf_array['DEB_DEFAULT_TRANSLATION'])) {
-                define('DEB_DEFAULT_TRANSLATION', explode(',', $repomanager_conf_array['DEB_DEFAULT_TRANSLATION']));
-            } else {
-                define('DEB_DEFAULT_TRANSLATION', array());
-            }
-        }
-
-        if (!defined('GPG_SIGNING_KEYID')) {
-            if (!empty($repomanager_conf_array['GPG_SIGNING_KEYID'])) {
-                define('GPG_SIGNING_KEYID', $repomanager_conf_array['GPG_SIGNING_KEYID']);
-            } else {
-                /**
-                 *  Define a default key ID
-                 */
-                define('GPG_SIGNING_KEYID', 'repomanager@localhost.local');
-            }
-        }
-
-        /**
-         *  Paramètres d'automatisation
-         */
-        if (!defined('PLANS_ENABLED')) {
-            if (!empty($repomanager_conf_array['PLANS_ENABLED'])) {
-                define('PLANS_ENABLED', $repomanager_conf_array['PLANS_ENABLED']);
-            } else {
-                define('PLANS_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling plans is not defined.";
-            }
-        }
-
-        if (!defined('ALLOW_AUTOUPDATE_REPOS')) {
-            if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS'])) {
-                define('ALLOW_AUTOUPDATE_REPOS', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS']);
-            } else {
-                define('ALLOW_AUTOUPDATE_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to update repositories is not defined.";
-                }
-            }
-        }
-
-        // if (!defined('ALLOW_AUTOUPDATE_REPOS_ENV')) {
-        //     if (!empty($repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV'])) {
-        //         define('ALLOW_AUTOUPDATE_REPOS_ENV', $repomanager_conf_array['ALLOW_AUTOUPDATE_REPOS_ENV']);
-        //     } else {
-        //         define('ALLOW_AUTOUPDATE_REPOS_ENV', '');
-        //         if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-        //             $__LOAD_MAIN_CONF_MESSAGES[] = "L'activation / désactivation des planifications de création d'environnement n'est pas renseignée.";
-        //         }
-        //     }
-        // }
-
-        if (!defined('ALLOW_AUTODELETE_ARCHIVED_REPOS')) {
-            if (!empty($repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS'])) {
-                define('ALLOW_AUTODELETE_ARCHIVED_REPOS', $repomanager_conf_array['ALLOW_AUTODELETE_ARCHIVED_REPOS']);
-            } else {
-                define('ALLOW_AUTODELETE_ARCHIVED_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Allowing plans to delete old repos snapshots is not defined.";
-                }
-            }
-        }
-
-        if (!defined('RETENTION')) {
-            if (isset($repomanager_conf_array['RETENTION']) and $repomanager_conf_array['RETENTION'] >= 0) {
-                define('RETENTION', intval($repomanager_conf_array['RETENTION'], 8));
-            } else {
-                define('RETENTION', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Old repos snapshots retention is not defined.";
-                }
-            }
-        }
-
-        /**
-         *  Paramètres des hôtes
-         */
-        if (!defined('MANAGE_HOSTS')) {
-            if (!empty($repomanager_conf_array['MANAGE_HOSTS'])) {
-                define('MANAGE_HOSTS', $repomanager_conf_array['MANAGE_HOSTS']);
-            } else {
-                define('MANAGE_HOSTS', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling hosts management is not defined.";
-            }
-        }
-
-        /**
-         *  Paramètres des profils
-         */
-        if (!defined('MANAGE_PROFILES')) {
-            if (!empty($repomanager_conf_array['MANAGE_PROFILES'])) {
-                define('MANAGE_PROFILES', $repomanager_conf_array['MANAGE_PROFILES']);
-            } else {
-                define('MANAGE_PROFILES', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling profiles management is not defined.";
-            }
-        }
-
-        if (!defined('REPO_CONF_FILES_PREFIX')) {
-            if (!empty($repomanager_conf_array['REPO_CONF_FILES_PREFIX'])) {
-                define('REPO_CONF_FILES_PREFIX', $repomanager_conf_array['REPO_CONF_FILES_PREFIX']);
-            } else {
-                define('REPO_CONF_FILES_PREFIX', '');
-            }
-        }
-
-        /**
-         *  Paramètres statistiques
-         */
-        if (!defined('STATS_ENABLED')) {
-            if (!empty($repomanager_conf_array['STATS_ENABLED'])) {
-                define('STATS_ENABLED', $repomanager_conf_array['STATS_ENABLED']);
-            } else {
-                define('STATS_ENABLED', '');
-                $__LOAD_MAIN_CONF_MESSAGES[] = "Enabling repos statistics is not defined.";
-            }
-        }
-
-        if (STATS_ENABLED == "true") {
-            if (!defined('STATS_LOG_PATH')) {
-                if (!empty($repomanager_conf_array['STATS_LOG_PATH'])) {
-                    define('STATS_LOG_PATH', $repomanager_conf_array['STATS_LOG_PATH']);
-
-                    /**
-                     *  On teste l'accès au chemin renseigné
-                     */
-                    if (!is_readable(STATS_LOG_PATH)) {
-                        ++$__LOAD_MAIN_CONF_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_MAIN_CONF_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
-                    }
-                } else {
-                    define('STATS_LOG_PATH', '');
-                    $__LOAD_MAIN_CONF_MESSAGES[] = "Access log file to scan for statistics is not defined.";
-                }
-            }
-        }
-
-        if (!defined('PLAN_REMINDERS_ENABLED')) {
-            if (!empty($repomanager_conf_array['PLAN_REMINDERS_ENABLED'])) {
-                define('PLAN_REMINDERS_ENABLED', $repomanager_conf_array['PLAN_REMINDERS_ENABLED']);
-            } else {
-                define('PLAN_REMINDERS_ENABLED', 'false');
-            }
-        }
-
-        if (!defined('__LOAD_MAIN_CONF_ERROR')) {
-            define('__LOAD_MAIN_CONF_ERROR', $__LOAD_MAIN_CONF_ERROR);
-        }
-        if (!defined('__LOAD_MAIN_CONF_MESSAGES')) {
-            define('__LOAD_MAIN_CONF_MESSAGES', $__LOAD_MAIN_CONF_MESSAGES);
-        }
-
-        unset($repomanager_conf_array);
+        unset($myconn, $mysettings);
     }
 
     /**
@@ -1201,11 +798,12 @@ class Autoloader
                         define('PRINT_REPO_SIZE', $row['print_repo_size']);
                         define('PRINT_REPO_TYPE', $row['print_repo_type']);
                         define('PRINT_REPO_SIGNATURE', $row['print_repo_signature']);
-                        define('CACHE_REPOS_LIST', $row['cache_repos_list']);
                     }
                 } catch (\Exception $e) {
                     \Controllers\Common::dbError($e);
                 }
+
+                define('CACHE_REPOS_LIST', 'true');
 
                 $myconn->close();
             }

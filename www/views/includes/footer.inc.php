@@ -1,12 +1,10 @@
 <footer>
-    <p>Repomanager - release version <?= VERSION ?></p>
-    <br>
-    <?php
-    if (UPDATE_AVAILABLE == "true") {
-        echo '<p class="yellowtext">New release available: ' .GIT_VERSION. '</p>';
-    } ?>
-    <br>
-    <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="resources/images/GitHub-Mark-Light-64px.png" /></a>
+    <div class="text-center">
+        <p>Repomanager - release version <?= VERSION ?></p>
+        <br>
+        <br>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="resources/images/GitHub-Mark-Light-64px.png" /></a>
+    </div>
 </footer>
 
 <script src="resources/js/functions.js"></script>

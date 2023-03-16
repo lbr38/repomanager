@@ -3,17 +3,9 @@
 *.swp
 *.bak
 TODO
-repos.list
-repos-archive.list
-envs.conf
-groups.conf
-hosts.conf
-planifications.conf
-repomanager.conf
 push.sh
 jsconfig.json
 WIP
-www/cve/cve.json
 
 
 # Compiled source #

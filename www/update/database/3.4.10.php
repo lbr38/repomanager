@@ -7,7 +7,7 @@ $configFile = '/var/lib/repomanager/configurations/repomanager.conf';
 $gpgKeyId = '';
 
 if (!file_exists($configFile)) {
-    throw new Exception('Unable to find configuration file');
+    return;
 }
 
 $configuration = file_get_contents($configFile);

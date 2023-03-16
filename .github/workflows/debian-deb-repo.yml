@@ -53,31 +53,10 @@ jobs:
 
       - name: Set up repomanager main config
         run: |
-          sudo curl -s -o /var/lib/repomanager/configurations/repomanager.conf https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/repomanager.conf 2> /dev/null
           sudo curl -s -L -o /var/lib/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
           sudo curl -s -L -o /var/lib/repomanager/db/repomanager-hosts.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager-hosts.db 2> /dev/null
           sudo ls -l /var/lib/repomanager/configurations/
           sudo ls -l /var/lib/repomanager/db/
-      
-      - name: Generate repomanager GPG signing key
-        run: |
-          echo "Key-Type: RSA" > /tmp/gpg-template-file
-          echo "Key-Length: 2048" >> /tmp/gpg-template-file
-          echo "Key-Usage: sign" >> /tmp/gpg-template-file
-          echo "Name-Real: Repomanager" >> /tmp/gpg-template-file
-          echo "Name-Comment: No description" >> /tmp/gpg-template-file
-          echo "Name-Email: gpgkey@nomail.com" >> /tmp/gpg-template-file
-          echo "Expire-Date: 0" >> /tmp/gpg-template-file
-          echo "Passphrase: beautifulPassphrase" >> /tmp/gpg-template-file
-          sudo gpg2 --batch --gen-key --homedir /var/lib/repomanager/.gnupg/ --no-permission-warning /tmp/gpg-template-file 2>/dev/null
-          echo "beautifulPassphrase" > passphrase
-          sudo mv passphrase /var/lib/repomanager/.gnupg/passphrase
-          rm /tmp/gpg-template-file
-
-      - name: Set up GPG config
-        run: |
-          echo -e "pinentry-mode loopback\npassphrase-file /var/lib/repomanager/.gnupg/passphrase" > gpg.conf 
-          sudo mv gpg.conf /var/lib/repomanager/.gnupg/gpg.conf
 
       - name: Download jobs
         run: |
@@ -92,7 +71,7 @@ jobs:
         run: sudo /var/www/repomanager/bin/repomanager -d --package-type deb
 
       - name: Set up permissions
-        run: sudo /var/www/repomanager/bin/repomanager -p
+        run: sudo chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager /home/repo
 
       - name: Update database
         run: |

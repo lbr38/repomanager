@@ -122,7 +122,6 @@ $(document).on('submit','#applyServerConfigurationForm',function () {
     event.preventDefault();
 
     var serverPackageType = $('#serverPackageTypeInput').val();
-    var repoConfPrefix = $('#repoConfPrefix').val();
 
     if ($('#serverManageClientConf').is(':checked')) {
         var serverManageClientConf = 'yes';
@@ -136,7 +135,7 @@ $(document).on('submit','#applyServerConfigurationForm',function () {
         var serverManageClientRepos = 'no';
     }
 
-    applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos, repoConfPrefix);
+    applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos);
 
     return false;
 });
@@ -182,8 +181,7 @@ $(document).on('submit','.profileConfigurationForm',function () {
 /**
  * Ajax: Modifier la configuration serveur
  */
-// function applyServerConfiguration(serverOsFamily, serverOsName, serverOsVersion, serverPackageType, serverPackageOsVersion, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
-function applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos, repoConfPrefix)
+function applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos)
 {
     $.ajax({
         type: "POST",
@@ -193,8 +191,7 @@ function applyServerConfiguration(serverPackageType, serverManageClientConf, ser
             action: "applyServerConfiguration",
             serverPackageType: serverPackageType,
             serverManageClientConf: serverManageClientConf,
-            serverManageClientRepos: serverManageClientRepos,
-            repoConfPrefix: repoConfPrefix
+            serverManageClientRepos: serverManageClientRepos
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

@@ -407,14 +407,6 @@ class Common
     }
 
     /**
-     *  Stoppe le process bash de génération des statistiques
-     */
-    public static function killStatsLogParser()
-    {
-        exec("/usr/bin/pkill -9 -u " . WWW_USER . " -f 'tail -n0 -F " . STATS_LOG_PATH . "'");
-    }
-
-    /**
      *  Renvoi true si le role spécifié ou la session utilisateur en cours est administrateur
      */
     public static function isadmin()

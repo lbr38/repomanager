@@ -58,10 +58,10 @@ class Update
      */
     private function backup()
     {
-        if (UPDATE_BACKUP_ENABLED == 'true') {
+        if (UPDATE_BACKUP == 'true') {
             $backupName = DATE_YMD . '_' . TIME . '_repomanager_full_backup.tar.gz';
 
-            exec("tar --exclude='" . BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $return);
+            exec("tar --exclude='" . UPDATE_BACKUP_DIR . "' -czf /tmp/${backupName} " . ROOT . ' ' . DATA_DIR, $output, $return);
             if ($return != 0) {
                 throw new Exception('Error while backuping actual repomanager configuration.');
             }
@@ -69,7 +69,7 @@ class Update
             /**
              *  Move backup file to backup dir
              */
-            exec("mv /tmp/${backupName} " . BACKUP_DIR . "/", $output, $return);
+            exec("mv /tmp/${backupName} " . UPDATE_BACKUP_DIR . "/", $output, $return);
             if ($return != 0) {
                 throw new Exception('Error while moving backup file to the backup dir.');
             }

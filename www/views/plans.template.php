@@ -552,7 +552,7 @@ endif ?>
                     </tr>
                     <tr>
                         <td>Recipient(s)</td>
-                        <td><input type="email" id="addPlanMailRecipient" placeholder="Mails addresses seperated by a comma." value="<?= EMAIL_DEST ?>" multiple /></td>
+                        <td><input type="email" id="addPlanMailRecipient" placeholder="Mails addresses seperated by a comma." value="<?= EMAIL_RECIPIENT ?>" multiple /></td>
                     </tr>
                     <tr class="__plan_input __plan_input_reminder">
                         <td class="td-10">Send a reminder</td>
