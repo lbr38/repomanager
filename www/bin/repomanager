@@ -7,24 +7,16 @@ export GPG_TTY=$(tty)
 # Main variables
 PWD=$(dirname "$0")
 OS_FAMILY=""
-WWW_DIR=""
+WWW_DIR="/var/www/repomanager"
 WWW_USER=""
 WWW_HOSTNAME=""
 DATA_DIR="/var/lib/repomanager"
-GPGHOME="${DATA_DIR}/.gnupg"
-CONF="${DATA_DIR}/configurations/repomanager.conf"
-RELEASEVER=""
-REPOS_DIR=""
+REPOS_DIR="/home/repo"
+DB="$DATA_DIR/db/repomanager.db"
+GPGHOME="$DATA_DIR/.gnupg"
+CONF="$DATA_DIR/configurations/repomanager.conf"
 CONFIRM=""
 CHECK_DEP=""
-PACKAGE_TYPE=""
-
-RPM_REPO="false"
-RPM_SIGN_PACKAGES="true"
-RPM_SIGN_METHOD="rpmsign"
-DEB_REPO="false"
-DEB_SIGN_REPO="true"
-GPG_KEYID=""
 
 PROCEED_INSTALLATION="0"
 PROCEED_DEPENDENCIES="0"
@@ -158,134 +150,103 @@ function permissions
 {
     ACTUAL_USER=$(whoami)
 
-    # If /var/www/repomanager does not exist, ask for the installation location
-    if [ ! -d "/var/www/repomanager" ];then
-        if [ -z "$WWW_DIR" ];then
-            echo -ne "➤ Repomanager files location (default is /var/www/repomanager) : "; read -p "" WWW_DIR
-            if [ -z "$WWW_DIR" ];then
-                WWW_DIR="/var/www/repomanager"
-            fi
+    # Check if directories and files exist
+    if [ ! -d "$WWW_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] '$WWW_DIR' web directory not found."
+        exit 1
+    fi
+    if [ ! -d "$DATA_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] '$DATA_DIR' data directory not found."
+        exit 1
+    fi
+    if [ ! -d "$REPOS_DIR" ];then
+        echo -e "[$YELLOW ERROR $RESET] '$REPOS_DIR' repos directory not found."
+        exit 1
+    fi
+
+    if [ -z "$WWW_USER" ];then
+        WWW_USER=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 5000' "$DB" "SELECT WWW_USER FROM settings" | sed 's/ //g')
+        if [ $? -ne 0 ];then
+            echo -e "[$YELLOW ERROR $RESET] Unable to get WWW_USER from database."
+            exit 1
         fi
-    else
-        WWW_DIR="/var/www/repomanager"
+        if [ -z "$WWW_USER" ];then
+            echo -e "[$YELLOW ERROR $RESET] WWW_USER could not be retrieved from database."
+            exit 1
+        fi
     fi
 
     echo -ne "${YELLOW} Setting permissions... ${RESET}"
-
-    if [ ! -d "$WWW_DIR" ];then
-        echo -e "[$YELLOW ERROR $RESET] $WWW_DIR does not exist"
-        exit
-    fi
-
-    if [ ! -d "$DATA_DIR" ];then
-        echo -e "[$YELLOW ERROR $RESET] $DATA_DIR does not exist"
-        exit
-    fi
-
-    if [ ! -f "$CONF" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot find the main configuration file '$CONF'"
-        exit
-    fi
-
-    # Getting some variable from main config file
-    REPOS_DIR=$(grep "^REPOS_DIR =" "$CONF" | cut -d'=' -f2 | sed 's/"//g' | sed 's/ //g')
-    if [ -z "$REPOS_DIR" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot determine repos directory"
-        exit
-    fi
-    WWW_USER=$(grep "^WWW_USER =" "$CONF" | cut -d'=' -f2 | sed 's/"//g' | sed 's/ //g')
-    if [ -z "$WWW_USER" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot determine webserver user"
-        exit
-    fi
-    WWW_HOSTNAME=$(grep "^WWW_HOSTNAME =" "$CONF" | cut -d'=' -f2 | sed 's/"//g' | sed 's/ //g')
-    if [ -z "$WWW_HOSTNAME" ];then
-        echo -e "[$YELLOW ERROR $RESET] Cannot determine repomanager URL"
-        exit
-    fi
  
-    # Setting permissions only if sudo/root
-    if [ "$ACTUAL_USER" == "root" ];then
-        # Permissions on web directory
-        find "$WWW_DIR" -type f -exec chmod 0660 {} \;
-        find "$WWW_DIR" -type d -exec chmod 0770 {} \;
-        chmod 750 "$WWW_DIR"
-        chown -R ${WWW_USER}:repomanager "$WWW_DIR"
-        # Permissions on data directory
-        find "$DATA_DIR" -type f -exec chmod 0660 {} \;
-        find "$DATA_DIR" -type d -exec chmod 0770 {} \;
-        chmod 750 "$DATA_DIR"
-        chown -R ${WWW_USER}:repomanager "$DATA_DIR"
+    # Permissions on web directory
+    find "$WWW_DIR" -type f -exec chmod 0660 {} \;
+    find "$WWW_DIR" -type d -exec chmod 0770 {} \;
+    chmod 750 "$WWW_DIR"
+    chown -R ${WWW_USER}:repomanager "$WWW_DIR"
+    # Permissions on data directory
+    find "$DATA_DIR" -type f -exec chmod 0660 {} \;
+    find "$DATA_DIR" -type d -exec chmod 0770 {} \;
+    chmod 750 "$DATA_DIR"
+    chown -R ${WWW_USER}:repomanager "$DATA_DIR"
         
-        if [ -f "$DATA_DIR/repomanager" ];then
-            chmod 550 $DATA_DIR/repomanager
-        fi
-        if [ -f "$WWW_DIR/bin/repomanager" ];then
-            chmod 550 $WWW_DIR/bin/repomanager
-        fi
+    if [ -f "$DATA_DIR/repomanager" ];then
+        chmod 550 $DATA_DIR/repomanager
+    fi
+    if [ -f "$WWW_DIR/bin/repomanager" ];then
+        chmod 550 $WWW_DIR/bin/repomanager
+    fi
+    if [ -f "$DATA_DIR/tools/service/repomanager-service" ];then
+        chmod 550 $DATA_DIR/tools/service/repomanager-service
+    fi
+    if [ -f "$WWW_DIR/bin/service/repomanager-service" ];then
+        chmod 550 $WWW_DIR/bin/service/repomanager-service
+    fi
 
-        chmod 500 $DATA_DIR/tools/service/repomanager-service
+    # Permissions on repos directory
+    # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
+    chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
 
-        # Permissions on repos directory
-        # No chmod here because it can be a large directory and it could take too much time. The repomanager service will take care of it.
-        chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
-
-        # Permissions on .gnupg directory
-        if [ -d "$GPGHOME" ];then
-            chown -R ${WWW_USER}:repomanager $GPGHOME
-            chmod 700 $GPGHOME
-            # Permissions on passphrase
-            if [ -f "${GPGHOME}/passphrase" ];then 
-                chmod 400 ${GPGHOME}/passphrase
-            fi
-        fi
-        # Permissions on GPG public key
-        if [ -f "${REPOS_DIR}/${WWW_HOSTNAME}.pub" ];then
-            chown ${WWW_USER}:repomanager ${REPOS_DIR}/${WWW_HOSTNAME}.pub
-            chmod 440 ${REPOS_DIR}/${WWW_HOSTNAME}.pub
-        fi
-
-        # Permissions on perl's module rpmresign (perl/RPM4)
-        # Setting permission to allow WWW_USER to pass through the following RPM4 directories
-        if [ -d "/usr/local/lib64/perl5/RPM4/" ];then
-            chmod o+rx /usr/local/lib64/perl5/RPM4
-            find /usr/local/lib64/perl5/RPM4/ -type d -exec chmod o+rx {} \;
-            find /usr/local/lib64/perl5/RPM4/ -type f -exec chmod o+r {} \;
-        fi
-        if [ -d "/usr/local/lib64/perl5/auto" ];then 
-            chmod o+rx /usr/local/lib64/perl5/auto
-        fi
-        if [ -d "/usr/local/lib64/perl5/auto/RPM4" ];then
-            chmod o+rx /usr/local/lib64/perl5/auto/RPM4
-        fi
-        if [ -d "/usr/local/lib64/perl5" ];then
-            chmod o+rx /usr/local/lib64/perl5
-        fi
-        if [ -f "/usr/local/lib64/perl5/RPM4.pm" ];then
-            chmod o+r /usr/local/lib64/perl5/RPM4.pm
+    # Permissions on .gnupg directory
+    if [ -d "$GPGHOME" ];then
+        chown -R ${WWW_USER}:repomanager $GPGHOME
+        chmod 700 $GPGHOME
+        # Permissions on passphrase
+        if [ -f "$GPGHOME/passphrase" ];then 
+            chmod 400 $GPGHOME/passphrase
         fi
     fi
+    # Permissions on GPG public key
+    if [ -d "$REPOS_DIR/gpgkeys" ];then
+        chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*pub
+        chmod 440 $REPOS_DIR/gpgkeys/*pub
+    fi
+
+    # Permissions on perl's module rpmresign (perl/RPM4)
+    # Setting permission to allow WWW_USER to pass through the following RPM4 directories
+    if [ -d "/usr/local/lib64/perl5/RPM4/" ];then
+        chmod o+rx /usr/local/lib64/perl5/RPM4
+        find /usr/local/lib64/perl5/RPM4/ -type d -exec chmod o+rx {} \;
+        find /usr/local/lib64/perl5/RPM4/ -type f -exec chmod o+r {} \;
+    fi
+    if [ -d "/usr/local/lib64/perl5/auto" ];then 
+        chmod o+rx /usr/local/lib64/perl5/auto
+    fi
+    if [ -d "/usr/local/lib64/perl5/auto/RPM4" ];then
+        chmod o+rx /usr/local/lib64/perl5/auto/RPM4
+    fi
+    if [ -d "/usr/local/lib64/perl5" ];then
+        chmod o+rx /usr/local/lib64/perl5
+    fi
+    if [ -f "/usr/local/lib64/perl5/RPM4.pm" ];then
+        chmod o+r /usr/local/lib64/perl5/RPM4.pm
+    fi
+
     echo -e "${GREEN}OK${RESET}\n"
-}
-
-# Ask for the package type
-function getPackageType
-{
-    while [ -z "$PACKAGE_TYPE" ];do
-        echo -ne "➤ What package type(s) will this server manage? ('deb' / 'rpm' or 'all'): "; read -p "" PACKAGE_TYPE
-    done
-
-    if [ "$PACKAGE_TYPE" != "rpm" ] && [ "$PACKAGE_TYPE" != "deb" ] && [ "$PACKAGE_TYPE" != "all" ];then
-        echo -e "${YELLOW}Unsupported package type${RESET}"
-        exit
-    fi
 }
 
 # Check and install missing dependencies
 function checkDependencies
 {
-    getPackageType
-
     echo -e "\nChecking dependencies..."
 
     ## Redhat ##
@@ -352,134 +313,123 @@ function checkDependencies
 
     ## Additionnal dependencies ##
 
-    # If this server will mirror / serve rpm packages, install those additionnal deps
+ 
+    if [ "$OS_FAMILY" == "Redhat" ];then
+        CHECK_DEP=$(rpm -qa rpm-sign)
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing rpm-sign\t" &&
+            yum install rpm-sign -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
+        fi
+        CHECK_DEP=$(rpm -qa createrepo_c)
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing createrepo_c\t" &&
+            yum install createrepo_c -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
+        fi
+    fi
 
-    if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        if [ "$OS_FAMILY" == "Redhat" ];then
-            CHECK_DEP=$(rpm -qa rpm-sign)
+    if [ "$OS_FAMILY" == "Debian" ];then
+        CHECK_DEP=$(dpkg --list | grep "^ii  rpm ")
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing rpm\t" &&
+            apt-get -qq install rpm -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
+        fi
+        
+        # librpmsign package has different name depending on the Debian version
+        if [ "$OS_VERSION" == "10" ];then
+            CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign8 ")
             if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing rpm-sign\t" &&
-                yum install rpm-sign -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
-            CHECK_DEP=$(rpm -qa createrepo_c)
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing createrepo_c\t" &&
-                yum install createrepo_c -y > /dev/null &&
+                echo -ne "Installing librpmsign8\t" &&
+                apt-get -qq install librpmsign8 -y > /dev/null &&
                 echo -e "[${GREEN} OK ${RESET}]"
             fi
         fi
-
-        if [ "$OS_FAMILY" == "Debian" ];then
-            CHECK_DEP=$(dpkg --list | grep "^ii  rpm ")
+        if [ "$OS_VERSION" == "11" ];then
+            CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign9 ")
             if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing rpm\t" &&
-                apt-get -qq install rpm -y > /dev/null &&
+                echo -ne "Installing librpmsign9\t" &&
+                apt-get -qq install librpmsign9 -y > /dev/null &&
                 echo -e "[${GREEN} OK ${RESET}]"
             fi
-            
-            # librpmsign package has different name depending on the Debian version
-
-            if [ "$OS_VERSION" == "10" ];then
-                CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign8 ")
-                if [ -z "$CHECK_DEP" ];then
-                    echo -ne "Installing librpmsign8\t" &&
-                    apt-get -qq install librpmsign8 -y > /dev/null &&
-                    echo -e "[${GREEN} OK ${RESET}]"
-                fi
-            fi
-
-            if [ "$OS_VERSION" == "11" ];then
-                CHECK_DEP=$(dpkg --list | grep "^ii  librpmsign9 ")
-                if [ -z "$CHECK_DEP" ];then
-                    echo -ne "Installing librpmsign9\t" &&
-                    apt-get -qq install librpmsign9 -y > /dev/null &&
-                    echo -e "[${GREEN} OK ${RESET}]"
-                fi
-            fi
-
-            # createrepo package has different name depending on the Debian version
-
-            # If Debian 10
-            if [ "$OS_VERSION" == "10" ];then
-                CHECK_DEP=$(dpkg --list | grep "^ii  createrepo ")
-                if [ -z "$CHECK_DEP" ];then
-                    echo -ne "Installing createrepo\t" &&
-                    apt-get -qq install createrepo -y > /dev/null &&
-                    echo -e "[${GREEN} OK ${RESET}]"
-                fi
-            fi
-
-            # If Debian 11
-            if [ "$OS_VERSION" == "11" ];then
-                CHECK_DEP=$(dpkg --list | grep "^ii  createrepo-c ")
-                if [ -z "$CHECK_DEP" ];then
-                    echo -ne "Installing createrepo-c\t" &&
-                    apt-get -qq install createrepo-c -y > /dev/null &&
-                    echo -e "[${GREEN} OK ${RESET}]"
-                fi
+        fi
+    
+        # createrepo package has different name depending on the Debian version
+        # If Debian 10
+        if [ "$OS_VERSION" == "10" ];then
+            CHECK_DEP=$(dpkg --list | grep "^ii  createrepo ")
+            if [ -z "$CHECK_DEP" ];then
+                echo -ne "Installing createrepo\t" &&
+                apt-get -qq install createrepo -y > /dev/null &&
+                echo -e "[${GREEN} OK ${RESET}]"
             fi
         fi
-
-        # Check gnupg2 version and install 'RPM4' perl module if gpg version does not support non-interactive package signature
-        if [ ! -f "/usr/bin/gpg2" ];then
-            echo -e "  [$YELLOW ERROR $RESET] Cannot find gnupg2 binary."
-            exit
-        fi
-
-        GPG_VERSION=$(/usr/bin/gpg2 --version | head -n1 | awk '{print $3}')
-
-        # Gnupg2 version must be at least 2.1.x to be able to correctly sign packages. If not then build RPM4 module.
-        if ! echo "$GPG_VERSION" | egrep -q "^2.1.|^2.2.";then
-
-            if [ "$OS_FAMILY" == "Redhat" ];then
-                if [ ! -f "/usr/bin/rpmresign" ];then
-                    echo -ne "Installing RPM4 perl module (rpmresign) from CPAN\t" &&
-                    yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
-                    cpanm PkgConfig --force &&
-                    cpanm RPM4 --force && 
-                    ln -s /usr/local/bin/rpmresign /usr/bin/rpmresign &&
-                    echo -e "[${GREEN} OK ${RESET}]"
-                    RPM_SIGN_METHOD="rpmresign"
-                fi
-            fi
-
-            if [ "$OS_FAMILY" == "Debian" ];then
-                echo -e "[$YELLOW ERROR $RESET] Gnupg2 version is too old, RPM package signature is not possible."
-                exit
+    
+        # If Debian 11
+        if [ "$OS_VERSION" == "11" ];then
+            CHECK_DEP=$(dpkg --list | grep "^ii  createrepo-c ")
+            if [ -z "$CHECK_DEP" ];then
+                echo -ne "Installing createrepo-c\t" &&
+                apt-get -qq install createrepo-c -y > /dev/null &&
+                echo -e "[${GREEN} OK ${RESET}]"
             fi
         fi
     fi
 
-    # If this server will mirror / serve deb packages, install those additionnal deps
-    if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
+    # Check gnupg2 version and install 'RPM4' perl module if gpg version does not support non-interactive package signature
+    if [ ! -f "/usr/bin/gpg2" ];then
+        echo -e "  [$YELLOW ERROR $RESET] Cannot find gnupg2 binary."
+        exit
+    fi
 
+    GPG_VERSION=$(/usr/bin/gpg2 --version | head -n1 | awk '{print $3}')
+
+    # Gnupg2 version must be at least 2.1.x to be able to correctly sign packages. If not then build RPM4 module.
+    if ! echo "$GPG_VERSION" | egrep -q "^2.1.|^2.2.";then
         if [ "$OS_FAMILY" == "Redhat" ];then
-            # Installing epel repo to get reprepro package
-            CHECK_DEP=$(rpm -qa epel-release)
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing epel-release\t" &&
-                yum install epel-release -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
-
-            yum clean all -q
-
-            CHECK_DEP=$(rpm -qa reprepro)
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing reprepro\t" &&
-                yum install reprepro -y > /dev/null &&
+            if [ ! -f "/usr/bin/rpmresign" ];then
+                echo -ne "Installing RPM4 perl module (rpmresign) from CPAN\t" &&
+                yum install gcc perl-devel rpm-devel perl-CPAN perl-App-cpanminus -y > /dev/null &&
+                cpanm PkgConfig --force &&
+                cpanm RPM4 --force && 
+                ln -s /usr/local/bin/rpmresign /usr/bin/rpmresign &&
                 echo -e "[${GREEN} OK ${RESET}]"
             fi
         fi
-
+    
         if [ "$OS_FAMILY" == "Debian" ];then
-            CHECK_DEP=$(dpkg --list | grep "^ii  reprepro ")
-            if [ -z "$CHECK_DEP" ];then
-                echo -ne "Installing reprepro\t" &&
-                apt-get -qq install reprepro -y > /dev/null &&
-                echo -e "[${GREEN} OK ${RESET}]"
-            fi
+            echo -e "[$YELLOW ERROR $RESET] Gnupg2 version is too old, RPM package signature is not possible."
+            exit
+        fi
+    fi
+   
+
+    if [ "$OS_FAMILY" == "Redhat" ];then
+        # Installing epel repo to get reprepro package
+        CHECK_DEP=$(rpm -qa epel-release)
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing epel-release\t" &&
+            yum install epel-release -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
+        fi
+
+        yum clean all -q
+
+        CHECK_DEP=$(rpm -qa reprepro)
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing reprepro\t" &&
+            yum install reprepro -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
+        fi
+    fi
+
+    if [ "$OS_FAMILY" == "Debian" ];then
+        CHECK_DEP=$(dpkg --list | grep "^ii  reprepro ")
+        if [ -z "$CHECK_DEP" ];then
+            echo -ne "Installing reprepro\t" &&
+            apt-get -qq install reprepro -y > /dev/null &&
+            echo -e "[${GREEN} OK ${RESET}]"
         fi
     fi
 }
@@ -494,32 +444,26 @@ function deployService
     fi
 
     # Exit function if services files cannot be found
-    if [ ! -f "${DATA_DIR}/tools/service/repomanager.systemd.template" ];then
-        echo -e "[$YELLOW ERROR $RESET] Systemd template service file ${YELLOW}${DATA_DIR}/tools/service/repomanager.systemd.template${RESET} does not exist..."
+    if [ ! -f "$WWW_DIR/bin/service/repomanager.systemd.template" ];then
+        echo -e "[$YELLOW ERROR $RESET] Systemd template service file ${YELLOW}${WWW_DIR}/bin/service/repomanager.systemd.template${RESET} does not exist..."
         return
     fi
-    if [ ! -f "${DATA_DIR}/tools/service/repomanager-service" ];then
-        echo -e "[$YELLOW ERROR $RESET] Repomanager service script ${YELLOW}${DATA_DIR}/tools/service/repomanager-service${RESET} does not exist..."
+    if [ ! -f "$WWW_DIR/bin/service/repomanager-service" ];then
+        echo -e "[$YELLOW ERROR $RESET] Repomanager service script ${YELLOW}${WWW_DIR}/bin/service/repomanager-service${RESET} does not exist..."
         return
     fi
 
     # Deploy systemd service template file
     echo -ne "\n➤ Deploying service... "
-    \cp "$DATA_DIR/tools/service/repomanager.systemd.template" /lib/systemd/system/repomanager.service &&
+    \cp "$WWW_DIR/bin/service/repomanager.systemd.template" /lib/systemd/system/repomanager.service &&
     ln -fs /lib/systemd/system/repomanager.service /etc/systemd/system/repomanager.service &&
-    chmod 700 "${DATA_DIR}/tools/service/repomanager-service"
-    echo -e "${GREEN}Done${RESET}"
+    chmod 700 "$WWW_DIR/bin/service/repomanager-service"
 
     systemctl daemon-reload --quiet
     systemctl enable repomanager --quiet
+    systemctl start repomanager --quiet
 
-    echo -n "  Start repomanager service now (yes/no): "; read -p "" CONFIRM
-    if [ "$CONFIRM" == "yes" ];then
-        systemctl start repomanager --quiet
-        if [ "$?" != "0" ];then
-            echo -e "[$YELLOW ERROR $RESET] Starting repomanager service has failed"
-        fi
-    fi
+    echo -e "${GREEN}Done${RESET}"
 }
 
 # Installation wizard
@@ -527,27 +471,12 @@ function installation
 {
     cd "$PWD"
 
+    if [ ! -d "$PWD/www/" ] || [ ! -d "$PWD/tools/" ];then
+        echo -e "[$YELLOW ERROR $RESET] Cannot find installation directories... Have you cloned the repository?"
+        exit 1
+    fi
+
     echo -e " ${YELLOW}Welcome to Repomanager setup wizard${RESET}\n"
-
-    getPackageType
-
-    if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        RPM_REPO="true"
-
-        if [ "$OS_FAMILY" == "Redhat" ];then
-            RELEASEVER="$OS_VERSION"
-        fi
-
-        if [ "$OS_FAMILY" == "Debian" ];then
-            while [ -z "$RELEASEVER" ];do
-                echo -ne "  Please, specify the RHEL/CentOS release version (releasever) this reposerver will mirror and/or serve packages for (e.g. 7, 8...): "; read -p "" RELEASEVER
-            done
-        fi
-    fi
-
-    if [ "$PACKAGE_TYPE" == "deb" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        DEB_REPO="true"
-    fi
 
     #### DEPENDENCIES ####
 
@@ -555,84 +484,55 @@ function installation
 
     #### INSTALLATION ####
 
-    echo -e "➤ Repomanager data files will be stored in ${DATA_DIR}/."
-    echo -e "${YELLOW}Please do not remove or move this directory and be sure to make daily backup of this directory.${RESET}"
-
-    ## Repomanager web files installation location
-    if [ -z "$WWW_DIR" ];then
-        echo -e "\n➤ Repomanager web sources installation path (default is /var/www/repomanager)"
-        echo -e "  ${YELLOW}You will have to set up a vhost to serve this location.${RESET}"
-        echo -n "  Leave empty to use default path or specify a location: "; read -p "" WWW_DIR
-
-        if [ -z "$WWW_DIR" ];then
-            WWW_DIR="/var/www/repomanager"
-        fi
-    fi
+    echo -e "\n➤ Repomanager web sources files will be stored in ${YELLOW}$WWW_DIR/${RESET}"
+    echo -e "➤ Repomanager data files will be stored in ${YELLOW}$DATA_DIR/${RESET}. Please do not remove or move this directory and be sure to make daily backup of this directory."
+    echo -e "➤ Repomanager repositories will be stored in ${YELLOW}$REPOS_DIR/${RESET}\n"
 
     if [ -d "$WWW_DIR" ];then
-        echo -n "  Webdir ${YELLOW}${WWW_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
+        echo -n "  Web directory ${YELLOW}${WWW_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
         if [ "$CONFIRM" != "yes" ];then
-            exit
+            exit 1
+        fi
+    fi
+    if [ -d "$DATA_DIR" ];then
+        echo -n "  Data directory ${YELLOW}${DATA_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "yes" ];then
+            exit 1
+        fi
+    fi
+    if [ -d "$REPOS_DIR" ];then
+        echo -n "  Repos directory ${YELLOW}$REPOS_DIR${RESET} already exist, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
+        if [ "$CONFIRM" != "yes" ];then
+            exit 1
         fi
     fi
 
-    if [ -d "$DATA_DIR" ];then
-        echo -n "  Datadir ${YELLOW}${DATA_DIR}${RESET} already exists, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
-        if [ "$CONFIRM" != "yes" ];then
-            exit
-        fi
-    fi
-    
-    # Delete webdir and datadir content
+    # Get hostname
+    while [ -z "$WWW_HOSTNAME" ];do
+        echo -ne "  Please specify what will be Repomanager URL (e.g. https://repomanager.mydomain.net): https://"; read -p "" WWW_HOSTNAME
+    done
+
+    # Delete webdir, datadir and repodir content
     rm "$WWW_DIR" -rf
     rm "$DATA_DIR" -rf
-
-    # Create webdir and datadir
-    mkdir -p "$WWW_DIR"
-    mkdir -p "$DATA_DIR"
-
-    ## Repos directory
-    if [ -z "$REPOS_DIR" ];then
-        echo -e "\n➤ Repos storage path (default is /home/repo)"
-        echo -e "  ${YELLOW}This directory's size can grow large depending on your usage. Be sure to allow sufficiant disk space on this location.${RESET}"
-        echo -n "  Leave empty to use default path or specify a location: "; read -p "" REPOS_DIR
-
-        if [ -z "$REPOS_DIR" ];then
-            REPOS_DIR="/home/repo"
-        fi
-
-        if [ -d "$REPOS_DIR" ];then
-            echo -n "  $REPOS_DIR already exist, its content will be deleted. Confirm (yes/no): "; read -p "" CONFIRM
-            if [ "$CONFIRM" != "yes" ];then
-                echo "Exiting..."
-                exit
-            fi
-        fi
-    fi
-
-    # Delete repo dir content
     rm "$REPOS_DIR" -rf
 
-    # Create repo dir if not exist
+    # Create webdir, datadir and repodir
+    mkdir -p "$WWW_DIR"
+    mkdir -p "$DATA_DIR"
     mkdir -p "$REPOS_DIR"
 
     # Create main directories
-    mkdir -p "${DATA_DIR}/configurations/"
-    mkdir -p "${DATA_DIR}/.gnupg/"
-    mkdir -p "${DATA_DIR}/logs/"
-    mkdir -p "${DATA_DIR}/logs/main/"
-    mkdir -p "${DATA_DIR}/logs/service/"
-    mkdir -p "${DATA_DIR}/logs/stats/"
+    mkdir -p "$DATA_DIR/logs/"
+    mkdir -p "$DATA_DIR/logs/main/"
+    mkdir -p "$DATA_DIR/logs/service/"
+    mkdir -p "$DATA_DIR/logs/stats/"
 
     # Copy web sources
-    cp -r ${PWD}/www/* ${WWW_DIR}/
+    cp -r $PWD/www/* $WWW_DIR/
 
     # Copy scripts and tools to datadir
-    cp -r ${PWD}/tools ${DATA_DIR}/
-
-    # Copy this script
-    cp ${PWD}/repomanager ${WWW_DIR}/bin/repomanager
-
+    cp -r $PWD/tools $DATA_DIR/
 
     #### CONFIGURATION ####
 
@@ -651,81 +551,9 @@ function installation
         WWW_USER=""
     fi
 
-    if [ ! -z "$WWW_USER" ];then
-        echo -e "\n➤ Specifying webserver user (detected: $WWW_USER)"
-        echo -ne "  Leave empty to use ${YELLOW}${WWW_USER}${RESET} or specify a user: "; read -p "" PROMPT
-        if [ ! -z "$PROMPT" ];then
-            WWW_USER="$PROMPT"
-        fi
-    else
-        while [ -z "$WWW_USER" ];do
-            echo -ne "\n➤ Specifying webserver user (generally nginx or www-data): "; read -p "" WWW_USER
-        done
-    fi
-
-    while [ -z "$WWW_HOSTNAME" ];do
-        echo -ne "\n➤ Specifying what will be Repomanager URL: "; read -p "https://" WWW_HOSTNAME
+    while [ -z "$WWW_USER" ];do
+        echo -ne "\n➤ Specifying webserver user (generally nginx or www-data): "; read -p "" WWW_USER
     done
-
-    echo -e "   ${YELLOW}\nConfiguring repomanager...${RESET}"
-
-    # Generating repomanager.conf with specified values
-    echo "[PATHS]" > $CONF
-    echo "WWW_DIR = \"$WWW_DIR\"" >> $CONF
-    echo "REPOS_DIR = \"$REPOS_DIR\"" >> $CONF
-
-    echo -e "\n[CONFIGURATION]" >> $CONF
-    echo "TIMEZONE = \"Europe/Paris\"" >> $CONF
-    echo "EMAIL_DEST = \"\"" >> $CONF
-    echo "MANAGE_HOSTS = \"false\"" >> $CONF
-    echo "MANAGE_PROFILES = \"false\"" >> $CONF
-    echo "REPO_CONF_FILES_PREFIX = \"repomanager-\"" >> $CONF
-    echo "BACKUP_DIR = \"$DATA_DIR/backups\"" >> $CONF
-    echo "DEBUG_MODE = \"false\"" >> $CONF
-    
-    echo -e "\n[RPM]" >> $CONF
-    echo "RPM_REPO = \"$RPM_REPO\"" >> $CONF
-    echo "RPM_SIGN_PACKAGES = \"$RPM_SIGN_PACKAGES\"" >> $CONF
-    echo "RPM_SIGN_METHOD = \"$RPM_SIGN_METHOD\"" >> $CONF
-    if [ "$PACKAGE_TYPE" == "rpm" ] || [ "$PACKAGE_TYPE" == "all" ];then
-        echo "RELEASEVER = \"$RELEASEVER\"" >> $CONF
-    else
-        echo "RELEASEVER = \"\"" >> $CONF
-    fi
-    echo "RPM_DEFAULT_ARCH = \"\"" >> $CONF
-    echo "RPM_INCLUDE_SOURCE = \"false\"" >> $CONF
-
-    echo -e "\n[DEB]" >> $CONF
-    echo "DEB_REPO = \"$DEB_REPO\"" >> $CONF
-    echo "DEB_SIGN_REPO = \"$DEB_SIGN_REPO\"" >> $CONF
-    echo "DEB_DEFAULT_ARCH = \"\"" >> $CONF
-    echo "DEB_INCLUDE_SOURCE = \"false\"" >> $CONF
-    echo "DEB_DEFAULT_TRANSLATION = \"\"" >> $CONF
-
-    echo -e "\n[GPG]" >> $CONF
-    echo "GPG_SIGNING_KEYID = \"repomanager@localhost.local\"" >> $CONF
-
-    echo -e "\n[UPDATE]" >> $CONF
-    echo "UPDATE_AUTO = \"false\"" >> $CONF
-    echo "UPDATE_BACKUP_ENABLED = \"true\"" >> $CONF
-    echo "UPDATE_BRANCH = \"stable\"" >> $CONF
-
-    echo -e "\n[WWW]" >> $CONF
-    echo "WWW_USER = \"$WWW_USER\"" >> $CONF
-    echo "WWW_HOSTNAME = \"$WWW_HOSTNAME\"" >> $CONF
-    echo "WWW_REPOS_DIR_URL = \"https://${WWW_HOSTNAME}/repo\"" >> $CONF
-
-    echo -e "\n[PLANS]" >> $CONF
-    echo "PLANS_ENABLED = \"false\"" >> $CONF
-    echo "PLAN_REMINDERS_ENABLED = \"false\"" >> $CONF
-    echo "ALLOW_AUTOUPDATE_REPOS = \"false\"" >> $CONF
-    echo "ALLOW_AUTOUPDATE_REPOS_ENV = \"false\"" >> $CONF
-    echo "ALLOW_AUTODELETE_ARCHIVED_REPOS = \"false\"" >> $CONF
-    echo "RETENTION = \"2\"" >> $CONF
-
-    echo -e "\n[STATS]" >> $CONF
-    echo "STATS_ENABLED = \"false\"" >> $CONF
-    echo "STATS_LOG_PATH = \"\"" >> $CONF
 
     # Create repomanager group
     if ! grep -q "repomanager" /etc/group;then
@@ -736,20 +564,21 @@ function installation
     usermod -G repomanager "$WWW_USER"
 
     # Create symlink to repomanager executable
-    ln -sf $WWW_DIR/bin/repomanager /usr/bin/repomanager 
+    ln -sf $WWW_DIR/bin/repomanager /usr/bin/repomanager
 
-    echo -e "\n➤ Repomanager is using a systemd service to execute regular tasks, such as:"
-    echo "  - checking for new version availability"
-    echo "  - generating repos access statistics (if enabled)"
-    echo -ne "\n  Deploy Repomanager's service now (yes/no): "; read -p "" CONFIRM
-    if [ "$CONFIRM" == "yes" ];then
-        deployService
-    fi
+    # Set basic permissions
+    chown -R $WWW_USER:repomanager "$WWW_DIR" "$DATA_DIR" "$REPOS_DIR"
+
+    # Deploy repomanager service
+    deployService
+
+    # Try to generate database by curling the web interface
+    curl -s http://$WWW_HOSTNAME > /dev/null
 
     echo -e "\n ${GREEN}Installation success!${RESET}"
-    echo -e " Before using all Repomanager features, be sure to complete installation on: ${YELLOW}https://${WWW_HOSTNAME}/settings${RESET}"
-    echo -e " Login     :  ${YELLOW}admin${RESET}"
-    echo -e " Password  :  ${YELLOW}repomanager${RESET}\n"
+    echo -e "\n Connect to repomanager through a web browser: ${YELLOW}https://${WWW_HOSTNAME}${RESET}"
+    echo -e " Login:    ${YELLOW}admin${RESET}"
+    echo -e " Password: ${YELLOW}repomanager${RESET}\n"
 }
 
 echo '
@@ -780,10 +609,6 @@ while [ $# -ge 1 ];do
         --deploy-service|-s)
             deployService
             exit
-        ;;
-        --package-type)
-            PACKAGE_TYPE="$2"
-            shift
         ;;
         *)
             echo "Unknown parameter: $1"

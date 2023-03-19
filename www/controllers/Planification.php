@@ -1210,7 +1210,7 @@ class Planification
         /**
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
          */
-        if (ALLOW_AUTOUPDATE_REPOS != "true") {
+        if (PLANS_UPDATE_REPO != "true") {
             throw new Exception("Plans are not authorized to update repositories");
         }
     }
@@ -1234,7 +1234,7 @@ class Planification
         /**
          *  Si le changement d'environnement n'est pas autorisé, on quitte
          */
-        if (ALLOW_AUTOUPDATE_REPOS_ENV != "true") {
+        if (PLANS_UPDATE_REPO_ENV != "true") {
             throw new Exception("Plans are not authorized to manage repos environment");
         }
     }

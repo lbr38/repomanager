@@ -3382,7 +3382,7 @@ class Repo
         /**
          *  1. Si le nettoyage automatique n'est pas autorisé alors on quitte la fonction
          */
-        if (ALLOW_AUTODELETE_ARCHIVED_REPOS != "true") {
+        if (PLANS_CLEAN_REPOS != "true") {
             return;
         }
 

@@ -48,7 +48,7 @@
     /**
      *  Génération de la page en html et stockage en ram
      */
-    if (CACHE_REPOS_LIST == "yes") {
+    if (CACHE_REPOS_LIST == 'true') {
         if (!file_exists(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html')) {
             \Controllers\Common::generateCache($_SESSION['role']);
         }

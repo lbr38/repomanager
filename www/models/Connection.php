@@ -168,15 +168,15 @@ class Connection extends SQLite3
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 19 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 20 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 19) {
+        if ($this->countMainTables() != 20) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 19) {
+            if ($this->countMainTables() != 20) {
                 return false;
             }
         }
@@ -523,6 +523,61 @@ class Connection extends SQLite3
         Title VARCHAR(255) NOT NULL,
         Message VARCHAR(255) NOT NULL,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
+
+        /**
+         *  Generate settings table if not exists
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS settings (
+        /* General settings */
+        REPOS_DIR VARCHAR(255) NOT NULL,
+        EMAIL_RECIPIENT VARCHAR(255), /* EMAIL_RECIPIENT */
+        DEBUG_MODE CHAR(5),
+        REPO_CONF_FILES_PREFIX VARCHAR(255),
+        TIMEZONE VARCHAR(255),
+        /* Web settings */
+        WWW_DIR VARCHAR(255) NOT NULL,
+        WWW_USER VARCHAR(255),
+        WWW_HOSTNAME VARCHAR(255),
+        /* Update settings */
+        UPDATE_AUTO CHAR(5),
+        UPDATE_BRANCH VARCHAR(255),
+        UPDATE_BACKUP CHAR(5),
+        UPDATE_BACKUP_DIR VARCHAR(255),
+        /* RPM settings */
+        RPM_REPO CHAR(5),
+        RPM_SIGN_PACKAGES CHAR(5),
+        RPM_SIGN_METHOD VARCHAR(255),
+        RELEASEVER CHAR(5),
+        RPM_DEFAULT_ARCH VARCHAR(255),
+        RPM_INCLUDE_SOURCE CHAR(5),
+        /* DEB settings */
+        DEB_REPO CHAR(5),
+        DEB_SIGN_REPO CHAR(5),
+        DEB_DEFAULT_ARCH VARCHAR(255),
+        DEB_INCLUDE_SOURCE CHAR(5),
+        DEB_DEFAULT_TRANSLATION VARCHAR(255),
+        /* GPG settings */
+        GPG_SIGNING_KEYID VARCHAR(255),
+        /* Plans settings */
+        PLANS_ENABLED CHAR(5),
+        PLANS_REMINDERS_ENABLED CHAR(5),
+        PLANS_UPDATE_REPO CHAR(5),
+        PLANS_CLEAN_REPOS CHAR(5),
+        RETENTION INTEGER,
+        /* Stats settings */
+        STATS_ENABLED CHAR(5),
+        STATS_LOG_PATH VARCHAR(255),
+        /* Hosts settings */
+        MANAGE_HOSTS CHAR(5),
+        MANAGE_PROFILES CHAR(5))");
+
+        /**
+         *  If settings table is empty then populate it
+         */
+        $result = $this->query("SELECT * FROM settings");
+        if ($this->isempty($result) === true) {
+            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . get_current_user() . "', 'localhost', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', 'repomanager@localhost.local', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_ssl_access.log', 'false', 'false')");
+        }
     }
 
     /**

@@ -1,12 +1,34 @@
+<?php
+/**
+ *  Temporary patch for 3.4.12
+ *  TODO: remove this patch in next release
+ */
+if (!defined('UPDATE_BACKUP')) {
+    define('UPDATE_BACKUP', 'true');
+}
+if (!defined('UPDATE_BACKUP_DIR')) {
+    define('UPDATE_BACKUP_DIR', '/var/lib/repomanager/backups');
+}
+if (!defined('EMAIL_RECIPIENT')) {
+    define('EMAIL_RECIPIENT', '');
+}
+if (!defined('PLANS_UPDATE_REPO')) {
+    define('PLANS_UPDATE_REPO', 'false');
+}
+if (!defined('PLANS_CLEAN_REPOS')) {
+    define('PLANS_CLEAN_REPOS', 'false');
+}
+if (!defined('PLANS_REMINDERS_ENABLED')) {
+    define('PLANS_REMINDERS_ENABLED', 'false');
+} ?>
+
 <section class="mainSectionLeft">
-    
+
     <h3>MAIN CONFIGURATION</h3>
 
     <div id="settingsDiv">
         <form id="settingsForm" autocomplete="off">
             <div class="div-generic-blue">
-                <!-- <input type="hidden" name="action" value="applyConfiguration" /> -->
-
                 <div class="settings-div">
                     <div>
                         <img src="resources/icons/info.svg" class="icon-verylowopacity" title="OS family of this Repomanager server" />
@@ -102,20 +124,20 @@
                     </div>
                     <div>
                         <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="updateBackup" type="checkbox" value="yes" <?php echo (UPDATE_BACKUP_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <input class="settings-param onoff-switch-input" param-name="updateBackup" type="checkbox" value="yes" <?php echo (UPDATE_BACKUP == "true") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </div>
                     <div>
                         <?php
-                        if (empty(UPDATE_BACKUP_ENABLED)) {
+                        if (empty(UPDATE_BACKUP)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <?php
-                if (UPDATE_BACKUP_ENABLED == "true") : ?>
+                if (UPDATE_BACKUP == "true") : ?>
                     <div class="settings-div">
                         <div>
                             <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />
@@ -124,11 +146,11 @@
                             <p>Backup before update target directory</p>
                         </div>
                         <div>
-                            <input class="settings-param" param-name="updateBackupDir" type="text" value="<?= BACKUP_DIR ?>">
+                            <input class="settings-param" param-name="updateBackupDir" type="text" value="<?= UPDATE_BACKUP_DIR ?>">
                         </div>
                         <div>
                             <?php
-                            if (empty(BACKUP_DIR)) {
+                            if (empty(UPDATE_BACKUP_DIR)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
@@ -167,11 +189,11 @@
                         <p>Default contact</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="emailDest" type="text" value="<?= EMAIL_DEST ?>">
+                        <input class="settings-param" param-name="emailRecipient" type="text" value="<?= EMAIL_RECIPIENT ?>">
                     </div>
                     <div>
                         <?php
-                        if (empty(EMAIL_DEST)) {
+                        if (empty(EMAIL_RECIPIENT)) {
                             echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
@@ -208,7 +230,7 @@
                     </div>
                     <div>
                         <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="cronStatsEnable" type="checkbox" value="yes" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="yes" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </div>
@@ -339,7 +361,7 @@
                             <p>Default package architecture</p>
                         </div>
                         <div>
-                            <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArchitecture" multiple>
+                            <select id="rpmArchitectureSelect" class="settings-param" param-name="rpmDefaultArch" multiple>
                                 <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
                                 <option value="i386" <?php echo (in_array('i386', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
@@ -414,7 +436,7 @@
                             <p>Default package architecture</p>
                         </div>
                         <div>
-                            <select id="debArchitectureSelect" class="settings-param" param-name="debDefaultArchitecture" multiple>
+                            <select id="debArchitectureSelect" class="settings-param" param-name="debDefaultArch" multiple>
                                 <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
                                 <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
                                 <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
@@ -571,20 +593,15 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify target URL for Repomanager's repos root directory. Usually http://.../repo" />
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Access URL to Repomanager repos directory." />
                     </div>
                     <div>
                         <p>Repos URL</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="wwwReposDirUrl" type="text" value="<?= WWW_REPOS_DIR_URL ?>">
+                        <p><?= WWW_REPOS_DIR_URL ?></p>
                     </div>
-                    <div>
-                        <?php
-                        if (empty(WWW_REPOS_DIR_URL)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
+                    <div></div>
                 </div>
             </div>
 
@@ -643,7 +660,7 @@
                             <p>Repo file name prefix</p>
                         </div>
                         <div>
-                            <input class="settings-param" param-name="repoConfPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
+                            <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
                         </div>
                     </div>
                     <?php
@@ -662,7 +679,7 @@
                     </div>
                     <div>
                         <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="automatisationEnable" type="checkbox" value="yes" <?php echo (PLANS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <input class="settings-param onoff-switch-input" param-name="plansEnable" type="checkbox" value="yes" <?php echo (PLANS_ENABLED == "true") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </div>
@@ -685,13 +702,13 @@
                         </div>
                         <div>
                             <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="allowAutoUpdateRepos" type="checkbox" value="yes" <?php echo (ALLOW_AUTOUPDATE_REPOS == "true") ? 'checked' : ''; ?>>
+                                <input class="settings-param onoff-switch-input" param-name="plansUpdateRepo" type="checkbox" value="yes" <?php echo (PLANS_UPDATE_REPO == "true") ? 'checked' : ''; ?>>
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </div>
                         <div>
                             <?php
-                            if (empty(ALLOW_AUTOUPDATE_REPOS)) {
+                            if (empty(PLANS_UPDATE_REPO)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
@@ -706,13 +723,13 @@
                         </div>
                         <div>
                             <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="allowAutoDeleteArchivedRepos" type="checkbox" value="yes" <?php echo (ALLOW_AUTODELETE_ARCHIVED_REPOS == "true") ? 'checked' : ''; ?>>
+                                <input class="settings-param onoff-switch-input" param-name="plansCleanRepo" type="checkbox" value="yes" <?php echo (PLANS_CLEAN_REPOS == "true") ? 'checked' : ''; ?>>
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </div>
                         <div>
                             <?php
-                            if (empty(ALLOW_AUTODELETE_ARCHIVED_REPOS)) {
+                            if (empty(PLANS_CLEAN_REPOS)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
@@ -745,13 +762,13 @@
                         </div>
                         <div>
                             <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="cronSendReminders" type="checkbox" value="yes" <?php echo (PLAN_REMINDERS_ENABLED == "true") ? 'checked' : ''; ?>>
+                                <input class="settings-param onoff-switch-input" param-name="plansRemindersEnable" type="checkbox" value="yes" <?php echo (PLANS_REMINDERS_ENABLED == "true") ? 'checked' : ''; ?>>
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </div>
                         <div>
                             <?php
-                            if (empty(PLAN_REMINDERS_ENABLED)) {
+                            if (empty(PLANS_REMINDERS_ENABLED)) {
                                 echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
@@ -919,7 +936,7 @@
 
         <div class="health-div">
             <div>
-                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Systemd repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />
+                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />
             </div>
             <div>
                 <p>Repomanager service</p>

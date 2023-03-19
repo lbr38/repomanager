@@ -7,6 +7,7 @@ sleep 30
 
 SCRIPT_PATH=$(realpath $0)
 DATA_DIR="/var/lib/repomanager"
+DB="$DATA_DIR/db/repomanager.db"
 LOG_DIR="$DATA_DIR/logs/service"
 LOG="$LOG_DIR/repomanager-service.log"
 STATS_LOG_DIR="$DATA_DIR/logs/stats"
@@ -21,26 +22,24 @@ COUNTER="0"
 mkdir -p "$LOG_DIR"
 mkdir -p "$STATS_LOG_DIR"
 
-# Check that DATA_DIR is valid by checking if repomanager configuration file exist
-if [ ! -f "$DATA_DIR/configurations/repomanager.conf" ];then
-    echo "Error: Configuration file '$DATA_DIR/configurations/repomanager.conf' not found." > "$LOG"
-    exit 1
-fi
-
 # Get additionnal variables
 function getVars
 {
-    WWW_DIR=$(grep "^WWW_DIR =" $DATA_DIR/configurations/repomanager.conf | sed 's|WWW_DIR = ||g' | sed 's|"||g')
-    WWW_USER=$(grep "^WWW_USER =" $DATA_DIR/configurations/repomanager.conf | sed 's|WWW_USER = ||g' | sed 's|"||g')
-    REPOS_DIR=$(grep "^REPOS_DIR =" $DATA_DIR/configurations/repomanager.conf | sed 's|REPOS_DIR = ||g' | sed 's|"||g')
-    UPDATE_BRANCH=$(grep "^UPDATE_BRANCH =" $DATA_DIR/configurations/repomanager.conf | sed 's|UPDATE_BRANCH = ||g' | sed 's|"||g')
+    # Check is database exists
+    while [ ! -f "$DB" ]; do
+        echo "Error: Database '$DB' not found."
+        sleep 3
+    done
 
-    STATS_ENABLED=$(grep "^STATS_ENABLED =" $DATA_DIR/configurations/repomanager.conf | sed 's|STATS_ENABLED = ||g' | sed 's|"||g')
+    WWW_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_DIR FROM settings" | sed 's/ //g')
+    WWW_USER=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_USER FROM settings" | sed 's/ //g')
+    REPOS_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT REPOS_DIR FROM settings" | sed 's/ //g')
+    UPDATE_BRANCH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT UPDATE_BRANCH FROM settings" | sed 's/ //g')
+    STATS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_ENABLED FROM settings" | sed 's/ //g')
     # Access log file to analyze
-    STATS_ACCESS_LOG_FILE=$(grep "^STATS_LOG_PATH =" $DATA_DIR/configurations/repomanager.conf | sed 's|STATS_LOG_PATH = ||g' | sed 's|"||g')
-
-    PLANS_ENABLED=$(grep "^PLANS_ENABLED =" $DATA_DIR/configurations/repomanager.conf | sed 's|PLANS_ENABLED = ||g' | sed 's|"||g')
-    PLAN_REMINDERS_ENABLED=$(grep "^PLAN_REMINDERS_ENABLED =" $DATA_DIR/configurations/repomanager.conf | sed 's|PLAN_REMINDERS_ENABLED = ||g' | sed 's|"||g')
+    STATS_LOG_PATH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_LOG_PATH FROM settings" | sed 's/ //g')
+    PLANS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_ENABLED FROM settings" | sed 's/ //g')
+    PLANS_REMINDERS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_REMINDERS_ENABLED FROM settings" | sed 's/ //g')
 }
 
 # Check if this service needs to be restarted
@@ -107,7 +106,7 @@ function checkVersion
         chown ${WWW_USER}:repomanager "$DATA_DIR/version.available"
     fi
 
-    curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/version" > ${DATA_DIR}/version.available
+    curl -s -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/lbr38/repomanager/${UPDATE_BRANCH}/www/version" > $DATA_DIR/version.available
 }
 
 # Apply permissions on repos directories
@@ -138,13 +137,13 @@ function statsGenerate
 function statsParseAccessLog
 {
     # Checks that required variables are set and that files exist
-    if [ -z "$STATS_ACCESS_LOG_FILE" ];then
+    if [ -z "$STATS_LOG_PATH" ];then
         echo "Error: Cannot determine access log file to analyze." >> "$LOG"
         return
     fi
 
-    if [ ! -f "$STATS_ACCESS_LOG_FILE" ];then
-        echo "Error: Access log file '$STATS_ACCESS_LOG_FILE' not found." >> "$LOG"
+    if [ ! -f "$STATS_LOG_PATH" ];then
+        echo "Error: Access log file '$STATS_LOG_PATH' not found." >> "$LOG"
         return
     fi
 
@@ -160,9 +159,9 @@ function statsParseAccessLog
 
     # Do not start log analyze if an analyze is already running
     if [ "$STATS_LOG_PARSING_RUNNING" == "false" ];then
-        # Loop that get every new lines in the 'STATS_ACCESS_LOG_FILE' file
+        # Loop that get every new lines in the 'STATS_LOG_PATH' file
         # New lines are parsed to get date, time, IP and request
-        tail -n0 -F "$STATS_ACCESS_LOG_FILE" | \
+        tail -n0 -F "$STATS_LOG_PATH" | \
         while read LINE; do
             if echo "$LINE" | grep -q -E 'urlgrabber|APT-CURL|APT-HTTP';then
                 # If a repomanager release update is running, then wait to don't alter the database
@@ -237,11 +236,13 @@ function getNotifications
 # Execution
 while true; do
 
-    # Clean log
-    echo -n> "$LOG"
-
     # Get vars on every loop because their value can have been updated by user from the web interface
     getVars
+
+    # Clean log
+    echo -n> "$LOG"
+    chown -R $WWW_USER "$LOG_DIR"
+    chown -R $WWW_USER "$STATS_LOG_DIR"
 
     # Check that vars are defined
     generalChecks
@@ -284,7 +285,7 @@ while true; do
     fi
 
     # Send plans reminder (if plan and plan reminders enabled)
-    if [ "$PLANS_ENABLED" == "true" ] && [ "$PLAN_REMINDERS_ENABLED" == "true" ];then
+    if [ "$PLANS_ENABLED" == "true" ] && [ "$PLANS_REMINDERS_ENABLED" == "true" ];then
         sendPlanReminder
     fi
 
