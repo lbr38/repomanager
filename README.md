@@ -42,8 +42,8 @@ Repomanager runs on following systems:
 
 **Recommended:** nginx + PHP-FPM (PHP 8.1)
 
-<h2>Documentation</h2>
+<h2>Installation and documentation</h2>
 
 Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki/Documentation">here</a>.
 
-It should help you starting using Repomanager.
+It should help you **installing** and starting using Repomanager.
