@@ -1,9 +1,10 @@
 /**
  *  Convert some select to select2
  */
-idToSelect2('#debArchitectureSelect');
-idToSelect2('#rpmArchitectureSelect');
-idToSelect2('#debTranslationSelect');
+idToSelect2('#emailRecipientSelect', 'Select recipients...', true);
+idToSelect2('#debArchitectureSelect', 'Select architectures...');
+idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
+idToSelect2('#debTranslationSelect', 'Select translations...');
 
 /**
  *  Event: update Repomanager
@@ -157,9 +158,10 @@ function applySettings(settings_params_json)
              *  Reload div and select2
              */
             $("#settingsDiv").load(" #settingsDiv > *",function () {
-                idToSelect2('#debArchitectureSelect');
-                idToSelect2('#rpmArchitectureSelect');
-                idToSelect2('#debTranslationSelect');
+                idToSelect2('#emailRecipientSelect', 'Select recipients...', true);
+                idToSelect2('#debArchitectureSelect', 'Select architectures...');
+                idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
+                idToSelect2('#debTranslationSelect', 'Select translations...');
             });
             printAlert(jsonValue.message, 'success');
         },

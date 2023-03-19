@@ -348,6 +348,11 @@ section.missing-param-alert {
     overflow: scroll;
 }
 
+.param-slide h5 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
 table {
     width: 100%;
     font-size: 14px;
@@ -373,7 +378,7 @@ table {
     justify-content: space-between;
 }
 
-.close-btn {
+.close-btn, .param-slide-close-btn {
     width: 18px;
     cursor: pointer;
 }

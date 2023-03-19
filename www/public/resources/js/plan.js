@@ -1,17 +1,8 @@
 $(document).ready(function () {
-    /**
-     *  Script Select2 pour transformer un select multiple en liste déroulante
-     */
-    $('#planActionSelect').select2({
-        closeOnSelect: true,
-        placeholder: 'Select...',
-        minimumResultsForSearch: Infinity
-    });
-
-    $('#planReminderSelect, #planDayOfWeekSelect').select2({
-        closeOnSelect: false,
-        placeholder: 'Select...'
-    });
+    idToSelect2('#planActionSelect', 'Select action...', true);
+    idToSelect2('#planReminderSelect', 'Select reminder...', true);
+    idToSelect2('#planDayOfWeekSelect', 'Select day(s)...', true);
+    idToSelect2('#addPlanMailRecipient', 'Select recipients...', true);
 });
 
 /**
@@ -21,10 +12,10 @@ $(document).ready(function () {
 function reloadPlanDiv()
 {
     $("#planDiv").load(" #planDiv > *",function () {
-        $('#planReminderSelect, #planDayOfWeekSelect').select2({
-            closeOnSelect: false,
-            placeholder: 'Select...'
-        });
+        idToSelect2('#planActionSelect', 'Select action...', true);
+        idToSelect2('#planReminderSelect', 'Select...', true);
+        idToSelect2('#planDayOfWeekSelect', 'Select...', true);
+        idToSelect2('#addPlanMailRecipient', 'Select recipients...', true);
     });
 }
 

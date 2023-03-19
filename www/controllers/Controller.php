@@ -91,11 +91,6 @@ class Controller
              *  Render history page
              */
             self::renderHistory();
-        } elseif ($targetUri == 'userspace') {
-            /**
-             *  Render userpace page
-             */
-            self::renderUserspace();
         } elseif ($targetUri == 'login') {
             /**
              *  Render login page
@@ -119,7 +114,7 @@ class Controller
      */
     private static function renderRepos()
     {
-        $myrepo = new \Controllers\Repo();
+        $myrepo = new Repo();
 
         /**
          *  Get total repos count
@@ -147,7 +142,7 @@ class Controller
          *  If plans are enabled the get last and next plan results
          */
         if (PLANS_ENABLED == "true") {
-            $plan = new \Controllers\Planification();
+            $plan = new Planification();
             $lastPlan = $plan->listLast();
             $nextPlan = $plan->listNext();
         }
@@ -178,9 +173,15 @@ class Controller
      */
     private static function renderPlans()
     {
-        $myplan = new \Controllers\Planification();
-        $mygroup = new \Controllers\Group('repo');
-        $myrepo = new \Controllers\Repo();
+        $myplan = new Planification();
+        $mygroup = new Group('repo');
+        $myrepo = new Repo();
+        $mylogin = new Login();
+
+        /**
+         *  Getting users email
+         */
+        $usersEmail = $mylogin->getEmails();
 
         /**
          *  Récupération de la liste des planifications en liste d'attente ou en cours d'exécution
@@ -204,18 +205,18 @@ class Controller
      */
     private static function renderHosts()
     {
-        $group = new \Controllers\Group('host');
-        $myhost = new \Controllers\Host();
-        $mycolor = new \Controllers\Common();
+        $group = new Group('host');
+        $myhost = new Host();
+        $mycolor = new Common();
 
         /**
          *  Case general hosts threshold settings form has been sent
          */
         if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['settings-pkgs-considered-critical'])) {
-            $pkgs_considered_outdated = \Controllers\Common::validateData($_POST['settings-pkgs-considered-outdated']);
-            $pkgs_considered_critical = \Controllers\Common::validateData($_POST['settings-pkgs-considered-critical']);
+            $pkgs_considered_outdated = Common::validateData($_POST['settings-pkgs-considered-outdated']);
+            $pkgs_considered_critical = Common::validateData($_POST['settings-pkgs-considered-critical']);
 
-            $myhost = new \Controllers\Host();
+            $myhost = new Host();
             $myhost->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
         }
 
@@ -322,8 +323,8 @@ class Controller
             exit;
         }
 
-        $myprofile = new \Controllers\Profile();
-        $myrepo = new \Controllers\Repo();
+        $myprofile = new Profile();
+        $myrepo = new Repo();
 
         /**
          *  On tente de récupérer la configuration serveur en base de données
@@ -390,8 +391,9 @@ class Controller
             exit;
         }
 
-        $mylogin = new \Controllers\Login();
+        $mylogin = new Login();
         $users = $mylogin->getUsers();
+        $usersEmail = $mylogin->getEmails();
 
         ob_start();
         include_once(ROOT . '/views/settings.template.php');
@@ -409,8 +411,8 @@ class Controller
          *  Bouton 'Stop' pour arrêter une opération en cours
          */
         if (!empty($_GET['stop'])) {
-            $opToStop = new \Controllers\Operation();
-            $opToStop->kill(\Controllers\Common::validateData($_GET['stop'])); // $_GET['stop'] contient le pid de l'opération
+            $opToStop = new Operation();
+            $opToStop->kill(Common::validateData($_GET['stop'])); // $_GET['stop'] contient le pid de l'opération
         }
 
         /**
@@ -419,7 +421,7 @@ class Controller
         $logfile = 'none';
 
         if (!empty($_GET['logfile'])) {
-            $logfile = \Controllers\Common::validateData($_GET['logfile']);
+            $logfile = Common::validateData($_GET['logfile']);
         }
 
         ob_start();
@@ -437,8 +439,8 @@ class Controller
         /**
          *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo
          */
-        if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['snapId'])) {
-            $snapId = \Controllers\Common::validateData($_POST['snapId']);
+        if (!empty($_POST['action']) and Common::validateData($_POST['action']) === 'reconstruct' and !empty($_POST['snapId'])) {
+            $snapId = Common::validateData($_POST['snapId']);
 
             /**
              *  Récupération de la valeur de GPG Resign
@@ -454,7 +456,7 @@ class Controller
             /**
              *  On instancie un nouvel objet Repo avec les infos transmises, on va ensuite pouvoir vérifier que ce repo existe bien
              */
-            $myrepo = new \Controllers\Repo();
+            $myrepo = new Repo();
             $myrepo->setSnapId($snapId);
 
             /**
@@ -469,7 +471,7 @@ class Controller
                 $params['snapId'] = $snapId;
                 $params['targetGpgResign'] = $repoGpgResign;
 
-                $myop = new \Controllers\Operation();
+                $myop = new Operation();
                 $myop->execute(array($params));
             }
 
@@ -489,7 +491,7 @@ class Controller
         if (empty($_GET['id'])) {
             $pathError++;
         } else {
-            $snapId = \Controllers\Common::validateData($_GET['id']);
+            $snapId = Common::validateData($_GET['id']);
         }
 
         /**
@@ -503,7 +505,7 @@ class Controller
          *  A partir de l'ID fourni, on récupère les infos du repo
          */
         if ($pathError == 0) {
-            $myrepo = new \Controllers\Repo();
+            $myrepo = new Repo();
             $myrepo->setSnapId($snapId);
             $myrepo->getAllById('', $snapId, '');
             $reconstruct = $myrepo->getReconstruct();
@@ -529,7 +531,7 @@ class Controller
         /**
          *  Cas où on upload un package dans un repo
          */
-        if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
+        if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'uploadPackage' and !empty($_FILES['packages']) and $pathError === 0 and !empty($repoPath)) {
             /**
              *  On définit le chemin d'upload comme étant le répertoire my_uploaded_packages à l'intérieur du répertoire du repo
              */
@@ -540,7 +542,7 @@ class Controller
              */
             if (!is_dir($targetDir)) {
                 if (!mkdir($targetDir, 0770, true)) {
-                    \Controllers\Common::printAlert("Error: cannot create upload directory <b>$target_dir</b>", 'error');
+                    Common::printAlert("Error: cannot create upload directory <b>$target_dir</b>", 'error');
                     return;
                 }
             }
@@ -548,7 +550,7 @@ class Controller
             /**
              *  On ré-arrange la liste des fichiers transmis
              */
-            $packages = \Controllers\Browse::reArrayFiles($_FILES['packages']);
+            $packages = Browse::reArrayFiles($_FILES['packages']);
 
             $packageExists = ''; // contiendra la liste des paquets ignorés car existent déjà
             $packagesError = ''; // contiendra la liste des paquets uploadé avec une erreur
@@ -567,7 +569,7 @@ class Controller
                  *  Le nom du paquet ne doit pas contenir de caractère spéciaux, sinon on passe au suivant
                  *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
                  */
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.'))) {
+                if (!Common::isAlphanumDash($packageName, array('.'))) {
                     $uploadError++;
                     $packageInvalid .= "$packageName, ";
                     continue;
@@ -617,21 +619,21 @@ class Controller
             }
 
             if ($uploadError === 0) {
-                \Controllers\Common::printAlert('Files have been uploaded', 'success');
+                Common::printAlert('Files have been uploaded', 'success');
             } else {
-                \Controllers\Common::printAlert('Some files have not been uploaded', 'error');
+                Common::printAlert('Some files have not been uploaded', 'error');
             }
         }
 
         /**
          *  Cas où on supprime un ou plusieurs paquets d'un repo
          */
-        if (!empty($_POST['action']) and \Controllers\Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
+        if (!empty($_POST['action']) and Common::validateData($_POST['action']) == 'deletePackages' and !empty($_POST['packageName']) and $pathError === 0 and !empty($repoPath)) {
             $packagesToDeleteNonExists = ''; // contiendra la liste des fichiers qui n'existent pas, si on tente de supprimer un fichier qui n'existe pas
             $packagesDeleted = array();
 
             foreach ($_POST['packageName'] as $packageToDelete) {
-                $packageName = \Controllers\Common::validateData($packageToDelete);
+                $packageName = Common::validateData($packageToDelete);
                 $packagePath = REPOS_DIR . '/' . $packageName;
 
                 /**
@@ -639,7 +641,7 @@ class Controller
                  *  On autorise seulement les tirets et les underscores (voir fonction isAlphanumDash), ainsi qu'un caractère supplémentaire : le point (car les nom de paquet contiennent des points)
                  *  On autorise également le slash car le chemin du fichier transmis contient aussi le ou les sous-dossiers vers le paquet à partir de la racine du repo
                  */
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.', '/', '+', '~'))) {
+                if (!Common::isAlphanumDash($packageName, array('.', '/', '+', '~'))) {
                     continue;
                 }
 
@@ -674,7 +676,7 @@ class Controller
                      */
                     $packagesDeleted[] = str_replace("$repoPath/", '', $packagePath);
 
-                    $deleteRepo = new \Controllers\Repo();
+                    $deleteRepo = new Repo();
                     $deleteRepo->snapSetReconstruct($snapId, 'needed');
                 }
             }
@@ -694,7 +696,7 @@ class Controller
      */
     private static function renderStats()
     {
-        $mystats = new \Controllers\Stat();
+        $mystats = new Stat();
 
         $repoError = 0;
 
@@ -704,7 +706,7 @@ class Controller
         if (empty($_GET['id'])) {
             $repoError++;
         } else {
-            $envId = \Controllers\Common::validateData($_GET['id']);
+            $envId = Common::validateData($_GET['id']);
         }
 
         /**
@@ -718,7 +720,7 @@ class Controller
          *  A partir de l'ID fourni, on récupère les infos du repo
          */
         if ($repoError == 0) {
-            $myrepo = new \Controllers\Repo();
+            $myrepo = new Repo();
             $myrepo->setEnvId($envId);
             $myrepo->getAllById('', '', $envId);
         }
@@ -727,19 +729,19 @@ class Controller
          *  Si un filtre a été sélectionné pour le graphique principal, la page est rechargée en arrière plan par jquery et récupère les données du graphique à partir du filtre sélectionné
          */
         if (!empty($_GET['repo_access_chart_filter'])) {
-            if (\Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1week") {
+            if (Common::validateData($_GET['repo_access_chart_filter']) == "1week") {
                 $repo_access_chart_filter = "1week";
             }
-            if (\Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1month") {
+            if (Common::validateData($_GET['repo_access_chart_filter']) == "1month") {
                 $repo_access_chart_filter = "1month";
             }
-            if (\Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "3months") {
+            if (Common::validateData($_GET['repo_access_chart_filter']) == "3months") {
                 $repo_access_chart_filter = "3months";
             }
-            if (\Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "6months") {
+            if (Common::validateData($_GET['repo_access_chart_filter']) == "6months") {
                 $repo_access_chart_filter = "6months";
             }
-            if (\Controllers\Common::validateData($_GET['repo_access_chart_filter']) == "1year") {
+            if (Common::validateData($_GET['repo_access_chart_filter']) == "1year") {
                 $repo_access_chart_filter = "1year";
             }
         }
@@ -751,79 +753,6 @@ class Controller
         include_once(ROOT . '/views/layout.html.php');
 
         $mystats->closeConnection();
-    }
-
-    /**
-     *  Render userspace page
-     */
-    private static function renderUserspace()
-    {
-        /**
-         *  Update user personnal informations
-         */
-        if (!empty($_POST['action']) and $_POST['action'] == 'editPersonnalInfos') {
-            $username = $_SESSION['username'];
-            $firstName = '';
-            $lastName = '';
-            $email = '';
-
-            /**
-             *  Retrieving sended infos
-             */
-
-            /**
-             *  First name
-             */
-            if (!empty($_POST['first_name'])) {
-                $firstName = $_POST['first_name'];
-            }
-
-            /**
-             *  Last name
-             */
-            if (!empty($_POST['last_name'])) {
-                $lastName = $_POST['last_name'];
-            }
-
-            /**
-             *  Email address
-             */
-            if (!empty($_POST['email'])) {
-                $email = $_POST['email'];
-            }
-
-            /**
-             *  Update in database
-             */
-            $mylogin = new \Controllers\Login();
-
-            try {
-                $mylogin->edit($username, $firstName, $lastName, $email);
-                \Controllers\Common::printAlert('Changes have been taken into account', 'success');
-            } catch (Exception $e) {
-                \Controllers\Common::printAlert($e->getMessage(), 'error');
-            }
-        }
-
-        /**
-         *  Changing user password
-         */
-        if (!empty($_POST['action']) and $_POST['action'] == 'changePassword' and !empty($_POST['actual_password']) and !empty($_POST['new_password']) and !empty($_POST['new_password_retype'])) {
-            $mylogin = new \Controllers\Login();
-
-            try {
-                $mylogin->changePassword($_SESSION['username'], $_POST['actual_password'], $_POST['new_password'], $_POST['new_password_retype']);
-                \Controllers\Common::printAlert('Password has been changed', 'success');
-            } catch (Exception $e) {
-                \Controllers\Common::printAlert($e->getMessage(), 'error');
-            }
-        }
-
-        ob_start();
-        include_once(ROOT . '/views/userspace.template.php');
-        $content = ob_get_clean();
-
-        include_once(ROOT . '/views/layout.html.php');
     }
 
     /**
@@ -843,7 +772,7 @@ class Controller
          *  Cas où on souhaite filtrer par Id utilisateur
          */
         if (!empty($_POST['action']) and $_POST['action'] === "filterByUser" and !empty($_POST['userid'])) {
-            $filterByUserId = \Controllers\Common::validateData($_POST['userid']);
+            $filterByUserId = Common::validateData($_POST['userid']);
 
             if (!is_numeric($filterByUserId)) {
                 printAlert("User Id is invalid");
@@ -864,7 +793,7 @@ class Controller
         /**
          *  Getting all usernames
          */
-        $myusers = new \Controllers\Login();
+        $myusers = new Login();
         $users = $myusers->getUsers();
 
         ob_start();

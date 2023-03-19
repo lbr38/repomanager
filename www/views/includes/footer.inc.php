@@ -8,6 +8,8 @@
 </footer>
 
 <script src="resources/js/functions.js"></script>
+<script src="resources/js/general.js"></script>
+<script src="resources/js/login.js"></script>
 <script src="resources/js/update.js"></script>
 <script src="resources/js/notification.js"></script>
 <?php

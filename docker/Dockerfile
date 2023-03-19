@@ -35,18 +35,15 @@ RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 # Configure PHP
 COPY config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 
-# Clone project
+# Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
-# (temp, for tests)
+# (temp) for tests
 # RUN cd /tmp/repomanager && git checkout devel
 
-# Configure repomanager
+# Copy repomanager files
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
 RUN touch $WWW_DIR/.docker
-
-# Service
-RUN cp -r /tmp/repomanager/tools $WWW_DIR/
 
 # Set basic permissions
 RUN chown -R www-data:www-data $WWW_DIR $DATA_DIR $REPOS_DIR
@@ -62,4 +59,4 @@ EXPOSE 8080
 WORKDIR ${DATA_DIR}
 
 # Start services on container start
-ENTRYPOINT service php8.1-fpm start && service nginx start && bash /var/www/repomanager/tools/service/repomanager-service && /bin/bash
+ENTRYPOINT service php8.1-fpm start && service nginx start && bash /var/www/repomanager/bin/service/repomanager-service && /bin/bash

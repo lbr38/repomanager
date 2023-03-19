@@ -4,6 +4,8 @@ define("ROOT", dirname(__FILE__, 2));
 require_once(ROOT . "/controllers/Autoloader.php");
 \Controllers\Autoloader::api();
 
+ini_set('memory_limit', '256M');
+
 /**
  *  Ce script renvoie un code de sortie et un message d'erreur le cas écheant.
  *  Utile notamment pour la CI.

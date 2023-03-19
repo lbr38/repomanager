@@ -91,9 +91,9 @@ class Settings
 
         if (!defined('EMAIL_RECIPIENT')) {
             if (!empty($settings['EMAIL_RECIPIENT'])) {
-                define('EMAIL_RECIPIENT', $settings['EMAIL_RECIPIENT']);
+                define('EMAIL_RECIPIENT', explode(',', $settings['EMAIL_RECIPIENT']));
             } else {
-                define('EMAIL_RECIPIENT', '');
+                define('EMAIL_RECIPIENT', array());
                 $__LOAD_SETTINGS_MESSAGES[] = 'No recipient email adress is defined. ';
             }
         }
@@ -440,16 +440,18 @@ class Settings
         }
 
         if (!empty($sendSettings['emailRecipient'])) {
-            $emailRecipient = Common::validateData($sendSettings['emailRecipient']);
+            foreach ($sendSettings['emailRecipient'] as $email) {
+                $emailRecipient = Common::validateData($email);
 
-            if (!Common::isAlphanumDash($emailRecipient, array('@', '.'))) {
-                throw new Exception('Invalid email address for ' . $emailRecipient);
-            }
-            if (!Common::validateMail($emailRecipient)) {
-                throw new Exception('Invalid email address for ' . $emailRecipient);
+                if (!Common::isAlphanumDash($emailRecipient, array('@', '.'))) {
+                    throw new Exception('Invalid email address format for ' . $emailRecipient);
+                }
+                if (!Common::validateMail($emailRecipient)) {
+                    throw new Exception('Invalid email address format for ' . $emailRecipient);
+                }
             }
 
-            $settingsToApply['EMAIL_RECIPIENT'] = $emailRecipient;
+            $settingsToApply['EMAIL_RECIPIENT'] = implode(',', $sendSettings['emailRecipient']);
         }
 
         if (isset($sendSettings['repoConfFilesPrefix'])) {
@@ -770,9 +772,7 @@ class Settings
             $settings['reposDir'] = $repomanager_conf_array['REPOS_DIR'];
         }
 
-        if (!empty($repomanager_conf_array['EMAIL_DEST'])) {
-            $settings['emailRecipient'] = $repomanager_conf_array['EMAIL_DEST'];
-        }
+        $settings['emailRecipient'] = array();
 
         $settings['debugMode'] = 'false';
 

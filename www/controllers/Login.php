@@ -21,32 +21,32 @@ class Login
 
     private function setUsername(string $username)
     {
-        $this->username = \Controllers\Common::validateData($username);
+        $this->username = Common::validateData($username);
     }
 
     private function setPassword(string $password)
     {
-        $this->password = \Controllers\Common::validateData($password);
+        $this->password = Common::validateData($password);
     }
 
     private function setFirstName(string $firstName = null)
     {
-        $this->first_name = \Controllers\Common::validateData($firstName);
+        $this->first_name = Common::validateData($firstName);
     }
 
     private function setLastName(string $lastName = null)
     {
-        $this->last_name = \Controllers\Common::validateData($lastName);
+        $this->last_name = Common::validateData($lastName);
     }
 
     private function setEmail(string $email = null)
     {
-        $this->email = \Controllers\Common::validateData($email);
+        $this->email = Common::validateData($email);
     }
 
     private function setRole(string $role)
     {
-        $this->role = \Controllers\Common::validateData($role);
+        $this->role = Common::validateData($role);
     }
 
     public function getFirstName()
@@ -67,6 +67,14 @@ class Login
     public function getRole()
     {
         return $this->role;
+    }
+
+    /**
+     *  Get all users email from database
+     */
+    public function getEmails()
+    {
+        return $this->model->getEmails();
     }
 
     /**
@@ -128,13 +136,13 @@ class Login
             throw new Exception('You are not allowed to execute this action.');
         }
 
-        $username = \Controllers\Common::validateData($username);
-        $role = \Controllers\Common::validateData($role);
+        $username = Common::validateData($username);
+        $role = Common::validateData($role);
 
         /**
          *  Check that username does not contain invalid characters
          */
-        if (\Controllers\Common::isAlphanumDash($username) === false) {
+        if (Common::isAlphanumDash($username) === false) {
             throw new Exception('Username cannot contain special characters except hyphen and underscore');
         }
 
@@ -193,7 +201,7 @@ class Login
      */
     public function checkUsernamePwd(string $username, string $password)
     {
-        $username = \Controllers\Common::validateData($username);
+        $username = Common::validateData($username);
 
         /**
          *  Check that user exists in database
@@ -263,23 +271,30 @@ class Login
      */
     public function edit(string $username, string $firstName = null, string $lastName = null, string $email = null)
     {
-        $username = \Controllers\Common::validateData($username);
+        $username = Common::validateData($username);
 
         if (!empty($firstName)) {
-            $firstName = \Controllers\Common::validateData($firstName);
+            $firstName = Common::validateData($firstName);
         }
         if (!empty($lastName)) {
-            $lastName = \Controllers\Common::validateData($lastName);
+            $lastName = Common::validateData($lastName);
         }
         if (!empty($email)) {
-            $email = \Controllers\Common::validateData($email);
+            $email = Common::validateData($email);
 
             /**
              *  Check that email is a valid email address
              */
-            if (\Controllers\Common::validateMail($email) === false) {
-                throw new Exception('Email address is invalid');
+            if (Common::validateMail($email) === false) {
+                throw new Exception('Invalid email address format');
             }
+        }
+
+        /**
+         *  Check that user exists
+         */
+        if (!$this->userExists($username)) {
+            throw new Exception("User <b>$username</b> does not exist");
         }
 
         /**
@@ -294,7 +309,7 @@ class Login
         $_SESSION['last_name']  = $lastName;
         $_SESSION['email']      = $email;
 
-        \Models\History::set($_SESSION['username'], "Personal informations modification", 'success');
+        \Models\History::set($username, "Personal informations modification", 'success');
     }
 
     /**
@@ -302,7 +317,7 @@ class Login
      */
     public function changePassword(string $username, string $actualPassword, string $newPassword, string $newPasswordRetype)
     {
-        $username = \Controllers\Common::validateData($username);
+        $username = Common::validateData($username);
 
         /**
          *  Check that user exists
@@ -387,7 +402,7 @@ class Login
          */
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         if ($hashedPassword === false) {
-            \Controllers\Common::printAlert("Error while creating a new password for user <b>$username</b>", 'error');
+            Common::printAlert("Error while creating a new password for user <b>$username</b>", 'error');
         }
 
         /**
