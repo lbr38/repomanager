@@ -1,12 +1,4 @@
 /**
- *  Rechargement régulier du bandeau de navigation pour
- *  faire apparaitre / disparaitre les opérations en cours ou terminées
- */
-setInterval(function () {
-    reloadHeader();
-}, 5000);
-
-/**
  *
  *  Fonctions utiles
  *
@@ -29,6 +21,28 @@ function closeSlide(id)
         right: '-2000px',
     }).promise().done(function () {
         $(id).css({
+            visibility: 'hidden'
+        })
+    })
+}
+
+function openPanel(name)
+{
+    $('.param-slide-container[param-slide=' + name + ']').css({
+        visibility: 'visible'
+    }).promise().done(function () {
+        $('.param-slide-container[param-slide=' + name + ']').find('.param-slide').animate({
+            right: '0'
+        })
+    })
+}
+
+function closePanel()
+{
+    $('.param-slide').animate({
+        right: '-2000px',
+    }).promise().done(function () {
+        $('.param-slide-container').css({
             visibility: 'hidden'
         })
     })
@@ -149,11 +163,17 @@ function copyToClipboard(containerid)
  * Convert select tag to a select2 by specified id
  * @param {*} id
  */
-function idToSelect2(id)
+function idToSelect2(id, placeholder = null, tags = false)
 {
+    if (placeholder == null) {
+        placeholder = 'Select...';
+    }
+
     $(id).select2({
         closeOnSelect: false,
-        placeholder: 'Select...'
+        placeholder: placeholder,
+        tags: tags,
+        minimumResultsForSearch: Infinity /* disable search box */
     });
 }
 

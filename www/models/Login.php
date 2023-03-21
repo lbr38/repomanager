@@ -8,10 +8,27 @@ class Login extends Model
 {
     public function __construct()
     {
-        /**
-         *  Open database connection
-         */
         $this->getConnection('main');
+    }
+
+    /**
+     *  Get all users email from database
+     */
+    public function getEmails()
+    {
+        $emails = array();
+
+        try {
+            $result = $this->db->query("SELECT Email FROM users WHERE State = 'active'");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $emails[] = $row['Email'];
+        }
+
+        return $emails;
     }
 
     /**

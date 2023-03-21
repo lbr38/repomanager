@@ -573,7 +573,7 @@ function installation
     deployService
 
     # Try to generate database by curling the web interface
-    curl -s http://$WWW_HOSTNAME > /dev/null
+    curl -s --connect-timeout 2 --max-time 5 http://$WWW_HOSTNAME > /dev/null
 
     echo -e "\n ${GREEN}Installation success!${RESET}"
     echo -e "\n Connect to repomanager through a web browser: ${YELLOW}https://${WWW_HOSTNAME}${RESET}"

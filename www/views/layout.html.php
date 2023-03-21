@@ -13,7 +13,15 @@
         </article>
 
         <?php
+            /**
+             *  Slide panels
+             */
             include_once(ROOT . '/views/includes/notification.inc.php');
+            include_once(ROOT . '/views/includes/panels/userspace.inc.php');
+
+            /**
+             *  Footer
+             */
             include_once(ROOT . '/views/includes/footer.inc.php');
         ?>
 

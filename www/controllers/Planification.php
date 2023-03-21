@@ -89,9 +89,17 @@ class Planification
         $this->action = $action;
     }
 
-    public function setMailRecipient(string $mailRecipient)
+    public function setMailRecipient(array $mailRecipients)
     {
-        $this->mailRecipient = \Controllers\Common::validateData($mailRecipient);
+        foreach ($mailRecipients as $mailRecipient) {
+            $mail = Common::validateData($mailRecipient);
+
+            if (!Common::validateMail($mail)) {
+                throw new Exception('Invalid email address format for ' . $mail);
+            }
+        }
+
+        $this->mailRecipient = implode(',', $mailRecipients);
     }
 
     public function setReminder($reminders)
@@ -1409,7 +1417,7 @@ class Planification
          *  Adresse mail de destination
          */
         if (!empty($planInfo['Mail_recipient'])) {
-            $this->setMailRecipient($planInfo['Mail_recipient']);
+            $this->setMailRecipient(explode(',', $planInfo['Mail_recipient']));
         }
     }
 

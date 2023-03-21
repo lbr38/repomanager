@@ -1,27 +1,3 @@
-<?php
-/**
- *  Temporary patch for 3.4.12
- *  TODO: remove this patch in next release
- */
-if (!defined('UPDATE_BACKUP')) {
-    define('UPDATE_BACKUP', 'true');
-}
-if (!defined('UPDATE_BACKUP_DIR')) {
-    define('UPDATE_BACKUP_DIR', '/var/lib/repomanager/backups');
-}
-if (!defined('EMAIL_RECIPIENT')) {
-    define('EMAIL_RECIPIENT', '');
-}
-if (!defined('PLANS_UPDATE_REPO')) {
-    define('PLANS_UPDATE_REPO', 'false');
-}
-if (!defined('PLANS_CLEAN_REPOS')) {
-    define('PLANS_CLEAN_REPOS', 'false');
-}
-if (!defined('PLANS_REMINDERS_ENABLED')) {
-    define('PLANS_REMINDERS_ENABLED', 'false');
-} ?>
-
 <section class="mainSectionLeft">
 
     <h3>MAIN CONFIGURATION</h3>
@@ -29,6 +5,9 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
     <div id="settingsDiv">
         <form id="settingsForm" autocomplete="off">
             <div class="div-generic-blue">
+
+                <h5>SYSTEM</h5>
+
                 <div class="settings-div">
                     <div>
                         <img src="resources/icons/info.svg" class="icon-verylowopacity" title="OS family of this Repomanager server" />
@@ -64,6 +43,67 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                         } ?>
                     </div>
                 </div>
+
+                <br>
+                <h5>GLOBAL SETTINGS</h5>
+
+                <div class="settings-div">
+                    <div>
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
+                    </div>
+                    <div>
+                        <p>Timezone</p>
+                    </div>
+                    <div>
+                        <select class="settings-param" param-name="timezone">
+                            <?php
+                            $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+                            foreach ($tzlist as $timezone) {
+                                if ($timezone == TIMEZONE) {
+                                    echo '<option value="' . $timezone . '" selected>' . $timezone . '</option>';
+                                } else {
+                                    echo '<option value="' . $timezone . '">' . $timezone . '</option>';
+                                }
+                            } ?>
+                        </select>
+                    </div>
+                    <div></div>
+                </div>
+
+                <div class="settings-div">
+                    <div>
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
+                    </div>
+                    <div>
+                        <p>Default contact</p>
+                    </div>
+                    <div>
+                        <select id="emailRecipientSelect" class="settings-param" param-name="emailRecipient" multiple>
+                            <?php
+                            if (!empty(EMAIL_RECIPIENT)) {
+                                foreach (EMAIL_RECIPIENT as $email) {
+                                    echo '<option value="' . $email . '" selected>' . $email . '</option>';
+                                }
+                            }
+                            if (!empty($usersEmail)) {
+                                foreach ($usersEmail as $email) {
+                                    if (!in_array($email, EMAIL_RECIPIENT)) {
+                                        echo '<option value="' . $email . '">' . $email . '</option>';
+                                    }
+                                }
+                            } ?>
+                        </select>
+                    </div>
+                    <div>
+                        <?php
+                        if (empty(EMAIL_RECIPIENT)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </div>
+                </div>
+                
+                <br>
+                <h5>UPDATE SETTINGS</h5>
 
                 <div class="settings-div">
                     <div>
@@ -157,52 +197,14 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                     </div>
                     <?php
                 endif ?>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
-                    </div>
-                    <div>
-                        <p>Timezone</p>
-                    </div>
-                    <div>
-                        <select class="settings-param" param-name="timezone">
-                            <?php
-                            $tzlist = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
-                            foreach ($tzlist as $timezone) {
-                                if ($timezone == TIMEZONE) {
-                                    echo '<option value="' . $timezone . '" selected>' . $timezone . '</option>';
-                                } else {
-                                    echo '<option value="' . $timezone . '">' . $timezone . '</option>';
-                                }
-                            } ?>
-                        </select>
-                    </div>
-                    <div></div>
-                </div>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
-                    </div>
-                    <div>
-                        <p>Default contact</p>
-                    </div>
-                    <div>
-                        <input class="settings-param" param-name="emailRecipient" type="text" value="<?= EMAIL_RECIPIENT ?>">
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(EMAIL_RECIPIENT)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                </div>
             </div>
 
             <h3>REPOSITORIES</h3>
 
             <div class="div-generic-blue">
+
+                <h5>GLOBAL SETTINGS</h5>
+
                 <div class="settings-div">
                     <div>
                         <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." />
@@ -220,56 +222,20 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                         } ?>
                     </div>
                 </div>
-
+           
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable statistics on repositories access, size and packages statistics. Require a read-only access to the webserver access log file (only nginx access logs supported) for <?= WWW_USER ?>." />
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repositories configuration files when installing on client hosts (e.g. 'myprefix-debian.list')." />
                     </div>
                     <div>
-                        <p>Enable statistics</p>
+                        <p>Repo configuration file name prefix</p>
                     </div>
                     <div>
-                        <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="yes" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(STATS_ENABLED)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>        
+                        <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
                     </div>
                 </div>
-
-                <?php
-                if (STATS_ENABLED == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />
-                        </div>
-                        <div>
-                            <p>Path to access log to scan for statistics</p>
-                        </div>
-                        <div>
-                            <input class="settings-param" param-name="statsLogPath" type="text" value="<?= STATS_LOG_PATH ?>" />
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            }
-                            if (!file_exists(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="File not found." />';
-                            }
-                            if (!is_readable(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="File is not readable." />';
-                            } ?>
-                        </div>
-                    </div>
-                    <?php
-                endif ?>
-
+    
+                <br>
                 <h5>RPM</h5>
 
                 <div class="settings-div">
@@ -388,6 +354,7 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                     <?php
                 endif ?>
 
+                <br>
                 <h5>DEB</h5>
 
                 <div class="settings-div">
@@ -486,6 +453,7 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                 endif;
 
                 if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
+                    <br>
                     <h5>GPG</h5>
 
                     <div class="settings-div">
@@ -508,6 +476,7 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                     <?php
                 endif ?>
 
+                <br>
                 <h5>ENVIRONMENTS</h5>
                 <p>Configure repository environments</p>
 
@@ -550,6 +519,58 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                         <button id="edit-env-btn" type="button" class="btn-xxsmall-green">+</button>
                     </div>
                 </div>
+
+                <br>
+                <h5>STATISTICS</h5>
+
+                <div class="settings-div">
+                    <div>
+                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable statistics on repositories access, size and packages statistics. Require a read-only access to the webserver access log file (only nginx access logs supported) for <?= WWW_USER ?>." />
+                    </div>
+                    <div>
+                        <p>Enable repositories statistics</p>
+                    </div>
+                    <div>
+                        <label class="onoff-switch-label">
+                            <input class="settings-param onoff-switch-input" param-name="statsEnable" type="checkbox" value="yes" <?php echo (STATS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <?php
+                        if (empty(STATS_ENABLED)) {
+                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>        
+                    </div>
+                </div>
+
+                <?php
+                if (STATS_ENABLED == "true") : ?>
+                    <div class="settings-div">
+                        <div>
+                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />
+                        </div>
+                        <div>
+                            <p>Path to access log to scan for statistics</p>
+                        </div>
+                        <div>
+                            <input class="settings-param" param-name="statsLogPath" type="text" value="<?= STATS_LOG_PATH ?>" />
+                        </div>
+                        <div>
+                            <?php
+                            if (empty(STATS_LOG_PATH)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            }
+                            if (!file_exists(STATS_LOG_PATH)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="File not found." />';
+                            }
+                            if (!is_readable(STATS_LOG_PATH)) {
+                                echo '<img src="resources/icons/warning.png" class="icon" title="File is not readable." />';
+                            } ?>
+                        </div>
+                    </div>
+                    <?php
+                endif ?>
             </div>
 
             <h3>WEB CONFIGURATION</h3>
@@ -649,22 +670,6 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
                         } ?>
                     </div>
                 </div>
-
-                <?php
-                if (MANAGE_PROFILES == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repo's configuration file name (e.g. 'myprefix-debian.list')." />
-                        </div>
-                        <div>
-                            <p>Repo file name prefix</p>
-                        </div>
-                        <div>
-                            <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
-                        </div>
-                    </div>
-                    <?php
-                endif ?>
             </div>
 
             <h3>PLANIFICATIONS</h3>
@@ -966,13 +971,13 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
 
         <div id="usersDiv" class="div-generic-blue">
             <form id="newUserForm" autocomplete="off">
-                <p>Create an user:</p>
+                <h5>CREATE USER</h5>
 
                 <input class="input-medium" type="text" name="username" placeholder="Username" />
 
                 <select name="role" class="select-medium" required>
                     <option value="">Select role...</option>
-                    <option value="usage">usage</option>
+                    <option value="usage">usage (read-only)</option>
                     <option value="administrator">administrator</option>
                 </select>
 
@@ -984,6 +989,9 @@ if (!defined('PLANS_REMINDERS_ENABLED')) {
             <div id="currentUsers">
                 <?php
                 if (!empty($users)) : ?>
+                    <br>
+                    <h5>CURRENT USERS</h5>
+
                     <table class="table-generic-blue">
                         <tr class="no-bkg">
                             <td>Username</td>

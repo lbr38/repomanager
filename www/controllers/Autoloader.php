@@ -60,7 +60,7 @@ class Autoloader
          *  Erreur liées au chargement de la configuration principale
          */
         if (__LOAD_SETTINGS_ERROR > 0) {
-            $__LOAD_ERROR_MESSAGES[] = "Some main parameters are not configured:<br>";
+            $__LOAD_ERROR_MESSAGES[] = "Some settings are not properly configured:<br>";
             $__LOAD_ERROR_MESSAGES = array_merge($__LOAD_ERROR_MESSAGES, __LOAD_SETTINGS_MESSAGES);
             ++$__LOAD_GENERAL_ERROR;
         }
@@ -687,6 +687,15 @@ class Autoloader
         if (UPDATE_AVAILABLE == 'true') {
             $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b></span>';
             $NOTIFICATION_MESSAGES[] = array('Title' => 'Update available', 'Message' =>  $message);
+            $NOTIFICATION++;
+        }
+
+        /**
+         *  If current user email is not set, generate a new notification
+         */
+        if (empty($_SESSION['email'])) {
+            $message = '<span>You can configure your email in your user profile. This email can be used as a recipient to send notifications of Repomanager events like planification status or planification reminders</span>';
+            $NOTIFICATION_MESSAGES[] = array('Title' => 'Email contact not set', 'Message' =>  $message);
             $NOTIFICATION++;
         }
 

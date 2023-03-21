@@ -293,22 +293,18 @@ if (DEBUG_MODE == "enabled") {
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
-                <a href="/userspace" title="Userspace">
+                <span class="param-slide-btn pointer lowopacity" param-slide="userspace" title="Userspace">
                     <img src="resources/icons/user.svg" class="icon" />
 
                     <?php
                     echo $_SESSION['username'];
 
-                    if (!empty($_SESSION['first_name'])) {
+                    if (!empty($_SESSION['first_name']) and !empty($_SESSION['last_name'])) {
+                        echo ' (' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . ')';
+                    } elseif (!empty($_SESSION['first_name'])) {
                         echo ' (' . $_SESSION['first_name'] . ')';
                     } ?>
-                </a>
-            </div>
-                
-            <div class="menu-sub-container">
-                <a href="/logout" title="Logout">
-                    <img src="resources/icons/power.svg" class="icon" /> Logout
-                </a>
+                </span>
             </div>
         </div>
     </nav>
@@ -350,7 +346,7 @@ if (file_exists(SERVICE_LOG)) :
         <section>
             <section class="missing-param-alert">
                 <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
-                <br>
+                <br><br>
                 <span class="yellowtext"><?= $serviceLog ?></span>
             </section>
         </section>

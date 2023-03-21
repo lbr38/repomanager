@@ -552,7 +552,23 @@ endif ?>
                     </tr>
                     <tr>
                         <td>Recipient(s)</td>
-                        <td><input type="email" id="addPlanMailRecipient" placeholder="Mails addresses seperated by a comma." value="<?= EMAIL_RECIPIENT ?>" multiple /></td>
+                        <td>
+                            <select id="addPlanMailRecipient" multiple>
+                                <?php
+                                if (!empty(EMAIL_RECIPIENT)) {
+                                    foreach (EMAIL_RECIPIENT as $email) {
+                                        echo '<option value="' . $email . '" selected>' . $email . '</option>';
+                                    }
+                                }
+                                if (!empty($usersEmail)) {
+                                    foreach ($usersEmail as $email) {
+                                        if (!in_array($email, EMAIL_RECIPIENT)) {
+                                            echo '<option value="' . $email . '">' . $email . '</option>';
+                                        }
+                                    }
+                                } ?>
+                            </select>
+                        </td>
                     </tr>
                     <tr class="__plan_input __plan_input_reminder">
                         <td class="td-10">Send a reminder</td>
