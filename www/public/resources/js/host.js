@@ -1,12 +1,6 @@
-$(document).ready(function () {
-    /**
-     *  Script Select2 pour transformer un select multiple en liste déroulante
-     */
-    $('.hostsSelectList').select2({
-        closeOnSelect: false,
-        placeholder: 'Add host...'
-    });
+classToSelect2('.hostsSelectList', 'Add host...');
 
+$(document).ready(function () {
     /**
      *  Hide loading div and print hosts
      */
@@ -50,11 +44,8 @@ function filterPackage()
  */
 function reloadGroupsDiv()
 {
-    $("#groupsHostDiv").load(" #groupsHostDiv > *",function () {
-        $('.hostsSelectList').select2({
-            closeOnSelect: false,
-            placeholder: 'Add host...'
-        });
+    $(".slide-panel-reloadable-div[slide-panel='hosts-groups']").load(" .slide-panel-reloadable-div[slide-panel='hosts-groups'] > *",function () {
+        classToSelect2('.hostsSelectList', 'Add host...');
     });
 }
 
@@ -63,11 +54,7 @@ function reloadGroupsDiv()
  */
 function reloadHostsDiv()
 {
-    $("#hostsDiv").load(" #hostsDiv > *",function () {
-        $('.param-slide').css({
-            right: 0
-        })
-    });
+    $("#hostsDiv").load(" #hostsDiv > *");
 }
 
 /**
@@ -348,7 +335,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="../resources/images/loading.gif" class="icon"/></div>');
+    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
     $('.hosts-charts-list-label-hosts-list').show();
 
     getHostWithKernel(kernel);
@@ -363,7 +350,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="../resources/images/loading.gif" class="icon"/></div>');
+    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
     $('.hosts-charts-list-label-hosts-list').show();
 
     getHostWithProfile(profile);
@@ -374,33 +361,6 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
  */
 $(document).on('mouseleave',".hosts-charts-list-label",function () {
     $('.hosts-charts-list-label-hosts-list').remove();
-});
-
-/**
- *  Event : Affichage du div permettant de gérer les groupes
- */
-$(document).on('click',"#GroupsListToggleButton",function () {
-    openSlide("#groupsHostDiv");
-});
-
-/**
- *  Event : Masquage du div permettant de gérer les groupes
- */
-$(document).on('click',"#groupsDivCloseButton",function () {
-    closeSlide("#groupsHostDiv")
-});
-
-/**
- *  Event : Affichage du div permettant de gérer les paramètres
- */
-$(document).on('click',"#settingsToggleButton",function () {
-    openSlide("#hostsSettingsDiv");
-});
-/**
- *  Event : Masquage du div permettant de gérer les paramètres
- */
-$(document).on('click',"#hostsSettingsDivCloseButton",function () {
-    closeSlide("#hostsSettingsDiv");
 });
 
 /**
@@ -556,41 +516,6 @@ $(document).on('click','.hostsActionBtn',function () {
 });
 
 /**
- *  Event : afficher les détails d'un hôte
- */
-$(document).on('click','.printHostDetails',function () {
-    /**
-     *  Récupération des infos de l'hôte
-     */
-    var host_id = $(this).attr('host-id');
-
-    /**
-     *  Appelle /host-details avec l'id de l'hote en GET et affiche le résultat contenant les informations détaillées l'hôte
-     */
-    $.get(
-        '/host-details',
-        {id:host_id},
-        function (data, status, jqXHR) {
-            $('body').append('<div class="hostDetails"><span class="host-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + data + '</div>');
-        }
-    );
-
-    /**
-     *  Le div est alors créé mais il est masqué par défaut (hide), ceci afin de pouvoir l'afficher
-     */
-    $('.hostDetails').show();
-});
-
-/**
- *  Event : fermeture de .hostDetails généré par la fonction ci-dessus
- *  D'abord on masque le div avec une animation, puis on détruit le div
- */
-$(document).on('click','.host-close',function () {
-    $(".hostDetails").hide('200');
-    $(".hostDetails").remove();
-});
-
-/**
  *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis la page d'un hote
  */
 $(document).on('click','.hostActionBtn',function () {
@@ -706,7 +631,7 @@ $(document).on('mouseenter', '.showEventDetailsBtn', function () {
     /**
      *  On crée un nouveau span showEventDetails
      */
-    $(this).append('<span class="showEventDetails">Loading<img src="../resources/images/loading.gif" class="icon"/></span>');
+    $(this).append('<span class="showEventDetails">Loading<img src="assets/images/loading.gif" class="icon"/></span>');
     $('.showEventDetails').show();
 
     getEventDetails(hostId, eventId, packageState);
@@ -879,7 +804,7 @@ function editGroupHosts(name, hostsId)
  */
 function execAction(action, hosts_array)
 {
-    printAlert('Request being sent <img src="resources/images/loading.gif" class="icon" />');
+    printAlert('Request being sent <img src="assets/images/loading.gif" class="icon" />');
     $.ajax({
         type: "POST",
         url: "ajax/controller.php",
@@ -979,7 +904,7 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="resources/icons/close.svg" /></span>' + jsonValue.message + '</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="assets/icons/close.svg" /></span>' + jsonValue.message + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -1046,11 +971,20 @@ function getHostWithKernel(kernel)
                     if (key == 'Ip') {
                         ip = value;
                     }
+                    if (key == 'Os_family') {
+                        if (value.toUpperCase() == 'REDHAT') {
+                            osFamilyIcon = '<img src="assets/icons/products/redhat.png" class="icon">';
+                        } else if (value.toUpperCase() == 'DEBIAN') {
+                            osFamilyIcon = '<img src="assets/icons/products/debian.png" class="icon">';
+                        } else {
+                            osFamilyIcon = '<img src="assets/icons/server.svg" class="icon">';
+                        }
+                    }
                 });
-                hosts += hostname + ' (' + ip + ') <br>';
+                hosts += '<div>' + osFamilyIcon + '<span>' + hostname + ' (' + ip + ') </span></div>';
             });
 
-            $('.hosts-charts-list-label-hosts-list').html('<div><span>' + hosts + '</span></div>');
+            $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -1087,11 +1021,20 @@ function getHostWithProfile(profile)
                     if (key == 'Ip') {
                         ip = value;
                     }
+                    if (key == 'Os_family') {
+                        if (value.toUpperCase() == 'REDHAT') {
+                            osFamilyIcon = '<img src="assets/icons/products/redhat.png" class="icon">';
+                        } else if (value.toUpperCase() == 'DEBIAN') {
+                            osFamilyIcon = '<img src="assets/icons/products/debian.png" class="icon">';
+                        } else {
+                            osFamilyIcon = '<img src="assets/icons/server.svg" class="icon">';
+                        }
+                    }
                 });
-                hosts += hostname + ' (' + ip + ') <br>';
+                hosts += '<div>' + osFamilyIcon + '<span>' + hostname + ' (' + ip + ') </span></div>';
             });
 
-            $('.hosts-charts-list-label-hosts-list').html('<div><span>' + hosts + '</span></div>');
+            $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

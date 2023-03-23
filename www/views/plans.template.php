@@ -1,13 +1,10 @@
-<?php
-include_once(ROOT . '/views/includes/display.inc.php');
+<section class="section-left">
+    <div class="reposList">
+        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
+    </div>
+</section>
 
-if (IS_ADMIN) :
-    include_once(ROOT . '/views/includes/operation.inc.php');
-    include_once(ROOT . '/views/includes/manage-groups.inc.php');
-    include_once(ROOT . '/views/includes/manage-sources.inc.php');
-endif ?>
-
-<section class="mainSectionRight">
+<section class="section-right">
     <div id="planDiv">
         <?php
         if (IS_ADMIN) : ?>
@@ -68,9 +65,9 @@ endif ?>
                                     <td class="td-10">
                                         <?php
                                         if ($planAction == "update") {
-                                            echo '<img class="icon" src="resources/icons/update.svg" title="Operation type: ' . $planAction . '" />';
+                                            echo '<img class="icon" src="assets/icons/update.svg" title="Operation type: ' . $planAction . '" />';
                                         } else {
-                                            echo '<img class="icon" src="resources/icons/link.svg" title="Operation type: ' . $planAction . '" />';
+                                            echo '<img class="icon" src="assets/icons/link.svg" title="Operation type: ' . $planAction . '" />';
                                         } ?>
                                     </td>
 
@@ -80,7 +77,7 @@ endif ?>
                                          *  Affichage du type de planification
                                          */
                                         if ($planType == "plan") {
-                                            echo 'Planed on <b>' . $planDate . '</b> at <b>' . $planTime . '</b>';
+                                            echo 'Planed on <b>' . $planDate . ' ' . $planTime . '</b>';
                                         }
                                         if ($planType == "regular") {
                                             if ($planFrequency == "every-hour") {
@@ -148,25 +145,25 @@ endif ?>
 
                                     <td class="td-fit">
                                         <span>
-                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details" src="resources/icons/search.svg" />
+                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details" src="assets/icons/search.svg" />
                                         </span>
                                         <span>
                                             <?php
                                             if ($planStatus != "running") {
-                                                echo '<img class="deletePlanBtn icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Delete plan" src="resources/icons/bin.svg" />';
+                                                echo '<img class="deletePlanBtn icon-lowopacity" plan-id="' . $planId . '" plan-type="' . $planType . '" title="Delete plan" src="assets/icons/delete.svg" />';
                                             }
                                             if ($planStatus == "queued") {
                                                 if ($planType == 'regular') {
-                                                    echo '<img class="disablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Disable recurrent plan execution" src="resources/icons/disabled.svg" />';
+                                                    echo '<img class="disablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Disable recurrent plan execution" src="assets/icons/disabled.svg" />';
                                                 }
-                                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Plan is enabled" />';
+                                                echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Plan is enabled" />';
                                             }
                                             if ($planStatus == "running") {
-                                                echo 'running<img src="resources/images/loading.gif" class="icon" title="Plan is currently running" />';
+                                                echo 'running<img src="assets/images/loading.gif" class="icon" title="Plan is currently running" />';
                                             }
                                             if ($planStatus == "disabled") {
-                                                echo '<img class="enablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Enable plan" src="resources/icons/enabled.svg" />';
-                                                echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Plan is disabled" />';
+                                                echo '<img class="enablePlanBtn icon-lowopacity" plan-id="' . $planId . '" title="Enable plan" src="assets/icons/enabled.svg" />';
+                                                echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Plan is disabled" />';
                                             } ?>
                                         </span>
                                     </td>
@@ -254,9 +251,9 @@ endif ?>
                                     <span>Check GPG signatures</span>
                                     <?php
                                     if ($planGpgCheck == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
 
@@ -264,9 +261,9 @@ endif ?>
                                     <span>Sign with GPG</span>
                                     <?php
                                     if ($planGpgResign == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
 
@@ -274,9 +271,9 @@ endif ?>
                                     <span>Only sync the difference</span>
                                     <?php
                                     if ($planOnlySyncDifference == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
 
@@ -306,9 +303,9 @@ endif ?>
                                 <span>Notification on error</span>
                                 <?php
                                 if ($planNotificationOnError == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                    echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                    echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 } ?>
                             </div>
 
@@ -316,9 +313,9 @@ endif ?>
                                 <span>Notification on success</span>
                                 <?php
                                 if ($planNotificationOnSuccess == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                    echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                    echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 } ?>
                             </div>
 
@@ -681,14 +678,16 @@ endif ?>
                                 <tr>
                                     <td class="td-10">
                                         <?php
-                                        if ($planAction == "update") {
-                                            echo '<img class="icon" src="resources/icons/update.svg" title="Operation type: ' . $planAction . '" />';
-                                        } else {
-                                            echo '<img class="icon" src="resources/icons/link.svg" title="Operation type: ' . $planAction . '" />';
+                                        if ($planStatus == "done") {
+                                            echo '<img class="icon-small" src="assets/icons/greencircle.png" title="Plan completed." />';
+                                        } elseif ($planStatus == "error") {
+                                            echo '<img class="icon-small" src="assets/icons/redcircle.png" title="Plan has failed." />';
+                                        } elseif ($planStatus == "stopped") {
+                                            echo '<img class="icon-small" src="assets/icons/redcircle.png" title="Plan stopped by the user." />';
                                         } ?>
                                     </td>
 
-                                    <td class="td-small"><b><?= $planDate ?></b> at <b><?= $planTime ?></b></td>
+                                    <td class="td-small"><b><?= $planDate ?> <?= $planTime ?></b></td>
 
                                     <td>
                                         <?php
@@ -726,20 +725,7 @@ endif ?>
 
                                     <td class="td-fit">
                                         <span>
-                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details." src="resources/icons/search.svg" />
-                                        </span>
-                                        <span>
-                                            <?php
-                                            /**
-                                             *  Affichage d'une pastille verte ou rouge en fonction du status de la planification
-                                             */
-                                            if ($planStatus == "done") {
-                                                echo '<img class="icon-small" src="resources/icons/greencircle.png" title="Plan completed." />';
-                                            } elseif ($planStatus == "error") {
-                                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Plan has failed." />';
-                                            } elseif ($planStatus == "stopped") {
-                                                echo '<img class="icon-small" src="resources/icons/redcircle.png" title="Plan stopped by the user." />';
-                                            } ?>
+                                            <img class="planDetailsBtn icon-lowopacity" plan-id="<?= $planId ?>" title="Show details." src="assets/icons/search.svg" />
                                         </span>
                                     </td>
                                 </tr>
@@ -759,9 +745,9 @@ endif ?>
                                     <span>Check GPG signatures</span>
                                     <?php
                                     if ($planGpgCheck == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
 
@@ -769,9 +755,9 @@ endif ?>
                                     <span>Sign with GPG</span>
                                     <?php
                                     if ($planGpgResign == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
 
@@ -779,9 +765,9 @@ endif ?>
                                     <span>Only sync the difference</span>
                                     <?php
                                     if ($planOnlySyncDifference == "yes") {
-                                        echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                        echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                     } else {
-                                        echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                        echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                     } ?>
                                 </div>
                                 <?php
@@ -805,9 +791,9 @@ endif ?>
                                 <span>Notification on error</span>
                                 <?php
                                 if ($planNotificationOnError == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                    echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                    echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 } ?>
                             </div>
                             
@@ -815,9 +801,9 @@ endif ?>
                                 <span>Notification on success</span>
                                 <?php
                                 if ($planNotificationOnSuccess == "yes") {
-                                    echo '<span><img src="resources/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                                    echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
                                 } else {
-                                    echo '<span><img src="resources/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                                    echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
                                 } ?>
                             </div>
                             <?php
@@ -851,12 +837,6 @@ endif ?>
             </div>
             <?php
         endif; ?>
-    </div>
-</section>
-
-<section class="mainSectionLeft">
-    <div class="reposList">
-        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
     </div>
 </section>
 
@@ -934,3 +914,12 @@ $(document).ready(function(){
     }).trigger('change');
 });
 </script>
+
+<?php
+include_once(ROOT . '/views/includes/panels/display.inc.php');
+
+if (IS_ADMIN) :
+    include_once(ROOT . '/views/includes/panels/repo-groups.inc.php');
+    include_once(ROOT . '/views/includes/panels/source-repo.inc.php');
+    include_once(ROOT . '/views/includes/panels/operation.inc.php');
+endif ?>

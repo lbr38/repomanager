@@ -1,4 +1,4 @@
-<section class="main">
+<section class="section-main">
     <h3>METRICS & STATISTICS</h3>
 
     <?php
@@ -14,10 +14,10 @@
     }
     echo '<br>';
     if (!file_exists(STATS_LOG_PATH)) {
-        echo '<p><span class="yellowtext">Access log file to scan (' . STATS_LOG_PATH . ') does not exist.</span></p>';
+        echo '<p><span class="yellowtext">Access log file to scan <b>' . STATS_LOG_PATH . '</b> does not exist.</span></p>';
     }
     if (!is_readable(STATS_LOG_PATH)) {
-        echo '<p><span class="yellowtext">Access log file to scan (' . STATS_LOG_PATH . ') is not readable.</span></p>';
+        echo '<p><span class="yellowtext">Access log file to scan <b>' . STATS_LOG_PATH . '</b> is not readable.</span></p>';
     }
 
     /**
@@ -141,15 +141,15 @@
                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                              */
                             if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
+                                echo '<img src="assets/icons/greencircle.png" class="icon-small" /> ';
                             } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
+                                echo '<img src="assets/icons/redcircle.png" class="icon-small" /> ';
                             }
 
                             /**
                              *  Affichage des détails de la/les requête(s)
                              */
-                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' at ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
+                            echo DateTime::createFromFormat('Y-m-d', $line['Date'])->format('d-m-Y') . ' ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
                             echo '<br>';
                         endforeach ?>
                     </div>
@@ -177,15 +177,15 @@
                              *  Affichage d'une icone verte ou rouge suivant le résultat de la requête
                              */
                             if ($line['Request_result'] == "200" or $line['Request_result'] == "304") {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" /> ';
+                                echo '<img src="assets/icons/greencircle.png" class="icon-small" /> ';
                             } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" /> ';
+                                echo '<img src="assets/icons/redcircle.png" class="icon-small" /> ';
                             }
 
                             /**
                              *  Affichage des détails de la/les requête(s)
                              */
-                            echo $line['Date'] . ' at ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
+                            echo $line['Date'] . ' ' . $line['Time'] . ' - ' . $line['Source'] . ' (' . $line['IP'] . ') - ' . $line['Request'];
                             echo '</span>';
                             echo '<br>';
                         endforeach ?>
@@ -348,12 +348,12 @@
                             <td class="td-10">
                                 <?php
                                 if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
-                                    echo '<img src="resources/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                    echo '<img src="assets/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                                 } else {
-                                    echo '<img src="resources/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
+                                    echo '<img src="assets/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
                                 } ?>
                             </td>
-                            <td class="td-100"><?= DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' at ' . $access['Time'] ?></td>
+                            <td class="td-100"><?= DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' ' . $access['Time'] ?></td>
                             <td class="td-100"><?= $access['Source'] . ' (' . $access['IP'] . ')' ?></td>
                             <td><span title="<?= str_replace('"', '', $access['Request']) ?>"><?= $accessTarget[0] ?></span></td>
                         </tr>

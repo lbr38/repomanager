@@ -3,35 +3,12 @@
  *  Fonctions utiles
  *
  */
-
-function openSlide(id)
-{
-    $(id).css({
-        visibility: 'visible'
-    }).promise().done(function () {
-        $(id).find('.param-slide').animate({
-            right: '0'
-        })
-    })
-}
-
-function closeSlide(id)
-{
-    $(id).find('.param-slide').animate({
-        right: '-2000px',
-    }).promise().done(function () {
-        $(id).css({
-            visibility: 'hidden'
-        })
-    })
-}
-
 function openPanel(name)
 {
-    $('.param-slide-container[param-slide=' + name + ']').css({
+    $('.slide-panel-container[slide-panel=' + name + ']').css({
         visibility: 'visible'
     }).promise().done(function () {
-        $('.param-slide-container[param-slide=' + name + ']').find('.param-slide').animate({
+        $('.slide-panel-container[slide-panel=' + name + ']').find('.slide-panel').animate({
             right: '0'
         })
     })
@@ -39,10 +16,10 @@ function openPanel(name)
 
 function closePanel()
 {
-    $('.param-slide').animate({
-        right: '-2000px',
+    $('.slide-panel').animate({
+        right: '-1000px',
     }).promise().done(function () {
-        $('.param-slide-container').css({
+        $('.slide-panel-container').css({
             visibility: 'hidden'
         })
     })
@@ -181,11 +158,17 @@ function idToSelect2(id, placeholder = null, tags = false)
  * Convert select tag to a select2 by specified class
  * @param {*} className
  */
-function classToSelect2(className)
+function classToSelect2(className, placeholder = null, tags = false)
 {
+    if (placeholder == null) {
+        placeholder = 'Select...';
+    }
+
     $(className).select2({
         closeOnSelect: false,
-        placeholder: 'Select...'
+        placeholder: placeholder,
+        tags: tags,
+        minimumResultsForSearch: Infinity /* disable search box */
     });
 }
 
@@ -194,18 +177,6 @@ function classToSelect2(className)
  */
 $(document).keyup(function (e) {
     if (e.key === "Escape") {
-        $('.param-slide-container').find('.param-slide').animate({
-            right: '-2000px',
-        }).promise().done(function () {
-            $('.param-slide-container').css({
-                visibility: 'hidden'
-            })
-        })
-
-        /**
-         *  Close hostDetails div if exists
-         */
-        $(".hostDetails").hide('200');
-        $(".hostDetails").remove();
+        closePanel();
     }
 });

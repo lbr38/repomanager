@@ -1,47 +1,11 @@
-<div id="profileServerSettingsDiv" class="param-slide-container">
-    <div class="param-slide">
-        <img id="profileServerSettingsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
-        <h3>SERVER SETTINGS</h3>
-
-        <form id="applyServerConfigurationForm" autocomplete="off">
-            <?php
-            /**
-             *  Si une des valeurs était vide alors on indique à l'utilisateur qu'il faut valider le formulaire au moins une fois pour valider et appliquer la configuration.
-             */
-            if ($serverConfApplyNeeded > 0) {
-                echo '<p><img src="resources/icons/warning.png" class="icon" />Some parameters were empty and have been generated automatically. You must validate this form to apply configuration.<br><br></p>';
-            } ?>
-            <div class="operation-form">
-                <input type="hidden" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
-                <span>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files for each profile." />Manage profiles repos configuration
-                </span>
-                <label class="onoff-switch-label">
-                    <input id="serverManageClientRepos" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientRepos == "yes") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-                <span>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify which package(s) to exclude for each profile." />Manage profiles packages configuration
-                </span>
-                <label class="onoff-switch-label">
-                    <input id="serverManageClientConf" type="checkbox" class="onoff-switch-input" value="yes" <?php echo ($serverManageClientConf == "yes") ? 'checked' : ''; ?>>
-                    <span class="onoff-switch-slider"></span>
-                </label>
-            </div>
-            <br>
-            <button type="submit" class="btn-large-green">Save</button>
-        </form>
-    </div>
-</div>
-
-<section class="main">
+<section class="section-main">
     <div id="title-button-div">
         <h3>PROFILES</h3>
         <?php
         if (IS_ADMIN) : ?>
             <div id="title-button-container">
-                <div id="profileServerSettingsToggleButton" class="slide-btn" title="Edit server settings">
-                    <img src="resources/icons/cog.svg" />
+                <div class="slide-btn slide-panel-btn" slide-panel="manage-profiles-server-settings" title="Edit server settings">
+                    <img src="assets/icons/cog.svg" />
                     <span>Settings</span>
                 </div>
             </div>
@@ -57,7 +21,7 @@
     <br><br>
 
     <div id="profilesDiv">
-        <p>Create a new profile:</p>
+        <h5>CREATE A NEW PROFILE</h5>
         <form id="newProfileForm" autocomplete="off">
             <input id="newProfileInput" type="text" class="input-medium" />
             <button type="submit" class="btn-xxsmall-green" title="Add">+</button>
@@ -110,11 +74,11 @@
                                     <td class="td-fit">
                                         <?php
                                         if (MANAGE_HOSTS == 'true' and $hostsCount > 0) {
-                                            echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="resources/icons/server.svg" class="icon" /></span>';
+                                            echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="assets/icons/server.svg" class="icon" /></span>';
                                         } ?>
-                                        <span><img src="resources/icons/cog.svg" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
-                                        <span><img src="resources/icons/duplicate.svg" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Create a new profile from <?=$profileName?> configuration" /></span>
-                                        <span><img src="resources/icons/bin.svg" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Delete <?=$profileName?> profile" /></span>
+                                        <span><img src="assets/icons/cog.svg" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
+                                        <span><img src="assets/icons/duplicate.svg" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Create a new profile from <?=$profileName?> configuration" /></span>
+                                        <span><img src="assets/icons/delete.svg" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Delete <?=$profileName?> profile" /></span>
                                     </td>
                                 </tr>
                             </table>
@@ -301,3 +265,4 @@
     </div>
 </section>
 
+<?php include_once(ROOT . '/views/includes/panels/manage-profiles-server-settings.inc.php'); ?>

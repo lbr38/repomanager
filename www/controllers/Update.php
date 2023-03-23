@@ -207,8 +207,27 @@ class Update
     public function update()
     {
         try {
+            /**
+             *  Quit if docker
+             */
+            if (DOCKER == 'true') {
+                throw new Exception('Update is not available in docker mode. Please update your docker image.');
+            }
+
+            /**
+             *  Quit if actual version is the same as the available version
+             */
+            if (VERSION == GIT_VERSION) {
+                throw new Exception('Already up to date');
+            }
+
+            /**
+             *  Create log directory
+             */
             if (!is_dir(LOGS_DIR . '/update')) {
-                mkdir(LOGS_DIR . '/update', 0770, true);
+                if (!mkdir(LOGS_DIR . '/update', 0770, true)) {
+                    throw new Exception('Error while creating update log directory <b>' . LOGS_DIR . '/update</b>');
+                }
             }
 
             /**
@@ -222,13 +241,6 @@ class Update
             }
             if (file_exists(UPDATE_INFO_LOG)) {
                 unlink(UPDATE_INFO_LOG);
-            }
-
-            /**
-             *  Quit if actual version is the same as the available version
-             */
-            if (VERSION == GIT_VERSION) {
-                throw new Exception('Already up to date');
             }
 
             /**
@@ -297,10 +309,9 @@ class Update
             /**
              *  Create a file to restart repomanager service
              */
-            if (DOCKER == false) {
-                if (!file_exists(DATA_DIR . '/service.restart')) {
-                    touch(DATA_DIR . '/service.restart');
-                }
+
+            if (!file_exists(DATA_DIR . '/service.restart')) {
+                touch(DATA_DIR . '/service.restart');
             }
 
             /**

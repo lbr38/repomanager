@@ -15,7 +15,7 @@ if (!empty($groupsList)) {
         /**
          *  Bouton permettant de masquer le contenu de ce groupe
          */
-        echo '<img src="resources/icons/up.svg" class="hideGroup pointer float-right icon-lowopacity" group="' . $groupName . '" state="visible" />';
+        echo '<img src="assets/icons/up.svg" class="hideGroup pointer float-right icon-lowopacity" group="' . $groupName . '" state="visible" />';
         echo "<h3>$groupName</h3>";
 
         /**
@@ -134,7 +134,7 @@ if (!empty($groupsList)) {
                     echo '<div class="item-repo">';
                     if ($printRepoName == "yes") {
                         echo '<span>' . $name . '</span>';
-                        echo '<div class="label-pkg-' . $packageType  . ' item-pkgtype" title="This repository contains ' . $packageType . ' packages"><img src="resources/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
+                        echo '<div class="label-pkg-' . $packageType  . ' item-pkgtype" title="This repository contains ' . $packageType . ' packages"><img src="assets/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
                     }
                     echo '</div>';
 
@@ -171,7 +171,7 @@ if (!empty($groupsList)) {
                              */
                             if ($snapId != $lastSnapId) :
                                 if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
-                                    <img src="resources/images/loading.gif" class="icon" title="An operation is running on this repository snaphot." />
+                                    <img src="assets/images/loading.gif" class="icon" title="An operation is running on this repository snaphot." />
                                 <?php else : ?>
                                     <input type="checkbox" class="icon-verylowopacity" name="checkbox-repo[]" repo-id="<?= $repoId ?>" snap-id="<?= $snapId ?>" <?php echo !empty($envId) ? 'env-id="' . $envId . '"' : ''; ?> repo-type="<?= $type ?>" title="Select and execute an action.">
                                     <?php
@@ -206,7 +206,7 @@ if (!empty($groupsList)) {
                                     /**
                                      *  Print repo size in the most suitable byte format
                                      */
-                                    echo '<span class="lowopacity">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
+                                    echo '<span class="lowopacity-cst" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
                                 }
 
                                 /**
@@ -215,11 +215,11 @@ if (!empty($groupsList)) {
                                 if (PRINT_REPO_TYPE == 'yes') {
                                     echo '<span>';
                                     if ($type == "mirror") {
-                                        echo '<img class="icon lowopacity" src="resources/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
+                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
                                     } elseif ($type == "local") {
-                                        echo '<img class="icon lowopacity" src="resources/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
+                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
                                     } else {
-                                        echo '<img class="icon lowopacity" src="resources/icons/unknow.svg" title="Type: unknow" />';
+                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/unknow.svg" title="Type: unknow" />';
                                     }
                                     echo '</span>';
                                 }
@@ -230,11 +230,11 @@ if (!empty($groupsList)) {
                                 if (PRINT_REPO_SIGNATURE == 'yes') {
                                     echo '<span>';
                                     if ($signed == "yes") {
-                                        echo '<img class="icon lowopacity" src="resources/icons/key.svg" title="Signed with GPG" />';
+                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/key.svg" title="Signed with GPG" />';
                                     } elseif ($signed == "no") {
-                                        echo '<img class="icon" src="resources/icons/key2.svg" title="Not signed with GPG" />';
+                                        echo '<img class="icon-np" src="assets/icons/key2.svg" title="Not signed with GPG" />';
                                     } else {
-                                        echo '<img class="icon lowopacity" src="resources/icons/unknow.svg" title="GPG signature: unknow" />';
+                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/unknow.svg" title="GPG signature: unknow" />';
                                     }
                                     echo '</span>';
                                 }
@@ -244,20 +244,20 @@ if (!empty($groupsList)) {
                                  */
                                 echo '<span>';
                                 if ($packageType == "rpm") {
-                                    echo "<a href=\"/browse?id=${snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $name ($dateFormatted) snapshot\" /></a>";
+                                    echo "<a href=\"/browse?id=${snapId}\"><img class=\"icon lowopacity\" src=\"assets/icons/search.svg\" title=\"Browse $name ($dateFormatted) snapshot\" /></a>";
                                 }
                                 if ($packageType == "deb") {
-                                    echo "<a href=\"/browse?id=${snapId}\"><img class=\"icon lowopacity\" src=\"resources/icons/search.svg\" title=\"Browse $section ($dateFormatted) snapshot\" /></a>";
+                                    echo "<a href=\"/browse?id=${snapId}\"><img class=\"icon lowopacity\" src=\"assets/icons/search.svg\" title=\"Browse $section ($dateFormatted) snapshot\" /></a>";
                                 }
                                 echo '</span>';
 
                                 if (!empty($reconstruct)) {
                                     echo '<span>';
                                     if ($reconstruct == 'needed') {
-                                        echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot content has been modified. You have to rebuild metadata." />';
+                                        echo '<img class="icon" src="assets/icons/warning.png" title="This snapshot content has been modified. You have to rebuild metadata." />';
                                     }
                                     if ($reconstruct == 'failed') {
-                                        echo '<img class="icon" src="resources/icons/redcircle.png" title="Metadata building has failed." />';
+                                        echo '<img class="icon" src="assets/icons/redcircle.png" title="Metadata building has failed." />';
                                     }
                                     echo '</span>';
                                 } ?>
@@ -292,47 +292,47 @@ if (!empty($groupsList)) {
                     echo '<div class="item-env-info">';
                     if (!empty($env)) {
                         /**
-                         *  Affichage de l'icone "terminal" pour afficher la conf repo à mettre en place sur les serveurs
+                         *  Delete env icon
                          */
-                        if ($packageType == "rpm") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/download.svg" title="Show repo installation commands." />';
-                        }
-                        if ($packageType == "deb") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="resources/icons/download.svg" title="Show repo installation commands." />';
+                        if (IS_ADMIN) {
+                            echo '<img src="assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env-name="' . $env . '" />';
                         }
 
                         /**
-                         *  Affichage de l'icone "statistiques"
+                         *  Print repo conf icon
+                         */
+                        if ($packageType == "rpm") {
+                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands." />';
+                        }
+                        if ($packageType == "deb") {
+                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands." />';
+                        }
+
+                        /**
+                         *  Stats icon
                          */
                         if (STATS_ENABLED == "true") {
                             if ($packageType == "rpm") {
-                                echo "<a href=\"/stats?id=${envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $name ($env)\" /></a>";
+                                echo "<a href=\"/stats?id=${envId}\"><img class=\"icon-lowopacity\" src=\"assets/icons/stats.svg\" title=\"Visualize stats and metrics of $name ($env)\" /></a>";
                             }
                             if ($packageType == "deb") {
-                                echo "<a href=\"/stats?id=${envId}\"><img class=\"icon-lowopacity\" src=\"resources/icons/stats.svg\" title=\"Visualize stats and metrics of $section ($env)\" /></a>";
+                                echo "<a href=\"/stats?id=${envId}\"><img class=\"icon-lowopacity\" src=\"assets/icons/stats.svg\" title=\"Visualize stats and metrics of $section ($env)\" /></a>";
                             }
                         }
 
                         /**
-                         *  Affichage de l'icone "warning" si le répertoire du repo n'existe plus sur le serveur
+                         *  Print a warning icon if repo directory does not exist on the server
                          */
                         if ($packageType == "rpm") {
                             if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
-                                echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                                echo '<img class="icon" src="assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
                             }
                         }
                         if ($packageType == "deb") {
                             if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
-                                echo '<img class="icon" src="resources/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                                echo '<img class="icon" src="assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
                             }
                         }
-                    }
-
-                    /**
-                     *  Icone suppression de l'environnement
-                     */
-                    if (!empty($env) and IS_ADMIN) {
-                        echo '<img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env-name="' . $env . '" />';
                     }
 
                     echo '</div>';
@@ -377,11 +377,11 @@ if (!empty($groupsList)) {
 if (IS_ADMIN) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <div>
-            <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="resources/icons/update.svg" />Update</button>
-            <button class="repo-action-btn btn-medium-green" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="resources/icons/duplicate.svg" />Duplicate</button>
-            <button class="repo-action-btn btn-medium-green" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="resources/icons/link.svg" />Point an env.</button>
-            <button class="repo-action-btn btn-medium-green" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="resources/icons/update.svg" />Rebuild</button>
-            <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Delete selected snapshot(s)"><img class="icon" src="resources/icons/bin.svg" />Delete</button>
+            <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="assets/icons/update.svg" />Update</button>
+            <button class="repo-action-btn btn-medium-green" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="assets/icons/duplicate.svg" />Duplicate</button>
+            <button class="repo-action-btn btn-medium-green" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="assets/icons/link.svg" />Point an env.</button>
+            <button class="repo-action-btn btn-medium-green" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="assets/icons/update.svg" />Rebuild</button>
+            <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Delete selected snapshot(s)"><img class="icon" src="assets/icons/delete.svg" />Delete</button>
         </div>
     </div>
     <?php

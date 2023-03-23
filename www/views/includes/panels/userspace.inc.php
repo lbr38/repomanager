@@ -12,8 +12,8 @@
 </table>
 
 <a href="/logout" title="Logout">
-    <div class="slide-btn" title="Logout">
-        <img src="resources/icons/power.svg" />
+    <div class="slide-btn-red" title="Logout">
+        <img src="assets/icons/power.svg" />
         <span>Logout</span>
     </div>
 </a>
@@ -56,7 +56,7 @@
 
 <?php
 $content = ob_get_clean();
-$paramSlideName = 'userspace';
-$paramSlideTitle = 'USERSPACE';
+$slidePanelName = 'userspace';
+$slidePanelTitle = 'USERSPACE';
 
-include_once(ROOT . '/views/includes/param-slide.inc.php');
+include(ROOT . '/views/includes/slide-panel.inc.php');

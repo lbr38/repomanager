@@ -1,14 +1,10 @@
-<?php
-include_once(ROOT . '/views/includes/display.inc.php');
+<section class="section-left">
+    <div class="reposList">
+        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
+    </div>
+</section>
 
-if (IS_ADMIN) :
-    include_once(ROOT . '/templates/forms/op-form-new.inc.php');
-    include_once(ROOT . '/views/includes/operation.inc.php');
-    include_once(ROOT . '/views/includes/manage-groups.inc.php');
-    include_once(ROOT . '/views/includes/manage-sources.inc.php');
-endif ?>
-
-<section class="mainSectionRight">
+<section class="section-right">
     <div>
         <h3>PROPERTIES</h3>
 
@@ -72,7 +68,7 @@ endif ?>
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' at ' . $lastPlan['Time']?>)</a>
+                                <a href="/plans">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>
@@ -113,7 +109,7 @@ endif ?>
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' at ' . $nextPlan['Time']?>)</a>
+                                <a href="/plans">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>
@@ -125,8 +121,12 @@ endif ?>
     </div>
 </section>
 
-<section class="mainSectionLeft">
-    <div class="reposList">
-        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
-    </div>
-</section>
+<?php
+include_once(ROOT . '/views/includes/panels/display.inc.php');
+
+if (IS_ADMIN) :
+    include_once(ROOT . '/views/includes/panels/repo-groups.inc.php');
+    include_once(ROOT . '/views/includes/panels/source-repo.inc.php');
+    include_once(ROOT . '/views/includes/panels/new-repo.inc.php');
+    include_once(ROOT . '/views/includes/panels/operation.inc.php');
+endif ?>

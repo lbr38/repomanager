@@ -3,8 +3,8 @@ $(document).ready(function () {
      *  Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
      */
     setInterval(function () {
-        $(".mainSectionRight").load(window.location.href + " .mainSectionRight > *");
-        $(".mainSectionLeft").load(window.location.href + " .mainSectionLeft > *");
+        $(".section-right").load(window.location.href + " .section-right > *");
+        $(".section-left").load(window.location.href + " .section-left > *");
     }, 3000);
 
     /**
@@ -34,12 +34,12 @@ $(document).ready(function () {
      */
     $(document).on('click','#displayFullLogs-yes',function () {
         document.cookie = "displayFullLogs=yes; Secure";
-        $(".mainSectionLeft").load(" .mainSectionLeft > *");
+        $(".section-left").load(" .section-left > *");
     });
 
     $(document).on('click','#displayFullLogs-no',function () {
         document.cookie = "displayFullLogs=no; Secure";
-        $(".mainSectionLeft").load(" .mainSectionLeft > *");
+        $(".section-left").load(" .section-left > *");
     });
 });
 

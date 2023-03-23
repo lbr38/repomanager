@@ -3,7 +3,7 @@
  *  The 'actions' section is only available to admins
  */
 if (IS_ADMIN) : ?>
-    <section class="mainSectionRight">
+    <section class="section-right">
 
         <h3>UPLOAD PACKAGES</h3>
 
@@ -17,7 +17,7 @@ if (IS_ADMIN) : ?>
              */
             if (!empty($reconstruct) and $reconstruct == 'running') : ?>
                 <div class="div-generic-blue">
-                    <p>An operation is running on this repo<img src="resources/images/loading.gif" class="icon" /></p>
+                    <p>An operation is running on this repo<img src="assets/images/loading.gif" class="icon" /></p>
                 </div>
                 <?php
             endif;
@@ -30,7 +30,7 @@ if (IS_ADMIN) : ?>
                     <form action="" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="action" value="uploadPackage" />
                         <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
-                        <p class="lowopacity">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</p>
+                        <p class="lowopacity-cst">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</p>
                         <br>
                         <button type="submit" class="btn-large-green">Add package(s)</button>
                     </form>
@@ -58,31 +58,30 @@ if (IS_ADMIN) : ?>
                 <p>Rebuild repository metadata files</p>
                 <br>
 
+                <?php
+                $resignChecked = '';
+
+                if ($myrepo->getPackageType() == "rpm" && RPM_SIGN_PACKAGES == 'true') {
+                        $resignChecked = 'checked';
+                }
+                if ($myrepo->getPackageType() == "deb" && DEB_SIGN_REPO == 'true') {
+                        $resignChecked = 'checked';
+                } ?>
+
                 <div class="div-generic-blue">
                     <form id="hidden-form" action="" method="post">
                         <input type="hidden" name="action" value="reconstruct">
                         <input type="hidden" name="snapId" value="<?= $snapId ?>">
+                        <div class="flex align-item-center column-gap-4">
                         <span>Sign with GPG </span>
                         <label class="onoff-switch-label">
-                            <?php
-                            $resignChecked = '';
-
-                            if ($myrepo->getPackageType() == "rpm") {
-                                if (RPM_SIGN_PACKAGES == 'true') {
-                                    $resignChecked = 'checked';
-                                }
-                            }
-                            if ($myrepo->getPackageType() == "deb") {
-                                if (DEB_SIGN_REPO == 'true') {
-                                    $resignChecked = 'checked';
-                                }
-                            } ?>
                             <input name="repoGpgResign" type="checkbox" class="onoff-switch-input" value="yes" <?= $resignChecked ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
-                        <span class="graytext">  (Signature can extend the operation duration)</span>
+                        </div>
+                        <span class="lowopacity-cst">  (Signature can extend the operation duration)</span>
                         <br><br>
-                        <button type="submit" class="btn-large-red"><img src="resources/icons/rocket.svg" class="icon" />Execute</button>
+                        <button type="submit" class="btn-large-red"><img src="assets/icons/rocket.svg" class="icon" />Execute</button>
                     </form>
                 </div>
                 <?php
@@ -94,7 +93,7 @@ if (IS_ADMIN) : ?>
     <?php
 endif ?>
 
-<section class="mainSectionLeft">
+<section class="section-left">
     <h3>BROWSE</h3>
 
     <?php
@@ -117,7 +116,7 @@ endif ?>
         if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
             echo '<span class="yellowtext">This snapshot content has been modified. You have to rebuild metadata.</span>';
         } ?>
-        <span id="loading">Generating tree structure<img src="resources/images/loading.gif" class="icon" /></span>
+        <span id="loading">Generating tree structure<img src="assets/images/loading.gif" class="icon" /></span>
 
         <div id="explorer" class="hide">
             <?php

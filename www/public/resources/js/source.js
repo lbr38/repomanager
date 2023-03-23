@@ -3,29 +3,12 @@
  */
 function reloadSourcesDiv()
 {
-    $("#sourcesDiv").load(" #sourcesDiv > *",function () {
-        $('.param-slide').css({
-            right: 0
-        })
-    });
+    $(".slide-panel-reloadable-div[slide-panel='source-repo']").load(" .slide-panel-reloadable-div[slide-panel='source-repo'] > *");
 }
 
 /**
  *  Events listeners
  */
-/**
- *  Event : affichage du div permettant de gérer les sources
- */
-$(document).on('click','#source-repo-toggle-btn',function () {
-    openSlide("#sourcesDiv");
-});
-
-/**
- *  Event : masquage du div permettant de gérer les sources
- */
-$(document).on('click','#source-repo-close-btn',function () {
-    closeSlide("#sourcesDiv");
-});
 
 /**
  *  Event : ajouter une source

@@ -829,4 +829,40 @@ class Common
 
         return $value . $format;
     }
+
+    /**
+     *  Print product icon image
+     */
+    public static function printProductIcon(string $product)
+    {
+        if (preg_match('/python/i', $product)) {
+            return '<img src="assets/icons/products/python.png" class="icon" />';
+        } elseif (preg_match('/^code$/i', $product)) {
+            return '<img src="assets/icons/products/vscode.png" class="icon" />';
+        } elseif (preg_match('/^firefox/i', $product)) {
+            return '<img src="assets/icons/products/firefox.png" class="icon" />';
+        } elseif (preg_match('/^chrome-$/i', $product)) {
+            return '<img src="assets/icons/products/chrome.png" class="icon" />';
+        } elseif (preg_match('/^chromium-$/i', $product)) {
+            return '<img src="assets/icons/products/chromium.png" class="icon" />';
+        } elseif (preg_match('/^brave-browser$/i', $product)) {
+            return '<img src="assets/icons/products/brave.png" class="icon" />';
+        } elseif (preg_match('/^filezilla/i', $product)) {
+            return '<img src="assets/icons/products/filezilla.png" class="icon" />';
+        } elseif (preg_match('/^java/i', $product)) {
+            return '<img src="assets/icons/products/java.png" class="icon" />';
+        } elseif (preg_match('/^fonts-/i', $product)) {
+            return '<img src="assets/icons/products/fonts.png" class="icon" />';
+        } elseif (preg_match('/^teams$/i', $product)) {
+            return '<img src="assets/icons/products/teams.png" class="icon" />';
+        } elseif (preg_match('/^teamviewer$/i', $product)) {
+            return '<img src="assets/icons/products/teamviewer.png" class="icon" />';
+        } elseif (preg_match('/^thunderbird/i', $product)) {
+            return '<img src="assets/icons/products/thunderbird.png" class="icon" />';
+        } elseif (preg_match('/^vlc/i', $product)) {
+            return '<img src="assets/icons/products/vlc.png" class="icon" />';
+        } else {
+            return '<img src="assets/icons/package.svg" class="icon" />';
+        }
+    }
 }

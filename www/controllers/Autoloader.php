@@ -536,9 +536,10 @@ class Autoloader
          */
         if (!empty($_SERVER['SERVER_NAME'])) {
             if (!defined('__SERVER_URL__')) {
-                define('__SERVER_URL__', "$__SERVER_PROTOCOL__://" . $_SERVER['SERVER_NAME']);
+                define('__SERVER_URL__', $__SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST']);
             }
         }
+
         /**
          *  Adresse IP du serveur
          */
@@ -552,9 +553,10 @@ class Autoloader
          */
         if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
             if (!defined('__ACTUAL_URL__')) {
-                define('__ACTUAL_URL__', "$__SERVER_PROTOCOL__://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+                define('__ACTUAL_URL__', $__SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
             }
         }
+
         /**
          *  URI
          */

@@ -14,7 +14,7 @@ $(document).ready(function () {
         /**
          *  Affichage d'une icone "chargement"
          */
-        $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data<img src="resources/images/loading.gif" class="icon" /></span></div>');
+        $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data<img src="assets/images/loading.gif" class="icon" /></span></div>');
 
         /**
          *  Récupération de la valeur du filtre sélectionné (1week, 1month...)
