@@ -51,16 +51,6 @@ function reloadProfileDiv()
  */
 
 /**
- *  Event: print / hide server settings
- */
-$(document).on('click','#profileServerSettingsToggleButton',function () {
-    openSlide("#profileServerSettingsDiv");
-});
-$(document).on('click','#profileServerSettingsDivCloseButton',function () {
-    closeSlide("#profileServerSettingsDiv");
-});
-
-/**
  *  Event : Création d'un nouveau profil
  */
 $(document).on('submit','#newProfileForm',function () {

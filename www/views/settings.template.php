@@ -1,4 +1,4 @@
-<section class="mainSectionLeft">
+<section class="section-left">
 
     <h3>MAIN CONFIGURATION</h3>
 
@@ -10,7 +10,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="OS family of this Repomanager server" />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="OS family of this Repomanager server" />
                     </div>
                     <div>
                         <p>OS family</p>
@@ -21,14 +21,14 @@
                     <div>
                         <?php
                         if (empty(OS_FAMILY)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="OS name and release version of this Repomanager server" />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="OS name and release version of this Repomanager server" />
                     </div>
                     <div>
                         <p>OS name</p>
@@ -39,7 +39,7 @@
                     <div>
                         <?php
                         if (empty(OS_NAME)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
                     </div>
                     <div>
                         <p>Timezone</p>
@@ -72,7 +72,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
                     </div>
                     <div>
                         <p>Default contact</p>
@@ -97,7 +97,7 @@
                     <div>
                         <?php
                         if (empty(EMAIL_RECIPIENT)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />
                     </div>
                     <div>
                         <p>Automatic update</p>
@@ -121,14 +121,14 @@
                     <div>
                         <?php
                         if (empty(UPDATE_AUTO)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />
                     </div>
                     <div>
                         <p>Update target branch</p>
@@ -142,12 +142,12 @@
                     <div>
                         <?php
                         if (empty(UPDATE_BRANCH)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                     <div>
                         <?php
-                        if (UPDATE_AVAILABLE == "true") : ?>
+                        if (UPDATE_AVAILABLE == "true" and DOCKER == 'false') : ?>
                             <span>New release available: </span>
                             <span id="update-repomanager-btn" release="<?= GIT_VERSION ?>" class="btn-medium-green" title="Update repomanager to: <?= GIT_VERSION ?>">Update now to <?= GIT_VERSION ?></span>
                             <?php
@@ -157,7 +157,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />
                     </div>
                     <div>
                         <p>Backup before update</p>
@@ -171,7 +171,7 @@
                     <div>
                         <?php
                         if (empty(UPDATE_BACKUP)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
@@ -180,7 +180,7 @@
                 if (UPDATE_BACKUP == "true") : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />
                         </div>
                         <div>
                             <p>Backup before update target directory</p>
@@ -191,7 +191,7 @@
                         <div>
                             <?php
                             if (empty(UPDATE_BACKUP_DIR)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." />
                     </div>
                     <div>
                         <p>Repositories storage directory</p>
@@ -218,14 +218,14 @@
                     <div>
                         <?php
                         if (empty(REPOS_DIR)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
            
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repositories configuration files when installing on client hosts (e.g. 'myprefix-debian.list')." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repositories configuration files when installing on client hosts (e.g. 'myprefix-debian.list')." />
                     </div>
                     <div>
                         <p>Repo configuration file name prefix</p>
@@ -240,7 +240,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories">
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories">
                     </div>
                     <div>
                         <p>Enable RPM repositories</p>
@@ -257,7 +257,7 @@
                 if (RPM_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key.">
                         </div>
                         <div>
                             <p>Sign packages with GPG</p>
@@ -271,7 +271,7 @@
                         <div>
                             <?php
                             if (empty(RPM_SIGN_PACKAGES)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
@@ -280,7 +280,7 @@
                     if (RPM_SIGN_PACKAGES == 'true') : ?>
                         <div class="settings-div">
                             <div>
-                                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7).">
+                                <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7).">
                             </div>
                             <div>
                                 <p>GPG signature method</p>
@@ -294,7 +294,7 @@
                             <div>
                                 <?php
                                 if (empty(RPM_SIGN_METHOD)) {
-                                    echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                    echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                                 } ?>
                             </div>
                         </div>
@@ -303,7 +303,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." />
                         </div>
                         <div>
                             <p>Release version</p>
@@ -314,14 +314,14 @@
                         <div>
                             <?php
                             if (empty(RELEASEVER)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror.">
                         </div>
                         <div>
                             <p>Default package architecture</p>
@@ -339,7 +339,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror.">
                         </div>
                         <div>
                             <p>Include sources packages when creating rpm mirror</p>
@@ -359,7 +359,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories">
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories">
                     </div>
                     <div>
                         <p>Enable DEB repositories</p>
@@ -376,7 +376,7 @@
                 if (DEB_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Sign DEB repos with a GPG key.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Sign DEB repos with a GPG key.">
                         </div>
                         <div>
                             <p>Sign repos with GPG</p>
@@ -390,14 +390,14 @@
                         <div>
                             <?php
                             if (empty(DEB_SIGN_REPO)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror.">
                         </div>
                         <div>
                             <p>Default package architecture</p>
@@ -420,7 +420,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include sources packages when creating deb mirror.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Include sources packages when creating deb mirror.">
                         </div>
                         <div>
                             <p>Include sources packages when creating deb mirror</p>
@@ -435,7 +435,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Include packages specific translation when creating deb mirror.">
                         </div>
                         <div>
                             <p>Include translation(s) when creating deb mirror</p>
@@ -458,7 +458,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign RPM packages or DEB repo.">
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign RPM packages or DEB repo.">
                         </div>
                         <div>
                             <p>GPG key Id (email address identifier)</p>
@@ -469,7 +469,7 @@
                         <div>
                             <?php
                             if (empty(GPG_SIGNING_KEYID)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
@@ -497,7 +497,7 @@
                                     <input class="env-input" type="text" value="<?= $envName ?>" />
                                 </div>
                                 <div>
-                                    <img src="resources/icons/bin.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
+                                    <img src="assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
                                 </div>
                             </div>
                             <?php
@@ -505,7 +505,7 @@
                     endif;
 
                     if (empty(ENVS)) {
-                        echo '<img src="resources/icons/warning.png" class="icon" title="At least 1 environment must be configured." /> At least 1 environment must be configured.';
+                        echo '<img src="assets/icons/warning.png" class="icon" title="At least 1 environment must be configured." /> At least 1 environment must be configured.';
                     } ?>
                 </div>
 
@@ -525,7 +525,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable statistics on repositories access, size and packages statistics. Require a read-only access to the webserver access log file (only nginx access logs supported) for <?= WWW_USER ?>." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Enable statistics on repositories access, size and packages statistics. Require a read-only access to the webserver access log file (only nginx access logs supported) for <?= WWW_USER ?>." />
                     </div>
                     <div>
                         <p>Enable repositories statistics</p>
@@ -539,7 +539,7 @@
                     <div>
                         <?php
                         if (empty(STATS_ENABLED)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>        
                     </div>
                 </div>
@@ -548,7 +548,7 @@
                 if (STATS_ENABLED == "true") : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />
                         </div>
                         <div>
                             <p>Path to access log to scan for statistics</p>
@@ -559,13 +559,13 @@
                         <div>
                             <?php
                             if (empty(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             }
                             if (!file_exists(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="File not found." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="File not found." />';
                             }
                             if (!is_readable(STATS_LOG_PATH)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="File is not readable." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="File is not readable." />';
                             } ?>
                         </div>
                     </div>
@@ -578,7 +578,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Specify Linux web dedicated user that execute this web server. Usually www-data or nginx." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify Linux web dedicated user that execute this web server. Usually www-data or nginx." />
                     </div>
                     <div>
                         <p>Web user</p>
@@ -589,14 +589,14 @@
                     <div>
                         <?php
                         if (empty(WWW_USER)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager dedicated hostname." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager dedicated hostname." />
                     </div>
                     <div>
                         <p>Hostname</p>
@@ -607,14 +607,14 @@
                     <div>
                         <?php
                         if (empty(WWW_HOSTNAME)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Access URL to Repomanager repos directory." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Access URL to Repomanager repos directory." />
                     </div>
                     <div>
                         <p>Repos URL</p>
@@ -631,7 +631,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable hosts managing. For hosts using linupdate." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Enable hosts managing. For hosts using linupdate." />
                     </div>
                     <div>
                         <p>Manage hosts</p>
@@ -645,14 +645,14 @@
                     <div>
                         <?php
                         if (empty(MANAGE_HOSTS)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable hosts profiles managing. For hosts using linupdate." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Enable hosts profiles managing. For hosts using linupdate." />
                     </div>
                     <div>
                         <p>Manage profiles</p>
@@ -666,7 +666,7 @@
                     <div>
                         <?php
                         if (empty(MANAGE_PROFILES)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
@@ -677,7 +677,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Enable planifications" />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Enable planifications" />
                     </div>
                     <div>
                         <p>Enable plans</p>
@@ -691,7 +691,7 @@
                     <div>
                         <?php
                         if (empty(PLANS_ENABLED)) {
-                            echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
@@ -700,7 +700,7 @@
                 if (PLANS_ENABLED == "true") : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to update repos by creating new repo snapshot on the planned day and time." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to update repos by creating new repo snapshot on the planned day and time." />
                         </div>
                         <div>
                             <p>Allow automatic repos updates by plans</p>
@@ -714,14 +714,14 @@
                         <div>
                             <?php
                             if (empty(PLANS_UPDATE_REPO)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to delete oldest repos snapshots, depending on the specified retention parameter." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, plans will be able to delete oldest repos snapshots, depending on the specified retention parameter." />
                         </div>
                         <div>
                             <p>Allow automatic deletion of old repos snapshots</p>
@@ -735,14 +735,14 @@
                         <div>
                             <?php
                             if (empty(PLANS_CLEAN_REPOS)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." />
                         </div>
                         <div>
                             <p>Retention</p>
@@ -753,14 +753,14 @@
                         <div>
                             <?php
                             if (empty(RETENTION)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
 
                     <div class="settings-div">
                         <div>
-                            <img src="resources/icons/info.svg" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." />
+                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." />
                         </div>
                         <div>
                             <p>Enable plan reminders</p>
@@ -774,7 +774,7 @@
                         <div>
                             <?php
                             if (empty(PLANS_REMINDERS_ENABLED)) {
-                                echo '<img src="resources/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                             } ?>
                         </div>
                     </div>
@@ -786,7 +786,7 @@
     </div>
 </section>
 
-<section class="mainSectionRight">
+<section class="section-right">
     
     <h3>HEALTH</h3>
 
@@ -795,7 +795,7 @@
 
         <div class="health-div">
             <div>
-                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." />
+                <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Main database. Repomanager cannot run if this database is on error." />
             </div>
             <div>
                 <p>Main</p>
@@ -827,9 +827,9 @@
                         }
 
                         if ($statusError == 0) {
-                            echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
+                            echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
                         } else {
-                            echo '<img src="resources/icons/redcircle.png" class="icon-small" />' . $statusMsg;
+                            echo '<img src="assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
                         } ?>
                     </span>
                 </p>
@@ -840,7 +840,7 @@
         if (STATS_ENABLED == "true") : ?>
             <div class="health-div">
                 <div>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Stats database." />
+                    <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Stats database." />
                 </div>
                 <div>
                     <p>Stats</p>
@@ -876,9 +876,9 @@
                             }
 
                             if ($statusError == 0) {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
+                                echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
                             } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" />' . $statusMsg;
+                                echo '<img src="assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
                             } ?>
                         </span>
                     </p>
@@ -890,7 +890,7 @@
         if (MANAGE_HOSTS == "true") : ?>
             <div class="health-div">
                 <div>
-                    <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Hosts database." />
+                    <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Hosts database." />
                 </div>
                 <div>
                     <p>Hosts</p>
@@ -926,9 +926,9 @@
                             }
 
                             if ($statusError == 0) {
-                                echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
+                                echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
                             } else {
-                                echo '<img src="resources/icons/redcircle.png" class="icon-small" />' . $statusMsg;
+                                echo '<img src="assets/icons/redcircle.png" class="icon-small" />' . $statusMsg;
                             } ?>
                         </span>
                     </p>
@@ -941,7 +941,7 @@
 
         <div class="health-div">
             <div>
-                <img src="resources/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />
+                <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as applying permissions on repos dirs, executings plans (if enabled), sending plan reminders (if enabled)." />
             </div>
             <div>
                 <p>Repomanager service</p>
@@ -952,9 +952,9 @@
                     <span>
                         <?php
                         if (SERVICE_RUNNING) {
-                            echo '<img src="resources/icons/greencircle.png" class="icon-small" />';
+                            echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
                         } else {
-                            echo '<img src="resources/icons/redcircle.png" class="icon-small" />Service is not running';
+                            echo '<img src="assets/icons/redcircle.png" class="icon-small" />Service is not running';
                         } ?>
                     </span>
                 </p>
@@ -1014,8 +1014,8 @@
                                 <td class="td-fit">
                                     <?php
                                     if ($user['Username'] != 'admin') : ?>
-                                        <span class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>"><img src="resources/icons/update.svg" class="icon-lowopacity" /></span>
-                                        <span class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>"><img src="resources/icons/bin.svg" class="icon-lowopacity" /></span>
+                                        <span class="reset-password-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Reset password of user <?= $user['Username'] ?>"><img src="assets/icons/update.svg" class="icon-lowopacity" /></span>
+                                        <span class="delete-user-btn" user-id="<?= $user['Id'] ?>" username="<?= $user['Username'] ?>" title="Delete user <?= $user['Username'] ?>"><img src="assets/icons/delete.svg" class="icon-lowopacity" /></span>
                                         <?php
                                     endif ?>
                                 </td>

@@ -3,16 +3,13 @@
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="resources/styles/reset.css">
     <link rel="stylesheet" type="text/css" href="resources/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="resources/styles/common.css">
     <link rel="stylesheet" type="text/css" href="resources/styles/main.css">
     <?php
 
     /**
      *  Chargement de CSS suplémentaires
      */
-    // if (!defined('__ACTUAL_URI__')) {
-    //     define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
-    // }
-
     if (__ACTUAL_URI__ == "/") {
         echo '<link rel="stylesheet" type="text/css" href="resources/styles/donut.css">';
     }
@@ -43,7 +40,7 @@
     <!-- ChartJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
-    <link rel="icon" href="resources/favicon.ico" />
+    <link rel="icon" href="assets/favicon.ico" />
 
     <?php
     $title = 'Repomanager';

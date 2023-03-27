@@ -1,50 +1,28 @@
-$(document).ready(function () {
-    // Script Select2 pour transformer un select multiple en liste déroulante
-    $('.reposSelectList').select2({
+groupSelect2();
+
+/**
+ *  Functions
+ */
+
+/**
+ *  Configure select2 for repo groups
+ */
+function groupSelect2()
+{
+    $(".slide-panel-container[slide-panel='repo-groups']").find('.reposSelectList').select2({
         closeOnSelect: false,
         placeholder: 'Add repo...'
     });
-});
+}
+
 
 /**
- *  Fonctions utiles
- */
-
-/**
- *  Rechargement de la div des groupes
- *  Recharge les menus select2 en même temps
+ *  Reload repo groups panel content
  */
 function reloadGroupsDiv()
 {
-    $("#groupsDiv").load(" #groupsDiv > *",function () {
-        $('.reposSelectList').select2({
-            closeOnSelect: false,
-            placeholder: 'Add repo...'
-        });
-
-        $('.param-slide').css({
-            right: 0
-        })
-    });
-}
-
-/**
- *  Rechargement de la div des groupes, puis affichage de la configuration d'un groupe en particulier
- *  Recharge les menus select2 en même temps
- */
-function reloadGroupsDivSlideGroup(groupName)
-{
-    $("#groupsDiv").load(" #groupsDiv > *",function () {
-        $('.reposSelectList').select2({
-            closeOnSelect: false,
-            placeholder: 'Add repo...'
-        });
-
-        $('.param-slide').css({
-            right: 0
-        })
-
-        $("#groupConfigurationDiv-" + groupName).show();
+    $(".slide-panel-reloadable-div[slide-panel='repo-groups']").load(" .slide-panel-reloadable-div[slide-panel='repo-groups'] > *",function () {
+        groupSelect2();
     });
 }
 
@@ -108,16 +86,6 @@ $(document).on('submit','.groupReposForm',function () {
 });
 
 /**
- *  Event : Affichage / masquage du div permettant de gérer les groupes
- */
-$(document).on('click','#GroupsListToggleButton',function () {
-    openSlide("#groupsDiv");
-});
-$(document).on('click','#groupsDivCloseButton',function () {
-    closeSlide("#groupsDiv");
-});
-
-/**
  * Event : Afficher la configuration d'un groupe
  * @param {*} name
  */
@@ -150,7 +118,7 @@ function newGroup(name)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('mainSectionLeft');
+            reloadContentByClass('reposList');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -183,7 +151,7 @@ function deleteGroup(name)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('mainSectionLeft');
+            reloadContentByClass('reposList');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -217,7 +185,7 @@ function renameGroup(name, newname)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('mainSectionLeft');
+            reloadContentByClass('reposList');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -248,8 +216,7 @@ function editGroupRepos(name, reposId)
              *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
              */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDivSlideGroup(name);
-            reloadContentByClass('mainSectionLeft');
+            reloadContentByClass('reposList');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

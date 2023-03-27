@@ -115,11 +115,23 @@ class Controller
     private static function renderRepos()
     {
         $myrepo = new Repo();
+        $mysource = new Source();
+        $mygroup = new Group('repo');
 
         /**
          *  Get total repos count
          */
         $totalRepos = $myrepo->count('active');
+
+        /**
+         *  Get source repos list
+         */
+        $sourceReposList = $mysource->listAll();
+
+        /**
+         *  Get repos groups list
+         */
+        $repoGroupsList = $mygroup->listAllName();
 
         /**
          *  Get used space
@@ -161,6 +173,13 @@ class Controller
             $currentLoadColor = 'red';
         }
 
+        /**
+         *  New repo form variables
+         */
+        $newRepoFormGroupList = $mygroup->listAllName();
+        $newRepoRpmSourcesList = $mysource->listAll('rpm');
+        $newRepoDebSourcesList = $mysource->listAll('deb');
+
         ob_start();
         include_once(ROOT . '/views/repos.template.php');
         $content = ob_get_clean();
@@ -176,7 +195,18 @@ class Controller
         $myplan = new Planification();
         $mygroup = new Group('repo');
         $myrepo = new Repo();
+        $mysource = new Source();
         $mylogin = new Login();
+
+        /**
+         *  Get source repos list
+         */
+        $sourceReposList = $mysource->listAll();
+
+        /**
+         *  Get repos groups list
+         */
+        $repoGroupsList = $mygroup->listAllName();
 
         /**
          *  Getting users email
@@ -205,9 +235,15 @@ class Controller
      */
     private static function renderHosts()
     {
-        $group = new Group('host');
+        $mygroup = new Group('host');
         $myhost = new Host();
         $mycolor = new Common();
+
+        /**
+         *  Get hosts groups list
+         */
+        $hostGroupsList = $mygroup->listAllName();
+        $hostGroupsListWithDefault = $mygroup->listAllWithDefault();
 
         /**
          *  Case general hosts threshold settings form has been sent
@@ -295,19 +331,13 @@ class Controller
      */
     private static function renderHost()
     {
+        $myhost = new \Controllers\Host();
+
         ob_start();
         include_once(ROOT . '/views/host.template.php');
         $content = ob_get_clean();
 
         include_once(ROOT . '/views/layout.html.php');
-    }
-
-    /**
-     *  Render host details page
-     */
-    private static function renderHostDetails()
-    {
-        include_once(ROOT . '/views/host-inc.template.php');
     }
 
     /**

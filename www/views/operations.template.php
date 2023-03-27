@@ -1,4 +1,4 @@
-<section class="mainSectionLeft">
+<section class="section-left">
     <h3>LOG</h3>
 
     <div id="log-container">
@@ -10,7 +10,7 @@
                  */
                 if (!empty($_COOKIE['displayFullLogs']) and $_COOKIE['displayFullLogs'] == "yes") { ?>
                     <div id="displayFullLogs-no" class="button-top-down-details pointer" title="Hide details.">
-                        <img src="resources/icons/search.svg" />
+                        <img src="assets/icons/search.svg" />
                     </div> 
                     <style>
                         .getPackagesDiv { display: block; }
@@ -19,14 +19,14 @@
                     </style>
                     <?php
                 } else {
-                    echo '<div id="displayFullLogs-yes" class="button-top-down-details pointer" title="Show details."><img src="resources/icons/search.svg" /></div>';
+                    echo '<div id="displayFullLogs-yes" class="button-top-down-details pointer" title="Show details."><img src="assets/icons/search.svg" /></div>';
                 } ?>
                 <br><br>
                 <div>
-                    <a href="#top" class="button-top-down" title="Go to the top."><img src="resources/icons/up.svg" /></a>
+                    <a href="#top" class="button-top-down" title="Go to the top."><img src="assets/icons/up.svg" /></a>
                 </div>
                 <div>
-                    <a href="#bottom" class="button-top-down" title="Go to the bottom."><img src="resources/icons/down.svg" /></a>
+                    <a href="#bottom" class="button-top-down" title="Go to the bottom."><img src="assets/icons/down.svg" /></a>
                 </div>
             </div>
         </div>
@@ -58,7 +58,7 @@
         </div>
     </div>
 </section>
-<section class="mainSectionRight">
+<section class="section-right">
     <h3>HISTORY</h3>
         <?php
         /**
@@ -147,7 +147,7 @@
                                     <table>
                                         <tr>
                                             <td class="td-fit">
-                                                <img class="icon" src="resources/icons/calendar.svg" title="Planification" />
+                                                <img class="icon" src="assets/icons/calendar.svg" title="Planification" />
                                             </td>
                                             <?php
                                             /**
@@ -155,16 +155,16 @@
                                              */
                                             if ($planType == "plan") {
                                                 if (!empty($planLogfile)) {
-                                                    echo '<td><a href="/run?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></a></td>';
+                                                    echo '<td><a href="/run?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . ' ' . $planTime . '</b></a></td>';
                                                 } else {
-                                                    echo '<td>Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></td>';
+                                                    echo '<td>Plan of the <b>' . $planDate . ' ' . $planTime . '</b></td>';
                                                 }
                                             }
                                             if ($planType == "regular") {
                                                 echo "<td>Regular plan</b></td>";
                                             } ?>
                                             <td class="td-fit">
-                                                running<img class="icon" src="resources/images/loading.gif" title="Running" />
+                                                running<img class="icon" src="assets/images/loading.gif" title="Running" />
                                             </td>
                                         </tr>
                                     </table>
@@ -262,23 +262,23 @@
                                 <table>
                                     <tr>
                                         <td class="td-fit">
-                                            <img class="icon" src="resources/icons/calendar.svg" title="Planification" />
+                                            <img class="icon" src="assets/icons/calendar.svg" title="Planification" />
                                         </td>
                                         <?php
                                         if ($planType == "plan") {
                                             if (!empty($planLogfile)) { // On affiche un lien vers le fichier de log de la planification si il y en a un
-                                                echo '<td><a href="/run?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . '</b> at <b>' . $planTime . '</b></a></td>';
+                                                echo '<td><a href="/run?logfile=' . $planLogfile . '">Plan of the <b>' . $planDate . ' ' . $planTime . '</b></a></td>';
                                             } else {
-                                                echo "<td>Plan of the <b>$planDate</b> at <b>$planTime</b></td>";
+                                                echo "<td>Plan of the <b>$planDate $planTime</b></td>";
                                             }
                                             if ($planStatus == "done") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="resources/icons/greencircle.png" title="Operation done" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/greencircle.png" title="Operation done" /></td>';
                                             }
                                             if ($planStatus == "error") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Operation failed" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/redcircle.png" title="Operation failed" /></td>';
                                             }
                                             if ($planStatus == "stopped") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="resources/icons/redcircle.png" title="Operation stopped by the user" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/redcircle.png" title="Operation stopped by the user" /></td>';
                                             }
                                         } ?>
                                     </tr>
@@ -311,7 +311,7 @@
                      *  On affiche le bouton Afficher uniquement si le cookie printAllOp n'est pas en place ou n'est pas égal à "yes"
                      */
                     if (!isset($_COOKIE['printAllOp']) or (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] != "yes")) {
-                        echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="resources/icons/down.svg" class="icon" /></p>';
+                        echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="assets/icons/down.svg" class="icon" /></p>';
                     }
                 }
             }
@@ -349,7 +349,7 @@
                      *  On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
                      */
                     if (!isset($_COOKIE['printAllRegularOp']) or (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] != "yes")) {
-                        echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="resources/icons/down.svg" class="icon" /></p>';
+                        echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="assets/icons/down.svg" class="icon" /></p>';
                     }
                 }
             }

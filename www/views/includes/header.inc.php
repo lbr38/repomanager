@@ -35,7 +35,10 @@ if (DEBUG_MODE == "enabled") {
 
             <div class="<?= $headerMenuClass ?>">
                 <a href="/">
-                    <img src="resources/icons/menu.svg" class="icon" />REPOS
+                    <div class="flex align-item-center column-gap-3">
+                        <img src="assets/icons/menu.svg" class="icon" />
+                        <span class="menu-section-title">REPOS</span>
+                    </div>
                 </a>
             </div>
 
@@ -52,13 +55,15 @@ if (DEBUG_MODE == "enabled") {
             if (PLANS_ENABLED == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="plans">
-                        <img src="resources/icons/calendar.svg" class="icon" />PLANIFICATIONS
+                        <div class="flex align-item-center column-gap-3">
+                            <img src="assets/icons/calendar.svg" class="icon" />
+                            <span class="menu-section-title">PLANIFICATIONS</span>
+                        </div>
                     </a>
                 </div>
                 <?php
-            endif ?>
+            endif;
 
-            <?php
             /**
              *  MANAGE HOSTS tab
              */
@@ -71,13 +76,15 @@ if (DEBUG_MODE == "enabled") {
             if (MANAGE_HOSTS == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/hosts">
-                        <img src="resources/icons/server.svg" class="icon" />MANAGE HOSTS
+                        <div class="flex align-item-center column-gap-3">
+                            <img src="assets/icons/server.svg" class="icon" />
+                            <span class="menu-section-title">MANAGE HOSTS</span>
+                        </div>
                     </a>
                 </div>
                 <?php
-            endif ?>
+            endif;
 
-            <?php
             /**
              *  MANAGE PROFILES tab
              */
@@ -90,13 +97,15 @@ if (DEBUG_MODE == "enabled") {
             if (IS_ADMIN and MANAGE_PROFILES == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/profiles">
-                        <img src="resources/icons/stack.svg" class="icon" />MANAGE PROFILES
+                        <div class="flex align-item-center column-gap-3">
+                            <img src="assets/icons/stack.svg" class="icon" />
+                            <span class="menu-section-title">MANAGE PROFILES</span>
+                        </div>
                     </a>
                 </div>
                 <?php
-            endif ?>
+            endif;
 
-            <?php
             /**
              *  SETTINGS tab
              */
@@ -109,13 +118,15 @@ if (DEBUG_MODE == "enabled") {
             if (IS_ADMIN) : ?>
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/settings">
-                        <img src="resources/icons/settings.svg" class="icon" />SETTINGS
+                        <div class="flex align-item-center column-gap-3">
+                            <img src="assets/icons/settings.svg" class="icon" />
+                            <span class="menu-section-title">SETTINGS</span>
+                        </div>
                     </a>
                 </div>
                 <?php
-            endif ?>
+            endif;
 
-            <?php
             /**
              *  OPERATIONS tab
              */
@@ -128,18 +139,13 @@ if (DEBUG_MODE == "enabled") {
             <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
                 <div>
                     <a href="run">
-                        <?php
-                        if (__ACTUAL_URI__ == '/run') {
-                            echo '<span class="underline">';
-                        } else {
-                            echo '<span class="header-link">';
-                        } ?>
-                        <img src="resources/icons/rocket.svg" class="icon" />OPERATIONS
-                        </span>
+                        <div class="flex align-item-center column-gap-3">
+                            <img src="assets/icons/rocket.svg" class="icon" />
+                            <span class="menu-section-title">OPERATIONS</span>
+                        </div>
                     </a>
 
                     <div id="header-refresh">
-
                         <?php
                         $op = new \Controllers\Operation();
                         /**
@@ -169,13 +175,13 @@ if (DEBUG_MODE == "enabled") {
                         /**
                          *  Si il y a au moins 1 opération est en cours alors on affiche ses détails
                          */
-                        if ($totalRunningCount > 0) {
+                        if ($totalRunningCount > 0) :
                             echo '<div class="header-op-container">';
 
                             /**
                              *  On affiche chaque opération en cours
                              */
-                            foreach ($opsRunning as $opRunning) {
+                            foreach ($opsRunning as $opRunning) :
                                 $opId = $opRunning['Id'];
                                 $opPid = $opRunning['Pid'];
                                 $opLogfile = $opRunning['Logfile'];
@@ -184,8 +190,8 @@ if (DEBUG_MODE == "enabled") {
                                 } ?>
 
                                 <div class="header-op-subdiv btn-large-red">
-                                    <span>
-                                        <a href="/run?logfile=<?=$opLogfile?>">
+                                    <a href="/run?logfile=<?=$opLogfile?>">
+                                        <span>
                                             <?php
                                             if ($opAction == "new") {
                                                 echo 'New repo ';
@@ -207,25 +213,26 @@ if (DEBUG_MODE == "enabled") {
                                             }
                                             if ($opAction == "delete") {
                                                 echo 'Delete ';
-                                            }
-
-                                            /**
-                                             *  Affichage du nom du repo ou du groupe en cours de traitement
-                                             */
-                                            $op->printRepoOrGroup($opId); ?>
-                                        </a>
-                                    </span>
+                                            } ?>
+                                        </span>
+                                        <?php
+                                        /**
+                                         *  Affichage du nom du repo ou du groupe en cours de traitement
+                                         */
+                                        $op->printRepoOrGroup($opId); ?>
+                                    </a>
                                     <span title="Stop operation">
-                                        <a href="/run?stop=<?=$opPid?>">⛔</a>
+                                        <!-- <a href="/run?stop=<?=$opPid?>">⛔</a> -->
+                                        <a href="/run?stop=<?=$opPid?>"><img src="assets/icons/delete.svg" class="icon"></a>
                                     </span>
                                 </div>
                                 <?php
-                            }
+                            endforeach;
 
                             /**
                              *  On affiche chaque planification en cours
                              */
-                            foreach ($plansRunning as $planRunning) {
+                            foreach ($plansRunning as $planRunning) :
                                 $opId = $planRunning['Id'];
                                 $opPid = $planRunning['Pid'];
                                 $opLogfile = $planRunning['Logfile'];
@@ -262,12 +269,12 @@ if (DEBUG_MODE == "enabled") {
                                     </span>
                                 </div>
                                 <?php
-                            }
+                            endforeach;
 
                             echo '</div>';
 
                             unset($opsRunning, $plansRunning);
-                        } ?>
+                        endif ?>
                     </div>
                 </div>
             </div>
@@ -275,7 +282,7 @@ if (DEBUG_MODE == "enabled") {
 
         <div>
             <div class="menu-sub-container relative">
-                <img id="print-notification-btn" src="resources/icons/info.svg" class="icon-lowopacity" title="Show notifications" />
+                <img src="assets/icons/info.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
                     <span id="notification-count"><?= NOTIFICATION ?></span>
@@ -293,18 +300,19 @@ if (DEBUG_MODE == "enabled") {
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
-                <span class="param-slide-btn pointer lowopacity" param-slide="userspace" title="Userspace">
-                    <img src="resources/icons/user.svg" class="icon" />
+                <div class="flex align-item-center column-gap-3 slide-panel-btn lowopacity pointer" slide-panel="userspace" title="Userspace">
+                    <img src="assets/icons/user.svg" class="icon" />
+                    <span class="menu-section-title">
+                        <?php
+                        echo $_SESSION['username'];
 
-                    <?php
-                    echo $_SESSION['username'];
-
-                    if (!empty($_SESSION['first_name']) and !empty($_SESSION['last_name'])) {
-                        echo ' (' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . ')';
-                    } elseif (!empty($_SESSION['first_name'])) {
-                        echo ' (' . $_SESSION['first_name'] . ')';
-                    } ?>
-                </span>
+                        if (!empty($_SESSION['first_name']) and !empty($_SESSION['last_name'])) {
+                            echo ' (' . $_SESSION['first_name'] . ' ' . $_SESSION['last_name'] . ')';
+                        } elseif (!empty($_SESSION['first_name'])) {
+                            echo ' (' . $_SESSION['first_name'] . ')';
+                        } ?>
+                    </span>
+                </div>
             </div>
         </div>
     </nav>
@@ -331,7 +339,7 @@ if (__LOAD_GENERAL_ERROR > 0) : ?>
 if (!SERVICE_RUNNING) : ?>
     <section>
         <section class="missing-param-alert">
-            <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service is not running. <?php echo (DOCKER == "true") ? 'Please restart the container.' : ''; ?></span>
+            <img src="assets/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service is not running. <?php echo (DOCKER == "true") ? 'Please restart the container.' : ''; ?></span>
         </section>
     </section>
     <?php
@@ -345,7 +353,7 @@ if (file_exists(SERVICE_LOG)) :
         $serviceLog = file_get_contents(SERVICE_LOG); ?>
         <section>
             <section class="missing-param-alert">
-                <img src="resources/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
+                <img src="assets/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
                 <br><br>
                 <span class="yellowtext"><?= $serviceLog ?></span>
             </section>

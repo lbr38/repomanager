@@ -1,4 +1,4 @@
-<section class="main">
+<section>
     <h3>HISTORY</h3>
 
     <p>Most actions executed by users are listed here.</p>
@@ -43,7 +43,7 @@
                 foreach ($historyLines as $historyLine) : ?>
                     <tr>
                         <td class="td-100">
-                            <b><?= $historyLine['Date'] ?></b> at <b><?= $historyLine['Time'] ?></b>
+                            <b><?= $historyLine['Date'] ?> <?= $historyLine['Time'] ?></b>
                         </td>
                         <td class="td-100">
                             <?= htmlspecialchars_decode($historyLine['Action']) ?>
@@ -53,10 +53,10 @@
                         </td>
                         <?php
                         if ($historyLine['State'] == "success") {
-                            echo '<td><img src="resources/icons/greencircle.png" class="icon-small" />Success</td>';
+                            echo '<td><img src="assets/icons/greencircle.png" class="icon-small" />Success</td>';
                         }
                         if ($historyLine['State'] == "error") {
-                            echo '<td><img src="resources/icons/redcircle.png" class="icon-small" />Error</td>';
+                            echo '<td><img src="assets/icons/redcircle.png" class="icon-small" />Error</td>';
                         } ?>
                     </tr>
                     <?php

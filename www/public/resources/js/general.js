@@ -8,15 +8,14 @@ setInterval(function () {
 /**
  *  Slide panel opening
  */
-$(document).on('click','.param-slide-btn',function () {
-    var name = $(this).attr('param-slide');
-
+$(document).on('click','.slide-panel-btn',function () {
+    var name = $(this).attr('slide-panel');
     openPanel(name);
 });
 
 /**
  *  Slide panel closing
  */
-$(document).on('click','.param-slide-close-btn',function () {
+$(document).on('click','.slide-panel-close-btn',function () {
     closePanel();
 });

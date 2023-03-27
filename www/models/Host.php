@@ -417,7 +417,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts
+            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os_family FROM hosts
             WHERE Kernel = :kernel and Status = 'active'");
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();

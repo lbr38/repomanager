@@ -1,9 +1,28 @@
 <footer>
-    <div class="text-center">
-        <p>Repomanager - release version <?= VERSION ?></p>
+    <div>
+        <h5>HELP</h5>
+        <div>
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki/Documentation">
+                <p class="lowopacity">Documentation<img src="assets/icons/external-link.svg" class="icon" /></p>
+            </a>
+            <br>
+            <a href="mailto:repomanager@protonmail.com">
+                <p class="lowopacity">Contact</p>
+            </a>
+        </div>
+    </div>
+
+    <div>
+        <h5>GITHUB</h5>
+        <div class="lowopacity">
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="assets/images/github.png" /></a>
+        </div>
+    </div>    
+
+    <div class="text-center margin-auto">
+        <p class="lowopacity-cst">Repomanager - release version <?= VERSION ?></p>
         <br>
-        <br>
-        <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="resources/images/GitHub-Mark-Light-64px.png" /></a>
+        <p class="lowopacity-cst">Repomanager is a free and open source software, licensed under the <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPLv3</a> license.</p>
     </div>
 </footer>
 

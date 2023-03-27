@@ -1,4 +1,4 @@
-<section class="main">
+<section>
 
     <h3>OVERVIEW</h3>
 
@@ -128,17 +128,12 @@
         </div>
 
         <div id="hostsDivLoading">
-            <p class="center">Loading data<img src="resources/images/loading.gif" class="icon" /></p>
+            <p class="center">Loading data<img src="assets/images/loading.gif" class="icon" /></p>
         </div>
 
         <?php
         if ($totalHosts >= 1) : ?>
             <div id="hostsDiv" class="hide">
-                <?php
-                /**
-                 *  Récupération des noms des groupes
-                 */
-                $groupsList = $group->listAllWithDefault(); ?>
                 <div>
                     <div id="title-button-div">
                         <h3>HOSTS</h3>
@@ -146,13 +141,13 @@
                         <?php
                         if (IS_ADMIN) : ?>
                             <div id="title-button-container">
-                                <div id="GroupsListToggleButton" class="slide-btn" title="Manage hosts groups">
-                                    <img src="resources/icons/folder.svg" />
+                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-groups" title="Manage hosts groups">
+                                    <img src="assets/icons/folder.svg" />
                                     <span>Manage groups</span>
                                 </div>
 
-                                <div id="settingsToggleButton" class="slide-btn" title="Edit display settings">
-                                    <img src="resources/icons/cog.svg" />
+                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-display" title="Edit display settings">
+                                    <img src="assets/icons/cog.svg" />
                                     <span>Settings</span>
                                 </div>
                             </div>
@@ -161,7 +156,7 @@
                     </div>
 
                     <?php
-                    if (!empty($groupsList)) :
+                    if (!empty($hostGroupsListWithDefault)) :
                         /**
                          *  Si il y a au moins 1 hôte actif alors on fait apparaitre les champs de recherche
                          */
@@ -170,7 +165,7 @@
                                 <div class="searchInput-subcontainer">
                                     <div>
                                         <p>
-                                            <img src="resources/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>" />Search host:                                            
+                                            <img src="assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>" />Search host:                                            
                                         </p>
                                         <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                     </div>
@@ -185,7 +180,7 @@
                         
                         <div class="groups-container">
                             <?php
-                            foreach ($groupsList as $groupName) :
+                            foreach ($hostGroupsListWithDefault as $groupName) :
                                 /**
                                  *  Récupération de la liste des hôtes du groupe
                                  */
@@ -206,6 +201,7 @@
                                     if ($groupName != "Default") :
                                         echo '<h3>';
                                         echo $groupName;
+
                                         /**
                                          *  Affichage du nombre d'hôtes dans ce groupe
                                          */
@@ -221,21 +217,21 @@
                                         <div class="js-buttons-<?=$groupName?> hide">
                                             
                                             <h5>Request selected host(s) to send informations:</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-green" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="resources/icons/update.svg" class="icon" /><b>General informations</b></button>
-                                            <button class="hostsActionBtn pointer btn-fit-green" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="resources/icons/update.svg" class="icon" /><b>Packages informations</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-green" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="assets/icons/update.svg" class="icon" /><b>General informations</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-green" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="assets/icons/update.svg" class="icon" /><b>Packages informations</b></button>
                                             <h5>Request selected host(s) to execute an action:</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages."><img src="resources/icons/update.svg" class="icon" /><b>Update packages</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages."><img src="assets/icons/update.svg" class="icon" /><b>Update packages</b></button>
                                             
                                             <h5>Delete or reset selected host(s):</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Reset known data."><img src="resources/icons/update.svg" class="icon" /><b>Reset</b></button>
-                                            <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Delete."><img src="resources/icons/bin.svg" class="icon" /><b>Delete</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Reset known data."><img src="assets/icons/update.svg" class="icon" /><b>Reset</b></button>
+                                            <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Delete."><img src="assets/icons/delete.svg" class="icon" /><b>Delete</b></button>
                                         </div>
                                         <?php
                                     endif;
                                     /**
                                      *  Affichage des hôtes du groupe
                                      */
-                                    if (!empty($hostsList)) { ?>
+                                    if (!empty($hostsList)) : ?>
                                         <table class="hosts-table">
                                             <thead>
                                                 <tr>
@@ -263,7 +259,7 @@
                                                  *  Traitement de la liste des hôtes
                                                  *  Ici on va afficher le détails de chaque hôte et on en profites pour récupérer certaines informations supplémentaires en base de données
                                                  */
-                                                foreach ($hostsList as $host) {
+                                                foreach ($hostsList as $host) :
                                                     $id = $host['Id'];
                                                     if (!empty($host['Hostname'])) {
                                                         $hostname = $host['Hostname'];
@@ -329,7 +325,7 @@
                                                     /**
                                                      *  Message du dernier état connu
                                                      */
-                                                    $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' at ' . $host['Online_status_time'];
+                                                    $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . '  ' . $host['Online_status_time'];
                                                     /**
                                                      *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
                                                      */
@@ -372,33 +368,33 @@
                                                              *  Linupdate agent state
                                                              */
                                                             if ($agentStatus == 'running') {
-                                                                echo '<img src="resources/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                                echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                             }
                                                             if ($agentStatus == "disabled") {
-                                                                echo '<img src="resources/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                                echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                             }
                                                             if ($agentStatus == "stopped") {
-                                                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                                echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                             }
                                                             if ($agentStatus == "seems-stopped") {
-                                                                echo '<img src="resources/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                                echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                             }
                                                             if ($agentStatus == "unknow") {
-                                                                echo '<img src="resources/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
+                                                                echo '<img src="assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
                                                             } ?>
                                                         </td>
                                                         <td>
                                                             <?php
                                                             if (preg_match('/centos/i', $os)) {
-                                                                echo '<img src="resources/icons/products/centos.png" class="icon" title="' . $os . '" />';
+                                                                echo '<img src="assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
                                                             } elseif (preg_match('/debian/i', $os)) {
-                                                                echo '<img src="resources/icons/products/debian.png" class="icon" title="' . $os . '" />';
+                                                                echo '<img src="assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
                                                             } elseif (preg_match('/ubuntu/i', $os)) {
-                                                                echo '<img src="resources/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
+                                                                echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
                                                             } elseif (preg_match('/mint/i', $os)) {
-                                                                echo '<img src="resources/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
+                                                                echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
                                                             } else {
-                                                                echo '<img src="resources/icons/products/tux.png" class="icon" title="' . $os . '" />';
+                                                                echo '<img src="assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
                                                             } ?>
                                                         </td>
                                                         <td>
@@ -433,7 +429,7 @@
                                                             } ?>
                                                         </td>
                                                         <td title="Check the details for this host.">
-                                                            <span class="printHostDetails pointer" host-id="<?=$id?>">Details</span><a href="/host?id=<?=$id?>" target="_blank" rel="noopener noreferrer"><img src="resources/icons/external-link.svg" class="icon-lowopacity" /></a>
+                                                            <a href="/host?id=<?=$id?>" target="_blank" rel="noopener noreferrer" class="lowopacity">Details<img src="assets/icons/external-link.svg" class="icon" /></a>
                                                         </td>
                                                         <?php
                                                         if (IS_ADMIN) : ?>
@@ -447,7 +443,7 @@
                                                             /**
                                                              *  Status de la dernière demande
                                                              */
-                                                            if (!empty($lastRequestedUpdate)) {
+                                                            if (!empty($lastRequestedUpdate)) :
                                                                 if ($lastRequestedUpdate['Type'] == 'packages-update') {
                                                                     $updateType = 'Packages update';
                                                                 }
@@ -461,7 +457,7 @@
                                                                     $updateStatus = 'requested';
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'running') {
-                                                                    $updateStatus = 'running<img src="resources/images/loading.gif" class="icon" />';
+                                                                    $updateStatus = 'running<img src="assets/images/loading.gif" class="icon" />';
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'done') {
                                                                     $updateStatus = 'done';
@@ -474,27 +470,27 @@
                                                                  */
                                                                 if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
                                                                     if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
-                                                                        echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                     } else {
-                                                                        echo '<span title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        echo '<span title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                     }
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'error') {
-                                                                    echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' at ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                    echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                 }
-                                                            } ?>
+                                                            endif ?>
                                                         </td>
                                                         <td class="host-additionnal-info">
                                                         </td>
                                                     </tr>
                                                     <?php
-                                                } ?>
+                                                endforeach ?>
                                             </tbody>
                                         </table>
                                         <?php
-                                    } else {
+                                    else :
                                         echo '<table class="hosts-table-empty"><tr><td class="lowopacity">(empty)</td></tr></table>';
-                                    } ?>
+                                    endif ?>
                                 </div>
                                 <?php
                             endforeach; ?>
@@ -506,93 +502,6 @@
             <?php
         endif ?>
 </section>
-
-<?php
-if (IS_ADMIN) : ?>
-    <div id="hostsSettingsDiv" class="param-slide-container">
-        <div class="param-slide">
-            <img id="hostsSettingsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
-            <h3>HOSTS DISPLAY SETTINGS</h3>
-            <form id="hostsSettingsForm" action="/hosts" method="post" autocomplete="off">
-                <table>
-                    <tr>
-                        <td>Display a yellow label when total available update is greater than or equal to:</td>
-                        <td><input type="number" class="input-small" name="settings-pkgs-considered-outdated" value="<?=$pkgs_count_considered_outdated?>" /></td>
-                    </tr>
-                    <tr>
-                        <td>Display a red label when total available update is greater than or equal to:</td>
-                        <td><input type="number" class="input-small" name="settings-pkgs-considered-critical" value="<?=$pkgs_count_considered_critical?>" /></td>
-                    </tr>
-                </table>
-                <br>
-                <button class="btn-large-green">Save</button>
-            </form>
-        </div>
-    </div>
-    <div id="groupsHostDiv" class="param-slide-container">
-        <div class="param-slide">
-            <img id="groupsDivCloseButton" title="Close" class="close-btn lowopacity float-right" src="resources/icons/close.svg" />
-            
-            <h3>GROUPS</h3>
-            
-            <h4><b>Create a new group</b></h4>
-
-            <form id="newGroupForm" autocomplete="off">
-                <input id="newGroupInput" type="text" class="input-medium" placeholder="Group name" /></td>
-                <button type="submit" class="btn-xxsmall-green" title="Add">+</button></td>
-            </form>
-            
-            <br>
-            <?php
-            /**
-             *  Getting all groups names
-             */
-            $groupsList = $group->listAllName();
-
-            if (!empty($groupsList)) : ?>
-                <h4><b>Current groups</b></h4>
-                <div class="groups-list-container">
-                    <?php
-                    foreach ($groupsList as $groupName) : ?>
-                        <div class="header-container">
-                            <div class="header-blue-min">
-                                <form class="groupForm" groupname="<?= $groupName ?>" autocomplete="off">
-                                    <input type="hidden" name="actualGroupName" value="<?= $groupName ?>" />
-                                    <table class="table-large">
-                                        <tr>
-                                            <td>
-                                                <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?= $groupName ?>" type="text" value="<?= $groupName ?>" />
-                                            </td>
-                                            <td class="td-fit">
-                                                <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> group configuration" src="resources/icons/cog.svg" />
-                                                <img src="resources/icons/bin.svg" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </form>
-                            </div>
-                            <div id="groupConfigurationDiv-<?= $groupName ?>" class="hide">
-                                <form class="groupHostsForm" groupname="<?= $groupName ?>" autocomplete="off">
-                                    <div class="detailsDiv">
-                                        <h5>Hosts</h5>
-                                        <div class="flex align-content-center">
-                                            <?php $myhost->selectServers($groupName); ?>
-                                            <button type="submit" class="btn-xxsmall-green" title="Add and save">+</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <?php
-                    endforeach ?>
-                    </div>
-                </div>
-                <?php
-            endif ?>
-        </div>
-    </div>
-    <?php
-endif ?>
 
 <?php
 /**
@@ -789,4 +698,9 @@ if (!empty($agentVersionList)) {
     $chartId = 'hosts-agent-version-chart';
 
     include(ROOT . '/views/includes/hosts-pie-chart.inc.php');
-} ?>
+}
+
+if (IS_ADMIN) {
+    include_once(ROOT . '/views/includes/panels/hosts-display.inc.php');
+    include_once(ROOT . '/views/includes/panels/hosts-groups.inc.php');
+}

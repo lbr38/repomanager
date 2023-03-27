@@ -274,24 +274,28 @@ class Host
         $packages = $this->model->getEventDetails($eventId, $packageState);
 
         if ($packageState == 'installed') {
-            $content = '<span><b>Installed:</b></span><br>';
+            $content = '<p><b>Installed:</b></p>';
         }
         if ($packageState == 'dep-installed') {
-            $content = '<span><b>Installed dependencies:</b></span><br>';
+            $content = '<p><b>Installed dependencies:</b></p>';
         }
         if ($packageState == 'upgraded') {
-            $content = '<span><b>Updated:</b></span><br>';
+            $content = '<p><b>Updated:</b></p>';
         }
         if ($packageState == 'removed') {
-            $content = '<span><b>Uninstalled:</b></span><br>';
+            $content = '<p><b>Uninstalled:</b></p>';
         }
         if ($packageState == 'downgraded') {
-            $content = '<span><b>Downgraded:</b></span><br>';
+            $content = '<p><b>Downgraded:</b></p>';
         }
 
+        $content .= '<div class="grid grid-2 column-gap-10 row-gap-4 align-item-center justify-space-between">';
+
         foreach ($packages as $package) {
-            $content .= '<span>• <b>' . $package['Name'] . '</b> (' . $package['Version'] . ')</span><br>';
+            $content .= '<div>' . Common::printProductIcon($package['Name']) . '<span>' . $package['Name'] . '</span></div><span class="text-right">' . $package['Version'] . '</span>';
         }
+
+        $content .= '</div>';
 
         return $content;
     }
@@ -332,35 +336,35 @@ class Host
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'blue';
-                $content_text = '<img src="../resources/icons/package.svg" class="icon" /> Inventored';
+                $content_text = '<img src="assets/icons/package.svg" class="icon" /> Inventored';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Installed';
+                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Installed';
             }
             if ($event['State'] == "dep-installed") {
                 $content_color = 'green';
-                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Installed (as depencency)';
+                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Installed (as depencency)';
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/update.svg" class="icon" /> Updated';
+                $content_text = '<img src="assets/icons/update.svg" class="icon" /> Updated';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.svg" class="icon" /> Uninstalled';
+                $content_text = '<img src="assets/icons/delete.svg" class="icon" /> Uninstalled';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/arrow-back.svg" class="icon" /> Downgraded';
+                $content_text = '<img src="assets/icons/arrow-back.svg" class="icon" /> Downgraded';
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="../resources/icons/down.svg" class="icon" /> Reinstalled';
+                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Reinstalled';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="../resources/icons/bin.svg" class="icon" /> Purged';
+                $content_text = '<img src="assets/icons/delete.svg" class="icon" /> Purged';
             }
             $content_version = $event['Version'];
 
@@ -375,7 +379,7 @@ class Host
             }
 
             $content .= '<div class="timeline-container-content-' . $content_color . '">';
-                $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' at ' . $event['Time'] . '</span>';
+                $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' ' . $event['Time'] . '</span>';
                 /**
                  *  Si cet évènement a pour origine un évènement de mise à jour, d'installation ou de désintallation, alors on ondique l'Id de l'évènement
                  */

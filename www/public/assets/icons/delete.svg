@@ -6,17 +6,17 @@
    id="Capa_1"
    x="0px"
    y="0px"
-   viewBox="0 0 59 59"
-   style="enable-background:new 0 0 59 59;"
+   viewBox="0 0 52 52"
+   style="enable-background:new 0 0 52 52;"
    xml:space="preserve"
-   sodipodi:docname="download.svg"
+   sodipodi:docname="close.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs2364" /><sodipodi:namedview
-   id="namedview2362"
+   id="defs1903" /><sodipodi:namedview
+   id="namedview1901"
    pagecolor="#ffffff"
    bordercolor="#666666"
    borderopacity="1.0"
@@ -24,9 +24,9 @@
    inkscape:pageopacity="0.0"
    inkscape:pagecheckerboard="0"
    showgrid="false"
-   inkscape:zoom="12.322034"
-   inkscape:cx="13.431224"
-   inkscape:cy="29.5"
+   inkscape:zoom="13.980769"
+   inkscape:cx="11.766162"
+   inkscape:cy="26"
    inkscape:window-width="1920"
    inkscape:window-height="985"
    inkscape:window-x="506"
@@ -34,75 +34,75 @@
    inkscape:window-maximized="1"
    inkscape:current-layer="Capa_1" />
 <g
-   id="g2329"
+   id="g1868"
    style="fill:#ffffff;fill-opacity:1">
 	<path
-   d="M20.187,28.313c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414l9.979,9.979C28.938,39.895,29.192,40,29.458,40   c0.007,0,0.014-0.004,0.021-0.004c0.007,0,0.013,0.004,0.021,0.004c0.333,0,0.613-0.173,0.795-0.423l9.891-9.891   c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L30.5,36.544V1c0-0.553-0.447-1-1-1s-1,0.447-1,1v35.628L20.187,28.313z"
-   id="path2325"
+   d="M26,0C11.664,0,0,11.663,0,26s11.664,26,26,26s26-11.663,26-26S40.336,0,26,0z M26,50C12.767,50,2,39.233,2,26   S12.767,2,26,2s24,10.767,24,24S39.233,50,26,50z"
+   id="path1864"
    style="fill:#ffffff;fill-opacity:1" />
 	<path
-   d="M36.5,16c-0.553,0-1,0.447-1,1s0.447,1,1,1h13v39h-40V18h13c0.553,0,1-0.447,1-1s-0.447-1-1-1h-15v43h44V16H36.5z"
-   id="path2327"
+   d="M35.707,16.293c-0.391-0.391-1.023-0.391-1.414,0L26,24.586l-8.293-8.293c-0.391-0.391-1.023-0.391-1.414,0   s-0.391,1.023,0,1.414L24.586,26l-8.293,8.293c-0.391,0.391-0.391,1.023,0,1.414C16.488,35.902,16.744,36,17,36   s0.512-0.098,0.707-0.293L26,27.414l8.293,8.293C34.488,35.902,34.744,36,35,36s0.512-0.098,0.707-0.293   c0.391-0.391,0.391-1.023,0-1.414L27.414,26l8.293-8.293C36.098,17.316,36.098,16.684,35.707,16.293z"
+   id="path1866"
    style="fill:#ffffff;fill-opacity:1" />
 </g>
 <g
-   id="g2331"
+   id="g1870"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2333"
+   id="g1872"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2335"
+   id="g1874"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2337"
+   id="g1876"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2339"
+   id="g1878"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2341"
+   id="g1880"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2343"
+   id="g1882"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2345"
+   id="g1884"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2347"
+   id="g1886"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2349"
+   id="g1888"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2351"
+   id="g1890"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2353"
+   id="g1892"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2355"
+   id="g1894"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2357"
+   id="g1896"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 <g
-   id="g2359"
+   id="g1898"
    style="fill:#ffffff;fill-opacity:1">
 </g>
 </svg>

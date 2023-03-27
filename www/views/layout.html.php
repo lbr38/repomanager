@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <?php
-    include_once(ROOT . '/views/includes/head.inc.php'); ?>
+    <?php include_once(ROOT . '/views/includes/head.inc.php'); ?>
 
     <body>
         <div id="top"></div> <!-- to go to the top of the page -->
@@ -16,7 +15,7 @@
             /**
              *  Slide panels
              */
-            include_once(ROOT . '/views/includes/notification.inc.php');
+            include_once(ROOT . '/views/includes/panels/notification.inc.php');
             include_once(ROOT . '/views/includes/panels/userspace.inc.php');
 
             /**

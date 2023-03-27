@@ -42,7 +42,7 @@
 
 <tr id="duplicate-repo-target-description-tr">
     <td class="td-30">
-        <span>Description</span> <span class="lowopacity">(optionnal)</span>
+        <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
     </td>
     <td>
         <input type="text" class="operation_param" param-name="targetDescription" />
@@ -60,7 +60,7 @@ $groupList = $group->listAllName();
 if (!empty($groupList)) : ?>
     <tr>
         <td class="td-30">
-            <span>Add to group</span> <span class="lowopacity">(optionnal)</span>
+            <span>Add to group</span> <span class="lowopacity-cst">(optionnal)</span>
         </td>
         <td>
             <select class="operation_param" param-name="targetGroup">

@@ -1,26 +1,10 @@
-$(document).ready(function () {
-    /**
-     *  Charge tous le nécessaire pour le formulaire de création d'un nouveau repo
-     */
-    loadNewRepoFormJS();
-});
+loadNewRepoFormJS();
 
 /**
  *  Fonctions
  */
 function loadNewRepoFormJS()
 {
-    /**
-     *  Affiche la description uniquement si un environnement est spécifié
-     */
-    $(document).on('change','#new-repo-target-env-select',function () {
-        if ($('#new-repo-target-env-select').val() == "") {
-            $('#new-repo-target-description-tr').hide();
-        } else {
-            $('#new-repo-target-description-tr').show();
-        }
-    }).trigger('change');
-
     /**
      *  Convert select to select2
      */
@@ -38,7 +22,7 @@ function loadNewRepoFormJS()
  */
 function reloadNewRepoDiv()
 {
-    $("#newRepoDiv").load(" #newRepoDiv > *", function () {
+    $(".slide-panel-reloadable-div[slide-panel='new-repo']").load(" .slide-panel-reloadable-div[slide-panel='new-repo'] > *",function () {
         loadNewRepoFormJS();
     });
 }
@@ -89,41 +73,15 @@ function countChecked()
  */
 
 /**
- *  Event : afficher ou masquer la div qui gère les paramètres d'affichage (bouton "Affichage")
+ *  Event: create new repo: print description field only if an env is specified
  */
-$(document).on('click','#ReposListDisplayToggleButton',function () {
-    openSlide("#displayDiv");
-});
-
-$(document).on('click','#displayDivCloseButton',function () {
-    closeSlide("#displayDiv");
-});
-
-/**
- *  Event : affichage du div permettant de créer un nouveau repo/section
- */
-$(document).on('click','#newRepoToggleButton',function () {
-    openSlide("#newRepoDiv");
-});
-
-/**
- *  Event : masquage du div permettant de créer un nouveau repo/section
- */
-$(document).on('click','#newRepoCloseButton',function () {
-    closeSlide("#newRepoDiv");
-});
-
-/**
- *  Event : masquage du div permettant d'exécuter un opération
- */
-$(document).on('click','#operationsDivCloseButton',function () {
-    /**
-     *  Suppression du contenu de la div
-     */
-    $("#op-forms-container").html('');
-
-    closeSlide("#operationsDiv");
-});
+$(document).on('change','#new-repo-target-env-select',function () {
+    if ($('#new-repo-target-env-select').val() == "") {
+        $('#new-repo-target-description-tr').hide();
+    } else {
+        $('#new-repo-target-description-tr').show();
+    }
+}).trigger('change');
 
 /**
  *  Event : afficher/masquer le contenu de tous les groupes de repos actifs
@@ -133,13 +91,13 @@ $(document).on('click','#hideAllReposGroups',function () {
 
     if (state == 'visible') {
         $(this).attr('state', 'hidden');
-        $(this).find('img').attr('src', 'resources/icons/down.svg');
+        $(this).find('img').attr('src', 'assets/icons/down.svg');
         $('.repos-list-group-flex-div').slideUp();
     }
 
     if (state == 'hidden') {
         $(this).attr('state', 'visible');
-        $(this).find('img').attr('src', 'resources/icons/up.svg');
+        $(this).find('img').attr('src', 'assets/icons/up.svg');
         $('.repos-list-group-flex-div').slideDown();
     }
 });
@@ -153,12 +111,12 @@ $(document).on('click','.hideGroup',function () {
 
     if (state == 'visible') {
         $(this).attr('state', 'hidden');
-        $(this).attr('src', 'resources/icons/down.svg');
+        $(this).attr('src', 'assets/icons/down.svg');
     }
 
     if (state == 'hidden') {
         $(this).attr('state', 'visible');
-        $(this).attr('src', 'resources/icons/up.svg');
+        $(this).attr('src', 'assets/icons/up.svg');
     }
 
     $('.repos-list-group[group=' + groupname + ']').find('.repos-list-group-flex-div').slideToggle();
@@ -287,15 +245,8 @@ $(document).on('click',".repo-action-btn",function () {
     /**
      *  Rechargement de operationsDiv, affichage et demande du formulaire correspondant à l'opération sélectionnée
      */
-    $("#operationsDiv").load(" #operationsDiv > *",function () {
-        getForm(action, repos_array);
-        openSlide("#operationsDiv");
-    });
-
-    /**
-     *  Scroll vers le haut de la page
-     */
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
+    getForm(action, repos_array);
+    openPanel('operation');
 });
 
 /**
@@ -438,7 +389,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="resources/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="resources/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="assets/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage
@@ -563,7 +514,7 @@ function getForm(action, repos_array)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $("#operationsDiv").find('.param-slide').append(jsonValue.message);
+            $('.slide-panel-container[slide-panel=operation]').find('.slide-panel-reloadable-div').html(jsonValue.message);
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -592,8 +543,7 @@ function validateExecuteForm(operation_params_json)
            /**
             *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
             */
-            $("#newRepoDiv").hide();
-            $("#operationsDiv").hide();
+            closePanel();
             reloadHeader();
             printAlert(jsonValue.message, 'success');
         },
