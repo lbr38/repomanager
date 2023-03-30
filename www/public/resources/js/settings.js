@@ -18,6 +18,13 @@ $(document).on('click','#update-repomanager-btn',function () {
 });
 
 /**
+ *  Event: send a test email
+ */
+$(document).on('click','#send-test-email-btn',function () {
+    sendTestEmail();
+});
+
+/**
  *  Event: apply settings
  */
 $(document).on('submit','#settingsForm',function () {
@@ -266,6 +273,30 @@ function deleteUser(id, username)
              *  Reload current users div
              */
             reloadContentById('currentUsers');
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: send a test email
+ */
+function sendTestEmail()
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "settings",
+            action: "sendTestEmail"
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

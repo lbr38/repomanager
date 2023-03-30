@@ -172,6 +172,38 @@ function classToSelect2(className, placeholder = null, tags = false)
     });
 }
 
+ /**
+  *  Print OS icon image
+  */
+function printOsIcon(os = '', os_family = '')
+{
+    if (os != '') {
+        if (os.toLowerCase() == 'centos') {
+            return '<img src="assets/icons/products/centos.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/debian|armbian/i)) {
+            return '<img src="assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
+        } else if (os.toLowerCase().match(/ubuntu|kubuntu|xubuntu|mint/i)) {
+            return '<img src="assets/icons/products/ubuntu.png" class="icon-np" title="' + os + '">';
+        }
+    }
+
+    /**
+     *  If OS could not be found and OS family is specified
+     */
+    if (os_family != '') {
+        if (os_family.toLowerCase().match(/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i)) {
+            return '<img src="assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
+        } else if (os_family.toLowerCase().match(/rhel|centos|fedora/i)) {
+            return '<img src="assets/icons/products/redhat.png" class="icon-np" title="' + os + '">';
+        }
+    }
+
+    /**
+     *  Else return generic icon
+     */
+    return '<img src="assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
+}
+
 /**
  *  Event: hide slided window on escape button press
  */

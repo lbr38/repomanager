@@ -337,6 +337,21 @@ class Host extends Model
     }
 
     /**
+     *  Update host's reboot required status in database
+     */
+    public function updateRebootRequired(string $id, string $status)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :hostId");
+            $stmt->bindValue(':reboot', $status);
+            $stmt->bindValue(':hostId', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
      *  Suppression d'un paquet dans la table packages_available
      */
     public function deletePackageAvailable(string $packageName, string $packageVersion)
@@ -417,8 +432,10 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os_family FROM hosts
-            WHERE Kernel = :kernel and Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os, Os_family FROM hosts
+            WHERE Kernel = :kernel
+            AND Status = 'active'
+            ORDER BY Hostname ASC");
             $stmt->bindValue(':kernel', $kernel);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -440,8 +457,10 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Hostname, Ip FROM hosts
-            WHERE Profile = :profile and Status = 'active'");
+            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os, Os_family FROM hosts
+            WHERE Profile = :profile
+            AND Status = 'active'
+            ORDER BY Hostname ASC");
             $stmt->bindValue(':profile', $profile);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -729,6 +748,22 @@ class Host extends Model
         }
 
         return $agent;
+    }
+
+    /**
+     *  List all hosts that require a reboot and count them
+     */
+    public function listRebootRequired()
+    {
+        $hosts = array();
+
+        $result = $this->db->query("SELECT Hostname, Ip, Os, Os_family FROM hosts WHERE Status = 'active' AND Reboot_required = 'true' ORDER BY Hostname ASC");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $hosts[] = $row;
+        }
+
+        return $hosts;
     }
 
     /**

@@ -2297,7 +2297,7 @@ class Repo
              */
             $rpmFiles = Common::findRecursive(REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name, 'rpm', true);
 
-            $signErrors = 0;
+            $signError = 0;
 
             /**
              *  On traite chaque fichier trouvé
@@ -2352,11 +2352,11 @@ class Repo
                 $myprocess->getOutput($this->op->log->steplog);
 
                 /**
-                 *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                 *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signError pour
                  *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
                  */
                 if ($myprocess->getExitCode() != 0) {
-                    $signErrors++;
+                    $signError++;
                     break;
                 }
 
@@ -2372,17 +2372,46 @@ class Repo
              *  Si il y a un pb lors de la signature, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
              *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente $return
              */
-            if (preg_match('/gpg: signing failed/', file_get_contents($this->op->log->steplog))) {
-                ++$signErrors;
+            $noSecretKeyError = 0;
+            $gpgError = 0;
+            $canNotResignError = 0;
+            $signErrorGlobalMessage = '';
+
+            if (preg_match('/gpg: signing failed/', file_get_contents($this->op->log->steplog), $matchErrorList)) {
+                // ++$signError;
+                $signError++;
+                if (!empty($matchErrorList)) {
+                    foreach ($matchErrorList as $matchError) {
+                        $signErrorGlobalMessage .= $matchError . '<br>';
+                    }
+                }
             }
-            if (preg_match('/No secret key/', file_get_contents($this->op->log->steplog))) {
-                ++$signErrors;
+            if (preg_match('/No secret key/', file_get_contents($this->op->log->steplog), $matchErrorList)) {
+                // ++$signError;
+                $noSecretKeyError++;
+                if (!empty($matchErrorList)) {
+                    foreach ($matchErrorList as $matchError) {
+                        $signErrorGlobalMessage .= $matchError . '<br>';
+                    }
+                }
             }
-            if (preg_match('/error: gpg/', file_get_contents($this->op->log->steplog))) {
-                ++$signErrors;
+            if (preg_match('/error: gpg/', file_get_contents($this->op->log->steplog), $matchErrorList)) {
+                // ++$signError;
+                $gpgError++;
+                if (!empty($matchErrorList)) {
+                    foreach ($matchErrorList as $matchError) {
+                        $signErrorGlobalMessage .= $matchError . '<br>';
+                    }
+                }
             }
-            if (preg_match("/Can't resign/", file_get_contents($this->op->log->steplog))) {
-                ++$signErrors;
+            if (preg_match("/Can't resign/", file_get_contents($this->op->log->steplog), $matchErrorList)) {
+                // ++$signError;
+                $canNotResignError++;
+                if (!empty($matchErrorList)) {
+                    foreach ($matchErrorList as $matchError) {
+                        $signErrorGlobalMessage .= $matchError . '<br>';
+                    }
+                }
             }
             /**
              *  Cas particulier, on affichera un warning si le message suivant a été détecté dans les logs
@@ -2398,7 +2427,7 @@ class Repo
                 $this->op->stepWarning();
             }
 
-            if ($signErrors != 0) {
+            if ($signError != 0) {
                 /**
                  *  Si l'action est reconstruct alors on ne supprime pas ce qui a été fait (sinon ça supprime le repo!)
                  */
@@ -2409,7 +2438,11 @@ class Repo
                     exec('rm -rf "' . REPOS_DIR . '/' . $this->targetDateFormatted . '_' . $this->name . '"');
                 }
 
-                throw new Exception('packages signature has failed');
+                if (!empty($signErrorGlobalMessage)) {
+                    throw new Exception('packages signature has failed: ' . $signErrorGlobalMessage);
+                } else {
+                    throw new Exception('packages signature has failed');
+                }
             }
 
             $this->op->stepOK();
@@ -2865,7 +2898,7 @@ class Repo
                         $myprocess->getOutput($this->op->log->steplog);
 
                         /**
-                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $repreproErrors pour
                          *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
                          */
                         if ($myprocess->getExitCode() != 0) {
@@ -2912,7 +2945,7 @@ class Repo
                         $myprocess->getOutput($this->op->log->steplog);
 
                         /**
-                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signErrors pour
+                         *  Si la signature du paquet en cours s'est mal terminée, on incrémente $repreproErrors pour
                          *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
                          */
                         if ($myprocess->getExitCode() != 0) {

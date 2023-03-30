@@ -445,7 +445,7 @@ class Connection extends SQLite3
          */
         $result = $this->query("SELECT * FROM profile_settings");
         if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO profile_settings (Manage_client_conf, Manage_client_repos) VALUES ('no', 'no')");
+            $this->exec("INSERT INTO profile_settings (Package_type, Manage_client_conf, Manage_client_repos) VALUES ('deb,rpm', 'no', 'no')");
         }
 
         /**
@@ -643,6 +643,7 @@ class Connection extends SQLite3
         Online_status CHAR(8),
         Online_status_date DATE,
         Online_status_time TIME,
+        Reboot_required CHAR(5),
         Linupdate_version VARCHAR(255),
         Status VARCHAR(8) NOT NULL)");
 

@@ -248,6 +248,18 @@ class Host
                     }
                 }
 
+                /**
+                 *  If reboot required status has been specified then update it in database
+                 */
+                if (!empty($data->reboot_required)) {
+                    try {
+                        $this->hostController->updateRebootRequired($data->reboot_required);
+                        $message[] = "Reboot status updated successfully.";
+                    } catch (Exception $e) {
+                        throw new Exception('Reboot status update has failed.');
+                    }
+                }
+
                 return array('message' => $message);
             }
 

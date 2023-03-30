@@ -880,9 +880,9 @@ class Planification
              */
             if ($this->action == "update") {
                 if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                    return 'Update <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>';
+                    return 'Update repo:<br> ➞ <span class="label-black">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>';
                 } else {
-                    return 'Update <span class="label-white">' . $this->repo->getName() . '</span>';
+                    return 'Update repo:<br> ➞ <span class="label-black">' . $this->repo->getName() . '</span>';
                 }
             }
         }
@@ -896,7 +896,7 @@ class Planification
              *  Cas où l'action prévue est une mise à jour
              */
             if ($this->action == "update") {
-                $message = 'Update repos of the <span class="label-white">' . $this->group->getName() . '</span> group:<br>';
+                $message = 'Update repos of the <span class="label-black">' . $this->group->getName() . '</span> group:<br>';
             }
 
             foreach ($this->groupReposList as $line) {
@@ -910,9 +910,9 @@ class Planification
                 }
 
                 if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                    $message .= ' ➞ <span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span><br>';
+                    $message .= ' ➞ <span class="label-black">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span><br>';
                 } else {
-                    $message .= ' ➞ <span class="label-white">' . $this->repo->getName() . '</span><br>';
+                    $message .= ' ➞ <span class="label-black">' . $this->repo->getName() . '</span><br>';
                 }
             }
 
@@ -924,13 +924,13 @@ class Planification
      *  Clôture d'une planification exécutée
      *  Génère le récapitulatif, le fichier de log et envoi un mail d'erreur si il y a eu une erreur.
      */
-    public function close($planError, $plan_msg_error, $processedRepos = null)
+    public function close($planError, $planMessage_error, $processedRepos = null)
     {
         /**
          *  Suppression des lignes vides dans le message d'erreur si il y en a
          */
         if ($planError != 0) {
-            $plan_msg_error = exec("echo \"$plan_msg_error\" | sed '/^$/d'");
+            $planMessage_error = exec("echo \"$planMessage_error\" | sed '/^$/d'");
         }
 
         /**
@@ -942,14 +942,14 @@ class Planification
             if ($planError == 0) {
                 $this->model->closeUpdateStatus($this->id, 'done', null, $this->log->name);
             } else {
-                $this->model->closeUpdateStatus($this->id, 'error', $plan_msg_error, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'error', $planMessage_error, $this->log->name);
             }
         }
         if ($this->type == 'regular') {
             if ($planError == 0) {
                 $this->model->closeUpdateStatus($this->id, 'queued', null, $this->log->name);
             } else {
-                $this->model->closeUpdateStatus($this->id, 'queued', $plan_msg_error, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'queued', $planMessage_error, $this->log->name);
             }
 
             /**
@@ -968,7 +968,7 @@ class Planification
          */
         if ($planError == 1) : ?>
             <div class="div-generic-blue">
-                <p class="redtext"><?= $plan_msg_error ?></p><br>
+                <p class="redtext"><?= $planMessage_error ?></p><br>
                 <p><b>Plan details:</b></p>
                 <table>
                     <tr>
@@ -1078,13 +1078,13 @@ class Planification
             /**
              *  Ajout de l'action effectuée
              */
-            $msg_processed_repos = '<br><br><b>Action:</b>';
+            $proceedReposMessage = '<br><br><b>Action:</b>';
 
             if ($this->action == 'update') {
-                $msg_processed_repos .= ' update';
+                $proceedReposMessage .= ' update';
             }
 
-            $msg_processed_repos .= '<br><br><b>Processed repos:</b><br>';
+            $proceedReposMessage .= '<br><br><b>Processed repos:</b><br>';
 
             /**
              *  On trie l'array par status des repos afin de regrouper tous les repos OK et tous les repos en erreur
@@ -1097,13 +1097,13 @@ class Planification
             if (is_array($processedRepos)) {
                 foreach ($processedRepos as $processedRepo) {
                     if ($processedRepo['Status'] == 'done') {
-                        $msg_processed_repos .= '✅ ';
+                        $proceedReposMessage .= '✅ ';
                     }
                     if ($processedRepo['Status'] == 'error') {
-                        $msg_processed_repos .= '❌ ';
+                        $proceedReposMessage .= '❌ ';
                     }
 
-                    $msg_processed_repos .= '<span class="label-white">' . $processedRepo['Repo'] . '</span><br>';
+                    $proceedReposMessage .= '<span class="label-black">' . $processedRepo['Repo'] . '</span><br>';
                 }
             }
         }
@@ -1115,90 +1115,67 @@ class Planification
         /**
          *  Envoi d'un mail si il n'y a pas eu d'erreurs
          */
-        if ($this->notificationOnSuccess == 'yes') {
-            if ($planError == 0) {
-                /**
-                 *  Préparation du message à inclure dans le mail
-                 */
-                if ($this->type == 'plan') {
-                    $plan_title   = "[ OK ] - Planification Id $this->id on " . WWW_HOSTNAME;
-                    $plan_pre_msg = "A plan has completed.";
-                }
-                if ($this->type == 'regular') {
-                    $plan_title   = "[ OK ] - Regular planification Id $this->id on " . WWW_HOSTNAME;
-                    $plan_pre_msg = "A regular plan has completed.";
-                }
-                $plan_msg = "This plan has completed successfully." . PHP_EOL;
-
-                /**
-                 *  On ajoute le repo ou le groupe traité à la suite du message
-                 */
-                if (!empty($msg_processed_repos)) {
-                    $plan_msg .= $msg_processed_repos . PHP_EOL;
-                }
-
-                /**
-                 *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg
-                 */
-                include(ROOT . '/templates/plan_mail.inc.php');
-                $this->sendMail($plan_title, $template);
-            }
-        }
-
-        /**
-         *  Envoi d'un mail si il y a eu des erreurs
-         */
-        if ($this->notificationOnError == 'yes') {
-            if ($planError != 0) {
-                /**
-                 *  Préparation du message à inclure dans le mail
-                 */
-                if ($this->type == 'plan') {
-                    $plan_title   = "[ ERROR ] - Planification Id $this->id on " . WWW_HOSTNAME;
-                    $plan_pre_msg = "A plan has failed.";
-                }
-                if ($this->type == 'regular') {
-                    $plan_title   = "[ ERROR ] - Regular planification Id $this->id on " . WWW_HOSTNAME;
-                    $plan_pre_msg = "A regular plan has failed.";
-                }
-                $plan_msg = 'This plan has encountered an error.' . PHP_EOL;
-
-                /**
-                 *  On ajoute le repo ou le groupe traité à la suite du message
-                 */
-                if (!empty($msg_processed_repos)) {
-                    $plan_msg .= $msg_processed_repos . PHP_EOL;
-                }
-
-                /**
-                 *  Template HTML du mail, inclu une variable $template contenant le corps du mail avec $plan_msg
-                 */
-                include(ROOT . "/templates/plan_mail.inc.php");
-                $this->sendMail($plan_title, $template);
-            }
-        }
-    }
-
-    /**
-     *  Envoi d'un mail d'erreur ou de rappel de planification
-     *  A partir d'une variable $template contenant le corps HTML du mail à envoyer
-     */
-    public function sendMail($title, $template)
-    {
-        /**
-         *  On envoi un mail si une adresse de destination a été renseignée (non-vide et non null)
-         */
         if (!empty($this->mailRecipient)) {
-            /**
-             *  Pour envoyer un mail HTML il faut inclure ces headers
-             */
-            $headers[] = 'MIME-Version: 1.0';
-            $headers[] = 'Content-type: text/html; charset=utf8';
-            $headers[] = "From: noreply@" . WWW_HOSTNAME;
-            $headers[] = "X-Sender: noreply@" . WWW_HOSTNAME;
-            $headers[] = "Reply-To: noreply@" . WWW_HOSTNAME;
+            if ($this->notificationOnSuccess == 'yes' && $planError == 0) {
+                /**
+                 *  Préparation du message à inclure dans le mail
+                 */
+                if ($this->type == 'plan') {
+                    $mailSubject   = '[ OK ] - Planification #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A plan has completed.';
+                }
+                if ($this->type == 'regular') {
+                    $mailSubject   = '[ OK ] - Regular planification #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A regular plan has completed.';
+                }
 
-            mail($this->mailRecipient, $title, $template, implode("\r\n", $headers));
+                $mailMessage = 'This plan has completed successfully.' . PHP_EOL;
+
+                /**
+                 *  On ajoute le repo ou le groupe traité à la suite du message
+                 */
+                if (!empty($proceedReposMessage)) {
+                    $mailMessage .= $proceedReposMessage . PHP_EOL;
+                }
+
+                /**
+                 *  Send mail
+                 */
+                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?logfile=' . $this->log->name, 'Check the details');
+                $mymail->send();
+            }
+
+            /**
+             *  Envoi d'un mail si il y a eu des erreurs
+             */
+            if ($this->notificationOnError == 'yes' && $planError != 0) {
+                /**
+                 *  Préparation du message à inclure dans le mail
+                 */
+                if ($this->type == 'plan') {
+                    $mailSubject   = '[ ERROR ] - Planification #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A plan has failed.';
+                }
+                if ($this->type == 'regular') {
+                    $mailSubject   = '[ ERROR ] - Regular planification #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A regular plan has failed.';
+                }
+
+                $mailMessage = 'This plan has encountered an error.' . PHP_EOL;
+
+                /**
+                 *  On ajoute le repo ou le groupe traité à la suite du message
+                 */
+                if (!empty($proceedReposMessage)) {
+                    $mailMessage .= $proceedReposMessage . PHP_EOL;
+                }
+
+                /**
+                 *  Send mail
+                 */
+                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?logfile=' . $this->log->name, 'Check the details');
+                $mymail->send();
+            }
         }
     }
 
@@ -1219,7 +1196,7 @@ class Planification
          *  Si la mise à jour des repos n'est pas autorisée, on quitte
          */
         if (PLANS_UPDATE_REPO != "true") {
-            throw new Exception("Plans are not authorized to update repositories");
+            throw new Exception("Plans are not allowed to update repositories");
         }
     }
 
@@ -1233,7 +1210,7 @@ class Planification
     private function checkActionUpdateGpgResign()
     {
         if (empty($this->targetGpgResign)) {
-            throw new Exception("GPG sign has not been specified for this plan");
+            throw new Exception("GPG repo signature has not been specified for this plan");
         }
     }
 
@@ -1243,7 +1220,7 @@ class Planification
          *  Si le changement d'environnement n'est pas autorisé, on quitte
          */
         if (PLANS_UPDATE_REPO_ENV != "true") {
-            throw new Exception("Plans are not authorized to manage repos environment");
+            throw new Exception("Plans are not allowed to manage repos environment");
         }
     }
 

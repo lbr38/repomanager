@@ -5,14 +5,13 @@
  */
 if (
     $_POST['action'] == "applyServerConfiguration"
-    and !empty($_POST['serverPackageType'])
     and !empty($_POST['serverManageClientConf'])
     and !empty($_POST['serverManageClientRepos'])
 ) {
     $myprofile = new \Controllers\Profile();
 
     try {
-        $myprofile->setServerConfiguration($_POST['serverPackageType'], $_POST['serverManageClientConf'], $_POST['serverManageClientRepos']);
+        $myprofile->setServerConfiguration($_POST['serverManageClientConf'], $_POST['serverManageClientRepos']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

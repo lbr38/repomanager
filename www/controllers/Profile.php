@@ -164,9 +164,15 @@ class Profile
     /**
      *  Modifie la configuration générale du serveur pour la gestion des profils
      */
-    public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
+    public function setServerConfiguration(string $serverManageClientConf, string $serverManageClientRepos)
     {
-        $serverPackageType = \Controllers\Common::validateData($serverPackageType);
+        if (DEB_REPO == 'true' && RPM_REPO == 'true') {
+            $serverPackageType = 'deb,rpm';
+        } elseif (DEB_REPO == 'true') {
+            $serverPackageType = 'deb';
+        } elseif (RPM_REPO == 'true') {
+            $serverPackageType = 'rpm';
+        }
 
         if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
             throw new Exception("Parameter 'Manage profiles packages configuration");
@@ -219,12 +225,12 @@ class Profile
      */
     public function new(string $name)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile contains invalid characters");
         }
 
@@ -248,17 +254,17 @@ class Profile
      */
     public function rename(string $name, string $newName)
     {
-        $name = \Controllers\Common::validateData($name);
-        $newName = \Controllers\Common::validateData($newName);
+        $name = Common::validateData($name);
+        $newName = Common::validateData($newName);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
-        if (\Controllers\Common::isAlphanumDash($newName) === false) {
+        if (Common::isAlphanumDash($newName) === false) {
             throw new Exception("<b>$newName</b> profile name contains invalid characters");
         }
 
@@ -282,7 +288,7 @@ class Profile
      */
     public function duplicate(string $name)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  Récupéraiton de l'Id du profil source
@@ -344,12 +350,12 @@ class Profile
      */
     public function delete(string $name)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Common::validateData($name);
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
@@ -368,14 +374,14 @@ class Profile
      */
     public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $linupdateGetPkgConf, string $linupdateGetReposConf, string $notes)
     {
-        $name = \Controllers\Common::validateData($name);
+        $name = Common::validateData($name);
 
         $error = 0;
 
         /**
          *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
+        if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
@@ -423,9 +429,9 @@ class Profile
          */
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
-                $packageName = \Controllers\Common::validateData($packageName);
+                $packageName = Common::validateData($packageName);
 
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!Common::isAlphanumDash($packageName, array('.*'))) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -452,9 +458,9 @@ class Profile
          */
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
-                $packageName = \Controllers\Common::validateData($packageName);
+                $packageName = Common::validateData($packageName);
 
-                if (!\Controllers\Common::isAlphanumDash($packageName, array('.*'))) {
+                if (!Common::isAlphanumDash($packageName, array('.*'))) {
                     throw new Exception('Package ' . $packageName . ' contains invalid characters');
                 }
 
@@ -481,12 +487,12 @@ class Profile
          */
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
-                $serviceName = \Controllers\Common::validateData($serviceName);
+                $serviceName = Common::validateData($serviceName);
 
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                if (!\Controllers\Common::isAlphanumDash($serviceName, array('@'))) {
+                if (!Common::isAlphanumDash($serviceName, array('@'))) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
 
@@ -519,7 +525,7 @@ class Profile
          *  Vérification des notes
          */
         if (!empty($notes)) {
-            $notes = \Controllers\Common::validateData($notes);
+            $notes = Common::validateData($notes);
         }
 
         /**
@@ -546,7 +552,7 @@ class Profile
         /**
          *  Get unused repos Id (repos that have no active snapshot and so are not visible from web UI)
          */
-        $myrepo = new \Controllers\Repo();
+        $myrepo = new Repo();
         $unusedRepos = $myrepo->getUnusedRepos();
 
         /**

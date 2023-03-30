@@ -111,8 +111,6 @@ $(document).on('click','.profileConfigurationBtn',function () {
 $(document).on('submit','#applyServerConfigurationForm',function () {
     event.preventDefault();
 
-    var serverPackageType = $('#serverPackageTypeInput').val();
-
     if ($('#serverManageClientConf').is(':checked')) {
         var serverManageClientConf = 'yes';
     } else {
@@ -125,7 +123,7 @@ $(document).on('submit','#applyServerConfigurationForm',function () {
         var serverManageClientRepos = 'no';
     }
 
-    applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos);
+    applyServerConfiguration(serverManageClientConf, serverManageClientRepos);
 
     return false;
 });
@@ -171,7 +169,7 @@ $(document).on('submit','.profileConfigurationForm',function () {
 /**
  * Ajax: Modifier la configuration serveur
  */
-function applyServerConfiguration(serverPackageType, serverManageClientConf, serverManageClientRepos)
+function applyServerConfiguration(serverManageClientConf, serverManageClientRepos)
 {
     $.ajax({
         type: "POST",
@@ -179,7 +177,6 @@ function applyServerConfiguration(serverPackageType, serverManageClientConf, ser
         data: {
             controller: "profile",
             action: "applyServerConfiguration",
-            serverPackageType: serverPackageType,
             serverManageClientConf: serverManageClientConf,
             serverManageClientRepos: serverManageClientRepos
         },

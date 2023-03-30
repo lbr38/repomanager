@@ -120,8 +120,28 @@
                     <?php
                 endif ?>
 
-                <div class="div-generic-blue">
-                    <span class="hosts-chart-title">No data yet</span>
+                <div class="hosts-chart-sub-container div-generic-blue">
+                    <span class="hosts-chart-title">Hosts requiring reboot</span>
+                  
+                    <div id="hosts-requiring-reboot-chart" class="flex justify-center align-item-center">
+                        <div>
+                            <p><?= $rebootRequiredCount ?></p>
+                        </div>
+                        <?php
+                        if ($rebootRequiredCount > 0) : ?>
+                            <div id="hosts-requiring-reboot-chart-list">
+                                <?php
+                                foreach ($rebootRequiredList as $rebootRequiredHost) : ?>
+                                    <div class="flex align-item-center">
+                                        <?= \Controllers\Common::printOsIcon($rebootRequiredHost['Os']) ?>
+                                        <span><?= $rebootRequiredHost['Hostname'] . ' (' . $rebootRequiredHost['Ip'] . ')' ?></span>
+                                    </div>
+                                    <?php
+                                endforeach; ?>
+                            </div>
+                            <?php
+                        endif ?>
+                    </div>
                 </div>
                 <?php
             endif; ?>

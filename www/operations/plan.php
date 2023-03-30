@@ -27,7 +27,7 @@ $dateNow = date('Y-m-d');
 $timeNow = date('H:i');
 $minutesNow = date('i');
 $dayNow = strtolower(date('l')); // jour de la semaine (ex : 'monday')
-$reminder_msg = '';
+$reminderMessage = '';
 $planToExec = array();
 $planToReminder = array();
 
@@ -197,15 +197,13 @@ if (!empty($planToReminder)) {
          */
         $plan->setId($planId);
         $msg = $plan->generateReminders();
-        $reminder_msg .= '<span><b>Planification of the ' . DateTime::createFromFormat('Y-m-d', $plan->getDate())->format('d-m-Y') . ' at ' . $plan->getTime() . ":</b></span><br><span>$msg</span><br><hr>";
+        $reminderMessage .= '<span><b>Planification of the ' . DateTime::createFromFormat('Y-m-d', $plan->getDate())->format('d-m-Y') . ' ' . $plan->getTime() . ":</b></span><br><span>$msg</span><br><hr>";
     }
 
-    if (!empty($reminder_msg)) {
-        /**
-         *  Inclu une variable $template contenant le corps du mail avec $reminder_msg :
-         */
-        include_once(ROOT . "/templates/plan_reminder_mail.inc.php");
-        $plan->sendMail("[ Reminder ] Planification(s) to come on " . WWW_HOSTNAME, $template);
+    if (!empty($reminderMessage)) {
+        $mailSubject = '[ Reminder ] Planification(s) to come on ' . WWW_HOSTNAME;
+        $mymail = new \Controllers\Mail($plan->getMailRecipient(), $mailSubject, $reminderMessage, 'https://' . WWW_HOSTNAME . '/plans', 'Planifications');
+        $mymail->send();
     }
 }
 

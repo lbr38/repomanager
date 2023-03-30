@@ -319,6 +319,12 @@ class Controller
          */
         $agentVersionList = $myhost->listCountAgentVersion();
 
+        /**
+         *  Getting a list of all hosts requiring a reboot
+         */
+        $rebootRequiredList = $myhost->listRebootRequired();
+        $rebootRequiredCount = count($rebootRequiredList);
+
         ob_start();
         include_once(ROOT . '/views/hosts.template.php');
         $content = ob_get_clean();
@@ -361,40 +367,9 @@ class Controller
          */
         $serverConfiguration = $myprofile->getServerConfiguration();
 
-        /**
-         *  Si certaines valeurs sont vides alors on set des valeurs par défaut déterminées par l'autoloader, car tous les champs doivent être complétés.
-         *  On indiquera à l'utilisateur qu'il faudra valider le formulaire pour appliquer la configuration.
-         */
-        $serverConfApplyNeeded = 0;
-
-        if (!empty($serverConfiguration['Package_type'])) {
-            $serverPackageType = $serverConfiguration['Package_type'];
-        } else {
-            /**
-             *  Si aucun type de paquets n'est spécifié alors on va déduire en fonction du type de système sur lequel repomanager est installé
-             */
-            if (OS_FAMILY == 'Redhat') {
-                $serverPackageType = 'rpm';
-            }
-            if (OS_FAMILY == 'Debian') {
-                $serverPackageType = 'deb';
-            }
-            $serverConfApplyNeeded++;
-        }
-
-        if (!empty($serverConfiguration['Manage_client_conf'])) {
-            $serverManageClientConf = $serverConfiguration['Manage_client_conf'];
-        } else {
-            $serverManageClientConf = 'no';
-            $serverConfApplyNeeded++;
-        }
-
-        if (!empty($serverConfiguration['Manage_client_repos'])) {
-            $serverManageClientRepos = $serverConfiguration['Manage_client_repos'];
-        } else {
-            $serverManageClientRepos = 'no';
-            $serverConfApplyNeeded++;
-        }
+        $serverPackageType = $serverConfiguration['Package_type'];
+        $serverManageClientConf = $serverConfiguration['Manage_client_conf'];
+        $serverManageClientRepos = $serverConfiguration['Manage_client_repos'];
 
         /**
          *  Getting all profiles names

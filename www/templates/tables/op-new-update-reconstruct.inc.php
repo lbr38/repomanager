@@ -64,16 +64,18 @@
             }
             echo '</tr>';
         }
-        if (!empty($this->onlySyncDifference)) {
-            echo '<tr><th>ONLY SYNC THE DIFFERENCE</th><td>';
+        if ($this->op->getAction() != 'reconstruct') {
+            if (!empty($this->onlySyncDifference)) {
+                echo '<tr><th>ONLY SYNC THE DIFFERENCE</th><td>';
 
-            if ($this->onlySyncDifference == "yes") {
-                echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                if ($this->onlySyncDifference == "yes") {
+                    echo '<span><img src="assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
+                }
+                if ($this->onlySyncDifference == "no") {
+                    echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
+                }
+                echo '</tr>';
             }
-            if ($this->onlySyncDifference == "no") {
-                echo '<span><img src="assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-            }
-            echo '</tr>';
         }
         if (!empty($this->targetGroup)) {
             echo '<tr><th>ADD TO GROUP</th><td><img src="assets/icons/folder.svg" class="icon" />' . $this->targetGroup . '</td></tr>';
