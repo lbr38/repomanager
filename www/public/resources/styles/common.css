@@ -113,8 +113,10 @@ pre {
 .flex-div-15 { flex: 0 0 14%; }.flex-div-20 { flex: 0 0 19%; }.flex-div-25 { flex: 0 0 24%; }.flex-div-30 { flex: 0 0 29%; }
 .flex-div-33 { flex: 0 0 32%; }.flex-div-40 { flex: 0 0 39%; }.flex-div-50 { flex: 0 0 47%; }.flex-div-60 { flex: 0 0 59%; }
 .flex-div-65 { flex: 0 0 64%; }.flex-div-68 { flex: 0 0 67%; }.flex-div-80 { flex: 0 0 79%; }.flex-div-100 { flex: 0 0 98%; }
+.flex-grow { flex-grow: 1; }
 .grid {display: grid}
 .grid-2 {grid-template-columns: auto auto}
+.justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
 .align-content-center {align-content: center}
 .align-item-center {align-items: center}

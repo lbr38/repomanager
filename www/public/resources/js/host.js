@@ -971,17 +971,14 @@ function getHostWithKernel(kernel)
                     if (key == 'Ip') {
                         ip = value;
                     }
+                    if (key == 'Os') {
+                        os = value;
+                    }
                     if (key == 'Os_family') {
-                        if (value.toUpperCase() == 'REDHAT') {
-                            osFamilyIcon = '<img src="assets/icons/products/redhat.png" class="icon">';
-                        } else if (value.toUpperCase() == 'DEBIAN') {
-                            osFamilyIcon = '<img src="assets/icons/products/debian.png" class="icon">';
-                        } else {
-                            osFamilyIcon = '<img src="assets/icons/server.svg" class="icon">';
-                        }
+                        os_family = value;
                     }
                 });
-                hosts += '<div>' + osFamilyIcon + '<span>' + hostname + ' (' + ip + ') </span></div>';
+                hosts += '<div>' + printOsIcon(os, os_family) + '<span>' + hostname + ' (' + ip + ') </span></div>';
             });
 
             $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');
@@ -1021,17 +1018,14 @@ function getHostWithProfile(profile)
                     if (key == 'Ip') {
                         ip = value;
                     }
+                    if (key == 'Os') {
+                        os = value;
+                    }
                     if (key == 'Os_family') {
-                        if (value.toUpperCase() == 'REDHAT') {
-                            osFamilyIcon = '<img src="assets/icons/products/redhat.png" class="icon">';
-                        } else if (value.toUpperCase() == 'DEBIAN') {
-                            osFamilyIcon = '<img src="assets/icons/products/debian.png" class="icon">';
-                        } else {
-                            osFamilyIcon = '<img src="assets/icons/server.svg" class="icon">';
-                        }
+                        os_family = value;
                     }
                 });
-                hosts += '<div>' + osFamilyIcon + '<span>' + hostname + ' (' + ip + ') </span></div>';
+                hosts += '<div>' + printOsIcon(os, os_family) + '<span>' + hostname + ' (' + ip + ') </span></div>';
             });
 
             $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');

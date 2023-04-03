@@ -18,6 +18,15 @@ LAST_TIME=""
 STATS_LOG_PARSING_RUNNING="false"
 COUNTER="0"
 
+WWW_DIR=""
+WWW_USER=""
+REPOS_DIR=""
+UPDATE_BRANCH=""
+STATS_ENABLED=""
+STATS_LOG_PATH=""
+PLANS_ENABLED=""
+PLANS_REMINDERS_ENABLED=""
+
 # Create log dirs if not exist
 mkdir -p "$LOG_DIR"
 mkdir -p "$STATS_LOG_DIR"
@@ -28,18 +37,113 @@ function getVars
     # Check is database exists
     while [ ! -f "$DB" ]; do
         echo "Error: Database '$DB' not found."
-        sleep 3
+        sleep 2
     done
 
-    WWW_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_DIR FROM settings" | sed 's/ //g')
-    WWW_USER=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_USER FROM settings" | sed 's/ //g')
-    REPOS_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT REPOS_DIR FROM settings" | sed 's/ //g')
-    UPDATE_BRANCH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT UPDATE_BRANCH FROM settings" | sed 's/ //g')
-    STATS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_ENABLED FROM settings" | sed 's/ //g')
+    RETRY=0
+    while [ -z "$WWW_DIR" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: WWW_DIR not found in database."
+            exit 1
+        fi
+
+        WWW_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_DIR FROM settings" | sed 's/ //g')
+
+        (( RETRY++ ))
+        sleep 2
+    done
+
+    RETRY=0
+    while [ -z "$WWW_USER" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: WWW_USER not found in database."
+            exit 1
+        fi
+
+        WWW_USER=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT WWW_USER FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
+    RETRY=0
+    while [ -z "$REPOS_DIR" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: REPOS_DIR not found in database."
+            exit 1
+        fi
+
+        REPOS_DIR=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT REPOS_DIR FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
+    RETRY=0
+    while [ -z "$UPDATE_BRANCH" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: UPDATE_BRANCH not found in database."
+            exit 1
+        fi
+
+        UPDATE_BRANCH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT UPDATE_BRANCH FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
+    RETRY=0
+    while [ -z "$STATS_ENABLED" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: STATS_ENABLED not found in database."
+            exit 1
+        fi
+
+        STATS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_ENABLED FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
     # Access log file to analyze
-    STATS_LOG_PATH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_LOG_PATH FROM settings" | sed 's/ //g')
-    PLANS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_ENABLED FROM settings" | sed 's/ //g')
-    PLANS_REMINDERS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_REMINDERS_ENABLED FROM settings" | sed 's/ //g')
+    RETRY=0
+    while [ -z "$STATS_LOG_PATH" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: STATS_LOG_PATH not found in database."
+            exit 1
+        fi
+
+        STATS_LOG_PATH=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT STATS_LOG_PATH FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
+    RETRY=0
+    while [ -z "$PLANS_ENABLED" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: PLANS_ENABLED not found in database."
+            exit 1
+        fi
+
+        PLANS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_ENABLED FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
+
+    RETRY=0
+    while [ -z "$PLANS_REMINDERS_ENABLED" ]; do
+        if [ $RETRY -gt 3 ];then
+            echo "Error: PLANS_REMINDERS_ENABLED not found in database."
+            exit 1
+        fi
+
+        PLANS_REMINDERS_ENABLED=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 10000' "$DB" "SELECT PLANS_REMINDERS_ENABLED FROM settings" | sed 's/ //g')
+        
+        sleep 2
+        (( RETRY++ ))
+    done
 }
 
 # Check if this service needs to be restarted

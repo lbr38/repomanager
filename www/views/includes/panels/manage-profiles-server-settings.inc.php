@@ -1,15 +1,13 @@
 <?php ob_start(); ?>
 
 <form id="applyServerConfigurationForm" autocomplete="off">
-    <?php
-    /**
-     *  Si une des valeurs était vide alors on indique à l'utilisateur qu'il faut valider le formulaire au moins une fois pour valider et appliquer la configuration.
-     */
-    if ($serverConfApplyNeeded > 0) {
-        echo '<p><img src="assets/icons/warning.png" class="icon" />Some parameters were empty and have been generated automatically. You must validate this form to apply configuration.<br><br></p>';
-    } ?>
-    <div class="operation-form">
-        <input type="hidden" id="serverPackageTypeInput" class="td-medium" value="<?=$serverPackageType?>" />
+    <div class="grid grid-2 align-item-center row-gap-4">
+        <span>
+            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Handled package types, defined from enabled repo types on this server." />Handled packages
+        </span>
+        <span>
+            <?= $serverPackageType ?>
+        </span>
         <span>
             <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will be able to specify repos files for each profile." />Manage profiles repos configuration
         </span>

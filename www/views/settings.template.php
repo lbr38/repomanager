@@ -98,6 +98,8 @@
                         <?php
                         if (empty(EMAIL_RECIPIENT)) {
                             echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } else {
+                            echo '<img id="send-test-email-btn" src="assets/icons/send.svg" class="icon" title="Send a test email">';
                         } ?>
                     </div>
                 </div>

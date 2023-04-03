@@ -831,38 +831,70 @@ class Common
     }
 
     /**
+     *  Print OS icon image
+     */
+    public static function printOsIcon(string $os = null, string $os_family = null)
+    {
+        if (!empty($os)) {
+            if (preg_match('/centos/i', $os)) {
+                return '<img src="assets/icons/products/centos.png" class="icon-np" title="' . $os . '" />';
+            } elseif (preg_match('/debian|armbian/i', $os)) {
+                return '<img src="assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
+            } elseif (preg_match('/ubuntu|kubuntu|xubuntu|mint/i', $os)) {
+                return '<img src="assets/icons/products/ubuntu.png" class="icon-np" title="' . $os . '" />';
+            }
+        }
+
+        /**
+         *  If OS could not be found and OS family is specified
+         */
+        if (!empty($os_family)) {
+            if (preg_match('/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i', $os_family)) {
+                return '<img src="assets/icons/products/debian.png" class="icon-np" title="' . $os . '" />';
+            } elseif (preg_match('/rhel|centos|fedora/i', $os_family)) {
+                return '<img src="assets/icons/products/redhat.png" class="icon-np" title="' . $os . '" />';
+            }
+        }
+
+        /**
+         *  Else return generic icon
+         */
+        return '<img src="assets/icons/products/tux.png" class="icon-np" title="' . $os . '" />';
+    }
+
+    /**
      *  Print product icon image
      */
     public static function printProductIcon(string $product)
     {
         if (preg_match('/python/i', $product)) {
-            return '<img src="assets/icons/products/python.png" class="icon" />';
+            return '<img src="assets/icons/products/python.png" class="icon-np" />';
         } elseif (preg_match('/^code$/i', $product)) {
-            return '<img src="assets/icons/products/vscode.png" class="icon" />';
+            return '<img src="assets/icons/products/vscode.png" class="icon-np" />';
         } elseif (preg_match('/^firefox/i', $product)) {
-            return '<img src="assets/icons/products/firefox.png" class="icon" />';
+            return '<img src="assets/icons/products/firefox.png" class="icon-np" />';
         } elseif (preg_match('/^chrome-$/i', $product)) {
-            return '<img src="assets/icons/products/chrome.png" class="icon" />';
+            return '<img src="assets/icons/products/chrome.png" class="icon-np" />';
         } elseif (preg_match('/^chromium-$/i', $product)) {
-            return '<img src="assets/icons/products/chromium.png" class="icon" />';
+            return '<img src="assets/icons/products/chromium.png" class="icon-np" />';
         } elseif (preg_match('/^brave-browser$/i', $product)) {
-            return '<img src="assets/icons/products/brave.png" class="icon" />';
+            return '<img src="assets/icons/products/brave.png" class="icon-np" />';
         } elseif (preg_match('/^filezilla/i', $product)) {
-            return '<img src="assets/icons/products/filezilla.png" class="icon" />';
+            return '<img src="assets/icons/products/filezilla.png" class="icon-np" />';
         } elseif (preg_match('/^java/i', $product)) {
-            return '<img src="assets/icons/products/java.png" class="icon" />';
+            return '<img src="assets/icons/products/java.png" class="icon-np" />';
         } elseif (preg_match('/^fonts-/i', $product)) {
-            return '<img src="assets/icons/products/fonts.png" class="icon" />';
+            return '<img src="assets/icons/products/fonts.png" class="icon-np" />';
         } elseif (preg_match('/^teams$/i', $product)) {
-            return '<img src="assets/icons/products/teams.png" class="icon" />';
+            return '<img src="assets/icons/products/teams.png" class="icon-np" />';
         } elseif (preg_match('/^teamviewer$/i', $product)) {
-            return '<img src="assets/icons/products/teamviewer.png" class="icon" />';
+            return '<img src="assets/icons/products/teamviewer.png" class="icon-np" />';
         } elseif (preg_match('/^thunderbird/i', $product)) {
-            return '<img src="assets/icons/products/thunderbird.png" class="icon" />';
+            return '<img src="assets/icons/products/thunderbird.png" class="icon-np" />';
         } elseif (preg_match('/^vlc/i', $product)) {
-            return '<img src="assets/icons/products/vlc.png" class="icon" />';
+            return '<img src="assets/icons/products/vlc.png" class="icon-np" />';
         } else {
-            return '<img src="assets/icons/package.svg" class="icon" />';
+            return '<img src="assets/icons/package.svg" class="icon-np" />';
         }
     }
 }

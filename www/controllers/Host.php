@@ -982,6 +982,14 @@ class Host
     }
 
     /**
+     *  List all hosts that require a reboot
+     */
+    public function listRebootRequired()
+    {
+        return $this->model->listRebootRequired();
+    }
+
+    /**
      *  Retourne le nombre d'hôtes utilisant le profil spécifié
      */
     public function countByProfile(string $profile)
@@ -1652,6 +1660,18 @@ class Host
     public function updateLinupdateVersion(string $version)
     {
         $this->model->updateLinupdateVersion($this->id, Common::validateData($version));
+    }
+
+    /**
+     *  Update host's reboot required status in database
+     */
+    public function updateRebootRequired(string $status)
+    {
+        if ($status != 'true' and $status != 'false') {
+            throw new Exception('Reboot status is invalid');
+        }
+
+        $this->model->updateRebootRequired($this->id, $status);
     }
 
     /**

@@ -1,6 +1,21 @@
 <?php
 
 /**
+ *  Send a test email
+ */
+if ($action == "sendTestEmail") {
+    $mymail = new \Controllers\Mail(EMAIL_RECIPIENT, 'Test email', 'This is a test email sended from Repomanager.');
+
+    try {
+        $mymail->send();
+    } catch (Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Email sended');
+}
+
+/**
  *  Apply settings
  */
 if ($action == "applySettings" and !empty($_POST['settings_params'])) {
