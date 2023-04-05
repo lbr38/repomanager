@@ -1,6 +1,29 @@
 <?php
 
 /**
+ *  Generate new API key
+ */
+if (
+    $_POST['action'] == "generateApikey"
+    and !empty($_SESSION['username'])
+) {
+    $mylogin = new \Controllers\Login();
+
+    try {
+        $apiKey = $mylogin->generateApiKey();
+        $mylogin->updateApiKey($_SESSION['username'], $apiKey);
+
+        /**
+         *  Send back API key to javascript to print it to the user
+         */
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, array('message' => 'New API key generated', 'apikey' => $apiKey));
+}
+
+/**
  *  Edit personnal informations
  */
 if (

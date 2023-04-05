@@ -1,4 +1,15 @@
 /**
+ *  Event: generate new apikey
+ */
+$(document).on('click','#user-generate-apikey-btn',function () {
+    generateApikey();
+
+    // reloadContentByClass("slide-panel-reloadable-div[slide-panel='userspace']");
+
+    event.stopPropagation();
+});
+
+/**
  *  Event: edit user personnal informations
  */
 $(document).on('submit','#user-edit-info',function () {
@@ -29,6 +40,37 @@ $(document).on('submit','#user-change-password',function () {
 
     return false;
 });
+
+
+/**
+ *  Ajax: generate new apikey
+ */
+function generateApikey()
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "login",
+            action: "generateApikey"
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message.message, 'success');
+
+            /**
+             *  Print API key
+             */
+            $('.slide-panel-container[slide-panel=userspace]').find('#user_apikey').html(jsonValue.message.apikey);
+            $('.slide-panel-container[slide-panel=userspace]').find('#user-apikey-copy-btn').css('display', 'inline-block');
+        },
+        error: function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
 
 /**
  * Ajax: edit personnal informations

@@ -122,26 +122,17 @@ class Host
 
     public function getId()
     {
-        if (!empty($this->id)) {
-            return $this->id;
-        }
-        return '';
+        return $this->id;
     }
 
     public function getAuthId()
     {
-        if (!empty($this->authId)) {
-            return $this->authId;
-        }
-        return '';
+        return $this->authId;
     }
 
     public function getToken()
     {
-        if (!empty($this->token)) {
-            return $this->token;
-        }
-        return '';
+        return $this->token;
     }
 
     /**
@@ -160,14 +151,14 @@ class Host
         /**
          *  Récupération à partir d'un id d'hôte et du token
          */
-        if (empty($this->authId) or empty($this->token)) {
-            throw new Exception("Invalid identifiers");
+        if (empty($this->authId)) {
+            throw new Exception('Invalid authId identifier');
         }
 
-        $id = $this->model->getIdByAuth($this->authId, $this->token);
+        $id = $this->model->getIdByAuth($this->authId);
 
         if (empty($id)) {
-            throw new Exception("No host Id has been found from those identifiers");
+            throw new Exception("No host Id has been found from this authId identifier");
         }
 
         return $id;
@@ -914,7 +905,7 @@ class Host
     /**
      *  Liste tous les hôtes
      */
-    public function listAll(string $status)
+    public function listAll(string $status = 'active')
     {
         return $this->model->listAll($status);
     }
@@ -1064,17 +1055,27 @@ class Host
         }
 
         /**
-         *  On génère un nouvel id d'authentification pour cet hôte
+         *  Generate a new authId for this host
+         *  This authId will be used to authenticate the host when it will try to connect to the API
+         *  It must be unique so loop until we find a unique authId
          */
         $this->authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
-         *  On génère un nouveau token pour cet hôte
+         *  It must be unique so loop until we find a unique authId
+         *  We check if an host exist with the same authId
+         */
+        while (!empty($this->model->getIdByAuth($this->authId))) {
+            $this->authId = 'id_' . bin2hex(openssl_random_pseudo_bytes(16));
+        }
+
+        /**
+         *  Generate a new token for this host
          */
         $this->token = bin2hex(openssl_random_pseudo_bytes(16));
 
         /**
-         *  Le status de l'agent est défini à 'inconnu' lorsqu'on enregistre pour la première fois un hôte
+         *  The agent status is set to 'unknow' when we register a new host for the first time
          */
         $this->onlineStatus = 'unknow';
 
@@ -1138,16 +1139,9 @@ class Host
     public function unregister()
     {
         /**
-         *  On vérifie que l'ip et le token correspondent bien à un hôte, si ce n'est pas le cas on quitte
-         */
-        if ($this->checkIdToken() === false) {
-            throw new Exception('Authentication failed.');
-        }
-
-        /**
          *  Changement du status de l'hôte en base de données ('deleted')
          */
-        $this->model->setHostInactive('', $this->authId, $this->token);
+        $this->model->setHostInactive($this->id);
     }
 
     public function setUpdateRequestStatus(string $type, string $status)
@@ -1480,30 +1474,39 @@ class Host
     }
 
     /**
-     *  Rechercher l'existance d'un paquet sur un hôte et retourner sa version
+     *  Search hosts with specified package
      */
-    public function searchPackage(string $id, string $packageName)
+    public function getHostsWithPackage(array $hostsId, string $packageName)
     {
+        $hosts = array();
+
         /**
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
-        if (empty($id)) {
-            throw new Exception("Host Id must be specified");
+        if (empty($hostsId)) {
+            throw new Exception("Host(s) Id must be specified");
+        }
+        if (!is_array($hostsId)) {
+            throw new Exception("Host(s) Id must be an array");
         }
 
         /**
          *  On vérifie que le nom du paquet ne contient pas de caractères invalides
          */
-        if (Common::isAlphanumDash($packageName, array('*')) === false) {
+        if (!Common::isAlphanumDash($packageName, array('*'))) {
             throw new Exception('Package name contains invalid characters');
         }
 
-        /**
-         *  Ouverture de la BDD dédiée de l'hôte
-         */
-        $this->model->openHostDb($id);
+        foreach ($hostsId as $id) {
+            /**
+             *  Ouverture de la BDD dédiée de l'hôte
+             */
+            $this->model->openHostDb($id);
+            $hosts[$id] = $this->model->getHostsWithPackage($packageName);
+            $this->model->closeHostDb();
+        }
 
-        return $this->model->searchPackage($packageName);
+        return $hosts;
     }
 
     /**
@@ -1575,7 +1578,7 @@ class Host
      */
     public function updateHostname(string $hostname)
     {
-        $this->model->updateHostname($this->authId, $this->token, Common::validateData($hostname));
+        $this->model->updateHostname($this->id, Common::validateData($hostname));
     }
 
     /**
@@ -1583,7 +1586,7 @@ class Host
      */
     public function updateOS(string $os)
     {
-        $this->model->updateOS($this->authId, $this->token, Common::validateData($os));
+        $this->model->updateOS($this->id, Common::validateData($os));
     }
 
     /**
@@ -1591,7 +1594,7 @@ class Host
      */
     public function updateOsVersion(string $osVersion)
     {
-        $this->model->updateOsVersion($this->authId, $this->token, Common::validateData($osVersion));
+        $this->model->updateOsVersion($this->id, Common::validateData($osVersion));
     }
 
     /**
@@ -1599,7 +1602,7 @@ class Host
      */
     public function updateOsFamily(string $osFamily)
     {
-        $this->model->updateOsFamily($this->authId, $this->token, Common::validateData($osFamily));
+        $this->model->updateOsFamily($this->id, Common::validateData($osFamily));
     }
 
     /**
@@ -1607,7 +1610,7 @@ class Host
      */
     public function updateType(string $virtType)
     {
-        $this->model->updateType($this->authId, $this->token, Common::validateData($virtType));
+        $this->model->updateType($this->id, Common::validateData($virtType));
     }
 
     /**
@@ -1615,7 +1618,7 @@ class Host
      */
     public function updateKernel(string $kernel)
     {
-        $this->model->updateKernel($this->authId, $this->token, Common::validateData($kernel));
+        $this->model->updateKernel($this->id, Common::validateData($kernel));
     }
 
     /**
@@ -1623,7 +1626,7 @@ class Host
      */
     public function updateArch(string $arch)
     {
-        $this->model->updateArch($this->authId, $this->token, Common::validateData($arch));
+        $this->model->updateArch($this->id, Common::validateData($arch));
     }
 
     /**
@@ -1631,7 +1634,7 @@ class Host
      */
     public function updateProfile(string $profile)
     {
-        $this->model->updateProfile($this->authId, $this->token, Common::validateData($profile));
+        $this->model->updateProfile($this->id, Common::validateData($profile));
     }
 
     /**
@@ -1639,7 +1642,7 @@ class Host
      */
     public function updateEnv(string $env)
     {
-        $this->model->updateEnv($this->authId, $this->token, Common::validateData($env));
+        $this->model->updateEnv($this->id, Common::validateData($env));
     }
 
     /**
