@@ -44,6 +44,6 @@ Repomanager runs on following systems:
 
 <h2>Installation and documentation</h2>
 
-Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki/Documentation">here</a>.
+Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki">here</a>.
 
 It should help you **installing** and starting using Repomanager.
