@@ -1,0 +1,14 @@
+---
+version: "3"
+services:
+  repomanager:
+    container_name: repomanager-container
+    image: repomanager-image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/lib/docker/volumes/repomanager-data:/var/lib/repomanager
+      - /var/lib/docker/volumes/repomanager-repo:/home/repo

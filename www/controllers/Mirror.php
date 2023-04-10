@@ -276,28 +276,65 @@ class Mirror
         $jsonArray = json_decode($json, true);
         unset($json);
 
-        foreach ($jsonArray['package'] as $data) {
+        /**
+         *  First count number of packages because retrieving the packages informations is different if there is only one package or multiple packages
+         */
+        $packageCount = $jsonArray['@attributes']['packages'];
+
+        /**
+         *  Case there is only one package in the target repository
+         */
+        if ($packageCount == 1) {
             /**
-             *  Find package location is set
+             *  Find package location
              */
-            if (!empty($data['location']['@attributes']['href'])) {
-                $packageLocation = $data['location']['@attributes']['href'];
+            if (!empty($jsonArray['package']['location']['@attributes']['href'])) {
+                $packageLocation = $jsonArray['package']['location']['@attributes']['href'];
 
                 /**
                  *  If package checksum is not found then it can not be retrieved
                  */
-                if (empty($data['checksum'])) {
+                if (empty($jsonArray['package']['checksum'])) {
                     $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Could not find checksum value for package ' . $packageLocation . '</span>' . PHP_EOL);
                     $error++;
-                    continue;
+                } else {
+                    $packageChecksum = $jsonArray['package']['checksum'];
+
+                    /**
+                     *  If path and checksum have been parsed, had them to the global rpm packages list array
+                     */
+                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
                 }
+            }
+        }
 
-                $packageChecksum = $data['checksum'];
-
+        /**
+         *  Case there is more than one package in the target repository
+         */
+        if ($packageCount > 1) {
+            foreach ($jsonArray['package'] as $data) {
                 /**
-                 *  If path and checksum have been parsed, had them to the global rpm packages list array
+                 *  Find package location
                  */
-                $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
+                if (!empty($data['location']['@attributes']['href'])) {
+                    $packageLocation = $data['location']['@attributes']['href'];
+
+                    /**
+                     *  If package checksum is not found then it can not be retrieved
+                     */
+                    if (empty($data['checksum'])) {
+                        $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Could not find checksum value for package ' . $packageLocation . '</span>' . PHP_EOL);
+                        $error++;
+                        continue;
+                    }
+
+                    $packageChecksum = $data['checksum'];
+
+                    /**
+                     *  If path and checksum have been parsed, had them to the global rpm packages list array
+                     */
+                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
+                }
             }
         }
 

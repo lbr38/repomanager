@@ -4,7 +4,7 @@
 FROM debian:11
 
 # Metadata
-LABEL version="1.0-beta" maintainer="lbr38 <repomanager@protonmail.com>"
+LABEL version="1.1-beta" maintainer="lbr38 <repomanager@protonmail.com>"
 
 # Variables
 ARG WWW_DIR="/var/www/repomanager"
@@ -15,11 +15,11 @@ ARG REPOS_DIR="/home/repo"
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl wget vim ca-certificates apt-transport-https software-properties-common -y
+RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl wget vim ca-certificates apt-transport-https -y
 
 # Add PHP 8.1 repository
 RUN curl -fsSL  https://packages.sury.org/php/apt.gpg| gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-keyring.gpg
-RUN echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+RUN echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/sury-php.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.1
@@ -33,12 +33,10 @@ RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
 # SERVICES CONFIG
 
 # Configure Nginx
-# COPY config/nginx/repomanager.conf /etc/nginx/sites-enabled/repomanager.conf
 RUN cp /tmp/repomanager/docker/config/nginx/repomanager.conf /etc/nginx/sites-enabled/repomanager.conf
 RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 
 # Configure PHP
-# COPY config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 
 # Copy repomanager files
@@ -47,11 +45,13 @@ RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
 RUN touch $WWW_DIR/.docker
 
 # Set basic permissions
+RUN groupadd repomanager
+RUN usermod -a -G repomanager www-data
 RUN chown -R www-data:www-data $WWW_DIR $DATA_DIR $REPOS_DIR
 
 # Copy entrypoint script
 RUN cp /tmp/repomanager/docker/entrypoint.sh /tmp/entrypoint.sh
-RUN chmod +x /tmp/entrypoint.sh
+RUN chmod 700 /tmp/entrypoint.sh
 
 # Expose port 8080
 EXPOSE 8080
