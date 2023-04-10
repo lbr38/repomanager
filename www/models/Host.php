@@ -163,13 +163,12 @@ class Host extends Model
     /**
      *  Update hostname in database
      */
-    public function updateHostname(string $authId, string $token, string $hostname)
+    public function updateHostname(string $id, string $hostname)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Hostname = :hostname WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Hostname = :hostname WHERE Id = :id");
             $stmt->bindValue(':hostname', $hostname);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -179,13 +178,12 @@ class Host extends Model
     /**
      *  Update OS in database
      */
-    public function updateOS(string $authId, string $token, string $os)
+    public function updateOS(string $id, string $os)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os', $os);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -195,13 +193,12 @@ class Host extends Model
     /**
      *  Update OS release version in database
      */
-    public function updateOsVersion(string $authId, string $token, string $osVersion)
+    public function updateOsVersion(string $id, string $osVersion)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os_version', $osVersion);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -211,13 +208,12 @@ class Host extends Model
     /**
      *  Update OS family in database
      */
-    public function updateOsFamily(string $authId, string $token, string $osFamily)
+    public function updateOsFamily(string $id, string $osFamily)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':os_family', $osFamily);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -227,13 +223,12 @@ class Host extends Model
     /**
      *  Update virtualization type in database
      */
-    public function updateType(string $authId, string $token, string $type)
+    public function updateType(string $id, string $type)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -243,13 +238,12 @@ class Host extends Model
     /**
      *  Update kernel version in database
      */
-    public function updateKernel(string $authId, string $token, string $kernel)
+    public function updateKernel(string $id, string $kernel)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':kernel', $kernel);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -259,13 +253,12 @@ class Host extends Model
     /**
      *  Update arch in database
      */
-    public function updateArch(string $authId, string $token, string $arch)
+    public function updateArch(string $id, string $arch)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':arch', $arch);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -275,13 +268,12 @@ class Host extends Model
     /**
      *  Update profile in database
      */
-    public function updateProfile(string $authId, string $token, string $profile)
+    public function updateProfile(string $id, string $profile)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':profile', $profile);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -291,13 +283,12 @@ class Host extends Model
     /**
      *  Update environment in database
      */
-    public function updateEnv(string $authId, string $token, string $env)
+    public function updateEnv(string $id, string $env)
     {
         try {
             $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE AuthId = :authId and Token = :token");
             $stmt->bindValue(':env', $env);
-            $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -310,11 +301,11 @@ class Host extends Model
     public function updateAgentStatus(string $id, string $status)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :hostId");
+            $stmt = $this->db->prepare("UPDATE hosts SET Online_status = :onlineStatus, Online_status_date = :onlineStatusDate, Online_status_time = :OnlineStatusTime WHERE Id = :id");
             $stmt->bindValue(':onlineStatus', $status);
             $stmt->bindValue(':onlineStatusDate', date('Y-m-d'));
             $stmt->bindValue(':OnlineStatusTime', date('H:i:s'));
-            $stmt->bindValue(':hostId', $id);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -327,9 +318,9 @@ class Host extends Model
     public function updateLinupdateVersion(string $id, string $version)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :hostId");
+            $stmt = $this->db->prepare("UPDATE hosts SET Linupdate_version = :version WHERE Id = :id");
             $stmt->bindValue(':version', $version);
-            $stmt->bindValue(':hostId', $id);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -342,9 +333,9 @@ class Host extends Model
     public function updateRebootRequired(string $id, string $status)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :hostId");
+            $stmt = $this->db->prepare("UPDATE hosts SET Reboot_required = :reboot WHERE Id = :id");
             $stmt->bindValue(':reboot', $status);
-            $stmt->bindValue(':hostId', $id);
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -382,18 +373,17 @@ class Host extends Model
     /**
      *  Récupère l'ID en BDD d'un hôte
      */
-    public function getIdByAuth(string $authId, string $token)
+    public function getIdByAuth(string $authId)
     {
+        $id = '';
+
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId=:authId and Token=:token");
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId");
             $stmt->bindValue(':authId', $authId);
-            $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        $id = '';
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $id = $row['Id'];
@@ -581,8 +571,8 @@ class Host extends Model
     public function checkIdToken(string $authId, string $token)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :hostId and Token = :token and Status = 'active'");
-            $stmt->bindValue(':hostId', $authId);
+            $stmt = $this->db->prepare("SELECT Id FROM hosts WHERE AuthId = :authId and Token = :token and Status = 'active'");
+            $stmt->bindValue(':authId', $authId);
             $stmt->bindValue(':token', $token);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -848,10 +838,12 @@ class Host extends Model
     }
 
     /**
-     *  Rechercher l'existance d'un paquet sur un hôte et retourner sa version
+     *  Search hosts with specified package
      */
-    public function searchPackage(string $packageName)
+    public function getHostsWithPackage(string $packageName)
     {
+        $packages = array();
+
         try {
             $stmt = $this->host_db->prepare("SELECT Name, Version FROM packages WHERE Name LIKE :name");
             $stmt->bindValue(':name', "${packageName}%");
@@ -861,27 +853,28 @@ class Host extends Model
         }
 
         /**
-         *  Si aucun résultat on renvoi false
+         *  If no result, return empty array
          */
         if ($this->host_db->isempty($result) === true) {
-            return false;
+            return $packages;
         }
 
         /**
          *  Sinon on récupère les données
          */
-        $packages = array();
+        // $packages = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $packageName = $row['Name'];
             $packageVersion = $row['Version'];
-            $packages += [$packageName => $packageVersion];
+            $packages[$packageName] = $packageVersion;
         }
 
         /**
          *  Le résultat sera traité par js donc on transmets un array au format JSON
          */
-        return json_encode($packages);
+        // return json_encode($packages);
+        return $packages;
     }
 
     /**
@@ -1479,18 +1472,11 @@ class Host extends Model
      *  Désactive un hôte en base de données
      *  Pour identifier l'hôte on peut soit spécifier son Id, soit ses informations d'identification
      */
-    public function setHostInactive(string $hostId = null, string $authId = null, string $token = null)
+    public function setHostInactive(string $hostId)
     {
         try {
-            if (!empty($hostId)) {
-                $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :hostId");
-                $stmt->bindValue(':hostId', $hostId);
-            }
-            if (!empty($authId) and !empty($token)) {
-                $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE AuthId = :authId and Token = :token");
-                $stmt->bindValue(':authId', $authId);
-                $stmt->bindValue(':token', $token);
-            }
+            $stmt = $this->db->prepare("UPDATE hosts SET Status = 'deleted', AuthId = null, Token = null WHERE id = :hostId");
+            $stmt->bindValue(':hostId', $hostId);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

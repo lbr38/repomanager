@@ -33,15 +33,13 @@ if ($action == "getHostWithProfile" and !empty($_POST['profile'])) {
 /**
  *  Search if a package is installed on a host (from Search package form)
  */
-if ($action == "searchHostPackage" and !empty($_POST['hostid']) and !empty($_POST['package'])) {
-    $hostid  = \Controllers\Common::validateData($_POST['hostid']);
-    $package = \Controllers\Common::validateData($_POST['package']);
+if ($action == "getHostsWithPackage" and !empty($_POST['hostsIdArray']) and !empty($_POST['package'])) {
     $myhost = new \Controllers\Host();
 
     try {
-        $result = $myhost->searchPackage($hostid, $package);
+        $result = $myhost->getHostsWithPackage($_POST['hostsIdArray'], $_POST['package']);
         /**
-         *  If no package has been found
+         *  If no hosts have been found
          */
         if ($result === false) {
             response(HTTP_BAD_REQUEST, 'Package has not been found on any hosts');
@@ -50,7 +48,7 @@ if ($action == "searchHostPackage" and !empty($_POST['hostid']) and !empty($_POS
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, $result);
+    response(HTTP_OK, json_encode($result));
 }
 
 /*

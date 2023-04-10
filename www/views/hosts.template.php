@@ -1,14 +1,16 @@
-<section>
+<section class="section-main">
 
     <h3>OVERVIEW</h3>
 
     <br>
+
+    <?php
+    if ($totalHosts == 0) {
+        echo '<p>No host configured yet.</p>';
+    } ?>
+
         <div class="hosts-charts-container">
             <?php
-            if ($totalHosts == 0) {
-                echo '<p>No host configured yet.</p>';
-            }
-
             if ($totalHosts >= 1) : ?>
                 <div class="hosts-chart-sub-container div-generic-blue">
                     <span class="hosts-chart-title">Hosts (<?= $totalHosts ?>)</span>
@@ -191,7 +193,7 @@
                                     </div>
                                     <div>
                                         <p>Search package:</p>
-                                        <input type="text" id="searchHostPackageInput" onkeyup="searchHostPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
+                                        <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                     </div>
                                 </div>
                             </div>
@@ -345,7 +347,7 @@
                                                     /**
                                                      *  Message du dernier état connu
                                                      */
-                                                    $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . '  ' . $host['Online_status_time'];
+                                                    $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' ' . $host['Online_status_time'];
                                                     /**
                                                      *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
                                                      */

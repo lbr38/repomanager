@@ -308,6 +308,7 @@ class Connection extends SQLite3
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Username VARCHAR(255) NOT NULL,
         Password CHAR(60),
+        Api_key CHAR(32),
         First_name VARCHAR(50),
         Last_name VARCHAR(50),
         Email VARCHAR(100),

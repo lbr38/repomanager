@@ -18,16 +18,20 @@ if (!filesize(HOSTS_DB)) {
 /**
  *  Open hosts database
  */
-$this->getConnection('hosts');
+$hostsDb = new \Models\Connection('hosts');
 
 /**
  *  Check if Allow_overwrite column exists in profile table
  */
-if ($this->db->columnExist('hosts', 'Linupdate_version') === true) {
+if ($hostsDb->columnExist('hosts', 'Linupdate_version') === true) {
     return;
 }
 
 /**
  *  Add Linupdate_version column
  */
-$this->db->exec("ALTER TABLE hosts ADD Linupdate_version VARCHAR(255)");
+$hostsDb->exec("ALTER TABLE hosts ADD Linupdate_version VARCHAR(255)");
+
+$hostsDb->close();
+
+unset($hostsDb);

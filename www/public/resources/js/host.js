@@ -233,18 +233,18 @@ function searchHost()
 /**
  *  Rechercher les hôtes possédant un paquet
  */
-var searchPackage_locked = false;
+var getHostsWithPackage_locked = false;
 
-function searchHostPackage()
+function getHostsWithPackage()
 {
     /**
      *  Si une recherche est déjà en cours, on sort
      */
-    if (searchPackage_locked === true) {
+    if (getHostsWithPackage_locked === true) {
         return;
     }
 
-    searchPackage_locked = true;
+    getHostsWithPackage_locked = true;
 
     /**
      *  A chaque saisie on (ré)-affiche tous les éléments masquées
@@ -262,31 +262,30 @@ function searchHostPackage()
         /**
              *  Si l'input est vide, on quitte
              */
-        if (!$("#searchHostPackageInput").val()) {
-            searchPackage_locked = false;
+        if (!$("#getHostsWithPackageInput").val()) {
+            getHostsWithPackage_locked = false;
             return;
         }
 
         /**
          *  Récupération du terme recherché dans l'input
          */
-        var package = $("#searchHostPackageInput").val();
+        var package = $("#getHostsWithPackageInput").val();
+        var hostsId_array = [];
 
         $("td.host-update-status").hide();
 
         /**
-         *  Pour chaque id, on fait appel à la fonction searchHostPackage pour vérifier si le paquet existe sur l'hôte
+         *  Pour chaque id, on fait appel à la fonction getHostsWithPackage pour vérifier si le paquet existe sur l'hôte
          */
         $('.hosts-table').find(".host-tr").each(function () {
             var hostid = $(this).attr('hostid');
-
-            /**
-             *  Recherche en base de données si le paquet existe
-             */
-            searchPackage(hostid, package);
+            hostsId_array.push(hostid);
         });
 
-        searchPackage_locked = false;
+        getHostsWithPackageAjax(hostsId_array, package);
+
+        getHostsWithPackage_locked = false;
 
     },1000);
 }
@@ -828,59 +827,58 @@ function execAction(action, hosts_array)
 }
 
 /**
- * Ajax : recherche de la présence d'un paquet sur un hôte
- * @param {string} hostid
+ * Ajax: get hosts with a specific package
+ * @param {array} hostsId_array
  * @param {string} package
  */
-function searchPackage(hostid, package)
+function getHostsWithPackageAjax(hostsId_array, package)
 {
     $.ajax({
         type: "POST",
         url: "ajax/controller.php",
         data: {
             controller: "host",
-            action: "searchHostPackage",
-            hostid: hostid,
+            action: "getHostsWithPackage",
+            hostsIdArray: hostsId_array,
             package: package
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  On parse l'array JSON retourné avec le(s) paquet(s) trouvé(s) et leur version
-             *  Puis on construit la liste des paquets à afficher, séparés par un retour à la ligne
-             */
-            result = jQuery.parseJSON(jsonValue.message);
-            packagesFound = '';
-            for (var package in result) {
-                packagesFound += package + ' : ' + result[package] + '<br>';
+            const hostsArray = jQuery.parseJSON(jsonValue.message);
+
+            for (const [hostId, subArray] of Object.entries(hostsArray)) {
+                packagesFound = '';
+
+                /**
+                 *  If package found
+                 */
+                if (Object.keys(subArray).length > 0) {
+                    for (const [packageName, packageVersion] of Object.entries(subArray)) {
+                        /**
+                         *  Build package list
+                         */
+                        packagesFound += '<span><img src="assets/icons/package.svg" class="icon-np">' + packageName + ' (' + packageVersion + ')</span>';
+                    }
+
+                    /**
+                     *  Show the host and print the package(s) found
+                     */
+                    $('.host-tr[hostid=' + hostId + ']').show();
+                    $('.host-tr[hostid=' + hostId + ']').find('td.host-additionnal-info').html(packagesFound);
+                } else {
+                    /**
+                     *  Else hide the host
+                     */
+                    $('.host-tr[hostid=' + hostId + ']').hide();
+                }
             }
-            /**
-             *  Si le paquet est présent alors on affiche l'hôte dans le résultat de recherche, avec le nom du paquet et sa version dans un <td> prévu à cet effet
-             */
-            $('.host-tr[hostid=' + hostid + ']').show();
-            $('.host-tr[hostid=' + hostid + ']').find('td.host-additionnal-info').html('<span class="yellowtext">' + packagesFound + ' </span>');
-            /**
-             *  Masquage des div de groupes dont tous les hôtes ont été masqués
-             */
+
             hideGroupDiv();
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Si une exception a été retournée (paquet invalide par ex) alors on affiche l'erreur
-             */
-            if (jsonValue.message !== '') {
-                printAlert(jsonValue.message, 'error');
-            }
-            /**
-             *  Si le paquet n'est pas présent alors on masque la ligne de l'hôte dans le résultat de recherche
-             */
-            $('.host-tr[hostid=' + hostid + ']').hide();
-            /**
-             *  Masquage des div de groupes dont tous les hôtes ont été masqués
-             */
-            hideGroupDiv();
+            printAlert(jsonValue.message, 'error');
         },
     });
 }

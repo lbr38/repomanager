@@ -83,7 +83,7 @@ class Login extends Model
         $userInfo = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT users.Username, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username and State = 'active'");
+            $stmt = $this->db->prepare("SELECT users.Username, users.Api_key, users.First_name, users.Last_name, users.Email, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE Username = :username and State = 'active'");
             $stmt->bindValue(':username', $username);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ class Login extends Model
         $users = array();
 
         try {
-            $result = $this->db->query("SELECT users.Id, users.Username, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
+            $result = $this->db->query("SELECT users.Id, users.Username, users.Api_key, users.First_name, users.Last_name, users.Email, users.Type, user_role.Name as Role_name FROM users JOIN user_role ON users.Role = user_role.Id WHERE State = 'active' ORDER BY Username ASC");
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
@@ -122,14 +122,11 @@ class Login extends Model
      */
     public function addUser(string $username, string $hashedPassword, string $role)
     {
-        /**
-         *  Insertion de l'username, du mdp hashé et son salt en base de données
-         */
         try {
-            $stmt = $this->db->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES (:username, :password, :first_name, :role, 'active', 'local')");
+            $stmt = $this->db->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES (:username, :password, :firstName, :role, 'active', 'local')");
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashedPassword);
-            $stmt->bindValue(':first_name', $username);
+            $stmt->bindValue(':firstName', $username);
             $stmt->bindValue(':role', $role);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -160,7 +157,7 @@ class Login extends Model
     public function deleteUser(string $id)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Password = null WHERE Id = :id and Type = 'local'");
+            $stmt = $this->db->prepare("UPDATE users SET State = 'deleted', Api_key = null, Password = null WHERE Id = :id and Type = 'local'");
             $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -188,12 +185,6 @@ class Login extends Model
         }
 
         return true;
-
-        // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        //     $user = $row;
-        // }
-
-        // return $user;
     }
 
     /**
@@ -205,6 +196,21 @@ class Login extends Model
             $stmt = $this->db->prepare("UPDATE users SET Password = :password WHERE Username = :username and State = 'active' and Type = 'local'");
             $stmt->bindValue(':username', $username);
             $stmt->bindValue(':password', $hashedPassword);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Update user API key in database
+     */
+    public function updateApiKey(string $username, string $apiKey)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET Api_key = :apikey WHERE Username = :username and State = 'active' and Type = 'local'");
+            $stmt->bindValue(':username', $username);
+            $stmt->bindValue(':apikey', $apiKey);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

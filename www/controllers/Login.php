@@ -7,12 +7,13 @@ use Exception;
 class Login
 {
     private $model;
-    protected $username;
-    protected $password;
-    protected $firstName;
-    protected $lastName;
-    protected $email;
-    protected $role;
+    private $username;
+    private $password;
+    private $apiKey;
+    private $firstName;
+    private $lastName;
+    private $email;
+    private $role;
 
     public function __construct()
     {
@@ -31,12 +32,12 @@ class Login
 
     private function setFirstName(string $firstName = null)
     {
-        $this->first_name = Common::validateData($firstName);
+        $this->firstName = Common::validateData($firstName);
     }
 
     private function setLastName(string $lastName = null)
     {
-        $this->last_name = Common::validateData($lastName);
+        $this->lastName = Common::validateData($lastName);
     }
 
     private function setEmail(string $email = null)
@@ -49,14 +50,19 @@ class Login
         $this->role = Common::validateData($role);
     }
 
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
+
     public function getFirstName()
     {
-        return $this->first_name;
+        return $this->firstName;
     }
 
     public function getLastName()
     {
-        return $this->last_name;
+        return $this->lastName;
     }
 
     public function getEmail()
@@ -86,17 +92,6 @@ class Login
     }
 
     /**
-     *  Generate random password
-     */
-    private function generateRandomPassword()
-    {
-        $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$+-=%|{}[]&";
-        $shuffle = str_shuffle($combinaison);
-
-        return substr($shuffle, 0, 16);
-    }
-
-    /**
      *  Get username by user Id
      */
     private function getUsernameById(string $id)
@@ -111,12 +106,11 @@ class Login
     {
         $userInfo = $this->model->getAll($username);
 
-        $this->setFirstName($userInfo['First_name']);
-        $this->setLastName($userInfo['Last_name']);
-        $this->setRole($userInfo['Role_name']);
-        $this->setEmail($userInfo['Email']);
-
-        return true;
+        $this->apiKey = $userInfo['Api_key'];
+        $this->firstName = $userInfo['First_name'];
+        $this->lastName = $userInfo['Last_name'];
+        $this->role = $userInfo['Role_name'];
+        $this->email = $userInfo['Email'];
     }
 
     /**
@@ -168,8 +162,8 @@ class Login
         /**
          *  Hashing password with a salt automatically generated
          */
-        $password_hashed = password_hash($password, PASSWORD_BCRYPT);
-        if ($password_hashed === false) {
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        if ($hashedPassword === false) {
             throw new Exception("Error while hashing user password");
         }
 
@@ -186,7 +180,7 @@ class Login
         /**
          *  Insert new user in database
          */
-        $this->model->addUser($username, $password_hashed, $role);
+        $this->model->addUser($username, $hashedPassword, $role);
 
         \Models\History::set($_SESSION['username'], "Created user: <b>$username</b>", 'success');
 
@@ -223,48 +217,13 @@ class Login
         }
 
         /**
-         *  If specified password does not match database passord, then it is invalid
+         *  If specified password does not match database password, then it is invalid
          */
         if (!password_verify($password, $hashedPassword)) {
             \Models\History::set($username, 'Authentication failed: Invalid password', 'error');
             throw new Exception('Invalid login and/or password');
         }
     }
-
-    /**
-     *  Vérification auprès du serveur LDAP que le couple username / password renseigné est valide
-     */
-    // public function connLdap(string $username, string $password)
-    // {
-    //     /**
-    //      *  Si aucun serveur ldap n'est configuré alors on quitte
-    //      */
-    //     if (!defined('LDAP_SERVER')) {
-    //         return false;
-    //     }
-
-    //     // Eléments d'authentification LDAP
-    //     $ldaprdn  = 'uname';     // DN ou RDN LDAP
-    //     $ldappass = 'password';  // Mot de passe associé
-
-    //     // Connexion au serveur LDAP
-    //     $ldapconn = ldap_connect("ldap://ldap.example.com")
-    //         or die("Cannot connect to LDAP server.");
-
-    //     if ($ldapconn) {
-    //         // Connexion au serveur LDAP
-    //         $ldapbind = ldap_bind($ldapconn, $ldaprdn, $ldappass);
-
-    //         // Vérification de l'authentification
-    //         if ($ldapbind) {
-    //             echo "Connexion LDAP réussie...";
-    //         } else {
-    //             echo "Connexion LDAP échouée...";
-    //         }
-    //     }
-
-    //     return true;
-    // }
 
     /**
      *  Edit user personnal informations
@@ -416,6 +375,87 @@ class Login
          *  Return new password
          */
         return $password;
+    }
+
+    /**
+     *  Generate random password
+     */
+    private function generateRandomPassword()
+    {
+        $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$+-=%|{}[]&";
+        $shuffle = str_shuffle($combinaison);
+
+        return substr($shuffle, 0, 16);
+    }
+
+    /**
+     *  Generate random clear API key
+     */
+    public function generateApiKey()
+    {
+        /**
+         *  API key must be unique, loop until we get a unique one
+         */
+        while (empty($apiKey) or $this->apiKeyValid($apiKey) === true) {
+            $combinaison = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            $shuffle = str_shuffle($combinaison);
+            $apiKey = 'ak_' . substr($shuffle, 0, 32);
+        }
+
+        return $apiKey;
+    }
+
+    /**
+     *  Check if API key is part of one of the hashed API key in database
+     */
+    public function apiKeyValid(string $apiKey)
+    {
+        /**
+         *  Get all users to retrieve their API key
+         */
+        $usersList = $this->model->getUsers();
+
+        /**
+         *  Loop through all users API key
+         */
+        foreach ($usersList as $user) {
+            /**
+             *  Test if specified API key is one of the users API key
+             */
+            if (password_verify($apiKey, $user['Api_key'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     *  Update user API key
+     */
+    public function updateApiKey(string $username, string $apiKey)
+    {
+        $username = Common::validateData($username);
+
+        /**
+         *  Check that user exists
+         */
+        if ($this->userExists($username) !== true) {
+            throw new Exception("User $username does not exist");
+        }
+
+        /**
+         *  Hashing API key with salt
+         */
+        $hashedApiKey = password_hash($apiKey, PASSWORD_BCRYPT);
+        if ($hashedApiKey === false) {
+            throw new Exception("Error while hashing API key");
+        }
+
+        /**
+         *  Update API key in database
+         */
+        $this->model->updateApiKey($username, $hashedApiKey);
     }
 
     /**
