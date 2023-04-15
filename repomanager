@@ -148,8 +148,6 @@ function checkSystem
 # Set correct permissions on all directories and files used by repomanager
 function permissions
 {
-    ACTUAL_USER=$(whoami)
-
     # Check if directories and files exist
     if [ ! -d "$WWW_DIR" ];then
         echo -e "[$YELLOW ERROR $RESET] '$WWW_DIR' web directory not found."
@@ -597,6 +595,10 @@ while [ $# -ge 1 ];do
             help
             exit
            ;;
+        --www-user)
+            WWW_USER="$2"
+            shift
+        ;;
         --first-install|--install|-i)
             PROCEED_INSTALLATION="1"
         ;;

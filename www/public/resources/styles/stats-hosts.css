@@ -176,6 +176,10 @@
     z-index: 10;
 }
 
+.groups-list-container {
+    margin-bottom: 500px;
+}
+
 .groups-container .header-container {
     width: 32.8%;
     display: inline-block;

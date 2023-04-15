@@ -2,7 +2,7 @@
     <div>
         <h5>HELP</h5>
         <div>
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki/Documentation">
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
                 <p class="lowopacity">Documentation<img src="assets/icons/external-link.svg" class="icon" /></p>
             </a>
             <br>

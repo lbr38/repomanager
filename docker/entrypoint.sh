@@ -2,6 +2,8 @@
 
 WWW_DIR="/var/www/repomanager"
 
+$WWW_DIR/bin/repomanager --www-user www-data -p
+
 # Start services
 service php8.1-fpm start
 service nginx start
@@ -12,5 +14,3 @@ service nginx start
 
 # Start repomanager service
 bash $WWW_DIR/bin/service/repomanager-service
-
-# /bin/bash

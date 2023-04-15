@@ -499,7 +499,7 @@
                                     <input class="env-input" type="text" value="<?= $envName ?>" />
                                 </div>
                                 <div>
-                                    <img src="assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete environment <?= $envName ?>"/>
+                                    <img src="assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete <?= $envName ?> environment"/>
                                 </div>
                             </div>
                             <?php
