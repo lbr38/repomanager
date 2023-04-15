@@ -2,11 +2,13 @@
 version: "3"
 services:
   repomanager:
-    container_name: repomanager-container
+    container_name: repomanager
     image: repomanager-image
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        fqdn: repomanager.example.com
     ports:
       - "8080:8080"
     volumes:

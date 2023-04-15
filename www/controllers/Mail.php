@@ -55,7 +55,7 @@ class Mail
         include_once(ROOT . '/templates/mail/mail.template.html.php');
         $template = ob_get_clean();
 
-        if (!mail($this->to, $this->subject, $template, implode("\r\n", $this->headers))) {
+        if (!mail($this->to, $this->subject, $template, implode("\r\n", $this->headers), '-fnoreply@' . WWW_HOSTNAME)) {
             throw new Exception('Error: cannot send email');
         }
     }
