@@ -181,7 +181,7 @@ class Host extends Model
     public function updateOS(string $id, string $os)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os = :os WHERE Id = :id");
             $stmt->bindValue(':os', $os);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -196,7 +196,7 @@ class Host extends Model
     public function updateOsVersion(string $id, string $osVersion)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_version = :os_version WHERE Id = :id");
             $stmt->bindValue(':os_version', $osVersion);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -211,7 +211,7 @@ class Host extends Model
     public function updateOsFamily(string $id, string $osFamily)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Os_family = :os_family WHERE Id = :id");
             $stmt->bindValue(':os_family', $osFamily);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -226,7 +226,7 @@ class Host extends Model
     public function updateType(string $id, string $type)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Type = :type WHERE Id = :id");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -241,7 +241,7 @@ class Host extends Model
     public function updateKernel(string $id, string $kernel)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Kernel = :kernel WHERE Id = :id");
             $stmt->bindValue(':kernel', $kernel);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -256,7 +256,7 @@ class Host extends Model
     public function updateArch(string $id, string $arch)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Arch = :arch WHERE Id = :id");
             $stmt->bindValue(':arch', $arch);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -271,7 +271,7 @@ class Host extends Model
     public function updateProfile(string $id, string $profile)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Profile = :profile WHERE Id = :id");
             $stmt->bindValue(':profile', $profile);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -286,7 +286,7 @@ class Host extends Model
     public function updateEnv(string $id, string $env)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE AuthId = :authId and Token = :token");
+            $stmt = $this->db->prepare("UPDATE hosts SET Env = :env WHERE Id = :id");
             $stmt->bindValue(':env', $env);
             $stmt->bindValue(':id', $id);
             $stmt->execute();

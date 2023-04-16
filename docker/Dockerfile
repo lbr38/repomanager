@@ -10,12 +10,17 @@ LABEL version="1.1-beta" maintainer="lbr38 <repomanager@protonmail.com>"
 ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
+ARG DEBIAN_FRONTEND=noninteractive
+ARG fqdn
 
 # PACKAGES INSTALL
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl wget vim ca-certificates apt-transport-https -y
+RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https -y
+
+# Install postfix
+RUN apt-get install postfix -y
 
 # Add PHP 8.1 repository
 RUN curl -fsSL  https://packages.sury.org/php/apt.gpg| gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-keyring.gpg
@@ -27,7 +32,7 @@ RUN apt-get install nginx php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1
 
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
-# (temp) for tests
+# For tests only
 # RUN cd /tmp/repomanager && git checkout devel
 
 # SERVICES CONFIG
@@ -39,15 +44,20 @@ RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 
+# Configure Postfix
+RUN \cp /tmp/repomanager/docker/config/postfix/main.cf /etc/postfix/main.cf
+RUN sed -i "s/__FQDN__/$fqdn/g" /etc/postfix/main.cf
+RUN echo $fqdn > /etc/mailname
+
 # Copy repomanager files
 RUN mkdir -p $WWW_DIR $DATA_DIR $REPOS_DIR
 RUN cp -r /tmp/repomanager/www/* $WWW_DIR/
 RUN touch $WWW_DIR/.docker
 
-# Set basic permissions
+# Create repomanager group and set basic permissions
 RUN groupadd repomanager
 RUN usermod -a -G repomanager www-data
-RUN chown -R www-data:www-data $WWW_DIR $DATA_DIR $REPOS_DIR
+RUN chown -R www-data:repomanager $WWW_DIR $DATA_DIR $REPOS_DIR
 
 # Copy entrypoint script
 RUN cp /tmp/repomanager/docker/entrypoint.sh /tmp/entrypoint.sh
