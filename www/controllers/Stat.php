@@ -62,13 +62,21 @@ class Stat
     }
 
     /**
+     *  Add new repo access log to database
+     */
+    public function addAccess(string $date, string $time, string $sourceHost, string $sourceIp, string $request, string $result)
+    {
+        $this->model->addAccess($date, $time, $sourceHost, $sourceIp, $request, $result);
+    }
+
+    /**
      *  Clean oldest repos statistics by deleting rows in database
      */
     public function clean(string $period = '366 days')
     {
         /**
          *  Time period starts from the very beginning of repomanager existence
-         *  And ends 1 year ago before the current day
+         *  And ends $period days ago before the current day
          */
         $dateStart = '2020-01-01';
         $dateEnd = date('Y-m-d', strtotime('-' . $period, strtotime(DATE_YMD)));

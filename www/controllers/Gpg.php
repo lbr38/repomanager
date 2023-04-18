@@ -74,6 +74,13 @@ class Gpg
         }
 
         /**
+         *  Quit if no key Id is specified
+         */
+        if (empty(GPG_SIGNING_KEYID)) {
+            throw new Exception('Cannot generate GPG signing key without specified key Id.');
+        }
+
+        /**
          *  Generate random passphrase
          */
         $this->passphrase = Common::randomStrongString(64);
@@ -131,7 +138,14 @@ class Gpg
      */
     public function exportSigningKey()
     {
-        if (!file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub')) {
+        /**
+         *  If file exists but is empty, delete it
+         */
+        if (filesize(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') == 0) {
+            unlink(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub');
+        }
+
+        if (!file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') and !empty(GPG_SIGNING_KEYID)) {
             $myprocess = new Process("/usr/bin/gpg2 --no-permission-warning --homedir '" . GPGHOME . "' --export -a '" . GPG_SIGNING_KEYID . "' > " . REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub 2>/dev/null');
             $myprocess->execute();
             $content = $myprocess->getOutput();

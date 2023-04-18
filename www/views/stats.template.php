@@ -383,7 +383,8 @@
             $countData = '';
             foreach ($stats as $stat) {
                 $date = DateTime::createFromFormat('Y-m-d', $stat['Date'])->format('d-m-Y');
-                $size = round($stat['Size'] / 1024);
+                // Convert bytes to MB
+                $size = round(round($stat['Size'] / 1024) / 1024);
                 $count = $stat['Packages_count'];
                 /**
                  *  On forge les données des graphique

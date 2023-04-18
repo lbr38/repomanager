@@ -1,10 +1,10 @@
 <?php
 
-namespace Controllers;
+namespace Controllers\Log;
 
 use Exception;
 
-class Log
+class OperationLog
 {
     public $type;     // Type de fichier de log (repomanager ou plan)
     public $date;

@@ -55,7 +55,7 @@ class Planification
          *  On sépare chaque jour spécifié par une virgule
          */
         foreach ($days as $day) {
-            $planDay .= \Controllers\Common::validateData($day) . ',';
+            $planDay .= Common::validateData($day) . ',';
         }
 
         /**
@@ -121,7 +121,7 @@ class Planification
              *  On sépare chaque jour de rappel par une virgule
              */
             foreach ($reminders as $reminder) {
-                $planReminder .= \Controllers\Common::validateData($reminder) . ',';
+                $planReminder .= Common::validateData($reminder) . ',';
             }
         }
 
@@ -144,7 +144,7 @@ class Planification
 
     public function setTargetGpgCheck(string $state)
     {
-        $this->targetGpgCheck = \Controllers\Common::validateData($state);
+        $this->targetGpgCheck = Common::validateData($state);
     }
 
     public function setTargetGpgResign(string $state)
@@ -284,7 +284,7 @@ class Planification
              */
             $envs = explode('->', $this->action);
 
-            $myenv = new \Controllers\Environment();
+            $myenv = new Environment();
 
             foreach ($envs as $env) {
                 if ($myenv->exists($env) === false) {
@@ -314,7 +314,7 @@ class Planification
             /**
              *  On vérifie que l'Id de snapshot renseigné existe
              */
-            $myrepo = new \Controllers\Repo();
+            $myrepo = new Repo();
             $myrepo->setSnapId($this->snapId);
 
             if ($myrepo->existsSnapId($this->snapId) === false) {
@@ -331,7 +331,7 @@ class Planification
             /**
              *  On vérifie que l'Id de groupe renseigné existe
              */
-            $mygroup = new \Controllers\Group('repo');
+            $mygroup = new Group('repo');
 
             if ($mygroup->existsId($this->groupId) === false) {
                 throw new Exception("Specified group does not exist");
@@ -347,7 +347,7 @@ class Planification
             /**
              *  On vérifie que l'environnement existe
              */
-            $myenv = new \Controllers\Environment();
+            $myenv = new Environment();
 
             if ($myenv->exists($this->targetEnv) === false) {
                 throw new Exception("Environment " . $this->targetEnv . " does not exist");
@@ -367,9 +367,9 @@ class Planification
                  *  On vérifie que chaque adresse mail est valide
                  */
                 foreach ($mailRecipientTest as $mail) {
-                    $mail = \Controllers\Common::validateData($mail);
+                    $mail = Common::validateData($mail);
 
-                    if (\Controllers\Common::validateMail($mail) === false) {
+                    if (Common::validateMail($mail) === false) {
                         throw new Exception("Invalid email address $mail");
                     }
                 }
@@ -378,7 +378,7 @@ class Planification
              *  Cas où 1 seule adresse mail a été renseignée
              */
             } else {
-                if (\Controllers\Common::validateMail($this->mailRecipient) === false) {
+                if (Common::validateMail($this->mailRecipient) === false) {
                     throw new Exception("Invalid email address $mail");
                 }
             }
@@ -460,7 +460,7 @@ class Planification
          *  On génère un nouveau log pour cette planification
          *  Ce log général reprendra tous les sous-logs de chaque opération lancée par cette planification.
          */
-        $this->log = new \Controllers\Log('plan');
+        $this->log = new Log\OperationLog('plan');
 
         /**
          *  Passe le status de la planification à "running", jusqu'à maintenant le status était "queued"
@@ -485,8 +485,8 @@ class Planification
             /**
              *  2. On instancie des objets Operation et Group
              */
-            $this->repo = new \Controllers\Repo();
-            $this->group = new \Controllers\Group('repo');
+            $this->repo = new Repo();
+            $this->group = new Group('repo');
 
             /**
              *  3. Récupération des détails de la planification en cours d'exécution, afin de savoir quels
@@ -680,7 +680,7 @@ class Planification
                 /**
                  *  On (re)instancie le repo à chaque boucle afin qu'il soit bien initialisé
                  */
-                $this->repo = new \Controllers\Repo();
+                $this->repo = new Repo();
 
                 /**
                  *  On ne connait que l'Id du repo mais pas les informations concernant ses snapshots.
@@ -812,8 +812,8 @@ class Planification
             /**
              *  On instancie des objets Operation et Group
              */
-            $this->repo = new \Controllers\Repo();
-            $this->group = new \Controllers\Group('repo');
+            $this->repo = new Repo();
+            $this->group = new Group('repo');
 
             /**
              *  1. Récupération des informations de la planification

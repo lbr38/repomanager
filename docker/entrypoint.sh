@@ -1,6 +1,7 @@
 #!/bin/bash
 
 WWW_DIR="/var/www/repomanager"
+DATA_DIR="/var/lib/repomanager"
 
 $WWW_DIR/bin/repomanager --www-user www-data -p
 
@@ -14,4 +15,6 @@ service postfix start
 /bin/su -s /bin/bash -c "php $WWW_DIR/tools/update-database.php" www-data
 
 # Start repomanager service
-bash $WWW_DIR/bin/service/repomanager-service
+/bin/su -s /bin/bash -c "php $WWW_DIR/tools/service.php" www-data
+
+/bin/bash

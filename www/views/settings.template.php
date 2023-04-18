@@ -466,7 +466,7 @@
                             <p>GPG key Id (email address identifier)</p>
                         </div>
                         <div>
-                            <input class="settings-param" param-name="rpmGpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
+                            <input class="settings-param" param-name="gpgKeyID" type="email" value="<?= GPG_SIGNING_KEYID ?>">
                         </div>
                         <div>
                             <?php

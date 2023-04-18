@@ -33,6 +33,25 @@ class Stat extends Model
     }
 
     /**
+     *  Add new repo access log to database
+     */
+    public function addAccess(string $date, string $time, string $sourceHost, string $sourceIp, string $request, string $result)
+    {
+        try {
+            $stmt = $this->db->prepare("INSERT INTO access (Date, Time, Source, IP, Request, Request_result) VALUES (:date, :time, :sourceHost, :sourceIp, :request, :result)");
+            $stmt->bindValue(':date', $date);
+            $stmt->bindValue(':time', $time);
+            $stmt->bindValue(':sourceHost', $sourceHost);
+            $stmt->bindValue(':sourceIp', $sourceIp);
+            $stmt->bindValue(':request', $request);
+            $stmt->bindValue(':result', $result);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
      *  Retourne tout le contenu de la table stats
      */
     public function getAll(string $envId)

@@ -206,7 +206,7 @@ if (!empty($groupsList)) {
                                     /**
                                      *  Print repo size in the most suitable byte format
                                      */
-                                    echo '<span class="lowopacity-cst" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
+                                    echo '<span class="lowopacity" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
                                 }
 
                                 /**
@@ -215,11 +215,11 @@ if (!empty($groupsList)) {
                                 if (PRINT_REPO_TYPE == 'yes') {
                                     echo '<span>';
                                     if ($type == "mirror") {
-                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
+                                        echo '<img class="icon-np lowopacity" src="assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
                                     } elseif ($type == "local") {
-                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
+                                        echo '<img class="icon-np lowopacity" src="assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
                                     } else {
-                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/unknow.svg" title="Type: unknow" />';
+                                        echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="Type: unknow" />';
                                     }
                                     echo '</span>';
                                 }
@@ -230,11 +230,11 @@ if (!empty($groupsList)) {
                                 if (PRINT_REPO_SIGNATURE == 'yes') {
                                     echo '<span>';
                                     if ($signed == "yes") {
-                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/key.svg" title="Signed with GPG" />';
+                                        echo '<img class="icon-np lowopacity" src="assets/icons/key.svg" title="Signed with GPG" />';
                                     } elseif ($signed == "no") {
                                         echo '<img class="icon-np" src="assets/icons/key2.svg" title="Not signed with GPG" />';
                                     } else {
-                                        echo '<img class="icon-np lowopacity-cst" src="assets/icons/unknow.svg" title="GPG signature: unknow" />';
+                                        echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="GPG signature: unknow" />';
                                     }
                                     echo '</span>';
                                 }
@@ -302,10 +302,10 @@ if (!empty($groupsList)) {
                          *  Print repo conf icon
                          */
                         if ($packageType == "rpm") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands." />';
+                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands" />';
                         }
                         if ($packageType == "deb") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands." />';
+                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="assets/icons/terminal.svg" title="Show repo installation commands" />';
                         }
 
                         /**
@@ -365,7 +365,7 @@ if (!empty($groupsList)) {
                 echo '</div>';
             }
         } else {
-            echo '<span class="lowopacity">(empty)</span>';
+            echo '<span class="lowopacity-cst">(empty)</span>';
         }
         echo '</div>';
     }

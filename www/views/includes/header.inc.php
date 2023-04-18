@@ -222,7 +222,6 @@ if (DEBUG_MODE == "enabled") {
                                         $op->printRepoOrGroup($opId); ?>
                                     </a>
                                     <span title="Stop operation">
-                                        <!-- <a href="/run?stop=<?=$opPid?>">⛔</a> -->
                                         <a href="/run?stop=<?=$opPid?>"><img src="assets/icons/delete.svg" class="icon"></a>
                                     </span>
                                 </div>
@@ -241,31 +240,30 @@ if (DEBUG_MODE == "enabled") {
                                 }
                                 if (!empty($planRunning['Id_repo_source'])) {
                                     $opRepoSource = $planRunning['Id_repo_source'];
-                                }
-                                ?>
+                                } ?>
                     
                                 <div class="header-op-subdiv btn-large-red">
                                     <span>
                                         <a href="/run?logfile=<?= $opLogfile ?>">
-                                        <?php
-                                        if ($planAction == "new") {
-                                            echo 'New repo ';
-                                        }
-                                        if ($planAction == "update") {
-                                            echo 'Update ';
-                                        }
-                                        if ($planAction == "env") {
-                                            echo 'New env. ';
-                                        }
+                                            <?php
+                                            if ($planAction == "new") {
+                                                echo 'New repo ';
+                                            }
+                                            if ($planAction == "update") {
+                                                echo 'Update ';
+                                            }
+                                            if ($planAction == "env") {
+                                                echo 'New env. ';
+                                            }
 
-                                        /**
-                                         *  Affichage du nom du repo ou du groupe en cours de traitement
-                                         */
-                                        $op->printRepoOrGroup($opId); ?>
+                                            /**
+                                             *  Affichage du nom du repo ou du groupe en cours de traitement
+                                             */
+                                            $op->printRepoOrGroup($opId); ?>
                                         </a>
                                     </span>
                                     <span title="Stop operation">
-                                        <a href="/run?stop=<?=$opPid?>">⛔</a>
+                                        <a href="/run?stop=<?=$opPid?>"><img src="assets/icons/delete.svg" class="icon"></a>
                                     </span>
                                 </div>
                                 <?php
@@ -320,22 +318,58 @@ if (DEBUG_MODE == "enabled") {
 
 <?php
 /**
- *  Affichage d'un bandeau constant si des erreurs ont été rencontrées lors du chargement des constantes
+ *  Print missing parameters alert if any
  */
 if (__LOAD_GENERAL_ERROR > 0) : ?>
     <section>
         <section class="missing-param-alert">
-            <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
-        </section>
-        <section class="missing-param-alert">
+            <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing or bad value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
+            <br><br>
             <?php
             foreach (__LOAD_ERROR_MESSAGES as $message) {
-                echo '<span class="yellowtext">' . $message . '</span><br>';
+                echo '<span>' . $message . '</span><br>';
             } ?>
         </section>
     </section>
-<?php endif;
+    <?php
+endif ?>
 
+<article id="general-log-container">
+    <?php
+    /**
+     *  Print info or error logs if any
+     */
+    if (LOG > 0) : ?>
+        <section class="section-main">
+            <div class="div-generic-blue flex flex-direction-column row-gap-5">
+                <p class="lowopacity-cst">Log messages (<?= LOG ?>)</p>
+                <?php
+                foreach (LOG_MESSAGES as $log) : ?>
+                    <div class="flex justify-space-between">
+                        <div class="flex align-item-center">
+                            <?php
+                            if ($log['Type'] == 'error') {
+                                echo '<img src="assets/icons/redcircle.png" class="icon-small">';
+                            }
+                            if ($log['Type'] == 'info') {
+                                echo '<img src="assets/icons/greencircle.png" class="icon-small">';
+                            } ?>
+                            <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <?= $log['Component'] ?> - <?= $log['Message'] ?></span>
+                        </div>
+                        <div class="slide-btn align-self-center acquit-log-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
+                            <img src="assets/icons/enabled.svg" />
+                            <span>Mark as read</span>
+                        </div>
+                    </div>
+                    <?php
+                endforeach ?>
+            </div>
+        </section>
+        <?php
+    endif ?>
+</article>
+
+<?php
 if (!SERVICE_RUNNING) : ?>
     <section>
         <section class="missing-param-alert">

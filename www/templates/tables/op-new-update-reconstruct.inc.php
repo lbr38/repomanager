@@ -64,7 +64,7 @@
             }
             echo '</tr>';
         }
-        if ($this->op->getAction() != 'reconstruct') {
+        if ($this->op->getAction() == 'update') {
             if (!empty($this->onlySyncDifference)) {
                 echo '<tr><th>ONLY SYNC THE DIFFERENCE</th><td>';
 
