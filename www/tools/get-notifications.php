@@ -1,8 +1,8 @@
 <?php
 
 define('ROOT', dirname(__FILE__, 2));
-require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::api();
+require_once(ROOT . '/controllers/Autoloader/Autoloader.php');
+\Controllers\Autoloader\Autoloader::api();
 
 $mynotification = new \Controllers\Notification();
 

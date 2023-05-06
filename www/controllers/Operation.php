@@ -473,7 +473,7 @@ class Operation
         $this->time = date("H:i:s");
         $this->timeStart = microtime(true); // timeStart sera destiné à calculer le temps écoulé pour l'opération.
         $this->status = 'running';
-        $this->log = new \Controllers\Log('repomanager');
+        $this->log = new \Controllers\Log\OperationLog('repomanager');
 
         $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->pid, $this->poolId, $this->log->name, $this->status);
 

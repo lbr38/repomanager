@@ -180,14 +180,6 @@ section.missing-param-alert {
     background-color: #182b3e;
 }
 
-/* Paramètres supplémentaires pour les class ci-dessus */
-.section-center {
-    width: 99%;
-    margin: auto;
-    margin-bottom: 30px;
-    min-height: 300px;
-    display: inline-block;
-}
 section.left {
     display: inline-block;
 }

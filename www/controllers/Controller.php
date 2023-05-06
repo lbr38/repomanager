@@ -2,7 +2,7 @@
 
 namespace Controllers;
 
-require_once('Autoloader.php');
+require_once('Autoloader/Autoloader.php');
 
 use Exception;
 
@@ -21,9 +21,9 @@ class Controller
          *  If target URI is login or logout then load minimal necessary
          */
         if ($targetUri == 'login' or $targetUri == 'logout') {
-            Autoloader::loadFromLogin();
+            Autoloader\Autoloader::loadFromLogin();
         } else {
-            Autoloader::load();
+            Autoloader\Autoloader::load();
         }
 
         /**

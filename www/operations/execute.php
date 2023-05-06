@@ -1,10 +1,14 @@
 <?php
 
 define("ROOT", dirname(__FILE__, 2));
-require_once(ROOT . "/controllers/Autoloader.php");
-\Controllers\Autoloader::api();
+require_once(ROOT . "/controllers/Autoloader/Autoloader.php");
+\Controllers\Autoloader\Autoloader::api();
 
 ini_set('memory_limit', '256M');
+
+$mylog = new \Controllers\Log\Log();
+
+$validActions = ['new', 'update', 'duplicate', 'delete', 'env', 'reconstruct'];
 
 /**
  *  Ce script renvoie un code de sortie et un message d'erreur le cas écheant.
@@ -24,6 +28,7 @@ $getOptions = getopt(null, ["id:"]);
  *  Récupération de l'Id de l'opération à traiter
  */
 if (empty($getOptions['id'])) {
+    $mylog->log('error', 'Operation run', 'Operation Id is not defined.');
     echo "Error: operation Id is not defined." . PHP_EOL;
     exit(1);
 }
@@ -34,6 +39,7 @@ $id = $getOptions['id'];
  *  Récupération des détails de l'opération à traiter, sous forme d'array
  */
 if (!file_exists(POOL . '/' . $id . '.json')) {
+    $mylog->log('error', 'Operation run', 'Cannot get operation details (Id ' . $id . ') from pool file: file not found.');
     echo "Error: cannot get operation details (Id $id) from pool file: file not found." . PHP_EOL;
     exit(1);
 }
@@ -45,7 +51,8 @@ $operation_params = json_decode(file_get_contents(POOL . '/' . $id . '.json'), t
  */
 foreach ($operation_params as $operation) {
     if (empty($operation['action'])) {
-        echo "Unknown operation: action not specified." . PHP_EOL;
+        $mylog->log('error', 'Operation run', 'Action not specified.');
+        echo "Action not specified." . PHP_EOL;
         $exitCode++;
         continue;
     }
@@ -64,7 +71,9 @@ foreach ($operation_params as $operation) {
     /**
      *  Check that action is valid
      */
-    if ($action != 'new' and $action != 'update' and $action != 'duplicate' and $action != 'delete' and $action != 'env' and $action != 'reconstruct') {
+    //if ($action != 'new' and $action != 'update' and $action != 'duplicate' and $action != 'delete' and $action != 'env' and $action != 'reconstruct') {
+    if (!in_array($action, $validActions)) {
+        $mylog->log('error', 'Operation run', 'Invalid action: ' . $action);
         echo "Unknown operation: invalid action." . PHP_EOL;
         $exitCode++;
         continue;
@@ -82,6 +91,7 @@ foreach ($operation_params as $operation) {
      */
     if ($action == 'new') {
         if (empty($operation['packageType'])) {
+            $mylog->log('error', 'Operation run', "New repo: parameter 'packageType' not defined.");
             echo "Operation 'new' - Error: parameter 'packageType' not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -123,6 +133,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre Type n'est pas défini, on quitte
          */
         if (empty($operation['type'])) {
+            $mylog->log('error', 'Operation run', "New repo: parameter 'Type' not defined.");
             echo "Operation 'new' - Error: parameter 'Type' not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -134,6 +145,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Dist n'est pas défini, on quitte
              */
             if (empty($operation['dist'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'Dist' not defined.");
                 echo "Operation 'new' - Error: parameter 'Dist' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -144,6 +156,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Section n'est pas défini, on quitte
              */
             if (empty($operation['section'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'Section' not defined.");
                 echo "Operation 'new' - Error: parameter 'Section' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -159,6 +172,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre Source n'est pas défini, on quitte
              */
             if (empty($operation['source'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'Source' not defined.");
                 echo "Operation 'new' - Error: parameter 'Source' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -178,6 +192,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre GPG Check n'est pas défini, on quitte
              */
             if (empty($operation['targetGpgCheck'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'GPG Check' not defined.");
                 echo "Operation 'new' - Error: parameter 'GPG Check' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -188,6 +203,7 @@ foreach ($operation_params as $operation) {
              *  Si le paramètre GPG Resign n'est pas défini, on quitte
              */
             if (empty($operation['targetGpgResign'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'GPG Resign' not defined.");
                 echo "Operation 'new' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -195,6 +211,7 @@ foreach ($operation_params as $operation) {
             $targetGpgResign = $operation['targetGpgResign'];
 
             if (empty($operation['targetSourcePackage'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'Include source packages' not defined.");
                 echo "Operation 'new' - Error: parameter 'Include source packages' not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -218,6 +235,7 @@ foreach ($operation_params as $operation) {
              *  Le paramètre Alias ne peut pas être vide dans le cas d'un type = 'local'
              */
             if (empty($operation['alias'])) {
+                $mylog->log('error', 'Operation run', "New repo: parameter 'Alias' not defined.");
                 echo "Operation 'new' - Error: parameter 'Alias' (Name) not defined." . PHP_EOL;
                 $exitCode++;
                 continue;
@@ -226,6 +244,7 @@ foreach ($operation_params as $operation) {
         }
 
         if (empty($operation['targetArch'])) {
+            $mylog->log('error', 'Operation run', "New repo: parameter 'Architecture' not defined.");
             echo "Operation 'new' - Error: parameter 'Arch' not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -301,6 +320,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Check n'est pas défini on quitte
          */
         if (empty($operation['targetGpgCheck'])) {
+            $mylog->log('error', 'Operation run', "Update repo: parameter 'GPG Check' not defined.");
             echo "Operation 'update' - Error: parameter 'GPG Check' not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -311,6 +331,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Resign n'est pas défini on quitte
          */
         if (empty($operation['targetGpgResign'])) {
+            $mylog->log('error', 'Operation run', "Update repo: parameter 'GPG Resign' not defined.");
             echo "Operation 'update' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -397,6 +418,7 @@ foreach ($operation_params as $operation) {
          *  Si le nouveau nom n'est pas défini on quitte
          */
         if (empty($operation['targetName'])) {
+            $mylog->log('error', 'Operation run', "Duplicate repo: parameter 'New repo name' not defined.");
             echo "Operation 'duplicate' - Error: new repo name not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -510,6 +532,7 @@ foreach ($operation_params as $operation) {
          *  Si le l'environnement cible n'est pas défini on quitte
          */
         if (empty($operation['targetEnv'])) {
+            $mylog->log('error', 'Operation run', "Repo env: parameter 'Target environment' not defined.");
             echo "Operation 'env' - Erreur: target environment not defined." . PHP_EOL;
             $exitCode++;
             continue;
@@ -559,6 +582,7 @@ foreach ($operation_params as $operation) {
          *  Si le paramètre GPG Resign n'est pas défini on quitte
          */
         if (empty($operation['targetGpgResign'])) {
+            $mylog->log('error', 'Operation run', "Reconstruct repo: parameter 'GPG Resign' not defined.");
             echo "Operation 'reconstruct' - Error: parameter 'GPG Resign' not defined." . PHP_EOL;
             $exitCode++;
             continue;

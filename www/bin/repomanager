@@ -14,7 +14,6 @@ DATA_DIR="/var/lib/repomanager"
 REPOS_DIR="/home/repo"
 DB="$DATA_DIR/db/repomanager.db"
 GPGHOME="$DATA_DIR/.gnupg"
-CONF="$DATA_DIR/configurations/repomanager.conf"
 CONFIRM=""
 CHECK_DEP=""
 
@@ -177,15 +176,22 @@ function permissions
     echo -ne "${YELLOW} Setting permissions... ${RESET}"
  
     # Permissions on web directory
-    find "$WWW_DIR" -type f -exec chmod 0660 {} \;
     find "$WWW_DIR" -type d -exec chmod 0770 {} \;
+    find "$WWW_DIR" -type f -exec chmod 0660 {} \;
     chmod 750 "$WWW_DIR"
     chown -R ${WWW_USER}:repomanager "$WWW_DIR"
+
     # Permissions on data directory
-    find "$DATA_DIR" -type f -exec chmod 0660 {} \;
     find "$DATA_DIR" -type d -exec chmod 0770 {} \;
-    chmod 750 "$DATA_DIR"
+    find "$DATA_DIR" -type f -exec chmod 0660 {} \;
+    chmod 770 "$DATA_DIR"
     chown -R ${WWW_USER}:repomanager "$DATA_DIR"
+
+    # Permissions on repos dir
+    find "$REPOS_DIR" -type d -exec chmod 0770 {} \;
+    find "$REPOS_DIR" -type f -exec chmod 0660 {} \;
+    chmod 770 "$REPOS_DIR"
+    chown -R ${WWW_USER}:repomanager "$REPOS_DIR"
         
     if [ -f "$DATA_DIR/repomanager" ];then
         chmod 550 $DATA_DIR/repomanager
@@ -216,7 +222,7 @@ function permissions
     # Permissions on GPG public key
     if [ -d "$REPOS_DIR/gpgkeys" ];then
         chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*pub
-        chmod 440 $REPOS_DIR/gpgkeys/*pub
+        chmod 660 $REPOS_DIR/gpgkeys/*pub
     fi
 
     # Permissions on perl's module rpmresign (perl/RPM4)

@@ -9,6 +9,7 @@ services:
       dockerfile: Dockerfile
       args:
         fqdn: repomanager.example.com
+        max_upload_size: 32M
     ports:
       - "8080:8080"
     volumes:

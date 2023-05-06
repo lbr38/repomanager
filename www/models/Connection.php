@@ -122,6 +122,7 @@ class Connection extends SQLite3
         OR name='history'
         OR name='repos_list_settings'
         OR name='notifications'
+        OR name='logs'
         OR name='settings'");
 
         /**
@@ -168,15 +169,15 @@ class Connection extends SQLite3
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 20 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 21 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 20) {
+        if ($this->countMainTables() != 21) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 20) {
+            if ($this->countMainTables() != 21) {
                 return false;
             }
         }
@@ -577,8 +578,43 @@ class Connection extends SQLite3
          */
         $result = $this->query("SELECT * FROM settings");
         if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . get_current_user() . "', 'localhost', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', 'repomanager@localhost.local', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_ssl_access.log', 'false', 'false')");
+            /**
+             *  FQDN file is created by the dockerfile
+             */
+            if (file_exists(ROOT . '/.fqdn')) {
+                $fqdn = trim(file_get_contents(ROOT . '/.fqdn'));
+            } else {
+                $fqdn = 'localhost';
+            }
+
+            /**
+             *  GPG key Id
+             */
+            $gpgKeyId = 'repomanager@' . $fqdn;
+
+            /**
+             *  Path to the access log file
+             */
+            if (file_exists(ROOT . '/.docker')) {
+                $statsLogPath = '/var/log/nginx/repomanager_access.log';
+            } else {
+                $statsLogPath = '/var/log/nginx/repomanager_ssl_access.log';
+            }
+
+            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . get_current_user() . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '$statsLogPath', 'false', 'false')");
         }
+
+        /**
+         *  Generate logs table if not exists
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS logs (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Type CHAR(5) NOT NULL, /* info, error */
+        Component VARCHAR(255),
+        Message VARCHAR(255) NOT NULL,
+        Status CHAR(9) NOT NULL)"); /* new, acquitted */
     }
 
     /**

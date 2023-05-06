@@ -322,73 +322,6 @@ class Common
         return '<span class="' . $class . '">' . $env . '</span>';
     }
 
-    public static function writeToIni($file, $array = [])
-    {
-        // check first argument is string
-        if (!is_string($file)) {
-            throw new \InvalidArgumentException('Function argument 1 must be a string.');
-        }
-
-        // check second argument is array
-        if (!is_array($array)) {
-            throw new \InvalidArgumentException('Function argument 2 must be an array.');
-        }
-
-        // process array
-        $data = array();
-        foreach ($array as $key => $val) {
-            if (is_array($val)) {
-                $data[] = "[$key]";
-                foreach ($val as $skey => $sval) {
-                    if (is_array($sval)) {
-                        foreach ($sval as $_skey => $_sval) {
-                            if (is_numeric($_skey)) {
-                                $data[] = $skey . '[] = ' . (is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"' . $_sval . '"'));
-                            } else {
-                                $data[] = $skey . '[' . $_skey . '] = ' . (is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"' . $_sval . '"'));
-                            }
-                        }
-                    } else {
-                        $data[] = $skey . ' = ' . (is_numeric($sval) ? $sval : (ctype_upper($sval) ? $sval : '"' . $sval . '"'));
-                    }
-                }
-            } else {
-                $data[] = $key . ' = ' . (is_numeric($val) ? $val : (ctype_upper($val) ? $val : '"' . $val . '"'));
-            }
-            // empty line
-            $data[] = null;
-        }
-
-        // open file pointer, init flock options
-        $fp = fopen($file, 'w');
-        $retries = 0;
-        $max_retries = 100;
-        if (!$fp) {
-            return false;
-        }
-
-        // loop until get lock, or reach max retries
-        do {
-            if ($retries > 0) {
-                usleep(rand(1, 5000));
-            }
-            $retries += 1;
-        } while (!flock($fp, LOCK_EX) && $retries <= $max_retries);
-
-        // couldn't get the lock
-        if ($retries == $max_retries) {
-            return false;
-        }
-
-        // got lock, write data
-        fwrite($fp, implode(PHP_EOL, $data) . PHP_EOL);
-
-        // release lock
-        flock($fp, LOCK_UN);
-        fclose($fp);
-        return true;
-    }
-
     /**
      *  Indique si un répertoire est vide ou non
      */
@@ -581,20 +514,37 @@ class Common
     }
 
     /**
-     *  Return an array with the list of files founded in specified directory
+     *  Return an array with the list of founded files in specified directory path
      */
     public static function findRecursive(string $directoryPath, string $fileExtension = null, bool $returnFullPath = true)
     {
         $foundedFiles = array();
 
-        $dir = new \RecursiveDirectoryIterator($directoryPath . '/');
-        $files = new \RecursiveIteratorIterator($dir);
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directoryPath . '/', \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST,
+            \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+        );
 
         /**
          *  Find files with specified extension
          */
-        if (!empty($files)) {
-            foreach ($files as $file) {
+        if (!empty($iterator)) {
+            foreach ($iterator as $file) {
+                /**
+                 *  Skip '.' and '..' files
+                 */
+                if ($file->getFilename() == '.' || $file->getFilename() == '..') {
+                    continue;
+                }
+
+                /**
+                 *  Skip if the current file is a directory
+                 */
+                if ($file->isDir()) {
+                    continue;
+                }
+
                 /**
                  *  If an extension has been specified, then check that the file has correct extension
                  */
@@ -622,6 +572,88 @@ class Common
         }
 
         return $foundedFiles;
+    }
+
+    /**
+     *  Return an array with the list of founded directories in specified directory path
+     *  Directory name can be filtered with a regex
+     */
+    public static function findDirRecursive(string $directoryPath, string $directoryNameRegex = null, bool $returnFullPath = true)
+    {
+        $foundedDirs = array();
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                $directoryPath,
+                \FilesystemIterator::SKIP_DOTS
+            ),
+            \RecursiveIteratorIterator::SELF_FIRST,
+            \RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+        );
+
+        /**
+         *  Find directories
+         */
+        if (!empty($iterator)) {
+            foreach ($iterator as $file) {
+                if (is_file($file->getPathname())) {
+                    continue;
+                }
+
+                /**
+                 *  Skip '.' and '..' files
+                 */
+                if ($file->getFilename() == '.' || $file->getFilename() == '..') {
+                    continue;
+                }
+
+                /**
+                 *  Skip if the current file is not a directory
+                 */
+                if (!$file->isDir()) {
+                    continue;
+                }
+
+                /**
+                 *  Skip if the current file is a symlink
+                 */
+                if ($file->isLink()) {
+                    continue;
+                }
+
+                /**
+                 *  Skip if the dir name does not match the specified regex
+                 */
+                if (!empty($directoryNameRegex)) {
+                    if (!preg_match("/$directoryNameRegex/i", $file->getFilename())) {
+                        continue;
+                    }
+                }
+
+                /**
+                 *  By default, return file's fullpath
+                 */
+                if ($returnFullPath === true) {
+                    // trim last '..' and '.' characters
+                    $foundedDir = rtrim($file->getPathname(), '.');
+                /**
+                 *  Else only return filename
+                 */
+                } else {
+                    // trim last '..' and '.' characters
+                    $foundedDir = rtrim($file->getFilename(), '.');
+                }
+
+                /**
+                 *  Add founded directory to the array if not already in
+                 */
+                if (!in_array($foundedDir, $foundedDirs)) {
+                    $foundedDirs[] = $foundedDir;
+                }
+            }
+        }
+
+        return $foundedDirs;
     }
 
     /**
@@ -778,13 +810,14 @@ class Common
                 $bytestotal += $object->getSize();
             }
         }
+
         return $bytestotal;
     }
 
     /**
      *  Convert bytes size to the most suitable human format (B, MB, GB...)
      */
-    public static function sizeFormat($bytes)
+    public static function sizeFormat($bytes, $returnFormat = true)
     {
         $kb = 1024;
         $mb = $kb * 1024;
@@ -827,7 +860,11 @@ class Common
             }
         }
 
-        return $value . $format;
+        if ($returnFormat === true) {
+            return $value . $format;
+        }
+
+        return $value;
     }
 
     /**

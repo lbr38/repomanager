@@ -1,4 +1,4 @@
-<section>
+<section class="section-main">
     <h3>HISTORY</h3>
 
     <p>Most actions executed by users are listed here.</p>

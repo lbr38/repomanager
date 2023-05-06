@@ -203,12 +203,3 @@ function printOsIcon(os = '', os_family = '')
      */
     return '<img src="assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
 }
-
-/**
- *  Event: hide slided window on escape button press
- */
-$(document).keyup(function (e) {
-    if (e.key === "Escape") {
-        closePanel();
-    }
-});

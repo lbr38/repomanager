@@ -511,7 +511,7 @@
                                         </table>
                                         <?php
                                     else :
-                                        echo '<table class="hosts-table-empty"><tr><td class="lowopacity">(empty)</td></tr></table>';
+                                        echo '<table class="hosts-table-empty"><tr><td class="lowopacity-cst">(empty)</td></tr></table>';
                                     endif ?>
                                 </div>
                                 <?php

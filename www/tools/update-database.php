@@ -5,8 +5,8 @@
 
 define('ROOT', dirname(__FILE__, 2));
 
-require_once(ROOT . '/controllers/Autoloader.php');
-\Controllers\Autoloader::loadFromLogin();
+require_once(ROOT . '/controllers/Autoloader/Autoloader.php');
+\Controllers\Autoloader\Autoloader::loadFromLogin();
 
 $myupdate = new \Controllers\Update();
 $error = 0;

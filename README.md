@@ -22,27 +22,19 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 <h2>Requirements</h2>
 
-<h3>OS</h3>
-
-Repomanager runs on following systems:
-- Debian 9,10
-- RHEL 7/8, CentOS 7/8
-
-**Recommended system:** Debian 10 or RHEL/CentOS 8.
-
 <h3>Hardware</h3>
 
 - CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
 - Disk space depends on the size of the repos you need to clone.
 
-<h3>Software</h3>
+<h3>Software and configuration</h3>
 
-- Common packages (curl, gnupg2...). Repomanager will automatically install them during the installation process.
-- A web service + PHP and SQLite.
+- **docker** (service must be up and running)
+- **docker-compose**
+- **A fully qualified domain name** (FQDN) and a valid SSL certificate for this FQDN if you want to access the web interface through a secure connection (https)
+- A least a **SPF record** configured for your FQDN, to be able to send emails from Repomanager
 
-**Recommended:** nginx + PHP-FPM (PHP 8.1)
-
-<h2>Installation and documentation</h2>
+<h2>Installation and usage</h2>
 
 Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki">here</a>.
 
