@@ -63,12 +63,6 @@ class Main
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
         }
-        if (!defined('SERVICE_LOG_DIR')) {
-            define('SERVICE_LOG_DIR', LOGS_DIR . '/service');
-        }
-        if (!defined('SERVICE_LOG')) {
-            define('SERVICE_LOG', SERVICE_LOG_DIR . '/repomanager-service.log');
-        }
         if (!defined('DB_UPDATE_DONE_DIR')) {
             define('DB_UPDATE_DONE_DIR', DATA_DIR . '/update');
         }
@@ -146,23 +140,10 @@ class Main
         }
 
         /**
-         *  Installation type
-         */
-        if (file_exists(ROOT . '/.docker')) {
-            if (!defined('DOCKER')) {
-                define('DOCKER', 'true');
-            }
-        } else {
-            if (!defined('DOCKER')) {
-                define('DOCKER', 'false');
-            }
-        }
-
-        /**
          *  Debug mode
          */
         if (!defined('DEBUG_MODE')) {
-            define('DEBUG_MODE', 'false');
+            define('DEBUG_MODE', false);
         }
 
         /**

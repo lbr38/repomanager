@@ -1,22 +1,4 @@
-<?php
-/**
- *  Debug mode
- */
-if (DEBUG_MODE == "enabled") {
-    echo '<b>Debug mode enabled</b>';
-    if (!empty($_POST)) {
-        echo '<br>POST : <pre>';
-        print_r($_POST);
-        echo '</pre>';
-    }
-    if (!empty($_GET)) {
-        echo '<br>GET : <pre>';
-        print_r($_GET);
-        echo '</pre>';
-    }
-} ?>
-
-<header>
+<header class="reloadable-container" container="header/menu">
     <nav id="menu">
         <div>
             <div id="title">
@@ -190,7 +172,7 @@ if (DEBUG_MODE == "enabled") {
                                 } ?>
 
                                 <div class="header-op-subdiv btn-large-red">
-                                    <a href="/run?logfile=<?=$opLogfile?>">
+                                    <a href="/run?view-logfile=<?=$opLogfile?>">
                                         <span>
                                             <?php
                                             if ($opAction == "new") {
@@ -244,7 +226,7 @@ if (DEBUG_MODE == "enabled") {
                     
                                 <div class="header-op-subdiv btn-large-red">
                                     <span>
-                                        <a href="/run?logfile=<?= $opLogfile ?>">
+                                        <a href="/run?view-logfile=<?= $opLogfile ?>">
                                             <?php
                                             if ($planAction == "new") {
                                                 echo 'New repo ';
@@ -315,86 +297,3 @@ if (DEBUG_MODE == "enabled") {
         </div>
     </nav>
 </header>
-
-<?php
-/**
- *  Print missing parameters alert if any
- */
-if (__LOAD_GENERAL_ERROR > 0) : ?>
-    <section>
-        <section class="missing-param-alert">
-            <span class="yellowtext">Some settings from the <a href="/settings"><b>settings tab</b></a> contain missing or bad value that could generate errors on Repomanager. Please finalize the configuration before running any operation.</span>
-            <br><br>
-            <?php
-            foreach (__LOAD_ERROR_MESSAGES as $message) {
-                echo '<span>' . $message . '</span><br>';
-            } ?>
-        </section>
-    </section>
-    <?php
-endif ?>
-
-<article id="general-log-container">
-    <?php
-    /**
-     *  Print info or error logs if any
-     */
-    if (LOG > 0) : ?>
-        <section class="section-main">
-            <div class="div-generic-blue flex flex-direction-column row-gap-5">
-                <p class="lowopacity-cst">Log messages (<?= LOG ?>)</p>
-                <?php
-                foreach (LOG_MESSAGES as $log) : ?>
-                    <div class="flex justify-space-between">
-                        <div class="flex align-item-center">
-                            <?php
-                            if ($log['Type'] == 'error') {
-                                echo '<img src="assets/icons/redcircle.png" class="icon-small">';
-                            }
-                            if ($log['Type'] == 'info') {
-                                echo '<img src="assets/icons/greencircle.png" class="icon-small">';
-                            } ?>
-                            <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <?= $log['Component'] ?> - <?= $log['Message'] ?></span>
-                        </div>
-                        <div class="slide-btn align-self-center acquit-log-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
-                            <img src="assets/icons/enabled.svg" />
-                            <span>Mark as read</span>
-                        </div>
-                    </div>
-                    <?php
-                endforeach ?>
-            </div>
-        </section>
-        <?php
-    endif ?>
-</article>
-
-<?php
-if (!SERVICE_RUNNING) : ?>
-    <section>
-        <section class="missing-param-alert">
-            <img src="assets/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service is not running. <?php echo (DOCKER == "true") ? 'Please restart the container.' : ''; ?></span>
-        </section>
-    </section>
-    <?php
-endif;
-
-/**
- *  Display repomanager service error if there is
- */
-if (file_exists(SERVICE_LOG)) :
-    if (filesize(SERVICE_LOG)) :
-        $serviceLog = file_get_contents(SERVICE_LOG); ?>
-        <section>
-            <section class="missing-param-alert">
-                <img src="assets/icons/warning.png" class="icon" /><span class="yellowtext">Repomanager service has error:</span>
-                <br><br>
-                <span class="yellowtext"><?= $serviceLog ?></span>
-            </section>
-        </section>
-        <?php
-    endif;
-endif;
-
-include('maintenance.inc.php');
-include('update.inc.php'); ?>

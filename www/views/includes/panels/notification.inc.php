@@ -9,7 +9,7 @@ else :
             echo '<h4><b>' . $notification['Title'] . '</b></h4>';
         } ?>
         
-        <div class="flex justify-space-between">
+        <div class="flex flex-direction-column">
             <p><?= htmlspecialchars_decode($notification['Message']) ?></p>
         
             <?php
@@ -21,7 +21,7 @@ else :
                 <?php
             endif ?>
         </div>
-        <br><br>
+        <br>
         <?php
     endforeach;
 endif;

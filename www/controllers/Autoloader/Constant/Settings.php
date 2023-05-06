@@ -79,47 +79,6 @@ class Settings
             }
         }
 
-        if (!defined('UPDATE_AUTO')) {
-            if (!empty($settings['UPDATE_AUTO'])) {
-                define('UPDATE_AUTO', $settings['UPDATE_AUTO']);
-            } else {
-                define('UPDATE_AUTO', 'false');
-            }
-        }
-
-        if (!defined('UPDATE_BRANCH')) {
-            if (!empty($settings['UPDATE_BRANCH'])) {
-                define('UPDATE_BRANCH', $settings['UPDATE_BRANCH']);
-            } else {
-                define('UPDATE_BRANCH', 'stable');
-            }
-        }
-
-        if (!defined('UPDATE_BACKUP')) {
-            if (!empty($settings['UPDATE_BACKUP'])) {
-                define('UPDATE_BACKUP', $settings['UPDATE_BACKUP']);
-            } else {
-                define('UPDATE_BACKUP', 'true');
-            }
-        }
-
-        if (!defined('UPDATE_BACKUP_DIR')) {
-            if (UPDATE_BACKUP == "true") {
-                if (!empty($settings['UPDATE_BACKUP_DIR'])) {
-                    define('UPDATE_BACKUP_DIR', $settings['UPDATE_BACKUP_DIR']);
-                    /**
-                     *  On teste l'accès au répertoire renseigné
-                     */
-                    if (!is_writable(UPDATE_BACKUP_DIR)) {
-                        ++$__LOAD_SETTINGS_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_SETTINGS_MESSAGES[] = "Backup before update directory '" . UPDATE_BACKUP_DIR . "' is not writeable.";
-                    }
-                } else {
-                    define('UPDATE_BACKUP_DIR', '/var/lib/repomanager/backups');
-                }
-            }
-        }
-
         if (!defined('DEBUG_MODE')) {
             if (!empty($settings['DEBUG_MODE'])) {
                 define('DEBUG_MODE', $settings['DEBUG_MODE']);
@@ -173,21 +132,7 @@ class Settings
         }
 
         if (!defined('RPM_SIGN_METHOD')) {
-            if (!empty($settings['RPM_SIGN_METHOD'])) {
-                define('RPM_SIGN_METHOD', $settings['RPM_SIGN_METHOD']);
-            } else {
-                /**
-                 *  On défini la méthode par défaut en cas de valeur vide
-                 */
-                define('RPM_SIGN_METHOD', 'rpmsign');
-
-                /**
-                 *  On affiche un message uniquement si la signature est activée
-                 */
-                if (RPM_SIGN_PACKAGES == 'true') {
-                    $__LOAD_SETTINGS_MESSAGES[] = "GPG signing method for signing RPM packages is not defined.";
-                }
-            }
+            define('RPM_SIGN_METHOD', 'rpmsign');
         }
 
         if (!defined('RELEASEVER')) {

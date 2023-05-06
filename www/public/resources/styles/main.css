@@ -169,26 +169,9 @@ article {
     order: 1;
 }
 
-section.missing-param-alert {
-    width: 98%; /* cette section prend toute la largeur ou presque (penser qu'il y a un padding de 10) de sa section conteneur 'section-left' */
-    margin-bottom: 30px;
-    padding: 10px;
-    vertical-align: top;
-    border-radius: 4px;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    background-color: #182b3e;
-}
-
-section.left {
+/* section.left {
     display: inline-block;
-}
-section.missing-param-alert {
-    width: 97%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 30px;
-}
+} */
 
 #title-button-div {
     display: flex;

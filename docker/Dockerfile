@@ -1,10 +1,10 @@
-# Dockerfile (beta) for Repomanager
+# Dockerfile for Repomanager
 
 # Base image
 FROM debian:11
 
 # Metadata
-LABEL version="1.1-beta" maintainer="lbr38 <repomanager@protonmail.com>"
+LABEL version="1.2" maintainer="lbr38 <repomanager@protonmail.com>"
 
 # Variables
 ARG WWW_DIR="/var/www/repomanager"
@@ -47,6 +47,9 @@ RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
+
+# Configure SQLite
+RUN echo -e ".headers on\n.mode column" > /root/.sqliterc
 
 # Configure Postfix
 RUN \cp /tmp/repomanager/docker/config/postfix/main.cf /etc/postfix/main.cf

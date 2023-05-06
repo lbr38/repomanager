@@ -361,7 +361,7 @@ class Login
          */
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         if ($hashedPassword === false) {
-            Common::printAlert("Error while creating a new password for user <b>$username</b>", 'error');
+            throw new Exception("Error while creating a new password for user <b>$username</b>");
         }
 
         /**

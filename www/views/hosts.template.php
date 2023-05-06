@@ -721,8 +721,3 @@ if (!empty($agentVersionList)) {
 
     include(ROOT . '/views/includes/hosts-pie-chart.inc.php');
 }
-
-if (IS_ADMIN) {
-    include_once(ROOT . '/views/includes/panels/hosts-display.inc.php');
-    include_once(ROOT . '/views/includes/panels/hosts-groups.inc.php');
-}

@@ -25,9 +25,14 @@ class Operation
     private $stepTimeStart;
     private $poolId;
 
+    private $profileController;
+    private $layoutContainerStateController;
+
     public function __construct()
     {
         $this->model = new \Models\Operation();
+        $this->profileController = new \Controllers\Profile();
+        $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
     }
 
     public function setPlanId(string $id_plan)
@@ -473,9 +478,11 @@ class Operation
         $this->time = date("H:i:s");
         $this->timeStart = microtime(true); // timeStart sera destiné à calculer le temps écoulé pour l'opération.
         $this->status = 'running';
-        $this->log = new \Controllers\Log\OperationLog('repomanager');
+        $this->log = new \Controllers\Log\OperationLog();
+        $this->log->setType('repomanager');
+        $this->log->initialize();
 
-        $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->pid, $this->poolId, $this->log->name, $this->status);
+        $this->model->add($this->date, $this->time, $this->action, $this->type, $this->log->getPid(), $this->poolId, $this->log->name, $this->status);
 
         /**
          *  Récupération de l'ID de l'opération précédemment créée en BDD car on en aura besoin pour clore l'opération
@@ -553,6 +560,14 @@ class Operation
             $this->model->updateGpgResign($this->id, $gpgResign);
         }
 
+        /**
+         *  Update layout containers states
+         */
+        $this->layoutContainerStateController->update('header/menu');
+        $this->layoutContainerStateController->update('repos/list');
+        $this->layoutContainerStateController->update('plans/list');
+        $this->layoutContainerStateController->update('operations/list');
+
         unset($variables);
     }
 
@@ -579,16 +594,24 @@ class Operation
         $this->model->closeOperation($this->id, $this->status, $this->duration);
 
         /**
-         *  Nettoyage du cache de repos-list
+         *  Clear cache
          */
         \Controllers\Common::clearCache();
 
         /**
+         *  Update layout containers states
+         */
+        $this->layoutContainerStateController->update('header/menu');
+        $this->layoutContainerStateController->update('repos/list');
+        $this->layoutContainerStateController->update('repos/properties');
+        $this->layoutContainerStateController->update('plans/list');
+        $this->layoutContainerStateController->update('operations/list');
+
+        /**
          *  Clean unused repos from profiles
          */
-        $myprofile = new \Controllers\Profile();
-        $myprofile->cleanProfiles();
-        unset($myprofile);
+        $this->profileController->cleanProfiles();
+        unset($this->myprofileController);
     }
 
     /**
@@ -823,8 +846,8 @@ class Operation
                                 echo '<img class="icon" src="assets/icons/delete.svg" title="Delete" />';
                             } ?>
                         </td>
-                        <td class="td-small">
-                            <a href="/run?logfile=<?=$logfile?>"><b><?=$date?> <?=$time?></b></a>
+                        <td class="td-small pointer show-logfile-btn" logfile="<?= $logfile ?>">
+                            <b><?=$date?> <?=$time?></b>
                         </td>
 
                         <td>

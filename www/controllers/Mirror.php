@@ -793,7 +793,7 @@ class Mirror
          */
         curl_setopt($this->curlHandle, CURLOPT_URL, $url);            // set remote file url
         curl_setopt($this->curlHandle, CURLOPT_FILE, $localFile);     // set output file
-        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);         // set timeout
+        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 300);         // set timeout
         curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true); // follow redirect
         curl_setopt($this->curlHandle, CURLOPT_ENCODING, '');         // use compression if any
 
@@ -863,6 +863,8 @@ class Mirror
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
         if ($this->checkSignature == 'yes') {
+            $mygpg = new GPG();
+
             /**
              *  If the source repo has a distant http:// gpg signature key, then download it
              */
@@ -895,7 +897,7 @@ class Mirror
             /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
-            $knownPublicKeys = Common::getGpgTrustedKeys();
+            $knownPublicKeys = $mygpg->getTrustedKeys();
 
             /**
              *  Filter to retrieve key Id column only
@@ -1053,9 +1055,6 @@ class Mirror
          */
         $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz');
 
-
-
-
         /**
          *  Create directory in which packages will be downloaded
          */
@@ -1067,6 +1066,8 @@ class Mirror
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
         if ($this->checkSignature == 'yes') {
+            $mygpg = new GPG();
+
             /**
              *  If the source repo has a distant http:// gpg signature key, then download it
              */
@@ -1099,7 +1100,7 @@ class Mirror
             /**
              *  Get all known editors GPG public keys imported into repomanager keyring
              */
-            $knownPublicKeys = Common::getGpgTrustedKeys();
+            $knownPublicKeys = $mygpg->getTrustedKeys();
 
             /**
              *  Filter to retrieve key Id column only

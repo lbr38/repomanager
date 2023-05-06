@@ -26,14 +26,6 @@ function closePanel()
 }
 
 /**
- *  Rechargement du bandeau de navigation
- */
-function reloadHeader()
-{
-    $("#header-refresh").load("run?reload #header-refresh > *");
-}
-
-/**
  * Afficher un message d'alerte (success ou error)
  * @param {*} message
  * @param {*} type
@@ -202,4 +194,42 @@ function printOsIcon(os = '', os_family = '')
      *  Else return generic icon
      */
     return '<img src="assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
+}
+
+/**
+ * Get cookie value by name
+ * @param {*} cname
+ * @returns
+ */
+function getCookie(cname)
+{
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+
+    for (let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+
+    return "";
+}
+
+/**
+ * Set cookie value
+ * @param {*} cname
+ * @param {*} cvalue
+ * @param {*} exdays
+ */
+function setCookie(cname, cvalue, exdays)
+{
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;Secure";
 }

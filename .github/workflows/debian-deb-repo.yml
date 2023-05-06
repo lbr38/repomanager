@@ -47,8 +47,6 @@ jobs:
           sudo mkdir -p /var/lib/repomanager/db
           sudo mkdir -p /var/lib/repomanager/.gnupg
           sudo cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
-          sudo cp $GITHUB_WORKSPACE/repomanager /var/www/repomanager/bin/repomanager
-          sudo cp -r $GITHUB_WORKSPACE/tools /var/lib/repomanager/
           sudo cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
 
       - name: Set up repomanager main config

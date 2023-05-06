@@ -1,10 +1,4 @@
-<section class="section-left">
-    <div class="reposList">
-        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
-    </div>
-</section>
-
-<section class="section-right">
+<section class="section-right reloadable-container" container="repos/properties">
     <div>
         <h3>PROPERTIES</h3>
 
@@ -120,13 +114,3 @@
         endif; ?>
     </div>
 </section>
-
-<?php
-include_once(ROOT . '/views/includes/panels/display.inc.php');
-
-if (IS_ADMIN) :
-    include_once(ROOT . '/views/includes/panels/repo-groups.inc.php');
-    include_once(ROOT . '/views/includes/panels/source-repo.inc.php');
-    include_once(ROOT . '/views/includes/panels/new-repo.inc.php');
-    include_once(ROOT . '/views/includes/panels/operation.inc.php');
-endif ?>

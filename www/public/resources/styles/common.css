@@ -594,7 +594,8 @@ textarea {
 }
 .alert-success { background-color: #14be7e; }
 .alert-error { background-color: #ff0044; }
-.alert span, .alert-success span, .alert-error span, .confirmAlert span {
+.alert span, .alert-success span, .alert-error span, .confirmAlert span,
+.alert a, .alert-success a, .alert-error a, .confirmAlert a {
     font-size: 16px;
 }
 .confirmAlert-buttons-container {

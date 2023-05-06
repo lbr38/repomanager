@@ -98,60 +98,6 @@ class Settings
             $settingsToApply['WWW_DIR'] = $wwwDir;
         }
 
-        if (!empty($sendSettings['wwwUser'])) {
-            $wwwUser = Common::validateData($sendSettings['wwwUser']);
-
-            if (!Common::isAlphanumDash($wwwUser)) {
-                throw new Exception('Invalid user value for ' . $wwwUser);
-            }
-
-            $settingsToApply['WWW_USER'] = $wwwUser;
-        }
-
-        if (!empty($sendSettings['wwwHostname'])) {
-            $wwwHostname = Common::validateData($sendSettings['wwwHostname']);
-
-            if (!Common::isAlphanumDash($wwwHostname, array('.'))) {
-                throw new Exception('Invalid hostname value for ' . $wwwHostname);
-            }
-
-            $settingsToApply['WWW_HOSTNAME'] = $wwwHostname;
-        }
-
-        /**
-         *  Update settings
-         */
-        if (!empty($sendSettings['updateAuto'])) {
-            if ($sendSettings['updateAuto'] == "true") {
-                $settingsToApply['UPDATE_AUTO'] = 'true';
-            } else {
-                $settingsToApply['UPDATE_AUTO'] = 'false';
-            }
-        }
-
-        // Hardcoded for now
-        // if (!empty($sendSettings['updateBranch'])) {
-        //     $updateBranch = 'stable';
-        // }
-
-        if (!empty($sendSettings['updateBackup'])) {
-            if ($sendSettings['updateBackup'] == "true") {
-                $settingsToApply['UPDATE_BACKUP'] = 'true';
-            } else {
-                $settingsToApply['UPDATE_BACKUP'] = 'false';
-            }
-        }
-
-        if (!empty($sendSettings['updateBackupDir'])) {
-            $updateBackupDir = Common::validateData($sendSettings['updateBackupDir']);
-
-            if (!Common::isAlphanumDash($updateBackupDir, array('/'))) {
-                throw new Exception('Invalid directory value for ' . $updateBackupDir);
-            }
-
-            $settingsToApply['UPDATE_BACKUP_DIR'] = $updateBackupDir;
-        }
-
         /**
          *  RPM repo settings
          */
@@ -171,12 +117,8 @@ class Settings
             }
         }
 
-        if (!empty($sendSettings['rpmSignMethod'])) {
-            if ($sendSettings['rpmSignMethod'] != 'rpmsign' and $sendSettings['rpmSignMethod'] != 'rpmresign') {
-                throw new Exception('Invalid RPM signing method');
-            }
-            $settingsToApply['RPM_SIGN_METHOD'] = $sendSettings['rpmSignMethod'];
-        }
+        // hardcoded for now
+        $settingsToApply['RPM_SIGN_METHOD'] = 'rpmsign';
 
         if (!empty($sendSettings['releasever']) and is_numeric($sendSettings['releasever'])) {
             $settingsToApply['RELEASEVER'] = $sendSettings['releasever'];
@@ -325,14 +267,8 @@ class Settings
             }
         }
 
-        if (!empty($sendSettings['statsLogPath'])) {
-            $statsLogPath = Common::validateData($sendSettings['statsLogPath']);
-            if (!Common::isAlphanumDash($statsLogPath, array('.', '/'))) {
-                throw new Exception('Invalid stats log path value for ' . $statsLogPath);
-            }
-
-            $settingsToApply['STATS_LOG_PATH'] = $statsLogPath;
-        }
+        // hardcoded for now
+        $settingsToApply['STATS_LOG_PATH'] = '/var/log/nginx/repomanager_access.log';
 
         /**
          *  Hosts settings

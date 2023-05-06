@@ -1,10 +1,4 @@
-<section class="section-left">
-    <div class="reposList">
-        <?php include_once(ROOT . '/views/includes/repos-list-container.inc.php'); ?>
-    </div>
-</section>
-
-<section class="section-right">
+<section class="section-right reloadable-container" container="plans/list">
     <div id="planDiv">
         <?php
         if (IS_ADMIN) : ?>
@@ -336,7 +330,7 @@
                                 <?php
                             endif;
                             if (!empty($planLogfile)) {
-                                echo '<div><span>Log</span><span><a href="/run?logfile=' . $planLogfile . '"><button class="btn-small-green"><b>Check log</b></button></a></span></div>';
+                                echo '<div><span>Log</span><span><a href="/run?view-logfile=' . $planLogfile . '"><button class="btn-small-green"><b>Check log</b></button></a></span></div>';
                             } ?>
                         </div>
                     </div>
@@ -827,7 +821,7 @@
                                 <?php
                                 if (!empty($planLogfile)) {
                                     echo '<span>Log</span>';
-                                    echo "<span><a href='/run?logfile=$planLogfile'><button class='btn-small-green'><b>Check log</b></button></a></></span>";
+                                    echo "<span><a href='/run?view-logfile=$planLogfile'><button class='btn-small-green'><b>Check log</b></button></a></></span>";
                                 } ?>
                             </div>
                         </div>
@@ -914,12 +908,3 @@ $(document).ready(function(){
     }).trigger('change');
 });
 </script>
-
-<?php
-include_once(ROOT . '/views/includes/panels/display.inc.php');
-
-if (IS_ADMIN) :
-    include_once(ROOT . '/views/includes/panels/repo-groups.inc.php');
-    include_once(ROOT . '/views/includes/panels/source-repo.inc.php');
-    include_once(ROOT . '/views/includes/panels/operation.inc.php');
-endif ?>
