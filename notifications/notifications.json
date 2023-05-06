@@ -1,3 +1,4 @@
+// Template:
 // {
 //     "NT01" : {
 //         "title" : "notification title",
@@ -8,3 +9,10 @@
 //         "message" : "notification message"
 //     }
 // }
+
+{
+    "NT01" : {
+        "title" : "Important change",
+        "message" : 'The decision has been made to provide a docker image to simplify the installation of Repomanager and to only provide docker image updates in the future. No more updates will be provided for local installations.<br>See <a href="https://github.com/lbr38/repomanager/releases/tag/3.5.0">3.5.0 changelog</a>'
+    }
+}
