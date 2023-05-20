@@ -5,7 +5,14 @@
     <body>
         <div id="top"></div> <!-- to go to the top of the page -->
 
-        <?php include_once(ROOT . '/views/includes/header.inc.php'); ?>
+        <?php
+            include_once(ROOT . '/views/includes/containers/header/menu.inc.php');
+            include_once(ROOT . '/views/includes/containers/header/general-error-messages.inc.php');
+            include_once(ROOT . '/views/includes/containers/header/general-log-messages.inc.php');
+            include_once(ROOT . '/views/includes/containers/header/service-status.inc.php');
+            include_once(ROOT . '/views/includes/containers/header/debug-mode.inc.php');
+            include_once(ROOT . '/views/includes/maintenance.inc.php');
+        ?>
 
         <article>
             <?= $content ?>
@@ -15,8 +22,8 @@
             /**
              *  Slide panels
              */
-            include_once(ROOT . '/views/includes/panels/notification.inc.php');
-            include_once(ROOT . '/views/includes/panels/userspace.inc.php');
+            \Controllers\Layout\Panel\Notification::render();
+            \Controllers\Layout\Panel\Userspace::render();
 
             /**
              *  Footer

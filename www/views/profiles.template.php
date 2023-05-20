@@ -264,5 +264,3 @@
         endif ?>
     </div>
 </section>
-
-<?php include_once(ROOT . '/views/includes/panels/manage-profiles-server-settings.inc.php'); ?>

@@ -150,6 +150,13 @@ class Planification extends Service
      */
     public function planReminder()
     {
+        /**
+         *  Exit the function if current time != 00:00
+         */
+        if (date('H:i') != '00:00') {
+            return;
+        }
+
         echo 'Sending plans reminder if any...' . PHP_EOL;
 
         /**

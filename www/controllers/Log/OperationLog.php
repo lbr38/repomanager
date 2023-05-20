@@ -7,55 +7,72 @@ use Exception;
 class OperationLog
 {
     public $type;     // Type de fichier de log (repomanager ou plan)
-    public $date;
-    public $time;
     public $name;     // Nom complet du fichier de log (repomanager_... ou plan_...)
-    public $location; // Emplacement du fichier de log
-    public $action;
-    public $pid;
+    private $date;
+    private $time;
+    // public $action;
+    private $location; // Emplacement du fichier de log
+    private $pid;
     public $steplog;
-    public $stepName;
-    public $title;
+    // public $stepName;
 
-    public function __construct(string $type)
+    public function getPid()
     {
-        if (empty($type)) {
-            throw new Exception('Error: log file type cannot be empty');
+        return $this->pid;
+    }
+
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    public function getTime()
+    {
+        return $this->time;
+    }
+
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    public function setType(string $type)
+    {
+        $this->type = $type;
+    }
+
+    public function initialize()
+    {
+        /**
+         *  Generate a random PID
+         */
+        $pid = mt_rand(10001, 99999);
+
+        while (file_exists(PID_DIR . '/' . $pid . '.pid')) {
+            // If the PID already exists, generate a new one
+            $pid = mt_rand(10001, 99999);
         }
+        $this->pid = $pid;
 
         /**
-         *  Génération d'un PID
+         *  Get the current date and time
          */
-        $PID = mt_rand(10001, 99999);
-
-        while (file_exists(PID_DIR . '/' . $PID . '.pid')) {
-            // Re-génération d'un PID si celui-ci est déjà prit
-            $PID = mt_rand(10001, 99999);
-        }
-        $this->pid = $PID;
-
-        /**
-         *  Seuls les types "main" ou "plan" sont valides
-         */
-        if ($type == "repomanager" or $type == "plan") {
-            $this->type = $type;
-        } else {
-            throw new Exception('Error:log file type is invalid');
-        }
-
         $this->date = date('Y-m-d');
         $this->time = date('H-i-s');
 
+        /**
+         *  Generate the name of the log file
+         */
         $this->name = $this->date . '_' . $this->time . '_' . $this->type . '_' . $this->pid . '.log';
         $this->location = MAIN_LOGS_DIR . '/' . $this->name;
 
         /**
-         *   Création du fichier PID
+         *  Create the PID file
          */
         file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'PID="' . $this->pid . '"' . PHP_EOL . 'LOG="' . $this->name . '"' . PHP_EOL);
 
         /**
-         *  Génération du fichier de log
+         *  Create the log file
          */
         if (file_exists($this->location)) {
             throw new Exception("Error: a log file with the same name ($this->location) already exists");
@@ -65,17 +82,13 @@ class OperationLog
         }
 
         /**
-         *  Modification du lien symbolique lastlog.log pour le faire pointer vers le nouveau fichier de log précédemment créé
+         *  Update symbolic link lastlog.log to point to the newly created log file
          */
         if (file_exists(MAIN_LOGS_DIR . '/lastlog.log')) {
             unlink(MAIN_LOGS_DIR . '/lastlog.log');
         }
-        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/lastlog.log');
-    }
 
-    public function getPid()
-    {
-        return $this->pid;
+        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/lastlog.log');
     }
 
     /**
@@ -262,6 +275,82 @@ class OperationLog
             if (file_exists($stepLog)) {
                 file_put_contents($this->location, file_get_contents($stepLog), FILE_APPEND);
             }
+            ++$j;
+        }
+    }
+
+    /**
+     *  Run logBuilder process in background
+     */
+    public function runLogBuilder(int $pid, string $location, int $steps)
+    {
+        $myprocess = new \Controllers\Process('php ' . LOGBUILDER . ' ' . $pid . ' ' . $location . ' ' . $steps . ' >/dev/null 2>/dev/null &');
+        $myprocess->execute();
+        $myprocess->close();
+        unset($myprocess);
+    }
+
+    /**
+     *  LogBuilder
+     */
+    public function logBuilder(int $pid, string $logFile, int $steps)
+    {
+        $mylayoutContainer = new \Controllers\Layout\ContainerState();
+        $operationTempDir = TEMP_DIR . '/' . $pid;
+
+        /**
+         *  While the "completed" file doesn't exist in the temporary directory, we rewrite the main log file to make sure it's up to date
+         */
+        while (!file_exists($operationTempDir . '/completed')) {
+            $this->writeStepLog($pid, $logFile, $steps);
+
+            /**
+             *  Make the following container refreshable by the client
+             */
+            $mylayoutContainer->update('operations/log');
+            sleep(1);
+        }
+
+        /**
+         *  When the operation is completed, we rewrite the main log file one last time to make sure we got all the step logs
+         */
+        $this->writeStepLog($pid, $logFile, $steps);
+
+        /**
+         *  Make the following container refreshable by the client
+         */
+        $mylayoutContainer->update('operations/log');
+    }
+
+    private function writeStepLog(int $pid, string $logFile, int $steps)
+    {
+        $j = 0;
+
+        $operationTempDir = TEMP_DIR . '/' . $pid;
+
+        /**
+         *  Delete the log file before rebuilding it
+         */
+        if (file_exists($logFile)) {
+            unlink($logFile);
+        }
+        touch($logFile);
+
+        /**
+         *  Adding each step log to the main log file
+         *  Example: ./temp/$PID/1/1.log is added to the main log file
+         */
+
+        /**
+         *  Looping on all the step logs until we reach the total number of steps
+         */
+        while ($j != ($steps + 1)) {
+            $stepLog = $operationTempDir . '/' . $j . '/' . $j . '.log';
+
+            if (file_exists($stepLog)) {
+                file_put_contents($logFile, file_get_contents($stepLog), FILE_APPEND);
+            }
+
             ++$j;
         }
     }

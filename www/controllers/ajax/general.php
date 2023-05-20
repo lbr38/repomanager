@@ -14,21 +14,6 @@ if ($action == "updateRepomanager") {
 }
 
 /**
- *  Acquit update log window and continue
- */
-if ($action == "continueUpdate") {
-    $myupdate = new \Controllers\Update();
-
-    try {
-        $myupdate->acquit();
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, '');
-}
-
-/**
  *  Acquit log message
  */
 if ($action == "acquitLog" && !empty($_POST['id'])) {
@@ -41,6 +26,36 @@ if ($action == "acquitLog" && !empty($_POST['id'])) {
     }
 
     response(HTTP_OK, '');
+}
+
+/**
+ *  Return specified container content
+ */
+if ($action == "getContainer" && !empty($_POST['container'])) {
+    try {
+        ob_start();
+        \Controllers\Layout\Container\Render::render($_POST['container']);
+        $content = ob_get_clean();
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
+ *  Get all layout containers state
+ */
+if ($action == "getContainerState") {
+    $mycontainerState = new \Controllers\Layout\ContainerState();
+
+    try {
+        $result = $mycontainerState->get();
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, json_encode($result));
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

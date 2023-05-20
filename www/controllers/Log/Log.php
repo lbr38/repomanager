@@ -16,9 +16,9 @@ class Log
     /**
      *  Get all logs or logs of a specific type
      */
-    public function getUnread(string $type = null)
+    public function getUnread(string $type = null, int $limit = 0)
     {
-        return $this->model->getUnread($type);
+        return $this->model->getUnread($type, $limit);
     }
 
     /**

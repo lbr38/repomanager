@@ -184,13 +184,11 @@ if (!empty($groupsList)) {
                     /**
                      *  Get repo size in bytes
                      */
-                    if (PRINT_REPO_SIZE == "yes") {
-                        if ($packageType == "rpm") {
-                            $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $dateFormatted . '_' . $name);
-                        }
-                        if ($packageType == "deb") {
-                            $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section);
-                        }
+                    if ($packageType == "rpm") {
+                        $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $dateFormatted . '_' . $name);
+                    }
+                    if ($packageType == "deb") {
+                        $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section);
                     } ?>
 
                     <div class="item-snapshot">
@@ -202,42 +200,36 @@ if (!empty($groupsList)) {
 
                             <div class="item-info">
                                 <?php
-                                if (PRINT_REPO_SIZE == "yes") {
-                                    /**
-                                     *  Print repo size in the most suitable byte format
-                                     */
-                                    echo '<span class="lowopacity" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
-                                }
+                                /**
+                                 *  Print repo size in the most suitable byte format
+                                 */
+                                echo '<span class="lowopacity" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
 
                                 /**
                                  *  Affichage de l'icone du type de repo (miroir ou local)
                                  */
-                                if (PRINT_REPO_TYPE == 'yes') {
-                                    echo '<span>';
-                                    if ($type == "mirror") {
-                                        echo '<img class="icon-np lowopacity" src="assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
-                                    } elseif ($type == "local") {
-                                        echo '<img class="icon-np lowopacity" src="assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
-                                    } else {
-                                        echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="Type: unknow" />';
-                                    }
-                                    echo '</span>';
+                                echo '<span>';
+                                if ($type == "mirror") {
+                                    echo '<img class="icon-np lowopacity" src="assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
+                                } elseif ($type == "local") {
+                                    echo '<img class="icon-np lowopacity" src="assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
+                                } else {
+                                    echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="Type: unknow" />';
                                 }
+                                echo '</span>';
 
                                 /**
                                  *  Affichage de l'icone de signature GPG du repo
                                  */
-                                if (PRINT_REPO_SIGNATURE == 'yes') {
-                                    echo '<span>';
-                                    if ($signed == "yes") {
-                                        echo '<img class="icon-np lowopacity" src="assets/icons/key.svg" title="Signed with GPG" />';
-                                    } elseif ($signed == "no") {
-                                        echo '<img class="icon-np" src="assets/icons/key2.svg" title="Not signed with GPG" />';
-                                    } else {
-                                        echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="GPG signature: unknow" />';
-                                    }
-                                    echo '</span>';
+                                echo '<span>';
+                                if ($signed == "yes") {
+                                    echo '<img class="icon-np lowopacity" src="assets/icons/key.svg" title="Signed with GPG" />';
+                                } elseif ($signed == "no") {
+                                    echo '<img class="icon-np" src="assets/icons/key2.svg" title="Not signed with GPG" />';
+                                } else {
+                                    echo '<img class="icon-np lowopacity" src="assets/icons/unknow.svg" title="GPG signature: unknow" />';
                                 }
+                                echo '</span>';
 
                                 /**
                                  *  Affichage de l'icone "explorer"

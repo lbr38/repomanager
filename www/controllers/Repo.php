@@ -406,7 +406,7 @@ class Repo
 
     public function getOpLogLocation()
     {
-        return $this->op->log->location;
+        return $this->op->log->getLocation();
     }
 
     public function getOpStatus()
@@ -699,7 +699,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             /**
@@ -787,7 +787,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 2;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             ob_start();
@@ -1016,7 +1016,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 7;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             /**
@@ -1117,7 +1117,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 4;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             ob_start();
@@ -1350,7 +1350,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 3;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         /**
          *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
@@ -1435,7 +1435,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 1;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             ob_start();
@@ -1570,7 +1570,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 2;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             ob_start();
@@ -1674,7 +1674,7 @@ class Repo
          *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
          */
         $steps = 4;
-        exec('php ' . LOGBUILDER . ' ' . PID_DIR . "/{$this->op->log->pid}.pid {$this->op->log->location} " . TEMP_DIR . "/{$this->op->log->pid} $steps >/dev/null 2>/dev/null &");
+        $this->op->log->runLogBuilder($this->op->log->getPid(), $this->op->log->getLocation(), $steps);
 
         try {
             ob_start();
@@ -2306,16 +2306,16 @@ class Repo
                 /**
                  *  Cas où on souhaite utiliser rpmresign pour signer
                  */
-                if ($this->rpmSignMethod == 'rpmresign') {
-                    if (file_exists("/usr/bin/rpmresign")) {
-                        /**
-                         *  Instanciation d'un nouveau Process
-                         */
-                        $myprocess = new Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . GPG_SIGNING_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile);
-                    } else {
-                        throw new Exception("rpmresign bin is not found on this system");
-                    }
-                }
+                // if ($this->rpmSignMethod == 'rpmresign') {
+                //     if (file_exists("/usr/bin/rpmresign")) {
+                //         /**
+                //          *  Instanciation d'un nouveau Process
+                //          */
+                //         $myprocess = new Process('/usr/bin/rpmresign --path "' . GPGHOME . '" --name "' . GPG_SIGNING_KEYID . '" --passwordfile "' . PASSPHRASE_FILE . '" ' . $rpmFile);
+                //     } else {
+                //         throw new Exception("rpmresign bin is not found on this system");
+                //     }
+                // }
 
                 /**
                  *  Cas où on souhaite utiliser nativement gpg pour signer, avec rpmsign (équivalent rpm --sign)
@@ -2344,7 +2344,7 @@ class Repo
                  *  Récupération du pid du process lancé
                  *  Puis écriture du pid de rpmsign/rpmresign (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
                  */
-                file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+                file_put_contents(PID_DIR . '/' . $this->op->log->getPid() . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
                 /**
                  *  Affichage de l'output du process en continue dans un fichier
@@ -2536,7 +2536,7 @@ class Repo
              *  Récupération du pid du process lancé
              *  Puis écriture du pid de createrepo (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
              */
-            file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+            file_put_contents(PID_DIR . '/' . $this->op->log->getPid() . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
             /**
              *  Affichage de l'output du process en continue dans un fichier
@@ -2890,7 +2890,7 @@ class Repo
                          *  Récupération du pid du process lancé
                          *  Puis écriture du pid de reprepro (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
                          */
-                        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+                        file_put_contents(PID_DIR . '/' . $this->op->log->getPid() . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
                         /**
                          *  Affichage de l'output du process en continue dans un fichier
@@ -2937,7 +2937,7 @@ class Repo
                          *  Récupération du pid du process lancé
                          *  Puis écriture du pid de reprepro (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
                          */
-                        file_put_contents(PID_DIR . '/' . $this->op->log->pid . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
+                        file_put_contents(PID_DIR . '/' . $this->op->log->getPid() . '.pid', 'SUBPID="' . $myprocess->getPid() . '"' . PHP_EOL, FILE_APPEND);
 
                         /**
                          *  Affichage de l'output du process en continue dans un fichier

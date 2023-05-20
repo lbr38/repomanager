@@ -173,7 +173,6 @@ class Autoloader
         self::loadSession();
         self::loadEnvs();
         self::checkForUpdate();
-        self::loadReposListDisplayConf();
         self::checkPhpModules();
         self::loadLogs();
         self::loadNotifications();
@@ -293,9 +292,6 @@ class Autoloader
         if (!is_dir(MAIN_LOGS_DIR)) {
             mkdir(MAIN_LOGS_DIR, 0770, true);
         }
-        if (!is_dir(SERVICE_LOG_DIR)) {
-            mkdir(SERVICE_LOG_DIR, 0770, true);
-        }
         if (!is_dir(POOL)) {
             mkdir(POOL, 0770, true);
         }
@@ -315,15 +311,6 @@ class Autoloader
             mkdir(DB_UPDATE_DONE_DIR, 0770, true);
         }
 
-        /**
-         *  Création du répertoire de backup si n'existe pas
-         */
-        if (defined('UPDATE_BACKUP_DIR') and !empty(UPDATE_BACKUP_DIR) and !is_dir(UPDATE_BACKUP_DIR)) {
-            if (!mkdir(UPDATE_BACKUP_DIR, 0770, true)) {
-                $__CREATE_DIRS_AND_FILES_ERROR++;
-                $__CREATE_DIRS_AND_FILES_MESSAGES[] = 'Cannot create backup directory: ' . UPDATE_BACKUP_DIR;
-            }
-        }
         /**
          *  Création du répertoire de mise à jour si n'existe pas
          */
@@ -365,10 +352,16 @@ class Autoloader
         $mylog = new \Controllers\Log\Log();
 
         /**
-         *  Retrieve unread notifications from database
+         *  Count unread notifications
          */
-        $LOG_MESSAGES = $mylog->getUnread();
-        $LOG = count($LOG_MESSAGES);
+        $LOG = count($mylog->getUnread(''));
+
+        /**
+         *  Retrieve 5 last unread notifications from database
+         */
+        if ($LOG > 0) {
+            $LOG_MESSAGES = $mylog->getUnread('', 5);
+        }
 
         if (!defined('LOG')) {
             define('LOG', $LOG);
@@ -400,11 +393,7 @@ class Autoloader
          *  If an update is available, generate a new notification
          */
         if (UPDATE_AVAILABLE == 'true') {
-            if (DOCKER == 'true') {
-                $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b>.</span><br>Clone the repomanager repository from Github and build the container image to update.</span>';
-            } else {
-                $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b>. Go to the <b><a href="/settings">settings</a></b> tab to update.</span>';
-            }
+            $message = '<span class="yellowtext">A new release is available: <b>' . GIT_VERSION . '</b>.</span><br><br>Please update your docker image by following the steps documented here: <b><a href="https://github.com/lbr38/repomanager/wiki/01.-Installation#update-repomanager">Update repomanager</a></b></span>';
             $NOTIFICATION_MESSAGES[] = array('Title' => 'Update available', 'Message' =>  $message);
             $NOTIFICATION++;
         }
@@ -483,58 +472,6 @@ class Autoloader
             }
         } else {
             define('UPDATE_AVAILABLE', 'false');
-        }
-
-        /**
-         *  Si la mise à jour automatique est activé et qu'une mise à jour est disponible alors on l'installe en arrière-plan.
-         *  L'action est effectuée uniquement si une mise à jour n'est pas déjà en cours (présence du fichier update-running)
-         *  La mise à jour mettra en place une page de maintenance automatiquement
-         */
-        if (UPDATE_AUTO == "true" and UPDATE_AVAILABLE == "true") {
-            if (!file_exists(DATA_DIR . "/update-running")) {
-                $myupdate = new \Controllers\Update();
-                $myupdate->update();
-            }
-        }
-    }
-
-    /**
-     *  Chargement de la configuration de l'affichage de la liste des repos
-     */
-    private static function loadReposListDisplayConf()
-    {
-        /**
-         *  On ne charge ces paramètres uniquement sur certaines pages
-         */
-        if (defined('__ACTUAL_URI__')) {
-            if (
-                __ACTUAL_URI__ == "" or
-                __ACTUAL_URI__ == "/" or
-                __ACTUAL_URI__ == "/plans"
-            ) {
-                /**
-                 *  Ouverture d'une connexion à la base de données
-                 */
-                $myconn = new \Models\Connection('main');
-
-                /**
-                 *  Récupération des paramètres en base de données
-                 */
-                try {
-                    $result = $myconn->query("SELECT * FROM repos_list_settings");
-                    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                        define('PRINT_REPO_SIZE', $row['print_repo_size']);
-                        define('PRINT_REPO_TYPE', $row['print_repo_type']);
-                        define('PRINT_REPO_SIGNATURE', $row['print_repo_signature']);
-                    }
-                } catch (\Exception $e) {
-                    \Controllers\Common::dbError($e);
-                }
-
-                define('CACHE_REPOS_LIST', 'true');
-
-                $myconn->close();
-            }
         }
     }
 }

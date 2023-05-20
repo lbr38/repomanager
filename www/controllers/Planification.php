@@ -460,7 +460,9 @@ class Planification
          *  On génère un nouveau log pour cette planification
          *  Ce log général reprendra tous les sous-logs de chaque opération lancée par cette planification.
          */
-        $this->log = new Log\OperationLog('plan');
+        $this->log = new Log\OperationLog();
+        $this->log->setType('plan');
+        $this->log->initialize();
 
         /**
          *  Passe le status de la planification à "running", jusqu'à maintenant le status était "queued"
@@ -1141,7 +1143,7 @@ class Planification
                 /**
                  *  Send mail
                  */
-                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?logfile=' . $this->log->name, 'Check the details');
+                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->name, 'Check the details');
                 $mymail->send();
             }
 
@@ -1173,7 +1175,7 @@ class Planification
                 /**
                  *  Send mail
                  */
-                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?logfile=' . $this->log->name, 'Check the details');
+                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->name, 'Check the details');
                 $mymail->send();
             }
         }

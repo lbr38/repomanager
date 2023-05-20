@@ -1,46 +1,62 @@
-$(document).ready(function () {
-    /**
-     *  Autorechargement du journal et des opération en cours (panneau gauche et panneau droit)
-     */
-    setInterval(function () {
-        $(".section-right").load(window.location.href + " .section-right > *");
-        $(".section-left").load(window.location.href + " .section-left > *");
-    }, 3000);
+var display = getCookie('display-log');
+showHideLog(display);
 
-    /**
-     *  Afficher toutes les opérations terminées
-     */
-    $(document).on('click','#print-all-op',function () {
-        $(".hidden-op").show();        // On affiche les opérations masquées
-        $("#print-all-op").hide();    // On masque le bouton "Afficher tout"
+function showHideLog(display)
+{
+    if (display == 'true') {
+        $('.getPackagesDiv').css('display', 'block');
+        $('.signRepoDiv').css('display', 'block');
+        $('.createRepoDiv').css('display', 'block');
+        $('#display-log-btn').attr('display', 'false');
 
-        // Création d'un cookie (expiration 15min)
-        document.cookie = "printAllOp=yes;max-age=900; Secure";
-    });
+        document.cookie = "display-log=true; Secure";
+    }
 
-    /**
-     *  Afficher toutes les opérations récurrentes terminées
-     */
-    $(document).on('click','#print-all-regular-op',function () {
-        $(".hidden-regular-op").show();        // On affiche les opérations masquées
-        $("#print-all-regular-op").hide();    // On masque le bouton "Afficher tout"
+    if (display == 'false') {
+        $('.getPackagesDiv').css('display', 'none');
+        $('.signRepoDiv').css('display', 'none');
+        $('.createRepoDiv').css('display', 'none');
+        $('#display-log-btn').attr('display', 'true');
 
-        // Création d'un cookie (expiration 15min)
-        document.cookie = "printAllRegularOp=yes;max-age=900; Secure";
-    });
+        document.cookie = "display-log=false; Secure";
+    }
+}
 
-    /**
-     *  Afficher ou non tout le détail d'une opération
-     */
-    $(document).on('click','#displayFullLogs-yes',function () {
-        document.cookie = "displayFullLogs=yes; Secure";
-        $(".section-left").load(" .section-left > *");
-    });
+/**
+ *  Event: print full log
+ */
+$(document).on('click','#display-log-btn',function () {
+    var display = $(this).attr('display');
+    showHideLog(display);
+});
 
-    $(document).on('click','#displayFullLogs-no',function () {
-        document.cookie = "displayFullLogs=no; Secure";
-        $(".section-left").load(" .section-left > *");
-    });
+/**
+ *  Event: show logfile content
+ */
+$(document).on('click','.show-logfile-btn',function () {
+    var logfile = $(this).attr('logfile');
+    setCookie('view-logfile', logfile, 1);
+    reloadContainer('operations/log');
+});
+
+/**
+ *  Event: print all done operations
+ */
+$(document).on('click','#print-all-op',function () {
+    $(".hidden-op").show();        // On affiche les opérations masquées
+    $("#print-all-op").hide();    // On masque le bouton "Afficher tout"
+    // Création d'un cookie (expiration 15min)
+    document.cookie = "printAllOp=yes;max-age=900; Secure";
+});
+
+/**
+ *  Event: print all done regular operations
+ */
+$(document).on('click','#print-all-regular-op',function () {
+    $(".hidden-regular-op").show();        // On affiche les opérations masquées
+    $("#print-all-regular-op").hide();    // On masque le bouton "Afficher tout"
+    // Création d'un cookie (expiration 15min)
+    document.cookie = "printAllRegularOp=yes;max-age=900; Secure";
 });
 
 /**

@@ -103,102 +103,6 @@
                         } ?>
                     </div>
                 </div>
-                
-                <br>
-                <h5>UPDATE SETTINGS</h5>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, repomanager will automatically update to the new available release." />
-                    </div>
-                    <div>
-                        <p>Automatic update</p>
-                    </div>
-                    <div>
-                        <label class="onoff-switch-label">
-                        <input class="settings-param onoff-switch-input" param-name="updateAuto" type="checkbox" value="yes" <?php echo (UPDATE_AUTO == "true") ? 'checked' : ''; ?>>
-                        <span class="onoff-switch-slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(UPDATE_AUTO)) {
-                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                </div>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify from which target git branch updates must be applied (generally stable)." />
-                    </div>
-                    <div>
-                        <p>Update target branch</p>
-                    </div>
-                    <div>
-                        <select class="settings-param" param-name="updateBranch">
-                            <option value="stable" <?php echo (UPDATE_BRANCH == "stable") ? 'selected' : ''; ?>>stable</option>
-                            <option value="dev" <?php echo (UPDATE_BRANCH == "devel") ? 'selected' : ''; ?>>devel</option>
-                        </select>
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(UPDATE_BRANCH)) {
-                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                    <div>
-                        <?php
-                        if (UPDATE_AVAILABLE == "true" and DOCKER == 'false') : ?>
-                            <span>New release available: </span>
-                            <span id="update-repomanager-btn" release="<?= GIT_VERSION ?>" class="btn-medium-green" title="Update repomanager to: <?= GIT_VERSION ?>">Update now to <?= GIT_VERSION ?></span>
-                            <?php
-                        endif ?>
-                    </div>
-                </div>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, a backup of repomanager will be created before each update in specified directory." />
-                    </div>
-                    <div>
-                        <p>Backup before update</p>
-                    </div>
-                    <div>
-                        <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="updateBackup" type="checkbox" value="yes" <?php echo (UPDATE_BACKUP == "true") ? 'checked' : ''; ?>>
-                            <span class="onoff-switch-slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(UPDATE_BACKUP)) {
-                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                </div>
-
-                <?php
-                if (UPDATE_BACKUP == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager backup before update target directory." />
-                        </div>
-                        <div>
-                            <p>Backup before update target directory</p>
-                        </div>
-                        <div>
-                            <input class="settings-param" param-name="updateBackupDir" type="text" value="<?= UPDATE_BACKUP_DIR ?>">
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(UPDATE_BACKUP_DIR)) {
-                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </div>
-                    </div>
-                    <?php
-                endif ?>
             </div>
 
             <h3>REPOSITORIES</h3>
@@ -277,31 +181,6 @@
                             } ?>
                         </div>
                     </div>
-
-                    <?php
-                    if (RPM_SIGN_PACKAGES == 'true') : ?>
-                        <div class="settings-div">
-                            <div>
-                                <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify which tool will be used to sign packages. (Pleas use rpmsign on recent systems. Use rpmresign on old RHEL (version 7).">
-                            </div>
-                            <div>
-                                <p>GPG signature method</p>
-                            </div>
-                            <div>
-                                <select class="settings-param" param-name="rpmSignMethod">
-                                    <option value="rpmsign" <?php echo (RPM_SIGN_METHOD == 'rpmsign' ? 'selected' : '') ?>>rpmsign</option>
-                                    <option value="rpmresign" <?php echo (RPM_SIGN_METHOD == 'rpmresign' ? 'selected' : '') ?>>rpmresign (RPM4 perl module)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <?php
-                                if (empty(RPM_SIGN_METHOD)) {
-                                    echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                                } ?>
-                            </div>
-                        </div>
-                        <?php
-                    endif ?>
 
                     <div class="settings-div">
                         <div>
@@ -545,34 +424,6 @@
                         } ?>        
                     </div>
                 </div>
-
-                <?php
-                if (STATS_ENABLED == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Path to webserver access log (containing repomanager access logs). This file will be parsed to retieve repo access and generate statistics." />
-                        </div>
-                        <div>
-                            <p>Path to access log to scan for statistics</p>
-                        </div>
-                        <div>
-                            <input class="settings-param" param-name="statsLogPath" type="text" value="<?= STATS_LOG_PATH ?>" />
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(STATS_LOG_PATH)) {
-                                echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            }
-                            if (!file_exists(STATS_LOG_PATH)) {
-                                echo '<img src="assets/icons/warning.png" class="icon" title="File not found." />';
-                            }
-                            if (!is_readable(STATS_LOG_PATH)) {
-                                echo '<img src="assets/icons/warning.png" class="icon" title="File is not readable." />';
-                            } ?>
-                        </div>
-                    </div>
-                    <?php
-                endif ?>
             </div>
 
             <h3>WEB CONFIGURATION</h3>
@@ -580,31 +431,13 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Specify Linux web dedicated user that execute this web server. Usually www-data or nginx." />
-                    </div>
-                    <div>
-                        <p>Web user</p>
-                    </div>
-                    <div>
-                        <input class="settings-param" param-name="wwwUser" type="text" value="<?= WWW_USER ?>">
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(WWW_USER)) {
-                            echo '<img src="assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                </div>
-
-                <div class="settings-div">
-                    <div>
-                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager dedicated hostname." />
+                        <img src="assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager FQDN." />
                     </div>
                     <div>
                         <p>Hostname</p>
                     </div>
                     <div>
-                        <input class="settings-param" param-name="wwwHostname" type="text" value="<?= WWW_HOSTNAME ?>">
+                        <p><?= WWW_HOSTNAME ?></p>
                     </div>
                     <div>
                         <?php

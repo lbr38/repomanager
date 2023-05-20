@@ -62,6 +62,66 @@ class Gpg
     }
 
     /**
+     *  Return an array with all editors GPG pub keys that were imported into repomanager keyring
+     */
+    public function getTrustedKeys()
+    {
+        $knownGpgKeys = array();
+
+        $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --list-key --fixed-list-mode --with-colons --with-fingerprint | sed 's/^pub/\\npub/g' | grep -v '^tru:'");
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        /**
+         *  Parsing retrieved content
+         */
+        if (!empty($content)) {
+            $gpgKeys = explode(PHP_EOL.PHP_EOL, $content);
+
+            foreach ($gpgKeys as $gpgKey) {
+                $gpgKeyId = '';
+                $gpgKeyName = '';
+                $gpgKey = explode(PHP_EOL, $gpgKey);
+
+                foreach ($gpgKey as $gpgKeyRow) {
+                    /**
+                     *  Get GPG key Id from fpr row
+                     */
+                    if (preg_match('/^fpr:/', $gpgKeyRow)) {
+                        $gpgKeyId = preg_split('/:/', $gpgKeyRow);
+                        $gpgKeyId = trim($gpgKeyId[9]);
+                    }
+
+                    /**
+                     *  Retrieve GPG key name from uid row
+                     */
+                    if (preg_match('/^uid:/', $gpgKeyRow)) {
+                        $gpgKeyName = preg_split('/:/', $gpgKeyRow);
+                        $gpgKeyName = trim($gpgKeyName[9]);
+                    }
+
+                    /**
+                     *  If both name and Id have been found, had them to the global array
+                     */
+                    if (!empty($gpgKeyId) and !empty($gpgKeyName)) {
+                        $knownGpgKeys[] = array('id' => $gpgKeyId, 'name' => $gpgKeyName);
+
+                        /**
+                         *  Only reset Id because a key can have one name (uid) and multiple Id, so do not reset the name until the next key
+                         */
+                        $gpgKeyId = '';
+                    }
+                }
+            }
+        }
+
+        unset($content, $gpgKeys);
+
+        return $knownGpgKeys;
+    }
+
+    /**
      *  Generate GPG signing key
      */
     public function generateSigningKey()

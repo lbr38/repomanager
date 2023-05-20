@@ -17,7 +17,6 @@ class Service
     private $root;
     private $wwwUser;
     private $reposDir;
-    private $updateBranch;
     private $plansEnabled;
     private $plansRemindersEnabled;
     protected $statsEnabled;
@@ -64,13 +63,6 @@ class Service
                 $this->reposDir = $settings['REPOS_DIR'];
             } else {
                 $this->logController->log('error', 'Service', "Could not retrieve 'Repositories storage directory' setting.");
-                $missingSetting++;
-            }
-
-            if (!empty($settings['UPDATE_BRANCH'])) {
-                $this->updateBranch = $settings['UPDATE_BRANCH'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Update target branch' setting.");
                 $missingSetting++;
             }
 
@@ -155,7 +147,7 @@ class Service
         try {
             $outputFile = fopen(DATA_DIR . '/version.available', "w");
 
-            curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/' . $this->updateBranch . '/www/version');
+            curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/stable/www/version');
             curl_setopt($this->curlHandle, CURLOPT_FILE, $outputFile);
             curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 30);
 
@@ -217,11 +209,7 @@ class Service
      */
     public static function isRunning()
     {
-        if (DOCKER == 'true') {
-            $myprocess = new \Controllers\Process('ps aux | grep "tools/service.php" | grep -v grep');
-        } else {
-            $myprocess = new \Controllers\Process('systemctl is-active repomanager --quiet');
-        }
+        $myprocess = new \Controllers\Process('ps aux | grep "tools/service.php" | grep -v grep');
         $myprocess->execute();
         $content = $myprocess->getOutput();
         $myprocess->close();
@@ -274,7 +262,7 @@ class Service
                 /**
                  *  Apply permissions
                  */
-                $this->serviceFileController->applyPermissions();
+                //$this->serviceFileController->applyPermissions();
 
                 /**
                  *  Reset counter
@@ -307,17 +295,20 @@ class Service
             }
 
             /**
-             *  Execute plans (if plan enabled)
+             *  Execute plans actions (if plans are enabled)
              */
-            if ($this->plansEnabled == 'true') {
+            if ($this->plansEnabled == 'true' && $this->currentTime != $this->lastTime) {
+                /**
+                 *  Execute plans
+                 */
                 $this->runService('plan-exec');
-            }
 
-            /**
-             *  Send plans reminder (if plan and plan reminders enabled)
-             */
-            if ($this->plansEnabled == 'true' && $this->plansRemindersEnabled == 'true') {
-                $this->runService('plan-reminder');
+                /**
+                 *  Send plans reminder
+                 */
+                if ($this->plansRemindersEnabled == 'true') {
+                    $this->runService('plan-reminder');
+                }
             }
 
             $this->lastTime = date('H:i');

@@ -7,17 +7,6 @@ idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
 idToSelect2('#debTranslationSelect', 'Select translations...');
 
 /**
- *  Event: update Repomanager
- */
-$(document).on('click','#update-repomanager-btn',function () {
-    var release = $(this).attr('release');
-
-    confirmBox('Update Repomanager to release version ' + release + '?', function () {
-        updateRepomanager();
-    }, 'Update');
-});
-
-/**
  *  Event: send a test email
  */
 $(document).on('click','#send-test-email-btn',function () {
@@ -119,30 +108,9 @@ $(document).on('click','.delete-user-btn',function () {
     var id = $(this).attr('user-id');
 
     confirmBox('Delete user ' + username + '?', function () {
-        deleteUser(id, username);
+        deleteUser(id);
     }, 'Delete');
 });
-
-/**
- *  Ajax: update Repomanager
- */
-function updateRepomanager()
-{
-    printAlert('Update running <img src="assets/images/loading.gif" class="icon" />', null, 'none');
-    $.ajax({
-        type: "POST",
-        url: "ajax/controller.php",
-        data: {
-            controller: "general",
-            action: "updateRepomanager"
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            window.location.replace("/settings");
-        }
-    });
-}
 
 /**
  *  Ajax: Apply settings params
@@ -170,7 +138,13 @@ function applySettings(settings_params_json)
                 idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
                 idToSelect2('#debTranslationSelect', 'Select translations...');
             });
+
             printAlert(jsonValue.message, 'success');
+
+            /**
+             *  Reload missing settings error messages if any
+             */
+            reloadContainer('header/general-error-messages');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -254,7 +228,7 @@ function resetPassword(id, username)
 /**
  *  Ajax: delete user
  */
-function deleteUser(id, username)
+function deleteUser(id)
 {
     $.ajax({
         type: "POST",

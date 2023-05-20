@@ -142,14 +142,10 @@ if (!empty($sourceReposList)) : ?>
         </div>
         <?php
     endforeach;
-endif;
-
-/**
- *  Get imported GPG signing keys
- */
-$knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
+endif; ?>
 
 <h5>GPG SIGNING KEYS</h5>
+
 <p>Import a GPG key:</p>
 <form id="source-repo-add-key-form" autocomplete="off">
     <div class="flex align-content-center">
@@ -157,6 +153,7 @@ $knownPublicKeys = \Controllers\Common::getGpgTrustedKeys(); ?>
         <button class="btn-xxsmall-green" title="Import">+</button>
     </div>
 </form>
+
 <?php
 if (!empty($knownPublicKeys)) : ?>
     <br>

@@ -120,10 +120,10 @@ class Connection extends SQLite3
         OR name='users'
         OR name='user_role'
         OR name='history'
-        OR name='repos_list_settings'
         OR name='notifications'
         OR name='logs'
-        OR name='settings'");
+        OR name='settings'
+        OR name='layout_container_state'");
 
         /**
          *  On retourne le nombre de tables
@@ -500,23 +500,6 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Crée la table repos_list_settings si n'existe pas
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS repos_list_settings (
-        print_repo_size CHAR(3) NOT NULL,
-        print_repo_type CHAR(3) NOT NULL,
-        print_repo_signature CHAR(3) NOT NULL,
-        cache_repos_list CHAR(3) NOT NULL)");
-
-        /**
-         *  Si la table repos_list_settings est vide (vient d'être créée) alors on la peuple
-         */
-        $result = $this->query("SELECT print_repo_size FROM repos_list_settings");
-        if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO repos_list_settings (print_repo_size, print_repo_type, print_repo_signature, cache_repos_list) VALUES ('yes', 'yes', 'yes', 'no')");
-        }
-
-        /**
          *  Generate notifications table if not exists
          */
         $this->exec("CREATE TABLE IF NOT EXISTS notifications (
@@ -592,16 +575,7 @@ class Connection extends SQLite3
              */
             $gpgKeyId = 'repomanager@' . $fqdn;
 
-            /**
-             *  Path to the access log file
-             */
-            if (file_exists(ROOT . '/.docker')) {
-                $statsLogPath = '/var/log/nginx/repomanager_access.log';
-            } else {
-                $statsLogPath = '/var/log/nginx/repomanager_ssl_access.log';
-            }
-
-            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . get_current_user() . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '$statsLogPath', 'false', 'false')");
+            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . get_current_user() . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_access.log', 'false', 'false')");
         }
 
         /**
@@ -615,6 +589,13 @@ class Connection extends SQLite3
         Component VARCHAR(255),
         Message VARCHAR(255) NOT NULL,
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
+
+        /**
+         *  Generate layout_container_state table if not exists
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS layout_container_state (
+        Container VARCHAR(255) NOT NULL,
+        Id INTEGER NOT NULL)");
     }
 
     /**

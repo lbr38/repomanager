@@ -544,7 +544,6 @@ function validateExecuteForm(operation_params_json)
             *  Lorsque l'opération est lancée on masque les div d'opérations, on recharge le bandeau de navigation pour faire apparaitre l'opération en cours et on affiche un message
             */
             closePanel();
-            reloadHeader();
             printAlert(jsonValue.message, 'success');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {

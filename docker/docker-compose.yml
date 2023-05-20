@@ -10,6 +10,7 @@ services:
       args:
         fqdn: repomanager.example.com
         max_upload_size: 32M
+    restart: always
     ports:
       - "8080:8080"
     volumes:

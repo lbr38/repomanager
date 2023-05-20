@@ -30,7 +30,7 @@
 
 <tr>
     <td class="td-30">
-        <span>Description</span> <span class="lowopacity">(optionnal)</span>
+        <span>Description</span> <span class="lowopacity-cst">(optionnal)</span>
     </td>
     <td><input type="text" class="operation_param" param-name="targetDescription" /></td>
 </tr>

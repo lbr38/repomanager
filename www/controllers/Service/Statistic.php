@@ -107,8 +107,6 @@ class Statistic extends Service
                 $this->logController->log('error', 'Service', 'Error while executing stats generation operation: ' . $e->getMessage());
             }
         }
-
-        $this->statController->closeConnection();
     }
 
     /**
@@ -158,7 +156,7 @@ class Statistic extends Service
         $this->getSettings();
 
         /**
-         *  Return false if getSettings has disabled stats because of an error
+         *  Return false if getSettings has disabled stats because of an error or because the user disabled them
          */
         if ($this->statsEnabled != 'true') {
             return;
@@ -188,7 +186,7 @@ class Statistic extends Service
                 $this->getSettings();
 
                 /**
-                 *  Return false if getSettings has disabled stats because of an error
+                 *  Break if stats have been disabled
                  */
                 if ($this->statsEnabled != 'true') {
                     break;
@@ -214,8 +212,9 @@ class Statistic extends Service
             }
 
             clearstatcache();
+
             if (!file_exists($this->statsLogPath) || ($file = @fopen($this->statsLogPath, 'r')) === false) {
-                usleep(50);
+                sleep(2);
                 continue;
             }
 
@@ -284,12 +283,14 @@ class Statistic extends Service
                      *  Add repo access to database
                      */
                     $this->statController->addAccess($date, $time, $sourceHost, $sourceIp, $request, $requestResult);
+
+                    unset($line, $dateExplode, $date, $time, $sourceIp, $sourceHost, $request, $requestResult);
                 }
 
                 $size = ftell($file);
             }
 
-            usleep(50);
+            usleep(100);
         }
     }
 }

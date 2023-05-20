@@ -578,11 +578,11 @@ $(document).on('click','#print-all-events-btn',function () {
     /**
      *  On affiche les évènements masqués de type 'event'
      */
-    $("tr.event").show();
+    $("tr.event").css('display', 'table-row');
     /**
      *  On affiche les évènements masqués de type 'update-request' (si il y en a)
      */
-    $("tr.update-request").show();
+    $("tr.update-request").css('display', 'table-row');
     /**
      *  On masque le bouton "Afficher tout"
      */

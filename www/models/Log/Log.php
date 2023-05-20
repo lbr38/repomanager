@@ -14,20 +14,33 @@ class Log extends \Models\Model
     /**
      *  Get all logs or logs of a specific type
      */
-    public function getUnread(string $type = null)
+    public function getUnread(string $type = null, int $limit = 0)
     {
         $logs = array();
 
         try {
             if ($type == null) {
-                $result = $this->db->query("SELECT * FROM logs WHERE Status = 'new' ORDER BY Date DESC, Time DESC LIMIT 5");
+                $query = "SELECT * FROM logs WHERE Status = 'new' ORDER BY Date DESC, Time DESC";
             }
             if ($type == 'error') {
-                $result = $this->db->query("SELECT * FROM logs WHERE Status = 'new' AND Type = 'error' ORDER BY Date DESC, Time DESC LIMIT 5");
+                $query = "SELECT * FROM logs WHERE Status = 'new' AND Type = 'error' ORDER BY Date DESC, Time DESC";
             }
             if ($type == 'info') {
-                $result = $this->db->query("SELECT * FROM logs WHERE Status = 'new' AND Type = 'info' ORDER BY Date DESC, Time DESC LIMIT 5");
+                $query = "SELECT * FROM logs WHERE Status = 'new' AND Type = 'info' ORDER BY Date DESC, Time DESC";
             }
+
+            /**
+             *  Set a limit if specified
+             */
+            if ($limit > 0) {
+                $query .= " LIMIT :limit";
+            }
+
+            $stmt = $this->db->prepare($query);
+            if ($limit > 0) {
+                $stmt->bindValue(':limit', $limit);
+            }
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
