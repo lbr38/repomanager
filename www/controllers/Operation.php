@@ -565,7 +565,7 @@ class Operation
          */
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('plans/list');
+        $this->layoutContainerStateController->update('plans/planned');
         $this->layoutContainerStateController->update('operations/list');
 
         unset($variables);
@@ -604,7 +604,8 @@ class Operation
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
         $this->layoutContainerStateController->update('repos/properties');
-        $this->layoutContainerStateController->update('plans/list');
+        $this->layoutContainerStateController->update('plans/planned');
+        $this->layoutContainerStateController->update('plans/history');
         $this->layoutContainerStateController->update('operations/list');
 
         /**

@@ -3,7 +3,7 @@
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
 
-$WWW_DIR/bin/repomanager --www-user www-data -p
+$WWW_DIR/bin/repomanager --www-user www-data -p &
 
 # Start services
 service php8.1-fpm start
