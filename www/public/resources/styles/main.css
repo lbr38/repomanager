@@ -784,7 +784,7 @@ footer #github img { width: 25px; }
     height: 100px;
 }
 
-.detailsDiv {
+.detailsDiv, .planInfo {
     padding: 10px;
     background-color: #182b3e;
     border-left: 1px solid #24405c;
@@ -794,11 +794,11 @@ footer #github img { width: 25px; }
     border-radius: 4px;
 }
 
-#planDiv .detailsDiv div {
+.planInfo div {
     display: table-row;
 }
 
-#planDiv .detailsDiv div span {
+.planInfo div span {
     display: table-cell;
     width: 60%;
     padding: 5px;

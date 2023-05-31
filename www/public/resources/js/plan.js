@@ -1,27 +1,81 @@
-$(document).ready(function () {
-    idToSelect2('#planActionSelect', 'Select action...', true);
-    idToSelect2('#planReminderSelect', 'Select reminder...', true);
-    idToSelect2('#planDayOfWeekSelect', 'Select day(s)...', true);
-    idToSelect2('#addPlanMailRecipient', 'Select recipients...', true);
-});
-
 /**
- *  Rechargement de la div des planifications
- *  Recharge les menus select2 en même temps
+ *  Functions
  */
-function reloadPlanDiv()
+function printDate()
 {
-    $("#planDiv").load(" #planDiv > *",function () {
-        idToSelect2('#planActionSelect', 'Select action...', true);
-        idToSelect2('#planReminderSelect', 'Select...', true);
-        idToSelect2('#planDayOfWeekSelect', 'Select...', true);
-        idToSelect2('#addPlanMailRecipient', 'Select recipients...', true);
-    });
+    /**
+     *  Récupération de la date sélectionnée dans la liste
+     */
+    var selectValue = $('#addPlanDate').val();
+
+    /**
+     *  Si aucune date n'a été selectionnée par l'utilisateur alors on n'affiche rien
+     */
+    if (selectValue == "") {
+        $("#update-preview").hide();
+
+    /**
+     *  Sinon on affiche l'environnement qui pointe vers le nouveau snapshot qui sera créé
+     */
+    } else {
+        $("#update-preview").css('display', 'table-row');
+        $('#update-preview-date').html(selectValue);
+    }
 }
+
+function printEnv()
+{
+    var envSpan = '#update-preview-target-env';
+
+    /**
+     *  Nom du dernier environnement de la chaine
+     */
+    var lastEnv = '<?=LAST_ENV?>';
+
+    /**
+     *  Récupération de l'environnement sélectionné dans la liste
+     */
+    var selectValue = $('#addPlanTargetEnv').val();
+
+    /**
+     *  Si l'environnement correspond au dernier environnement de la chaine alors il sera affiché en rouge
+     */
+    if (selectValue == lastEnv) {
+        var envSpanClass = 'last-env';
+    } else {
+        var envSpanClass = 'env';
+    }
+
+    /**
+     *  Si aucun environnement n'a été selectionné par l'utilisateur alors on n'affiche rien
+     */
+    if (selectValue == "") {
+        $(envSpan).html('');
+
+    /**
+     *  Sinon on affiche l'environnement qui pointe vers le nouveau snapshot qui sera créé
+     */
+    } else {
+        $(envSpan).html('⟵<span class="'+envSpanClass+'">'+selectValue+'</span>');
+    }
+}
+
+printDate();
+printEnv();
+
 
 /**
  *  Events listeners
  */
+
+/**
+ *  Event: On date or env change, update the preview
+ */
+$(document).on('change', '#addPlanDate, #addPlanTargetEnv', function () {
+    printDate();
+    printEnv();
+
+}).trigger('change');
 
 /**
  *  Event : affichage des détails d'une planification
@@ -34,7 +88,7 @@ $(document).on('click','.planDetailsBtn',function () {
     /**
      *  Affichage du div portant cet Id
      */
-    $('.detailsDiv[plan-id=' + planId + ']').slideToggle(100);
+    $('.planInfo[plan-id=' + planId + ']').slideToggle(100);
 });
 
 /**
@@ -95,7 +149,6 @@ $(document).on('change','#planFrequencySelect',function () {
         $(".__plan_input_reminder").show();
     }
 }).trigger('change');
-
 
 /**
  *   Event : Afficher des boutons radio supplémentaires si l'option du select sélectionnée est '#updateRepoSelect' afin de choisir si on souhaite activer gpg check et resigner les paquets
@@ -163,7 +216,6 @@ $(document).on('submit','#newPlanForm',function () {
 
     return false;
 });
-
 
 /**
  *  Event : Suppression d'une planification
@@ -236,7 +288,7 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadPlanDiv();
+            reloadContainer('plans/planned');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -263,7 +315,7 @@ function deletePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadPlanDiv();
+            reloadContainer('plans/planned');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -290,7 +342,7 @@ function disablePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadPlanDiv();
+            reloadContainer('plans/planned');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -317,7 +369,7 @@ function enablePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadPlanDiv();
+            reloadContainer('plans/planned');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
