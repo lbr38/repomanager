@@ -383,59 +383,6 @@ class Common
     }
 
     /**
-     *  Modification des paramètres d'affichage de la liste des repos
-     */
-    public static function configureReposListDisplay(string $printRepoSize, string $printRepoType, string $printRepoSignature, string $cacheReposList)
-    {
-        /**
-         *  On vérifie que la valeur des paramètres est 'yes' ou 'no'
-         */
-        if ($printRepoSize != 'yes' and $printRepoSize != 'no') {
-            throw new Exception("Repo size display param is invalid");
-        }
-
-        if ($printRepoType != 'yes' and $printRepoType != 'no') {
-            throw new Exception("Repo type display param is invalid");
-        }
-
-        if ($printRepoSignature != 'yes' and $printRepoSignature != 'no') {
-            throw new Exception("Repo signature display param is invalid");
-        }
-
-        if ($cacheReposList != 'yes' and $cacheReposList != 'no') {
-            throw new Exception('Caching param is invalid');
-        }
-
-        /**
-         *  Ouverture d'une connexion à la base de données
-         */
-        $myconn = new \Models\Connection('main');
-
-        /**
-         *  Modification des paramètres en base de données
-         */
-        try {
-            $stmt = $myconn->prepare("UPDATE repos_list_settings SET print_repo_size = :printRepoSize, print_repo_type = :printRepoType, print_repo_signature = :printRepoSignature, cache_repos_list = :cacheReposList");
-            $stmt->bindValue(':printRepoSize', $printRepoSize);
-            $stmt->bindValue(':printRepoType', $printRepoType);
-            $stmt->bindValue(':printRepoSignature', $printRepoSignature);
-            $stmt->bindValue(':cacheReposList', $cacheReposList);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            Common::dbError($e);
-        }
-
-        $myconn->close();
-
-        /**
-         *  On supprime le cache
-         */
-        Common::clearCache();
-
-        return true;
-    }
-
-    /**
      *  Tri un array par la valeur de clé spécifiée
      */
     public static function groupBy($key, $data)

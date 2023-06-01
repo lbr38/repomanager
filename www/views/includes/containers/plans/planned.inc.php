@@ -72,7 +72,7 @@
                                      *  Affichage du type de planification
                                      */
                                     if ($planType == "plan") {
-                                        echo 'Planed on <b>' . $planDate . ' ' . $planTime . '</b>';
+                                        echo 'Planned on <b>' . $planDate . ' ' . $planTime . '</b>';
                                     }
                                     if ($planType == "regular") {
                                         if ($planFrequency == "every-hour") {

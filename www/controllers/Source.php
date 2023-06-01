@@ -281,13 +281,6 @@ class Source
         $this->model->editSslPrivateKeyPath($sourceId, $path);
     }
 
-
-
-
-
-
-
-
     /**
      *  Delete a GPG key from Repomanager's trusted keyring
      */

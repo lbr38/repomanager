@@ -7,10 +7,9 @@ export GPG_TTY=$(tty)
 # Main variables
 PWD=$(dirname "$0")
 WWW_DIR="/var/www/repomanager"
-WWW_USER=""
+WWW_USER="www-data"
 DATA_DIR="/var/lib/repomanager"
 REPOS_DIR="/home/repo"
-DB="$DATA_DIR/db/repomanager.db"
 GPGHOME="$DATA_DIR/.gnupg"
 PROCEED_PERMISSIONS="0"
 
@@ -22,7 +21,7 @@ RESET=$(tput sgr0)
 
 # User detection
 if [ "$(id -u)" -ne "0" ];then
-    echo -e "\n${YELLOW}Must be executed with sudo${RESET}\n"
+    echo -e "\n${YELLOW}Must be executed with root${RESET}\n"
     exit
 fi
 
@@ -50,18 +49,6 @@ function permissions
     if [ ! -d "$REPOS_DIR" ];then
         echo -e "[$YELLOW ERROR $RESET] '$REPOS_DIR' repos directory not found."
         exit 1
-    fi
-
-    if [ -z "$WWW_USER" ];then
-        WWW_USER=$(/usr/bin/sqlite3 -noheader -batch -cmd '.timeout 5000' "$DB" "SELECT WWW_USER FROM settings" | sed 's/ //g')
-        if [ $? -ne 0 ];then
-            echo -e "[$YELLOW ERROR $RESET] Unable to get WWW_USER from database."
-            exit 1
-        fi
-        if [ -z "$WWW_USER" ];then
-            echo -e "[$YELLOW ERROR $RESET] WWW_USER could not be retrieved from database."
-            exit 1
-        fi
     fi
 
     echo -ne "${YELLOW} Setting permissions... ${RESET}"
@@ -122,10 +109,6 @@ while [ $# -ge 1 ];do
             help
             exit
            ;;
-        --www-user)
-            WWW_USER="$2"
-            shift
-        ;;
         --set-permissions|--permissions|-p)
             PROCEED_PERMISSIONS="1"
         ;;
