@@ -74,6 +74,52 @@ class Stat extends Model
     }
 
     /**
+     *  Return repo snapshot size (by its env Id) for the last specified days
+     */
+    public function getEnvSize(string $envId, int $days)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM (SELECT Date, Size FROM stats WHERE Id_env = :envId ORDER BY Date DESC LIMIT :days) ORDER BY Date ASC");
+            $stmt->bindValue(':envId', $envId);
+            $stmt->bindValue(':days', $days);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
+        return $datas;
+    }
+
+    /**
+     *  Return repo snapshot packages count (by its env Id) for the last specified days
+     */
+    public function getPkgCount(string $envId, int $days)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM (SELECT Date, Packages_count FROM stats WHERE Id_env = :envId ORDER BY Date DESC LIMIT :days) ORDER BY Date ASC");
+            $stmt->bindValue(':envId', $envId);
+            $stmt->bindValue(':days', $days);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        $datas = array();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $datas[] = $row;
+        }
+
+        return $datas;
+    }
+
+    /**
      *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
      */
     public function getLastAccess(string $name, string $dist = null, string $section = null, string $env)

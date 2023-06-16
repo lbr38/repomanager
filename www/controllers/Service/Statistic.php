@@ -73,7 +73,7 @@ class Statistic extends Service
                             /**
                              *  Calculate repo size in bytes
                              */
-                            $repoSize = \Controllers\Common::sizeFormat(\Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/'), false);
+                            $repoSize = \Controllers\Common::getDirectorySize(REPOS_DIR . '/' . $repo['Name'] . '_' . $repo['Env'] . '/');
 
                             /**
                              *  Calculate number of packages in the repo

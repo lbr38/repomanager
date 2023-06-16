@@ -18,7 +18,7 @@ ARG max_upload_size
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils -y
+RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils vim -y
 
 # Install postfix
 RUN apt-get install postfix -y
@@ -49,7 +49,8 @@ RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.c
 RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
 
 # Configure SQLite
-RUN echo -e ".headers on\n.mode column" > /root/.sqliterc
+RUN echo ".headers on" > /root/.sqliterc
+RUN echo ".mode column" >> /root/.sqliterc
 
 # Configure Postfix
 RUN \cp /tmp/repomanager/docker/config/postfix/main.cf /etc/postfix/main.cf

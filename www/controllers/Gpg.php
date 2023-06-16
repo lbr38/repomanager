@@ -39,9 +39,12 @@ class Gpg
          *  Create GPG pubkey export directory
          */
         if (!is_dir(REPOS_DIR . '/gpgkeys')) {
-            mkdir(REPOS_DIR . '/gpgkeys', 0770, true);
+            if (!mkdir(REPOS_DIR . '/gpgkeys', 0770, true)) {
+                throw new Exception('Cannot create directory: ' . REPOS_DIR . '/gpgkeys');
+            }
         }
 
+        $this->generateTrustedKeys();
         $this->generateSigningKey();
         $this->exportSigningKey();
         $this->generateRpmMacros();
@@ -58,6 +61,25 @@ class Gpg
                     throw new Exception('Cannot write to: ' . GPGHOME . '/gpg.conf');
                 }
             }
+        }
+    }
+
+    /**
+     *  Generate trustedkeys.gpg file if not exists
+     */
+    private function generateTrustedKeys()
+    {
+        if (file_exists(GPGHOME . '/trustedkeys.gpg')) {
+            return;
+        }
+
+        $myprocess = new Process("/usr/bin/gpg --homedir " . GPGHOME . " --no-default-keyring --keyring " . GPGHOME . "/trustedkeys.gpg --fingerprint");
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception(GPGHOME . "/trustedkeys.gpg file generation has failed: " . $content);
         }
     }
 
@@ -124,7 +146,7 @@ class Gpg
     /**
      *  Generate GPG signing key
      */
-    public function generateSigningKey()
+    private function generateSigningKey()
     {
         /**
          *  Quit if key already exists
@@ -196,7 +218,7 @@ class Gpg
     /**
      *  Export GPG signing key
      */
-    public function exportSigningKey()
+    private function exportSigningKey()
     {
         /**
          *  If file exists but is empty, delete it
@@ -227,7 +249,7 @@ class Gpg
     /**
      *  Generate GPG macros file for RPM
      */
-    public function generateRpmMacros()
+    private function generateRpmMacros()
     {
         if (!is_dir(DATA_DIR . '/.rpm')) {
             if (!mkdir(DATA_DIR . '/.rpm', 0770, true)) {

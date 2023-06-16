@@ -98,7 +98,7 @@ class Settings
             }
         }
         if (!defined('WWW_REPOS_DIR_URL')) {
-            define('WWW_REPOS_DIR_URL', 'https://' . WWW_HOSTNAME . '/repo');
+            define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
         }
 
         if (!defined('WWW_USER')) {

@@ -14,17 +14,20 @@ class System
         /**
          *  Protocol (http ou https)
          */
-        if (!empty($_SERVER['HTTPS'])) {
-            $__SERVER_PROTOCOL__ = 'https';
-        } else {
-            $__SERVER_PROTOCOL__ = 'http';
+        if (!defined('__SERVER_PROTOCOL__')) {
+            if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+                define('__SERVER_PROTOCOL__', 'https');
+            } else {
+                define('__SERVER_PROTOCOL__', 'http');
+            }
         }
+
         /**
          *  Url du serveur
          */
         if (!empty($_SERVER['SERVER_NAME'])) {
             if (!defined('__SERVER_URL__')) {
-                define('__SERVER_URL__', $__SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST']);
+                define('__SERVER_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST']);
             }
         }
 
@@ -41,7 +44,7 @@ class System
          */
         if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
             if (!defined('__ACTUAL_URL__')) {
-                define('__ACTUAL_URL__', $__SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+                define('__ACTUAL_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
             }
         }
 

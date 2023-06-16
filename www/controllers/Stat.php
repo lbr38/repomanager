@@ -22,6 +22,22 @@ class Stat
     }
 
     /**
+     *  Return repo snapshot size (by its env Id) for the last 30 days (default)
+     */
+    public function getEnvSize(string $envId, int $days = 30)
+    {
+        return $this->model->getEnvSize($envId, $days);
+    }
+
+    /**
+     *  Return repo snapshot packages count (by its env Id) for the last 30 days (default)
+     */
+    public function getPkgCount(string $envId, int $days = 30)
+    {
+        return $this->model->getPkgCount($envId, $days);
+    }
+
+    /**
      *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
      */
     public function getLastAccess(string $name, string $dist = null, string $section = null, string $env)

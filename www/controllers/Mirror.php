@@ -920,6 +920,13 @@ class Mirror
          *  Download each package and check its md5
          */
         foreach ($this->rpmPackagesLocation as $rpmPackage) {
+            /**
+             *  Before downloading each package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+            }
+
             $rpmPackageLocation = $rpmPackage['location'];
             $rpmPackageChecksum = $rpmPackage['checksum'];
             $rpmPackageName = preg_split('#/#', $rpmPackageLocation);
@@ -1245,6 +1252,13 @@ class Mirror
          *  Download each package and check its md5
          */
         foreach ($this->debPackagesLocation as $debPackage) {
+            /**
+             *  Before downloading each package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+            }
+
             $debPackageLocation = $debPackage['location'];
             $debPackageChecksum = $debPackage['checksum'];
             $debPackageName = preg_split('#/#', $debPackageLocation);

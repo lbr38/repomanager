@@ -314,7 +314,7 @@
      *  Tableau des derniers logs d'accès
      */ ?>
     <div class="div-generic-blue">
-        <p class="center lowopacity">Last access requests</p>
+        <p class="center lowopacity-cst">Last access requests</p>
         <table class="stats-access-table">
             <?php
             if (!empty($lastAccess)) { ?>
@@ -369,122 +369,136 @@
     <div class="div-flex">
         <?php
         /**
-         *  Graphique taille du repo et nombre de paquets
-         *  On récupère le contenu de la table stats qui concerne le repo
+         *  Get stats for the last 60 days
          */
         $stats = $mystats->getAll($myrepo->getEnvId());
+        $envSizeStats = $mystats->getEnvSize($myrepo->getEnvId(), 60);
+        $pkgCountStats = $mystats->getPkgCount($myrepo->getEnvId(), 60);
 
         /**
-         *  Si le résultat n'est pas vide alors on traite
+         *  Snapshot size (by its env Id)
          */
-        if (!empty($stats)) :
-            $dateLabels = '';
+        if (!empty($envSizeStats)) {
+            $sizeDateLabels = '';
             $sizeData = '';
-            $countData = '';
-            foreach ($stats as $stat) {
+
+            foreach ($envSizeStats as $stat) {
                 $date = DateTime::createFromFormat('Y-m-d', $stat['Date'])->format('d-m-Y');
                 // Convert bytes to MB
                 $size = round(round($stat['Size'] / 1024) / 1024);
-                $count = $stat['Packages_count'];
+
                 /**
-                 *  On forge les données des graphique
-                 *  Un graphique pour la taille du repo
-                 *  Un graphique pour le nombre de paquets
+                 *  Build data for chart
                  */
-                $dateLabels .= "'$date', "; // dates
-                $sizeData .= "'$size', ";   // taille du repo
-                $countData .= "'$count', "; // nombre de paquets
+                $sizeDateLabels .= '"' . $date . '", ';
+                $sizeData .= '"' . $size . '", ';
             }
+
             /**
-             *  Suppression de la dernière virgule
+             *  Remove last comma
              */
-            $dateLabels = rtrim($dateLabels, ', ');
+            $sizeDateLabels = rtrim($sizeDateLabels, ', ');
             $sizeData   = rtrim($sizeData, ', ');
+        }
+
+        /**
+         *  Snapshot package count (by its env Id)
+         */
+        if (!empty($pkgCountStats)) {
+            $countDateLabels = '';
+            $countData = '';
+
+            foreach ($pkgCountStats as $stat) {
+                $date = DateTime::createFromFormat('Y-m-d', $stat['Date'])->format('d-m-Y');
+                $count = $stat['Packages_count'];
+
+                /**
+                 *  Build data for chart
+                 */
+                $countDateLabels .= '"' . $date . '", ';
+                $countData .= '"' . $count . '", ';
+            }
+
+            /**
+             *  Remove last comma
+             */
+            $countDateLabels = rtrim($countDateLabels, ', ');
             $countData  = rtrim($countData, ', ');
-            /**
-             *  Affichage du graphique taille du repo/section
-             */
-            if (!empty($dateLabels) and !empty($sizeData)) : ?>
-                <div class="flex-div-50 div-generic-blue">
-                    <canvas id="repoSizeChart"></canvas>
-                    <script>
-                        var ctx = document.getElementById('repoSizeChart').getContext('2d');
-                        var myRepoSizeChart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: [<?= $dateLabels ?>],    
-                                datasets: [{
-                                    data: [<?= $sizeData ?>],
-                                    label: 'Size in MB',
-                                    borderColor: '#5473e8',
-                                    fill: false
-                                }]
-                            },
-                            options: {
-                                tension: 0.2,
-                                scales: {
-                                    x: {
-                                        display: true,
-                                    },
-                                    y: {
-                                        display: true,
-                                        ticks: {
-                                            stepSize: 1
-                                        }
-                                    }
-                                },
-                                title: {
+        }
+
+        /**
+         *  Print charts
+         */
+        if (!empty($sizeDateLabels and !empty($sizeData))) : ?>
+            <div class="flex-div-50 div-generic-blue">
+                <canvas id="repoSizeChart"></canvas>
+                <script>
+                    var ctx = document.getElementById('repoSizeChart').getContext('2d');
+                    var myRepoSizeChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [<?= $sizeDateLabels ?>],    
+                            datasets: [{
+                                data: [<?= $sizeData ?>],
+                                label: 'Size in MB (last 60 days)',
+                                borderColor: '#5473e8',
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            tension: 0.2,
+                            scales: {
+                                x: {
                                     display: true,
-                                    text: 'Size in MB'
-                                }
-                            }
-                        });
-                    </script>
-                </div>
-                <?php
-            endif;
-            /**
-             *  Affichage du graphique nombre de paquets du repo/section
-             */
-            if (!empty($dateLabels) and !empty($countData)) : ?>
-                <div class="flex-div-50 div-generic-blue">
-                    <canvas id="repoPackagesCountChart"></canvas>
-                    <script>
-                        var ctx = document.getElementById('repoPackagesCountChart').getContext('2d');
-                        var myRepoPackagesCountChart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: [<?= $dateLabels ?>],    
-                                datasets: [{
-                                    data: [<?= $countData ?>],
-                                    label: 'Total packages',
-                                    borderColor: '#5473e8',
-                                    fill: false
-                                }]
-                            },
-                            options: {
-                                tension: 0.2,
-                                scales: {
-                                    x: {
-                                        display: true,
-                                    },
-                                    y: {
-                                        display: true,
-                                        ticks: {
-                                            stepSize: 1,
-                                        }
-                                    }
                                 },
-                                title: {
+                                y: {
                                     display: true,
-                                    text: 'Total packages'
+                                    ticks: {
+                                        stepSize: 1
+                                    }
                                 }
-                            }
-                        });
-                    </script>
-                </div>
-                <?php
-            endif;
+                            },
+                        }
+                    });
+                </script>
+            </div>
+            <?php
+        endif;
+
+        if (!empty($countDateLabels and !empty($countData))) : ?>
+            <div class="flex-div-50 div-generic-blue">
+                <canvas id="repoPackagesCountChart"></canvas>
+                <script>
+                    var ctx = document.getElementById('repoPackagesCountChart').getContext('2d');
+                    var myRepoPackagesCountChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [<?= $countDateLabels ?>],    
+                            datasets: [{
+                                data: [<?= $countData ?>],
+                                label: 'Total packages (last 60 days)',
+                                borderColor: '#5473e8',
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            tension: 0.2,
+                            scales: {
+                                x: {
+                                    display: true,
+                                },
+                                y: {
+                                    display: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                    }
+                                }
+                            },
+                        }
+                    });
+                </script>
+            </div>
+            <?php
         endif ?>
     </div>
 </section>
