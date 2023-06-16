@@ -161,7 +161,6 @@ class Source
          */
         $url = trim($url);
         $url = stripslashes($url); // Remove anti-slash
-        $url = strtolower($url);
 
         /**
          *  Check that URL is valid
