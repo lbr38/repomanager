@@ -1,425 +1,210 @@
 <!doctype html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Repomanager</title>
-    <style>
-        /* -------------------------------------
-            GLOBAL RESETS
-        ------------------------------------- */
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
-        /*All the styling goes here*/
+<head>
+  <title>
+  </title>
+  <!--[if !mso]><!-->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!--<![endif]-->
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style type="text/css">
+    #outlook a {
+      padding: 0;
+    }
 
-        img {
-            border: none;
-            -ms-interpolation-mode: bicubic;
-            max-width: 100%; 
-        }
-        
-        body {
-            background-color: #112334;
-            font-family: sans-serif;
-            -webkit-font-smoothing: antialiased;
-            font-size: 14px;
-            line-height: 1.4;
-            margin: 0;
-            padding: 0;
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%; 
-        }
-        
-        table {
-            border-collapse: separate;
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;
-            min-width: 100%;
-            width: 100%; }
-            table td {
-            font-family: sans-serif;
-            font-size: 14px;
-            vertical-align: top; 
-        }
-        
-        /* -------------------------------------
-            BODY & CONTAINER
-        ------------------------------------- */
-        
-        .body {
-            background-color: #112334;
-            width: 100%; 
-            height: 500px;
-        }
-        
-        /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
-        .container {
-            display: block;
-            Margin: 0 auto !important;
-            /* makes it centered */
-            max-width: 580px;
-            padding: 10px;
-            width: 580px; 
-        }
-        
-        /* This should also be a block element, so that it will fill 100% of the .container */
-        .content {
-            box-sizing: border-box;
-            display: block;
-            Margin: 0 auto;
-            max-width: 580px;
-            padding: 10px; 
-        }
-        
-        /* -------------------------------------
-            HEADER, FOOTER, MAIN
-        ------------------------------------- */
-        .main {
-            background: #ffffff;
-            border-radius: 3px;
-            width: 100%; 
-        }
-        
-        .header {
-            padding: 20px 0;
-        }
-        
-        .wrapper {
-            box-sizing: border-box;
-            padding: 20px; 
-        }
-        
-        .content-block {
-            padding-bottom: 10px;
-            padding-top: 10px;
-        }
-        
-        .footer {
-            clear: both;
-            Margin-top: 10px;
-            text-align: center;
-            width: 100%; 
-        }
-            .footer td,
-            .footer p,
-            .footer span,
-            .footer a {
-            color: #999999;
-            font-size: 12px;
-            text-align: center; 
-        }
-        
-        /* -------------------------------------
-            TYPOGRAPHY
-        ------------------------------------- */
-        h1,
-        h2,
-        h3,
-        h4 {
-            color: #000000;
-            font-family: sans-serif;
-            font-weight: 400;
-            line-height: 1.4;
-            margin: 0;
-            margin-bottom: 30px; 
-        }
-        
-        h1 {
-            font-size: 35px;
-            font-weight: 300;
-            text-align: center;
-            text-transform: capitalize; 
-        }
-        
-        p,
-        ul,
-        ol {
-            font-family: sans-serif;
-            font-size: 14px;
-            font-weight: normal;
-            margin: 0;
-            margin-bottom: 15px; 
-        }
-            p li,
-            ul li,
-            ol li {
-            list-style-position: inside;
-            margin-left: 5px; 
-        }
-        
-        a {
-            color: #3498db;
-            text-decoration: underline; 
-        }
-        
-        /* -------------------------------------
-            BUTTONS
-        ------------------------------------- */
-        .btn {
-            box-sizing: border-box;
-            width: 100%; }
-            .btn > tbody > tr > td {
-            padding-bottom: 15px; }
-            .btn table {
-            min-width: auto;
-            width: auto; 
-        }
-            .btn table td {
-            background-color: #ffffff;
-            border-radius: 5px;
-            text-align: center; 
-        }
-            .btn a {
-            background-color: #ffffff;
-            border: solid 1px #3498db;
-            border-radius: 5px;
-            box-sizing: border-box;
-            color: #3498db;
-            cursor: pointer;
-            display: inline-block;
-            font-size: 14px;
-            font-weight: bold;
-            margin: 0;
-            padding: 12px 25px;
-            text-decoration: none;
-            text-transform: capitalize; 
-        }
-        
-        .btn-primary table td {
-            background-color: #3498db; 
-        }
-        
-        .btn-primary a {
-            background-color: #3498db;
-            border-color: #3498db;
-            color: #ffffff; 
-        }
-        
-        /* -------------------------------------
-            OTHER STYLES THAT MIGHT BE USEFUL
-        ------------------------------------- */
-        .label-black {
-          font-size: 13px;
-          vertical-align: middle;
-          display: inline-block;
-          padding-left: 6px;
-          padding-right: 6px;
-          border-radius: 2px;
-          background-color: rgb(46, 54, 58);
-          box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
-          color: #ffffff;
-        }
-        .last {
-            margin-bottom: 0; 
-        }
-        
-        .first {
-            margin-top: 0; 
-        }
-        
-        .align-center {
-            text-align: center; 
-        }
-        
-        .align-right {
-            text-align: right; 
-        }
-        
-        .align-left {
-            text-align: left; 
-        }
-        
-        .clear {
-            clear: both; 
-        }
-        
-        .mt0 {
-            margin-top: 0; 
-        }
-        
-        .mb0 {
-            margin-bottom: 0; 
-        }
-        
-        .preheader {
-            color: transparent;
-            display: none;
-            height: 0;
-            max-height: 0;
-            max-width: 0;
-            opacity: 0;
-            overflow: hidden;
-            mso-hide: all;
-            visibility: hidden;
-            width: 0; 
-        }
-        
-        .powered-by a {
-            text-decoration: none; 
-        }
-        
-        hr {
-            border: 0;
-            border-bottom: 1px solid #f6f6f6;
-            Margin: 20px 0; 
-        }
-        
-        /* -------------------------------------
-            RESPONSIVE AND MOBILE FRIENDLY STYLES
-        ------------------------------------- */
-        @media only screen and (max-width: 620px) {
-            table[class=body] h1 {
-            font-size: 28px !important;
-            margin-bottom: 10px !important; 
-            }
-            table[class=body] p,
-            table[class=body] ul,
-            table[class=body] ol,
-            table[class=body] td,
-            table[class=body] span,
-            table[class=body] a {
-            font-size: 16px !important; 
-            }
-            table[class=body] .wrapper,
-            table[class=body] .article {
-            padding: 10px !important; 
-            }
-            table[class=body] .content {
-            padding: 0 !important; 
-            }
-            table[class=body] .container {
-            padding: 0 !important;
-            width: 100% !important; 
-            }
-            table[class=body] .main {
-            border-left-width: 0 !important;
-            border-radius: 0 !important;
-            border-right-width: 0 !important; 
-            }
-            table[class=body] .btn table {
-            width: 100% !important; 
-            }
-            table[class=body] .btn a {
-            width: 100% !important; 
-            }
-            table[class=body] .img-responsive {
-            height: auto !important;
-            max-width: 100% !important;
-            width: auto !important; 
-            }
-        }
-        
-        /* -------------------------------------
-            PRESERVE THESE STYLES IN THE HEAD
-        ------------------------------------- */
-        @media all {
-            .ExternalClass {
-            width: 100%; 
-            }
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-            line-height: 100%; 
-            }
-            .apple-link a {
-            color: inherit !important;
-            font-family: inherit !important;
-            font-size: inherit !important;
-            font-weight: inherit !important;
-            line-height: inherit !important;
-            text-decoration: none !important; 
-            }
-            .btn-primary table td:hover {
-            background-color: #34495e !important; 
-            }
-            .btn-primary a:hover {
-                background-color: #34495e !important;
-                border-color: #34495e !important; 
-            } 
-        }
-    </style>
-  </head>
-  <body class="">
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
-      <tr>
-        <td>&nbsp;</td>
-        <td class="container">
-          <div class="header">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-              <tr>
-                <td class="align-center" width="100%">
-                  <img src="https://github.com/lbr38/repomanager/raw/stable/www/public/assets/images/repomanager.png" height="19" alt="Repomanager logo" />
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="content">
+    body {
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
 
-            <!-- START CENTERED WHITE CONTAINER -->
-            <!-- <span class="preheader"></span> -->
-            <table role="presentation" class="main">
+    table,
+    td {
+      border-collapse: collapse;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
 
-              <!-- START MAIN CONTENT AREA -->
-              <tr>
-                <td class="wrapper">
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    p {
+      display: block;
+      margin: 13px 0;
+    }
+  </style>
+  <!--[if mso]>
+        <noscript>
+        <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG/>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+        </xml>
+        </noscript>
+        <![endif]-->
+  <!--[if lte mso 11]>
+        <style type="text/css">
+          .mj-outlook-group-fix { width:100% !important; }
+        </style>
+        <![endif]-->
+  <!--[if !mso]><!-->
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    @import url(https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700);
+  </style>
+  <!--<![endif]-->
+  <style type="text/css">
+    @media only screen and (min-width:480px) {
+      .mj-column-per-100 {
+        width: 100% !important;
+        max-width: 100%;
+      }
+
+      .mj-column-px-500 {
+        width: 500px !important;
+        max-width: 500px;
+      }
+    }
+  </style>
+  <style media="screen and (min-width:480px)">
+    .moz-text-html .mj-column-per-100 {
+      width: 100% !important;
+      max-width: 100%;
+    }
+
+    .moz-text-html .mj-column-px-500 {
+      width: 500px !important;
+      max-width: 500px;
+    }
+  </style>
+  <style type="text/css">
+    @media only screen and (max-width:480px) {
+      table.mj-full-width-mobile {
+        width: 100% !important;
+      }
+
+      td.mj-full-width-mobile {
+        width: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body style="word-spacing:normal;background-color:#112334;">
+  <div style="background-color:#112334;">
+    <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    <div style="margin:0px auto;max-width:600px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+        <tbody>
+          <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+              <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+              <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                  <tbody>
                     <tr>
-                      <td>
-                        <p><?= $this->message ?></p>
-                        <?php
-                        if (!empty($this->link)) : ?>
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-                            <tbody>
-                              <tr>
-                                <td align="center">
-                                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                    <tbody>
-                                      <tr>
-                                        <td> <a href="<?= $this->link ?>" target="_blank"><?= $this->linkName ?></a> </td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                            <?php
-                        endif ?>
+                      <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
+                          <tbody>
+                            <tr>
+                              <td style="width:150px;">
+                                <img height="auto" src="https://github.com/lbr38/repomanager/raw/stable/www/public/assets/images/repomanager.png" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="150" />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
                     </tr>
-                  </table>
-                </td>
-              </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--[if mso | IE]></td></tr></table><![endif]-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    <div style="margin:0px auto;max-width:600px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+        <tbody>
+          <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+              <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:500px;" ><![endif]-->
+              <div class="mj-column-px-500 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
+                  <tbody>
+                    <tr>
+                      <td style="background-color:#ffffff;border-radius:10px;vertical-align:top;padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px;">
+                        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%">
+                          <tbody>
+                            <tr>
+                              <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                <div style="font-family:helvetica;font-size:14px;line-height:1;text-align:left;color:#666666;"><?= $content ?></div>
+                              </td>
+                            </tr>
+                            <?php if (!empty($link)) : ?>
+                            <tr>
+                              <td align="center" vertical-align="middle" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
+                                  <tr>
+                                    <td align="center" bgcolor="#15bf7f" role="presentation" style="border:none;border-radius:3px;cursor:auto;mso-padding-alt:10px 25px;background:#15bf7f;" valign="middle">
+                                      <a href="<?= $link ?>" style="display:inline-block;background:#15bf7f;color:#ffffff;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:3px;" target="_blank"> <?= $linkName ?></a>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <?php endif; ?>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--[if mso | IE]></td></tr></table><![endif]-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    <div style="margin:0px auto;max-width:600px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+        <tbody>
+          <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+              <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+              <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                  <tbody>
+                    <tr>
+                      <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                        <div style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#666666;"><?= PROJECT_NAME ?> - release version <?= VERSION ?><br><a href="<?= PROJECT_GIT_REPO ?>" target="_blank" style="font-family:helvetica;font-size:12px;line-height:1;text-align:center;color:#666666;">Github</a></div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--[if mso | IE]></td></tr></table><![endif]-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--[if mso | IE]></td></tr></table><![endif]-->
+  </div>
+</body>
 
-            <!-- END MAIN CONTENT AREA -->
-            </table>
-
-            <!-- START FOOTER -->
-            <div class="footer">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-block">
-                    <span class="apple-link">Repomanager - release version <?= VERSION ?></span>
-                    <br>
-                    <a href="https://github.com/lbr38/repomanager">Github</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="content-block powered-by">
-                    Powered by <a href="https://postdrop.io">Postdrop</a>.
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <!-- END FOOTER -->
-
-          <!-- END CENTERED WHITE CONTAINER -->
-          </div>
-        </td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-  </body>
 </html>

@@ -105,7 +105,7 @@
                                                      *  On récupère la liste des repos actifs
                                                      *  Puis pour chaque repos, on regarde si celui-ci est déjà présent dans le profil, si c'est le cas il sera affiché sélectionné dans la liste déroulante, si ce n'est pas le cas il sera disponible dans la liste déroulante
                                                      */
-                                                    $repos = $myrepo->listNameOnly(true);
+                                                    $repos = $myrepoListing->listNameOnly(true);
 
                                                     foreach ($repos as $repo) :
                                                         $repoId   = $repo['Id'];

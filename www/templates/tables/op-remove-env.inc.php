@@ -9,17 +9,17 @@
             <td>
                 <span class="label-white">
                     <?php
-                    if (!empty($this->dist) and !empty($this->section)) {
-                        echo $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section;
+                    if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
+                        echo $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection();
                     } else {
-                        echo $this->name;
+                        echo $this->repo->getName();
                     } ?>
                 </span>
             </td>
         </tr>
         <tr>
             <th>ENVIRONNEMENT:</th>
-            <td><?=\Controllers\Common::envtag($this->env)?></td>
+            <td><?=\Controllers\Common::envtag($this->repo->getEnv())?></td>
         </tr>
     </table>
 </div>

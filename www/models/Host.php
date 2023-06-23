@@ -66,6 +66,8 @@ class Host extends Model
                 hosts.Online_status,
                 hosts.Online_status_date,
                 hosts.Online_status_time,
+                hosts.Reboot_required,
+                hosts.Linupdate_version,
                 hosts.Status
                 FROM hosts
                 INNER JOIN group_members
@@ -1530,7 +1532,7 @@ class Host extends Model
     /**
      *  Mise à jour du status d'une requête
      */
-    public function setUpdateRequestStatus(string $type, string $status)
+    public function acknowledgeRequest(string $type, string $status)
     {
         try {
             $stmt = $this->host_db->prepare("UPDATE updates_requests SET Status = :status WHERE Type = :type and Status = 'requested' or Status = 'running'");

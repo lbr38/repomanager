@@ -79,8 +79,6 @@ class History
      */
     public static function set(string $username, string $action, string $state)
     {
-        date_default_timezone_set('Europe/Paris');
-
         $username = \Controllers\Common::validateData($username);
         $action   = \Controllers\Common::validateData($action);
         $state    = \Controllers\Common::validateData($state);

@@ -10,6 +10,7 @@ class Mirror
     private $url;
     private $dist;
     private $section;
+    private $releasever;
     private $arch;
     private $translation;
     private $syncSource;
@@ -48,6 +49,11 @@ class Mirror
     public function setSection(string $section)
     {
         $this->section = $section;
+    }
+
+    public function setReleasever(string $releasever)
+    {
+        $this->releasever = $releasever;
     }
 
     public function setArch(array $arch)
@@ -133,12 +139,12 @@ class Mirror
     }
 
     /**
-     *  Download Release indices file
+     *  Download Release file
      *  (DEB mirror)
      */
     private function getReleaseFile()
     {
-        $this->logOutput(PHP_EOL . '- Getting <b>Release</b> indices file ... ');
+        $this->logOutput(PHP_EOL . '- Getting <b>Release</b> file ... ');
 
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
@@ -157,7 +163,7 @@ class Mirror
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            $this->logError('Error', 'Could not download Release indices file');
+            $this->logError('No Release file has been found in the source repository ' . $this->url . '/dists/' . $this->dist . '/ (looked for InRelease, Release and Release.gpg)', 'Release file not found');
         }
 
         $this->logOK();
@@ -361,7 +367,7 @@ class Mirror
      *
      *  (DEB mirror)
      */
-    private function parseReleaseIndiceFile()
+    private function parseReleaseFile()
     {
         if (file_exists($this->workingDir . '/InRelease')) {
             $content = file($this->workingDir . '/InRelease');
@@ -749,14 +755,14 @@ class Mirror
     {
         $myprocess = new Process('gpgv --homedir ' . GPGHOME . ' ' . $file);
         $myprocess->execute();
-        $myprocess->getOutput();
+        $output = $myprocess->getOutput();
         $myprocess->close();
 
         /**
          *  If gpgv returned an error then signature is invalid
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('Signature could not verify file ' . $file, 'Error while checking GPG signature');
+            $this->logError('No GPG key could verify the signature of downloaded file ' . $file . ': ' . PHP_EOL . $output, 'Error while checking GPG signature');
         }
     }
 
@@ -816,10 +822,10 @@ class Mirror
          *  If curl has failed (meaning a curl param might be invalid)
          */
         if (curl_errno($this->curlHandle)) {
+            $this->logError('Curl error: ' . curl_error($this->curlHandle), 'Download error');
+
             curl_close($this->curlHandle);
             fclose($localFile);
-
-            $this->logError('Curl error: ' . curl_error($this->curlHandle), 'Download error');
         }
 
         /**
@@ -832,9 +838,9 @@ class Mirror
              *  If return code is 404
              */
             if ($status["http_code"] == '404') {
-                $this->logOutput('File not found ');
+                $this->logOutput('File not found (404)');
             } else {
-                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ') ');
+                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ')');
             }
 
             curl_close($this->curlHandle);
@@ -870,7 +876,7 @@ class Mirror
              */
             if (!empty($this->gpgKeyUrl)) {
                 if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-                    $this->logError('Could not download distant GPG signature key: ' . $this->gpgKeyUrl, 'Could not retrieve GPG signature key');
+                    $this->logError('Could not retrieve distant GPG signature key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signature key');
                 }
 
                 /**
@@ -888,7 +894,7 @@ class Mirror
                  *  Quits if import has failed
                  */
                 if ($myprocess->getExitCode() != 0) {
-                    $this->logError('Error while importing distant GPG key', 'Could not retrieve GPG signature key');
+                    $this->logError('Error while importing distant GPG signature key', 'Could not import distant GPG signature key');
                 }
 
                 $myprocess->close();
@@ -1172,7 +1178,7 @@ class Mirror
              *  https://blog.remirepo.net/post/2020/03/13/Extension-rpminfo-pour-php
              *
              *  using rpm :
-             *  rpm -q --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" PACKAGE.rpm
+             *  rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" PACKAGE.rpm
              *  rpm --checksig PACKAGE.rpm
              */
             if ($this->checkSignature === 'yes') {
@@ -1531,7 +1537,7 @@ class Mirror
              *  Replace $releasever value
              */
             if (preg_match('/\$releasever/i', $url)) {
-                $url = str_replace('$releasever', RELEASEVER, $url);
+                $url = str_replace('$releasever', $this->releasever, $url);
             }
 
             /**
@@ -1599,9 +1605,9 @@ class Mirror
         $this->checkReleaseGPGSignature();
 
         /**
-         *  Parse Release indices file to find Packages source files location
+         *  Parse Release file to find Packages source files location
          */
-        $this->parseReleaseIndiceFile();
+        $this->parseReleaseFile();
 
         /**
          *  Parse Packages indices file to find packages location

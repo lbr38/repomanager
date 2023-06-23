@@ -94,6 +94,20 @@ function confirmBox(message, myfunction, confirmBox = 'Delete')
     });
 }
 
+function printLoading()
+{
+    $('#loading').remove();
+
+    $('footer').append('<div id="loading"><div><img src="assets/images/loading.gif"></div></div>');
+}
+
+function hideLoading()
+{
+    setTimeout(function () {
+        $('#loading').remove();
+    },1500);
+}
+
 /**
  * Rechargement du contenu d'un élément, par son Id
  * @param {string} id
@@ -160,7 +174,8 @@ function classToSelect2(className, placeholder = null, tags = false)
         closeOnSelect: false,
         placeholder: placeholder,
         tags: tags,
-        minimumResultsForSearch: Infinity /* disable search box */
+        minimumResultsForSearch: Infinity, /* disable search box */
+        allowClear: true /* add a clear button */
     });
 }
 

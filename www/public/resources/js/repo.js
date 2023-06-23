@@ -8,7 +8,10 @@ function loadNewRepoFormJS()
     /**
      *  Convert select to select2
      */
-    classToSelect2('.targetArchSelect');
+    classToSelect2('.operation_param[param-name=releasever]', 'e.g: 8', true);
+    classToSelect2('.operation_param[param-name=dist]', 'e.g: bullseye', true);
+    classToSelect2('.operation_param[param-name=section]', 'e.g: main', true);
+    classToSelect2('.targetArchSelect', true);
     idToSelect2('#targetPackageTranslationSelect');
 
     /**

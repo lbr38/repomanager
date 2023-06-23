@@ -1144,7 +1144,7 @@ class Host
         $this->model->setHostInactive($this->id);
     }
 
-    public function setUpdateRequestStatus(string $type, string $status)
+    public function acknowledgeRequest(string $type, string $status)
     {
         $type = Common::validateData($type);
         $status = Common::validateData($status);
@@ -1168,7 +1168,7 @@ class Host
          */
         $this->model->openHostDb($this->id);
 
-        $this->model->setUpdateRequestStatus($type, $status);
+        $this->model->acknowledgeRequest($type, $status);
 
         return true;
     }

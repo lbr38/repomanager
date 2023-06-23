@@ -9,12 +9,14 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        env: devel
         fqdn: repomanager-dev.localhost
         max_upload_size: 32M
     restart: always
     ports:
       - "8080:8080"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /var/lib/docker/volumes/repomanager-dev-logs:/var/log/nginx
       - /var/lib/docker/volumes/repomanager-dev-www:/var/www/repomanager
       - /var/lib/docker/volumes/repomanager-dev-data:/var/lib/repomanager

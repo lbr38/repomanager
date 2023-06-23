@@ -4,12 +4,11 @@ if ($myrepo->getPackageType() == 'rpm') {
 }
 if ($myrepo->getPackageType() == 'deb') {
     $mirror = $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection();
-}
-?>
+} ?>
 
 <tr>
     <td colspan="100%">Operation will create a new mirror snapshot:
-    <br><br><span class="label-white"><?=$mirror?></span>⟶<span class="label-green"><?=DATE_DMY?></span><span id="update-repo-show-target-env-<?=$myrepo->getSnapId()?>"></span></td>
+    <br><br><span class="label-white"><?= $mirror ?></span>⟶<span class="label-green"><?= DATE_DMY ?></span><span id="update-repo-show-target-env-<?= $myrepo->getSnapId() ?>"></span></td>
 </tr>
 
 <tr>
@@ -37,7 +36,8 @@ if ($myrepo->getPackageType() == 'deb') {
             endif;
             if ($myrepo->getPackageType() == 'deb') : ?>
                 <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
-            <?php endif ?>
+                <?php
+            endif ?>
             <span class="onoff-switch-slider"></span>
         </label>
     </td>
@@ -46,7 +46,7 @@ if ($myrepo->getPackageType() == 'deb') {
 <tr>
     <td class="td-30">Point an environment</td>
     <td>
-        <select id="update-repo-target-env-select-<?=$myrepo->getSnapId()?>" class="operation_param" param-name="targetEnv">
+        <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="operation_param" param-name="targetEnv">
             <option value=""></option>
             <?php
             foreach (ENVS as $env) {
@@ -149,8 +149,8 @@ $(document).ready(function(){
     /**
      *  Update repo->date<-env schema if an env is selected
      */
-    var selectName = '#update-repo-target-env-select-<?=$myrepo->getSnapId()?>';
-    var envSpan = '#update-repo-show-target-env-<?=$myrepo->getSnapId()?>';
+    var selectName = '#update-repo-target-env-select-<?= $myrepo->getSnapId() ?>';
+    var envSpan = '#update-repo-show-target-env-<?= $myrepo->getSnapId() ?>';
 
     function printEnv() {
         /**
@@ -168,7 +168,6 @@ $(document).ready(function(){
          */
         if (selectValue == lastEnv) {
             var envSpanClass = 'last-env';
-
         } else {            
             var envSpanClass = 'env';
         }

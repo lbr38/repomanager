@@ -1,17 +1,16 @@
 <?php
 
-namespace Models;
+namespace Models\Repo;
 
 use DateTime;
 use Exception;
 
-class Repo extends Model
+class Repo extends \Models\Model
 {
     public function __construct(array $variables = [])
     {
-
         /**
-         *  Ouverture d'une connexion à la base de données
+         *  Open main database connection
          */
         $this->getConnection('main');
     }
@@ -26,6 +25,7 @@ class Repo extends Model
                 $stmt = $this->db->prepare("SELECT
                 repos.Id AS repoId,
                 repos.Name,
+                repos.Releasever,
                 repos.Dist,
                 repos.Section,
                 repos.Source,
@@ -60,6 +60,7 @@ class Repo extends Model
                 $stmt = $this->db->prepare("SELECT
                 repos.Id AS repoId,
                 repos.Name,
+                repos.Releasever,
                 repos.Dist,
                 repos.Section,
                 repos.Source,
@@ -91,6 +92,7 @@ class Repo extends Model
                 $stmt = $this->db->prepare("SELECT
                 repos.Id AS repoId,
                 repos.Name,
+                repos.Releasever,
                 repos.Dist,
                 repos.Section,
                 repos.Source,
@@ -115,6 +117,7 @@ class Repo extends Model
                 $stmt = $this->db->prepare("SELECT
                 repos.Id AS repoId,
                 repos.Name,
+                repos.Releasever,
                 repos.Dist,
                 repos.Section,
                 repos.Source,
@@ -197,6 +200,9 @@ class Repo extends Model
         return $id;
     }
 
+    /**
+     *  Return environment Id from repo name
+     */
     public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
     {
         $id = array();
@@ -231,10 +237,6 @@ class Repo extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        //     $id = $row['Id'];
-        // }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $id = $row;
@@ -343,6 +345,9 @@ class Repo extends Model
         return $id;
     }
 
+    /**
+     *  Get repository environment description by the repo name
+     */
     public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
     {
         try {
@@ -353,7 +358,8 @@ class Repo extends Model
                 INNER JOIN repos
                     ON repos.Id = repos_snap.Id_repo
                 WHERE repos.Name = :name
-                AND repos_env.Env = :env");
+                AND repos_env.Env = :env
+                AND repos_snap.Status = 'active'");
             } else {
                 $stmt = $this->db->prepare("SELECT repos_env.Description FROM repos_env
                 INNER JOIN repos_snap
@@ -363,7 +369,8 @@ class Repo extends Model
                 WHERE repos.Name = :name
                 AND repos.Dist = :dist
                 AND repos.Section = :section
-                AND repos_env.Env = :env");
+                AND repos_env.Env = :env
+                AND repos_snap.Status = 'active'");
                 $stmt->bindValue(':dist', $dist);
                 $stmt->bindValue(':section', $section);
             }
@@ -397,6 +404,7 @@ class Repo extends Model
             $stmt = $this->db->prepare("SELECT DISTINCT
             repos.Id AS repoId,
             repos.Name,
+            repos.Releasever,
             repos.Dist,
             repos.Section,
             repos.Source,
@@ -431,6 +439,7 @@ class Repo extends Model
         $result = $this->db->query("SELECT DISTINCT
         repos.Id AS repoId,
         repos.Name,
+        repos.Releasever,
         repos.Dist,
         repos.Section,
         repos.Source,
@@ -475,7 +484,13 @@ class Repo extends Model
     public function getUnusedRepos()
     {
         try {
-            $stmt = $this->db->prepare("SELECT repos.Id, repos.Name, repos.Dist, repos.Section FROM repos
+            $stmt = $this->db->prepare("SELECT
+            repos.Id,
+            repos.Name,
+            repos.Releasever,
+            repos.Dist,
+            repos.Section
+            FROM repos
             WHERE repos.Id NOT IN (
             SELECT DISTINCT repos.Id FROM repos
             LEFT JOIN repos_snap
@@ -554,7 +569,7 @@ class Repo extends Model
         }
         unset($stmt);
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -578,11 +593,11 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
-     *  Modification de la date d'un snapshot en base de données
+     *  Set snapshot date
      */
     public function snapSetDate(string $snapId, string $date)
     {
@@ -595,11 +610,11 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
-     *  Modification de l'heure d'un snapshot en base de données
+     *  Set snapshot time
      */
     public function snapSetTime(string $snapId, string $time)
     {
@@ -612,7 +627,7 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -629,7 +644,7 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -666,7 +681,7 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -805,7 +820,7 @@ class Repo extends Model
     }
 
     /**
-     *  Vérifie si un snapshot de repo existe à une date spécifique en base de données, à partir du nom du repo et de la date recherchée
+     *  Return true if a snapshot exists at a specific date in database, from the repo name and the date
      */
     public function existsRepoSnapDate(string $date, string $name, string $dist = null, string $section = null)
     {
@@ -846,7 +861,7 @@ class Repo extends Model
     }
 
     /**
-     *  Vérifie si un environnement existe à partir de son nom et de l'Id de snapshot vers lequel il pointe
+     *  Return true if env exists, based on its name and the snapshot Id it points to
      */
     public function existsSnapIdEnv(string $snapId, string $env)
     {
@@ -915,299 +930,6 @@ class Repo extends Model
     }
 
     /**
-     *  Retourne la liste des repos actifs, càd ayant au moins 1 snapshot actif, et leur environnement si il y en a
-     */
-    public function list()
-    {
-        try {
-            $result = $this->db->query("SELECT
-            repos.Id AS repoId,
-            repos_snap.Id AS snapId,
-            repos_env.Id AS envId,
-            repos.Name,
-            repos.Dist,
-            repos.Section,
-            repos.Source,
-            repos.Package_type,
-            repos_env.Env,
-            repos_snap.Date,
-            repos_snap.Time,
-            repos_snap.Signed,
-            repos_snap.Arch,
-            repos_snap.Pkg_source,
-            repos_snap.Pkg_translation,
-            repos_snap.Type,
-            repos_env.Description
-            FROM repos 
-            LEFT JOIN repos_snap
-                ON repos.Id = repos_snap.Id_repo
-            LEFT JOIN repos_env 
-                ON repos_snap.Id = repos_env.Id_snap
-            WHERE repos_snap.Status = 'active'
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
-        }
-
-        return $repos;
-    }
-
-    /**
-     *  Retourne la liste des repos, leurs snapshots et leur environnements
-     *  N'affiche pas les repos qui n'ont aucun environnement actif
-     */
-    public function listWithEnv()
-    {
-        try {
-            $result = $this->db->query("SELECT
-            repos.Id AS repoId,
-            repos_snap.Id AS snapId,
-            repos_env.Id AS envId,
-            repos.Name,
-            repos.Dist,
-            repos.Section,
-            repos.Source,
-            repos.Package_type,
-            repos_env.Env,
-            repos_snap.Date,
-            repos_snap.Time,
-            repos_snap.Signed,
-            repos_snap.Arch,
-            repos_snap.Pkg_source,
-            repos_snap.Pkg_translation,
-            repos_snap.Type,
-            repos_env.Description
-            FROM repos 
-            INNER JOIN repos_snap
-                ON repos.Id = repos_snap.Id_repo
-            INNER JOIN repos_env 
-                ON repos_snap.Id = repos_env.Id_snap
-            WHERE repos_snap.Status = 'active'
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_env.Env ASC");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
-        }
-
-        return $repos;
-    }
-
-    /**
-     *  Retourne la liste des repos éligibles aux planifications
-     *  Il s'agit des repos ayant au moins 1 snapshot actif
-     */
-    public function listForPlan()
-    {
-        try {
-            $result = $this->db->query("SELECT
-            repos.Id AS repoId,
-            repos_snap.Id AS snapId,
-            repos.Name,
-            repos.Dist,
-            repos.Section,
-            repos.Source,
-            repos.Package_type,
-            repos_snap.Date,
-            repos_snap.Time,
-            repos_snap.Signed,
-            repos_snap.Arch,
-            repos_snap.Pkg_source,
-            repos_snap.Pkg_translation,
-            repos_snap.Type
-            FROM repos
-            LEFT JOIN repos_snap
-                ON repos.Id = repos_snap.Id_repo
-            WHERE repos_snap.Status = 'active'
-            AND repos_snap.Type = 'mirror'
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
-        }
-
-        return $repos;
-    }
-
-    /**
-     *  Retourne un array de tous les noms de repos, sans informations des snapshots et environnements associés
-     *  Si le paramètre 'true' est passé alors la fonction renverra uniquement les noms des repos qui ont un snapshot actif rattaché
-     *  Si le paramètre 'false' est passé alors la fonction renverra tous les noms de repos avec ou sans snapshot rattaché
-     */
-    public function listNameOnly(bool $bool)
-    {
-        try {
-            if ($bool == false) {
-                $result = $this->db->query("SELECT DISTINCT *
-                FROM repos
-                ORDER BY Name ASC, Dist ASC, Section ASC");
-            }
-
-            if ($bool == true) {
-                $result = $this->db->query("SELECT DISTINCT
-                repos.Id,
-                repos.Name,
-                repos.Dist,
-                repos.Section,
-                repos.Source,
-                repos.Package_type
-                FROM repos
-                INNER JOIN repos_snap
-                    ON repos_snap.Id_repo = repos.Id
-                WHERE repos_snap.Id_repo NOT NULL
-                AND repos_snap.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
-            }
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
-        }
-
-        return $repos;
-    }
-
-    /**
-     *  Retourne la liste des repos actifs, par groupe
-     */
-    public function listByGroup(string $groupName)
-    {
-        /**
-         *  Si le groupe == 'Default' (groupe fictif) alors on affiche tous les repos n'ayant pas de groupe
-         */
-        try {
-            if ($groupName == 'Default') {
-                $reposInGroup = $this->db->query("SELECT DISTINCT
-                repos.Id AS repoId,
-                repos_snap.Id AS snapId,
-                repos_env.Id AS envId,
-                repos.Name,
-                repos.Dist,
-                repos.Section,
-                repos.Source,
-                repos.Package_type,
-                repos_env.Env,
-                repos_snap.Date,
-                repos_snap.Time,
-                repos_snap.Signed,
-                repos_snap.Arch,
-                repos_snap.Pkg_source,
-                repos_snap.Pkg_translation,
-                repos_snap.Type,
-                repos_snap.Reconstruct,
-                repos_snap.Status,
-                repos_env.Description
-                FROM repos 
-                LEFT JOIN repos_snap
-                    ON repos.Id = repos_snap.Id_repo
-                LEFT JOIN repos_env 
-                    ON repos_env.Id_snap = repos_snap.Id
-                WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
-            } else {
-                $stmt = $this->db->prepare("SELECT DISTINCT
-                repos.Id AS repoId,
-                repos_snap.Id AS snapId,
-                repos_env.Id AS envId,
-                repos.Name,
-                repos.Dist,
-                repos.Section,
-                repos.Source,
-                repos.Package_type,
-                repos_env.Env,
-                repos_snap.Date,
-                repos_snap.Time,
-                repos_snap.Signed,
-                repos_snap.Arch,
-                repos_snap.Pkg_source,
-                repos_snap.Pkg_translation,
-                repos_snap.Type,
-                repos_snap.Reconstruct,
-                repos_snap.Status,
-                repos_env.Description
-                FROM repos 
-                LEFT JOIN repos_snap
-                    ON repos.Id = repos_snap.Id_repo
-                LEFT JOIN repos_env 
-                    ON repos_env.Id_snap = repos_snap.Id
-                LEFT JOIN group_members
-                    ON repos.Id = group_members.Id_repo
-                LEFT JOIN groups
-                    ON groups.Id = group_members.Id_group
-                WHERE groups.Name = :groupname
-                AND repos_snap.Status = 'active'
-                ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC, repos_snap.Date DESC");
-
-                $stmt->bindValue(':groupname', $groupName);
-                $reposInGroup = $stmt->execute();
-            }
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $reposIn = array();
-
-        while ($datas = $reposInGroup->fetchArray(SQLITE3_ASSOC)) {
-            $reposIn[] = $datas;
-        }
-
-        return $reposIn;
-    }
-
-    /**
-     *  Retourne le liste des noms de repos actifs, par groupe
-     *  Utilisée notamment pour les planifications de groupes
-     */
-    public function listNameByGroup(string $groupName)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT DISTINCT
-            repos.Id AS repoId,
-            repos.Name,
-            repos.Dist,
-            repos.Section
-            FROM repos
-            LEFT JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            LEFT JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name = :groupname
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
-            $stmt->bindValue(':groupname', $groupName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $row;
-        }
-
-        return $repos;
-    }
-
-    /**
      *  Retourne le nombre total de repos
      */
     public function count()
@@ -1215,6 +937,7 @@ class Repo extends Model
         try {
             $result = $this->db->query("SELECT DISTINCT
             repos.Name,
+            repos.Releasever,
             repos.Dist,
             repos.Section
             FROM repos 
@@ -1229,7 +952,7 @@ class Repo extends Model
     }
 
     /**
-     *  Ajouter un nouveau nom de repo à la table repos
+     *  Add a repo in database
      */
     public function add(string $source, string $packageType, string $name, string $dist = null, string $section = null)
     {
@@ -1256,11 +979,11 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
-     * Ajout d'un nouveau snapshot de repo en base de données, lié à un Id de repo
+     *  Add a repo snapshot in database
      */
     public function addSnap(string $date, string $time, string $gpgSignature, array $arch, string $includeSource, array $includeTranslation, string $type, string $status, string $repoId)
     {
@@ -1280,13 +1003,13 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
-     *  Déclaration d'un nouvel environnement en base de données, associé à un Id de snapshot
+     *  Associate a new env to a snapshot
      */
-    public function addEnv(string $env, string $description, string $snapId)
+    public function addEnv(string $env, string $description = null, string $snapId)
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO repos_env ('Env', 'Description', 'Id_snap') VALUES (:env, :description, :snapId)");
@@ -1298,7 +1021,7 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1335,7 +1058,7 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -1359,13 +1082,13 @@ class Repo extends Model
             \Controllers\Common::dbError($e);
         }
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
-     *  Suppression d'un environnement en base de données
+     *  Remove an env in database
      */
-    public function deleteEnv(string $envId)
+    public function removeEnv(string $envId)
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM repos_env WHERE Id = :envId");
@@ -1374,8 +1097,66 @@ class Repo extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
+
         unset($stmt);
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
+    }
+
+    /**
+     *  Update release version in database
+     */
+    public function updateReleasever(int $repoId, string $releasever)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Releasever = :releasever WHERE Id = :repoId");
+            $stmt->bindValue(':releasever', $releasever);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        unset($stmt);
+
+        \Controllers\App\Cache::clear();
+    }
+
+    /**
+     *  Update dist in database
+     */
+    public function updateDist(int $repoId, string $dist)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Dist = :dist WHERE Id = :repoId");
+            $stmt->bindValue(':dist', $dist);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        unset($stmt);
+
+        \Controllers\App\Cache::clear();
+    }
+
+    /**
+     *  Update section in database
+     */
+    public function updateSection(int $repoId, string $section)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos SET Section = :section WHERE Id = :repoId");
+            $stmt->bindValue(':section', $section);
+            $stmt->bindValue(':repoId', $repoId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        unset($stmt);
+
+        \Controllers\App\Cache::clear();
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-namespace Controllers\Autoloader\Constant;
-
-use Exception;
+namespace Controllers\App\Config;
 
 class Settings
 {

@@ -8,6 +8,7 @@ class Update
 {
     private $model;
     private $workingDir = '/tmp/repomanager-update_' . GIT_VERSION;
+    private $sqlQueriesDir = ROOT . '/update/database';
 
     public function __construct()
     {
@@ -40,8 +41,6 @@ class Update
      */
     public function updateDB(string $targetVersion = null)
     {
-        $this->sqlQueriesDir = ROOT . '/update/database';
-
         if (!is_dir($this->sqlQueriesDir)) {
             return;
         }

@@ -15,5 +15,7 @@ class HostGroup
         $hostGroupsList = $mygroup->listAllName();
 
         include_once(ROOT . '/views/includes/panels/hosts-groups.inc.php');
+
+        unset($myhost, $mygroup);
     }
 }

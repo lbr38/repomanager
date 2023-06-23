@@ -239,7 +239,6 @@ class Planification extends Service
                 if (!empty($reminderMessage)) {
                     $mailSubject = '[ Reminder ] Planification(s) to come on ' . WWW_HOSTNAME;
                     $mymail = new \Controllers\Mail($this->planController->getMailRecipient(), $mailSubject, $reminderMessage, 'https://' . WWW_HOSTNAME . '/plans', 'Planifications');
-                    $mymail->send();
                 }
             } catch (Exception $e) {
                 $this->logController->log('error', 'Service', 'Error while sending planification reminder: ' . $e->getMessage());

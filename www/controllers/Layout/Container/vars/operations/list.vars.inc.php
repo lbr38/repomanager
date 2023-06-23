@@ -1,7 +1,7 @@
 <?php
 
 $myplan = new \Controllers\Planification();
-$myop = new \Controllers\Operation();
+$myop = new \Controllers\Operation\Operation();
 
 /**
  *  Get a list of all running planifications

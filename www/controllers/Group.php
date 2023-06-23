@@ -129,7 +129,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Create a new group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ')', 'success');
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -163,7 +163,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Rename group: <span class="label-white">' . $actualName . '</span> to <span class="label-white">' . $newName . '</span> (type: ' . $this->type . ')', 'success');
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -186,7 +186,7 @@ class Group
 
         \Models\History::set($_SESSION['username'], 'Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
 
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**

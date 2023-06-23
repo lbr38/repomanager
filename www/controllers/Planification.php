@@ -9,6 +9,7 @@ class Planification
     private $id;
     private $model;
     private $action;
+    private $validActions = array('update');
     private $targetGpgCheck;
     private $targetGpgResign;
     private $onlySyncDifference;
@@ -27,18 +28,15 @@ class Planification
     private $mailRecipient = null;
     private $notificationOnSuccess;
     private $notificationOnError;
-
-    private $log;       // pour instancier un objet Log
-    public $repo;       // pour instancier un objet Repo
-    public $op;         // pour instancier un objet Operation
-    public $group;      // pour instancier un objet Group
-
     private $logList = array();
-    private $groupReposList;
+
+    private $log;
+    private $repo;
+    private $operation;
+    private $group;
 
     public function __construct()
     {
-
         $this->model = new \Models\Planification();
     }
 
@@ -55,7 +53,7 @@ class Planification
          *  On sépare chaque jour spécifié par une virgule
          */
         foreach ($days as $day) {
-            $planDay .= Common::validateData($day) . ',';
+            $planDay .= \Controllers\Common::validateData($day) . ',';
         }
 
         /**
@@ -91,10 +89,8 @@ class Planification
 
     public function setMailRecipient(array $mailRecipients)
     {
-        foreach ($mailRecipients as $mailRecipient) {
-            $mail = Common::validateData($mailRecipient);
-
-            if (!Common::validateMail($mail)) {
+        foreach ($mailRecipients as $mail) {
+            if (!\Controllers\Common::validateMail(\Controllers\Common::validateData($mail))) {
                 throw new Exception('Invalid email address format for ' . $mail);
             }
         }
@@ -121,7 +117,7 @@ class Planification
              *  On sépare chaque jour de rappel par une virgule
              */
             foreach ($reminders as $reminder) {
-                $planReminder .= Common::validateData($reminder) . ',';
+                $planReminder .= \Controllers\Common::validateData($reminder) . ',';
             }
         }
 
@@ -144,7 +140,7 @@ class Planification
 
     public function setTargetGpgCheck(string $state)
     {
-        $this->targetGpgCheck = Common::validateData($state);
+        $this->targetGpgCheck = \Controllers\Common::validateData($state);
     }
 
     public function setTargetGpgResign(string $state)
@@ -223,36 +219,36 @@ class Planification
      */
     public function new()
     {
-        /**
-         *  Vérification des paramètres
-         */
+        $myrepo = new \Controllers\Repo\Repo();
+        $mygroup = new \Controllers\Group('repo');
+        $myenv = new \Controllers\Environment();
 
         /**
          *  Vérification du type
          */
         if (empty($this->type)) {
-            throw new Exception("You must specify a type");
+            throw new Exception('Type must be specified');
         }
 
         /**
          *  Vérification de la fréquence si il s'agit d'une tâche récurrente
          */
         if ($this->type == "regular" and empty($this->frequency)) {
-            throw new Exception("You must specify a frequency");
+            throw new Exception('Frequency must be specified');
         }
 
         /**
          *  Vérification du/des jour(s) dans le cas où il s'agit d'une planification récurrente "toutes les semaines"
          */
         if ($this->type == "regular" and $this->frequency == "every-week" and empty($this->day)) {
-            throw new Exception("You must specify weekday(s)");
+            throw new Exception('Weekday(s) must be specified');
         }
 
         /**
          *  Vérification de la date (dans le cas où il s'agit d'une planification)
          */
         if ($this->type == 'plan' and empty($this->date)) {
-            throw new Exception("You must specify a date");
+            throw new Exception('Date must be specified');
         }
 
         /**
@@ -260,7 +256,7 @@ class Planification
          */
         if ($this->type == 'plan' or ($this->type == 'regular' and $this->frequency == 'every-day') or ($this->type == 'regular' and $this->frequency == 'every-week')) {
             if (empty($this->time)) {
-                throw new Exception("You must specify a time");
+                throw new Exception('Time must be specified');
             }
         }
 
@@ -268,11 +264,11 @@ class Planification
          *  Vérification de l'action
          */
         if (empty($this->action)) {
-            throw new Exception("You must specify an action");
+            throw new Exception('Action must be specified');
         }
 
         if ($this->action != 'update' and !preg_match('/->/', $this->action)) {
-            throw new Exception("Specified action is invalid");
+            throw new Exception('Action is invalid');
         }
 
         /**
@@ -284,11 +280,9 @@ class Planification
              */
             $envs = explode('->', $this->action);
 
-            $myenv = new Environment();
-
             foreach ($envs as $env) {
                 if ($myenv->exists($env) === false) {
-                    throw new Exception("Unknown environment $env");
+                    throw new Exception('Unknown environment ' . $env);
                 }
             }
         }
@@ -297,14 +291,14 @@ class Planification
          *  Si aucun repo et aucun groupe n'a été renseigné alors on quitte
          */
         if (empty($this->snapId) and empty($this->groupId)) {
-            throw new Exception("You must specify a repo or a group");
+            throw new Exception('A repository snapshot or a group must be specified');
         }
 
         /**
          *  Si un repo ET un groupe ont été renseignés alors on quitte
          */
         if (!empty($this->snapId) and !empty($this->groupId)) {
-            throw new Exception("You must specify a repo or a group but not both");
+            throw new Exception('You can only specify a repository snapshot OR a group');
         }
 
         /**
@@ -314,14 +308,11 @@ class Planification
             /**
              *  On vérifie que l'Id de snapshot renseigné existe
              */
-            $myrepo = new Repo();
             $myrepo->setSnapId($this->snapId);
 
             if ($myrepo->existsSnapId($this->snapId) === false) {
-                throw new Exception("Specified repo does not exist");
+                throw new Exception('Specified repository snapshot does not exist');
             }
-
-            unset($myrepo);
         }
 
         /**
@@ -331,26 +322,17 @@ class Planification
             /**
              *  On vérifie que l'Id de groupe renseigné existe
              */
-            $mygroup = new Group('repo');
-
             if ($mygroup->existsId($this->groupId) === false) {
-                throw new Exception("Specified group does not exist");
+                throw new Exception('Specified group does not exist');
             }
-
-            unset($mygroup);
         }
 
         /**
          *  Cas où on souhaite faire pointer un environnement
          */
         if (!empty($this->targetEnv)) {
-            /**
-             *  On vérifie que l'environnement existe
-             */
-            $myenv = new Environment();
-
             if ($myenv->exists($this->targetEnv) === false) {
-                throw new Exception("Environment " . $this->targetEnv . " does not exist");
+                throw new Exception('Environment ' . $this->targetEnv . ' does not exist');
             }
         }
 
@@ -367,10 +349,8 @@ class Planification
                  *  On vérifie que chaque adresse mail est valide
                  */
                 foreach ($mailRecipientTest as $mail) {
-                    $mail = Common::validateData($mail);
-
-                    if (Common::validateMail($mail) === false) {
-                        throw new Exception("Invalid email address $mail");
+                    if (\Controllers\Common::validateMail(\Controllers\Common::validateData($mail)) === false) {
+                        throw new Exception('Invalid email address ' . $mail);
                     }
                 }
 
@@ -378,8 +358,8 @@ class Planification
              *  Cas où 1 seule adresse mail a été renseignée
              */
             } else {
-                if (Common::validateMail($this->mailRecipient) === false) {
-                    throw new Exception("Invalid email address $mail");
+                if (\Controllers\Common::validateMail(\Controllers\Common::validateData($this->mailRecipient)) === false) {
+                    throw new Exception('Invalid email address ' . $mail);
                 }
             }
         } else {
@@ -411,6 +391,8 @@ class Planification
             $this->mailRecipient,
             $this->reminder
         );
+
+        unset($myrepo, $mygroup, $myenv);
     }
 
     /**
@@ -442,27 +424,29 @@ class Planification
      */
     public function exec()
     {
+        $this->repo = new \Controllers\Repo\Repo();
+        $this->group = new \Controllers\Group('repo');
+
         /**
          *  On vérifie que l'Id de planification spécifié existe en base de données
          */
         if ($this->model->existsId($this->id) === false) {
-            throw new Exception("Plan Id $this->id does not exist");
+            throw new Exception('Plan id ' . $this->id . 'does not exist');
         }
 
         /**
          *  On vérifie que la planification n'est pas déjà en cours d'exécution (eg. si quelqu'un l'a lancé en avance avec le paramètre exec-now)
          */
         if ($this->model->getStatus($this->id) == 'running') {
-            throw new Exception("This plan is already running");
+            throw new Exception('This plan is already running');
         }
 
         /**
          *  On génère un nouveau log pour cette planification
          *  Ce log général reprendra tous les sous-logs de chaque opération lancée par cette planification.
          */
-        $this->log = new Log\OperationLog();
-        $this->log->setType('plan');
-        $this->log->initialize();
+        $this->operation = new \Controllers\Operation\Operation();
+        $this->log = new \Controllers\Log\OperationLog('plan', $this->operation->getPid());
 
         /**
          *  Passe le status de la planification à "running", jusqu'à maintenant le status était "queued"
@@ -478,19 +462,6 @@ class Planification
             // VERIFICATIONS //
 
             /**
-             *  1. Si les planifications ne sont pas activées, on quitte
-             */
-            if (PLANS_ENABLED != "true") {
-                throw new Exception("Plans are not enabled. You can modify this parameter from the settings page.");
-            }
-
-            /**
-             *  2. On instancie des objets Operation et Group
-             */
-            $this->repo = new Repo();
-            $this->group = new Group('repo');
-
-            /**
              *  3. Récupération des détails de la planification en cours d'exécution, afin de savoir quels
              *  repos ou quel groupe sont impliqués et quelle action effectuer
              */
@@ -499,70 +470,22 @@ class Planification
             /**
              *  4. Vérification de l'action renseignée
              */
-            $this->checkAction();
-
-            /**
-             *  5. Si l'action est 'update' alors on vérifie que cette action est autorisée et on doit avoir renseigné gpgCheck et gpgResign
-             */
-            if ($this->action == "update") {
-                $this->checkActionUpdateAllowed();
-                $this->checkActionUpdateGpgCheck();
-                $this->checkActionUpdateGpgResign();
-            }
-
-            /**
-             *  6. Si l'action est '->' alors on vérifie que cette action est autorisée
-             */
-            // if (strpos(htmlspecialchars_decode($this->action), '->') !== false) {
-            //     $this->checkActionEnvAllowed();
-            // }
-
-            /**
-             *  7. Vérification si il s'agit d'un repo ou d'un groupe
-             */
-            $this->checkIfRepoOrGroup();
-
-            /**
-             *  8. Si on a renseigné un seul repo à traiter alors il faut vérifier qu'il existe bien (il a pu être supprimé depuis que la planification a été créée)
-             *  Puis il faut récupérer son vrai nom (Redhat) ou son hôte source (Debian)
-             */
-            if (!empty($this->repo->getName())) {
-                /**
-                 *  On vérifie que l'Id de snapshot existe bien
-                 */
-                if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
-                    throw new Exception('Snapshot Id <b>' . $this->repo->getSnapId() . '</b> does not exist');
-                }
-            }
-
-            /**
-             *  9. Si on a renseigné un groupe plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
-             *  Puis on récupère toute la liste du groupe
-             */
-            if (!empty($this->group->getName())) {
-                /**
-                 *  On vérifie que le groupe existe
-                 */
-                if ($this->group->existsId($this->group->getId()) === false) {
-                    throw new Exception('Group Id <b>' . $this->group->getId() . '</b> does not exist');
-                }
-
-                /**
-                 *  On récupère la liste des repos dans ce groupe
-                 */
-                $this->groupReposList = $this->getGroupRepoList();
-            }
+            $this->paramCheck();
 
         /**
          *  Clôture du try/catch de la partie Vérifications
          *  Si une erreur est catché alors on sort de la planification
          */
         } catch (\Exception $e) {
-            $this->close(1, $e->getMessage());
+            $this->close(1, 'Planification check error: ' . $e->getMessage());
             return;
         }
 
-        // TRAITEMENT //
+        /**
+         *
+         *  Execution
+         *
+         */
 
         /**
          *  On placera dans ce tableau les repos qui ont été traités par cette planification.
@@ -574,66 +497,27 @@ class Planification
          */
         if (!empty($this->repo->getName()) and empty($this->group->getName())) {
             /**
-             *  Traitement
-             *  On transmet l'ID de la planification dans $this->repo->planId, ceci afin de déclarer une nouvelle opération en BDD avec l'id de la planification qui l'a lancée
-             */
-            $this->repo->setPlanId($this->id);
-
-            /**
-             *  Plan does not use pool, so generate a fake pool Id
-             */
-            $this->repo->setPoolId('0000');
-
-            /**
              *  Si l'action de planification == update
              */
-            if ($this->action == "update") {
-                /**
-                 *  Set de l'environnement cible si il y en a un
-                 */
-                if (!empty($this->targetEnv)) {
-                    $this->repo->setTargetEnv($this->targetEnv);
-                }
+            if ($this->action == 'update') {
+                $operationParams = array(
+                    'action' => 'update',
+                    'planId' => $this->id,
+                    'snapId' => $this->repo->getSnapId(),
+                    'targetGpgCheck' => $this->targetGpgCheck,
+                    'targetGpgResign' => $this->targetGpgResign,
+                    'targetEnv' => $this->targetEnv,
+                    'targetArch' => $this->repo->getArch(),
+                    'targetSourcePackage' => $this->repo->getSourcePackage(),
+                    'onlySyncDifference' => $this->onlySyncDifference
+                );
 
-                /**
-                 *  Set target arch from the actual repo's arch
-                 */
-                $this->repo->setTargetArch($this->repo->getArch());
-
-                /**
-                 *  Set target Package source from the actual repo's setting (yes or no)
-                 */
-                $this->repo->setTargetPackageSource($this->repo->getPackageSource());
-
-                /**
-                 *  Set target Package Translation from the actual repo's setting, if there is
-                 */
-                if (!empty($this->repo->getPackageTranslation())) {
-                    $this->repo->setTargetPackageTranslation($this->repo->getPackageTranslation());
-                }
-
-                /**
-                 *  Set de GPG Check conformément à ce qui a été défini pour cette planification
-                 */
-                $this->repo->setTargetGpgCheck($this->targetGpgCheck);
-
-                /**
-                 *  Set de GPG Resign conformément à ce qui a été défini pour cette planification
-                 */
-                $this->repo->setTargetGpgResign($this->targetGpgResign);
-
-                /**
-                 *  Setting onlySyncDifference
-                 */
-                $this->repo->setOnlySyncDifference($this->onlySyncDifference);
-
-                /**
-                 *  Exécution de l'action 'update'
-                 */
-                if ($this->repo->update() === false) {
-                    $status = 'error';
-                } else {
+                try {
+                    $controller = new \Controllers\Repo\Operation\Update('0000', $operationParams);
                     $status = 'done';
+                } catch (\Exception $e) {
+                    $status = 'error';
+                    $error = $e->getMessage();
                 }
 
                 /**
@@ -649,7 +533,7 @@ class Planification
                  *  Si l'opération est en erreur, on quitte avec un message d'erreur
                  */
                 if ($status == 'error') {
-                    $this->close(2, 'An error occured while processing this repo, check the logs', $processedRepos);
+                    $this->close(2, 'An error occured while processing this repo: ' . $error, $processedRepos);
                     return;
                 }
             }
@@ -658,13 +542,13 @@ class Planification
         /**
          *  2. Cas où on traite un groupe de repos
          */
-        if (!empty($this->group->getName()) and !empty($this->groupReposList)) {
+        if (!empty($this->group->getName())) {
             /**
              *  Comme on boucle pour traiter plusieurs repos, on ne peut pas tout quitter en cas d'erreur tant qu'on a pas bouclé sur tous les repos.
              *  Du coup on initialise une variable qu'on incrémentera en cas d'erreur.
              *  A la fin si cette variable > 0 alors on pourra quitter ce script en erreur ($this->close 1)
              */
-            $plan_error = 0;
+            $groupError = 0;
 
             /**
              *  On placera dans ce tableau les repos qui ont été traités par cette planification.
@@ -676,13 +560,18 @@ class Planification
              */
 
             /**
+             *  On récupère la liste des repos dans ce groupe
+             */
+            $groupReposList = $this->getGroupRepoList();
+
+            /**
              *  On traite chaque ligne de groupList
              */
-            foreach ($this->groupReposList as $repo) {
+            foreach ($groupReposList as $repo) {
                 /**
                  *  On (re)instancie le repo à chaque boucle afin qu'il soit bien initialisé
                  */
-                $this->repo = new Repo();
+                $this->repo = new \Controllers\Repo\Repo();
 
                 /**
                  *  On ne connait que l'Id du repo mais pas les informations concernant ses snapshots.
@@ -709,86 +598,44 @@ class Planification
                 }
 
                 /**
-                 *  Traitement
-                 *  On transmet l'ID de la planification dans $this->repo->planId, ceci afin de déclarer une nouvelle opération en BDD avec l'id de la planification qui l'a lancée
+                 *  Si l'action de planification == update
                  */
-                $this->repo->setPlanId($this->id);
+                if ($this->action == 'update') {
+                    $operationParams = array(
+                        'action' => 'update',
+                        'planId' => $this->id,
+                        'snapId' => $this->repo->getSnapId(),
+                        'targetGpgCheck' => $this->targetGpgCheck,
+                        'targetGpgResign' => $this->targetGpgResign,
+                        'targetEnv' => $this->targetEnv,
+                        'targetArch' => $this->repo->getArch(),
+                        'targetSourcePackage' => $this->repo->getSourcePackage(),
+                        'onlySyncDifference' => $this->onlySyncDifference
+                    );
 
-                /**
-                 *  Plan does not use pool, so generate a fake pool Id
-                 */
-                $this->repo->setPoolId('0000');
-
-                /**
-                 *  Si $this->action() = update alors on met à jour le repo
-                 */
-                if ($this->action == "update") {
-                    /**
-                     *  Set de l'environnement cible si il y en a un
-                     */
-                    if (!empty($this->targetEnv)) {
-                        $this->repo->setTargetEnv($this->targetEnv);
-                    }
-
-                    /**
-                     *  Set target arch from the actual repo's arch
-                     */
-                    $this->repo->setTargetArch($this->repo->getArch());
-
-                    /**
-                     *  Set target Package source from the actual repo's setting (yes or no)
-                     */
-                    $this->repo->setTargetPackageSource($this->repo->getPackageSource());
-
-                    /**
-                     *  Set target Package Translation from the actual repo's setting, if there is
-                     */
-                    if (!empty($this->repo->getPackageTranslation())) {
-                        $this->repo->setTargetPackageTranslation($this->repo->getPackageTranslation());
-                    }
-
-                    /**
-                     *  Set de GPG Check conformément à ce qui a été défini pour cette planification
-                     */
-                    $this->repo->setTargetGpgCheck($this->targetGpgCheck);
-
-                    /**
-                     *  Set de GPG Resign conformément à ce qui a été défini pour cette planification
-                     */
-                    $this->repo->setTargetGpgResign($this->targetGpgResign);
-
-                    /**
-                     *  Setting onlySyncDifference
-                    */
-                    $this->repo->setOnlySyncDifference($this->onlySyncDifference);
-
-                    /**
-                     *  Exécution de l'action 'update'
-                     */
-                    if ($this->repo->update() === false) {
-                        $plan_error++;
-                        $status = 'error';
-                    } else {
+                    try {
+                        $controller = new \Controllers\Repo\Operation\Update('0000', $operationParams);
                         $status = 'done';
+                    } catch (\Exception $e) {
+                        $status = 'error';
+                        $groupError++;
                     }
+                }
 
-                    $this->logList[] = $this->repo->getOpLogLocation();
-
-                    /**
-                     *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
-                     */
-                    if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                        $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status);
-                    } else {
-                        $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status);
-                    }
+                /**
+                 *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
+                 */
+                if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
+                    $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status);
+                } else {
+                    $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status);
                 }
             }
 
             /**
              *  Si on a rencontré des erreurs dans la boucle, alors on quitte avec un message d'erreur
              */
-            if ($plan_error > 0) {
+            if ($groupError > 0) {
                 $this->close(2, 'An error occured while processing this group, check the logs', $processedRepos);
                 return;
             }
@@ -797,8 +644,7 @@ class Planification
         /**
          *  Si on est arrivé jusqu'ici alors on peut quitter sans erreur
          */
-        $this->close(0, '', $processedRepos);
-        return;
+        $this->close(0, null, $processedRepos);
     }
 
     /**
@@ -814,8 +660,8 @@ class Planification
             /**
              *  On instancie des objets Operation et Group
              */
-            $this->repo = new Repo();
-            $this->group = new Group('repo');
+            $this->repo = new \Controllers\Repo\Repo();
+            $this->group = new \Controllers\Group('repo');
 
             /**
              *  1. Récupération des informations de la planification
@@ -825,42 +671,7 @@ class Planification
             /**
              *  2. Vérification de l'action renseignée
              */
-            $this->checkAction();
-
-            /**
-             *  3. Vérification si il s'agit d'un repo ou d'un groupe
-             */
-            $this->checkIfRepoOrGroup();
-
-            /**
-             *  4. Si on a renseigné un seul repo à traiter alors il faut vérifier qu'il existe bien (il a pu être supprimé depuis que la planification a été créée)
-             */
-            if (!empty($this->repo->getName())) {
-                /**
-                 *  On vérifie que l'Id de snapshot existe bien
-                 */
-                if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
-                    throw new Exception("Snapshot Id <b>" . $this->repo->getSnapId() . "</b> does not exist");
-                }
-            }
-
-            /**
-             *  5. Si on a renseigné un groupe (commence par @) plutôt qu'un seul repo à traiter, alors on vérifie que le groupe existe dans le fichier de groupe (il a pu être supprimé depuis que la planification a été créée)
-             *  Puis on récupère toute la liste du groupe
-             */
-            if (!empty($this->group->getName())) {
-                /**
-                 *  On vérifie que le groupe existe
-                 */
-                if ($this->group->existsId($this->group->getId()) === false) {
-                    throw new Exception("Group Id <b>" . $this->group->getId() . "</b> does not exist");
-                }
-
-                /**
-                 *  On récupère la liste des repos dans ce groupe
-                 */
-                $this->groupReposList = $this->getGroupRepoList();
-            }
+            $this->checkParam();
 
         /**
          *  Cloture du try/catch pour la partie Vérifications
@@ -892,8 +703,7 @@ class Planification
         /**
          *  Cas où la planif à rappeler concerne un groupe de repo
          */
-        if (!empty($this->group->getName()) and !empty($this->groupReposList)) {
-
+        if (!empty($this->group->getName())) {
             /**
              *  Cas où l'action prévue est une mise à jour
              */
@@ -901,7 +711,12 @@ class Planification
                 $message = 'Update repos of the <span class="label-black">' . $this->group->getName() . '</span> group:<br>';
             }
 
-            foreach ($this->groupReposList as $line) {
+            /**
+             *  On récupère la liste des repos dans ce groupe
+             */
+            $groupReposList = $this->getGroupRepoList();
+
+            foreach ($groupReposList as $line) {
                 /**
                  *  Pour chaque ligne on récupère les infos du repo/section
                  */
@@ -926,13 +741,15 @@ class Planification
      *  Clôture d'une planification exécutée
      *  Génère le récapitulatif, le fichier de log et envoi un mail d'erreur si il y a eu une erreur.
      */
-    public function close($planError, $planMessage_error, $processedRepos = null)
+    private function close($planError, $planErrorMessage, $processedRepos = null)
     {
+        $content = '';
+
         /**
          *  Suppression des lignes vides dans le message d'erreur si il y en a
          */
-        if ($planError != 0) {
-            $planMessage_error = exec("echo \"$planMessage_error\" | sed '/^$/d'");
+        if (!empty($planErrorMessage)) {
+            $planErrorMessage = trim($planErrorMessage);
         }
 
         /**
@@ -942,16 +759,16 @@ class Planification
          */
         if ($this->type == 'plan') {
             if ($planError == 0) {
-                $this->model->closeUpdateStatus($this->id, 'done', null, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'done', null, $this->log->getName());
             } else {
-                $this->model->closeUpdateStatus($this->id, 'error', $planMessage_error, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'error', $planErrorMessage, $this->log->getName());
             }
         }
         if ($this->type == 'regular') {
             if ($planError == 0) {
-                $this->model->closeUpdateStatus($this->id, 'queued', null, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'queued', null, $this->log->getName());
             } else {
-                $this->model->closeUpdateStatus($this->id, 'queued', $planMessage_error, $this->log->name);
+                $this->model->closeUpdateStatus($this->id, 'queued', $planErrorMessage, $this->log->getName());
             }
 
             /**
@@ -970,7 +787,8 @@ class Planification
          */
         if ($planError == 1) : ?>
             <div class="div-generic-blue">
-                <p class="redtext"><?= $planMessage_error ?></p><br>
+                <p class="redtext"><?= $planErrorMessage ?></p><br>
+        
                 <p><b>Plan details:</b></p>
                 <table>
                     <tr>
@@ -998,63 +816,32 @@ class Planification
         // Contenu du fichier de log de la planification //
 
         /**
-         *  Cas où on traite un groupe de repo
-         *  Dans ce cas, chaque repo mis à jour crée son propre fichier de log. On a récupéré le chemin de ces fichiers de log au cours de l'opération et on l'a placé dans un array $this->logList
-         *  On parcourt donc cet array pour récupérer le contenu de chaque sous-fichier de log afin de créer un fichier de log global de la planification
+         *  Case there was an error during the checks
          */
-        if (!empty($this->group->getName())) {
-            if ($planError != 1) {
-                /**
-                 *  On laisse 3 secondes au script logbuilder.php (dans le cas où l'action est update) pour finir de forger les sous-fichiers de log, sinon on prend le risque de récupérer des contenus vide car on va trop vite
-                 */
-                sleep(3);
-                $content = '';
-
-                /**
-                 *  Si l'array $this->logList contient des sous-fichier de log alors on récupère leur contenu en le placant dans $content
-                 */
-                if (!empty($this->logList)) {
-                    foreach ($this->logList as $log) {
-                        $content .= file_get_contents($log) . '<br><hr><br>';
-                    }
-                }
-
-            /**
-             *  Cas où une erreur est survenue lors des vérifications
-             */
-            } else {
-                $content = ob_get_clean();
-            }
+        if ($planError == 1) {
+            $content = ob_get_clean();
         }
 
         /**
-         *  Cas où on traite un seul repo
+         *  If operation was successful or got errors, retrieve all operations logs and append them to the planification log
          */
-        if (!empty($this->repo->getName()) and empty($this->group->getName())) {
+        if ($planError != 1) {
             /**
-             *  Si l'action est 'update', un sous-fichier de log sera créé par la fonction $repo->update(). Ce fichier de log existera uniquement si la fonction a pu se lancer (donc pas d'erreur lors des vérifications). On récupère donc le contenu de ce fichier uniquement si il n'y a pas eu d'erreur lors des vérifications ($planError != 1).
+             *  Wait 5 seconds to be sure all operations logs are written
              */
-            if ($planError != 1) {
-                /**
-                 *  On laisse 3 secondes au script logbuilder.php pour finir de forger le sous-fichier de log, sinon on prend le risque de récupérer un contenu vide car on va trop vite
-                 */
-                sleep(3);
+            sleep(5);
 
-                /**
-                 *  On récupère le contenu du fichier de log généré par la fonction $repo->update() si celui-ci existe
-                 *  Ce contenu sera ensuite injecté dans le fichier de log de la planification
-                 */
-                if (!empty($this->repo->getOpLogLocation())) {
-                    $content = file_get_contents($this->repo->getOpLogLocation());
-                } else {
-                    $content = '';
+            /**
+             *  Retrieve all operations logs
+             */
+            $logs = $this->getOperationLogName($this->id);
+
+            if (!empty($logs)) {
+                foreach ($logs as $log) {
+                    if (file_exists(LOGS_DIR . '/main/' . $log)) {
+                        $content .= file_get_contents(LOGS_DIR . '/main/' . $log) . '<br><hr><br>';
+                    }
                 }
-
-            /**
-             *  Cas où une erreur est survenue lors des vérifications
-             */
-            } else {
-                $content = ob_get_clean();
             }
         }
 
@@ -1063,13 +850,6 @@ class Planification
          */
         include(ROOT . '/templates/planification_log.inc.php');
         $this->log->write($logContent);
-
-        /**
-         *  Suppression du fichier PID
-         */
-        if (file_exists(PID_DIR . '/' . $this->log->getPid() . '.pid')) {
-            unlink(PID_DIR . '/' . $this->log->getPid() . '.pid');
-        }
 
         // Contenu du mail de la planification //
 
@@ -1080,13 +860,9 @@ class Planification
             /**
              *  Ajout de l'action effectuée
              */
-            $proceedReposMessage = '<br><br><b>Action:</b>';
+            $proceedReposMessage = '<br><br>Action: <b>' . $this->action . '</b><br><br>';
 
-            if ($this->action == 'update') {
-                $proceedReposMessage .= ' update';
-            }
-
-            $proceedReposMessage .= '<br><br><b>Processed repos:</b><br>';
+            $proceedReposMessage .= 'Processed repos:<br>';
 
             /**
              *  On trie l'array par status des repos afin de regrouper tous les repos OK et tous les repos en erreur
@@ -1098,14 +874,13 @@ class Planification
              */
             if (is_array($processedRepos)) {
                 foreach ($processedRepos as $processedRepo) {
-                    if ($processedRepo['Status'] == 'done') {
-                        $proceedReposMessage .= '✅ ';
-                    }
+                    $proceedReposMessage .= '- <b>' . $processedRepo['Repo'] . '</b>';
+
                     if ($processedRepo['Status'] == 'error') {
-                        $proceedReposMessage .= '❌ ';
+                        $proceedReposMessage .= ' (error)';
                     }
 
-                    $proceedReposMessage .= '<span class="label-black">' . $processedRepo['Repo'] . '</span><br>';
+                    $proceedReposMessage .= '<br>';
                 }
             }
         }
@@ -1143,8 +918,7 @@ class Planification
                 /**
                  *  Send mail
                  */
-                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->name, 'Check the details');
-                $mymail->send();
+                $mymail = new \Controllers\Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->getName(), 'Check the details');
             }
 
             /**
@@ -1175,8 +949,7 @@ class Planification
                 /**
                  *  Send mail
                  */
-                $mymail = new Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->name, 'Check the details');
-                $mymail->send();
+                $mymail = new \Controllers\Mail($this->mailRecipient, $mailSubject, $mailMessage, 'https://' . WWW_HOSTNAME . '/run?view-logfile=' . $this->log->getName(), 'Check the details');
             }
         }
     }
@@ -1185,76 +958,20 @@ class Planification
  *  VERIFICATIONS
  *  Code d'erreurs : CP "Check Planification"
  */
-    private function checkAction()
-    {
-        if (empty($this->action)) {
-            throw new Exception("No action has been specified for this plan");
-        }
-    }
-
-    private function checkActionUpdateAllowed()
-    {
-        /**
-         *  Si la mise à jour des repos n'est pas autorisée, on quitte
-         */
-        if (PLANS_UPDATE_REPO != "true") {
-            throw new Exception("Plans are not allowed to update repositories");
-        }
-    }
-
-    private function checkActionUpdateGpgCheck()
-    {
-        if (empty($this->targetGpgCheck)) {
-            throw new Exception("GPG check has not been specified for this plan");
-        }
-    }
-
-    private function checkActionUpdateGpgResign()
-    {
-        if (empty($this->targetGpgResign)) {
-            throw new Exception("GPG repo signature has not been specified for this plan");
-        }
-    }
-
-    private function checkActionEnvAllowed()
-    {
-        /**
-         *  Si le changement d'environnement n'est pas autorisé, on quitte
-         */
-        if (PLANS_UPDATE_REPO_ENV != "true") {
-            throw new Exception("Plans are not allowed to manage repos environment");
-        }
-    }
-
-    /**
-     *  Vérification si on traite un repo seul ou un groupe
-     */
-    private function checkIfRepoOrGroup()
-    {
-        if (empty($this->repo->getName()) and empty($this->group->getName())) {
-            throw new Exception("No repo or group has been specified");
-        }
-
-        /**
-         *  On va traiter soit un repo soit un groupe de repo, ça ne peut pas être les deux, donc on vérifie que planRepo et planGroup ne sont pas tous les deux renseignés en même temps :
-         */
-        if (!empty($this->repo->getName()) and !empty($this->group->getName())) {
-            throw new Exception("It is not possible to process both a repo and a group");
-        }
-    }
-
     /**
      *  Récupération de la liste des repo dans le groupe
      */
     private function getGroupRepoList()
     {
+        $myrepoListing = new \Controllers\Repo\Listing();
+
         /**
          *  On récupère tous les repos membres du groupe
          */
-        $repos = $this->repo->listNameByGroup($this->group->getName());
+        $repos = $myrepoListing->listNameByGroup($this->group->getName());
 
         if (empty($repos)) {
-            throw new Exception("No repo has been found in group <b>" . $this->group->getName() . "</b>");
+            throw new Exception('No repository found in ' . $this->group->getName() . ' group');
         }
 
         return $repos;
@@ -1309,6 +1026,14 @@ class Planification
     }
 
     /**
+     *  Return log file name of all operations launched by this planification
+     */
+    private function getOperationLogName(int $id)
+    {
+        return $this->model->getOperationLogName($id);
+    }
+
+    /**
     *   Récupère toutes les infos d'une planification
     *   Un objet Operation doit avoir été instancié pour récupérer les infos concernant le repo concerné par cette planification
     */
@@ -1321,6 +1046,11 @@ class Planification
          */
 
         /**
+         *  Type de planification
+         */
+        $this->setType($planInfo['Type']);
+
+        /**
          *  La date et l'heure sont utiles à récupérer pour la génération des rappels
          */
         if (!empty($planInfo['Date'])) {
@@ -1329,11 +1059,6 @@ class Planification
         if (!empty($planInfo['Time'])) {
             $this->setTime($planInfo['Time']);
         }
-
-        /**
-         *  Type de planification
-         */
-        $this->setType($planInfo['Type']);
 
         /**
          *  Fréquence d'exécution (si type 'regular')
@@ -1352,7 +1077,7 @@ class Planification
          */
         if (!empty($planInfo['Id_snap'])) {
             $this->repo->setSnapId($planInfo['Id_snap']);
-            $this->repo->getAllById('', $this->repo->getSnapId(), '');
+            $this->repo->getAllById(null, $this->repo->getSnapId());
         }
         if (!empty($planInfo['Id_group'])) {
             $this->group->setId($planInfo['Id_group']);
@@ -1403,8 +1128,82 @@ class Planification
     /**
      *  Passe le status d'une planification en stopped
      */
-    public function stopPlan(string $planId)
+    public function stop(string $planId)
     {
         $this->model->setStatus($planId, 'stopped');
+    }
+
+    /**
+     *  Check planification params
+     */
+    private function paramCheck()
+    {
+        if (PLANS_ENABLED != 'true') {
+            throw new Exception('Planifications are disabled');
+        }
+
+        if (empty($this->action)) {
+            throw new Exception('No action specified');
+        }
+
+        if (!in_array($this->action, $this->validActions)) {
+            throw new Exception('Action is invalid');
+        }
+
+        /**
+         *  Action param check
+         */
+        if ($this->action == 'update') {
+            if (PLANS_UPDATE_REPO != 'true') {
+                throw new Exception('Planification is not allowed to update repositories');
+            }
+
+            if (empty($this->targetGpgCheck)) {
+                throw new Exception('Source repository GPG signature check is not specified');
+            }
+
+            if (empty($this->targetGpgResign)) {
+                throw new Exception('Repository GPG signing is not specified');
+            }
+        }
+
+        /**
+         *  Check if repo or group is specified
+         */
+        if (empty($this->repo->getName()) and empty($this->group->getName())) {
+            throw new Exception('Repository or group not specified');
+        }
+
+        /**
+         *  Either repo or group can be specified, not both
+         */
+        if (!empty($this->repo->getName()) and !empty($this->group->getName())) {
+            throw new Exception('Both repository and group cannot be specified');
+        }
+
+        /**
+         *  If repo is specified, check if it exists (it may have been deleted since the planification was created)
+         */
+        if (!empty($this->repo->getName())) {
+            /**
+             *  Check if snapshot id exists
+             */
+            if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
+                throw new Exception('Snapshot id ' . $this->repo->getSnapId() . ' does not exist');
+            }
+        }
+
+        /**
+         *  If group is specified, check if it exists (it may have been deleted since the planification was created)
+         *  Then get the whole group list
+         */
+        if (!empty($this->group->getName())) {
+            /**
+             *  Check if group id exists
+             */
+            if ($this->group->existsId($this->group->getId()) === false) {
+                throw new Exception('Group id ' . $this->group->getId() . ' does not exist');
+            }
+        }
     }
 }

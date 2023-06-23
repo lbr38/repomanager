@@ -1,7 +1,7 @@
 <div class="reloadable-container" container="plans/history">
     <?php
     if (!empty($plansDone)) : ?>
-        <h3>PLAN HISTORY</h3>
+        <h3>HISTORY</h3>
         <div class="div-generic-blue">
             <?php
             foreach ($plansDone as $plan) :
@@ -110,9 +110,16 @@
                         /**
                          *  Si la planification est en erreur alors on affiche le message d'erreur
                          */
-                        if ($planStatus == "error") {
-                            echo "<p>$planError</p>";
-                        }
+                        if ($planStatus == "error" and (!empty($planError))) {
+                            echo '<p>' . $planError . '<br><br></p>';
+                        } ?>
+
+                        <div>
+                            <span>Action</span>
+                            <span><?= $planAction ?></span>
+                        </div>
+                        
+                        <?php
                         if ($planAction == "update") : ?>
                             <div>
                                 <span>Check GPG signatures</span>
@@ -199,7 +206,7 @@
                             <?php
                             if (!empty($planLogfile)) {
                                 echo '<span>Log</span>';
-                                echo "<span><a href='/run?view-logfile=$planLogfile'><button class='btn-small-green'><b>Check log</b></button></a></></span>";
+                                echo "<span><a href='/run?view-logfile=$planLogfile'><button class='btn-small-green'><b>Visualize</b></button></a></></span>";
                             } ?>
                         </div>
                     </div>

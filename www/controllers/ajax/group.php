@@ -58,7 +58,7 @@ if ($action == "editGroupRepos" and !empty($_POST['name'])) {
         $reposId = $_POST['reposId'];
     }
 
-    $myrepo = new \Controllers\Repo('repo');
+    $myrepo = new \Controllers\Repo\Repo('repo');
 
     try {
         $myrepo->addReposIdToGroup($reposId, $_POST['name']);

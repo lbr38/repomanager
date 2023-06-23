@@ -1,8 +1,6 @@
 <?php
 
-namespace Controllers\Autoloader\Constant;
-
-use Exception;
+namespace Controllers\App\Config;
 
 class System
 {
@@ -11,8 +9,10 @@ class System
      */
     public static function get()
     {
+        setlocale(LC_ALL, 'en_EN');
+
         /**
-         *  Protocol (http ou https)
+         *  Protocol (http/https)
          */
         if (!defined('__SERVER_PROTOCOL__')) {
             if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
@@ -23,7 +23,7 @@ class System
         }
 
         /**
-         *  Url du serveur
+         *  Server url
          */
         if (!empty($_SERVER['SERVER_NAME'])) {
             if (!defined('__SERVER_URL__')) {
@@ -32,7 +32,7 @@ class System
         }
 
         /**
-         *  Adresse IP du serveur
+         *  Server IP
          */
         if (!empty($_SERVER['SERVER_ADDR'])) {
             if (!defined('__SERVER_IP__')) {
@@ -40,7 +40,7 @@ class System
             }
         }
         /**
-         *  URL + URI complètes
+         *  URL + URI
          */
         if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
             if (!defined('__ACTUAL_URL__')) {
@@ -57,7 +57,7 @@ class System
             }
         }
         /**
-         *  Paramètres
+         *  Parameters
          */
         if (!empty($_SERVER['QUERY_STRING'])) {
             if (!defined('__QUERY_STRING__')) {
@@ -66,7 +66,7 @@ class System
         }
 
         /**
-         *  Récupération du nom et de la version de l'OS, le tout étant retourné sous forme d'array dans $OS_INFO
+         *  Retrieve OS name and version
          */
         if (!is_readable('/etc/os-release')) {
             echo 'Error: cannot determine OS release';
@@ -120,11 +120,8 @@ class System
             }
         }
 
-        /**
-         *  A partir d'ici si OS_FAMILY n'est pas défini alors le système sur lequel est installé Repomanager est incompatible
-         */
         if (!defined('OS_FAMILY')) {
-            die('Error: Repomanager is not compatible with this system');
+            die('Error: system is not compatible');
         }
 
         if (!defined('OS_NAME')) {

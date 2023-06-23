@@ -346,10 +346,13 @@ class Host
                 if ($this->component == 'request' and $this->method == 'PUT') {
                     /**
                      *  https://repomanager.mydomain.net/api/v2/host/request/packages-update
+                     *  https://repomanager.mydomain.net/api/v2/host/request/general-status-update
+                     *  https://repomanager.mydomain.net/api/v2/host/request/packages-status-update
+                     *  https://repomanager.mydomain.net/api/v2/host/request/full-history-update
                      */
                     if (!empty($this->data->status) and ($this->action == 'packages-update' or $this->action == 'general-status-update' or $this->action == 'packages-status-update' or $this->action == 'full-history-update') and $this->method == 'PUT') {
                         try {
-                            $this->hostController->setUpdateRequestStatus($this->action, $this->data->status);
+                            $this->hostController->acknowledgeRequest($this->action, $this->data->status);
                             return array('message' => 'Acknowledge has been taken into account.');
                         } catch (Exception $e) {
                             throw new Exception($e->getMessage());

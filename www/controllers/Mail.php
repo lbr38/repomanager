@@ -2,61 +2,74 @@
 
 namespace Controllers;
 
-use Exception;
+require_once(ROOT . '/libs/PHPMailer/Exception.php');
+require_once(ROOT . '/libs/PHPMailer/PHPMailer.php');
+require_once(ROOT . '/libs/PHPMailer/SMTP.php');
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class Mail
 {
-    private $to;
-    private $preview;
-    private $subject;
-    private $message;
-    private $link;
-    private $linkName = 'Click here';
-    private $headers;
-
-    public function __construct(string|array $to, string $subject, string $message, string $link = null, string $linkName = null)
+    public function __construct(string $to, string $subject, string $content, string $link = null, string $linkName = 'Click here', string $attachmentFilePath = null)
     {
         if (empty($to)) {
-            throw new Exception('Error: mail recipient cannot be empty');
+            throw new \Exception('Error: mail recipient cannot be empty');
         }
         if (empty($subject)) {
-            throw new Exception('Error: mail subject cannot be empty');
+            throw new \Exception('Error: mail subject cannot be empty');
         }
-        if (empty($message)) {
-            throw new Exception('Error: mail message cannot be empty');
-        }
-        if (!empty($link)) {
-            $this->link = $link;
-        }
-        if (!empty($linkName)) {
-            $this->linkName = $linkName;
+        if (empty($content)) {
+            throw new \Exception('Error: mail message cannot be empty');
         }
 
-        if (is_array($to)) {
-            $to = implode(',', $to);
+        /**
+         *  if there is a , in the $to string, it means there are multiple recipients
+         */
+        if (strpos($to, ',') !== false) {
+            $to = explode(',', $to);
         }
 
-        $this->to = $to;
-        $this->subject = $subject;
-        $this->message = $message;
-        $this->headers[] = 'MIME-Version: 1.0';
-        $this->headers[] = 'Content-type: text/html; charset=utf8';
-        $this->headers[] = "From: noreply@" . WWW_HOSTNAME;
-        $this->headers[] = "X-Sender: noreply@" . WWW_HOSTNAME;
-        $this->headers[] = "Reply-To: noreply@" . WWW_HOSTNAME;
-    }
-
-    /**
-     *  Send the email
-     */
-    public function send()
-    {
+        /**
+         *  HTML message template
+         *  Powered by MJML
+         */
         ob_start();
-        include_once(ROOT . '/templates/mail/mail.template.html.php');
+        include(ROOT . '/templates/mail/mail.template.html.php');
         $template = ob_get_clean();
 
-        if (!mail($this->to, $this->subject, $template, implode("\r\n", $this->headers), '-fnoreply@' . WWW_HOSTNAME)) {
-            throw new Exception('Error: cannot send email');
+        /**
+         *  PHPMailer
+         */
+        $mail = new PHPMailer(true);
+
+        try {
+            // Recipients
+            $mail->setFrom('noreply@' . WWW_HOSTNAME, PROJECT_NAME);
+
+            if (is_array($to)) {
+                foreach ($to as $recipient) {
+                    $mail->addAddress($recipient);
+                }
+            } else {
+                $mail->addAddress($to);
+            }
+
+            $mail->addReplyTo('noreply@' . WWW_HOSTNAME, PROJECT_NAME);
+
+            // Attachments
+            if (!empty($attachmentFilePath)) {
+                $mail->addAttachment($attachmentFilePath);
+            }
+
+            // Content
+            $mail->isHTML(true); //Set email format to HTML
+            $mail->Subject = $subject;
+            $mail->Body    = $template;
+
+            $mail->send();
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
     }
 }

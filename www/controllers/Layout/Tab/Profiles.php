@@ -15,7 +15,8 @@ class Profiles
         }
 
         $myprofile = new \Controllers\Profile();
-        $myrepo = new \Controllers\Repo();
+        $myrepo = new \Controllers\Repo\Repo();
+        $myrepoListing = new \Controllers\Repo\Listing();
 
         $serverConfiguration = $myprofile->getServerConfiguration();
         $serverPackageType = $serverConfiguration['Package_type'];

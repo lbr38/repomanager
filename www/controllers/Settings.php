@@ -297,6 +297,6 @@ class Settings
         /**
          *  Clean repos list cache
          */
-        Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 }

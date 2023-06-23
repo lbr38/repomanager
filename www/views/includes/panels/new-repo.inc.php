@@ -16,13 +16,16 @@
                             <label for="packageType_rpm">rpm</label>
                             <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" />
                             <label for="packageType_deb">deb</label>
-                        <?php elseif (RPM_REPO == 'true') : ?>
+                            <?php
+                        elseif (RPM_REPO == 'true') : ?>
                             <input type="radio" id="packageType_rpm" class="operation_param" param-name="packageType" name="packageType" value="rpm" checked />
                             <label for="packageType_rpm">rpm</label>     
-                        <?php elseif (DEB_REPO == 'true') : ?>
+                            <?php
+                        elseif (DEB_REPO == 'true') : ?>
                             <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" checked />
                             <label for="packageType_deb">deb</label> 
-                        <?php endif ?>
+                            <?php
+                        endif ?>
                     </div>
                 </td>
             </tr>
@@ -40,7 +43,8 @@
             <tr field-type="mirror rpm deb">
                 <td class="td-30">Source repo</td>
                 <td>
-                    <?php if (RPM_REPO == true) : ?>
+                    <?php
+                    if (RPM_REPO == 'true') : ?>
                         <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror rpm" package-type="rpm">
                             <option value="">Select a source repo...</option>
                             <?php
@@ -52,6 +56,7 @@
                         </select>
                         <?php
                     endif;
+
                     if (DEB_REPO == 'true') : ?>
                         <select id="repoSourceSelect" class="operation_param" param-name="source" field-type="mirror deb" package-type="deb">
                             <option value="">Select a source repo...</option>
@@ -76,16 +81,41 @@
                     <input type="text" class="operation_param" param-name="alias" package-type="all" />
                 </td>
             </tr>
-            <tr field-type="mirror local deb">
-                <td class="td-30">Distribution</td>
+            <tr field-type="mirror local rpm">
+                <td class="td-30">Release version</td>
                 <td>
-                    <input type="text" class="operation_param" param-name="dist" package-type="deb" />
+                    <select class="operation_param" param-name="releasever" package-type="rpm" multiple>
+                        <option value="7">7 (Redhat 7 and derivatives)</option>
+                        <option value="8">8 (Redhat 8 and derivatives)</option>
+                        <option value="9">9 (Redhat 9 and derivatives)</option>
+                    </select>
                 </td>
             </tr>
             <tr field-type="mirror local deb">
+                <td class="td-30">Distribution</td>
+                <td>
+                    <select class="operation_param" param-name="dist" package-type="deb" multiple>
+                        <optgroup label="Debian">
+                            <option value="buster">buster (Debian 10)</option>
+                            <option value="bullseye">bullseye (Debian 11)</option>
+                            <option value="bullseye">bookworm (Debian 12)</option>
+                        </optgroup>
+                        <optgroup label="Ubuntu">
+                            <option value="focal">focal (Ubuntu 20.04)</option>
+                            <option value="jammy">jammy (Ubuntu 22.04)</option>
+                        </optgroup>
+                    </select>
+                </td>
+            </tr>
+
+            <tr field-type="mirror local deb">
                 <td class="td-30">Section</td>
                 <td>
-                    <input type="text" class="operation_param" param-name="section" package-type="deb" />
+                    <select class="operation_param" param-name="section" package-type="deb" multiple>
+                        <option value="main">main</option>
+                        <option value="contrib">contrib</option>
+                        <option value="non-free">non-free</option>
+                    </select>
                 </td>
             </tr>
             <tr>
