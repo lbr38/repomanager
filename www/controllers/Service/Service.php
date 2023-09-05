@@ -149,7 +149,7 @@ class Service
 
             curl_setopt($this->curlHandle, CURLOPT_URL, 'https://raw.githubusercontent.com/lbr38/repomanager/stable/www/version');
             curl_setopt($this->curlHandle, CURLOPT_FILE, $outputFile);
-            curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 30);
+            curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 120);
 
             /**
              *  Execute curl
@@ -346,7 +346,7 @@ class Service
              */
             echo "Running service with parameter '" . $parameter . "'..." . PHP_EOL;
 
-            $myprocess = new \Controllers\Process("php /var/www/repomanager/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
+            $myprocess = new \Controllers\Process("php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();
             $myprocess->close();
         } catch (Exception $e) {

@@ -91,6 +91,8 @@ function searchHost()
     var filter_type = '';
     var filter_kernel = '';
     var filter_arch = '';
+    var filter_agent_version = '';
+    var filter_reboot_required = '';
 
     /**
      *  Si l'input est vide, on quitte
@@ -103,6 +105,8 @@ function searchHost()
         $(".host-tr").show();
         return;
     }
+
+    printLoading();
 
     /**
      *  Récupération du terme recherché dans l'input
@@ -170,11 +174,25 @@ function searchHost()
         // On supprime le filtre de la recherche globale
         search = search.replaceAll('ARCH:' + filter_arch, '');
     }
+    if (search.includes("AGENT_VERSION:")) {
+        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        filter_agent_version = search.split('AGENT_VERSION:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('AGENT_VERSION:' + filter_agent_version, '');
+    }
+    if (search.includes("REBOOT_REQUIRED:")) {
+        // On récupère l'arch recherchée en récupérant le terme qui suit 'arch:'
+        filter_reboot_required = search.split('REBOOT_REQUIRED:')[1].split(" ")[0];
+        // On supprime le filtre de la recherche globale
+        search = search.replaceAll('REBOOT_REQUIRED:' + filter_reboot_required, '');
+    }
+
     /**
      *  L'utilisation de filtre peut laisser des espaces blancs
      *  Suppression de tous les espaces blancs de la recherche globale
      */
     search = search.replaceAll(' ', '');
+
     /**
      *  Si un filtre a été précisé alors on récupère uniquement les tr '.host-tr' correspondant à ce filtre
      */
@@ -202,6 +220,14 @@ function searchHost()
         tr = $('.host-tr').filter(function () {
             return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
         });
+    } else if (filter_agent_version != "") {
+        tr = $('.host-tr').filter(function () {
+            return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
+        });
+    } else if (filter_reboot_required != "") {
+        tr = $('.host-tr').filter(function () {
+            return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
+        });
     /**
      *  Si aucun filtre n'a été précisé alors on récupère tous les tr .host-tr
      */
@@ -228,6 +254,8 @@ function searchHost()
      *  Masquage des div de groupes dont tous les tr ont été masqués
      */
     hideGroupDiv();
+
+    hideLoading();
 }
 
 /**
@@ -245,6 +273,8 @@ function getHostsWithPackage()
     }
 
     getHostsWithPackage_locked = true;
+
+    printLoading();
 
     /**
      *  A chaque saisie on (ré)-affiche tous les éléments masquées
@@ -287,6 +317,8 @@ function getHostsWithPackage()
 
         getHostsWithPackage_locked = false;
 
+        hideLoading();
+
     },1000);
 }
 
@@ -328,13 +360,19 @@ function hideGroupDiv()
 /**
  *  Event: Search hosts on 'kernel' mouse hover
  */
-$(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function () {
+$(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",function (e) {
     var kernel = $(this).attr('kernel');
 
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+
+    $('.hosts-charts-list-label-hosts-list').css({
+        top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+        left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() / 2
+    });
+
     $('.hosts-charts-list-label-hosts-list').show();
 
     getHostWithKernel(kernel);
@@ -343,13 +381,19 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
 /**
  *  Event: Search hosts on 'profile' mouse hover
  */
-$(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",function () {
+$(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",function (e) {
     var profile = $(this).attr('profile');
 
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $(this).append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+
+    $('.hosts-charts-list-label-hosts-list').css({
+        top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+        left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() / 2
+    });
+
     $('.hosts-charts-list-label-hosts-list').show();
 
     getHostWithProfile(profile);
@@ -610,7 +654,7 @@ $(document).on('click','.getPackageTimeline',function () {
 /**
  *  Event : Afficher le détail d'un évènement : liste les paquets installés ou mis à jour, etc... au passage de la souris
  */
-$(document).on('mouseenter', '.showEventDetailsBtn', function () {
+$(document).on('mouseenter', '.showEventDetailsBtn', function (e) {
     /**
      *  Si un span showEventDetails a déjà été généré dans le DOM alors on le détruit
      */
@@ -628,12 +672,25 @@ $(document).on('mouseenter', '.showEventDetailsBtn', function () {
     var packageState = $(this).attr('package-state');
 
     /**
-     *  On crée un nouveau span showEventDetails
+     *  Create a new <div> showEventDetails
      */
-    $(this).append('<span class="showEventDetails">Loading<img src="assets/images/loading.gif" class="icon"/></span>');
+    $('footer').append('<div class="showEventDetails">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+
+    $('.showEventDetails').css({
+        top: e.pageY - $('.showEventDetails').height() / 2,
+        left: e.pageX - $('.showEventDetails').width() / 2
+    });
+
     $('.showEventDetails').show();
 
     getEventDetails(hostId, eventId, packageState);
+});
+
+/**
+ *  Event: Remove showEventDetails <div> from the DOM when mouse has leave
+ */
+$(document).on('mouseleave', '.showEventDetails', function () {
+    $('.showEventDetails').remove();
 });
 
 /**

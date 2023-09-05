@@ -6,7 +6,7 @@ class Stats
 {
     public static function render()
     {
-        $myrepo = new \Controllers\Repo();
+        $myrepo = new \Controllers\Repo\Repo();
         $mystats = new \Controllers\Stat();
 
         $repoError = 0;

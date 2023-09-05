@@ -21,9 +21,11 @@
             $env              = $hostProperties['Env'];
             $status           = $hostProperties['Status'];
             $agentStatus      = $hostProperties['Online_status'];
+            $agentVersion     = $hostProperties['Linupdate_version'];
+            $rebootRequired   = $hostProperties['Reboot_required'];
 
             /**
-             *  Checking that the last time the agent has sended his status was before 1h10m
+             *  Checking that the last time the agent has sent his status was before 1h10m
              */
             if ($hostProperties['Online_status_date'] != DATE_YMD or $hostProperties['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
                 $agentStatus = 'seems-stopped';
@@ -244,6 +246,19 @@
                         </span>
                     </td>
                 </tr>
+                <tr>
+                    <td>AGENT VERSION</td>
+                    <td>
+                        <span class="label-black">
+                            <?php
+                            if (!empty($agentVersion)) {
+                                echo $agentVersion;
+                            } else {
+                                echo 'Unknow';
+                            } ?>
+                        </span>
+                    </td>
+                </tr>
             </table>
         </div>
         <div>
@@ -260,14 +275,12 @@
             <table class="hosts-table">
                 <thead>
                     <tr>
-                        <td></td>
                         <th>To update</th>
                         <th>Total installed</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td></td>
                         <td>
                         <?php
                         if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
@@ -300,6 +313,7 @@
             <div id="packagesContainer">
                 <span id="packagesContainerLoader">Loading <img src="assets/images/loading.gif" class="icon" /></span>
                 <div id="packagesAvailableDiv" class="hide">
+                    <h4>Package to update</h4>
                     <table class="packages-table">
                         <thead>
                             <tr>
@@ -328,7 +342,7 @@
                 </div>
 
                 <div id="packagesInstalledDiv" class="hide">
-                    <h4>Package inventory of this host</h4>
+                    <h4>Package inventory</h4>
                     <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Search...">
                     <table id="packagesIntalledTable" class="packages-table">
                         <thead>
@@ -402,7 +416,7 @@
                         echo '<p>No history</p>';
                     } else { ?>
                         <div class="flex align-item-center column-gap-4">
-                            <span>Show sended requests</span>
+                            <span>Show sent requests</span>
                             <label class="onoff-switch-label">
                                 <input id="showUpdateRequests" type="checkbox" name="" class="onoff-switch-input" <?php echo (!empty($_COOKIE['showUpdateRequests']) and $_COOKIE['showUpdateRequests'] == "yes") ? 'checked' : ''; ?>>
                                 <span class="onoff-switch-slider"></span>

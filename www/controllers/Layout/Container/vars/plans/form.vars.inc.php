@@ -1,12 +1,12 @@
 <?php
-$myrepo = new \Controllers\Repo();
+$myrepoListing = new \Controllers\Repo\Listing();
 $mygroup = new \Controllers\Group('repo');
 $mylogin = new \Controllers\Login();
 
 /**
  *  Get list of repos with at least DEFAULT_ENV
  */
-$reposList = $myrepo->listForPlan();
+$reposList = $myrepoListing->listForPlan();
 
 /**
  *  Get repos groups list
@@ -18,4 +18,4 @@ $groupsList = $mygroup->listAll();
  */
 $usersEmail = $mylogin->getEmails();
 
-unset($myrepo, $mygroup, $mylogin);
+unset($myrepoListing, $mygroup, $mylogin);

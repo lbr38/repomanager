@@ -1,6 +1,6 @@
 {
     "NT01" : {
-        "title" : "Important change",
-        "message" : "The decision has been made to provide a docker image to simplify the installation of Repomanager and to only provide docker image updates in the future. No more updates will be provided for local installations.<br>See <a href='https://github.com/lbr38/repomanager/releases/tag/3.5.0'>3.5.0 changelog</a>"
+        "title" : "Welcome to Repomanager",
+        "message" : "Hey! This is the notification section, sometimes you will see some important messages here. <br><br>For any help, please check out the <a href='https://github.com/lbr38/repomanager/wiki'>documentation</a> or feel free to add an issue on <a href='https://github.com/lbr38/repomanager/issues'>github</a>."
     }
 }

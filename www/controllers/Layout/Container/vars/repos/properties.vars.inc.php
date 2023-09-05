@@ -1,5 +1,5 @@
 <?php
-$myrepo = new \Controllers\Repo();
+$myrepo = new \Controllers\Repo\Repo();
 $myplan = new \Controllers\Planification();
 
 /**

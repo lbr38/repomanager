@@ -168,7 +168,7 @@
                                     <span>Manage groups</span>
                                 </div>
 
-                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-display" title="Edit display settings">
+                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-settings" title="Edit display settings">
                                     <img src="assets/icons/cog.svg" />
                                     <span>Settings</span>
                                 </div>
@@ -187,7 +187,7 @@
                                 <div class="searchInput-subcontainer">
                                     <div>
                                         <p>
-                                            <img src="assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>" />Search host:                                            
+                                            <img src="assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version>&#13;reboot_required:<true/false>" />Search host:                                            
                                         </p>
                                         <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                     </div>
@@ -260,10 +260,10 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td></td>
+                                                    <td>Type</td>
+                                                    <td>Agent</td>
                                                     <td title="Total installed packages."><span>Inst.</span></td>
                                                     <td title="Total available updates."><span>Avail.</span></td>
-                                                    <td></td>
                                                     <?php
                                                     if (IS_ADMIN) : ?>
                                                         <td>
@@ -333,6 +333,17 @@
                                                     } else {
                                                         $env = 'unknow';
                                                     }
+                                                    if (!empty($host['Linupdate_version'])) {
+                                                        $agentVersion = $host['Linupdate_version'];
+                                                    } else {
+                                                        $agentVersion = 'unknow';
+                                                    }
+                                                    if (!empty($host['Reboot_required'])) {
+                                                        $rebootRequired = $host['Reboot_required'];
+                                                    } else {
+                                                        $rebootRequired = 'unknow';
+                                                    }
+
                                                     /**
                                                      *  On défini le status de l'agent
                                                      *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
@@ -383,7 +394,7 @@
                                                      *  Affichage des informations de l'hôte
                                                      *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
                                                      */ ?>
-                                                    <tr class="host-tr" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>">
+                                                    <tr class="host-tr" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
                                                         <td>
                                                             <?php
                                                             /**
@@ -426,37 +437,40 @@
                                                              */
                                                             $tooltip  = 'Hostname: '. $hostname . '&#10;';
                                                             $tooltip .= 'IP: '. $ip . '&#10;';
-                                                            $tooltip .= 'OS Family: '. $os_family . '&#10;';
-                                                            $tooltip .= 'OS: '. $os . ' ' . $os_version . '&#10;';
+                                                            $tooltip .= 'OS Family: '. ucfirst($os_family) . '&#10;';
+                                                            $tooltip .= 'OS: '. ucfirst($os) . ' ' . $os_version . '&#10;';
                                                             $tooltip .= 'Kernel: '. $kernel . '&#10;';
                                                             $tooltip .= 'Arch: '. $arch . '&#10;';
                                                             $tooltip .= 'Profile: '. $profile . '&#10;';
-                                                            $tooltip .= 'Env: '. $env . '&#10;';
-                                                            echo '<span title="' . $tooltip . '">' . $hostname . ' (' . $ip . ')</span>'; ?>
+                                                            $tooltip .= 'Env: '. $env . '&#10;'; ?>
+                                            
+                                                            <span title="<?= $tooltip ?>">
+                                                                <a href="/host?id=<?= $id ?>" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a> (<?= $ip ?>)
+                                                            </span>
                                                         </td>
                                                         <td class="hostType-td">
-                                                            <span title="Type <?=$type?>"><?=$type?></span>
+                                                            <span class="label-black font-size-11" title="Type <?= $type ?>"><?= $type ?></span>
                                                         </td>
-                                                        <td class="packagesCount-td" title="<?=$packagesInstalledTotal . ' installed package(s) on this host.'?>">
-                                                            <span><?= $packagesInstalledTotal ?></span>
+                                                        <td>
+                                                            <span class="label-black font-size-11" title="Host agent version"><?= $agentVersion ?></span>
                                                         </td>
-                                                        <td class="packagesCount-td" title="<?=$packagesAvailableTotal . ' available update(s) on this host.'?>">
+                                                        <td class="packagesCount-td" title="<?= $packagesInstalledTotal . ' installed package(s) on this host.'?>">
+                                                            <span class="label-white font-size-11"><?= $packagesInstalledTotal ?></span>
+                                                        </td>
+                                                        <td class="packagesCount-td" title="<?= $packagesAvailableTotal . ' available update(s) on this host.'?>">
                                                             <?php
                                                             if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
-                                                                echo '<span class="bkg-red">' . $packagesAvailableTotal . '</span>';
+                                                                echo '<span class="label-white font-size-11 bkg-red">' . $packagesAvailableTotal . '</span>';
                                                             } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
-                                                                echo '<span class="bkg-yellow">' . $packagesAvailableTotal . '</span>';
+                                                                echo '<span class="label-white font-size-11 bkg-yellow">' . $packagesAvailableTotal . '</span>';
                                                             } else {
-                                                                echo '<span>' . $packagesAvailableTotal . '</span>';
+                                                                echo '<span class="label-white font-size-11">' . $packagesAvailableTotal . '</span>';
                                                             } ?>
-                                                        </td>
-                                                        <td title="Check the details for this host.">
-                                                            <a href="/host?id=<?=$id?>" target="_blank" rel="noopener noreferrer" class="lowopacity">Details<img src="assets/icons/external-link.svg" class="icon" /></a>
                                                         </td>
                                                         <?php
                                                         if (IS_ADMIN) : ?>
-                                                            <td title="Select <?=$hostname?>">
-                                                                <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?=$groupName?>" value="<?=$id?>">
+                                                            <td title="Select <?= $hostname ?>">
+                                                                <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?= $groupName ?>" value="<?= $id ?>">
                                                             </td>
                                                             <?php
                                                         endif ?>

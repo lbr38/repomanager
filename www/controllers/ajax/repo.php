@@ -4,7 +4,7 @@
  *  Edit a repo description
  */
 if ($_POST['action'] == "setRepoDescription" and !empty($_POST['envId']) and isset($_POST['description'])) {
-    $myrepo = new \Controllers\Repo();
+    $myrepo = new \Controllers\Repo\Repo();
 
     try {
         $myrepo->envSetDescription($_POST['envId'], $_POST['description']);

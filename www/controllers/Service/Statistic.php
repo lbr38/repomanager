@@ -9,13 +9,13 @@ class Statistic extends Service
 {
     protected $logController;
     private $statController;
-    private $repoController;
+    private $repoListingController;
 
     public function __construct()
     {
         $this->logController = new \Controllers\Log\Log();
         $this->statController = new \Controllers\Stat();
-        $this->repoController = new \Controllers\Repo();
+        $this->repoListingController = new \Controllers\Repo\Listing();
     }
 
     /**
@@ -56,7 +56,7 @@ class Statistic extends Service
         /**
          *  Get all repos
          */
-        $reposList = $this->repoController->list();
+        $reposList = $this->repoListingController->list();
 
         if (!empty($reposList)) {
             try {

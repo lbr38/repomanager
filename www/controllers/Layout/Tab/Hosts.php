@@ -99,6 +99,7 @@ class Hosts
 
         if (IS_ADMIN) {
             \Controllers\Layout\Panel\HostGroup::render();
+            \Controllers\Layout\Panel\HostSettings::render();
         }
     }
 }

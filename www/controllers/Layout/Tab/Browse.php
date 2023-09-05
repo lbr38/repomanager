@@ -6,8 +6,8 @@ class Browse
 {
     public static function render()
     {
-        $myrepo = new \Controllers\Repo();
-        $myop = new \Controllers\Operation();
+        $myrepo = new \Controllers\Repo\Repo();
+        $myop = new \Controllers\Operation\Operation();
 
         /**
          *  Cas où on souhaite reconstruire les fichiers de métadonnées du repo

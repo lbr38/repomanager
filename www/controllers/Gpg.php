@@ -223,7 +223,7 @@ class Gpg
         /**
          *  If file exists but is empty, delete it
          */
-        if (filesize(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') == 0) {
+        if (file_exists(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') && filesize(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub') == 0) {
             unlink(REPOS_DIR . '/gpgkeys/' . WWW_HOSTNAME . '.pub');
         }
 

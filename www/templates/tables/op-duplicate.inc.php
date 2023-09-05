@@ -8,33 +8,33 @@
             <th>SOURCE REPO</th>
             <td>
                 <?php
-                if ($this->packageType == "rpm") {
-                    echo '<span class="label-white">' . $this->name . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>';
+                if ($this->repo->getPackageType() == "rpm") {
+                    echo '<span class="label-white">' . $this->repo->getName() . '</span>⟶<span class="label-black">' . $this->repo->getDateFormatted() . '</span>';
                 }
-                if ($this->packageType == "deb") {
-                    echo '<span class="label-white">' . $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section . '</span>⟶<span class="label-black">' . $this->dateFormatted . '</span>';
+                if ($this->repo->getPackageType() == "deb") {
+                    echo '<span class="label-white">' . $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection() . '</span>⟶<span class="label-black">' . $this->repo->getDateFormatted() . '</span>';
                 } ?>
             </td>
         </tr>
 
         <tr>
             <th>NEW REPO NAME</th>
-            <td><span class="label-white"><?= $this->targetName ?></span></td>
+            <td><span class="label-white"><?= $this->repo->getTargetName() ?></span></td>
         </tr>
 
         <?php
-        if (!empty($this->targetDescription)) : ?>
+        if (!empty($this->repo->getTargetDescription())) : ?>
             <tr>
                 <th>DESCRIPTION</th>
-                <td><?= $this->targetDescription ?></td>
+                <td><?= $this->repo->getTargetDescription() ?></td>
             </tr>
             <?php
         endif;
 
-        if (!empty($this->targetGroup)) : ?>
+        if (!empty($this->repo->getTargetGroup())) : ?>
             <tr>
                 <th>ADD TO GROUP</th>
-                <td><span class="label-white"><?= $this->targetGroup ?></span></td>
+                <td><span class="label-white"><?= $this->repo->getTargetGroup() ?></span></td>
             </tr>
             <?php
         endif ?>

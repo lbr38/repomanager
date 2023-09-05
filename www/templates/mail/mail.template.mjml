@@ -1,0 +1,27 @@
+<mjml>
+    <mj-body width="600px" background-color="#112334">
+        <mj-section>
+            <mj-column width="100%">
+                <mj-image width="150px" align="center" src="https://github.com/lbr38/repomanager/raw/stable/www/public/assets/images/repomanager.png"></mj-image>
+            </mj-column>
+        </mj-section>
+    
+        <mj-section>
+            <mj-column background-color="#ffffff" width="500px" padding-top="30px" padding-right="30px" padding-bottom="30px" padding-left="30px" border-radius="10px" >
+
+                <mj-text font-size="14px" color="#666666" font-family="helvetica"> $content </mj-text>
+
+                <mj-button background-color="#15bf7f" href="$link"> $linkName </mj-button>
+
+            </mj-column>
+        </mj-section>
+
+        <mj-section>
+            <mj-column width="100%">
+
+                <mj-text align="center" font-size="12px" color="#666666" font-family="helvetica">Project description<br>Github link</mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

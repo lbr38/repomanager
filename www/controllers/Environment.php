@@ -33,7 +33,7 @@ class Environment
         /**
          *  Clean repos list cache
          */
-        \Controllers\Common::clearCache();
+        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -73,7 +73,7 @@ class Environment
             /**
              *  Clean repos list cache
              */
-            \Controllers\Common::clearCache();
+            \Controllers\App\Cache::clear();
         }
     }
 

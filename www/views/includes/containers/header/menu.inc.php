@@ -129,7 +129,7 @@
 
                     <div id="header-refresh">
                         <?php
-                        $op = new \Controllers\Operation();
+                        $op = new \Controllers\Operation\Operation();
                         /**
                          *  On récupère les opérations ou les planifications en cours si il y en a
                          */
@@ -203,8 +203,8 @@
                                          */
                                         $op->printRepoOrGroup($opId); ?>
                                     </a>
-                                    <span title="Stop operation">
-                                        <a href="/run?stop=<?=$opPid?>"><img src="assets/icons/delete.svg" class="icon"></a>
+                                    <span title="Stop operation" class="kill-btn" pid="<?= $opPid ?>">
+                                        <img src="assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>
                                 <?php

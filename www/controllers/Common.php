@@ -113,37 +113,6 @@ class Common
     }
 
     /**
-     *  Suppression du "faux" cache ram du serveur
-     *  2 cas possibles :
-     *  il s'agit d'un répertoire classique sur le disque
-     *  ou il s'agit d'un lien symbolique vers /dev/smh (en ram)
-     */
-    public static function clearCache()
-    {
-        /**
-         *  Suppression de tous les fichiers commencant par 'repomanager-repos-list' dans le répertoire de cache
-         */
-        $files = glob(WWW_CACHE . '/repomanager-repos-*');
-
-        if (!empty($files)) {
-            foreach ($files as $file) {
-                if (file_exists($file)) {
-                    unlink($file);
-                }
-            }
-        }
-    }
-
-    public static function generateCache(string $role)
-    {
-        ob_start();
-        include(ROOT . '/views/includes/repos-list.inc.php');
-
-        $content = ob_get_clean();
-        file_put_contents(WWW_CACHE . '/repomanager-repos-list-' . $role . '.html', $content);
-    }
-
-    /**
      *  Fonction permettant d'afficher une bulle d'alerte en bas de l'écran
      */
     public static function printAlert(string $message, string $alertType = null)

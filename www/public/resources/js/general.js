@@ -36,6 +36,14 @@ $(document).keyup(function (e) {
 });
 
 /**
+ *  Event: stop operation
+ */
+$(document).on('click','.kill-btn',function () {
+    var pid = $(this).attr('pid');
+    stopOperation(pid);
+});
+
+/**
  * Ajax: Mark log as read
  * @param {string} id
  */
@@ -141,6 +149,32 @@ function getContainerState()
             });
         },
         error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ *  Ajax: Stop operation
+ *  @param {string} pid
+ */
+function stopOperation(pid)
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "operation",
+            action: "stopOperation",
+            pid: pid
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+        },
+        error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

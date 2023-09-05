@@ -21,8 +21,8 @@ if (!empty($groupsList)) {
         /**
          *  Récupération de la liste des repos du groupe
          */
-        $myrepo = new \Controllers\Repo();
-        $reposList = $myrepo->listByGroup($groupName);
+        $myrepoListing = new \Controllers\Repo\Listing();
+        $reposList = $myrepoListing->listByGroup($groupName);
 
         if (!empty($reposList)) {
             $reposList = \Controllers\Common::groupBy("Name", $reposList);
@@ -46,6 +46,7 @@ if (!empty($groupsList)) {
                     $printRepoName = 'yes';
                     $printRepoDist = 'yes';
                     $printRepoSection = 'yes';
+                    $printReleaseVersion = 'yes';
                     $printRepoEnv = 'yes';
                     $printEmptyLine = 'no';
 
@@ -67,6 +68,9 @@ if (!empty($groupsList)) {
                     if ($packageType == 'deb') {
                         $dist    = $repo['Dist'];
                         $section = $repo['Section'];
+                    }
+                    if ($packageType == 'rpm') {
+                        $releaseVersion = $repo['Releasever'];
                     }
                     if (!empty($repo['envId'])) {
                         $envId = $repo['envId'];
@@ -95,6 +99,9 @@ if (!empty($groupsList)) {
                     if ($packageType == 'rpm') {
                         if ($name == $repoLastName and !empty($lastSnapId) and $snapId != $lastSnapId) {
                             $printEmptyLine = 'yes';
+                        }
+                        if ($name == $repoLastName and !empty($releaseVersion) and $releaseVersion == $repoLastReleaseVersion) {
+                            $printReleaseVersion = 'no';
                         }
                     }
 
@@ -136,29 +143,27 @@ if (!empty($groupsList)) {
                         echo '<span>' . $name . '</span>';
                         echo '<div class="label-pkg-' . $packageType  . ' item-pkgtype" title="This repository contains ' . $packageType . ' packages"><img src="assets/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
                     }
-                    echo '</div>';
+                    echo '</div>'; ?>
 
-                    /**
-                     *  Nom de la distribution et de la section (Debian)
-                     */
-                    if ($packageType == "deb") {
-                        if ($printRepoDist == 'yes' or $printRepoSection == 'yes') {
-                            echo '<div class="item-dist-section">';
-                                echo '<div class="item-dist-section-sub">';
-                            if ($printRepoDist == 'yes') {
-                                echo '<span class="item-dist">' . $dist . '</span>';
+                    <div class="item-repo-version">
+                        <?php
+                        if ($packageType == "deb") {
+                            if ($printRepoDist == 'yes' or $printRepoSection == 'yes') {
+                                if ($printRepoDist == 'yes') {
+                                    echo '<span class="label-black font-size-12" title="Distribution">' . $dist . '</span>';
+                                }
+                                if ($printRepoSection == 'yes') {
+                                    echo '<span class="label-black font-size-12" title="Section">' . $section . '</span>';
+                                }
                             }
-                            if ($printRepoSection == 'yes') {
-                                echo '<span class="item-section">❯ ' . $section . '</span>';
-                            }
-                                echo '</div>';
-                            echo '</div>';
-                        } else {
-                            echo '<div class="item-dist-section"></div>';
                         }
-                    } else {
-                        echo '<div></div>';
-                    } ?>
+
+                        if ($packageType == "rpm") {
+                            if ($printReleaseVersion == 'yes') {
+                                echo '<div class="label-black font-size-12" title="Release version">' . $releaseVersion . '</div>';
+                            }
+                        } ?>
+                    </div>
                    
                     <div class="item-checkbox">
                         <?php
@@ -170,6 +175,7 @@ if (!empty($groupsList)) {
                              *  On affiche la checkbox que lorsque le snapshot est différent du précédent et qu'il n'y a pas d'opération en cours sur le snapshot
                              */
                             if ($snapId != $lastSnapId) :
+                                $myrepo = new \Controllers\Repo\Repo();
                                 if ($myrepo->snapOpIsRunning($snapId) === true) : ?>
                                     <img src="assets/images/loading.gif" class="icon" title="An operation is running on this repository snaphot." />
                                 <?php else : ?>
@@ -346,6 +352,9 @@ if (!empty($groupsList)) {
                     }
                     if (!empty($section)) {
                         $repoLastSection = $section;
+                    }
+                    if (!empty($releaseVersion)) {
+                        $repoLastReleaseVersion = $releaseVersion;
                     }
                     if (!empty($snapId)) {
                         $lastSnapId = $snapId;

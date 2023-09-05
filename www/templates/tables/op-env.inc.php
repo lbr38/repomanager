@@ -9,11 +9,11 @@
             <td>
                 <span class="label-white">
                     <?php
-                    if ($this->packageType == 'rpm') {
-                        echo $this->name;
+                    if ($this->repo->getPackageType() == 'rpm') {
+                        echo $this->repo->getName();
                     }
-                    if ($this->packageType == 'deb') {
-                        echo $this->name . ' ❯ ' . $this->dist . ' ❯ ' . $this->section;
+                    if ($this->repo->getPackageType() == 'deb') {
+                        echo $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection();
                     } ?>
                 </span>
             </td>
@@ -22,14 +22,14 @@
         <tr>
             <th>ENVIRONMENT</th>
             <td>
-                <span><?= \Controllers\Common::envtag($this->targetEnv)?></span>⟶<span class="label-black"><?=$this->dateFormatted?></span>
+                <span><?= \Controllers\Common::envtag($this->repo->getTargetEnv()) ?></span>⟶<span class="label-black"><?= $this->repo->getDateFormatted() ?></span>
             </td>
         </tr>
         <?php
-        if (!empty($this->targetDescription)) : ?>
+        if (!empty($this->repo->getTargetDescription())) : ?>
             <tr>
                 <th>DESCRIPTION</th>
-                <td><?=$this->targetDescription?></td>
+                <td><?= $this->repo->getTargetDescription() ?></td>
             </tr>
             <?php
         endif ?>

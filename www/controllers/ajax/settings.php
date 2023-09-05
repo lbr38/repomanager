@@ -4,15 +4,13 @@
  *  Send a test email
  */
 if ($action == "sendTestEmail") {
-    $mymail = new \Controllers\Mail(EMAIL_RECIPIENT, 'Test email', 'This is a test email sended from Repomanager.');
-
     try {
-        $mymail->send();
+        $mymail = new \Controllers\Mail(EMAIL_RECIPIENT, 'Test email', 'This is a test email sent by Repomanager.');
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Email sended');
+    response(HTTP_OK, 'Email sent');
 }
 
 /**

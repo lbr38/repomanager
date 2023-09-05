@@ -12,7 +12,11 @@ $logContent = '
 <div class="div-generic-blue">
     <table class="op-table">
         <tr>
-            <th>EXECUTED ON</td>
+            <th>ACTION</td>
+            <td><b>' . ucfirst($this->action) . '</b></td>
+        </tr>
+        <tr>
+            <th>EXECUTION</td>
             <td><b>' . DateTime::createFromFormat('Y-m-d', $this->log->getDate())->format('d-m-Y') . ' ' . DateTime::createFromFormat('H-i-s', $this->log->getTime())->format('H:i:s') . '</b></td>
         </tr>
         <tr>

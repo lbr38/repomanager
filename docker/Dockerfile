@@ -11,6 +11,7 @@ ARG WWW_DIR="/var/www/repomanager"
 ARG DATA_DIR="/var/lib/repomanager"
 ARG REPOS_DIR="/home/repo"
 ARG DEBIAN_FRONTEND=noninteractive
+ARG env
 ARG fqdn
 ARG max_upload_size
 
@@ -18,7 +19,7 @@ ARG max_upload_size
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils vim -y
+RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils vim -y
 
 # Install postfix
 RUN apt-get install postfix -y
@@ -34,7 +35,9 @@ RUN apt-get install nginx php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
 # For tests only
-# RUN cd /tmp/repomanager && git checkout devel
+RUN if [ "$env" = "devel" ]; then \
+       cd /tmp/repomanager && git checkout devel; \
+    fi
 
 # SERVICES CONFIG
 

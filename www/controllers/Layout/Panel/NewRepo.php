@@ -6,7 +6,7 @@ class NewRepo
 {
     public static function render()
     {
-        $myrepo = new \Controllers\Repo();
+        $myrepo = new \Controllers\Repo\Repo();
         $mygroup = new \Controllers\Group('repo');
         $mysource = new \Controllers\Source();
 

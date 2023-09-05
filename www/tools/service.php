@@ -1,8 +1,8 @@
 <?php
 
 define('ROOT', dirname(__FILE__, 2));
-require_once(ROOT . '/controllers/Autoloader/Autoloader.php');
-\Controllers\Autoloader\Autoloader::api();
+require_once(ROOT . '/controllers/Autoloader.php');
+new \Controllers\Autoloader('api');
 
 $mysignalhandler = new \Controllers\SignalHandler();
 $myservice = new \Controllers\Service\Service();

@@ -68,6 +68,7 @@ $(document).on('click','.relaunch-operation-btn',function () {
     relaunchOperation(poolId);
 });
 
+
 /**
  *  Ajax : Relaunch operation
  *  @param {string} poolId

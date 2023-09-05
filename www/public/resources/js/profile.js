@@ -11,25 +11,10 @@ loadProfilesSelect2();
  */
 function loadProfilesSelect2()
 {
-    $('.select-repos').select2({
-        closeOnSelect: false,
-        placeholder: 'Add repo ✎'
-    });
-    $('.select-exclude-major').select2({
-        closeOnSelect: false,
-        placeholder: 'Select package 🖉',
-        tags: true
-    });
-    $('.select-exclude').select2({
-        closeOnSelect: false,
-        placeholder: 'Select package 🖉',
-        tags: true
-    });
-    $('.select-need-restart').select2({
-        closeOnSelect: false,
-        placeholder: 'Select service 🖉',
-        tags: true
-    });
+    classToSelect2('.select-repos', 'Add repo 🖉');
+    classToSelect2('.select-exclude-major', 'Select package 🖉', true);
+    classToSelect2('.select-exclude', 'Select package 🖉', true);
+    classToSelect2('.select-need-restart', 'Select service 🖉', true);
 }
 
 /**

@@ -6,15 +6,50 @@ use Exception;
 
 class OperationLog
 {
-    public $type;     // Type de fichier de log (repomanager ou plan)
-    public $name;     // Nom complet du fichier de log (repomanager_... ou plan_...)
+    private $name;      // Full name (repomanager_... ou plan_...)
     private $date;
     private $time;
-    // public $action;
-    private $location; // Emplacement du fichier de log
+    private $location;  // Path to the log file
     private $pid;
-    public $steplog;
-    // public $stepName;
+    private $steplog;
+    private $stepName;
+    private $stepNumber = 0;
+    private $stepTimeStart;
+
+    public function __construct(string $type, int $pid)
+    {
+        $this->pid = $pid;
+
+        /**
+         *  Get the current date and time
+         */
+        $this->date = date('Y-m-d');
+        $this->time = date('H-i-s');
+
+        /**
+         *  Generate the name of the log file
+         */
+        $this->name = $this->date . '_' . $this->time . '_' . $type . '_' . $this->pid . '.log';
+        $this->location = MAIN_LOGS_DIR . '/' . $this->name;
+
+        /**
+         *  Create the log file
+         */
+        if (!file_exists($this->location)) {
+            if (!touch($this->location)) {
+                throw new Exception('Error: cannot create log file');
+            }
+        }
+
+        /**
+         *  Update symbolic link lastlog.log to point to the newly created log file
+         */
+        if (file_exists(MAIN_LOGS_DIR . '/lastlog.log')) {
+            unlink(MAIN_LOGS_DIR . '/lastlog.log');
+        }
+
+        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/lastlog.log');
+    }
 
     public function getPid()
     {
@@ -31,72 +66,19 @@ class OperationLog
         return $this->time;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     public function getLocation()
     {
         return $this->location;
     }
 
-    public function setType(string $type)
+    public function getStepLog()
     {
-        $this->type = $type;
-    }
-
-    public function initialize()
-    {
-        /**
-         *  Generate a random PID
-         */
-        $pid = mt_rand(10001, 99999);
-
-        while (file_exists(PID_DIR . '/' . $pid . '.pid')) {
-            // If the PID already exists, generate a new one
-            $pid = mt_rand(10001, 99999);
-        }
-        $this->pid = $pid;
-
-        /**
-         *  Get the current date and time
-         */
-        $this->date = date('Y-m-d');
-        $this->time = date('H-i-s');
-
-        /**
-         *  Generate the name of the log file
-         */
-        $this->name = $this->date . '_' . $this->time . '_' . $this->type . '_' . $this->pid . '.log';
-        $this->location = MAIN_LOGS_DIR . '/' . $this->name;
-
-        /**
-         *  Create the PID file
-         */
-        file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'PID="' . $this->pid . '"' . PHP_EOL . 'LOG="' . $this->name . '"' . PHP_EOL);
-
-        /**
-         *  Create the log file
-         */
-        if (file_exists($this->location)) {
-            throw new Exception("Error: a log file with the same name ($this->location) already exists");
-        }
-        if (!touch($this->location)) {
-            throw new Exception('Error: cannot create log file');
-        }
-
-        /**
-         *  Update symbolic link lastlog.log to point to the newly created log file
-         */
-        if (file_exists(MAIN_LOGS_DIR . '/lastlog.log')) {
-            unlink(MAIN_LOGS_DIR . '/lastlog.log');
-        }
-
-        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/lastlog.log');
-    }
-
-    /**
-     *  Ajout d'un subpid au fichier de PID principal
-     */
-    public function addsubpid(string $pid)
-    {
-        file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND);
+        return $this->steplog;
     }
 
     /**
@@ -107,29 +89,61 @@ class OperationLog
         file_put_contents($this->location, $content);
     }
 
-    public function close()
+    /**
+     *  Création d'un nouvelle étape dans l'opération et donc un nouveau fichier de log pour cette étape
+     */
+    public function step(string $name = null, bool $printLoading = true)
     {
         /**
-         *  Suppression du fichier PID
+         *  Incrémentation du numéro d'étape
          */
-        if (file_exists(PID_DIR . '/' . $this->pid . '.pid')) {
-            unlink(PID_DIR . '/' . $this->pid . '.pid');
-        }
-    }
+        $this->stepNumber++;
 
-    public function steplog(int $number)
-    {
+        /**
+         *  Initialisation de l'heure de démarrage de cette étape
+         */
+        $this->stepTimeStart = microtime(true);
+
+        /**
+         *  Création d'un fichier de log pour cette étape
+         */
+
         /**
          *  Créé le répertoire accueillant le fichier de log d'étape si n'existe pas
          */
-        if (!is_dir(TEMP_DIR . '/' . $this->pid . '/' . $number)) {
-            mkdir(TEMP_DIR . '/' . $this->pid . '/' . $number, 0770, true);
+        if (!is_dir(TEMP_DIR . '/' . $this->pid . '/' . $this->stepNumber)) {
+            mkdir(TEMP_DIR . '/' . $this->pid . '/' . $this->stepNumber, 0770, true);
         }
 
         /**
          *  Chemin complet vers le fichier de log d'étape
          */
-        $this->steplog = TEMP_DIR . '/' . $this->pid . '/' . $number . '/' . $number . '.log';
+        $this->steplog = TEMP_DIR . '/' . $this->pid . '/' . $this->stepNumber . '/' . $this->stepNumber . '.log';
+
+        /**
+         *  If the step has a name (a title), then display it
+         */
+        if (!empty($name)) {
+            $this->stepName = $name;
+            $this->stepId = \Controllers\Common::randomString(24);
+
+            /**
+             *  Initialisation du fichier de configuration
+             */
+            $this->steplogInitialize($this->stepId);
+
+            /**
+             *  Affichage du titre de l'étape
+             */
+            $this->steplogName($this->stepName);
+
+            /**
+             *  Affichage d'une icone de chargement
+             */
+            if ($printLoading === true) {
+                $this->steplogLoading($this->stepId);
+            }
+        }
     }
 
     /**
@@ -167,8 +181,10 @@ class OperationLog
     /**
      *  Affiche un message Terminé dans le div de l'étape en cours et affiche un fond vert pour signaler que l'étape s'est déroulée sans erreur
      */
-    public function steplogOK(string $stepId, string $duration, string $message = null)
+    public function stepOK(string $message = null)
     {
+        $duration = \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
+
         /**
          *  On affiche l'éventuel message si spécifié, sinon on affiche 'Terminé'
          */
@@ -181,7 +197,7 @@ class OperationLog
         /**
          *  Affichage du temps d'exécution de l'étape
          */
-        echo '<div class="' . $stepId . '-time op-step-time"></div>';
+        echo '<div class="' . $this->stepId . '-time op-step-time"></div>';
 
         /**
          *  Clôture de maindiv ouvert par steplogInitialize
@@ -189,9 +205,9 @@ class OperationLog
         echo '</div>';
 
         echo '<style>';
-        echo ".${stepId}-loading-{$this->pid} { display: none; }";
-        echo ".${stepId}-maindiv-{$this->pid} { background-color: #15bf7f; }";
-        echo ".${stepId}-time:before { content: '" . $duration . "' }";
+        echo '.' . $this->stepId . '-loading-' . $this->pid . ' { display: none; }';
+        echo '.' . $this->stepId . '-maindiv-' . $this->pid . ' { background-color: #15bf7f; }';
+        echo '.' . $this->stepId . '-time:before { content: "' . $duration . '" }';
         echo '</style>';
 
         $this->steplogWrite();
@@ -200,14 +216,16 @@ class OperationLog
     /**
      *  Affiche un message d'erreur dans le div de l'étape en cours et affiche un fond rouge pour signaler que l'étape a rencontré des erreurs
      */
-    public function steplogError(string $stepId, string $duration, string $error)
+    public function stepError(string $error)
     {
+        $duration = \Controllers\Common::convertMicrotime(microtime(true) - $this->stepTimeStart);
+
         echo '<div class="op-step-title-error">' . $error . '</div>';
 
         /**
          *  Affichage du temps d'exécution de l'étape
          */
-        echo '<div class="' . $stepId . '-time op-step-time"></div>';
+        echo '<div class="' . $this->stepId . '-time op-step-time"></div>';
 
         /**
          *  Clôture de maindiv ouvert par steplogInitialize
@@ -215,9 +233,45 @@ class OperationLog
         echo '</div>';
 
         echo '<style>';
-        echo ".${stepId}-loading-{$this->pid} { display: none; }";
-        echo ".${stepId}-maindiv-{$this->pid} { background-color: #ff0044; }";
-        echo ".${stepId}-time:before { content: '" . $duration . "' }";
+        echo '.' . $this->stepId . '-loading-' . $this->pid . ' { display: none; }';
+        echo '.' . $this->stepId . '-maindiv-' . $this->pid . ' { background-color: #ff0044; }';
+        echo '.' . $this->stepId . '-time:before { content: "' . $duration . '" }';
+        echo '</style>';
+
+        $this->steplogWrite();
+    }
+
+    /**
+     *  Affichage d'une icône de warning pour l'étape en cours
+     */
+    public function stepWarning()
+    {
+        echo '<div class="op-step-title-warning"><img src="assets/icons/warning.png" class="icon" /></div>';
+        $this->steplogWrite();
+    }
+
+    /**
+     *  Prints the total duration of the operation in the same format as the other steps
+     */
+    public function stepDuration(string $duration)
+    {
+        $duration = \Controllers\Common::convertMicrotime($duration);
+        if (empty($duration)) {
+            $duration = '0s';
+        }
+
+        $this->step('TOTAL DURATION', false);
+
+        echo '<div class="op-step-duration">' . $duration . '</div>';
+
+        /**
+         *  Closing maindiv opened by steplogInitialize
+         */
+        echo '</div>';
+
+        echo '<style>';
+        echo '.' . $this->stepId . '-loading-' . $this->pid . ' { display: none; }';
+        echo '.' . $this->stepId . '-maindiv-' . $this->pid . ' { background-color: #182b3e; }';
         echo '</style>';
 
         $this->steplogWrite();
@@ -253,38 +307,11 @@ class OperationLog
     }
 
     /**
-     *  Affiche une icone 'Warning' dans le div de l'étape en cours
-     */
-    public function steplogWarning()
-    {
-        echo '<div class="op-step-title-warning"><img src="assets/icons/warning.png" class="icon" /></div>';
-        $this->steplogWrite();
-    }
-
-    public function steplogBuild(int $steps)
-    {
-        $j = 0;
-
-        /**
-         *  On ajoute chaque log d'étape au fichier de log principal
-         *  Exemple : ./temp/$PID/1/1.log est ajouté au fichier de log principal
-         */
-        while ($j != ($steps + 1)) { // On boucle sur tous les petits fichiers de log d'étapes jusqu'à atteindre le nombre d'étapes totales
-            $stepLog = TEMP_DIR . '/' . $this->pid . '/' . $j . '/' . $j . '.log';
-
-            if (file_exists($stepLog)) {
-                file_put_contents($this->location, file_get_contents($stepLog), FILE_APPEND);
-            }
-            ++$j;
-        }
-    }
-
-    /**
      *  Run logBuilder process in background
      */
-    public function runLogBuilder(int $pid, string $location, int $steps)
+    public function runLogBuilder(int $pid, string $location)
     {
-        $myprocess = new \Controllers\Process('php ' . LOGBUILDER . ' ' . $pid . ' ' . $location . ' ' . $steps . ' >/dev/null 2>/dev/null &');
+        $myprocess = new \Controllers\Process('php ' . LOGBUILDER . ' ' . $pid . ' ' . $location . ' >/dev/null 2>/dev/null &');
         $myprocess->execute();
         $myprocess->close();
         unset($myprocess);
@@ -293,7 +320,7 @@ class OperationLog
     /**
      *  LogBuilder
      */
-    public function logBuilder(int $pid, string $logFile, int $steps)
+    public function logBuilder(int $pid, string $logFile)
     {
         $mylayoutContainer = new \Controllers\Layout\ContainerState();
         $operationTempDir = TEMP_DIR . '/' . $pid;
@@ -302,19 +329,20 @@ class OperationLog
          *  While the "completed" file doesn't exist in the temporary directory, we rewrite the main log file to make sure it's up to date
          */
         while (!file_exists($operationTempDir . '/completed')) {
-            $this->writeStepLog($pid, $logFile, $steps);
+            $this->writeStepLog($pid, $logFile);
 
             /**
              *  Make the following container refreshable by the client
              */
             $mylayoutContainer->update('operations/log');
+
             sleep(1);
         }
 
         /**
          *  When the operation is completed, we rewrite the main log file one last time to make sure we got all the step logs
          */
-        $this->writeStepLog($pid, $logFile, $steps);
+        $this->writeStepLog($pid, $logFile);
 
         /**
          *  Make the following container refreshable by the client
@@ -322,7 +350,7 @@ class OperationLog
         $mylayoutContainer->update('operations/log');
     }
 
-    private function writeStepLog(int $pid, string $logFile, int $steps)
+    private function writeStepLog(int $pid, string $logFile)
     {
         $j = 0;
 
@@ -344,6 +372,8 @@ class OperationLog
         /**
          *  Looping on all the step logs until we reach the total number of steps
          */
+        $steps = 10;
+
         while ($j != ($steps + 1)) {
             $stepLog = $operationTempDir . '/' . $j . '/' . $j . '.log';
 

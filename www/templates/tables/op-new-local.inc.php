@@ -6,31 +6,31 @@
     <table class="op-table">
         <tr>
             <th>REPO</th>
-            <td><?=$this->name?></td>
+            <td><?= $this->repo->getName() ?></td>
         </tr>
         <?php
-        if (!empty($this->dist) and !empty($this->section)) : ?>
+        if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) : ?>
             <tr>
                 <th>DISTRIBUTION</th>
-                <td><?=$this->dist?></td>
+                <td><?= $this->repo->getDist() ?></td>
             </tr>
             <tr>
                 <th>SECTION</th>
-                <td><?=$this->section?></td>
+                <td><?= $this->repo->getSection() ?></td>
             </tr>
             <?php
         endif;
-        if (!empty($this->targetDescription)) : ?>
+        if (!empty($this->repo->getTargetDescription())) : ?>
             <tr>
                 <th>DESCRIPTION</th>
-                <td><?=$this->targetDescription?></td>
+                <td><?= $this->repo->getTargetDescription() ?></td>
             </tr>
             <?php
         endif;
-        if (!empty($this->targetGroup)) : ?>
+        if (!empty($this->repo->getTargetGroup())) : ?>
             <tr>
                 <th>ADD TO GROUP</th>
-                <td><?=$this->targetGroup?></td>
+                <td><?= $this->repo->getTargetGroup() ?></td>
             </tr>
             <?php
         endif ?>

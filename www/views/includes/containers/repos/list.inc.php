@@ -16,14 +16,10 @@
                         <span>Manage source repos</span>
                     </div>
 
-                    <?php
-                    if (__ACTUAL_URI__ == "/") : ?>
-                        <div class="slide-btn slide-panel-btn" slide-panel="new-repo" title="Create a new mirror or local repository">
-                            <img src="assets/icons/plus.svg" />
-                            <span>Create a new repo</span>
-                        </div>
-                        <?php
-                    endif ?>
+                    <div class="slide-btn slide-panel-btn" slide-panel="new-repo" title="Create a new mirror or local repository">
+                        <img src="assets/icons/plus.svg" />
+                        <span>Create a new repo</span>
+                    </div>
                 </div>
                 <?php
             endif ?>
@@ -39,7 +35,7 @@
              *  Generate cache file if it does not exist
              */
             if (!file_exists(WWW_CACHE . '/repomanager-repos-list-' . $_SESSION['role'] . '.html')) {
-                \Controllers\Common::generateCache($_SESSION['role']);
+                \Controllers\App\Cache::generate($_SESSION['role']);
             }
 
             /**

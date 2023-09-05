@@ -4,12 +4,13 @@
  *  Retrieve an operation form
  */
 if ($_POST['action'] == "getForm" and !empty($_POST['operationAction']) and !empty($_POST['repos_array'])) {
-    $operation_action = \Controllers\Common::validateData($_POST['operationAction']);
-    $repos_array = json_decode($_POST['repos_array'], true);
-    $myop = new \Controllers\Operation();
+    $action = \Controllers\Common::validateData($_POST['operationAction']);
+    $repos = json_decode($_POST['repos_array'], true);
+
+    $myOperationForm = new \Controllers\Operation\Form();
 
     try {
-        $content = $myop->getForm($operation_action, $repos_array);
+        $content = $myOperationForm->getForm($action, $repos);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -21,12 +22,14 @@ if ($_POST['action'] == "getForm" and !empty($_POST['operationAction']) and !emp
  *  Validate and execute an operation form
  */
 if ($_POST['action'] == "validateForm" and !empty($_POST['operation_params'])) {
-    $operation_params = json_decode($_POST['operation_params'], true);
-    $myop = new \Controllers\Operation();
+    $operationParams = json_decode($_POST['operation_params'], true);
+
+    $myOperationForm = new \Controllers\Operation\Form();
+    $myoperation = new \Controllers\Operation\Operation();
 
     try {
-        $myop->validateForm($operation_params);
-        $myop->execute($operation_params);
+        $myOperationForm->validateForm($operationParams);
+        $myoperation->execute($operationParams);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -38,11 +41,12 @@ if ($_POST['action'] == "validateForm" and !empty($_POST['operation_params'])) {
  *  Remove a repo snapshot environment
  */
 if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POST['snapId']) and !empty($_POST['envId']))) {
-    $myrepo = new \Controllers\Repo();
-    $myrepo->getAllById(\Controllers\Common::validateData($_POST['repoId']), \Controllers\Common::validateData($_POST['snapId']), \Controllers\Common::validateData($_POST['envId']));
+    $operationParams['repoId'] = $_POST['repoId'];
+    $operationParams['snapId'] = $_POST['snapId'];
+    $operationParams['envId'] = $_POST['envId'];
 
     try {
-        $myrepo->removeEnv();
+        new \Controllers\Repo\Operation\RemoveEnv('00000', $operationParams);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
@@ -54,7 +58,7 @@ if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POS
  *  Relaunch an operation
  */
 if ($_POST['action'] == "relaunchOperation" and !empty($_POST['poolId'])) {
-    $myop = new \Controllers\Operation();
+    $myop = new \Controllers\Operation\Operation();
 
     try {
         $myop->executeId($_POST['poolId']);
@@ -62,7 +66,22 @@ if ($_POST['action'] == "relaunchOperation" and !empty($_POST['poolId'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Operation has been relaunched using the same parameters.');
+    response(HTTP_OK, 'Operation has been relaunched using the same parameters');
+}
+
+/**
+ *  Relaunch an operation
+ */
+if ($_POST['action'] == "stopOperation" and !empty($_POST['pid'])) {
+    $myop = new \Controllers\Operation\Operation();
+
+    try {
+        $myop->kill($_POST['pid']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Operation stopped');
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

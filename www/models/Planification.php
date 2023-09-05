@@ -261,4 +261,26 @@ class Planification extends Model
             \Controllers\Common::dbError($e);
         }
     }
+
+    /**
+     *  Return log file name of all operations launched by this planification
+     */
+    public function getOperationLogName(int $planId)
+    {
+        $log = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT Logfile FROM operations WHERE Id_plan = :planId");
+            $stmt->bindValue(':planId', $planId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $log[] = $row['Logfile'];
+        }
+
+        return $log;
+    }
 }
