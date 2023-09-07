@@ -233,11 +233,26 @@ trait Sync
                         throw new Exception('Cannot delete existing directory: ' . $repoPath);
                     }
                 }
+
+                /**
+                 *  Then rename
+                 */
                 if (!rename($this->repo->getWorkingDir(), $repoPath)) {
                     throw new Exception('Could not rename working directory ' . $this->repo->getWorkingDir());
                 }
             } catch (Exception $e) {
                 echo '</pre></div>';
+
+                /**
+                 *  If there was an error while mirroring, delete working dir if exists
+                 */
+                if (is_dir($this->repo->getWorkingDir())) {
+                    \Controllers\Common::deleteRecursive($this->repo->getWorkingDir());
+                }
+
+                /**
+                 *  Throw exception with mirror error message
+                 */
                 throw new Exception($e->getMessage());
             }
         }
@@ -296,11 +311,26 @@ trait Sync
                         throw new Exception('Cannot delete existing directory: ' . $repoPath);
                     }
                 }
+
+                /**
+                 *  Then rename
+                 */
                 if (!rename($this->repo->getWorkingDir(), $repoPath)) {
                     throw new Exception('Could not rename working directory ' . $this->repo->getWorkingDir());
                 }
             } catch (Exception $e) {
                 echo '</pre></div>';
+
+                /**
+                 *  If there was an error while mirroring, delete working dir if exists
+                 */
+                if (is_dir($this->repo->getWorkingDir())) {
+                    \Controllers\Common::deleteRecursive($this->repo->getWorkingDir());
+                }
+
+                /**
+                 *  Throw exception with mirror error message
+                 */
                 throw new Exception($e->getMessage());
             }
         }

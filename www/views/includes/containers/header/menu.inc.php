@@ -262,16 +262,24 @@
 
         <div>
             <div class="menu-sub-container relative">
-                <img src="assets/icons/info.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
+                <img src="assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
                     <span id="notification-count"><?= NOTIFICATION ?></span>
                     <?php
                 endif ?>
             </div>
+
             <?php
             /**
-             *  Userspace tab
+             *  History tab
+             */
+            if (IS_ADMIN) {
+                echo '<a href="/history"><img src="assets/icons/time.svg" class="icon-lowopacity" title="History" /></a>';
+            }
+
+            /**
+             *  Userspace panel
              */
             if (__ACTUAL_URI__ == '/userspace') {
                 $headerMenuClass = 'menu-sub-container-underline';

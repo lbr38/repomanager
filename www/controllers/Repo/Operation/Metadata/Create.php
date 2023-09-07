@@ -431,7 +431,6 @@ trait Create
 
                         /**
                          *  Proceed to import those 100 deb packages into the repo
-                         *  Instanciate a new Process
                          */
                         $myprocess = new \Controllers\Process('/usr/bin/reprepro --keepunusednewfiles -P optionnal --basedir ' . $repoPath . '/ ' . $repreproGpgParams . ' ' . $repreproIncludeParams);
 

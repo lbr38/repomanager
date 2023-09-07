@@ -75,6 +75,8 @@ function acquitLog(id)
  */
 function reloadContainer(container)
 {
+    printLoading();
+
     $.ajax({
         type: "POST",
         url: "ajax/controller.php",
@@ -96,6 +98,8 @@ function reloadContainer(container)
             printAlert(jsonValue.message, 'error');
         },
     });
+
+    hideLoading();
 }
 
 /**
@@ -147,6 +151,34 @@ function getContainerState()
                 }
             }
             });
+        },
+        error : function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: Get and print alert box
+ * @param {*} name
+ */
+function getConfirmBox(name)
+{
+    $.ajax({
+        type: "POST",
+        url: "ajax/controller.php",
+        data: {
+            controller: "general",
+            action: "getConfirmBox",
+            name: name
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            $("#newConfirmAlert").remove();
+            $('#newalert').remove();
+            $('footer').append(jsonValue.message);
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

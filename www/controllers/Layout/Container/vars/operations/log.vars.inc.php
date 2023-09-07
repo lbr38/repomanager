@@ -33,13 +33,24 @@ if (!empty($_GET['view-logfile'])) {
             setcookie('view-logfile', $logfile, time() + 3600 * 24 * 30, '/');
         }
     }
+
+    if ($logfileGet == 'latest') {
+        if (file_exists(MAIN_LOGS_DIR . '/latest')) {
+            $logfile = '/latest';
+
+            /**
+             *  Rewrite cookie
+             */
+            setcookie('view-logfile', $logfile, time() + 3600 * 24 * 30, '/');
+        }
+    }
 }
 
 /**
  *  If no logfile is specified, we take the last one
  */
 if ($logfile == 'none') {
-    $logfiles = array_diff(scandir(MAIN_LOGS_DIR, SCANDIR_SORT_DESCENDING), array('..', '.', 'lastlog.log'));
+    $logfiles = array_diff(scandir(MAIN_LOGS_DIR, SCANDIR_SORT_DESCENDING), array('..', '.', 'latest'));
 
     if (!empty($logfiles[1])) {
         $logfile = $logfiles[1];

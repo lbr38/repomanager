@@ -34,7 +34,7 @@ if ($_POST['action'] == "validateForm" and !empty($_POST['operation_params'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, '<span>Operation is running: <a href="/run"><b>visualize</b></a></span>');
+    response(HTTP_OK, '<span>Operation is running: <a href="/run?view-logfile=latest"><b>visualize</b></a></span>');
 }
 
 /**

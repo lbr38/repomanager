@@ -1030,209 +1030,6 @@ class Mirror
     }
 
     /**
-     *  Download rpm sources packages   https://nginx.org/packages/centos/7/SRPMS/
-     *  (RPM mirror)
-     */
-    private function downloadRpmSourcesPackages(string $url)
-    {
-        if ($this->syncSource != 'yes') {
-            return;
-        }
-
-        /**
-         *  Create directory in which sources packages will be downloaded
-         */
-        mkdir($this->workingDir . '/sources', 0770, true);
-
-        if (Common::urlFileExists($url . '/SRPMS')) {
-            return false;
-        }
-
-        /**
-         *  Get repomd.xml file
-         */
-        $this->getRepoMd($url . '/SRPMS');
-
-        /**
-         *  Find primary packages list location
-         */
-        $this->parseRepoMd();
-
-        /**
-         *  Get primary packages list file
-         */
-        $this->getPackagesList($url . '/SRPMS' . $this->primaryLocation, $this->primaryChecksum);
-
-        /**
-         *  Parse primary packages list file
-         */
-        $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz');
-
-        /**
-         *  Create directory in which packages will be downloaded
-         */
-        if (!is_dir($this->workingDir . '/SRPMS')) {
-            mkdir($this->workingDir . '/SRPMS', 0770, true);
-        }
-
-        /**
-         *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
-         */
-        if ($this->checkSignature == 'yes') {
-            $mygpg = new GPG();
-
-            /**
-             *  If the source repo has a distant http:// gpg signature key, then download it
-             */
-            if (!empty($this->gpgKeyUrl)) {
-                if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-                    $this->logError('Could not download distant GPG signature key: ' . $this->gpgKeyUrl, 'Could not retrieve GPG signature key');
-                }
-
-                /**
-                 *  Import key inside trusted keyring
-                 */
-                $myprocess = new Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
-                $myprocess->execute();
-
-                /**
-                 *  Delete temporary GPG key file
-                 */
-                unlink(TEMP_DIR . '/gpgkey-to-import.gpg');
-
-                /**
-                 *  Quits if import has failed
-                 */
-                if ($myprocess->getExitCode() != 0) {
-                    $this->logError('Error while importing distant GPG key', 'Could not retrieve GPG signature key');
-                }
-
-                $myprocess->close();
-            }
-
-            /**
-             *  Get all known editors GPG public keys imported into repomanager keyring
-             */
-            $knownPublicKeys = $mygpg->getTrustedKeys();
-
-            /**
-             *  Filter to retrieve key Id column only
-             */
-            $knownPublicKeys = array_column($knownPublicKeys, 'id');
-        }
-
-        /**
-         *  Print URL from which packages are downloaded
-         */
-        $this->logOutput(PHP_EOL . '- Downloading sources packages from: ' . $url . '/SRPMS' . PHP_EOL);
-
-        /**
-         *  Count total packages to print progression during syncing
-         */
-        $totalPackages = count($this->rpmPackagesLocation);
-        $packageCounter = 0;
-
-        /**
-         *  Download each package and check its md5
-         */
-        foreach ($this->rpmPackagesLocation as $rpmPackage) {
-            $rpmPackageLocation = $rpmPackage['location'];
-            $rpmPackageChecksum = $rpmPackage['checksum'];
-            $rpmPackageName = preg_split('#/#', $rpmPackageLocation);
-            $rpmPackageName = end($rpmPackageName);
-            $packageCounter++;
-
-            /**
-             *  Output package to download to log file
-             */
-            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... ');
-
-            /**
-             *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
-             */
-            if (file_exists($this->workingDir . '/packages/' . $rpmPackageName)) {
-                $this->logOutput('already exists (ignoring)' . PHP_EOL);
-                continue;
-            }
-
-            /**
-             *  Download file if it does not already exist
-             */
-            if (!$this->download($url . '/' . $rpmPackageLocation, $this->workingDir . '/packages/' . $rpmPackageName)) {
-                $this->logError('error', 'Error while retrieving packages');
-            }
-
-            /**
-             *  Check that downloaded rpm package's matches the checksum specified by the primary.xml file
-             *  Try with sha256 then sha1
-             */
-            if (hash_file('sha256', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
-                    $this->logError('checksum (sha256) does not match (tried sha256 and sha1)', 'Error while retrieving packages');
-                }
-            }
-
-            /**
-             *  Check rpm GPG signature if enabled
-             *
-             *  https://blog.remirepo.net/post/2020/03/13/Extension-rpminfo-pour-php
-             *
-             *  using rpm :
-             *  rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" PACKAGE.rpm
-             *  rpm --checksig PACKAGE.rpm
-             */
-            if ($this->checkSignature === 'yes') {
-                /**
-                 *  Throw an error if there are no known GPG public keys because it is impossible to check for signature then
-                 */
-                if (empty($knownPublicKeys)) {
-                    $this->logError('Cannot check for signature because there is no GPG public keys imported in Repomanager\'s keyring', 'Cannot check packages signature');
-                }
-
-                /**
-                 *  Extract package header
-                 */
-                $myprocess = new Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $this->workingDir . '/packages/' . $rpmPackageName);
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
-
-                /**
-                 *  Parse package's GPG signature key Id from header content
-                 */
-                if (!preg_match('/key ID(.*) /i', $content, $matches)) {
-                    $this->logError('GPG signature key ID is not found in the package header', 'Could not verify GPG signatures');
-                }
-
-                /**
-                 *  Retrieve GPG signature key Id from $matches
-                 */
-                $keyId = trim($matches[1]);
-
-                /**
-                 *  Remove last ':' character
-                 */
-                $keyId = rtrim($keyId, ':');
-
-                /**
-                 *  Now check if that key Id appears in known public keys Id
-                 *  If not, throw an error, else, signature is OK
-                 */
-                if (!preg_grep("/$keyId\$/i", $knownPublicKeys)) {
-                    $this->logError('signature is not OK', 'Package has invalid signature');
-                }
-            }
-
-            /**
-             *  Print OK if package has been downloaded and verified successfully
-             */
-            $this->logOK();
-        }
-
-        unset($this->rpmPackagesLocation, $totalPackages, $packageCounter);
-    }
-
-    /**
      *  Download deb packages
      *  (DEB mirror)
      */
@@ -1528,6 +1325,13 @@ class Mirror
         }
 
         /**
+         *  If source package must be synced, add SRPMS to arch array
+         */
+        if ($this->syncSource == 'yes') {
+            $this->arch[] = 'SRPMS';
+        }
+
+        /**
          *  Retrive packages for each arch that have been specified
          */
         foreach ($this->arch as $arch) {
@@ -1576,11 +1380,6 @@ class Mirror
              *  Download rpm packages
              */
             $this->downloadRpmPackages($url);
-
-            /**
-             *  Download sources packages
-             */
-            // $this->downloadRpmSourcesPackages($url);
 
             /**
              *  Clean remaining files

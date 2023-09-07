@@ -146,34 +146,6 @@ class Common
     }
 
     /**
-     *  Fonction affichant un message de confirmation avant de supprimer
-     *  $message = le message à afficher
-     *  $url = lien GET vers la page de suppression
-     *  $divID = un id unique du div caché contenant le message et les bouton supprimer ou annuler
-     *  $aID = une class avec un ID unique du bouton cliquable permettant d'afficher/fermer la div caché. Attention le bouton d'affichage doit être avant l'appel de cette fonction.
-     */
-    public static function deleteConfirm(string $message, string $url, $divID, $aID)
-    {
-        echo "<div id=\"$divID\" class=\"hide confirmAlert\">";
-            echo "<span class=\"confirmAlert-message\">$message</span>";
-            echo '<div class="confirmAlert-buttons-container">';
-                echo "<a href=\"$url\"><span class=\"btn-doConfirm\">Delete</span></a>";
-                echo "<span class=\"$aID btn-doCancel pointer\">Cancel</span>";
-            echo '</div>';
-
-        echo "<script>";
-        echo "$(document).ready(function(){";
-        echo "$(\".$aID\").click(function(){";
-        echo "$(\"div#$divID\").slideToggle(150);";
-        echo '$(this).toggleClass("open");';
-        echo "});";
-        echo "});";
-        echo "</script>";
-        echo '</div>';
-        unset($message, $url, $divID, $aID);
-    }
-
-    /**
      *  Affiche une erreur générique ou personnalisée lorsqu'il y a eu une erreur d'exécution d'une requête dans la base de données
      *  Ajoute une copie de l'erreur dans le fichier de logs 'exceptions'
      */

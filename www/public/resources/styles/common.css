@@ -604,18 +604,21 @@ textarea {
     width: 100%;
 }
 
-[class*="btn-doConfirm"], .btn-doCancel {
+[class*="btn-doConfirm"], .btn-doGeneric, .btn-doCancel {
     margin-left: 15px;
     margin-right: 15px;
     padding: 20px;
     border-radius: 4px;
-    border: 1px solid black;
+    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
 }
 [class*="btn-doConfirm"] {
     background-color: #ff0044;
 }
 [class*="btn-doConfirm"]:hover {
     background-color: #dc0044;
+}
+.btn-doGeneric:hover {
+    background-color: #1d3349;
 }
 
 /**
@@ -625,11 +628,14 @@ textarea {
     position: fixed;
     bottom: 15px;
     right: 15px;
-    z-index:999;
+    display: flex;
+    align-items: center;
+    column-gap: 8px ;
+    z-index: 999;
 }
 
 #loading img {
-    height: 20px;
+    height: 18px;
 }
 
 /**

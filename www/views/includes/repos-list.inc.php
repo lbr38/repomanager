@@ -378,11 +378,11 @@ if (!empty($groupsList)) {
 if (IS_ADMIN) : ?>
     <div id="repo-actions-btn-container" class="action hide">
         <div>
-            <button class="repo-action-btn btn-medium-green" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="assets/icons/update.svg" />Update</button>
-            <button class="repo-action-btn btn-medium-green" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="assets/icons/duplicate.svg" />Duplicate</button>
-            <button class="repo-action-btn btn-medium-green" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="assets/icons/link.svg" />Point an env.</button>
-            <button class="repo-action-btn btn-medium-green" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="assets/icons/update.svg" />Rebuild</button>
-            <button class="repo-action-btn btn-medium-red" action="delete" type="active-btn" title="Delete selected snapshot(s)"><img class="icon" src="assets/icons/delete.svg" />Delete</button>
+            <span class="repo-action-btn btn-doGeneric" action="update" type="active-btn" title="Update selected snapshot(s)"><img class="icon" src="assets/icons/update.svg" />Update</span>
+            <span class="repo-action-btn btn-doGeneric" action="duplicate" type="active-btn" title="Duplicate select snapshot(s)"><img class="icon" src="assets/icons/duplicate.svg" />Duplicate</span>
+            <span class="repo-action-btn btn-doGeneric" action="env" type="active-btn" title="Point an environment to the selected snapshot(s)"><img class="icon" src="assets/icons/link.svg" />Point an environment</span>
+            <span class="repo-action-btn btn-doGeneric" action="reconstruct" type="active-btn" title="Rebuild selected snapshot(s) metadata"><img class="icon" src="assets/icons/update.svg" />Rebuild</span>
+            <span class="repo-action-btn btn-doConfirm" action="delete" type="active-btn" title="Delete selected snapshot(s)">Delete</span>
         </div>
     </div>
     <?php

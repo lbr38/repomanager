@@ -54,6 +54,28 @@ class Login extends Model
     }
 
     /**
+     *  Get Id by username
+     */
+    public function getIdByUsername(string $username)
+    {
+        $id = '';
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM users WHERE Username = :username and State = 'active'");
+            $stmt->bindValue(':username', $username);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $id = $row['Id'];
+        }
+
+        return $id;
+    }
+
+    /**
      *  Get username by user Id
      */
     public function getUsernameById(string $id)

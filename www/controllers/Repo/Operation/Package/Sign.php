@@ -69,12 +69,6 @@ trait Sign
                 $myprocess->execute();
 
                 /**
-                 *  Récupération du pid du process lancé
-                 *  Puis écriture du pid de rpmsign/rpmresign (lancé par proc_open) dans le fichier PID principal, ceci afin qu'il puisse être killé si l'utilisateur le souhaite
-                 */
-                // $this->operation->addsubpid($myprocess->getPid());
-
-                /**
                  *  Affichage de l'output du process en continue dans un fichier
                  */
                 $myprocess->getOutput($this->log->getStepLog());
@@ -161,7 +155,7 @@ trait Sign
                     /**
                      *  Suppression de ce qui a été fait :
                      */
-                    exec('rm -rf "' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '"');
+                    \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
                 }
 
                 if (!empty($signErrorGlobalMessage)) {

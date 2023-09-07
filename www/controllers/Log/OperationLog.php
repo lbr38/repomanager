@@ -42,13 +42,13 @@ class OperationLog
         }
 
         /**
-         *  Update symbolic link lastlog.log to point to the newly created log file
+         *  Update symbolic link 'latest' to point to the newly created log file
          */
-        if (file_exists(MAIN_LOGS_DIR . '/lastlog.log')) {
-            unlink(MAIN_LOGS_DIR . '/lastlog.log');
+        if (file_exists(MAIN_LOGS_DIR . '/latest')) {
+            unlink(MAIN_LOGS_DIR . '/latest');
         }
 
-        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/lastlog.log');
+        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/latest');
     }
 
     public function getPid()

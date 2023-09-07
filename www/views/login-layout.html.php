@@ -30,6 +30,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
     if ($error == 0) {
         $username = \Controllers\Common::validateData($_POST['username']);
         $mylogin = new \Controllers\Login();
+        $myhistory = new \Controllers\History();
 
         /**
          *  Case auth type is 'ldap'
@@ -72,7 +73,7 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
                 $_SESSION['email']      = $mylogin->getEmail();
                 $_SESSION['type']       = 'local';
 
-                \Models\History::set($username, 'Authentication', 'success');
+                $myhistory->set($username, 'Authentication', 'success');
 
                 /**
                  *  If an 'origin' cookie exists then redirect to the specified URI

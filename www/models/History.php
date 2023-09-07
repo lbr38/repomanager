@@ -4,25 +4,25 @@ namespace Models;
 
 use Exception;
 
-/**
- *  Historique des actions effectuées par les utilisateurs
- */
-
-class History
+class History extends Model
 {
-    /**
-     *  Récupérer l'historique complet
-     */
-    public static function getAll()
+    public function __construct()
     {
         /**
-         *  Ouverture d'une connexion à la base de données
-         *  pas d'objet ici car il s'agit d'une classe static
+         *  Open database
          */
-        $db = new Connection('main');
+        $this->getConnection('main');
+    }
+
+    /**
+     *  Retrieve all history
+     */
+    public function getAll()
+    {
+        $datas = array();
 
         try {
-            $result = $db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
+            $result = $this->db->query("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id ORDER BY Date DESC, Time DESC");
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
             return;
@@ -36,28 +36,14 @@ class History
     }
 
     /**
-     *  Récupérer l'historique complet d'un utilisateur
+     *  Retrieve all history from a user
      */
-    public static function getByUser(string $userId)
+    public function getByUser(int $userId)
     {
-        $userId = \Controllers\Common::validateData($userId);
-
-        /**
-         *  On vérifie que l'Id est valide
-         */
-        if (!is_numeric($userId)) {
-            printAlert('User Id is invalid', 'error');
-            return;
-        }
-
-        /**
-         *  Ouverture d'une connexion à la base de données
-         *  pas d'objet ici car il s'agit d'une classe static
-         */
-        $db = new Connection('main');
+        $datas = array();
 
         try {
-            $stmt = $db->prepare("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id WHERE history.Id_user = :userid ORDER BY Date DESC, Time DESC");
+            $stmt = $this->db->prepare("SELECT history.Id, history.Date, history.Time, history.Action, history.State, users.First_name, users.Last_name, users.Username FROM history JOIN users ON history.Id_user = users.Id WHERE history.Id_user = :userid ORDER BY Date DESC, Time DESC");
             $stmt->bindValue(':userid', $userId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -75,48 +61,15 @@ class History
     }
 
     /**
-     *  Ajouter une nouvelle ligne d'historique en base de données
+     *  Add new history line in database
      */
-    public static function set(string $username, string $action, string $state)
+    public function set(string $userId, string $action, string $state)
     {
-        $username = \Controllers\Common::validateData($username);
-        $action   = \Controllers\Common::validateData($action);
-        $state    = \Controllers\Common::validateData($state);
-
-        /**
-         *  Ouverture d'une connexion à la base de données
-         *  pas d'objet ici car il s'agit d'une classe static
-         */
-        $db = new Connection('main');
-
-        /**
-         *  Récupération de l'ID de l'utilisateur à partir de son username
-         */
         try {
-            $stmt = $db->prepare("SELECT Id FROM users WHERE Username = :username");
-            $stmt->bindValue(':username', $username);
-            $result = $stmt->execute();
-
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $userId = $row['Id'];
-            }
-
-            /**
-             *  Si l'Id retourné est vide on lance une exception
-             */
-            if (empty($userId)) {
-                throw new Exception('Cannot retrieve user Id from username ' . $username);
-            }
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-            return;
-        }
-
-        try {
-            $dateNow = date('Y-m-d');
-            $timeNow = date('H:i:s');
-            $stmt = $db->prepare("INSERT INTO history ('Date', 'Time', 'Id_user', 'Action', 'State') VALUES ('$dateNow', '$timeNow', :id_user, :action, :state)");
-            $stmt->bindValue(':id_user', $userId);
+            $stmt = $this->db->prepare("INSERT INTO history ('Date', 'Time', 'Id_user', 'Action', 'State') VALUES (:date, :time, :id, :action, :state)");
+            $stmt->bindValue(':date', date('Y-m-d'));
+            $stmt->bindValue(':time', date('H:i:s'));
+            $stmt->bindValue(':id', $userId);
             $stmt->bindValue(':action', $action);
             $stmt->bindValue(':state', $state);
             $stmt->execute();

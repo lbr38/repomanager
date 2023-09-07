@@ -4,8 +4,6 @@
 $(document).on('click','#user-generate-apikey-btn',function () {
     generateApikey();
 
-    // reloadContentByClass("slide-panel-reloadable-div[slide-panel='userspace']");
-
     event.stopPropagation();
 });
 

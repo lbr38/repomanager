@@ -135,6 +135,7 @@ class Form
     {
         $myrepo = new \Controllers\Repo\Repo();
         $mysource = new \Controllers\Source();
+        $myhistory = new \Controllers\History();
 
         foreach ($operations_params as $operation_params) {
             /**
@@ -290,12 +291,12 @@ class Form
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . '</span> (' . $operation_params['type'] . ')', 'success');
                 }
                 if ($packageType == 'deb') {
                     foreach ($operation_params['dist'] as $distribution) {
                         foreach ($operation_params['section'] as $section) {
-                            \Models\History::set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $operation_params['type'] . ')', 'success');
+                            $myhistory->set($_SESSION['username'], 'Run operation: New repo <span class="label-white">' . $targetName . ' ❯ ' . $distribution . ' ❯ ' . $section . '</span> (' . $operation_params['type'] . ')', 'success');
                         }
                     }
                 }
@@ -309,10 +310,10 @@ class Form
                 Param\GpgResign::check($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: update repo <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span> (' . $myrepo->getType() . ')', 'success');
                 }
 
                 Param\Arch::check($operation_params['targetArch']);
@@ -357,10 +358,10 @@ class Form
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: duplicate repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: duplicate repo  <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: duplicate repo  <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span> ➡ <span class="label-white">' . $operation_params['targetName'] . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>', 'success');
                 }
             }
 
@@ -376,10 +377,10 @@ class Form
                 }
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: delete repo snapshot <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
             }
 
@@ -391,10 +392,10 @@ class Form
                 Param\Description::check($operation_params['targetDescription']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: new repo environment <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>⟵' . \Controllers\Common::envtag($operation_params['targetEnv']), 'success');
                 }
             }
 
@@ -405,10 +406,10 @@ class Form
                 Param\GpgResign::check($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
                 if ($packageType == 'deb') {
-                    \Models\History::set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
                 }
             }
         }

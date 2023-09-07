@@ -32,6 +32,7 @@ function closePanel()
  */
 function printAlert(message, type = null, timeout = 2500)
 {
+    $('#newConfirmAlert').remove();
     $('#newalert').remove();
 
     if (type == null) {
@@ -98,7 +99,7 @@ function printLoading()
 {
     $('#loading').remove();
 
-    $('footer').append('<div id="loading"><div><img src="assets/images/loading.gif"></div></div>');
+    $('footer').append('<div id="loading"><p class="lowopacity">Loading</p><img src="assets/images/loading.gif"></div>');
 }
 
 function hideLoading()

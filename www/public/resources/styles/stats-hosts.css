@@ -40,7 +40,7 @@
     margin: auto;
 }
 
-.stats-access-table, .hosts-table, .packages-table {
+.stats-access-table, .packages-table {
     width: 100%;
     margin: auto;
     margin-bottom: 15px;
@@ -55,13 +55,11 @@
 }
 
 .stats-access-table head,
-.hosts-table head,
 .packages-table head {
     font-weight: bold;
 }
 
 .stats-access-table tbody tr,
-.hosts-table tbody tr,
 .packages-table tr {
     background-color: #1d3349;
     border-radius: 2px;
@@ -78,75 +76,49 @@
 }
 
 .stats-access-table tr td:first-child,
-.hosts-table tr td:first-child,
+td:first-child,
 .packages-table tr td:first-child {
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
 }
 
 .stats-access-table tr td:last-child,
-.hosts-table tr td:last-child,
+td:last-child,
 .packages-table tr td:last-child {
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
 }
 
-.hosts-table thead th {
-    text-align: left;
-    vertical-align: bottom;
-}
-.hosts-table .packagesCount-td {
-    padding: 0 5px 0 5px;
-}
 .hosts-table {
-    table-layout: fixed !important;
+    width: 100%;
+    margin: auto;
+    margin-bottom: 15px;
+    white-space: nowrap;
 }
-.hosts-table td:nth-child(1) {
-    width: 3%;
-    padding-left: 10px;
+
+.hosts-table-title, .host-line {
+    display: grid;
+    grid-template-columns: 3% 3% 45% 10% 10% 7% 7% 15%;
+    align-items: center;
 }
-.hosts-table td:nth-child(2) { /* hostname */
-    width: 3%;
+
+.hosts-table-title {
+    padding: 0 15px 15px 15px;
 }
-.hosts-table td:nth-child(3) { /* hostname */
-    width: 34%;
-    white-space: normal;
-    overflow-wrap: break-word;
+
+.host-line {
+    padding: 9px 15px 9px 15px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    background-color: #1d3349;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
-.hosts-table td:nth-child(4) { /* type */
-    width: 6%;
-    text-align: center;
-}
-.hosts-table td:nth-child(5) { /* agent version */
-    width: 9%;
-    text-align: center;
-}
-.hosts-table td:nth-child(6) { /* inst. packages */
-    width: 5%;
-    text-align: center;
-}
-.hosts-table td:nth-child(7) { /* avail. packages */
-    width: 5%;
-    text-align: center;
-}
-.hosts-table td:nth-child(8) { /* checkbox */
-    width: 5%;
-    text-align: center;
-}
-.hosts-table td:nth-child(9) { /* update status */
-    min-width: 0;
-    width: 27%;
-}
-.hosts-table td:nth-child(10) { /* additionnal info */
-    min-width: 0;
-    max-width: 27%;
-    white-space: normal;
-    overflow-wrap: break-word;
-}
-.hosts-table td.host-additionnal-info span {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    display: block;
+
+.host-additionnal-info {
+    display: none;
+    flex-direction: column;
+    padding-top: 15px;
 }
 
 .stats-access-table-request {

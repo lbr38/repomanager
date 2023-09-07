@@ -118,7 +118,7 @@ function newGroup(name)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('reposList');
+            reloadContainer('repos/list');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -151,7 +151,7 @@ function deleteGroup(name)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('reposList');
+            reloadContainer('repos/list');
         },
         error : function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -185,7 +185,7 @@ function renameGroup(name, newname)
             printAlert(jsonValue.message, 'success');
             reloadGroupsDiv();
             reloadNewRepoDiv();
-            reloadContentByClass('reposList');
+            reloadContainer('repos/list');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -216,7 +216,7 @@ function editGroupRepos(name, reposId)
              *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
              */
             printAlert(jsonValue.message, 'success');
-            reloadContentByClass('reposList');
+            reloadContainer('repos/list');
         },
         error : function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

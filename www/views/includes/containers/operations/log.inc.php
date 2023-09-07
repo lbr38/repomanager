@@ -20,10 +20,14 @@
 
                 <br><br>
                 <div>
-                    <a href="#top" class="button-top-down" title="Go to the top"><img src="assets/icons/up.svg" /></a>
+                    <a href="#top" class="button-top-down" title="Go to the top">
+                        <img src="assets/icons/up.svg" />
+                    </a>
                 </div>
                 <div>
-                    <a href="#bottom" class="button-top-down" title="Go to the bottom"><img src="assets/icons/down.svg" /></a>
+                    <a href="#bottom" class="button-top-down" title="Go to the bottom">
+                        <img src="assets/icons/down.svg" />
+                    </a>
                 </div>
             </div>
         </div>
