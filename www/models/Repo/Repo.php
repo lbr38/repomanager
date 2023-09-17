@@ -7,7 +7,7 @@ use Exception;
 
 class Repo extends \Models\Model
 {
-    public function __construct(array $variables = [])
+    public function __construct()
     {
         /**
          *  Open main database connection

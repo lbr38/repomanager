@@ -19,6 +19,7 @@ function filterPackage()
 {
     // Declare variables
     var input, filter, table, tr, td, i, txtValue;
+
     input = document.getElementById("packagesIntalledSearchInput");
     filter = input.value.toUpperCase();
     table = document.getElementById("packagesIntalledTable");
@@ -102,7 +103,7 @@ function searchHost()
          *  On ré-affiche tout avant de quitter
          */
         $(".hosts-group-container").show();
-        $(".host-tr").show();
+        $(".host-line").show();
         return;
     }
 
@@ -122,7 +123,7 @@ function searchHost()
     /**
      *  On masque toutes les lignes de serveurs, seulles celles correspondant à la recherche seront ré-affichées
      */
-    $(".host-tr").hide();
+    $(".host-line").hide();
 
     /**
      *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
@@ -194,54 +195,54 @@ function searchHost()
     search = search.replaceAll(' ', '');
 
     /**
-     *  Si un filtre a été précisé alors on récupère uniquement les tr '.host-tr' correspondant à ce filtre
+     *  Si un filtre a été précisé alors on récupère uniquement les div '.host-line' correspondant à ce filtre
      */
     if (filter_os != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('os').toUpperCase().indexOf(filter_os) > -1;
         });
     } else if (filter_os_version != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('os_version').toUpperCase().indexOf(filter_os_version) > -1;
         });
     } else if (filter_os_family != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('os_family').toUpperCase().indexOf(filter_os_family) > -1;
         });
     } else if (filter_type != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('type').toUpperCase().indexOf(filter_type) > -1;
         });
     } else if (filter_kernel != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('kernel').toUpperCase().indexOf(filter_kernel) > -1;
         });
     } else if (filter_arch != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('arch').toUpperCase().indexOf(filter_arch) > -1;
         });
     } else if (filter_agent_version != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('agent_version').toUpperCase().indexOf(filter_agent_version) > -1;
         });
     } else if (filter_reboot_required != "") {
-        tr = $('.host-tr').filter(function () {
+        line = $('.host-line').filter(function () {
             return $(this).attr('reboot_required').toUpperCase().indexOf(filter_reboot_required) > -1;
         });
     /**
-     *  Si aucun filtre n'a été précisé alors on récupère tous les tr .host-tr
+     *  Si aucun filtre n'a été précisé alors on récupère tous les div .host-line
      */
     } else {
-        tr = $(".host-tr");
+        line = $(".host-line");
     }
 
     /**
-     *  Puis on traite chaque tr récupéré et on affiche uniquement ceux correspondant à la recherche
+     *  Puis on traite chaque div récupéré et on affiche uniquement ceux correspondant à la recherche
      */
-    $.each(tr, function () {
-        td = $(this).find("td")[2];
-        if (td) {
-            txtValue = td.textContent || td.innerText;
+    $.each(line, function () {
+        div = $(this).find("div")[2];
+        if (div) {
+            txtValue = div.textContent || div.innerText;
             if (txtValue.toUpperCase().indexOf(search) > -1) {
                 $(this).show();
             } else {
@@ -251,7 +252,7 @@ function searchHost()
     });
 
     /**
-     *  Masquage des div de groupes dont tous les tr ont été masqués
+     *  Masquage des div de groupes dont tous les div ont été masqués
      */
     hideGroupDiv();
 
@@ -278,12 +279,14 @@ function getHostsWithPackage()
 
     /**
      *  A chaque saisie on (ré)-affiche tous les éléments masquées
-     *  et on supprime les éventuelles infos dans le <td> 'host-additionnal-info'
+     *  et on supprime les éventuelles infos dans le 'host-additionnal-info'
      */
-    $(".hosts-group-container").show();
-    $(".host-tr").show();
-    $("td.host-update-status").show();
-    $("td.host-additionnal-info").html('');
+    $('.hosts-group-container').show();
+    $('.host-line').css('align-items', 'center');
+    $('.host-line').show();
+    $('div.host-update-status').show();
+    $('div.host-additionnal-info').html('');
+    $('div.host-additionnal-info').hide();
 
     /**
      *  On utilise un setTimeout pour laisser le temps à l'utilisateur de terminer sa saisie avant de rechercher
@@ -303,12 +306,12 @@ function getHostsWithPackage()
         var package = $("#getHostsWithPackageInput").val();
         var hostsId_array = [];
 
-        $("td.host-update-status").hide();
+        $("div.host-update-status").hide();
 
         /**
          *  Pour chaque id, on fait appel à la fonction getHostsWithPackage pour vérifier si le paquet existe sur l'hôte
          */
-        $('.hosts-table').find(".host-tr").each(function () {
+        $('.hosts-table').find(".host-line").each(function () {
             var hostid = $(this).attr('hostid');
             hostsId_array.push(hostid);
         });
@@ -328,22 +331,22 @@ function getHostsWithPackage()
 function hideGroupDiv()
 {
     /**
-     *  Pour chaque div 'hosts-group-container' on recherche tous les tableaux '<table>'
+     *  Pour chaque div 'hosts-group-container' on recherche toutes les listes d'hôtes
      */
     $(".hosts-group-container").each(function () {
         /**
-         *  Si le <table> a une classe hosts-table-empty alors il est forcément vide ("aucun hote dans ce groupe"), donc on masque la div entière du résultat de recherche
+         *  Si le div a une classe hosts-table-empty alors il est forcément vide ("aucun hote dans ce groupe"), donc on masque la div entière du résultat de recherche
          */
         if ($(this).find(".hosts-table-empty").length == 1) {
             $(this).hide();
 
         /**
-         *  Si le <table> contient des hôtes, alors on vérifie si il y a au moins 1 tr d'affiché (qui correspond au résultat de recherche)
+         *  Si la liste contient des hôtes, alors on vérifie si il y a au moins 1 div d'affiché (qui correspond au résultat de recherche)
          *  Si c'est le cas alors on laisse le div affiché
          *  Si ce n'est pas le cas on masque la div entière
          */
         } else {
-            var nb = $(this).find(".host-tr:visible").length;
+            var nb = $(this).find(".host-line:visible").length;
             if (nb == 0) {
                 $(this).hide();
             } else {
@@ -470,91 +473,95 @@ $(document).on('submit','.groupHostsForm',function () {
 });
 
 /**
- *  Event : lorsqu'une checkbox d'hôte est cochée
+ *  Event: when a host checkbox is checked
  */
 $(document).on('click',"input[name=checkbox-host\\[\\]]",function () {
-    // On récupère le nom du groupe de l'hote dont la checkbox a été cochée
+    // Get the group name of the host which checkbox has been checked
     var group = $(this).attr('group');
-    // Puis on compte le nombre de checkbox cochées dans ce groupe
-    var count_checked = countChecked(group);
-    // Si il y a au moins 1 checkbox cochée alors on affiche les boutons 'Mettre à jour' et 'Supprimer' pour le groupe en question
-    if (count_checked > 0) {
-        $(".js-buttons-" + group).show('200');
+
+    // Then we count the number of checked checkbox in this group
+    var count = countChecked(group);
+
+    // If there is at least 1 checkbox checked then display actions buttons
+    if (count > 0) {
+        getConfirmBox('hostsActionSelect');
     } else {
-        $(".js-buttons-" + group).hide('200');
+        $("#newConfirmAlert").remove();
     }
 });
 
 /**
- *  Event : lorsqu'on clique sur le bouton 'Tout sélectionner', cela sélectionne toutes les checkbox-host[] du groupe
+ *  Event: when a 'Select all' button is clicked, it select all checkbox-host[] of the group
  */
 $(document).on('click',".js-select-all-button",function () {
-    // On récupère le nom du groupe du button 'Tout sélectionner' qui a été cliqué
+    // Retrieve the group name of the button which has been clicked
     var group = $(this).attr('group');
 
-    // On compte le nombre total de checkbox du groupe (cochées ou non)
-    // Si le nombre de checkbox sélectionnées = nombre de checbox totales, alors le bouton Tout sélectionner aura pour effet de décocher, sinon il coche tout.
+    // Count the total number of checkbox in the group (checked or not)
+    // If the number of checked checkbox = total number of checkbox, then the 'Select all' button will uncheck all checkbox, else it will check all checkbox
     var countTotal = countTotalCheckboxInGroup(group);
     var count_checked = countChecked(group);
+
     if (countTotal == count_checked) {
         $('input[name=checkbox-host\\[\\]][group=' + group + ']').prop('checked', false);
     } else {
-        // On coche toutes les checkbox-host[] appartenant au même groupe
+        // Check all checkbox-host[] of the same group
         $('input[name=checkbox-host\\[\\]][group=' + group + ']').prop('checked', true);
     }
 
-    // On recompte de nouveau le nombre de checkbox sélectionnées
+    // Count again the number of checked checkbox
     var count_checked = countChecked(group);
-    // Si il y a au moins 1 checkbox sélectionnée alors on affiche les boutons 'Mise à jour' / 'Désactiver' / 'Supprimer'
+
+    // If there is at least 1 checkbox checked then display action buttons
     if (count_checked >= 1) {
-        $(".js-buttons-" + group).show('200');
+        getConfirmBox('hostsActionSelect');
     }
-    // Si aucune checkbox n'est sélectionnée alors on masque les boutons 'Mise à jour' / 'Désactiver' / 'Supprimer'
+
+    // If no checkbox is checked then hide action buttons
     if (count_checked == 0) {
-        $(".js-buttons-" + group).hide('200');
+        $("#newConfirmAlert").remove();
     }
 });
 
 /**
- *  Event : lorsqu'on clique sur un bouton d'action 'Supprimer', 'Reset', 'Mettre à jour les paquets'... depuis la page des hotes
+ *  Event: When a host action button is clicked
  */
 $(document).on('click','.hostsActionBtn',function () {
 
-    var hosts_array = [];
+    var hostsArray = [];
 
     /**
-     *  Récupère le nom du groupe et l'action à exécuter
+     *  Retrieve action to execute
      */
-    var group = $(this).attr('group');
     var action = $(this).attr('action');
 
     /**
-     *  On parcourt toutes les checkbox dans ce groupe
+     *  Get all checked checkbox
      */
-    $('.js-host-checkbox[group=' + group + ']').each(function () {
+    $('input[type="checkbox"][name="checkbox-host[]"]').each(function () {
         /**
-         *  Si la checkbox est cochée alors on ajoute l'id de l'hôte à hosts_array
+         *  If checkbox is checked then add host id to hostsArray
          */
         if (this.checked) {
-            host_id = $(this).val();
-            hosts_array.push(host_id);
+            hostId = $(this).val();
+            hostsArray.push(hostId);
         }
     });
 
     /**
-     *  Selon l'action on demande une confirmation
+     *  Depending on the action we ask for a confirmation
      */
     if (action == 'update') {
         confirmBox('Request selected hosts to update their packages?', function () {
-            execAction(action, hosts_array)}, 'Update');
+            execAction(action, hostsArray)}, 'Update');
     } else if (action == 'delete') {
         confirmBox('Delete selected hosts?', function () {
-            execAction(action, hosts_array)});
+            execAction(action, hostsArray)});
     } else if (action == 'reset') {
         confirmBox('Reset selected hosts?', function () {
-            execAction(action, hosts_array)}, 'Reset');
+            execAction(action, hostsArray)}, 'Reset');
     } else {
-        execAction(action, hosts_array);
+        execAction(action, hostsArray);
     }
 });
 
@@ -921,13 +928,15 @@ function getHostsWithPackageAjax(hostsId_array, package)
                     /**
                      *  Show the host and print the package(s) found
                      */
-                    $('.host-tr[hostid=' + hostId + ']').show();
-                    $('.host-tr[hostid=' + hostId + ']').find('td.host-additionnal-info').html(packagesFound);
+                    $('.host-line[hostid=' + hostId + ']').css('align-items', 'flex-start');
+                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').html(packagesFound);
+                    $('.host-line[hostid=' + hostId + ']').find('div.host-additionnal-info').css('display', 'flex');
+                    $('.host-line[hostid=' + hostId + ']').show();
                 } else {
                     /**
                      *  Else hide the host
                      */
-                    $('.host-tr[hostid=' + hostId + ']').hide();
+                    $('.host-line[hostid=' + hostId + ']').hide();
                 }
             }
 

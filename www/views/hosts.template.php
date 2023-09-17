@@ -5,9 +5,14 @@
     <br>
 
     <?php
-    if ($totalHosts == 0) {
-        echo '<p>No host configured yet.</p>';
-    } ?>
+    if ($totalHosts == 0) : ?>
+        <p>No host registered yet.<br><br></p>
+
+        <p>
+            You can register hosts that use <a href="https://github.com/lbr38/linupdate"><b>linupdate</b></a> with <b>reposerver</b> module enabled. This page will then display dashboards and informations about your hosts and their packages status (installed, available, updated...).
+        </p>
+        <?php
+    endif ?>
 
         <div class="hosts-charts-container">
             <?php
@@ -232,249 +237,212 @@
                                         }
                                         echo '</h3>';
                                     endif;
-                                    if (IS_ADMIN) :
-                                        /**
-                                         *  Boutons d'actions sur les checkbox sélectionnées
-                                         */ ?>
-                                        <div class="js-buttons-<?=$groupName?> hide">
-                                            
-                                            <h5>Request selected host(s) to send informations:</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-green" action="general-status-update" group="<?=$groupName?>" title="Send general informations (OS and state informations)."><img src="assets/icons/update.svg" class="icon" /><b>General informations</b></button>
-                                            <button class="hostsActionBtn pointer btn-fit-green" action="packages-status-update" group="<?=$groupName?>" title="Send packages informations (available, installed, updated...)."><img src="assets/icons/update.svg" class="icon" /><b>Packages informations</b></button>
-                                            <h5>Request selected host(s) to execute an action:</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-yellow" action="update" group="<?=$groupName?>" title="Update all available packages."><img src="assets/icons/update.svg" class="icon" /><b>Update packages</b></button>
-                                            
-                                            <h5>Delete or reset selected host(s):</h5>
-                                            <button class="hostsActionBtn pointer btn-fit-red" action="reset" group="<?=$groupName?>" title="Reset known data."><img src="assets/icons/update.svg" class="icon" /><b>Reset</b></button>
-                                            <button class="hostsActionBtn pointer btn-fit-red" action="delete" group="<?=$groupName?>" title="Delete."><img src="assets/icons/delete.svg" class="icon" /><b>Delete</b></button>
-                                        </div>
-                                        <?php
-                                    endif;
+
                                     /**
                                      *  Affichage des hôtes du groupe
                                      */
                                     if (!empty($hostsList)) : ?>
-                                        <table class="hosts-table">
-                                            <thead>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>Type</td>
-                                                    <td>Agent</td>
-                                                    <td title="Total installed packages."><span>Inst.</span></td>
-                                                    <td title="Total available updates."><span>Avail.</span></td>
-                                                    <?php
-                                                    if (IS_ADMIN) : ?>
-                                                        <td>
-                                                            <span class="js-select-all-button pointer" group="<?=$groupName?>">Select all</span>
-                                                        </td>
-                                                        <?php
-                                                    endif ?>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                        <div class="hosts-table">
+                                            <div class="hosts-table-title">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                                <span title="Hosting type">Type</span>
+                                                <span title="Host agent version">Agent v.</span>
+                                                <span title="Total installed packages.">Inst.</span>
+                                                <span title="Total available updates.">Avail.</span>
                                                 <?php
+                                                if (IS_ADMIN) : ?>
+                                                    <span class="text-right">
+                                                        <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$groupName?>" title="Select all" >
+                                                    </span>
+                                                    <?php
+                                                endif ?>
+                                            </div>
+                                        
+                                            <?php
+                                            /**
+                                             *  Traitement de la liste des hôtes
+                                             *  Ici on va afficher le détails de chaque hôte et on en profites pour récupérer certaines informations supplémentaires en base de données
+                                             */
+                                            foreach ($hostsList as $host) :
+                                                $id = $host['Id'];
+
+                                                if (!empty($host['Hostname'])) {
+                                                    $hostname = $host['Hostname'];
+                                                } else {
+                                                    $hostname = 'unknow';
+                                                }
+                                                if (!empty($host['Ip'])) {
+                                                    $ip = $host['Ip'];
+                                                } else {
+                                                    $ip = 'unknow';
+                                                }
+                                                if (!empty($host['Os'])) {
+                                                    $os = $host['Os'];
+                                                } else {
+                                                    $os = 'unknow';
+                                                }
+                                                if (!empty($host['Os_version'])) {
+                                                    $os_version = $host['Os_version'];
+                                                } else {
+                                                    $os_version = 'unknow';
+                                                }
+                                                if (!empty($host['Os_family'])) {
+                                                    $os_family = $host['Os_family'];
+                                                } else {
+                                                    $os_family = 'unknow';
+                                                }
+                                                if (!empty($host['Type'])) {
+                                                    $type = $host['Type'];
+                                                } else {
+                                                    $type = 'unknow';
+                                                }
+                                                if (!empty($host['Kernel'])) {
+                                                    $kernel = $host['Kernel'];
+                                                } else {
+                                                    $kernel = 'unknow';
+                                                }
+                                                if (!empty($host['Arch'])) {
+                                                    $arch = $host['Arch'];
+                                                } else {
+                                                    $arch = 'unknow';
+                                                }
+                                                if (!empty($host['Profile'])) {
+                                                    $profile = $host['Profile'];
+                                                } else {
+                                                    $profile = 'unknow';
+                                                }
+                                                if (!empty($host['Env'])) {
+                                                    $env = $host['Env'];
+                                                } else {
+                                                    $env = 'unknow';
+                                                }
+                                                if (!empty($host['Linupdate_version'])) {
+                                                    $agentVersion = $host['Linupdate_version'];
+                                                } else {
+                                                    $agentVersion = 'unknow';
+                                                }
+                                                if (!empty($host['Reboot_required'])) {
+                                                    $rebootRequired = $host['Reboot_required'];
+                                                } else {
+                                                    $rebootRequired = 'unknow';
+                                                }
+
                                                 /**
-                                                 *  Traitement de la liste des hôtes
-                                                 *  Ici on va afficher le détails de chaque hôte et on en profites pour récupérer certaines informations supplémentaires en base de données
+                                                 *  On défini le status de l'agent
+                                                 *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
                                                  */
-                                                foreach ($hostsList as $host) :
-                                                    $id = $host['Id'];
-                                                    if (!empty($host['Hostname'])) {
-                                                        $hostname = $host['Hostname'];
-                                                    } else {
-                                                        $hostname = 'unknow';
-                                                    }
-                                                    if (!empty($host['Ip'])) {
-                                                        $ip = $host['Ip'];
-                                                    } else {
-                                                        $ip = 'unknow';
-                                                    }
-                                                    if (!empty($host['Os'])) {
-                                                        $os = $host['Os'];
-                                                    } else {
-                                                        $os = 'unknow';
-                                                    }
-                                                    if (!empty($host['Os_version'])) {
-                                                        $os_version = $host['Os_version'];
-                                                    } else {
-                                                        $os_version = 'unknow';
-                                                    }
-                                                    if (!empty($host['Os_family'])) {
-                                                        $os_family = $host['Os_family'];
-                                                    } else {
-                                                        $os_family = 'unknow';
-                                                    }
-                                                    if (!empty($host['Type'])) {
-                                                        $type = $host['Type'];
-                                                    } else {
-                                                        $type = 'unknow';
-                                                    }
-                                                    if (!empty($host['Kernel'])) {
-                                                        $kernel = $host['Kernel'];
-                                                    } else {
-                                                        $kernel = 'unknow';
-                                                    }
-                                                    if (!empty($host['Arch'])) {
-                                                        $arch = $host['Arch'];
-                                                    } else {
-                                                        $arch = 'unknow';
-                                                    }
-                                                    if (!empty($host['Profile'])) {
-                                                        $profile = $host['Profile'];
-                                                    } else {
-                                                        $profile = 'unknow';
-                                                    }
-                                                    if (!empty($host['Env'])) {
-                                                        $env = $host['Env'];
-                                                    } else {
-                                                        $env = 'unknow';
-                                                    }
-                                                    if (!empty($host['Linupdate_version'])) {
-                                                        $agentVersion = $host['Linupdate_version'];
-                                                    } else {
-                                                        $agentVersion = 'unknow';
-                                                    }
-                                                    if (!empty($host['Reboot_required'])) {
-                                                        $rebootRequired = $host['Reboot_required'];
-                                                    } else {
-                                                        $rebootRequired = 'unknow';
-                                                    }
+                                                $agentStatus = $host['Online_status'];
 
-                                                    /**
-                                                     *  On défini le status de l'agent
-                                                     *  Ce status peut passer en 'stopped' si l'agent n'a pas donné de nouvelles après 1h
-                                                     */
-                                                    $agentStatus = $host['Online_status'];
-                                                    /**
-                                                     *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h (et 10min de "marge")
-                                                     */
-                                                    if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
-                                                        $agentStatus = 'seems-stopped';
-                                                    }
-                                                    /**
-                                                     *  Message du dernier état connu
-                                                     */
-                                                    $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' ' . $host['Online_status_time'];
-                                                    /**
-                                                     *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
-                                                     */
-                                                    $myhost->openHostDb($id);
-                                                    /**
-                                                     *  Récupération des paquets disponibles pour installation
-                                                     */
-                                                    $packagesAvailableTotal = count($myhost->getPackagesAvailable());
-                                                    /**
-                                                     *  Récupération du nombre total de paquets installés
-                                                     */
-                                                    $packagesInstalledTotal = count($myhost->getPackagesInstalled());
-                                                    /**
-                                                     *  Si le nombre total de paquets disponibles récupéré précédemment est > $pkgs_count_considered_outdated (seuil défini par l'utilisateur) alors on incrémente $totalNotUptodate (recense le nombre d'hôtes qui ne sont pas à jour dans le chartjs)
-                                                     *  Sinon c'est $totalUptodate qu'on incrémente.
-                                                     */
-                                                    if ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
-                                                        $totalNotUptodate++;
-                                                    } else {
-                                                        $totalUptodate++;
-                                                    }
-                                                    /**
-                                                     *  Récupération du status de la dernière mise à jour (si il y en a)
-                                                     */
-                                                    $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
+                                                /**
+                                                 *  On vérifie que la dernière fois que l'agent a remonté son status est inférieur à 1h (et 10min de "marge")
+                                                 */
+                                                if ($host['Online_status_date'] != DATE_YMD or $host['Online_status_time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 70 minutes'))) {
+                                                    $agentStatus = 'seems-stopped';
+                                                }
 
-                                                    /**
-                                                     *  Fermeture de la base de données de l'hôte
-                                                     */
-                                                    $myhost->closeHostDb();
+                                                /**
+                                                 *  Message du dernier état connu
+                                                 */
+                                                $agentLastSendStatusMsg = 'state on ' . DateTime::createFromFormat('Y-m-d', $host['Online_status_date'])->format('d-m-Y') . ' ' . $host['Online_status_time'];
 
-                                                    /**
-                                                     *  Affichage des informations de l'hôte
-                                                     *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
-                                                     */ ?>
-                                                    <tr class="host-tr" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
-                                                        <td>
-                                                            <?php
-                                                            /**
-                                                             *  Linupdate agent state
-                                                             */
-                                                            if ($agentStatus == 'running') {
-                                                                echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                            }
-                                                            if ($agentStatus == "disabled") {
-                                                                echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                            }
-                                                            if ($agentStatus == "stopped") {
-                                                                echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                            }
-                                                            if ($agentStatus == "seems-stopped") {
-                                                                echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
-                                                            }
-                                                            if ($agentStatus == "unknow") {
-                                                                echo '<img src="assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
-                                                            } ?>
-                                                        </td>
-                                                        <td>
-                                                            <?php
-                                                            if (preg_match('/centos/i', $os)) {
-                                                                echo '<img src="assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
-                                                            } elseif (preg_match('/debian/i', $os)) {
-                                                                echo '<img src="assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
-                                                            } elseif (preg_match('/ubuntu/i', $os)) {
-                                                                echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
-                                                            } elseif (preg_match('/mint/i', $os)) {
-                                                                echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
-                                                            } else {
-                                                                echo '<img src="assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
-                                                            } ?>
-                                                        </td>
-                                                        <td>
-                                                            <?php
-                                                            /**
-                                                             *  Print hostname and IP, with more infos about the host in the tooltip box
-                                                             */
-                                                            $tooltip  = 'Hostname: '. $hostname . '&#10;';
-                                                            $tooltip .= 'IP: '. $ip . '&#10;';
-                                                            $tooltip .= 'OS Family: '. ucfirst($os_family) . '&#10;';
-                                                            $tooltip .= 'OS: '. ucfirst($os) . ' ' . $os_version . '&#10;';
-                                                            $tooltip .= 'Kernel: '. $kernel . '&#10;';
-                                                            $tooltip .= 'Arch: '. $arch . '&#10;';
-                                                            $tooltip .= 'Profile: '. $profile . '&#10;';
-                                                            $tooltip .= 'Env: '. $env . '&#10;'; ?>
-                                            
+                                                /**
+                                                 *  On ouvre la BDD dédiée de l'hôte à partir de son ID pour pouvoir récupérer des informations supplémentaires.
+                                                 */
+                                                $myhost->openHostDb($id);
+
+                                                /**
+                                                 *  Récupération des paquets disponibles pour installation
+                                                 */
+                                                $packagesAvailableTotal = count($myhost->getPackagesAvailable());
+
+                                                /**
+                                                 *  Récupération du nombre total de paquets installés
+                                                 */
+                                                $packagesInstalledTotal = count($myhost->getPackagesInstalled());
+
+                                                /**
+                                                 *  Si le nombre total de paquets disponibles récupéré précédemment est > $pkgs_count_considered_outdated (seuil défini par l'utilisateur) alors on incrémente $totalNotUptodate (recense le nombre d'hôtes qui ne sont pas à jour dans le chartjs)
+                                                 *  Sinon c'est $totalUptodate qu'on incrémente.
+                                                 */
+                                                if ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
+                                                    $totalNotUptodate++;
+                                                } else {
+                                                    $totalUptodate++;
+                                                }
+
+                                                /**
+                                                 *  Récupération du status de la dernière mise à jour (si il y en a)
+                                                 */
+                                                $lastRequestedUpdate = $myhost->getLastRequestedUpdateStatus();
+
+                                                /**
+                                                 *  Fermeture de la base de données de l'hôte
+                                                 */
+                                                $myhost->closeHostDb();
+
+                                                /**
+                                                 *  Affichage des informations de l'hôte
+                                                 *  Ici le <tr> contiendra toutes les informations de l'hôte, ceci afin de pouvoir faire des recherches dessus (input 'rechercher un hôte')
+                                                 */ ?>
+                                                <div class="host-line" hostid="<?= $id ?>" hostname="<?= $hostname ?>" os="<?= $os ?>" os_version="<?= $os_version ?>" os_family="<?= $os_family ?>" type="<?= $type ?>" kernel="<?= $kernel ?>" arch="<?= $arch ?>" agent_version="<?= $agentVersion ?>" reboot_required="<?= $rebootRequired ?>">
+                                                    <div>
+                                                        <?php
+                                                        /**
+                                                         *  Linupdate agent state
+                                                         */
+                                                        if ($agentStatus == 'running') {
+                                                            echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        }
+                                                        if ($agentStatus == "disabled") {
+                                                            echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        }
+                                                        if ($agentStatus == "stopped") {
+                                                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        }
+                                                        if ($agentStatus == "seems-stopped") {
+                                                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                        }
+                                                        if ($agentStatus == "unknow") {
+                                                            echo '<img src="assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
+                                                        } ?>
+                                                    </div>
+                                                    <div>
+                                                        <?php
+                                                        if (preg_match('/centos/i', $os)) {
+                                                            echo '<img src="assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
+                                                        } elseif (preg_match('/redhat/i', $os)) {
+                                                            echo '<img src="assets/icons/products/redhat.png" class="icon" title="' . $os . '" />';
+                                                        } elseif (preg_match('/debian/i', $os)) {
+                                                            echo '<img src="assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
+                                                        } elseif (preg_match('/ubuntu|mint/i', $os)) {
+                                                            echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
+                                                        } else {
+                                                            echo '<img src="assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
+                                                        } ?>
+                                                    </div>
+                                                    <div>
+                                                        <?php
+                                                        /**
+                                                         *  Print hostname and IP, with more infos about the host in the tooltip box
+                                                         */
+                                                        $tooltip  = 'Hostname: '. $hostname . '&#10;';
+                                                        $tooltip .= 'IP: '. $ip . '&#10;';
+                                                        $tooltip .= 'OS Family: '. ucfirst($os_family) . '&#10;';
+                                                        $tooltip .= 'OS: '. ucfirst($os) . ' ' . $os_version . '&#10;';
+                                                        $tooltip .= 'Kernel: '. $kernel . '&#10;';
+                                                        $tooltip .= 'Arch: '. $arch . '&#10;';
+                                                        $tooltip .= 'Profile: '. $profile . '&#10;';
+                                                        $tooltip .= 'Env: '. $env . '&#10;'; ?>
+
+                                                        <div>
                                                             <span title="<?= $tooltip ?>">
                                                                 <a href="/host?id=<?= $id ?>" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a> (<?= $ip ?>)
                                                             </span>
-                                                        </td>
-                                                        <td class="hostType-td">
-                                                            <span class="label-black font-size-11" title="Type <?= $type ?>"><?= $type ?></span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="label-black font-size-11" title="Host agent version"><?= $agentVersion ?></span>
-                                                        </td>
-                                                        <td class="packagesCount-td" title="<?= $packagesInstalledTotal . ' installed package(s) on this host.'?>">
-                                                            <span class="label-white font-size-11"><?= $packagesInstalledTotal ?></span>
-                                                        </td>
-                                                        <td class="packagesCount-td" title="<?= $packagesAvailableTotal . ' available update(s) on this host.'?>">
-                                                            <?php
-                                                            if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
-                                                                echo '<span class="label-white font-size-11 bkg-red">' . $packagesAvailableTotal . '</span>';
-                                                            } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
-                                                                echo '<span class="label-white font-size-11 bkg-yellow">' . $packagesAvailableTotal . '</span>';
-                                                            } else {
-                                                                echo '<span class="label-white font-size-11">' . $packagesAvailableTotal . '</span>';
-                                                            } ?>
-                                                        </td>
-                                                        <?php
-                                                        if (IS_ADMIN) : ?>
-                                                            <td title="Select <?= $hostname ?>">
-                                                                <input type="checkbox" class="js-host-checkbox icon-verylowopacity" name="checkbox-host[]" group="<?= $groupName ?>" value="<?= $id ?>">
-                                                            </td>
-                                                            <?php
-                                                        endif ?>
-                                                        <td class="host-update-status">
+                                                        </div>
+
+                                                        <div class="host-update-status">
                                                             <?php
                                                             /**
                                                              *  Status de la dernière demande
@@ -484,19 +452,16 @@
                                                                     $updateType = 'Packages update';
                                                                 }
                                                                 if ($lastRequestedUpdate['Type'] == 'general-status-update') {
-                                                                    $updateType = 'Sending general info.';
+                                                                    $updateType = 'Retrieving general informations';
                                                                 }
                                                                 if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
-                                                                    $updateType = 'Sending packages state';
+                                                                    $updateType = 'Retrieving packages state';
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'requested') {
-                                                                    $updateStatus = 'requested';
+                                                                    $updateStatus = '(request send)';
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'running') {
                                                                     $updateStatus = 'running<img src="assets/images/loading.gif" class="icon" />';
-                                                                }
-                                                                if ($lastRequestedUpdate['Status'] == 'done') {
-                                                                    $updateStatus = 'done';
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'error') {
                                                                     $updateStatus = 'has failed';
@@ -508,24 +473,56 @@
                                                                     if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
                                                                         echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                     } else {
-                                                                        echo '<span title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        echo '<span class="lowopacity-cst" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                     }
                                                                 }
                                                                 if ($lastRequestedUpdate['Status'] == 'error') {
                                                                     echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
                                                                 }
                                                             endif ?>
-                                                        </td>
-                                                        <td class="host-additionnal-info">
-                                                        </td>
-                                                    </tr>
+                                                        </div>
+
+                                                        <div class="host-additionnal-info">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="hostType-td">
+                                                        <span class="label-black font-size-11" title="Type <?= $type ?>"><?= $type ?></span>
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="label-black font-size-11" title="Host agent version"><?= $agentVersion ?></span>
+                                                    </div>
+
+                                                    <div class="packagesCount-td" title="<?= $packagesInstalledTotal . ' installed package(s) on this host.'?>">
+                                                        <span class="label-white font-size-11"><?= $packagesInstalledTotal ?></span>
+                                                    </div>
+
+                                                    <div class="packagesCount-td" title="<?= $packagesAvailableTotal . ' available update(s) on this host.'?>">
+                                                        <?php
+                                                        if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
+                                                            echo '<span class="label-white font-size-11 bkg-red">' . $packagesAvailableTotal . '</span>';
+                                                        } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
+                                                            echo '<span class="label-white font-size-11 bkg-yellow">' . $packagesAvailableTotal . '</span>';
+                                                        } else {
+                                                            echo '<span class="label-white font-size-11">' . $packagesAvailableTotal . '</span>';
+                                                        } ?>
+                                                    </div>
+
                                                     <?php
-                                                endforeach ?>
-                                            </tbody>
-                                        </table>
+                                                    if (IS_ADMIN) : ?>
+                                                        <div class="text-right" title="Select <?= $hostname ?>">
+                                                            <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $groupName ?>" value="<?= $id ?>">
+                                                        </div>
+                                                        <?php
+                                                    endif ?>
+                                                </div>
+                                                <?php
+                                            endforeach ?>
+                                        </div>
                                         <?php
                                     else :
-                                        echo '<table class="hosts-table-empty"><tr><td class="lowopacity-cst">(empty)</td></tr></table>';
+                                        echo '<div class="hosts-table-empty"><p class="lowopacity-cst">(empty)</p></div>';
                                     endif ?>
                                 </div>
                                 <?php

@@ -80,7 +80,6 @@ jobs:
 
       # deb
       - name: Run job - Mirror deb repo
-        #run: sudo -u www-data php /var/www/repomanager/operations/execute.php --id='ci-mirror-repo' || sleep 10; cat /var/lib/repomanager/logs/main/lastlog.log; exit 1
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
       - name: Print mirrored deb repo content

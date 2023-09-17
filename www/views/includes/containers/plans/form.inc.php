@@ -183,7 +183,7 @@
                         <td class="td-10" title="Selected snapshot content will be copied to the new snapshot before syncing. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
                         <td>
                             <label class="onoff-switch-label">
-                                <input id="onlySyncDifference" type="checkbox" name="onlySyncDifference" class="onoff-switch-input" value="yes" />
+                                <input id="onlySyncDifference" type="checkbox" name="onlySyncDifference" class="onoff-switch-input" value="yes" checked />
                                 <span class="onoff-switch-slider"></span>
                             </label>
                         </td>

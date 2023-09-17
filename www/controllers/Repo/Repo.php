@@ -644,7 +644,8 @@ class Repo
             }
         }
 
-        \Models\History::set($_SESSION['username'], 'Modification of repos members of the group <span class="label-white">' . $groupName . '</span>', 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], 'Modification of repos members of the group <span class="label-white">' . $groupName . '</span>', 'success');
 
         \Controllers\App\Cache::clear();
     }
@@ -829,48 +830,47 @@ class Repo
 
                         if ($packageType == 'rpm') {
                             if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
-                                exec('rm -rf ' . REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName, $output, $result);
+                                // exec('rm -rf ' . REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName, $output, $result);
+                                $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
                             }
                         }
                         if ($packageType == 'deb') {
                             if (is_dir(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection)) {
-                                exec('rm -rf ' . REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection, $output, $result);
+                                // exec('rm -rf ' . REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection, $output, $result);
+                                $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
                             }
                         }
 
-                        if (is_numeric($result)) {
-                            /**
-                             *  Cas où le snapshot a été supprimé avec succès
-                             */
-                            if ($result == 0) {
-                                if ($packageType == 'rpm') {
-                                    $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
-                                }
-                                if ($packageType == 'deb') {
-                                    $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
-                                }
-
-                                /**
-                                 *  Changement du status en base de données
-                                 */
-                                $this->snapSetStatus($snapId, 'deleted');
-
-                            /**
-                             *  Cas où il y a eu une erreur lors de la suppression
-                             */
-                            } else {
-                                if ($packageType == 'rpm') {
-                                    $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
-                                }
-                                if ($packageType == 'deb') {
-                                    $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
-                                }
-
-                                /**
-                                 *  On passe au snapshot suivant (et donc on ne change pas le status du snapshot en base de données puisqu'il n'a pas pu être supprimé)
-                                 */
-                                continue;
+                        /**
+                         *  Cas où le snapshot a été supprimé avec succès
+                         */
+                        if ($result === true) {
+                            if ($packageType == 'rpm') {
+                                $removedSnaps[] = '<span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
                             }
+                            if ($packageType == 'deb') {
+                                $removedSnaps[] = '<span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span> snapshot has been deleted';
+                            }
+
+                            /**
+                             *  Changement du status en base de données
+                             */
+                            $this->snapSetStatus($snapId, 'deleted');
+
+                        /**
+                         *  Cas où il y a eu une erreur lors de la suppression
+                         */
+                        } else {
+                            if ($packageType == 'rpm') {
+                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                            }
+                            if ($packageType == 'deb') {
+                                $removedSnapsError[] = 'Error while automatically deleting snapshot <span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span>⟶<span class="label-black">' . $snapDateFormatted . '</span>';
+                            }
+                            /**
+                             *  On passe au snapshot suivant (et donc on ne change pas le status du snapshot en base de données puisqu'il n'a pas pu être supprimé)
+                             */
+                            continue;
                         }
                     }
                 }

@@ -92,9 +92,17 @@ class Login
     }
 
     /**
+     *  Get Id by username
+     */
+    public function getIdByUsername(string $username)
+    {
+        return $this->model->getIdByUsername($username);
+    }
+
+    /**
      *  Get username by user Id
      */
-    private function getUsernameById(string $id)
+    public function getUsernameById(string $id)
     {
         return $this->model->getUsernameById($id);
     }
@@ -182,7 +190,8 @@ class Login
          */
         $this->model->addUser($username, $hashedPassword, $role);
 
-        \Models\History::set($_SESSION['username'], "Created user: <b>$username</b>", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Created user: <b>$username</b>", 'success');
 
         /**
          *  Return temporary generated password
@@ -220,7 +229,8 @@ class Login
          *  If specified password does not match database password, then it is invalid
          */
         if (!password_verify($password, $hashedPassword)) {
-            \Models\History::set($username, 'Authentication failed: Invalid password', 'error');
+            $myhistory = new \Controllers\History();
+            $myhistory->set($username, 'Authentication failed: Invalid password', 'error');
             throw new Exception('Invalid login and/or password');
         }
     }
@@ -268,7 +278,8 @@ class Login
         $_SESSION['last_name']  = $lastName;
         $_SESSION['email']      = $email;
 
-        \Models\History::set($username, "Personal informations modification", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($username, "Personal informations modification", 'success');
     }
 
     /**
@@ -330,7 +341,8 @@ class Login
          */
         $this->model->updatePassword($username, $newPasswordHashed);
 
-        \Models\History::set($_SESSION['username'], "Password modification", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Password modification", 'success');
     }
 
     /**
@@ -369,7 +381,8 @@ class Login
          */
         $this->model->updatePassword($username, $hashedPassword);
 
-        \Models\History::set($_SESSION['username'], "Reset password of user <b>$username</b>", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Reset password of user <b>$username</b>", 'success');
 
         /**
          *  Return new password
@@ -483,13 +496,14 @@ class Login
          */
         $this->model->deleteUser($id);
 
-        \Models\History::set($_SESSION['username'], "Delete user <b>$username</b>", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Delete user <b>$username</b>", 'success');
     }
 
     /**
      *  Check if user exists in database
      */
-    private function userExists(string $username)
+    public function userExists(string $username)
     {
         return $this->model->userExists($username);
     }

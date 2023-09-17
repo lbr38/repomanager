@@ -1,4 +1,4 @@
-<section>
+<section class="section-main">
     <?php
 
     $idError = 0;
@@ -487,6 +487,9 @@
                                         /**
                                          *  Event status icon
                                          */
+                                        if ($event['Status'] == 'requested') {
+                                            echo '<img src="assets/icons/graycircle.png" class="icon-small" />';
+                                        }
                                         if ($event['Status'] == 'done') {
                                             echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
                                         }
@@ -501,10 +504,10 @@
                                          *  Request type
                                          */
                                         if ($event['Type'] == 'general-status-update') {
-                                            echo 'Sending general info.';
+                                            echo 'Retrieving general informations';
                                         }
                                         if ($event['Type'] == 'packages-status-update') {
-                                            echo 'Sending packages state';
+                                            echo 'Retrieving packages state';
                                         }
                                         if ($event['Type'] == 'packages-update') {
                                             echo 'Packages update';
@@ -523,7 +526,7 @@
                                             echo ' running';
                                         }
                                         if ($event['Status'] == 'requested') {
-                                            echo ' requested';
+                                            echo ' (request send)';
                                         }
                                         echo '</td>';
                                     endif;

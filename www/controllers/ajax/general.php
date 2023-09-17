@@ -1,19 +1,6 @@
 <?php
 
 /**
- *  Update Repomanager
- */
-if ($action == "updateRepomanager") {
-    $myupdate = new \Controllers\Update();
-    $myupdate->update();
-
-    /**
-     *  Always send HTTP_OK response, error warning on update is handled by a dedicated window
-     */
-    response(HTTP_OK, '');
-}
-
-/**
  *  Acquit log message
  */
 if ($action == "acquitLog" && !empty($_POST['id'])) {
@@ -56,6 +43,28 @@ if ($action == "getContainerState") {
     }
 
     response(HTTP_OK, json_encode($result));
+}
+
+/**
+ *  Return specified alert confirm box content
+ */
+if ($action == "getConfirmBox" && !empty($_POST['name'])) {
+    try {
+        /**
+         *  Check if confirm box exists
+         */
+        if (!file_exists(ROOT . '/templates/alert/' . $_POST['name'] . '.php')) {
+            throw new \Exception('Invalid confirm box');
+        }
+
+        ob_start();
+        include_once(ROOT . '/templates/alert/' . $_POST['name'] . '.php');
+        $content = ob_get_clean();
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

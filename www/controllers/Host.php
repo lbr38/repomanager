@@ -1727,6 +1727,7 @@ class Host
             }
         }
 
-        \Models\History::set($_SESSION['username'], 'Modification of hosts members of the group <span class="label-white">' . $groupName . '</span>', 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], 'Modification of hosts members of the group <span class="label-white">' . $groupName . '</span>', 'success');
     }
 }

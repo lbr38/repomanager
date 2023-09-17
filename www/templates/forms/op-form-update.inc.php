@@ -132,7 +132,7 @@ endif; ?>
     <td class="td-30" title="Selected snapshot content will be copied to the new snapshot before syncing. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
     <td>
         <label class="onoff-switch-label">
-            <input type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="onlySyncDifference" />
+            <input type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="onlySyncDifference" checked />
             <span class="onoff-switch-slider"></span>
         </label>
     </td>

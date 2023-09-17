@@ -246,7 +246,8 @@ class Profile
          */
         $this->model->add($name);
 
-        \Models\History::set($_SESSION['username'], "Create a new profile: $name", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Create a new profile: $name", 'success');
     }
 
     /**
@@ -280,7 +281,8 @@ class Profile
          */
         $this->model->rename($name, $newName);
 
-        \Models\History::set($_SESSION['username'], "<b>$name</b> profile renamed to <b>$newName</b>", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "<b>$name</b> profile renamed to <b>$newName</b>", 'success');
     }
 
     /**
@@ -342,7 +344,8 @@ class Profile
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
         }
 
-        \Models\History::set($_SESSION['username'], "Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Duplicate profile <b>$name</b> to <b>$newName</b>", 'success');
     }
 
     /**
@@ -364,7 +367,8 @@ class Profile
          */
         $this->model->delete($name);
 
-        \Models\History::set($_SESSION['username'], "Delete <b>$name</b> profile", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Delete <b>$name</b> profile", 'success');
     }
 
     /**
@@ -533,7 +537,8 @@ class Profile
          */
         $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $linupdateGetPkgConf, $linupdateGetReposConf, $notes);
 
-        \Models\History::set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
+        $myhistory = new \Controllers\History();
+        $myhistory->set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
     }
 
     /**

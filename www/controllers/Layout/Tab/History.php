@@ -15,6 +15,7 @@ class History
         }
 
         $myusers = new \Controllers\Login();
+        $myhistory = new \Controllers\History();
 
         /**
          *  Cas où on souhaite filtrer par Id utilisateur
@@ -33,9 +34,9 @@ class History
          *  Case it must be filtered by user
          */
         if (!empty($filterByUser) and $filterByUser == "yes") {
-            $historyLines = \Models\History::getByUser($filterByUserId);
+            $historyLines = $myhistory->getByUser($filterByUserId);
         } else {
-            $historyLines = \Models\History::getAll();
+            $historyLines = $myhistory->getAll();
         }
 
         /**
