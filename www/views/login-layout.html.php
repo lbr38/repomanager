@@ -2,7 +2,7 @@
 <html>
 <?php
 if (!defined('ROOT')) {
-    define('ROOT', dirname(__FILE__, 2));
+    define('ROOT', '/var/www/repomanager');
 }
 
 require_once(ROOT . '/controllers/Autoloader.php');
@@ -99,10 +99,10 @@ if (!empty($_POST['username']) and !empty($_POST['password']) and !empty($_POST[
 <head>
     <meta charset="utf-8">
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="resources/styles/main.css">
+    <link rel="stylesheet" type="text/css" href="/resources/styles/main.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="assets/favicon.ico" />
+    <link rel="icon" href="/assets/favicon.ico" />
     <title>Login</title>
 </head>
 

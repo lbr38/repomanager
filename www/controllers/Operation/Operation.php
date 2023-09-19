@@ -359,6 +359,8 @@ class Operation
         $this->layoutContainerStateController->update('repos/list');
         $this->layoutContainerStateController->update('plans/planned');
         $this->layoutContainerStateController->update('operations/list');
+        $this->layoutContainerStateController->update('browse/list');
+        $this->layoutContainerStateController->update('browse/actions');
 
         /**
          *  Create the PID file
@@ -407,6 +409,8 @@ class Operation
         $this->layoutContainerStateController->update('plans/planned');
         $this->layoutContainerStateController->update('plans/history');
         $this->layoutContainerStateController->update('operations/list');
+        $this->layoutContainerStateController->update('browse/list');
+        $this->layoutContainerStateController->update('browse/actions');
 
         /**
          *  Clean unused repos from profiles
@@ -547,22 +551,22 @@ class Operation
                         <td class="td-fit">
                             <?php
                             if ($action == "new") {
-                                echo '<img class="icon" src="assets/icons/plus.svg" title="New repo" />';
+                                echo '<img class="icon" src="/assets/icons/plus.svg" title="New repo" />';
                             }
                             if ($action == "update") {
-                                echo '<img class="icon" src="assets/icons/update.svg" title="Update repo" />';
+                                echo '<img class="icon" src="/assets/icons/update.svg" title="Update repo" />';
                             }
                             if ($action == "reconstruct") {
-                                echo '<img class="icon" src="assets/icons/update.svg" title="Rebuild metadata" />';
+                                echo '<img class="icon" src="/assets/icons/update.svg" title="Rebuild metadata" />';
                             }
                             if ($action == "env" or strpos(htmlspecialchars_decode($action), '->') !== false) {
-                                echo '<img class="icon" src="assets/icons/link.svg" title="Point an environment" />';
+                                echo '<img class="icon" src="/assets/icons/link.svg" title="Point an environment" />';
                             }
                             if ($action == "duplicate") {
-                                echo '<img class="icon" src="assets/icons/duplicate.svg" title="Duplicate" />';
+                                echo '<img class="icon" src="/assets/icons/duplicate.svg" title="Duplicate" />';
                             }
                             if ($action == "delete" or $action == "removeEnv") {
-                                echo '<img class="icon" src="assets/icons/delete.svg" title="Delete" />';
+                                echo '<img class="icon" src="/assets/icons/delete.svg" title="Delete" />';
                             } ?>
                         </td>
                         <td class="td-small pointer show-logfile-btn" logfile="<?= $logfile ?>">
@@ -581,23 +585,23 @@ class Operation
                              *  Print relaunch button if pool Id JSON file still exists
                              */
                             if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json') and IS_ADMIN) {
-                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="assets/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
+                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="/assets/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
                             }
 
                             /**
                              *  Affichage de l'icone en cours ou terminée ou en erreur
                              */
                             if ($status == "running") {
-                                echo 'running<img src="assets/images/loading.gif" class="icon" title="running" />';
+                                echo 'running<img src="/assets/images/loading.gif" class="icon" title="running" />';
                             }
                             if ($status == "done") {
-                                echo '<img class="icon-small" src="assets/icons/greencircle.png" title="Operation completed" />';
+                                echo '<img class="icon-small" src="/assets/icons/greencircle.png" title="Operation completed" />';
                             }
                             if ($status == "error") {
-                                echo '<img class="icon-small" src="assets/icons/redcircle.png" title="Operation has failed" />';
+                                echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Operation has failed" />';
                             }
                             if ($status == "stopped") {
-                                echo '<img class="icon-small" src="assets/icons/redcircle.png" title="Operation stopped by the user" />';
+                                echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Operation stopped by the user" />';
                             }
                             ?>
                         </td>

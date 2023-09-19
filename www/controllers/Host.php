@@ -327,35 +327,35 @@ class Host
              */
             if ($event['State'] == "inventored") {
                 $content_color = 'blue';
-                $content_text = '<img src="assets/icons/package.svg" class="icon" /> Inventored';
+                $content_text = '<img src="/assets/icons/package.svg" class="icon" /> Inventored';
             }
             if ($event['State'] == "installed") {
                 $content_color = 'green';
-                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Installed';
+                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Installed';
             }
             if ($event['State'] == "dep-installed") {
                 $content_color = 'green';
-                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Installed (as depencency)';
+                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Installed (as depencency)';
             }
             if ($event['State'] == "upgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="assets/icons/update.svg" class="icon" /> Updated';
+                $content_text = '<img src="/assets/icons/update.svg" class="icon" /> Updated';
             }
             if ($event['State'] == "removed") {
                 $content_color = 'red';
-                $content_text = '<img src="assets/icons/delete.svg" class="icon" /> Uninstalled';
+                $content_text = '<img src="/assets/icons/delete.svg" class="icon" /> Uninstalled';
             }
             if ($event['State'] == "downgraded") {
                 $content_color = 'yellow';
-                $content_text = '<img src="assets/icons/arrow-back.svg" class="icon" /> Downgraded';
+                $content_text = '<img src="/assets/icons/arrow-back.svg" class="icon" /> Downgraded';
             }
             if ($event['State'] == "reinstalled") {
                 $content_color = 'yellow';
-                $content_text = '<img src="assets/icons/down.svg" class="icon" /> Reinstalled';
+                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Reinstalled';
             }
             if ($event['State'] == "purged") {
                 $content_color = 'red';
-                $content_text = '<img src="assets/icons/delete.svg" class="icon" /> Purged';
+                $content_text = '<img src="/assets/icons/delete.svg" class="icon" /> Purged';
             }
             $content_version = $event['Version'];
 
@@ -581,7 +581,6 @@ class Host
          *  On traite si l'array n'est pas vide
          */
         if (!empty($packagesList)) {
-
             /**
              *  Ouverture de la BDD dédiée de l'hôte
              */
@@ -634,7 +633,6 @@ class Host
                      *
                      *  En revanche, si le paquet est en état 'removed' ou 'upgraded', on met à jour les informations en base de données
                      */
-                    // if ($packageState == 'removed' or $packageState == 'upgraded') {
                     if ($packageState == 'removed') {
                         /**
                          *  Ajout du paquet en base de données en état 'inventored'

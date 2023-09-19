@@ -16,7 +16,7 @@ class Autoloader
         $__LOAD_ERROR_MESSAGES = array();
 
         if (!defined('ROOT')) {
-            define('ROOT', dirname(__FILE__, 2));
+            define('ROOT', '/var/www/repomanager');
         }
 
         $this->register();

@@ -1,6 +1,6 @@
 <?php
 
-define("ROOT", dirname(__FILE__, 4));
+define('ROOT', '/var/www/repomanager');
 
 /**
  *  Header and allowed methods

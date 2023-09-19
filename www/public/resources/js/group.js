@@ -102,7 +102,7 @@ function newGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "newGroup",
@@ -120,7 +120,7 @@ function newGroup(name)
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -135,7 +135,7 @@ function deleteGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "deleteGroup",
@@ -153,7 +153,7 @@ function deleteGroup(name)
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -168,7 +168,7 @@ function renameGroup(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "renameGroup",
@@ -187,7 +187,7 @@ function renameGroup(name, newname)
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -202,7 +202,7 @@ function editGroupRepos(name, reposId)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "editGroupRepos",
@@ -218,7 +218,7 @@ function editGroupRepos(name, reposId)
             printAlert(jsonValue.message, 'success');
             reloadContainer('repos/list');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

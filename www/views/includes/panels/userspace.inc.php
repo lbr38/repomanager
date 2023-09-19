@@ -15,8 +15,8 @@
             <div id="user_apikey">(hashed) Generate a new key to retrieve it in clear.</div>
         </td>
         <td>
-            <img id="user-apikey-copy-btn" src="assets/icons/duplicate.svg" class="icon-lowopacity hide" title="Copy to clipboard" onclick="copyToClipboard(user_apikey)">
-            <img id="user-generate-apikey-btn" src="assets/icons/update.svg" class="icon-lowopacity" title="Generate a new key">
+            <img id="user-apikey-copy-btn" src="/assets/icons/duplicate.svg" class="icon-lowopacity hide" title="Copy to clipboard" onclick="copyToClipboard(user_apikey)">
+            <img id="user-generate-apikey-btn" src="/assets/icons/update.svg" class="icon-lowopacity" title="Generate a new key">
         </td>
     </tr>
 </table>
@@ -24,7 +24,7 @@
 <br>
 <a href="/logout" title="Logout">
     <div class="slide-btn-red" title="Logout">
-        <img src="assets/icons/power.svg" />
+        <img src="/assets/icons/power.svg" />
         <span>Logout</span>
     </div>
 </a>

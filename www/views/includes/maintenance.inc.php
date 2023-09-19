@@ -3,7 +3,7 @@ if (UPDATE_RUNNING == "true") :
     /**
      *  La page de maintenance s'affiche sur toutes les pages sauf sur /settings
      */
-    if (__ACTUAL_URI__ != "/settings") : ?>
+    if (__ACTUAL_URI__[1] != "/settings") : ?>
         <div id="maintenance-container">    
             <div id="maintenance">
                 <h3>UPDATE RUNNING</h3>

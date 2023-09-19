@@ -263,7 +263,7 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "planification",
             action: "newPlan",
@@ -290,7 +290,7 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
             printAlert(jsonValue.message, 'success');
             reloadContainer('plans/planned');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -305,7 +305,7 @@ function deletePlan(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "planification",
             action: "deletePlan",
@@ -317,7 +317,7 @@ function deletePlan(id)
             printAlert(jsonValue.message, 'success');
             reloadContainer('plans/planned');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -332,7 +332,7 @@ function disablePlan(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "planification",
             action: "disablePlan",
@@ -344,7 +344,7 @@ function disablePlan(id)
             printAlert(jsonValue.message, 'success');
             reloadContainer('plans/planned');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -359,7 +359,7 @@ function enablePlan(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "planification",
             action: "enablePlan",
@@ -371,7 +371,7 @@ function enablePlan(id)
             printAlert(jsonValue.message, 'success');
             reloadContainer('plans/planned');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

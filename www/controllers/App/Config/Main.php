@@ -10,7 +10,7 @@ class Main
     {
         // Root dir
         if (!defined('ROOT')) {
-            define('ROOT', dirname(__FILE__, 4));
+            define('ROOT', '/var/www/repomanager');
         }
         // Data dir
         if (!defined('DATA_DIR')) {
@@ -35,10 +35,6 @@ class Main
         // Cache dir
         if (!defined('WWW_CACHE')) {
             define('WWW_CACHE', DATA_DIR . "/cache");
-        }
-        // no need to use /dev/shm anymore so delete symlink if exists
-        if (is_link(WWW_CACHE)) {
-            unlink(WWW_CACHE);
         }
         // GnuPG home
         if (!defined('GPGHOME')) {
@@ -75,6 +71,9 @@ class Main
         if (!defined('UPDATE_INFO_LOG')) {
             define('UPDATE_INFO_LOG', LOGS_DIR . '/update/update.info');
         }
+        if (!defined('CVE_LOG_DIR')) {
+            define('CVE_LOG_DIR', LOGS_DIR . '/cve');
+        }
         // Async tasks pool dir
         if (!defined('POOL')) {
             define('POOL', DATA_DIR . "/operations/pool");
@@ -90,6 +89,10 @@ class Main
         // Hosts databases dir
         if (!defined('HOSTS_DIR')) {
             define('HOSTS_DIR', DATA_DIR . '/hosts');
+        }
+        // Cve affected hosts import dir
+        if (!defined('CVE_IMPORT_HOSTS_DIR')) {
+            define('CVE_IMPORT_HOSTS_DIR', TEMP_DIR . '/cve');
         }
         // Logbuilder
         if (!defined('LOGBUILDER')) {

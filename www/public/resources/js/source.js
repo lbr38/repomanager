@@ -176,7 +176,7 @@ function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "addSource",
@@ -196,7 +196,7 @@ function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
             reloadSourcesDiv();
             reloadNewRepoDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -211,7 +211,7 @@ function deleteSource(sourceId)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "deleteSource",
@@ -227,7 +227,7 @@ function deleteSource(sourceId)
             reloadSourcesDiv();
             reloadNewRepoDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -242,7 +242,7 @@ function renameSource(type, name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "renameSource",
@@ -260,7 +260,7 @@ function renameSource(type, name, newname)
             reloadSourcesDiv();
             reloadNewRepoDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -277,7 +277,7 @@ function editSourceUrl(type, name, url)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "editSourceUrl",
@@ -294,7 +294,7 @@ function editSourceUrl(type, name, url)
             printAlert(jsonValue.message, 'success');
             reloadNewRepoDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -309,7 +309,7 @@ function deleteGpgKey(gpgKeyId)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "deleteGpgKey",
@@ -324,7 +324,7 @@ function deleteGpgKey(gpgKeyId)
             printAlert(jsonValue.message, 'success');
             reloadSourcesDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -340,7 +340,7 @@ function editSourceGpgKey(sourceId, gpgkey)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "editGpgKey",
@@ -352,7 +352,7 @@ function editSourceGpgKey(sourceId, gpgkey)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -368,7 +368,7 @@ function editSourceSslCertificatePath(sourceId, sslCertificatePath)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "editSslCertificatePath",
@@ -380,7 +380,7 @@ function editSourceSslCertificatePath(sourceId, sslCertificatePath)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -396,7 +396,7 @@ function editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "editSslPrivateKeyPath",
@@ -408,7 +408,7 @@ function editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -423,7 +423,7 @@ function importGpgKey(gpgkey)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "source",
             action: "importGpgKey",
@@ -438,7 +438,7 @@ function importGpgKey(gpgkey)
             printAlert(jsonValue.message, 'success');
             reloadSourcesDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

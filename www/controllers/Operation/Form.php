@@ -123,7 +123,7 @@ class Form
             $content .= ob_get_clean();
         }
 
-        $content .= '<br><button class="btn-large-red">Confirm and execute<img src="assets/icons/rocket.svg" class="icon" /></button></form><br><br>';
+        $content .= '<br><button class="btn-large-red">Confirm and execute<img src="/assets/icons/rocket.svg" class="icon" /></button></form><br><br>';
 
         return $content;
     }
@@ -406,10 +406,10 @@ class Form
                 Param\GpgResign::check($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files of <span class="label-white">' . $myrepo->getName() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
                 if ($packageType == 'deb') {
-                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>' . \Controllers\Common::envtag($myrepo->getEnv()), 'success');
+                    $myhistory->set($_SESSION['username'], 'Run operation: rebuild repo metadata files of <span class="label-white">' . $myrepo->getName() . ' ❯ ' . $myrepo->getDist() . ' ❯ ' . $myrepo->getSection() . '</span>⟶<span class="label-black">' . $myrepo->getDateFormatted() . '</span>', 'success');
                 }
             }
         }

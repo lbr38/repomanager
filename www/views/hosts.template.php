@@ -155,7 +155,7 @@
         </div>
 
         <div id="hostsDivLoading">
-            <p class="center">Loading data<img src="assets/images/loading.gif" class="icon" /></p>
+            <p class="center">Loading data<img src="/assets/images/loading.gif" class="icon" /></p>
         </div>
 
         <?php
@@ -169,12 +169,12 @@
                         if (IS_ADMIN) : ?>
                             <div id="title-button-container">
                                 <div class="slide-btn slide-panel-btn" slide-panel="hosts-groups" title="Manage hosts groups">
-                                    <img src="assets/icons/folder.svg" />
+                                    <img src="/assets/icons/folder.svg" />
                                     <span>Manage groups</span>
                                 </div>
 
                                 <div class="slide-btn slide-panel-btn" slide-panel="hosts-settings" title="Edit display settings">
-                                    <img src="assets/icons/cog.svg" />
+                                    <img src="/assets/icons/cog.svg" />
                                     <span>Settings</span>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
                                 <div class="searchInput-subcontainer">
                                     <div>
                                         <p>
-                                            <img src="assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version>&#13;reboot_required:<true/false>" />Search host:                                            
+                                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version>&#13;reboot_required:<true/false>" />Search host:                                            
                                         </p>
                                         <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                     </div>
@@ -393,33 +393,33 @@
                                                          *  Linupdate agent state
                                                          */
                                                         if ($agentStatus == 'running') {
-                                                            echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                            echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                         }
                                                         if ($agentStatus == "disabled") {
-                                                            echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                            echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                         }
                                                         if ($agentStatus == "stopped") {
-                                                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                         }
                                                         if ($agentStatus == "seems-stopped") {
-                                                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
+                                                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on the host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." />';
                                                         }
                                                         if ($agentStatus == "unknow") {
-                                                            echo '<img src="assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
+                                                            echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on the host: unknow." />';
                                                         } ?>
                                                     </div>
                                                     <div>
                                                         <?php
                                                         if (preg_match('/centos/i', $os)) {
-                                                            echo '<img src="assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
+                                                            echo '<img src="/assets/icons/products/centos.png" class="icon" title="' . $os . '" />';
                                                         } elseif (preg_match('/redhat/i', $os)) {
-                                                            echo '<img src="assets/icons/products/redhat.png" class="icon" title="' . $os . '" />';
+                                                            echo '<img src="/assets/icons/products/redhat.png" class="icon" title="' . $os . '" />';
                                                         } elseif (preg_match('/debian/i', $os)) {
-                                                            echo '<img src="assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
+                                                            echo '<img src="/assets/icons/products/debian.png" class="icon" title="' . $os . '" />';
                                                         } elseif (preg_match('/ubuntu|mint/i', $os)) {
-                                                            echo '<img src="assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
+                                                            echo '<img src="/assets/icons/products/ubuntu.png" class="icon" title="' . $os . '" />';
                                                         } else {
-                                                            echo '<img src="assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
+                                                            echo '<img src="/assets/icons/products/tux.png" class="icon" title="' . $os . '" />';
                                                         } ?>
                                                     </div>
                                                     <div>
@@ -436,53 +436,57 @@
                                                         $tooltip .= 'Profile: '. $profile . '&#10;';
                                                         $tooltip .= 'Env: '. $env . '&#10;'; ?>
 
-                                                        <div>
-                                                            <span title="<?= $tooltip ?>">
-                                                                <a href="/host?id=<?= $id ?>" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a> (<?= $ip ?>)
+                                                        <div class="flex flex-direction-column row-gap-4">
+                                                            <span class="copy" title="<?= $tooltip ?>">
+                                                                <a href="/host?id=<?= $id ?>" target="_blank" rel="noopener noreferrer"><?= $hostname ?></a>
                                                             </span>
-                                                        </div>
 
-                                                        <div class="host-update-status">
-                                                            <?php
-                                                            /**
-                                                             *  Status de la dernière demande
-                                                             */
-                                                            if (!empty($lastRequestedUpdate)) :
-                                                                if ($lastRequestedUpdate['Type'] == 'packages-update') {
-                                                                    $updateType = 'Packages update';
-                                                                }
-                                                                if ($lastRequestedUpdate['Type'] == 'general-status-update') {
-                                                                    $updateType = 'Retrieving general informations';
-                                                                }
-                                                                if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
-                                                                    $updateType = 'Retrieving packages state';
-                                                                }
-                                                                if ($lastRequestedUpdate['Status'] == 'requested') {
-                                                                    $updateStatus = '(request send)';
-                                                                }
-                                                                if ($lastRequestedUpdate['Status'] == 'running') {
-                                                                    $updateStatus = 'running<img src="assets/images/loading.gif" class="icon" />';
-                                                                }
-                                                                if ($lastRequestedUpdate['Status'] == 'error') {
-                                                                    $updateStatus = 'has failed';
-                                                                }
+                                                            <span class="copy font-size-12 lowopacity-cst" title="<?= $hostname ?> IP address">
+                                                                <?= $ip ?>
+                                                            </span>
+
+                                                            <div class="host-update-status">
+                                                                <?php
                                                                 /**
-                                                                 *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +10min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
+                                                                 *  Status de la dernière demande
                                                                  */
-                                                                if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
-                                                                    if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
-                                                                        echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
-                                                                    } else {
-                                                                        echo '<span class="lowopacity-cst" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                if (!empty($lastRequestedUpdate)) :
+                                                                    if ($lastRequestedUpdate['Type'] == 'packages-update') {
+                                                                        $updateType = 'Packages update';
                                                                     }
-                                                                }
-                                                                if ($lastRequestedUpdate['Status'] == 'error') {
-                                                                    echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
-                                                                }
-                                                            endif ?>
-                                                        </div>
-
-                                                        <div class="host-additionnal-info">
+                                                                    if ($lastRequestedUpdate['Type'] == 'general-status-update') {
+                                                                        $updateType = 'Retrieving general informations';
+                                                                    }
+                                                                    if ($lastRequestedUpdate['Type'] == 'packages-status-update') {
+                                                                        $updateType = 'Retrieving packages state';
+                                                                    }
+                                                                    if ($lastRequestedUpdate['Status'] == 'requested') {
+                                                                        $updateStatus = '(request send)';
+                                                                    }
+                                                                    if ($lastRequestedUpdate['Status'] == 'running') {
+                                                                        $updateStatus = 'running<img src="/assets/images/loading.gif" class="icon" />';
+                                                                    }
+                                                                    if ($lastRequestedUpdate['Status'] == 'error') {
+                                                                        $updateStatus = 'has failed';
+                                                                    }
+                                                                    /**
+                                                                     *  Si la demande de mise à jour a été faite il y a plusieurs jours ou a été faite il y a +10min alors on affiche le message en jaune, l'hôte distant n'a peut être pas reçu ou traité la demande
+                                                                     */
+                                                                    if ($lastRequestedUpdate['Status'] == 'requested' or $lastRequestedUpdate['Status'] == 'running') {
+                                                                        if ($lastRequestedUpdate['Date'] != DATE_YMD or $lastRequestedUpdate['Time'] <= date('H:i:s', strtotime(date('H:i:s') . ' - 10 minutes'))) {
+                                                                            echo '<span class="yellowtext" title="The request does not seem to have been taken into account by the host (requested on ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . ')">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        } else {
+                                                                            echo '<span class="lowopacity-cst" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                        }
+                                                                    }
+                                                                    if ($lastRequestedUpdate['Status'] == 'error') {
+                                                                        echo '<span class="redtext" title="On ' . DateTime::createFromFormat('Y-m-d', $lastRequestedUpdate['Date'])->format('d-m-Y') . ' ' . $lastRequestedUpdate['Time'] . '">' . $updateType . ' ' . $updateStatus . '</span>';
+                                                                    }
+                                                                endif ?>
+                                                            </div>
+                                                        
+                                                            <div class="host-additionnal-info">
+                                                            </div>
                                                         </div>
                                                     </div>
 

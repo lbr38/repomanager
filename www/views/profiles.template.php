@@ -5,7 +5,7 @@
         if (IS_ADMIN) : ?>
             <div id="title-button-container">
                 <div class="slide-btn slide-panel-btn" slide-panel="manage-profiles-server-settings" title="Edit server settings">
-                    <img src="assets/icons/cog.svg" />
+                    <img src="/assets/icons/cog.svg" />
                     <span>Settings</span>
                 </div>
             </div>
@@ -74,11 +74,11 @@
                                     <td class="td-fit">
                                         <?php
                                         if (MANAGE_HOSTS == 'true' and $hostsCount > 0) {
-                                            echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="assets/icons/server.svg" class="icon" /></span>';
+                                            echo '<span class="hosts-count mediumopacity" title="' . $hostsCount . ' host(s) using this profile">' . $hostsCount . '<img src="/assets/icons/server.svg" class="icon" /></span>';
                                         } ?>
-                                        <span><img src="assets/icons/cog.svg" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
-                                        <span><img src="assets/icons/duplicate.svg" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Create a new profile from <?=$profileName?> configuration" /></span>
-                                        <span><img src="assets/icons/delete.svg" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Delete <?=$profileName?> profile" /></span>
+                                        <span><img src="/assets/icons/cog.svg" class="profileConfigurationBtn icon-mediumopacity" profilename="<?=$profileName?>" title="<?=$profileName?> configuration" /></span>
+                                        <span><img src="/assets/icons/duplicate.svg" class="duplicateProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Create a new profile from <?=$profileName?> configuration" /></span>
+                                        <span><img src="/assets/icons/delete.svg" class="deleteProfileBtn icon-mediumopacity" profilename="<?=$profileName?>" title="Delete <?=$profileName?> profile" /></span>
                                     </td>
                                 </tr>
                             </table>

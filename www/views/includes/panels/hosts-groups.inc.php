@@ -25,8 +25,8 @@ if (!empty($hostGroupsList)) : ?>
                                     <input class="groupFormInput input-medium invisibleInput-blue" groupname="<?= $groupName ?>" type="text" value="<?= $groupName ?>" />
                                 </td>
                                 <td class="td-fit">
-                                    <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> group configuration" src="assets/icons/cog.svg" />
-                                    <img src="assets/icons/delete.svg" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
+                                    <img class="groupConfigurationButton icon-mediumopacity" name="<?= $groupName ?>" title="<?= $groupName ?> group configuration" src="/assets/icons/cog.svg" />
+                                    <img src="/assets/icons/delete.svg" class="deleteGroupButton icon-lowopacity" name="<?= $groupName ?>" title="Delete <?= $groupName ?> group" />
                                 </td>
                             </tr>
                         </table>

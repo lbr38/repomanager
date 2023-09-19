@@ -3,7 +3,7 @@
  *  v1.0
  */
 
-define("ROOT", dirname(__FILE__, 3));
+define('ROOT', '/var/www/repomanager');
 
 const HTTP_OK = 200;
 const HTTP_BAD_REQUEST = 400;

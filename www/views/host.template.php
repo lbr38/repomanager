@@ -165,7 +165,7 @@
     if (IS_ADMIN) : ?>
         <div class="relative">
             <div class="hostActionBtn-container">
-                <span class="btn-large-green"><img src="assets/icons/rocket.svg" class="icon" />Actions</span>
+                <span class="btn-large-green"><img src="/assets/icons/rocket.svg" class="icon" />Actions</span>
                 <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="general-status-update" title="Send general informations (OS and state informations).">Request to send general info.</span>
                 <span class="hostActionBtn btn-large-green" hostid="<?= $id ?>" action="packages-status-update" title="Send packages informations (available, installed, updated...).">Request to send packages info.</span>
                 <span class="hostActionBtn btn-large-red"  hostid="<?= $id ?>" action="update" title="Update all available packages using linupdate.">Update packages</span>
@@ -189,13 +189,13 @@
                     if (!empty($os) and !empty($os_version)) {
                         echo '<td>';
                         if ($os == "Centos" or $os == "centos" or $os == "CentOS") {
-                            echo '<img src="assets/icons/products/centos.png" class="icon" />';
+                            echo '<img src="/assets/icons/products/centos.png" class="icon" />';
                         } elseif ($os == "Debian" or $os == "debian") {
-                            echo '<img src="assets/icons/products/debian.png" class="icon" />';
+                            echo '<img src="/assets/icons/products/debian.png" class="icon" />';
                         } elseif ($os == "Ubuntu" or $os == "ubuntu" or $os == "linuxmint") {
-                            echo '<img src="assets/icons/products/ubuntu.png" class="icon" />';
+                            echo '<img src="/assets/icons/products/ubuntu.png" class="icon" />';
                         } else {
-                            echo '<img src="assets/icons/products/tux.png" class="icon" />';
+                            echo '<img src="/assets/icons/products/tux.png" class="icon" />';
                         }
                         echo ucfirst($os) . ' ' . $os_version . ' - ' . $kernel . ' ' . $arch . '';
                         echo '</td>';
@@ -229,19 +229,19 @@
                         <span>
                         <?php
                         if ($agentStatus == 'running') {
-                            echo '<img src="assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
+                            echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Running';
                         }
                         if ($agentStatus == "disabled") {
-                            echo '<img src="assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
+                            echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Disabled';
                         }
                         if ($agentStatus == "stopped") {
-                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
+                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Stopped';
                         }
                         if ($agentStatus == "seems-stopped") {
-                            echo '<img src="assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
+                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . ' (' . $agentLastSendStatusMsg . ')." /> Seems stopped';
                         }
                         if ($agentStatus == "unknow") {
-                            echo '<img src="assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
+                            echo '<img src="/assets/icons/graycircle.png" class="icon-small" title="Linupdate agent state on this host: ' . $agentStatus . '." /> Unknow';
                         } ?>
                         </span>
                     </td>
@@ -294,7 +294,7 @@
                          *  Print a 'show details' button if there is at least 1 available package
                          */
                         if ($packagesAvailableTotal > 0) {
-                            echo ' <img src="assets/icons/search.svg" id="packagesAvailableButton" class="icon-lowopacity" />';
+                            echo ' <img src="/assets/icons/search.svg" id="packagesAvailableButton" class="icon-lowopacity" />';
                         } ?>
                         </td>
                         <td>
@@ -304,14 +304,14 @@
                              *  Print a 'show details' button if there is at least 1 installed package
                              */
                             if ($packagesInstalledCount > 0) {
-                                echo ' <img src="assets/icons/search.svg" id="packagesInstalledButton" class="icon-lowopacity" />';
+                                echo ' <img src="/assets/icons/search.svg" id="packagesInstalledButton" class="icon-lowopacity" />';
                             } ?>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div id="packagesContainer">
-                <span id="packagesContainerLoader">Loading <img src="assets/images/loading.gif" class="icon" /></span>
+                <span id="packagesContainerLoader">Loading <img src="/assets/images/loading.gif" class="icon" /></span>
                 <div id="packagesAvailableDiv" class="hide">
                     <h4>Package to update</h4>
                     <table class="packages-table">
@@ -360,31 +360,31 @@
                                         <td>
                                             <?php
                                             if (preg_match('/python/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/python.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/python.png" class="icon" />';
                                             } elseif (preg_match('/^code$/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/vsdownload.svg" class="icon" />';
+                                                echo '<img src="/assets/icons/products/vsdownload.svg" class="icon" />';
                                             } elseif (preg_match('/^firefox/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/firefox.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/firefox.png" class="icon" />';
                                             } elseif (preg_match('/^chrome-/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/chrome.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/chrome.png" class="icon" />';
                                             } elseif (preg_match('/^chromium-/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/chromium.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/chromium.png" class="icon" />';
                                             } elseif (preg_match('/^brave-/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/brave.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/brave.png" class="icon" />';
                                             } elseif (preg_match('/^filezilla/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/filezilla.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/filezilla.png" class="icon" />';
                                             } elseif (preg_match('/^java/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/java.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/java.png" class="icon" />';
                                             } elseif (preg_match('/^teams$/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/teams.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/teams.png" class="icon" />';
                                             } elseif (preg_match('/^teamviewer$/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/teamviewer.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/teamviewer.png" class="icon" />';
                                             } elseif (preg_match('/^thunderbird/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/thunderbird.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/thunderbird.png" class="icon" />';
                                             } elseif (preg_match('/^vlc/i', $package['Name'])) {
-                                                echo '<img src="assets/icons/products/vlc.png" class="icon" />';
+                                                echo '<img src="/assets/icons/products/vlc.png" class="icon" />';
                                             } else {
-                                                echo '<img src="assets/icons/package.svg" class="icon" />';
+                                                echo '<img src="/assets/icons/package.svg" class="icon" />';
                                             }
                                             if ($package['State'] == "removed" or $package['State'] == "purged") {
                                                 echo '<span class="redtext">' . $package['Name'] . ' (uninstalled)</span>';
@@ -488,16 +488,16 @@
                                          *  Event status icon
                                          */
                                         if ($event['Status'] == 'requested') {
-                                            echo '<img src="assets/icons/graycircle.png" class="icon-small" />';
+                                            echo '<img src="/assets/icons/graycircle.png" class="icon-small" />';
                                         }
                                         if ($event['Status'] == 'done') {
-                                            echo '<img src="assets/icons/greencircle.png" class="icon-small" />';
+                                            echo '<img src="/assets/icons/greencircle.png" class="icon-small" />';
                                         }
                                         if ($event['Status'] == 'error') {
-                                            echo '<img src="assets/icons/redcircle.png" class="icon-small" />';
+                                            echo '<img src="/assets/icons/redcircle.png" class="icon-small" />';
                                         }
                                         if ($event['Status'] == 'running') {
-                                            echo '<img src="assets/images/loading.gif" class="icon" />';
+                                            echo '<img src="/assets/images/loading.gif" class="icon" />';
                                         }
 
                                         /**
@@ -619,7 +619,7 @@
                             /**
                              *  'Show all' button
                              */
-                            echo '<p id="print-all-events-btn" class="pointer center"><b>Show all</b> <img src="assets/icons/down.svg" class="icon" /></p>';
+                            echo '<p id="print-all-events-btn" class="pointer center"><b>Show all</b> <img src="/assets/icons/down.svg" class="icon" /></p>';
                         }
                     } ?>
             </div>

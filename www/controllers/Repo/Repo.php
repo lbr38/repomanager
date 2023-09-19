@@ -967,6 +967,14 @@ class Repo
     }
 
     /**
+     *  Set snapshot architectures
+     */
+    public function snapSetArch(string $snapId, array $arch)
+    {
+        $this->model->snapSetArch($snapId, implode(',', $arch));
+    }
+
+    /**
      *  Add a repo in database
      */
     public function add(string $source, string $packageType, string $name)

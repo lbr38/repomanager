@@ -21,7 +21,7 @@ class Gpg
          *  Create GPGHOME directory if not exists
          */
         if (!is_dir(GPGHOME)) {
-            if (!mkdir(GPGHOME, 0770, true)) {
+            if (!mkdir(GPGHOME, 0700, true)) {
                 throw new Exception('Cannot create GPG directory: ' . GPGHOME);
             }
         }
@@ -30,7 +30,7 @@ class Gpg
          *  'private-keys-v1.d' directory must exists or gnupg will print warning
          */
         if (!is_dir(GPGHOME . '/private-keys-v1.d')) {
-            if (!mkdir(GPGHOME . '/private-keys-v1.d', 0770, true)) {
+            if (!mkdir(GPGHOME . '/private-keys-v1.d', 0700, true)) {
                 throw new Exception('Cannot create directory: ' . GPGHOME . '/private-keys-v1.d');
             }
         }
@@ -39,7 +39,7 @@ class Gpg
          *  Create GPG pubkey export directory
          */
         if (!is_dir(REPOS_DIR . '/gpgkeys')) {
-            if (!mkdir(REPOS_DIR . '/gpgkeys', 0770, true)) {
+            if (!mkdir(REPOS_DIR . '/gpgkeys', 0700, true)) {
                 throw new Exception('Cannot create directory: ' . REPOS_DIR . '/gpgkeys');
             }
         }

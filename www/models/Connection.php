@@ -123,7 +123,13 @@ class Connection extends SQLite3
         OR name='notifications'
         OR name='logs'
         OR name='settings'
-        OR name='layout_container_state'");
+        OR name='layout_container_state'
+        OR name='cve'
+        OR name='cve_cpe'
+        OR name='cve_reference'
+        OR name='cve_affected_hosts'
+        OR name='cve_import'
+        OR name='cve_affected_hosts_import'");
 
         /**
          *  On retourne le nombre de tables
@@ -169,15 +175,15 @@ class Connection extends SQLite3
     public function checkMainTables()
     {
         /**
-         *  Si le nombre de tables présentes != 21 alors on tente de regénérer les tables
+         *  Si le nombre de tables présentes != 27 alors on tente de regénérer les tables
          */
-        if ($this->countMainTables() != 21) {
+        if ($this->countMainTables() != 27) {
             $this->generateMainTables();
 
             /**
              *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
              */
-            if ($this->countMainTables() != 21) {
+            if ($this->countMainTables() != 27) {
                 return false;
             }
         }
@@ -555,7 +561,11 @@ class Connection extends SQLite3
         STATS_LOG_PATH VARCHAR(255),
         /* Hosts settings */
         MANAGE_HOSTS CHAR(5),
-        MANAGE_PROFILES CHAR(5))");
+        MANAGE_PROFILES CHAR(5),
+        /* CVE settings */
+        CVE_IMPORT CHAR(5),
+        CVE_IMPORT_TIME TIME,
+        CVE_SCAN_HOSTS CHAR(5))");
 
         /**
          *  If settings table is empty then populate it
@@ -576,8 +586,70 @@ class Connection extends SQLite3
              */
             $gpgKeyId = 'repomanager@' . $fqdn;
 
-            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . 'www-data' . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_access.log', 'false', 'false')");
+            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES, CVE_IMPORT, CVE_IMPORT_TIME, CVE_SCAN_HOSTS) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . 'www-data' . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_access.log', 'false', 'false', 'false', '00:00', 'false')");
         }
+
+        /**
+         *  Generate cve table if not exists
+         *  CVEs table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS cve (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Date DATE,
+        Time TIME,
+        Updated_date DATE,
+        Updated_time TIME,
+        Cpe23Uri VARCHAR(255),
+        Parts VARCHAR(255),
+        Description VARCHAR(255),
+        Cvss2_score CHAR(3),
+        Cvss3_score CHAR(3))");
+
+        $this->exec("CREATE TABLE IF NOT EXISTS cve_cpe (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Part CHAR(1) NOT NULL,
+        Vendor VARCHAR(255) NOT NULL COLLATE NOCASE,
+        Product VARCHAR(255) NOT NULL COLLATE NOCASE,
+        Version VARCHAR(255) NOT NULL COLLATE NOCASE,
+        Id_cve INTEGER NOT NULL)");
+
+        $this->exec("CREATE TABLE IF NOT EXISTS cve_reference (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Name VARCHAR(255),
+        Url VARCHAR(255),
+        Source VARCHAR(255),
+        Tags VARCHAR(255),
+        Id_cve INTEGER NOT NULL)");
+
+        $this->exec("CREATE TABLE IF NOT EXISTS cve_affected_hosts (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Host_id INTEGER NOT NULL,
+        Product VARCHAR(255) NOT NULL,
+        Version VARCHAR(255) NOT NULL,
+        Status CHAR(8) NOT NULL, /* possible / affected */
+        Id_cve INTEGER NOT NULL)");
+
+        $this->exec("CREATE TABLE IF NOT EXISTS cve_import (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Duration INTEGER,
+        Status CHAR(7) NOT NULL)"); /* running, error, done */
+
+        $this->exec("CREATE TABLE IF NOT EXISTS cve_affected_hosts_import (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Duration INTEGER,
+        Status CHAR(7) NOT NULL)"); /* running, error, done */
+
+        /**
+         *  Create indexes
+         */
+        $this->exec("CREATE INDEX IF NOT EXISTS cve_index ON cve (Name, Updated_date, Updated_time)");
+        $this->exec("CREATE INDEX IF NOT EXISTS cve_cpe_index ON cve_cpe (Part, Vendor, Product, Version, Id_cve)");
+        $this->exec("CREATE INDEX IF NOT EXISTS cve_affected_hosts_index ON cve_affected_hosts (Status, Id_cve)");
 
         /**
          *  Generate logs table if not exists

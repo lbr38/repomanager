@@ -47,7 +47,7 @@ function generateApikey()
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "login",
             action: "generateApikey"
@@ -81,7 +81,7 @@ function edit(username, firstName, lastName, email)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "login",
             action: "edit",
@@ -113,7 +113,7 @@ function changePassword(username, actualPassword, newPassword, newPasswordConfir
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "login",
             action: "changePassword",

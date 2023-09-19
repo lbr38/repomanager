@@ -46,7 +46,7 @@ function deleteEnv(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "environment",
             action: "deleteEnv",
@@ -61,7 +61,7 @@ function deleteEnv(name)
              */
             reloadContentById('envDiv');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -76,7 +76,7 @@ function editEnvAjax(envs)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "environment",
             action: "editEnv",
@@ -91,7 +91,7 @@ function editEnvAjax(envs)
              */
             reloadContentById('envDiv');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

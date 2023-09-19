@@ -96,8 +96,8 @@ if (!empty($sourceReposList)) : ?>
                     <input class="source-input-url input-medium invisibleInput-blue" type="text" source-name="<?= $sourceName ?>" source-type="<?= $sourceType ?>" value="<?= $sourceUrl ?>" />
                 </td>
                 <td class="td-fit">
-                    <img src="assets/icons/cog.svg" class="icon-lowopacity source-repo-edit-param-btn" source-id="<?= $sourceId ?>" title="Configure repository" />
-                    <img src="assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
+                    <img src="/assets/icons/cog.svg" class="icon-lowopacity source-repo-edit-param-btn" source-id="<?= $sourceId ?>" title="Configure repository" />
+                    <img src="/assets/icons/delete.svg" class="source-repo-delete-btn icon-lowopacity" source-id="<?= $sourceId ?>" source-name="<?= $sourceName ?>" title="Delete <?= $sourceName ?> source repo" />
                 </td>
             </tr>
         </table>
@@ -106,7 +106,7 @@ if (!empty($sourceReposList)) : ?>
                 <table>
                     <tr>
                         <td>
-                            <img src="assets/icons/key.svg" class="icon" />
+                            <img src="/assets/icons/key.svg" class="icon" />
                         </td>
                         <td>
                             GPG signature key URL
@@ -117,7 +117,7 @@ if (!empty($sourceReposList)) : ?>
                     </tr>
                     <tr>
                         <td>
-                            <img src="assets/icons/file.svg" class="icon" />
+                            <img src="/assets/icons/file.svg" class="icon" />
                         </td>
                         <td>
                             SSL certificate file path
@@ -128,7 +128,7 @@ if (!empty($sourceReposList)) : ?>
                     </tr>
                     <tr>
                         <td>
-                            <img src="assets/icons/file.svg" class="icon" />
+                            <img src="/assets/icons/file.svg" class="icon" />
                         </td>
                         <td>
                             SSL private key file path
@@ -166,7 +166,7 @@ if (!empty($knownPublicKeys)) : ?>
                     <?= $knownPublicKey['name'] ?>
                 </td>
                 <td class="td-fit">
-                    <img src="assets/icons/delete.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey-id="<?= $knownPublicKey['id'] ?>" gpgkey-name="<?= $knownPublicKey['name'] ?>" title="Delete GPG key <?= $knownPublicKey['name'] ?>" />
+                    <img src="/assets/icons/delete.svg" class="gpgKeyDeleteBtn icon-lowopacity" gpgkey-id="<?= $knownPublicKey['id'] ?>" gpgkey-name="<?= $knownPublicKey['name'] ?>" title="Delete GPG key <?= $knownPublicKey['name'] ?>" />
                 </td>
             </tr>
             <?php

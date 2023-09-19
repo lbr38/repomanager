@@ -66,26 +66,23 @@ if ($myrepo->getPackageType() == 'deb') {
         <select class="targetArchSelect operation_param" param-name="targetArch" multiple>
             <option value="">Select architecture...</option>
             <?php
-            if ($myrepo->getPackageType() == 'rpm') : ?>
-                <option value="x86_64" <?php echo (in_array('x86_64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>x86_64</option>
-                <option value="i386" <?php echo (in_array('i386', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
-                <option value="noarch" <?php echo (in_array('noarch', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>noarch</option>
-                <option value="aarch64" <?php echo (in_array('aarch64', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>aarch64</option>
-                <option value="ppc64le" <?php echo (in_array('ppc64le', RPM_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64le</option>
-                <?php
+            if ($myrepo->getPackageType() == 'rpm') :
+                foreach (RPM_ARCHS as $arch) {
+                    if (in_array($arch, RPM_DEFAULT_ARCH)) {
+                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                    } else {
+                        echo '<option value="' . $arch . '">' . $arch . '</option>';
+                    }
+                }
             endif;
-            if ($myrepo->getPackageType() == 'deb') : ?>
-                <option value="i386" <?php echo (in_array('i386', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>i386</option>
-                <option value="amd64" <?php echo (in_array('amd64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>amd64</option>
-                <option value="armhf" <?php echo (in_array('armhf', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armhf</option>
-                <option value="arm64" <?php echo (in_array('arm64', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>arm64</option>
-                <option value="armel" <?php echo (in_array('armel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>armel</option>
-                <option value="mips" <?php echo (in_array('mips', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips</option>
-                <option value="mipsel" <?php echo (in_array('mipsel', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mipsel</option>
-                <option value="mips64el" <?php echo (in_array('mips64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>mips64el</option>
-                <option value="ppc64el" <?php echo (in_array('ppc64el', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>ppc64el</option>
-                <option value="s390x" <?php echo (in_array('s390x', DEB_DEFAULT_ARCH)) ? 'selected' : ''; ?>>s390x</option>
-                <?php
+            if ($myrepo->getPackageType() == 'deb') :
+                foreach (DEB_ARCHS as $arch) {
+                    if (in_array($arch, DEB_DEFAULT_ARCH)) {
+                        echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
+                    } else {
+                        echo '<option value="' . $arch . '">' . $arch . '</option>';
+                    }
+                }
             endif; ?>
         </select>
     </td>
