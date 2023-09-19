@@ -118,7 +118,8 @@ td:last-child,
 .host-additionnal-info {
     display: none;
     flex-direction: column;
-    padding-top: 15px;
+    row-gap: 5px;
+    padding-top: 10px;
 }
 
 .stats-access-table-request {
