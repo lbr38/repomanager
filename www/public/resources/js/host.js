@@ -102,8 +102,7 @@ function searchHost()
         /**
          *  On ré-affiche tout avant de quitter
          */
-        $(".hosts-group-container").show();
-        $(".host-line").show();
+        $('.hosts-group-container, .host-line, .js-select-all-button').show();
         return;
     }
 
@@ -123,7 +122,7 @@ function searchHost()
     /**
      *  On masque toutes les lignes de serveurs, seulles celles correspondant à la recherche seront ré-affichées
      */
-    $(".host-line").hide();
+    $('.host-line, .js-select-all-button').hide();
 
     /**
      *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
