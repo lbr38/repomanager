@@ -15,7 +15,7 @@ function acquitNotification(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "notification",
             action: "acquit",
@@ -27,7 +27,7 @@ function acquitNotification(id)
             printAlert(jsonValue.message, 'success');
             reloadContentByClass("slide-panel-reloadable-div[slide-panel='notification']");
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

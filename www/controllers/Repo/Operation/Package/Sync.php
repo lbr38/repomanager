@@ -151,16 +151,20 @@ trait Sync
             }
 
             /**
-             *  Find source snapshot packages
+             *  RPM repo: copy source snapshot packages to the working dir
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                $rpmPackages          = \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir, $this->repo->getWorkingDir() . '/packages', 'rpm', true);
+                \Controllers\Filesystem\Directory::copy($sourceSnapshotDir . '/packages', $this->repo->getWorkingDir() . '/packages');
             }
+
+            /**
+             *  DEB repo: find source snapshot packages and copy them to the working dir
+             */
             if ($this->repo->getPackageType() == 'deb') {
-                $debPackages          = \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'deb', true);
-                $dscSourcesPackages   = \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'dsc', true);
-                $tarxzSourcesPackages = \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'xz', true);
-                $targzSourcesPackages = \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'gz', true);
+                \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'deb', true);
+                \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'dsc', true);
+                \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'xz', true);
+                \Controllers\Common::findAndCopyRecursive($sourceSnapshotDir . '/pool', $this->repo->getWorkingDir() . '/packages', 'gz', true);
             }
 
             unset($sourceSnapshot);
@@ -195,7 +199,7 @@ trait Sync
 
                 unset($mysource);
 
-                $mymirror = new \Controllers\Mirror();
+                $mymirror = new \Controllers\Repo\Operation\Mirror();
                 $mymirror->setType('deb');
                 $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->repo->getWorkingDir());
@@ -277,7 +281,7 @@ trait Sync
 
                 unset($mysource);
 
-                $mymirror = new \Controllers\Mirror();
+                $mymirror = new \Controllers\Repo\Operation\Mirror();
                 $mymirror->setType('rpm');
                 $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->repo->getWorkingDir());

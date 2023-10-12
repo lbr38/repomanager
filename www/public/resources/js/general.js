@@ -44,6 +44,33 @@ $(document).on('click','.kill-btn',function () {
 });
 
 /**
+ *  Event: print a copy icon on element with .copy class
+ */
+$(document).on('mouseenter','.copy',function () {
+    $(this).append('<img src="/assets/icons/duplicate.svg" class="icon-lowopacity icon-copy" title="Copy to clipboard">');
+});
+
+/**
+ *  Event: remove copy icon on element with .copy class
+ */
+$(document).on('mouseleave','.copy',function () {
+    $(this).find('.icon-copy').remove();
+});
+
+/**
+ *  Event: copy parent text on click on element with .icon-copy class
+ */
+$(document).on('click','.icon-copy',function () {
+    var text = $(this).parent().text().trim();
+
+    navigator.clipboard.writeText(text).then(() => {
+        printAlert('Copied to clipboard', 'success');
+    },() => {
+        printAlert('Failed to copy', 'error');
+    });
+});
+
+/**
  * Ajax: Mark log as read
  * @param {string} id
  */
@@ -51,7 +78,7 @@ function acquitLog(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "general",
             action: "acquitLog",
@@ -62,7 +89,7 @@ function acquitLog(id)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             reloadContainer('header/general-log-messages');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -79,8 +106,10 @@ function reloadContainer(container)
 
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
+            sourceUrl: window.location.href,
+            sourceUri: window.location.pathname,
             controller: "general",
             action: "getContainer",
             container: container
@@ -93,7 +122,7 @@ function reloadContainer(container)
              */
             $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -109,7 +138,7 @@ function getContainerState()
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "general",
             action: "getContainerState"
@@ -152,7 +181,7 @@ function getContainerState()
             }
             });
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -167,7 +196,7 @@ function getConfirmBox(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "general",
             action: "getConfirmBox",
@@ -176,11 +205,11 @@ function getConfirmBox(name)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $("#newConfirmAlert").remove();
+            closeConfirmBox();
             $('#newalert').remove();
             $('footer').append(jsonValue.message);
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -195,7 +224,7 @@ function stopOperation(pid)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "operation",
             action: "stopOperation",
@@ -206,7 +235,7 @@ function stopOperation(pid)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

@@ -39,11 +39,17 @@ class System
                 define('__SERVER_IP__', $_SERVER['SERVER_ADDR']);
             }
         }
+
         /**
          *  URL + URI
          */
-        if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
-            if (!defined('__ACTUAL_URL__')) {
+        if (!defined('__ACTUAL_URL__')) {
+            /**
+             *  If sourceUrl is set (POST request from ajax) then we use it
+             */
+            if (!empty($_POST['sourceUrl'])) {
+                define('__ACTUAL_URL__', $_POST['sourceUrl']);
+            } else {
                 define('__ACTUAL_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
             }
         }
@@ -51,11 +57,17 @@ class System
         /**
          *  URI
          */
-        if (!empty($_SERVER['REQUEST_URI'])) {
-            if (!defined('__ACTUAL_URI__')) {
-                define('__ACTUAL_URI__', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        if (!defined('__ACTUAL_URI__')) {
+            /**
+             *  If sourceUri is set (POST request from ajax) then we use it
+             */
+            if (!empty($_POST['sourceUri'])) {
+                define('__ACTUAL_URI__', explode('/', $_POST['sourceUri']));
+            } else {
+                define('__ACTUAL_URI__', explode('/', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)));
             }
         }
+
         /**
          *  Parameters
          */

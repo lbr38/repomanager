@@ -33,8 +33,8 @@
                 <thead>
                     <tr>
                         <td class="td-100">Date</td>
-                        <td class="td-100">Action</td>
                         <td class="td-100">User</td>
+                        <td class="td-100">Action</td>
                         <td>State</td>
                     </tr>
                 </thead>
@@ -46,17 +46,17 @@
                             <b><?= $historyLine['Date'] ?> <?= $historyLine['Time'] ?></b>
                         </td>
                         <td class="td-100">
-                            <?= htmlspecialchars_decode($historyLine['Action']) ?>
+                            <?= $historyLine['Username'] ?>
                         </td>
                         <td class="td-100">
-                            <?= $historyLine['Username'] ?>
+                            <?= htmlspecialchars_decode($historyLine['Action']) ?>
                         </td>
                         <?php
                         if ($historyLine['State'] == "success") {
-                            echo '<td><img src="assets/icons/greencircle.png" class="icon-small" />Success</td>';
+                            echo '<td><img src="/assets/icons/greencircle.png" class="icon-small" />Success</td>';
                         }
                         if ($historyLine['State'] == "error") {
-                            echo '<td><img src="assets/icons/redcircle.png" class="icon-small" />Error</td>';
+                            echo '<td><img src="/assets/icons/redcircle.png" class="icon-small" />Error</td>';
                         } ?>
                     </tr>
                     <?php

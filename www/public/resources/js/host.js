@@ -102,8 +102,7 @@ function searchHost()
         /**
          *  On ré-affiche tout avant de quitter
          */
-        $(".hosts-group-container").show();
-        $(".host-line").show();
+        $('.hosts-group-container, .host-line, .js-select-all-button').show();
         return;
     }
 
@@ -123,7 +122,7 @@ function searchHost()
     /**
      *  On masque toutes les lignes de serveurs, seulles celles correspondant à la recherche seront ré-affichées
      */
-    $(".host-line").hide();
+    $('.host-line, .js-select-all-button').hide();
 
     /**
      *  On vérifie si l'utilisateur a saisi un filtre dans sa recherche
@@ -369,7 +368,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
 
     $('.hosts-charts-list-label-hosts-list').css({
         top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
@@ -390,7 +389,7 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
     /**
      *  Create a new <div> hosts-charts-list-label-hosts-list
      */
-    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="hosts-charts-list-label-hosts-list">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
 
     $('.hosts-charts-list-label-hosts-list').css({
         top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
@@ -486,7 +485,7 @@ $(document).on('click',"input[name=checkbox-host\\[\\]]",function () {
     if (count > 0) {
         getConfirmBox('hostsActionSelect');
     } else {
-        $("#newConfirmAlert").remove();
+        closeConfirmBox();
     }
 });
 
@@ -519,7 +518,7 @@ $(document).on('click',".js-select-all-button",function () {
 
     // If no checkbox is checked then hide action buttons
     if (count_checked == 0) {
-        $("#newConfirmAlert").remove();
+        closeConfirmBox();
     }
 });
 
@@ -681,7 +680,7 @@ $(document).on('mouseenter', '.showEventDetailsBtn', function (e) {
     /**
      *  Create a new <div> showEventDetails
      */
-    $('footer').append('<div class="showEventDetails">Loading<img src="assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="showEventDetails">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
 
     $('.showEventDetails').css({
         top: e.pageY - $('.showEventDetails').height() / 2,
@@ -738,7 +737,7 @@ function newGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "newGroup",
@@ -755,7 +754,7 @@ function newGroup(name)
             reloadGroupsDiv();
             reloadHostsDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -770,7 +769,7 @@ function deleteGroup(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "deleteGroup",
@@ -787,7 +786,7 @@ function deleteGroup(name)
             reloadGroupsDiv();
             reloadHostsDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -803,7 +802,7 @@ function renameGroup(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "renameGroup",
@@ -821,7 +820,7 @@ function renameGroup(name, newname)
             reloadGroupsDiv();
             reloadHostsDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -837,7 +836,7 @@ function editGroupHosts(name, hostsId)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "group",
             action: "editGroupHosts",
@@ -853,7 +852,7 @@ function editGroupHosts(name, hostsId)
             printAlert(jsonValue.message, 'success');
             reloadHostsDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -867,10 +866,10 @@ function editGroupHosts(name, hostsId)
  */
 function execAction(action, hosts_array)
 {
-    printAlert('Request being sent <img src="assets/images/loading.gif" class="icon" />');
+    printAlert('Request being sent <img src="/assets/images/loading.gif" class="icon" />');
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "hostExecAction",
@@ -883,7 +882,7 @@ function execAction(action, hosts_array)
             printAlert(jsonValue.message, 'success');
             reloadHostsDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -899,7 +898,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "getHostsWithPackage",
@@ -922,7 +921,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
                         /**
                          *  Build package list
                          */
-                        packagesFound += '<span><img src="assets/icons/package.svg" class="icon-np">' + packageName + ' (' + packageVersion + ')</span>';
+                        packagesFound += '<span><img src="/assets/icons/package.svg" class="icon-np">' + packageName + ' (' + packageVersion + ')</span>';
                     }
 
                     /**
@@ -942,7 +941,7 @@ function getHostsWithPackageAjax(hostsId_array, package)
 
             hideGroupDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -958,7 +957,7 @@ function getPackageTimeline(hostid, packagename)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "getPackageTimeline",
@@ -968,9 +967,9 @@ function getPackageTimeline(hostid, packagename)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="assets/icons/close.svg" /></span>' + jsonValue.message + '</div>');
+            $('body').append('<div class="packageDetails"><span class="packageDetails-close"><img title="Close" class="close-btn lowopacity" src="/assets/icons/close.svg" /></span>' + jsonValue.message + '</div>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -987,7 +986,7 @@ function getEventDetails(hostId, eventId, packageState)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "getEventDetails",
@@ -1000,7 +999,7 @@ function getEventDetails(hostId, eventId, packageState)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             $('.showEventDetails').html('<div>' + jsonValue.message + '</div>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -1015,7 +1014,7 @@ function getHostWithKernel(kernel)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "getHostWithKernel",
@@ -1047,7 +1046,7 @@ function getHostWithKernel(kernel)
 
             $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -1062,7 +1061,7 @@ function getHostWithProfile(profile)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "host",
             action: "getHostWithProfile",
@@ -1094,7 +1093,7 @@ function getHostWithProfile(profile)
 
             $('.hosts-charts-list-label-hosts-list').html('<div class="grid row-gap-4">' + hosts + '</div>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

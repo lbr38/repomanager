@@ -120,7 +120,7 @@ function applySettings(settings_params_json)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "settings",
             action: "applySettings",
@@ -144,9 +144,10 @@ function applySettings(settings_params_json)
             /**
              *  Reload missing settings error messages if any
              */
+            reloadContainer('header/menu');
             reloadContainer('header/general-error-messages');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -160,7 +161,7 @@ function newUser(username, role)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "settings",
             action: "createUser",
@@ -185,7 +186,7 @@ function newUser(username, role)
              */
             $('#usersDiv').find('#generatedPassword').html('<p class="greentext">Temporary password generated for <b>' + username + '</b>: ' + jsonValue.message.password + '</p>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -199,7 +200,7 @@ function resetPassword(id, username)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "settings",
             action: "resetPassword",
@@ -218,7 +219,7 @@ function resetPassword(id, username)
              */
             $('#usersDiv').find('#generatedPassword').html('<p class="greentext">New password generated for <b>' + username + '</b>: ' + jsonValue.message.password + '</p>');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -232,7 +233,7 @@ function deleteUser(id)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "settings",
             action: "deleteUser",
@@ -248,7 +249,7 @@ function deleteUser(id)
              */
             reloadContentById('currentUsers');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -262,7 +263,7 @@ function sendTestEmail()
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "settings",
             action: "sendTestEmail"
@@ -272,7 +273,7 @@ function sendTestEmail()
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

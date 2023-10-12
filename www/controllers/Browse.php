@@ -12,8 +12,6 @@ class Browse
      */
     public static function tree($path)
     {
-        // global $repoPath;
-
         if (is_dir($path)) {
             echo '<ul>';
 
@@ -82,9 +80,9 @@ class Browse
          *  On affiche une checkbox permettant de supprimer le fichier seulement si il s'agit d'un fichier .rpm ou .deb
          */
         if (substr($file, -4) == ".rpm" or substr($file, -4) == ".deb" or substr($file, -4) == ".dsc" or substr($file, -7) == ".tar.xz" or substr($file, -7) == ".tar.gz") {
-            echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox" name="packageName[]" value="' . $path . '" /><img src="assets/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
+            echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="' . $file . '" path="' . $path . '" /><img src="/assets/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
         } else {
-            echo '<div class="explorer-file header-blue"><img src="assets/icons/file.svg" class="icon" /><span>' . $file . '</span></div>';
+            echo '<div class="explorer-file header-blue"><img src="/assets/icons/file.svg" class="icon" /><span>' . $file . '</span></div>';
         }
 
         echo '</li>';
@@ -101,9 +99,9 @@ class Browse
          *  If dir name is 'my_uploaded_packages' then print it in yellow
          */
         if ($dir == 'my_uploaded_packages') {
-            echo '<div class="explorer-toggle header-blue yellowtext"><img src="assets/icons/folder.svg" class="icon" /><span class="yellowtext">' . $dir . '</span></div>';
+            echo '<div class="explorer-toggle header-blue yellowtext pointer"><img src="/assets/icons/folder.svg" class="icon" /><span class="yellowtext">' . $dir . '</span></div>';
         } else {
-            echo '<div class="explorer-toggle header-blue"><img src="assets/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
+            echo '<div class="explorer-toggle header-blue pointer"><img src="/assets/icons/folder.svg" class="icon" /><span>' . $dir . '</span></div>';
         }
 
         /**

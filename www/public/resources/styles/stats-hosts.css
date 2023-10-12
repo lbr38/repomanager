@@ -25,10 +25,6 @@
     font-size: 12px;
 }
 
-.stats-info-requests-container:hover > div.stats-info-requests {
-    display: inline-block !important;
-}
-
 #repo-access-chart-div {
     height: 500px;
     padding-bottom: 100px;
@@ -98,7 +94,7 @@ td:last-child,
 
 .hosts-table-title, .host-line {
     display: grid;
-    grid-template-columns: 3% 3% 45% 10% 10% 7% 7% 15%;
+    grid-template-columns: 3% 4% 45% 10% 10% 7% 7% 15%;
     align-items: center;
 }
 
@@ -118,7 +114,8 @@ td:last-child,
 .host-additionnal-info {
     display: none;
     flex-direction: column;
-    padding-top: 15px;
+    row-gap: 5px;
+    padding-top: 5px;
 }
 
 .stats-access-table-request {

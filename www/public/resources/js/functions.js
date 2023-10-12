@@ -32,7 +32,7 @@ function closePanel()
  */
 function printAlert(message, type = null, timeout = 2500)
 {
-    $('#newConfirmAlert').remove();
+    closeConfirmBox();
     $('#newalert').remove();
 
     if (type == null) {
@@ -54,44 +54,91 @@ function printAlert(message, type = null, timeout = 2500)
     }
 }
 
-function confirmBox(message, myfunction, confirmBox = 'Delete')
+/**
+ * Print a confirm alert box before executing specified function
+ * @param {*} message
+ * @param {*} myfunction1
+ * @param {*} confirmBox1
+ * @param {*} myfunction2
+ * @param {*} confirmBox2
+ */
+function confirmBox(message, myfunction1, confirmBox1 = 'Delete', myfunction2 = null, confirmBox2 = null)
 {
     /**
-     *  D'abord on supprime toute alerte déjà active et qui ne serait pas fermée
+     *  First, delete all active confirm box if any
      */
     $("#newConfirmAlert").remove();
 
-    var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm">' + confirmBox + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
-
-    $('footer').append($content);
-
     /**
-     *  Si on clique sur le bouton 'Supprimer'
+     *  Wait 50ms before creating new confirm box
      */
-    $('.btn-doConfirm').click(function () {
+    setTimeout(function () {
         /**
-         *  Exécution de la fonction passée en paramètre
+         *  Case there is three choices
          */
-        myfunction();
+        if (myfunction2 != null && confirmBox2 != null) {
+            var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doConfirm2">' + confirmBox2 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+        /**
+         *  Case there is two choices
+         */
+        } else {
+            var $content = '<div id="newConfirmAlert" class="confirmAlert"><span></span><span>' + message + '</span><div class="confirmAlert-buttons-container"><span class="pointer btn-doConfirm1">' + confirmBox1 + '</span><span class="pointer btn-doCancel">Cancel</span></div></div>';
+        }
+
+        $('footer').append($content);
 
         /**
-         *  Puis suppression de l'alerte
+         *  If choice one is clicked
          */
-        $("#newConfirmAlert").slideToggle(50, function () {
-            $("#newConfirmAlert").remove();
-        });
-    });
+        $('.btn-doConfirm1').click(function () {
+            /**
+             *  Execute function 1
+             */
+            myfunction1();
 
-    /**
-     *  Si on clique sur le bouton 'Annuler'
-     */
-    $('.btn-doCancel').click(function () {
-        /**
-         *  Suppression de l'alerte
-         */
-        $("#newConfirmAlert").slideToggle(50, function () {
-            $("#newConfirmAlert").remove();
+            /**
+             *  Then remove alert
+             */
+            $("#newConfirmAlert").slideToggle(0, function () {
+                $("#newConfirmAlert").remove();
+            });
         });
+
+        /**
+         *  If choice two is clicked
+         */
+        $('.btn-doConfirm2').click(function () {
+            /**
+             *  Execute function 2
+             */
+            myfunction2();
+
+            /**
+             *  Then remove alert
+             */
+            $("#newConfirmAlert").slideToggle(0, function () {
+                $("#newConfirmAlert").remove();
+            });
+        });
+
+        /**
+         *  If 'cancel' choice is clicked
+         */
+        $('.btn-doCancel').click(function () {
+            /**
+             *  Remove alert
+             */
+            $("#newConfirmAlert").slideToggle(0, function () {
+                $("#newConfirmAlert").remove();
+            });
+        });
+    }, 50);
+}
+
+function closeConfirmBox()
+{
+    $("#newConfirmAlert").slideToggle(50, function () {
+        $("#newConfirmAlert").remove();
     });
 }
 
@@ -99,7 +146,7 @@ function printLoading()
 {
     $('#loading').remove();
 
-    $('footer').append('<div id="loading"><p class="lowopacity">Loading</p><img src="assets/images/loading.gif"></div>');
+    $('footer').append('<div id="loading"><p class="lowopacity">Loading</p><img src="/assets/images/loading.gif"></div>');
 }
 
 function hideLoading()
@@ -187,11 +234,11 @@ function printOsIcon(os = '', os_family = '')
 {
     if (os != '') {
         if (os.toLowerCase() == 'centos') {
-            return '<img src="assets/icons/products/centos.png" class="icon-np" title="' + os + '">';
+            return '<img src="/assets/icons/products/centos.png" class="icon-np" title="' + os + '">';
         } else if (os.toLowerCase().match(/debian|armbian/i)) {
-            return '<img src="assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
+            return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
         } else if (os.toLowerCase().match(/ubuntu|kubuntu|xubuntu|mint/i)) {
-            return '<img src="assets/icons/products/ubuntu.png" class="icon-np" title="' + os + '">';
+            return '<img src="/assets/icons/products/ubuntu.png" class="icon-np" title="' + os + '">';
         }
     }
 
@@ -200,16 +247,16 @@ function printOsIcon(os = '', os_family = '')
      */
     if (os_family != '') {
         if (os_family.toLowerCase().match(/debian|ubuntu|kubuntu|xubuntu|armbian|mint/i)) {
-            return '<img src="assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
+            return '<img src="/assets/icons/products/debian.png" class="icon-np" title="' + os + '">';
         } else if (os_family.toLowerCase().match(/rhel|centos|fedora/i)) {
-            return '<img src="assets/icons/products/redhat.png" class="icon-np" title="' + os + '">';
+            return '<img src="/assets/icons/products/redhat.png" class="icon-np" title="' + os + '">';
         }
     }
 
     /**
      *  Else return generic icon
      */
-    return '<img src="assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
+    return '<img src="/assets/icons/products/tux.png" class="icon-np" title="' + os + '">';
 }
 
 /**
@@ -248,4 +295,69 @@ function setCookie(cname, cvalue, exdays)
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     let expires = "expires="+ d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;Secure";
+}
+
+/**
+ * Execute an ajax request
+ * @param {*} controller
+ * @param {*} action
+ * @param {*} additionnalData
+ * @param {*} reloadContainers
+ */
+function ajaxRequest(controller, action, additionnalData = null, reloadContainers = null)
+{
+    /**
+     *  Default data
+     */
+    var data = {
+        sourceUrl: window.location.href,
+        sourceUri: window.location.pathname,
+        controller: controller,
+        action: action,
+    };
+
+    /**
+     *  If additionnal data is specified, merge it with default data
+     */
+    if (additionnalData != null) {
+        data = $.extend(data, additionnalData);
+    }
+
+    /**
+     *  For debug only
+     */
+    // console.log(data);
+
+    /**
+     *  Ajax request
+     */
+    $.ajax({
+        type: "POST",
+        url: "/ajax/controller.php",
+        data: data,
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            /**
+             *  Retrieve and print success message
+             */
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+
+            /**
+             *  Reload containers if specified
+             */
+            if (reloadContainers != null) {
+                for (let i = 0; i < reloadContainers.length; i++) {
+                    reloadContainer(reloadContainers[i]);
+                }
+            }
+        },
+        error: function (jqXHR, textStatus, thrownError) {
+            /**
+             *  Retrieve and print error message
+             */
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
 }

@@ -3,7 +3,7 @@
  *  Manually check and initialize main database
  */
 
-define('ROOT', dirname(__FILE__, 2));
+define('ROOT', '/var/www/repomanager');
 
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('minimal');

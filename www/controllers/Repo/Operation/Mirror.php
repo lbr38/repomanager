@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers;
+namespace Controllers\Repo\Operation;
 
 use Exception;
 
@@ -149,13 +149,13 @@ class Mirror
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
          */
-        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/InRelease', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/InRelease', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
             $this->download($this->url . '/dists/' . $this->dist . '/InRelease', $this->workingDir . '/InRelease');
         }
-        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
             $this->download($this->url . '/dists/' . $this->dist . '/Release', $this->workingDir . '/Release');
         }
-        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
             $this->download($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->workingDir . '/Release.gpg');
         }
 
@@ -263,7 +263,7 @@ class Mirror
          *  Gunzip primary.xml.gz
          */
         try {
-            Common::gunzip($primaryFile);
+            \Controllers\Common::gunzip($primaryFile);
         } catch (Exception $e) {
             $this->logError($e, 'Error while uncompressing primary.xml.gz');
         }
@@ -408,7 +408,7 @@ class Mirror
                         /**
                          *  Include this Package.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                          */
-                        if (Common::urlFileExists($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
                             $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
 
                             /**
@@ -555,14 +555,14 @@ class Mirror
              */
             if (preg_match('/.gz$/i', $packageIndicesName)) {
                 try {
-                    Common::gunzip($this->workingDir . '/' . $packageIndicesName);
+                    \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
                     $this->logError($e, 'Error while uncompressing ' . $packageIndicesName);
                 }
             }
             if (preg_match('/.xz$/i', $packageIndicesName)) {
                 try {
-                    Common::xzUncompress($this->workingDir . '/Packages.xz');
+                    \Controllers\Common::xzUncompress($this->workingDir . '/Packages.xz');
                 } catch (Exception $e) {
                     $this->logError($e, 'Error while uncompressing Packages.xz');
                 }
@@ -645,7 +645,7 @@ class Mirror
              *  Gunzip Sources.gz
              */
             // try {
-            //     Common::gunzip($this->workingDir . '/Sources.gz');
+            //     \Controllers\Common::gunzip($this->workingDir . '/Sources.gz');
             // } catch(Exception $e) {
             //     $this->logError($e, 'Error while uncompressing Sources.gz');
             // }
@@ -753,7 +753,7 @@ class Mirror
      */
     private function checkGPGSignature(string $file)
     {
-        $myprocess = new Process('gpgv --homedir ' . GPGHOME . ' ' . $file);
+        $myprocess = new \Controllers\Process('gpgv --homedir ' . GPGHOME . ' ' . $file);
         $myprocess->execute();
         $output = $myprocess->getOutput();
         $myprocess->close();
@@ -859,17 +859,22 @@ class Mirror
     private function downloadRpmPackages(string $url)
     {
         /**
+         *  Target directory in which packages will be downloaded
+         */
+        $targetDir = $this->workingDir . '/packages/' . $this->currentArch;
+
+        /**
          *  Create directory in which packages will be downloaded
          */
-        if (!is_dir($this->workingDir . '/packages')) {
-            mkdir($this->workingDir . '/packages', 0770, true);
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0770, true);
         }
 
         /**
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
         if ($this->checkSignature == 'yes') {
-            $mygpg = new GPG();
+            $mygpg = new \Controllers\GPG();
 
             /**
              *  If the source repo has a distant http:// gpg signature key, then download it
@@ -882,7 +887,7 @@ class Mirror
                 /**
                  *  Import key inside trusted keyring
                  */
-                $myprocess = new Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
+                $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . TEMP_DIR . '/gpgkey-to-import.gpg');
                 $myprocess->execute();
 
                 /**
@@ -947,7 +952,7 @@ class Mirror
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
-            if (file_exists($this->workingDir . '/packages/' . $rpmPackageName)) {
+            if (file_exists($targetDir . '/' . $rpmPackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
             }
@@ -955,7 +960,7 @@ class Mirror
             /**
              *  Download file if it does not already exist
              */
-            if (!$this->download($url . '/' . $rpmPackageLocation, $this->workingDir . '/packages/' . $rpmPackageName)) {
+            if (!$this->download($url . '/' . $rpmPackageLocation, $targetDir . '/' . $rpmPackageName)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
@@ -963,8 +968,8 @@ class Mirror
              *  Check that downloaded rpm package's matches the checksum specified by the primary.xml file
              *  Try with sha256 then sha1
              */
-            if (hash_file('sha256', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
-                if (hash_file('sha1', $this->workingDir . '/packages/' . $rpmPackageName) != $rpmPackageChecksum) {
+            if (hash_file('sha256', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
+                if (hash_file('sha1', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
                     $this->logError('checksum (sha256) does not match (tried sha256 and sha1)', 'Error while retrieving packages');
                 }
             }
@@ -989,7 +994,7 @@ class Mirror
                 /**
                  *  Extract package header
                  */
-                $myprocess = new Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $this->workingDir . '/packages/' . $rpmPackageName);
+                $myprocess = new \Controllers\Process('/usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" ' . $targetDir. '/' . $rpmPackageName);
                 $myprocess->execute();
                 $content = $myprocess->getOutput();
                 $myprocess->close();
@@ -1036,9 +1041,16 @@ class Mirror
     private function downloadDebPackages($url)
     {
         /**
+         *  Target directory in which packages will be downloaded
+         */
+        $targetDir = $this->workingDir . '/packages';
+
+        /**
          *  Create directory in which packages will be downloaded
          */
-        mkdir($this->workingDir . '/packages', 0770, true);
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0770, true);
+        }
 
         /**
          *  Print URL from which packages are downloaded
@@ -1076,7 +1088,7 @@ class Mirror
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
              */
-            if (file_exists($this->workingDir . '/packages/' . $debPackageName)) {
+            if (file_exists($targetDir . '/' . $debPackageName)) {
                 $this->logOutput('already exists (ignoring)' . PHP_EOL);
                 continue;
             }
@@ -1084,14 +1096,14 @@ class Mirror
             /**
              *  Download
              */
-            if (!$this->download($url . '/' . $debPackageLocation, $this->workingDir . '/packages/' . $debPackageName)) {
+            if (!$this->download($url . '/' . $debPackageLocation, $targetDir . '/' . $debPackageName)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
             /**
              *  Check that downloaded deb package's sha256 matches the sha256 specified by the Packages file
              */
-            if (hash_file('sha256', $this->workingDir . '/packages/' . $debPackageName) != $debPackageChecksum) {
+            if (hash_file('sha256', $targetDir . '/' . $debPackageName) != $debPackageChecksum) {
                 $this->logError('SHA256 does not match', 'Error while retrieving packages');
             }
 
@@ -1334,7 +1346,7 @@ class Mirror
         /**
          *  Retrive packages for each arch that have been specified
          */
-        foreach ($this->arch as $arch) {
+        foreach ($this->arch as $this->currentArch) {
             $url = $this->url;
 
             /**
@@ -1348,7 +1360,7 @@ class Mirror
              *  Replace $basearch value
              */
             if (preg_match('/\$basearch/i', $url)) {
-                $url = str_replace('$basearch', $arch, $url);
+                $url = str_replace('$basearch', $this->currentArch, $url);
             }
 
             /**

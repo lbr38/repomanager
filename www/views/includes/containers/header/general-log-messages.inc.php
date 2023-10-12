@@ -13,15 +13,15 @@
                         <div class="flex align-item-center">
                             <?php
                             if ($log['Type'] == 'error') {
-                                echo '<img src="assets/icons/redcircle.png" class="icon-small">';
+                                echo '<img src="/assets/icons/redcircle.png" class="icon-small">';
                             }
                             if ($log['Type'] == 'info') {
-                                echo '<img src="assets/icons/greencircle.png" class="icon-small">';
+                                echo '<img src="/assets/icons/greencircle.png" class="icon-small">';
                             } ?>
                             <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <?= $log['Component'] ?> - <?= $log['Message'] ?></span>
                         </div>
                         <div class="slide-btn align-self-center acquit-log-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
-                            <img src="assets/icons/enabled.svg" />
+                            <img src="/assets/icons/enabled.svg" />
                             <span>Mark as read</span>
                         </div>
                     </div>

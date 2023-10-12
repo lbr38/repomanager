@@ -1,10 +1,4 @@
 @font-face{ font-family: 'ethnocentric'; src: url('../../assets/fonts/ethnocentric rg.ttf') format('truetype'); }
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-
-/**
- *  Color picker
- *  https://www.w3schools.com/colors/colors_picker.asp?colorhex=182b3e
- */
 
 body {
     display: flex;
@@ -157,16 +151,18 @@ article {
 }
 .section-left, .section-right {
     width: 100%;
-    margin: auto;
+    /* margin: auto; */
     vertical-align: top;
 }
 
 .section-left {
     order: 2;
+    align-self: flex-start;
 }
 
 .section-right {
     order: 1;
+    /* align-self: flex-end; */
 }
 
 #title-button-div {
@@ -229,7 +225,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 200px 250px auto auto auto auto 70px 1fr;
+    grid-template-columns: 200px 250px 50px auto auto auto 70px 1fr;
     margin-bottom: 12px;
     background-color: #1d3349;
     border: 1px solid #24405c;
@@ -281,6 +277,11 @@ article {
     grid-column-start: 1;
     grid-column-end: -1;
     padding: 10px 0 10px 0 !important;
+}
+
+.item-checkbox {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .item-checkbox input[type=checkbox] {
@@ -776,7 +777,7 @@ footer #github img { width: 25px; }
 .planInfo div span {
     display: table-cell;
     width: 60%;
-    padding: 5px;
+    padding: 10px;
 }
 
 /* Gif de chargement caché par défaut */
@@ -822,7 +823,8 @@ footer #github img { width: 25px; }
 .header-green, .header-green-min { background-color: #14be7e; }
 .header-red, .header-red-min { background-color: #ff0044; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
-.header-light-blue, .header-light-blue-min { background-color: #2b4d6e; }
+.header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
+.header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
 .operation-form {
     width: 100%;
@@ -918,9 +920,9 @@ footer #github img { width: 25px; }
         flex-direction: row;
     }
 
-    .section-left, .section-right {
+    /* .section-left, .section-right {
         margin: 0 auto 0 auto;
-    }
+    } */
 
     .section-main {
         flex: 0 0 100%;

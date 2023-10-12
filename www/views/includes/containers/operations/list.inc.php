@@ -47,7 +47,7 @@
                             <table>
                                 <tr>
                                     <td class="td-fit">
-                                        <img class="icon" src="assets/icons/calendar.svg" title="Planification" />
+                                        <img class="icon" src="/assets/icons/calendar.svg" title="Planification" />
                                     </td>
             
                                     <?php
@@ -66,7 +66,7 @@
                                     } ?>
 
                                     <td class="td-fit">
-                                        running<img class="icon" src="assets/images/loading.gif" title="Running" />
+                                        running<img class="icon" src="/assets/images/loading.gif" title="Running" />
                                     </td>
                                 </tr>
                             </table>
@@ -171,7 +171,7 @@
                                 <table>
                                     <tr>
                                         <td class="td-fit">
-                                            <img class="icon" src="assets/icons/calendar.svg" title="Planification" />
+                                            <img class="icon" src="/assets/icons/calendar.svg" title="Planification" />
                                         </td>
 
                                         <?php
@@ -185,13 +185,13 @@
                                             endif;
 
                                             if ($planStatus == "done") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/greencircle.png" title="Operation done" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="/assets/icons/greencircle.png" title="Operation done" /></td>';
                                             }
                                             if ($planStatus == "error") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/redcircle.png" title="Operation failed" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="/assets/icons/redcircle.png" title="Operation failed" /></td>';
                                             }
                                             if ($planStatus == "stopped") {
-                                                echo '<td class="td-fit"><img class="icon-small" src="assets/icons/redcircle.png" title="Operation stopped by the user" /></td>';
+                                                echo '<td class="td-fit"><img class="icon-small" src="/assets/icons/redcircle.png" title="Operation stopped by the user" /></td>';
                                             }
                                         } ?>
                                     </tr>
@@ -229,7 +229,7 @@
                      *  Print the 'Show all' button only if the cookie printAllOp is not set or is not equal to "yes"
                      */
                     if (!isset($_COOKIE['printAllOp']) or (!empty($_COOKIE['printAllOp']) and $_COOKIE['printAllOp'] != "yes")) {
-                        echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="assets/icons/down.svg" class="icon" /></p>';
+                        echo '<p id="print-all-op" class="pointer center"><b>Show all</b> <img src="/assets/icons/down.svg" class="icon" /></p>';
                     }
                 }
             endif;
@@ -273,7 +273,7 @@
                      *  On affiche le bouton Afficher tout uniquement si le cookie printAllRegularOp n'est pas en place ou n'est pas égal à "yes"
                      */
                     if (!isset($_COOKIE['printAllRegularOp']) or (!empty($_COOKIE['printAllRegularOp']) and $_COOKIE['printAllRegularOp'] != "yes")) {
-                        echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="assets/icons/down.svg" class="icon" /></p>';
+                        echo '<p id="print-all-regular-op" class="pointer center"><b>Show all</b> <img src="/assets/icons/down.svg" class="icon" /></p>';
                     }
                 }
             endif;

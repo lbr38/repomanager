@@ -145,7 +145,7 @@ $(document).on('click','.delete-env-btn',function () {
     var envId = $(this).attr('env-id');
     var envName = $(this).attr('env-name');
 
-    confirmBox('Remove environment ' + envName + '?', function () {
+    confirmBox('Remove <b>' + envName + '</b> environment?', function () {
         removeEnv(repoId, snapId, envId)});
 });
 
@@ -392,7 +392,7 @@ $(document).on('click','.client-configuration-btn',function () {
     /**
      *  Génération du div
      */
-    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="assets/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
+    $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="/assets/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="/assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
      *  Affichage
@@ -416,7 +416,7 @@ function removeEnv(repoId, snapId, envId)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "operation",
             action: "removeEnv",
@@ -429,7 +429,7 @@ function removeEnv(repoId, snapId, envId)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -445,7 +445,7 @@ function setRepoDescription(envId, repoDescription)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "repo",
             action: "setRepoDescription",
@@ -457,7 +457,7 @@ function setRepoDescription(envId, repoDescription)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -473,7 +473,7 @@ function getForm(action, repos_array)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "operation",
             action: "getForm",
@@ -485,7 +485,7 @@ function getForm(action, repos_array)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             $('.slide-panel-container[slide-panel=operation]').find('.slide-panel-reloadable-div').html(jsonValue.message);
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -500,7 +500,7 @@ function validateExecuteForm(operation_params_json)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "operation",
             action: "validateForm",
@@ -515,7 +515,7 @@ function validateExecuteForm(operation_params_json)
             closePanel();
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

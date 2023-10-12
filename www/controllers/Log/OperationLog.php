@@ -246,7 +246,7 @@ class OperationLog
      */
     public function stepWarning()
     {
-        echo '<div class="op-step-title-warning"><img src="assets/icons/warning.png" class="icon" /></div>';
+        echo '<div class="op-step-title-warning"><img src="/assets/icons/warning.png" class="icon" /></div>';
         $this->steplogWrite();
     }
 
@@ -302,7 +302,7 @@ class OperationLog
      */
     public function steplogLoading(string $stepId)
     {
-        echo '<span class="' . $stepId . '-loading-' . $this->pid . ' op-step-loading">Running<img src="assets/images/loading.gif" class="icon" /></span>';
+        echo '<span class="' . $stepId . '-loading-' . $this->pid . ' op-step-loading">Running<img src="/assets/images/loading.gif" class="icon" /></span>';
         $this->steplogWrite();
     }
 

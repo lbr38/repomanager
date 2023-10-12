@@ -20,6 +20,8 @@ class Repo extends \Models\Model
      */
     public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
     {
+        $data = '';
+
         try {
             if (!empty($repoId) and !empty($snapId) and !empty($envId)) {
                 $stmt = $this->db->prepare("SELECT
@@ -638,6 +640,23 @@ class Repo extends \Models\Model
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Reconstruct = :status WHERE Id = :snapId");
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':snapId', $snapId);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        \Controllers\App\Cache::clear();
+    }
+
+    /**
+     *  Set snapshot architectures
+     */
+    public function snapSetArch(string $snapId, string $arch)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE repos_snap SET Arch = :arch WHERE Id = :snapId");
+            $stmt->bindValue(':arch', $arch);
             $stmt->bindValue(':snapId', $snapId);
             $stmt->execute();
         } catch (\Exception $e) {

@@ -99,6 +99,33 @@ class Settings
         }
 
         /**
+         *  CVE settings
+         */
+        if (!empty($sendSettings['cveImport'])) {
+            if ($sendSettings['cveImport'] == 'true') {
+                $settingsToApply['CVE_IMPORT'] = 'true';
+            } else {
+                $settingsToApply['CVE_IMPORT'] = 'false';
+            }
+        }
+
+        if (!empty($sendSettings['cveImportTime'])) {
+            $cveImportTime = Common::validateData($sendSettings['cveImportTime']);
+
+            if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $cveImportTime)) {
+                $settingsToApply['CVE_IMPORT_TIME'] = $cveImportTime;
+            }
+        }
+
+        if (!empty($sendSettings['cveScanHosts'])) {
+            if ($sendSettings['cveScanHosts'] == 'true') {
+                $settingsToApply['CVE_SCAN_HOSTS'] = 'true';
+            } else {
+                $settingsToApply['CVE_SCAN_HOSTS'] = 'false';
+            }
+        }
+
+        /**
          *  RPM repo settings
          */
         if (!empty($sendSettings['rpmRepo'])) {

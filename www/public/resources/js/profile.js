@@ -158,7 +158,7 @@ function applyServerConfiguration(serverManageClientConf, serverManageClientRepo
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "applyServerConfiguration",
@@ -174,7 +174,7 @@ function applyServerConfiguration(serverManageClientConf, serverManageClientRepo
             printAlert(jsonValue.message, 'success');
             reloadProfileDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -189,7 +189,7 @@ function newProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "newProfile",
@@ -204,7 +204,7 @@ function newProfile(name)
             printAlert(jsonValue.message, 'success');
             reloadProfileDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -219,7 +219,7 @@ function deleteProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "deleteProfile",
@@ -234,7 +234,7 @@ function deleteProfile(name)
             printAlert(jsonValue.message, 'success');
             reloadProfileDiv();
         },
-        error : function (jqXHR, ajaxOptions, thrownError) {
+        error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -249,7 +249,7 @@ function renameProfile(name, newname)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "renameProfile",
@@ -265,7 +265,7 @@ function renameProfile(name, newname)
             printAlert(jsonValue.message, 'success');
             reloadProfileDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -280,7 +280,7 @@ function duplicateProfile(name)
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "duplicateProfile",
@@ -295,7 +295,7 @@ function duplicateProfile(name)
             printAlert(jsonValue.message, 'success');
             reloadProfileDiv();
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
@@ -309,7 +309,7 @@ function configureProfile(name, reposList, packagesMajorExcluded, packagesExclud
 {
     $.ajax({
         type: "POST",
-        url: "ajax/controller.php",
+        url: "/ajax/controller.php",
         data: {
             controller: "profile",
             action: "configureProfile",
@@ -330,7 +330,7 @@ function configureProfile(name, reposList, packagesMajorExcluded, packagesExclud
              */
             printAlert(jsonValue.message, 'success');
         },
-        error : function (jqXHR, textStatus, thrownError) {
+        error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },

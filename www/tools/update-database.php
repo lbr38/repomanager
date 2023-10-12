@@ -3,7 +3,7 @@
  *  Manually apply release SQL queries update
  */
 
-define('ROOT', dirname(__FILE__, 2));
+define('ROOT', '/var/www/repomanager');
 
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('minimal');

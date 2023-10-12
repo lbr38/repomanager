@@ -14,7 +14,7 @@ class Directory
 
         $dirs = array(
             DB_DIR,
-            GPGHOME,
+            //GPGHOME, // perms must be 0700 on this directory
             LOGS_DIR,
             MAIN_LOGS_DIR,
             POOL,

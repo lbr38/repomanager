@@ -9,7 +9,7 @@
             /**
              *  REPOS tab
              */
-            if (__ACTUAL_URI__ == '/' or __ACTUAL_URI__ == '/browse' or __ACTUAL_URI__ == '/stats') {
+            if (__ACTUAL_URI__[1] == '' or __ACTUAL_URI__[1] == 'browse' or __ACTUAL_URI__[1] == 'stats') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -18,7 +18,7 @@
             <div class="<?= $headerMenuClass ?>">
                 <a href="/">
                     <div class="flex align-item-center column-gap-3">
-                        <img src="assets/icons/menu.svg" class="icon" />
+                        <img src="/assets/icons/menu.svg" class="icon" />
                         <span class="menu-section-title">REPOS</span>
                     </div>
                 </a>
@@ -28,7 +28,7 @@
             /**
              *  PLANIFICATIONS tab
              */
-            if (__ACTUAL_URI__ == '/plans') {
+            if (__ACTUAL_URI__[1] == 'plans') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -36,9 +36,9 @@
 
             if (PLANS_ENABLED == "true") : ?>
                 <div class="<?= $headerMenuClass ?>">
-                    <a href="plans">
+                    <a href="/plans">
                         <div class="flex align-item-center column-gap-3">
-                            <img src="assets/icons/calendar.svg" class="icon" />
+                            <img src="/assets/icons/calendar.svg" class="icon" />
                             <span class="menu-section-title">PLANIFICATIONS</span>
                         </div>
                     </a>
@@ -49,7 +49,7 @@
             /**
              *  MANAGE HOSTS tab
              */
-            if (__ACTUAL_URI__ == '/hosts' or __ACTUAL_URI__ == '/host') {
+            if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -59,7 +59,7 @@
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/hosts">
                         <div class="flex align-item-center column-gap-3">
-                            <img src="assets/icons/server.svg" class="icon" />
+                            <img src="/assets/icons/server.svg" class="icon" />
                             <span class="menu-section-title">MANAGE HOSTS</span>
                         </div>
                     </a>
@@ -70,7 +70,7 @@
             /**
              *  MANAGE PROFILES tab
              */
-            if (__ACTUAL_URI__ == '/profiles') {
+            if (__ACTUAL_URI__[1] == 'profiles') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -80,7 +80,7 @@
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/profiles">
                         <div class="flex align-item-center column-gap-3">
-                            <img src="assets/icons/stack.svg" class="icon" />
+                            <img src="/assets/icons/stack.svg" class="icon" />
                             <span class="menu-section-title">MANAGE PROFILES</span>
                         </div>
                     </a>
@@ -91,7 +91,7 @@
             /**
              *  SETTINGS tab
              */
-            if (__ACTUAL_URI__ == '/settings') {
+            if (__ACTUAL_URI__[1] == 'settings') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -101,7 +101,7 @@
                 <div class="<?= $headerMenuClass ?>">
                     <a href="/settings">
                         <div class="flex align-item-center column-gap-3">
-                            <img src="assets/icons/settings.svg" class="icon" />
+                            <img src="/assets/icons/settings.svg" class="icon" />
                             <span class="menu-section-title">SETTINGS</span>
                         </div>
                     </a>
@@ -112,7 +112,7 @@
             /**
              *  OPERATIONS tab
              */
-            if (__ACTUAL_URI__ == '/run') {
+            if (__ACTUAL_URI__[1] == 'run') {
                 $headerMenuClass = 'menu-sub-container-underline';
             } else {
                 $headerMenuClass = 'menu-sub-container';
@@ -120,9 +120,9 @@
 
             <div id="header-refresh-container" class="<?= $headerMenuClass ?>">
                 <div>
-                    <a href="run">
+                    <a href="/run">
                         <div class="flex align-item-center column-gap-3">
-                            <img src="assets/icons/rocket.svg" class="icon" />
+                            <img src="/assets/icons/rocket.svg" class="icon" />
                             <span class="menu-section-title">OPERATIONS</span>
                         </div>
                     </a>
@@ -204,7 +204,7 @@
                                         $op->printRepoOrGroup($opId); ?>
                                     </a>
                                     <span title="Stop operation" class="kill-btn" pid="<?= $opPid ?>">
-                                        <img src="assets/icons/delete.svg" class="icon">
+                                        <img src="/assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>
                                 <?php
@@ -245,7 +245,7 @@
                                         </a>
                                     </span>
                                     <span title="Stop operation">
-                                        <a href="/run?stop=<?=$opPid?>"><img src="assets/icons/delete.svg" class="icon"></a>
+                                        <a href="/run?stop=<?=$opPid?>"><img src="/assets/icons/delete.svg" class="icon"></a>
                                     </span>
                                 </div>
                                 <?php
@@ -262,7 +262,7 @@
 
         <div>
             <div class="menu-sub-container relative">
-                <img src="assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
+                <img src="/assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
                     <span id="notification-count"><?= NOTIFICATION ?></span>
@@ -275,21 +275,12 @@
              *  History tab
              */
             if (IS_ADMIN) {
-                echo '<a href="/history"><img src="assets/icons/time.svg" class="icon-lowopacity" title="History" /></a>';
-            }
-
-            /**
-             *  Userspace panel
-             */
-            if (__ACTUAL_URI__ == '/userspace') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
+                echo '<a href="/history"><img src="/assets/icons/time.svg" class="icon-lowopacity" title="History" /></a>';
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
                 <div class="flex align-item-center column-gap-3 slide-panel-btn lowopacity pointer" slide-panel="userspace" title="Userspace">
-                    <img src="assets/icons/user.svg" class="icon" />
+                    <img src="/assets/icons/user.svg" class="icon" />
                     <span class="menu-section-title">
                         <?php
                         echo $_SESSION['username'];
