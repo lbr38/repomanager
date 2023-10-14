@@ -1,0 +1,37 @@
+name: Publish Docker image
+
+on:
+  release:
+    types: [ published ]
+
+# on:
+#   push:
+#     branches: [ devel ]
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Retrieve Repomanager version
+        run: |
+          echo "VERSION=$(cat ${GITHUB_WORKSPACE}/www/version)" >> $GITHUB_ENV
+          echo "Version: ${{ env.VERSION }}"
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
+      # Build the image with '$VERSION' and 'latest' tags
+      - name: Build the image
+        run: docker build . --file ./docker/Dockerfile --tag lbr38/repomanager:${{ env.VERSION }} --tag lbr38/repomanager:latest
+
+      - name: Push the image
+        run: |
+          docker push lbr38/repomanager:${{ env.VERSION }}
+          docker push lbr38/repomanager:latest

@@ -3,7 +3,7 @@ version: "3"
 services:
   repomanager:
     container_name: repomanager
-    image: repomanager-image
+    image: repomanager
     build:
       context: .
       dockerfile: Dockerfile
