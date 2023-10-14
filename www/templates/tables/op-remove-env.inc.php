@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <tr>
-            <th>REPO:</th>
+            <th>REPO</th>
             <td>
                 <span class="label-white">
                     <?php
@@ -18,7 +18,7 @@
             </td>
         </tr>
         <tr>
-            <th>ENVIRONNEMENT:</th>
+            <th>ENVIRONNEMENT</th>
             <td><?=\Controllers\Common::envtag($this->repo->getEnv())?></td>
         </tr>
     </table>

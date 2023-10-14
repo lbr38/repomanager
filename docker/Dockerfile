@@ -24,9 +24,10 @@ RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo
 # Install postfix
 RUN apt-get install postfix -y
 
-# Add PHP 8.1 repository
-RUN curl -fsSL  https://packages.sury.org/php/apt.gpg| gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-keyring.gpg
-RUN echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/sury-php.list
+# Add nginx and PHP 8.1 repositories
+RUN curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bullseye/nginx_prod bullseye nginx" > /etc/apt/sources.list.d/repomanager-repomanager-nginx_bullseye_nginx.list
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-docker/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/repomanager-repomanager-docker_bullseye_main.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.1
@@ -42,6 +43,7 @@ RUN if [ "$env" = "devel" ]; then \
 # SERVICES CONFIG
 
 # Configure Nginx
+RUN mkdir -p /etc/nginx/sites-enabled
 RUN cp /tmp/repomanager/docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN cp /tmp/repomanager/docker/config/nginx/repomanager.conf /etc/nginx/sites-enabled/repomanager.conf
 RUN sed -i "s/__MAX_UPLOAD_SIZE__/$max_upload_size/g" /etc/nginx/sites-enabled/repomanager.conf

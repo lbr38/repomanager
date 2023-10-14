@@ -180,6 +180,13 @@
                     </tr>
 
                     <tr class="__plan_difference_input hide">
+                        <td colspan="100%">
+                            <hr>
+                            <p><b>Mirroring params</b></p>
+                        </td>
+                    </tr>
+
+                    <tr class="__plan_difference_input hide">
                         <td class="td-10" title="Selected snapshot content will be copied to the new snapshot before syncing. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
                         <td>
                             <label class="onoff-switch-label">

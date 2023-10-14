@@ -151,7 +151,6 @@ article {
 }
 .section-left, .section-right {
     width: 100%;
-    /* margin: auto; */
     vertical-align: top;
 }
 
@@ -162,7 +161,6 @@ article {
 
 .section-right {
     order: 1;
-    /* align-self: flex-end; */
 }
 
 #title-button-div {
@@ -225,11 +223,11 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 200px 250px 50px auto auto auto 70px 1fr;
+    grid-template-columns: 250px 50px auto auto auto 85px 1fr;
     margin-bottom: 12px;
     background-color: #1d3349;
     border: 1px solid #24405c;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 15px 4px 15px 4px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
@@ -253,24 +251,9 @@ article {
 }
 
 .item-repo {
-    font-weight: bold;
-}
-
-.item-pkgtype {
-    position: absolute !important;
-    margin-top: 5px;
-}
-.item-pkgtype span {
-    font-size: 9px;
-}
-.item-pkgtype .icon-small {
-    margin: 0 !important;
-}
-.item-pkgtype-deb {
-    background-color: #ff0044;
-}
-.item-pkgtype-rpm {
-    background-color: #5372e7;
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
 }
 
 .item-empty-line {
@@ -300,21 +283,22 @@ article {
     margin-top: 7px;
     margin-right: 1px;
     position: relative;
-    width: 25px;
+    width: 40px;
 }
 
 .item-arrow span {
     width: 100%;
     position: absolute;
-    top: 3px;
+    top: 5px;
     border-top: 1px solid #ffffff6b;
 }
 
 .item-arrow-up span {
     position: absolute;
-    top: -31px;
-    height: 41.5px;
-    width: 18px;
+    top: -35px;
+    left: 15px;
+    height: 46.5px;
+    width: 30px;
     border-left: 1px solid #ffffff6b;
     border-bottom: 1px solid #ffffff6b;
     border-bottom-left-radius: 4px;
@@ -322,7 +306,14 @@ article {
 
 .item-env {
     min-width: 40px;
-    padding: 1px 0 0 0 !important;
+    padding: 0px !important;
+}
+
+.item-env span {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 
 .item-repo-version {
@@ -334,7 +325,6 @@ article {
 }
 
 .item-snapshot {
-    /* width: 85px; */
     width: 110px;
     padding: 0 0 0 0 !important;
 }
@@ -348,9 +338,9 @@ article {
     width: 100%;
     text-align: center;
     font-size: 12px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    border-radius: 2px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-radius: 16px;
     background-color: rgb(46, 54, 58);
     color: white;
     box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
@@ -369,9 +359,9 @@ article {
 }
 
 .item-info img, .item-env-info img {
-    height: 15px;
-    margin-left: 2px !important;
-    margin-right: 2px !important;
+    height: 17px;
+    margin-left: 4px !important;
+    margin-right: 4px !important;
 }
 
 .item-info span {
@@ -380,6 +370,7 @@ article {
 }
 
 .item-env-info {
+    visibility: hidden;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -413,37 +404,6 @@ article {
     margin: auto;
     align-self: center;
     justify-content: center;
-}
-
-.td-white-bckg span, .td-red-bckg span {
-    width: 100%;
-    display: block; /* pour que le width s'applique correctement */
-    font-size: 12px;
-    text-align: center;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-left: 5px;
-    padding-right: 5px;
-    border-radius: 2px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(109, 109, 109, 0.2);
-}
-
-.td-white-bckg span {
-    background-color: lightgray;
-    color: black;
-}
-
-.td-red-bckg span {
-    background-color: #ff0044;
-    color: white;
-}
-
-.td-desc {
-    margin: 0px;
-    padding-right: 30px !important;
-    white-space: normal;
 }
 
 .divReposListDisplay {
@@ -487,8 +447,8 @@ article {
 #divReposConfCommands {
     min-width: 500px;
     width: max-content;
-    border-radius: 4px;
-    padding-left: 30px !important;
+    border-radius: 8px;
+    padding-left: 15px !important;
     padding-right: 30px !important;
     padding: 15px;
     margin-bottom: 30px;
@@ -534,10 +494,10 @@ input::placeholder {
     font-size: 13px;
     padding-left: 10px;
     padding-right: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     vertical-align: middle;
-    border-radius: 2px;
+    border-radius: 16px;
 }
 .env, .env-fit {
     background-color: white;
@@ -547,18 +507,26 @@ input::placeholder {
     text-align: center;
     display: block;
 }
+.env-fit:hover, .last-env-fit:hover {
+    background-color: #e6e6e6;
+}
 .last-env, .last-env-fit {
     color: white;
     background-color: #ff0044;
 }
+.last-env:hover, .last-env-fit:hover {
+    background-color: #dc0044;
+}
 
 [class^="label-pkg"] {
-    display: flex !important;
-    align-items: center;
-    column-gap: 3px;
-    padding: 1.5px 2px 1.5px 2px !important;
-    border-radius: 4px;
+    display: block;
+    width: fit-content;
+    height: fit-content;
+    padding: 3px 2px 3px 2px !important;
+    border-radius: 6px;
     font-size: 9px;
+    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
+    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 .label-pkg-rpm {
     background-color: #5372e7;
@@ -621,8 +589,8 @@ footer #github img { width: 25px; }
 #hideAllReposGroups, #currentload {
     position: absolute;
     right: 6px;
-    top: -20px;
-    font-size: 12px;
+    top: -23px;
+    font-size: 13px;
 }
 
 #currentload span {
@@ -767,7 +735,7 @@ footer #github img { width: 25px; }
     border-right: 1px solid #24405c;
     border-bottom: 1px solid #24405c;
     border-top: none;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .planInfo div {
@@ -811,11 +779,11 @@ footer #github img { width: 25px; }
 }
 /* rubans de couleurs */
 .header-green, .header-blue, .header-light-blue, .header-red {
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 0px 8px 0px 8px;
 }
 .header-green-min, .header-blue-min, .header-light-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
-    border-radius: 4px;
+    border-radius: 6px;
     /* pas de padding lorsqu'il y a un <input> */
     padding-bottom: 0px;
     padding-top: 0px;
@@ -864,7 +832,7 @@ footer #github img { width: 25px; }
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     padding: 30px;
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
@@ -919,10 +887,6 @@ footer #github img { width: 25px; }
     article {
         flex-direction: row;
     }
-
-    /* .section-left, .section-right {
-        margin: 0 auto 0 auto;
-    } */
 
     .section-main {
         flex: 0 0 100%;

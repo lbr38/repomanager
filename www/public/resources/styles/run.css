@@ -93,7 +93,7 @@
 .op-step-div {
     position: relative;
     margin-bottom: 5px;
-    border-radius: 2px;
+    border-radius: 8px;
     border: 1px solid #24405c;
     background-color: #182b3e;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;

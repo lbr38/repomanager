@@ -51,7 +51,7 @@ if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POS
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, 'Environment has been deleted');
+    response(HTTP_OK, 'Environment has been removed');
 }
 
 /**
