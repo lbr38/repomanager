@@ -12,7 +12,7 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td colspan="100%">Update params:</td>
+    <td colspan="100%"><b>Update params</b></td>
 </tr>
 
 <tr>

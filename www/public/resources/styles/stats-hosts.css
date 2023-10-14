@@ -4,27 +4,6 @@
     justify-content: space-between;
 }
 
-.stats-info-requests {
-    display: none;
-    position: absolute;
-    top: 75px;
-    right: 0;
-    font-size: 13px !important;
-    z-index: 99;
-    width: max-content;
-    margin-top: 10px;
-    padding: 5px 10px 5px 5px;
-    border-radius: 2px;
-    border: 1px solid #24405c;
-    background-color: #1d3349;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-    box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
-}
-
-.stats-info-requests span {
-    font-size: 12px;
-}
-
 #repo-access-chart-div {
     height: 500px;
     padding-bottom: 100px;
@@ -104,8 +83,8 @@ td:last-child,
 
 .host-line {
     padding: 9px 15px 9px 15px;
-    margin-bottom: 4px;
-    border-radius: 4px;
+    margin-bottom: 6px;
+    border-radius: 8px;
     background-color: #1d3349;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
@@ -324,7 +303,7 @@ td:last-child,
     padding: 10px 15px;
     text-align: left;
     z-index: 5; /* Pour que le bloc s'affiche au dessus des autres et ne soit pas à moitié masqué */
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: #112334;
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);

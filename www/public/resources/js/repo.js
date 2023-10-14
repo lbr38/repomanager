@@ -133,6 +133,22 @@ $(document).on('change','input:radio[name="repoType"], input:radio[name="package
     newRepoFormPrintFields();
 });
 
+
+/**
+ *  Event: print env delete and install buttons
+ */
+$(document).on('mouseenter','.item-env, .item-env-info',function () {
+    var envId = $(this).attr('env-id');
+    $('#repos-list-container').find('.item-env-info[env-id=' + envId + ']').css('visibility', 'visible');
+});
+
+/**
+ *  Event: hide env delete and install buttons
+ */
+$(document).on('mouseleave','.item-env, .item-env-info',function () {
+    $('#repos-list-container').find('.item-env-info').css('visibility', 'hidden');
+});
+
 /**
  *  Event : clic sur le bouton de suppression d'un environnement
  */

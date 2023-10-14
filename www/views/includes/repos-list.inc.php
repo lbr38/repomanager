@@ -43,12 +43,12 @@ if (!empty($groupsList)) {
                     $envId = '';
                     $env = '';
                     $description = '';
-                    $printRepoName = 'yes';
-                    $printRepoDist = 'yes';
-                    $printRepoSection = 'yes';
-                    $printReleaseVersion = 'yes';
-                    $printRepoEnv = 'yes';
-                    $printEmptyLine = 'no';
+                    $printRepoName = true;
+                    $printRepoDist = true;
+                    $printRepoSection = true;
+                    $printReleaseVersion = true;
+                    $printEmptyLine = false;
+                    $printDoubleEmptyLine = false;
 
                     /**
                      *  Retrieving values from database
@@ -93,31 +93,31 @@ if (!empty($groupsList)) {
                      *  Utile pour ne pas afficher plusieurs fois l'information et alléger l'affichage
                      */
                     if ($repoLastName == $name) {
-                        $printRepoName = 'no';
+                        $printRepoName = false;
                     }
 
                     if ($packageType == 'rpm') {
                         if ($name == $repoLastName and !empty($lastSnapId) and $snapId != $lastSnapId) {
-                            $printEmptyLine = 'yes';
+                            $printEmptyLine = true;
                         }
                         if ($name == $repoLastName and !empty($releaseVersion) and $releaseVersion == $repoLastReleaseVersion) {
-                            $printReleaseVersion = 'no';
+                            $printReleaseVersion = false;
                         }
                     }
 
-                    if ($packageType == "deb") {
+                    if ($packageType == 'deb') {
                         if ($name == $repoLastName and !empty($repoLastDist) and $dist == $repoLastDist and !empty($repoLastSection) and $section == $repoLastSection) {
-                            $printRepoDist = 'no';
-                            $printRepoSection = 'no';
+                            $printRepoDist = false;
+                            $printRepoSection = false;
                         }
                         if ($name == $repoLastName and !empty($repoLastDist) and $repoLastDist != $dist) {
-                            $printEmptyLine = 'yes';
+                            $printDoubleEmptyLine = true;
                         }
                         if ($name == $repoLastName and !empty($repoLastDist) and $repoLastDist == $dist and !empty($repoLastSection) and $section != $repoLastSection) {
-                            $printEmptyLine = 'yes';
+                            $printEmptyLine = true;
                         }
                         if ($name == $repoLastName and !empty($repoLastDist) and $dist == $repoLastDist and !empty($repoLastSection) and $section == $repoLastSection and !empty($lastSnapId) and $snapId != $lastSnapId) {
-                            $printEmptyLine = 'yes';
+                            $printEmptyLine = true;
                         }
                     }
 
@@ -125,55 +125,75 @@ if (!empty($groupsList)) {
                      *  Si le type de paquet n'est pas le même que précédemment alors il faut afficher le nom du repo
                      */
                     if (!empty($lastPackageType) and $lastPackageType != $packageType and $repoLastName == $name) {
-                        $printRepoName = 'yes';
-                        $printRepoDist = 'yes';
-                        $printRepoSection = 'yes';
-                        $printEmptyLine = 'yes';
+                        $printRepoName = true;
+                        $printRepoDist = true;
+                        $printRepoSection = true;
+                        $printEmptyLine = true;
                     }
 
-                    if ($printEmptyLine == 'yes') {
+                    if ($printEmptyLine) {
                         echo '<div class="item-empty-line"></div>';
                     }
+                    if ($printDoubleEmptyLine) {
+                        echo '<div class="item-empty-line"></div>';
+                        echo '<div class="item-empty-line"></div>';
+                    } ?>
 
-                    /**
-                     *  Nom du repo
-                     */
-                    echo '<div class="item-repo">';
-                    if ($printRepoName == "yes") {
-                        echo '<span class="copy">' . $name . '</span>';
-                        echo '<div class="label-pkg-' . $packageType  . ' item-pkgtype" title="This repository contains ' . $packageType . ' packages"><img src="/assets/icons/package.svg" class="icon-small" /><span>' . $packageType . '</span></div>';
-                    }
-                    echo '</div>'; ?>
-
-                    <div class="item-repo-version">
+                    <div class="item-repo">
                         <?php
-                        if ($packageType == "deb") {
-                            if ($printRepoDist == 'yes' or $printRepoSection == 'yes') {
-                                if ($printRepoDist == 'yes') {
-                                    echo '<span class="label-black font-size-12" title="Distribution">' . $dist . '</span>';
-                                }
-                                if ($printRepoSection == 'yes') {
-                                    echo '<span class="label-black font-size-12" title="Section">' . $section . '</span>';
+                        if ($printRepoName) : ?>
+                            <div class="flex column-gap-8">
+                                <span class="copy bold wordbreakall"><?= $name ?></span>
+                                <span class="label-pkg-<?= $packageType ?>" title="This repository contains <?= $packageType ?> packages"><?= $packageType ?></span>
+                            </div>
+                            <?php
+                        endif;
+
+                        if ($packageType == 'deb') {
+                            if ($printRepoDist or $printRepoSection) {
+                                if ($printRepoDist) {
+                                    echo '<span class="lowopacity-cst font-size-12" title="Distribution and section">' . ucfirst($dist) . ' ' . $section . '</span>';
                                 }
                             }
                         }
 
-                        if ($packageType == "rpm") {
-                            if ($printReleaseVersion == 'yes') {
-                                echo '<div class="label-black font-size-12" title="Release version">' . $releaseVersion . '</div>';
+                        if ($packageType == 'rpm') {
+                            if ($printReleaseVersion) {
+                                echo '<div class="lowopacity-cst font-size-12" title="Release version">Release ver. ' . $releaseVersion . '</div>';
                             }
                         } ?>
                     </div>
-                   
+
                     <div class="item-checkbox">
                         <?php
                         if ($snapId != $lastSnapId) {
+                            /**
+                             *  Print a warning icon if repo snapshot needs to be rebuilt
+                             */
                             if (!empty($reconstruct)) {
                                 if ($reconstruct == 'needed') {
                                     echo '<img class="icon" src="/assets/icons/warning.png" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
                                 }
+
+                                /**
+                                 *  Print a failed icon if repo snapshot rebuild has failed
+                                 */
                                 if ($reconstruct == 'failed') {
                                     echo '<img class="icon" src="/assets/icons/redcircle.png" title="Metadata building has failed." />';
+                                }
+                            }
+
+                            /**
+                             *  Print a warning icon if repo directory does not exist on the server
+                             */
+                            if ($packageType == 'rpm') {
+                                if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
+                                    echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                                }
+                            }
+                            if ($packageType == 'deb') {
+                                if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
+                                    echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
                                 }
                             }
                         } ?>
@@ -204,64 +224,45 @@ if (!empty($groupsList)) {
                     /**
                      *  Get repo size in bytes
                      */
-                    if ($packageType == "rpm") {
+                    if ($packageType == 'rpm') {
                         $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $dateFormatted . '_' . $name);
                     }
-                    if ($packageType == "deb") {
+                    if ($packageType == 'deb') {
                         $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section);
                     } ?>
 
                     <div class="item-snapshot">
                         <?php
                         if ($snapId != $lastSnapId) : ?>
-                            <div class="item-date" title="<?= "$dateFormatted $time" ?>">
-                                <span><?= $dateFormatted ?></span>
+                            <div class="item-date">
+                                <a href="/browse/<?= $snapId ?>" title="<?= "Browse snapshot ($dateFormatted $time) content" ?>">
+                                    <span><?= $dateFormatted ?></span>
+                                </a>
                             </div>
 
                             <div class="item-info">
-                                <?php
-                                /**
-                                 *  Print repo size in the most suitable byte format
-                                 */
-                                echo '<span class="lowopacity" title="Repository snapshot size">' . \Controllers\Common::sizeFormat($repoSize) . '</span>';
-
-                                /**
-                                 *  Affichage de l'icone du type de repo (miroir ou local)
-                                 */
-                                echo '<span>';
-                                if ($type == "mirror") {
-                                    echo '<img class="icon-np lowopacity" src="/assets/icons/internet.svg" title="Type: mirror (source repo: ' . $source . ')&#10;Arch: ' . $arch . '" />';
-                                } elseif ($type == "local") {
-                                    echo '<img class="icon-np lowopacity" src="/assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
-                                } else {
-                                    echo '<img class="icon-np lowopacity" src="/assets/icons/unknow.svg" title="Type: unknow" />';
-                                }
-                                echo '</span>';
-
-                                /**
-                                 *  Affichage de l'icone de signature GPG du repo
-                                 */
-                                echo '<span>';
-                                if ($signed == "yes") {
-                                    echo '<img class="icon-np lowopacity" src="/assets/icons/key.svg" title="Signed with GPG" />';
-                                } elseif ($signed == "no") {
-                                    echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
-                                } else {
-                                    echo '<img class="icon-np lowopacity" src="/assets/icons/unknow.svg" title="GPG signature: unknow" />';
-                                }
-                                echo '</span>';
-
-                                /**
-                                 *  Affichage de l'icone "explorer"
-                                 */
-                                echo '<span>';
-                                if ($packageType == "rpm") {
-                                    echo "<a href=\"/browse/${snapId}\"><img class=\"icon lowopacity\" src=\"/assets/icons/search.svg\" title=\"Browse $name ($dateFormatted) snapshot\" /></a>";
-                                }
-                                if ($packageType == "deb") {
-                                    echo "<a href=\"/browse/${snapId}\"><img class=\"icon lowopacity\" src=\"/assets/icons/search.svg\" title=\"Browse $section ($dateFormatted) snapshot\" /></a>";
-                                }
-                                echo '</span>'; ?>
+                                <span class="lowopacity-cst" title="Repository snapshot size"><?= \Controllers\Common::sizeFormat($repoSize) ?></span>
+                                <span>
+                                    <?php
+                                    if ($type == "mirror") {
+                                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/internet.svg" title="Type: mirror (source repository: ' . $source . ')&#10;Arch: ' . $arch . '" />';
+                                    } elseif ($type == "local") {
+                                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/pin.svg" title="Type: local&#10;Arch: ' . $arch . '" />';
+                                    } else {
+                                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknow.svg" title="Type: unknow" />';
+                                    } ?>
+                                </span>
+                                
+                                <span>
+                                    <?php
+                                    if ($signed == "yes") {
+                                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/key.svg" title="Signed with GPG" />';
+                                    } elseif ($signed == "no") {
+                                        echo '<img class="icon-np" src="/assets/icons/key2.svg" title="Not signed with GPG" />';
+                                    } else {
+                                        echo '<img class="icon-np lowopacity-cst" src="/assets/icons/unknow.svg" title="GPG signature: unknow" />';
+                                    } ?>
+                                </span>
                             </div>
                             <?php
                         endif ?>
@@ -279,65 +280,47 @@ if (!empty($groupsList)) {
                     if (!empty($env)) {
                         echo '<span></span>';
                     }
-                    echo '</div>';
+                    echo '</div>'; ?>
 
-                    /**
-                     *  Affichage de l'environnement pointant vers le snapshot si il y en a un
-                     */
-                    echo '<div class="item-env">';
-                    if (!empty($env)) {
-                        echo \Controllers\Common::envtag($env, 'fit');
-                    }
-                    echo '</div>';
-
-                    echo '<div class="item-env-info">';
-                    if (!empty($env)) {
-                        /**
-                         *  Delete env icon
-                         */
-                        if (IS_ADMIN) {
-                            echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env-name="' . $env . '" />';
-                        }
-
-                        /**
-                         *  Print repo conf icon
-                         */
-                        if ($packageType == "rpm") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
-                        }
-                        if ($packageType == "deb") {
-                            echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
-                        }
-
-                        /**
-                         *  Stats icon
-                         */
-                        if (STATS_ENABLED == "true") {
-                            if ($packageType == "rpm") {
-                                echo "<a href=\"/stats/${envId}\"><img class=\"icon-lowopacity\" src=\"/assets/icons/stats.svg\" title=\"Visualize stats and metrics of $name ($env)\" /></a>";
+                    <div class="item-env" env-id="<?= $envId ?>">
+                        <?php
+                        if (!empty($env)) {
+                            /**
+                             *  Print env with a link to stats page if enabled
+                             */
+                            if (STATS_ENABLED == "true") {
+                                echo '<a href="/stats/' . $envId . '" title="Visualize stats and metrics">';
+                                echo \Controllers\Common::envtag($env, 'fit');
+                                echo '</a>';
+                            } else {
+                                echo \Controllers\Common::envtag($env, 'fit');
                             }
-                            if ($packageType == "deb") {
-                                echo "<a href=\"/stats/${envId}\"><img class=\"icon-lowopacity\" src=\"/assets/icons/stats.svg\" title=\"Visualize stats and metrics of $section ($env)\" /></a>";
-                            }
-                        }
+                        } ?>
+                    </div>
 
-                        /**
-                         *  Print a warning icon if repo directory does not exist on the server
-                         */
-                        if ($packageType == "rpm") {
-                            if (!is_dir(REPOS_DIR . '/' . $dateFormatted . '_' . $name)) {
-                                echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
+                    <div class="item-env-info" env-id="<?= $envId ?>">
+                        <?php
+                        if (!empty($env)) {
+                            /**
+                             *  Remove env icon
+                             */
+                            if (IS_ADMIN) {
+                                echo '<img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" title="Remove ' . $env . ' environment" repo-id="' . $repoId . '" snap-id="' . $snapId . '" env-id="' . $envId . '" env-name="' . $env . '" />';
                             }
-                        }
-                        if ($packageType == "deb") {
-                            if (!is_dir(REPOS_DIR . '/' . $name . '/' . $dist . '/' . $dateFormatted . '_' . $section)) {
-                                echo '<img class="icon" src="/assets/icons/warning.png" title="This snapshot directory is missing on the server." />';
+
+                            /**
+                             *  Repo installation icon
+                             */
+                            if ($packageType == 'rpm') {
+                                echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
                             }
-                        }
-                    }
+                            if ($packageType == 'deb') {
+                                echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
+                            }
+                        } ?>
+                    </div>
 
-                    echo '</div>';
-
+                    <?php
                     /**
                      *  Affichage de la description
                      */

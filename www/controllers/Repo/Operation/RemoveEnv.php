@@ -6,10 +6,15 @@ use Exception;
 
 class RemoveEnv extends Operation
 {
-    use Metadata\Create;
-
     public function __construct(string $poolId = '00000', array $operationParams)
     {
+        /**
+         *  Only admin can remove repo snapshot environment
+         */
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to perform this action');
+        }
+
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
         $this->log = new \Controllers\Log\OperationLog('repomanager', $this->operation->getPid());

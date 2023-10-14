@@ -92,6 +92,7 @@ pre {
 .text-right { text-align: right; }
 .relative { position: relative; }
 .pointer { cursor: pointer; }
+.bold { font-weight: bold; }
 .greentext { color: #14be7e; }
 .redtext { color: #ff0044; }
 .yellowtext { color: #ffb536; }
@@ -411,7 +412,7 @@ textarea {
     vertical-align: middle;
     display: inline-block;
     padding: 4px 6px 4px 6px;
-    border-radius: 2px;
+    border-radius: 16px;
     color: white;
 }
 
@@ -533,11 +534,11 @@ textarea {
 }
 
 .switch-field label:first-of-type {
-    border-radius: 2px 0 0 2px;
+    border-radius: 16px 0 0 16px;
 }
 
 .switch-field label:last-of-type {
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 16px 16px 0;
 }
 
 /**
@@ -621,7 +622,7 @@ textarea {
     margin-left: 15px;
     margin-right: 15px;
     padding: 20px;
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
 }
 [class*="btn-doConfirm"] {
@@ -658,7 +659,7 @@ textarea {
     position: relative;
     padding: 15px;
     margin-bottom: 20px;
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: #182b3e;
     -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
