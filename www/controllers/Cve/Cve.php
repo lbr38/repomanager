@@ -320,7 +320,7 @@ class Cve
 
         if (!empty($mailMessage)) {
             $mailSubject = 'CVEs affected hosts summary';
-            $mymail = new \Controllers\Mail(EMAIL_RECIPIENT, $mailSubject, $mailMessage, '', '');
+            $mymail = new \Controllers\Mail(implode(',', EMAIL_RECIPIENT), $mailSubject, $mailMessage, '', '');
         }
     }
 }

@@ -223,7 +223,7 @@ article {
 
 .repos-list-group-flex-div {
     display: grid;
-    grid-template-columns: 250px 50px auto auto auto 85px 1fr;
+    grid-template-columns: 300px 50px auto auto auto 60px 1fr;
     margin-bottom: 12px;
     background-color: #1d3349;
     border: 1px solid #24405c;

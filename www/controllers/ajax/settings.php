@@ -5,7 +5,7 @@
  */
 if ($action == "sendTestEmail") {
     try {
-        $mymail = new \Controllers\Mail(EMAIL_RECIPIENT, 'Test email', 'This is a test email sent by Repomanager.');
+        $mymail = new \Controllers\Mail(implode(',', EMAIL_RECIPIENT), 'Test email', 'This is a test email sent by Repomanager.');
     } catch (Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
