@@ -69,7 +69,7 @@ class Mail
 
             $mail->send();
         } catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            throw new Exception('Error: mail could not be sent. Mailer Error: ' . $mail->ErrorInfo);
         }
     }
 }

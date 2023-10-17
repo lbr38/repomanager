@@ -98,7 +98,7 @@
                         <optgroup label="Debian">
                             <option value="buster">buster (Debian 10)</option>
                             <option value="bullseye">bullseye (Debian 11)</option>
-                            <option value="bullseye">bookworm (Debian 12)</option>
+                            <option value="bookworm">bookworm (Debian 12)</option>
                         </optgroup>
                         <optgroup label="Ubuntu">
                             <option value="focal">focal (Ubuntu 20.04)</option>
