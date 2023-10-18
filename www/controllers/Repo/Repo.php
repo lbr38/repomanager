@@ -455,9 +455,13 @@ class Repo
         }
         if (!empty($data['Dist'])) {
             $this->setDist($data['Dist']);
+        } else {
+            $this->setDist('');
         }
         if (!empty($data['Section'])) {
             $this->setSection($data['Section']);
+        } else {
+            $this->setSection('');
         }
         if (!empty($data['Package_type'])) {
             $this->setPackageType($data['Package_type']);

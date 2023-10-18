@@ -251,7 +251,7 @@ class Form
                     Param\Name::check($targetName);
                     Param\GpgCheck::check($operation_params['targetGpgCheck']);
                     Param\GpgResign::check($operation_params['targetGpgResign']);
-                    Param\SourcePackageInc::check($operation_params['targetSourcePackage']);
+                    // Param\SourcePackageInc::check($operation_params['targetSourcePackage']);
 
                     if ($packageType == 'deb') {
                         if (!empty($operation_params['targetPackageTranslation'])) {
@@ -317,7 +317,7 @@ class Form
                 }
 
                 Param\Arch::check($operation_params['targetArch']);
-                Param\SourcePackageInc::check($operation_params['targetSourcePackage']);
+                // Param\SourcePackageInc::check($operation_params['targetSourcePackage']);
 
                 if ($packageType == 'deb') {
                     if (!empty($operation_params['targetPackageTranslation'])) {

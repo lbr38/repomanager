@@ -12,51 +12,16 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td colspan="100%"><b>Update params</b></td>
+    <td colspan="100%"><b>Update parameters</b></td>
 </tr>
 
 <tr>
-    <td class="td-30">Check GPG signatures</td>
+    <td class="td-30" title="Selected snapshot content will be copied to the new snapshot before syncing packages. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
     <td>
         <label class="onoff-switch-label">
-            <input name="repoGpgCheck" param-name="targetGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" checked />
+            <input type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="onlySyncDifference" checked />
             <span class="onoff-switch-slider"></span>
         </label>
-    </td>
-</tr>
-
-<tr>
-    <td class="td-30">Sign with GPG</td>
-    <td>
-        <label class="onoff-switch-label">
-            <?php
-            if ($myrepo->getPackageType() == 'rpm') : ?>
-                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
-                <?php
-            endif;
-            if ($myrepo->getPackageType() == 'deb') : ?>
-                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
-                <?php
-            endif ?>
-            <span class="onoff-switch-slider"></span>
-        </label>
-    </td>
-</tr>
-
-<tr>
-    <td class="td-30">Point an environment</td>
-    <td>
-        <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="operation_param" param-name="targetEnv">
-            <option value=""></option>
-            <?php
-            foreach (ENVS as $env) {
-                if ($env == DEFAULT_ENV) {
-                    echo '<option value="' . $env . '" selected>' . $env . '</option>';
-                } else {
-                    echo '<option value="' . $env . '">' . $env . '</option>';
-                }
-            } ?>
-        </select>
     </td>
 </tr>
 
@@ -89,23 +54,19 @@ if ($myrepo->getPackageType() == 'deb') {
 </tr>
 
 <tr>
-    <td class="td-30">Include sources packages</td>
+    <td class="td-30">Point an environment</td>
     <td>
-        <?php
-        if ($myrepo->getPackageType() == 'rpm') : ?>
-            <label class="onoff-switch-label">
-                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" <?php echo (RPM_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
-                <span class="onoff-switch-slider"></span>
-            </label>
+        <select id="update-repo-target-env-select-<?= $myrepo->getSnapId() ?>" class="operation_param" param-name="targetEnv">
+            <option value=""></option>
             <?php
-        endif;
-        if ($myrepo->getPackageType() == 'deb') : ?>
-            <label class="onoff-switch-label">
-                <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" <?php echo (DEB_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
-                <span class="onoff-switch-slider"></span>
-            </label>
-            <?php
-        endif; ?>
+            foreach (ENVS as $env) {
+                if ($env == DEFAULT_ENV) {
+                    echo '<option value="' . $env . '" selected>' . $env . '</option>';
+                } else {
+                    echo '<option value="' . $env . '">' . $env . '</option>';
+                }
+            } ?>
+        </select>
     </td>
 </tr>
 
@@ -126,10 +87,32 @@ if ($myrepo->getPackageType() == 'deb') : ?>
 endif; ?>
 
 <tr>
-    <td class="td-30" title="Selected snapshot content will be copied to the new snapshot before syncing. Then only the new changed packages will be synced from source repository. Can significantly reduce syncing duration on large repos.">Only sync the difference</td>
+    <td colspan="100%"><b>GPG parameters</b></td>
+</tr>
+
+<tr>
+    <td class="td-30">Check GPG signatures</td>
     <td>
         <label class="onoff-switch-label">
-            <input type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="onlySyncDifference" checked />
+            <input name="repoGpgCheck" param-name="targetGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" checked />
+            <span class="onoff-switch-slider"></span>
+        </label>
+    </td>
+</tr>
+
+<tr>
+    <td class="td-30">Sign with GPG</td>
+    <td>
+        <label class="onoff-switch-label">
+            <?php
+            if ($myrepo->getPackageType() == 'rpm') : ?>
+                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?>>
+                <?php
+            endif;
+            if ($myrepo->getPackageType() == 'deb') : ?>
+                <input name="repoGpgResign" param-name="targetGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?>>
+                <?php
+            endif ?>
             <span class="onoff-switch-slider"></span>
         </label>
     </td>

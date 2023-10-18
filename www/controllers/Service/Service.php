@@ -14,15 +14,15 @@ class Service
     private $curlHandle;
     private $currentTime;
     private $lastTime;
-    private $root;
-    private $wwwUser;
-    private $reposDir;
+    private $root = '/var/www/repomanager';
+    private $wwwUser = 'www-data';
+    private $reposDir = '/home/repo';
     private $plansEnabled;
     private $plansRemindersEnabled;
     private $cveImportEnabled;
     private $cveImportTime;
     protected $statsEnabled;
-    protected $statsLogPath;
+    protected $statsLogPath = '/var/log/nginx/repomanager_access.log';
 
     /**
      *  Get some global settings for the service to run
@@ -45,30 +45,6 @@ class Service
             $settings = $mysettings->get();
 
             /**
-             *  General settings
-             */
-            if (!empty($settings['WWW_DIR'])) {
-                $this->root = $settings['WWW_DIR'];
-            } else {
-                $this->logController->log('error', 'Service', 'Could not retrieve root directory.');
-                $missingSetting++;
-            }
-
-            if (!empty($settings['WWW_USER'])) {
-                $this->wwwUser = $settings['WWW_USER'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Web user' setting.");
-                $missingSetting++;
-            }
-
-            if (!empty($settings['REPOS_DIR'])) {
-                $this->reposDir = $settings['REPOS_DIR'];
-            } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Repositories storage directory' setting.");
-                $missingSetting++;
-            }
-
-            /**
              *  Statistics related settings
              */
             if (!empty($settings['STATS_ENABLED'])) {
@@ -80,30 +56,22 @@ class Service
             }
 
             if ($this->statsEnabled == 'true') {
-                if (empty($settings['STATS_LOG_PATH'])) {
-                    $this->logController->log('error', 'Service', "Could not retrieve 'Path to access log to scan for statistics' setting.");
+                /**
+                 *  Check if the log file is readable
+                 */
+                if (!is_readable($this->statsLogPath)) {
+                    $this->logController->log('error', 'Service', "Access log file to scan for statistics <b>" . $this->statsLogPath . "</b> is not readable.");
                     // Disable statistics
                     $this->statsEnabled = 'false';
-                } else {
-                    $this->statsLogPath = $settings['STATS_LOG_PATH'];
+                }
 
-                    /**
-                     *  Check if the log file is readable
-                     */
-                    if (!is_readable($this->statsLogPath)) {
-                        $this->logController->log('error', 'Service', "Access log file to scan for statistics <b>" . $this->statsLogPath . "</b> is not readable.");
-                        // Disable statistics
-                        $this->statsEnabled = 'false';
-                    }
-
-                    /**
-                     *  Check if the statistics database exists
-                     */
-                    if (!is_file(STATS_DB)) {
-                        $this->logController->log('error', 'Service', "Statistics database is not initialized.");
-                        // Disable statistics
-                        $this->statsEnabled = 'false';
-                    }
+                /**
+                 *  Check if the statistics database exists
+                 */
+                if (!is_file(STATS_DB)) {
+                    $this->logController->log('error', 'Service', "Statistics database is not initialized.");
+                    // Disable statistics
+                    $this->statsEnabled = 'false';
                 }
             }
 

@@ -726,4 +726,12 @@ class Common
             return '<img src="/assets/icons/package.svg" class="icon-np" />';
         }
     }
+
+    /**
+     *  Returns true if string is a valid md5 hash
+     */
+    public static function isMd5(string $md5)
+    {
+        return preg_match('/^[a-f0-9]{32}$/', $md5);
+    }
 }

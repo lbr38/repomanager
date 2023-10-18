@@ -23,12 +23,12 @@ class Settings
         $settings = $mysettings->get();
 
         /**
-         *  Si certains paramètres sont vides alors on incrémente $EMPTY_CONFIGURATION_VARIABLES qui fera afficher un bandeau d'alertes.
-         *  Certains paramètres font exceptions et peuvent rester vides
+         *  If some settings are empty then we increment $EMPTY_CONFIGURATION_VARIABLES which will display a warning banner.
+         *  Some settings are exceptions and can be empty
          */
         foreach ($settings as $key => $value) {
             /**
-             *  Les paramètres suivants peuvent rester vides, on n'incrémente pas le compteur d'erreurs dans leur cas
+             *  Following parameters can be empty, we don't increment the error counter in their case
              */
             $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
 
@@ -42,17 +42,12 @@ class Settings
         }
 
         if (!defined('REPOS_DIR')) {
-            if (!empty($settings['REPOS_DIR'])) {
-                define('REPOS_DIR', $settings['REPOS_DIR']);
+                define('REPOS_DIR', '/home/repo');
+        }
 
-                if (!is_writable(REPOS_DIR)) {
-                    ++$__LOAD_SETTINGS_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                    $__LOAD_SETTINGS_MESSAGES[] = "Repos directory '" . REPOS_DIR . "' is not writeable.";
-                }
-            } else {
-                define('REPOS_DIR', '');
-                $__LOAD_SETTINGS_MESSAGES[] = 'Repos directory is not defined. ';
-            }
+        if (!is_writable(REPOS_DIR)) {
+            ++$__LOAD_SETTINGS_ERROR;
+            $__LOAD_SETTINGS_MESSAGES[] = "Repos directory '" . REPOS_DIR . "' is not writeable.";
         }
 
         if (!defined('TIMEZONE')) {
@@ -100,17 +95,41 @@ class Settings
         }
 
         if (!defined('WWW_USER')) {
-            if (!empty($settings['WWW_USER'])) {
-                define('WWW_USER', $settings['WWW_USER']);
-            } else {
-                define('WWW_USER', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Linux web dedied user is not defined.";
-            }
+            define('WWW_USER', 'www-data');
         }
 
         /**
-         *  Paramètres de repos
+         *  Repositories
          */
+
+        // Global settings
+        if (!defined('REPO_CONF_FILES_PREFIX')) {
+            if (!empty($settings['REPO_CONF_FILES_PREFIX'])) {
+                define('REPO_CONF_FILES_PREFIX', $settings['REPO_CONF_FILES_PREFIX']);
+            } else {
+                define('REPO_CONF_FILES_PREFIX', '');
+            }
+        }
+
+        if (!defined('RETENTION')) {
+            if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
+                define('RETENTION', intval($settings['RETENTION'], 8));
+            } else {
+                define('RETENTION', '');
+                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
+                    $__LOAD_SETTINGS_MESSAGES[] = "Repository snapshots retention is not defined.";
+                }
+            }
+        }
+
+        // Mirroring settings
+        if (!defined('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT')) {
+            if (!empty($settings['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT'])) {
+                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', $settings['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT']);
+            } else {
+                define('MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT', '300');
+            }
+        }
 
         // RPM
         if (!defined('RPM_REPO')) {
@@ -140,7 +159,7 @@ class Settings
                 define('RELEASEVER', '');
 
                 /**
-                 *  On affiche un message uniquement si les repos RPM sont activés.
+                 *  Print a message only if RPM repositories are enabled.
                  */
                 if (RPM_REPO == 'true') {
                     $__LOAD_SETTINGS_MESSAGES[] = "Release version for RPM repositories is not defined.";
@@ -205,6 +224,7 @@ class Settings
             }
         }
 
+        //  GPG signature key
         if (!defined('GPG_SIGNING_KEYID')) {
             if (!empty($settings['GPG_SIGNING_KEYID'])) {
                 define('GPG_SIGNING_KEYID', $settings['GPG_SIGNING_KEYID']);
@@ -213,19 +233,48 @@ class Settings
                  *  Define a default key ID
                  */
                 define('GPG_SIGNING_KEYID', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "GPG key Id is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "GPG signature key Id is not defined.";
+            }
+        }
+
+        // Statistics and metrics
+        if (!defined('STATS_ENABLED')) {
+            if (!empty($settings['STATS_ENABLED'])) {
+                define('STATS_ENABLED', $settings['STATS_ENABLED']);
+            } else {
+                define('STATS_ENABLED', '');
+                $__LOAD_SETTINGS_MESSAGES[] = "Enabling repos statistics is not defined.";
+            }
+        }
+
+        if (STATS_ENABLED == "true") {
+            if (!defined('STATS_LOG_PATH')) {
+                if (!empty($settings['STATS_LOG_PATH'])) {
+                    define('STATS_LOG_PATH', $settings['STATS_LOG_PATH']);
+
+                    /**
+                     *  On teste l'accès au chemin renseigné
+                     */
+                    if (!is_readable(STATS_LOG_PATH)) {
+                        ++$__LOAD_SETTINGS_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
+                        $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
+                    }
+                } else {
+                    define('STATS_LOG_PATH', '');
+                    $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not defined.";
+                }
             }
         }
 
         /**
-         *  Paramètres d'automatisation
+         *  Planifications settings
          */
         if (!defined('PLANS_ENABLED')) {
             if (!empty($settings['PLANS_ENABLED'])) {
                 define('PLANS_ENABLED', $settings['PLANS_ENABLED']);
             } else {
                 define('PLANS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling plans is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "Enabling planifications is not defined.";
             }
         }
 
@@ -243,7 +292,7 @@ class Settings
             } else {
                 define('PLANS_UPDATE_REPO', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing plans to update repositories is not defined.";
+                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to update repositories is not defined.";
                 }
             }
         }
@@ -254,24 +303,13 @@ class Settings
             } else {
                 define('PLANS_CLEAN_REPOS', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing plans to delete old repos snapshots is not defined.";
-                }
-            }
-        }
-
-        if (!defined('RETENTION')) {
-            if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
-                define('RETENTION', intval($settings['RETENTION'], 8));
-            } else {
-                define('RETENTION', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Old repos snapshots retention is not defined.";
+                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to delete old repos snapshots is not defined.";
                 }
             }
         }
 
         /**
-         *  Paramètres des hôtes
+         *  Hosts and profiles settings
          */
         if (!defined('MANAGE_HOSTS')) {
             if (!empty($settings['MANAGE_HOSTS'])) {
@@ -279,6 +317,15 @@ class Settings
             } else {
                 define('MANAGE_HOSTS', '');
                 $__LOAD_SETTINGS_MESSAGES[] = "Enabling hosts management is not defined.";
+            }
+        }
+
+        if (!defined('MANAGE_PROFILES')) {
+            if (!empty($settings['MANAGE_PROFILES'])) {
+                define('MANAGE_PROFILES', $settings['MANAGE_PROFILES']);
+            } else {
+                define('MANAGE_PROFILES', '');
+                $__LOAD_SETTINGS_MESSAGES[] = "Enabling profiles management is not defined.";
             }
         }
 
@@ -306,57 +353,6 @@ class Settings
                 define('CVE_SCAN_HOSTS', $settings['CVE_SCAN_HOSTS']);
             } else {
                 define('CVE_SCAN_HOSTS', 'false');
-            }
-        }
-
-        /**
-         *  Paramètres des profils
-         */
-        if (!defined('MANAGE_PROFILES')) {
-            if (!empty($settings['MANAGE_PROFILES'])) {
-                define('MANAGE_PROFILES', $settings['MANAGE_PROFILES']);
-            } else {
-                define('MANAGE_PROFILES', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling profiles management is not defined.";
-            }
-        }
-
-        if (!defined('REPO_CONF_FILES_PREFIX')) {
-            if (!empty($settings['REPO_CONF_FILES_PREFIX'])) {
-                define('REPO_CONF_FILES_PREFIX', $settings['REPO_CONF_FILES_PREFIX']);
-            } else {
-                define('REPO_CONF_FILES_PREFIX', '');
-            }
-        }
-
-        /**
-         *  Paramètres statistiques
-         */
-        if (!defined('STATS_ENABLED')) {
-            if (!empty($settings['STATS_ENABLED'])) {
-                define('STATS_ENABLED', $settings['STATS_ENABLED']);
-            } else {
-                define('STATS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling repos statistics is not defined.";
-            }
-        }
-
-        if (STATS_ENABLED == "true") {
-            if (!defined('STATS_LOG_PATH')) {
-                if (!empty($settings['STATS_LOG_PATH'])) {
-                    define('STATS_LOG_PATH', $settings['STATS_LOG_PATH']);
-
-                    /**
-                     *  On teste l'accès au chemin renseigné
-                     */
-                    if (!is_readable(STATS_LOG_PATH)) {
-                        ++$__LOAD_SETTINGS_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
-                    }
-                } else {
-                    define('STATS_LOG_PATH', '');
-                    $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not defined.";
-                }
             }
         }
 

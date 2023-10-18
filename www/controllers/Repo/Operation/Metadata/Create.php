@@ -142,10 +142,17 @@ trait Create
                 /**
                  *  Recursively find all packages and sources packages
                  */
-                $debPackages          = \Controllers\Common::findRecursive($repoPath . '/pool', 'deb', true);
-                $dscSourcesPackages   = \Controllers\Common::findRecursive($repoPath . '/pool', 'dsc', true);
-                $tarxzSourcesPackages = \Controllers\Common::findRecursive($repoPath . '/pool', 'xz', true);
-                $targzSourcesPackages = \Controllers\Common::findRecursive($repoPath . '/pool', 'gz', true);
+                $debPackages        = \Controllers\Common::findRecursive($repoPath . '/pool', 'deb', true);
+                $ascSourcesPackages = \Controllers\Common::findRecursive($repoPath . '/pool', 'asc', true);
+                $bz2SourcesPackages = \Controllers\Common::findRecursive($repoPath . '/pool', 'bz2', true);
+                $dscSourcesPackages = \Controllers\Common::findRecursive($repoPath . '/pool', 'dsc', true);
+                $gzSourcesPackages  = \Controllers\Common::findRecursive($repoPath . '/pool', 'gz', true);
+                $xzSourcesPackages  = \Controllers\Common::findRecursive($repoPath . '/pool', 'xz', true);
+
+                /**
+                 *  Merge all sources packages found into a single array
+                 */
+                $sourcePackages = array_merge($ascSourcesPackages, $bz2SourcesPackages, $dscSourcesPackages, $gzSourcesPackages, $xzSourcesPackages);
 
                 /**
                  *  Move packages to the packages directory
@@ -165,46 +172,14 @@ trait Create
                 /**
                  *  Move source packages to the sources directory
                  */
-                if (!empty($dscSourcesPackages)) {
-                    foreach ($dscSourcesPackages as $dscSourcesPackage) {
-                        $dscSourcesPackageName = preg_split('#/#', $dscSourcesPackage);
-                        $dscSourcesPackageName = end($dscSourcesPackageName);
+                if (!empty($sourcePackages)) {
+                    foreach ($sourcePackages as $sourcePackage) {
+                        $sourcePackageName = preg_split('#/#', $sourcePackage);
+                        $sourcePackageName = end($sourcePackageName);
 
-                        if (!rename($dscSourcesPackage, $repoPath . '/sources/' . $dscSourcesPackageName)) {
+                        if (!rename($sourcePackage, $repoPath . '/sources/' . $sourcePackageName)) {
                             echo '</pre></div>';
-                            throw new Exception('Error: could not move source package ' . $dscSourcesPackage . ' to the sources directory');
-                        }
-                    }
-                }
-
-                if (!empty($tarxzSourcesPackages)) {
-                    foreach ($tarxzSourcesPackages as $tarxzSourcesPackage) {
-                        $tarxzSourcesPackageName = preg_split('#/#', $tarxzSourcesPackage);
-                        $tarxzSourcesPackageName = end($tarxzSourcesPackageName);
-
-                        if (!preg_match('/.tar.xz/i', $tarxzSourcesPackageName)) {
-                            continue;
-                        }
-
-                        if (!rename($tarxzSourcesPackage, $repoPath . '/sources/' . $tarxzSourcesPackageName)) {
-                            echo '</pre></div>';
-                            throw new Exception('Error: could not move source package ' . $tarxzSourcesPackage . ' to the sources directory');
-                        }
-                    }
-                }
-
-                if (!empty($targzSourcesPackages)) {
-                    foreach ($targzSourcesPackages as $targzSourcesPackage) {
-                        $targzSourcesPackageName = preg_split('#/#', $targzSourcesPackage);
-                        $targzSourcesPackageName = end($targzSourcesPackageName);
-
-                        if (!preg_match('/.tar.gz/i', $targzSourcesPackageName)) {
-                            continue;
-                        }
-
-                        if (!rename($targzSourcesPackage, $repoPath . '/sources/' . $targzSourcesPackageName)) {
-                            echo '</pre></div>';
-                            throw new Exception('Error: could not move source package ' . $targzSourcesPackage . ' to the sources directory');
+                            throw new Exception('Error: could not move source package ' . $sourcePackage . ' to the sources directory');
                         }
                     }
                 }
@@ -241,7 +216,7 @@ trait Create
             $this->log->steplogWrite();
 
             /**
-             *  Création du répertoire 'conf' et des fichiers de conf du repo
+             *  Create "conf" directory and repo configuration files
              */
             if (!is_dir($repoPath . '/conf')) {
                 if (!mkdir($repoPath . '/conf', 0770, true)) {
@@ -259,24 +234,13 @@ trait Create
              *  Define archs
              */
             foreach ($this->repo->getTargetArch() as $arch) {
-                $repreproArchs .= ' ' . $arch;
-            }
-
-            /**
-             *  If packages sources must be included, then add 'source' to the archs
-             *
-             *  For action like 'duplicate' or 'reconstruct', if the source repo has source packages included, then include them in the new repo
-             */
-            if ($this->operation->getAction() == 'duplicate' or $this->operation->getAction() == 'reconstruct') {
-                if ($this->repo->getSourcePackage() == 'yes') {
+                /**
+                 *  If arch is 'src', then add 'source' to the list of archs
+                 */
+                if ($arch == 'src') {
                     $repreproArchs .= ' source';
-                }
-            /**
-             *  For other action, include source packages or not, as defined by the user
-             */
-            } else {
-                if ($this->repo->getTargetSourcePackage() == 'yes') {
-                    $repreproArchs .= ' source';
+                } else {
+                    $repreproArchs .= ' ' . $arch;
                 }
             }
 
@@ -309,7 +273,7 @@ trait Create
             }
 
             /**
-             *  Si le répertoire temporaire ne contient aucun paquet (càd si le repo est vide) alors on ne traite pas et on incrémente $return afin d'afficher une erreur.
+             *  If the temporary directory is empty, then we can't proceed and we increment $return to display an error.
              */
             if (\Controllers\Common::dirIsEmpty($repoPath . '/packages') === true) {
                 echo 'Error: there is no package in this repo.';
@@ -317,7 +281,7 @@ trait Create
                 throw new Exception('No package found in this repo');
 
             /**
-             *  Sinon on peut traiter
+             *  Else we can proceed
              */
             } else {
                 /**
