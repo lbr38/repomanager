@@ -76,11 +76,6 @@ class Update extends Operation
         $this->repo->setTargetTime(date('H:i'));
 
         /**
-         *  Ajout du PID de ce processus dans le fichier PID
-         */
-        // $this->operation->addsubpid(getmypid());
-
-        /**
          *  Nettoyage du cache
          */
         \Controllers\App\Cache::clear();

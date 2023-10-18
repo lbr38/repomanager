@@ -29,7 +29,7 @@ class Service
      */
     protected function getSettings()
     {
-        echo 'Getting settings...' . PHP_EOL;
+        echo $this->getDate() . ' Getting settings...' . PHP_EOL;
 
         $mysettings = new \Controllers\Settings();
 
@@ -159,11 +159,34 @@ class Service
     }
 
     /**
+     *  Get notifications
+     */
+    private function getNotifications()
+    {
+        echo $this->getDate() . ' Getting notifications...' . PHP_EOL;
+
+        try {
+            $mynotification = new \Controllers\Notification();
+            $mynotification->retrieve();
+        } catch (Exception $e) {
+            $this->logController->log('error', 'Service', 'Error while retrieving notifications: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     *  Get current date and time
+     */
+    protected function getDate()
+    {
+        return '[' . date('D M j H:i:s') . ']';
+    }
+
+    /**
      *  Check if a new version is available on Github
      */
     private function checkVersion()
     {
-        echo 'Checking for a new version on github...' . PHP_EOL;
+        echo $this->getDate() . ' Checking for a new version on github...' . PHP_EOL;
 
         try {
             $outputFile = fopen(DATA_DIR . '/version.available', "w");
@@ -207,21 +230,6 @@ class Service
             }
         } catch (Exception $e) {
             $this->logController->log('error', 'Service', $e->getMessage());
-        }
-    }
-
-    /**
-     *  Get notifications
-     */
-    private function getNotifications()
-    {
-        echo 'Getting notifications...' . PHP_EOL;
-
-        try {
-            $mynotification = new \Controllers\Notification();
-            $mynotification->retrieve();
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while retrieving notifications: ' . $e->getMessage());
         }
     }
 
@@ -372,7 +380,7 @@ class Service
             /**
              *  Else, run the service with the specified parameter
              */
-            echo "Running service with parameter '" . $parameter . "'..." . PHP_EOL;
+            echo $this->getDate() . " Running service with parameter '" . $parameter . "'..." . PHP_EOL;
 
             $myprocess = new \Controllers\Process("php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();

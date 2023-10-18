@@ -1,6 +1,6 @@
 {
     "NT01" : {
         "title" : "Welcome to Repomanager",
-        "message" : "Hey! This is the notification section, sometimes you will see some important messages here. <br><br>For any help, please check out the <a href='https://github.com/lbr38/repomanager/wiki'>documentation</a> or feel free to add an issue on <a href='https://github.com/lbr38/repomanager/issues'>github</a>."
+        "message" : "Hey! This is the notification section, sometimes you will see some important messages here. <br><br>For any help, please check out the documentation <a href='https://github.com/lbr38/repomanager/wiki'>here</a> or feel free to add an issue on <a href='https://github.com/lbr38/repomanager/issues'>github</a>."
     }
 }

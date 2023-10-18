@@ -10,7 +10,7 @@
             <div class="relative">
                 <div id="currentload" >
                     <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
-                    <span class="lowopacity">CPU load: <?= $currentLoad ?></span>
+                    <span class="lowopacity-cst">CPU load: <?= $currentLoad ?></span>
                 </div>
             </div>
             <?php
@@ -31,7 +31,7 @@
             </div>
             <div>
                 <div class="donut-chart-container">
-                    <p class="donut-legend-title lowopacity">Repo storage</p>
+                    <p class="donut-legend-title lowopacity-cst">Repo storage</p>
                     <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
                     <?php
                         $donutChartName = 'donut-chart';

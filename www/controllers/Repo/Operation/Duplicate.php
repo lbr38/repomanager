@@ -68,11 +68,6 @@ class Duplicate extends Operation
     private function duplicate()
     {
         /**
-         *  Ajout du PID de ce processus dans le fichier PID
-         */
-        // $this->operation->addsubpid(getmypid());
-
-        /**
          *  Nettoyage du cache
          */
         \Controllers\App\Cache::clear();

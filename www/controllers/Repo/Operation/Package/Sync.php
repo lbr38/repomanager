@@ -199,8 +199,7 @@ trait Sync
 
                 unset($mysource);
 
-                $mymirror = new \Controllers\Repo\Operation\Mirror();
-                $mymirror->setType('deb');
+                $mymirror = new \Controllers\Repo\Mirror\Deb();
                 $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->repo->getWorkingDir());
                 $mymirror->setDist($this->repo->getDist());
@@ -218,6 +217,8 @@ trait Sync
                     $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
                 }
                 $mymirror->mirror();
+
+                unset($mymirror);
 
                 /**
                  *  Create repo and dist directories if not exist
@@ -281,8 +282,7 @@ trait Sync
 
                 unset($mysource);
 
-                $mymirror = new \Controllers\Repo\Operation\Mirror();
-                $mymirror->setType('rpm');
+                $mymirror = new \Controllers\Repo\Mirror\Rpm();
                 $mymirror->setUrl($sourceDetails['Url']);
                 $mymirror->setWorkingDir($this->repo->getWorkingDir());
                 $mymirror->setReleasever($this->repo->getReleasever());
@@ -305,6 +305,8 @@ trait Sync
                     $mymirror->setSslCustomPrivateKey($sourceDetails['Ssl_private_key_path']);
                 }
                 $mymirror->mirror();
+
+                unset($mymirror);
 
                 /**
                  *  Renaming working dir name to final name

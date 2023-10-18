@@ -109,11 +109,6 @@ class Create extends Operation
         $this->repo->setTargetTime(date('H:i'));
 
         /**
-         *  Add the PID of this process in the PID file
-         */
-        // $this->operation->addsubpid(getmypid());
-
-        /**
          *  Clear cache
          */
         \Controllers\App\Cache::clear();
@@ -185,11 +180,6 @@ class Create extends Operation
          */
         $this->repo->setTargetDate(date('Y-m-d'));
         $this->repo->setTargetTime(date("H:i"));
-
-        /**
-         *  Add the PID of this process in the PID file
-         */
-        // $this->operation->addsubpid(getmypid());
 
         /**
          *  Clear cache

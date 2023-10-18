@@ -26,6 +26,7 @@ function acquitNotification(id)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadContentByClass("slide-panel-reloadable-div[slide-panel='notification']");
+            reloadContainer('header/menu');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

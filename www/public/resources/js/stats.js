@@ -1,46 +1,45 @@
-$(document).ready(function () {
+/**
+ *  Event: select stats filter
+ */
+$(".repo-access-chart-filter-button").click(function () {
     /**
-     *  Gestion des boutons de filtres sur le graphique principal
+     *  Print a "loading" icon
      */
-    $(".repo-access-chart-filter-button").click(function () {
+    $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data<img src="/assets/images/loading.gif" class="icon" /></span></div>');
+
+    /**
+     *  Retrieve the value of the selected filter (1week, 1month...)
+     */
+    var filter = $(this).attr('filter');
+
+    /**
+     *  Load the current url with the selected filter and retrieve the canvas #repo-access-chart which will contain the new values
+     */
+    $('#repo-access-chart').load(window.location.href + '?chartFilter=' + filter + ' #repo-access-chart', function () {
         /**
-         *  Affichage d'une icone "chargement"
+         *  Retrieve the new values:
+         *  For the labels: in the attribute labels="" of #repo-access-chart-labels
+         *  For the data  : in the attribute data="" of #repo-access-chart-data
          */
-        $('#repo-access-chart-div').append('<div class="chart-loading"><span>Loading data<img src="/assets/images/loading.gif" class="icon" /></span></div>');
+        var labels_str = $('#repo-access-chart').find('#repo-access-chart-labels').attr('labels').replace(/'/g, "");
+        var data_str = $('#repo-access-chart').find('#repo-access-chart-data').attr('data');
 
         /**
-         *  Récupération de la valeur du filtre sélectionné (1week, 1month...)
+         *  Split the values in an array, the separator being a comma
          */
-        var filter = $(this).attr('filter');
+        var labels_array = labels_str.split(", ");
+        var data_array = data_str.split(", ");
 
         /**
-         *  Rappel de l'url en cours en précisant le filtre souhaité et en récupérant le canvas #repo-access-chart qui contiendra les nouvelles valeurs en fonction du filtre choisi
+         *  Feed the chart with the new values and then update it (reload it)
          */
-        $('#repo-access-chart').load(window.location.href + '&repo_access_chart_filter=' + filter + ' #repo-access-chart', function () {
-            /**
-             *  On récupère alors les nouvelles valeurs :
-             *  Pour les labels : dans l'attribut labels="" de #repo-access-chart-labels
-             *  Pour les data   : dans l'attribut data="" de #repo-access-chart-data
-             */
-            var labels_str = $('#repo-access-chart').find('#repo-access-chart-labels').attr('labels').replace(/'/g, "");
-            var data_str = $('#repo-access-chart').find('#repo-access-chart-data').attr('data');
-            /**
-             *  On split les valeurs précédemment récupérées en un array, le séparateur des données récupérées étant une virgule
-             */
-            var labels_array = labels_str.split(", ");
-            var data_array = data_str.split(", ");
+        myRepoAccessChart.data.datasets[0].data = data_array;
+        myRepoAccessChart.data.labels = labels_array;
+        myRepoAccessChart.update();
 
-            /**
-             *  On alimente le chart avec les nouvelles valeurs puis on l'actualise (update)
-             */
-            myRepoAccessChart.data.datasets[0].data = data_array;
-            myRepoAccessChart.data.labels = labels_array;
-            myRepoAccessChart.update();
-
-            /**
-             *  Retrait de l'icone de chargement
-             */
-            $(".chart-loading").remove();
-        });
+        /**
+         *  Remove the loading icon
+         */
+        $(".chart-loading").remove();
     });
 });
