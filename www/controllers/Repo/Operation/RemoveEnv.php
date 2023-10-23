@@ -58,11 +58,6 @@ class RemoveEnv extends Operation
     private function remove()
     {
         /**
-         *  Ajout du PID de ce processus dans le fichier PID
-         */
-        // $this->operation->addsubpid(getmypid());
-
-        /**
          *  Nettoyage du cache
          */
         \Controllers\App\Cache::clear();

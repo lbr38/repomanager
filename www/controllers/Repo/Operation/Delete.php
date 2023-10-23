@@ -46,11 +46,6 @@ class Delete extends Operation
     private function delete()
     {
         /**
-         *  Ajout du PID de ce processus dans le fichier PID
-         */
-        // $this->operation->addsubpid(getmypid());
-
-        /**
          *  Nettoyage du cache
          */
         \Controllers\App\Cache::clear();

@@ -23,6 +23,7 @@ if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     sed -i "s/client_max_body_size.*$/client_max_body_size ${MAX_UPLOAD_SIZE};/g" /etc/nginx/sites-enabled/repomanager.conf
     # PHP configuration
     sed -i "s/^upload_max_filesize.*$/upload_max_filesize = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.1/fpm/php.ini
+    sed -i "s/^post_max_size.*$/post_max_size = ${MAX_UPLOAD_SIZE}/g" /etc/php/8.1/fpm/php.ini
 fi
 
 # Start services

@@ -26,8 +26,8 @@ RUN apt-get install postfix -y
 
 # Add nginx and PHP 8.1 repositories
 RUN curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bullseye/nginx_prod bullseye nginx" > /etc/apt/sources.list.d/repomanager-repomanager-nginx_bullseye_nginx.list
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-docker/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/repomanager-repomanager-docker_bullseye_main.list
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bullseye/nginx_prod bullseye nginx" > /etc/apt/sources.list.d/nginx.list
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/php.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.1
@@ -52,6 +52,7 @@ RUN rm -rf /etc/nginx/sites-enabled/default /var/www/html
 # Configure PHP
 RUN cp /tmp/repomanager/docker/config/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 RUN sed -i "s/^upload_max_filesize.*$/upload_max_filesize = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
+RUN sed -i "s/^post_max_size.*$/post_max_size = $max_upload_size/g" /etc/php/8.1/fpm/php.ini
 
 # Configure SQLite
 RUN echo ".headers on" > /root/.sqliterc

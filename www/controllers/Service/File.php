@@ -15,73 +15,11 @@ class File extends Service
     }
 
     /**
-     *  Apply permissions on files and directories
-     */
-    public function applyPermissions()
-    {
-        echo 'Applying permissions on files and directories...' . PHP_EOL;
-
-        try {
-            /**
-             *  Get all dirs
-             */
-            $dirs = \Controllers\Common::findDirRecursive(REPOS_DIR);
-        } catch (Exception $e) {
-            $this->logController->log('error', 'Service', $e->getMessage());
-        }
-
-        if (!empty($dirs)) {
-            foreach ($dirs as $dir) {
-                /**
-                 *  Check if directory is writeable
-                 */
-                if (!is_writeable($dir)) {
-                    $this->logController->log('error', 'Service', "Error while applying permissions on directory <b>" . $dir . '</b>: directory is not writeable');
-                    continue;
-                }
-
-                /**
-                 *  Apply permissions on directory
-                 */
-                if (!chmod($dir, octdec('0770'))) {
-                    $this->logController->log('error', 'Service', "Error while applying '0770' permissions on directory <b>" . $dir . '</b>');
-                }
-            }
-        }
-
-        /**
-         *  Get all files
-         */
-        $files = \Controllers\Common::findRecursive(REPOS_DIR);
-
-        if (!empty($files)) {
-            foreach ($files as $file) {
-                /**
-                 *  Check if file is writeable
-                 */
-                if (!is_writeable($file)) {
-                    $this->logController->log('error', 'Service', 'Error while applying permissions on file <b>' . $file . '</b>: file is not writeable');
-                    continue;
-                }
-
-                /**
-                 *  Apply permissions on file
-                 */
-                if (!chmod($file, octdec('0660'))) {
-                    $this->logController->log('error', 'Service', "Error while applying '0660' permissions on file <b>" . $file . '</b>');
-                }
-            }
-        }
-
-        unset($dirs, $files);
-    }
-
-    /**
      *  Clean temporary files
      */
     public function cleanUp()
     {
-        echo 'Cleaning temporary files' . PHP_EOL;
+        echo $this->getDate() . ' Cleaning temporary files' . PHP_EOL;
 
         try {
             /**
@@ -109,7 +47,7 @@ class File extends Service
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
                         if (\Controllers\Common::dirIsEmpty($dir)) {
-                            echo 'Deleting ' . $dir . PHP_EOL;
+                            echo $this->getDate() . ' Deleting ' . $dir . PHP_EOL;
                             if (!rmdir($dir)) {
                                 throw new Exception('Error while cleaning .temp directory: cannot delete directory <b>' . $dir . '</b>');
                             }

@@ -25,18 +25,22 @@ class System
         /**
          *  Server url
          */
-        if (!empty($_SERVER['SERVER_NAME'])) {
-            if (!defined('__SERVER_URL__')) {
+        if (!defined('__SERVER_URL__')) {
+            if (!empty($_SERVER['HTTP_HOST'])) {
                 define('__SERVER_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST']);
+            } else {
+                define('__SERVER_URL__', '');
             }
         }
 
         /**
          *  Server IP
          */
-        if (!empty($_SERVER['SERVER_ADDR'])) {
-            if (!defined('__SERVER_IP__')) {
+        if (!defined('__SERVER_IP__')) {
+            if (!empty($_SERVER['SERVER_ADDR'])) {
                 define('__SERVER_IP__', $_SERVER['SERVER_ADDR']);
+            } else {
+                define('__SERVER_IP__', '');
             }
         }
 
@@ -50,7 +54,11 @@ class System
             if (!empty($_POST['sourceUrl'])) {
                 define('__ACTUAL_URL__', $_POST['sourceUrl']);
             } else {
-                define('__ACTUAL_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+                if (!empty($_SERVER['HTTP_HOST']) and !empty($_SERVER['REQUEST_URI'])) {
+                    define('__ACTUAL_URL__', __SERVER_PROTOCOL__ . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+                } else {
+                    define('__ACTUAL_URL__', '');
+                }
             }
         }
 
@@ -64,16 +72,22 @@ class System
             if (!empty($_POST['sourceUri'])) {
                 define('__ACTUAL_URI__', explode('/', $_POST['sourceUri']));
             } else {
-                define('__ACTUAL_URI__', explode('/', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)));
+                if (!empty($_SERVER["REQUEST_URI"])) {
+                    define('__ACTUAL_URI__', explode('/', parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH)));
+                } else {
+                    define('__ACTUAL_URI__', '');
+                }
             }
         }
 
         /**
          *  Parameters
          */
-        if (!empty($_SERVER['QUERY_STRING'])) {
-            if (!defined('__QUERY_STRING__')) {
+        if (!defined('__QUERY_STRING__')) {
+            if (!empty($_SERVER['QUERY_STRING'])) {
                 define('__QUERY_STRING__', parse_url($_SERVER["QUERY_STRING"], PHP_URL_PATH));
+            } else {
+                define('__QUERY_STRING__', '');
             }
         }
 

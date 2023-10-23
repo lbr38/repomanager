@@ -22,8 +22,8 @@ jobs:
 
       - name: Setup PHP
         run: |
-          curl -fsSL  https://packages.sury.org/php/apt.gpg| gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-keyring.gpg
-          echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/sury-php.list
+          curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
+          echo "deb https://packages.bespin.ovh/repo/repomanager-php/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/php.list
 
       - name: Install PHP modules
         run: apt-get update && apt-get install -y php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3

@@ -21,7 +21,7 @@ class Planification extends Service
      */
     public function planExecute()
     {
-        echo 'Executing plans if any...' . PHP_EOL;
+        echo $this->getDate() . ' Executing plans if any...' . PHP_EOL;
 
         /**
          *  Quit if there was an error while loading general settings
@@ -157,7 +157,7 @@ class Planification extends Service
             return;
         }
 
-        echo 'Sending plans reminder if any...' . PHP_EOL;
+        echo $this->getDate() . ' Sending plans reminder if any...' . PHP_EOL;
 
         /**
          *  Quit if there was an error while loading general settings

@@ -11,41 +11,6 @@
 
     <br>
 
-    <?php
-    /**
-     *  Retrieve last access logs from database
-     */
-    if ($myrepo->getPackageType() == 'rpm') {
-        $lastAccess = $mystats->getLastAccess($myrepo->getName(), '', '', $myrepo->getEnv());
-    }
-    if ($myrepo->getPackageType() == 'deb') {
-        $lastAccess = $mystats->getLastAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
-    }
-
-    /**
-     *  Sort by date and time
-     */
-    if (!empty($lastAccess)) {
-        array_multisort(array_column($lastAccess, 'Date'), SORT_DESC, array_column($lastAccess, 'Time'), SORT_DESC, $lastAccess);
-    }
-
-    /**
-     *  Count repo size and packages count
-     */
-    if ($myrepo->getPackageType() == 'rpm') {
-        $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName());
-        $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getName(), 'rpm'));
-    }
-    if ($myrepo->getPackageType() == 'deb') {
-        $repoSize = \Controllers\Filesystem\Directory::getSize(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection());
-        $packagesCount = count(\Controllers\Common::findRecursive(REPOS_DIR . '/' . $myrepo->getName() . '/' . $myrepo->getDist() . '/' . $myrepo->getDateFormatted() . '_' . $myrepo->getSection(), 'deb'));
-    }
-
-    /**
-     *  Convert repo size in the most suitable byte format
-     */
-    $repoSize = \Controllers\Common::sizeFormat($repoSize); ?>
-
     <div class="div-generic-blue grid grid-2">
         <div>
             <div class="circle-div-container">
@@ -76,67 +41,6 @@
 
     <div id="repo-access-chart-div" class="div-generic-blue">
         <?php
-        /**
-         *  Si aucun filtre n'a été sélectionné par l'utilisateur alors on le set à 1 semaine par défaut
-         */
-        if (empty($repo_access_chart_filter)) {
-            $repo_access_chart_filter = "1week";
-        }
-
-        /**
-         *  Initialisation de la date de départ du graphique, en fonction du filtre choisi
-         */
-        if ($repo_access_chart_filter == "1week") {
-            $dateCounter = date('Y-m-d', strtotime('-1 week', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 semaine
-        }
-        if ($repo_access_chart_filter == "1month") {
-            $dateCounter = date('Y-m-d', strtotime('-1 month', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 mois
-        }
-        if ($repo_access_chart_filter == "3months") {
-            $dateCounter = date('Y-m-d', strtotime('-3 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -3 mois
-        }
-        if ($repo_access_chart_filter == "6months") {
-            $dateCounter = date('Y-m-d', strtotime('-6 months', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -6 mois
-        }
-        if ($repo_access_chart_filter == "1year") {
-            $dateCounter = date('Y-m-d', strtotime('-1 year', strtotime(DATE_YMD))); // le début du compteur commence à la date actuelle -1 an
-        }
-
-        $repoAccessChartLabels = '';
-        $repoAccessChartData = '';
-
-        /**
-         *  On traite toutes les dates jusqu'à atteindre la date du jour (qu'on traite aussi)
-         */
-        while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
-            if ($myrepo->getPackageType() == 'rpm') {
-                $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
-            }
-            if ($myrepo->getPackageType() == 'deb') {
-                $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
-            }
-            if (!empty($dateAccessCount)) {
-                $repoAccessChartData .= $dateAccessCount . ', ';
-            } else {
-                $repoAccessChartData .= '0, ';
-            }
-            /**
-             *  Ajout de la date en cours aux labels
-             */
-            $repoAccessChartLabels .= "'$dateCounter', ";
-
-            /**
-             *  On incrémente de 1 jour pour pouvori traiter la date suivante
-             */
-            $dateCounter = date('Y-m-d', strtotime('+1 day', strtotime($dateCounter)));
-        }
-
-        /**
-         *  Suppression de la dernière virgule
-         */
-        $repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
-        $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
-
         if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) : ?>
             <span class="btn-small-green repo-access-chart-filter-button" filter="1week">1 week</span>
             <span class="btn-small-green repo-access-chart-filter-button" filter="1month">1 month</span>
@@ -253,65 +157,7 @@
     <div class="div-flex">
         <?php
         /**
-         *  Get stats for the last 60 days
-         */
-        $stats = $mystats->getAll($myrepo->getEnvId());
-        $envSizeStats = $mystats->getEnvSize($myrepo->getEnvId(), 60);
-        $pkgCountStats = $mystats->getPkgCount($myrepo->getEnvId(), 60);
-
-        /**
-         *  Snapshot size (by its env Id)
-         */
-        if (!empty($envSizeStats)) {
-            $sizeDateLabels = '';
-            $sizeData = '';
-
-            foreach ($envSizeStats as $stat) {
-                $date = DateTime::createFromFormat('Y-m-d', $stat['Date'])->format('d-m-Y');
-                // Convert bytes to MB
-                $size = round(round($stat['Size'] / 1024) / 1024);
-
-                /**
-                 *  Build data for chart
-                 */
-                $sizeDateLabels .= '"' . $date . '", ';
-                $sizeData .= '"' . $size . '", ';
-            }
-
-            /**
-             *  Remove last comma
-             */
-            $sizeDateLabels = rtrim($sizeDateLabels, ', ');
-            $sizeData   = rtrim($sizeData, ', ');
-        }
-
-        /**
-         *  Snapshot package count (by its env Id)
-         */
-        if (!empty($pkgCountStats)) {
-            $countDateLabels = '';
-            $countData = '';
-
-            foreach ($pkgCountStats as $stat) {
-                $date = DateTime::createFromFormat('Y-m-d', $stat['Date'])->format('d-m-Y');
-                $count = $stat['Packages_count'];
-
-                /**
-                 *  Build data for chart
-                 */
-                $countDateLabels .= '"' . $date . '", ';
-                $countData .= '"' . $count . '", ';
-            }
-
-            /**
-             *  Remove last comma
-             */
-            $countDateLabels = rtrim($countDateLabels, ', ');
-            $countData  = rtrim($countData, ', ');
-        }
-
-        /**
-         *  Print charts
+         *  Print snapshot size and packages count charts
          */
         if (!empty($sizeDateLabels) and !empty($sizeData)) : ?>
             <div class="flex-div-50 div-generic-blue">

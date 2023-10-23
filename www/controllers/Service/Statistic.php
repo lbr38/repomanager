@@ -30,7 +30,7 @@ class Statistic extends Service
             return;
         }
 
-        echo 'Cleaning old statistics...' . PHP_EOL;
+        echo $this->getDate() . ' Cleaning old statistics...' . PHP_EOL;
 
         try {
             $this->statController->clean();
@@ -51,7 +51,7 @@ class Statistic extends Service
             return;
         }
 
-        echo 'Generating statistics...' . PHP_EOL;
+        echo $this->getDate() . ' Generating statistics...' . PHP_EOL;
 
         /**
          *  Get all repos
@@ -133,7 +133,7 @@ class Statistic extends Service
             /**
              *  Else, run the access log parsing
              */
-            echo 'Running access log parsing...' . PHP_EOL;
+            echo $this->getDate() . ' Running access log parsing...' . PHP_EOL;
 
             $myprocess = new \Controllers\Process("php /var/www/repomanager/tools/service.php 'logparser' >/dev/null 2>/dev/null &");
             $myprocess->execute();
