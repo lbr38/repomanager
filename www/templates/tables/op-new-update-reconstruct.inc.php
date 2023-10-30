@@ -26,10 +26,6 @@
         </tr>
 
         <?php
-        if (!empty($this->repo->getTargetDescription())) {
-            echo '<tr><th>DESCRIPTION</th><td>' . $this->repo->getTargetDescription() . '</td></tr>';
-        }
-
         if (!empty($this->repo->getTargetArch())) : ?>
             <tr>
                 <th>ARCHITECTURE</th>
@@ -37,7 +33,7 @@
                     <div class="flex column-gap-5">
                         <?php
                         foreach ($this->repo->getTargetArch() as $arch) {
-                            echo '<span class="label-white">' . $arch . '</span>';
+                            echo '<span class="label-black">' . $arch . '</span>';
                         } ?>
                     </div>
                 </td>
@@ -45,54 +41,103 @@
             <?php
         endif;
 
-        if (!empty($this->repo->getTargetSourcePackage())) {
-            echo '<tr><th>INCLUDE SOURCES PACKAGES</th><td>' . $this->repo->getTargetSourcePackage() . '</td></tr>';
+        if (!empty($this->repo->getTargetDescription())) {
+            echo '<tr><th>DESCRIPTION</th><td>' . $this->repo->getTargetDescription() . '</td></tr>';
         }
 
-        if (!empty($this->repo->getTargetPackageTranslation())) {
-            echo '<tr><th>INCLUDE PACKAGES TRANSLATION</th><td>' . implode(', ', $this->repo->getTargetPackageTranslation()) . '</td></tr>';
-        }
+        if (!empty($this->repo->getTargetPackageTranslation())) : ?>
+            <tr>
+                <th>INCLUDE PACKAGES TRANSLATION</th>
+                <td><?= implode(', ', $this->repo->getTargetPackageTranslation()) ?></td>
+            </tr>
+            <?php
+        endif;
 
-        if (!empty($this->repo->getTargetGpgCheck())) {
-            echo "<tr><th>CHECK GPG SIGNATURES</th><td>";
+        if (!empty($this->repo->getTargetGpgCheck())) : ?>
+            <tr>
+                <th>CHECK GPG SIGNATURES</th>
+                <td>
+                    <?php
+                    if ($this->repo->getTargetGpgCheck() == 'yes') : ?>
+                        <div class="flex align-item-center column-gap-5">
+                            <img src="/assets/icons/greencircle.png" class="icon-small" />
+                            <span>Enabled</span>
+                        </div>
+                        <?php
+                    endif;
+                    if ($this->repo->getTargetGpgCheck() == 'no') : ?>
+                        <div class="flex align-item-center column-gap-5">
+                            <img src="/assets/icons/redcircle.png" class="icon-small" />
+                            <span>Disabled</span>
+                        </div>
+                        <?php
+                    endif; ?>
+                </td>
+            </tr>
+            <?php
+        endif;
 
-            if ($this->repo->getTargetGpgCheck() == 'yes') {
-                echo '<span><img src="/assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
-            }
-            if ($this->repo->getTargetGpgCheck() == 'no') {
-                echo '<span><img src="/assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-            }
-            echo "</td></tr>";
-        }
+        if (!empty($this->repo->getTargetGpgResign())) : ?>
+            <tr>
+                <th>SIGN WITH GPG</th>
+                <td>
+                    <?php
+                    if ($this->repo->getTargetGpgResign() == 'yes') : ?>
+                        <div class="flex align-item-center column-gap-5">
+                            <img src="/assets/icons/greencircle.png" class="icon-small" />
+                            <span>Enabled</span>
+                        </div>
+                        <?php
+                    endif;
+                    if ($this->repo->getTargetGpgResign() == 'no') : ?>
+                        <div class="flex align-item-center column-gap-5">
+                            <img src="/assets/icons/redcircle.png" class="icon-small" />
+                            <span>Disabled</span>
+                        </div>
+                        <?php
+                    endif; ?>
+                </td>
+            </tr>
+            <?php
+        endif;
 
-        if (!empty($this->repo->getTargetGpgResign())) {
-            echo '<tr><th>SIGN WITH GPG</th><td>';
+        if ($this->operation->getAction() == 'update') :
+            if (!empty($this->repo->getOnlySyncDifference())) : ?>
+                <tr>
+                    <th>ONLY SYNC THE DIFFERENCE</th>
+                    <td>
+                        <?php
+                        if ($this->repo->getOnlySyncDifference() == 'yes') : ?>
+                            <div class="flex align-item-center column-gap-5">
+                                <img src="/assets/icons/greencircle.png" class="icon-small" />
+                                <span>Enabled</span>
+                            </div>
+                            <?php
+                        endif;
+                        if ($this->repo->getOnlySyncDifference() == 'no') : ?>
+                            <div class="flex align-item-center column-gap-5">
+                                <img src="/assets/icons/redcircle.png" class="icon-small" />
+                                <span>Disabled</span>
+                            </div>
+                            <?php
+                        endif; ?>
+                    </td>
+                </tr>
+                <?php
+            endif;
+        endif;
 
-            if ($this->repo->getTargetGpgResign() == "yes") {
-                echo '<span><img src="/assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
-            }
-            if ($this->repo->getTargetGpgResign() == "no") {
-                echo '<span><img src="/assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-            }
-            echo '</tr>';
-        }
-
-        if ($this->operation->getAction() == 'update') {
-            if (!empty($this->repo->getOnlySyncDifference())) {
-                echo '<tr><th>ONLY SYNC THE DIFFERENCE</th><td>';
-
-                if ($this->repo->getOnlySyncDifference() == "yes") {
-                    echo '<span><img src="/assets/icons/greencircle.png" class="icon-small" /> Enabled</span>';
-                }
-                if ($this->repo->getOnlySyncDifference() == "no") {
-                    echo '<span><img src="/assets/icons/redcircle.png" class="icon-small" /> Disabled</span>';
-                }
-                echo '</tr>';
-            }
-        }
-
-        if (!empty($this->repo->getTargetGroup())) {
-            echo '<tr><th>ADD TO GROUP</th><td><img src="/assets/icons/folder.svg" class="icon" />' . $this->repo->getTargetGroup() . '</td></tr>';
-        } ?>
+        if (!empty($this->repo->getTargetGroup())) : ?>
+            <tr>
+                <th>ADD TO GROUP</th>
+                <td>
+                    <div class="flex">
+                        <img src="/assets/icons/folder.svg" class="icon" />
+                        <span><?= $this->repo->getTargetGroup() ?></span>
+                    </div>
+                </td>
+            </tr>
+            <?php
+        endif ?>
     </table>
 </div>

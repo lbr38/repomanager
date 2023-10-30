@@ -12,8 +12,8 @@ class Name
             throw new Exception('Repository name must be specified');
         }
 
-        if (!\Controllers\Common::isAlphanum($name, array('-'))) {
-            throw new Exception('Repository name cannot contain special characters except hyphen');
+        if (!\Controllers\Common::isAlphanum($name, array('-', '_'))) {
+            throw new Exception('Repository name contains invalid characters');
         }
     }
 }

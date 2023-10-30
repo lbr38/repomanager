@@ -5,7 +5,7 @@
 
         <div class="div-flex">
             <div class="flex-div-100 div-generic-blue">
-                <table class="table-generic opacity-80">
+                <table class="table-generic">
                     <tr>
                         <td class="td-50">CVSS3 SCORE</td>
                         <td>
@@ -216,7 +216,7 @@
                                         if (!empty($cveReference['Tags'])) {
                                             $tags = explode(',', $cveReference['Tags']);
                                             foreach ($tags as $tag) {
-                                                echo '<span class="label-white">' . $tag . '</span><br>';
+                                                echo '<span class="label-white">' . $tag . '</span>';
                                             }
                                         } ?>
                                     </div>

@@ -414,6 +414,7 @@ textarea {
     padding: 4px 6px 4px 6px;
     border-radius: 16px;
     color: white;
+    box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
 }
 
 .label-black {

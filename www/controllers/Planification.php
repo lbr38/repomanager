@@ -508,7 +508,7 @@ class Planification
                     'targetGpgResign' => $this->targetGpgResign,
                     'targetEnv' => $this->targetEnv,
                     'targetArch' => $this->repo->getArch(),
-                    'targetSourcePackage' => $this->repo->getSourcePackage(),
+                    // 'targetSourcePackage' => $this->repo->getSourcePackage(),
                     'onlySyncDifference' => $this->onlySyncDifference
                 );
 
@@ -609,7 +609,7 @@ class Planification
                         'targetGpgResign' => $this->targetGpgResign,
                         'targetEnv' => $this->targetEnv,
                         'targetArch' => $this->repo->getArch(),
-                        'targetSourcePackage' => $this->repo->getSourcePackage(),
+                        // 'targetSourcePackage' => $this->repo->getSourcePackage(),
                         'onlySyncDifference' => $this->onlySyncDifference
                     );
 

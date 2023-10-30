@@ -53,17 +53,35 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $content = file($this->workingDir . '/Release');
         }
 
-        $this->logOutput(PHP_EOL . '- Searching for <b>Packages</b> indices file location ... ');
-
         /**
          *  Process research of Packages indices for each arch
          */
         foreach ($this->arch as $arch) {
             /**
-             *  Packages pattern to search in the Release file
-             *  e.g: main/binary-amd64/Packages
+             *  If the arch is 'src' then the indices file is named 'Sources'
              */
-            $regex = $this->section . '/binary-' . $arch . '/Packages($|.gz$|.xz$)';
+            if ($arch == 'src') {
+                $this->logOutput(PHP_EOL . '- Searching for <b>Sources</b> indices file location ... ');
+
+                /**
+                 *  Sources pattern to search in the Release file
+                 *  e.g: main/source/Sources.xx
+                 */
+                $regex = $this->section . '/source/Sources';
+            }
+
+            /**
+             *  If the arch is not 'src' then the indices file is named 'Packages'
+             */
+            if ($arch != 'src') {
+                $this->logOutput(PHP_EOL . '- Searching for <b>Packages</b> indices file location for arch: <b>' . $arch . '</b>... ');
+
+                /**
+                 *  Packages pattern to search in the Release file
+                 *  e.g: main/binary-amd64/Packages.xx
+                 */
+                $regex = $this->section . '/binary-' . $arch . '/Packages($|.gz$|.xz$)';
+            }
 
             /**
              *  Parse the whole file, searching for the desired lines
@@ -84,18 +102,35 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         $checksum = $splittedLine[0];
 
                         /**
-                         *  Include this Package.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
+                         *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                          */
                         if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-                            $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
+                            if ($arch == 'src') {
+                                $this->sourcesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
+                            }
+                            if ($arch != 'src') {
+                                $this->packagesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
+                            }
+
+                            $this->logOK();
 
                             /**
-                             *  Then ignore all next Package.xx indices file from the same arch as at least one has been found
+                             *  Then ignore all next Packages.xx/Sources.xx indices file from the same arch as at least one has been found
                              */
-                            break 1;
+                            continue 2;
                         }
                     }
                 }
+            }
+
+            /**
+             *  If no Packages.xx/Sources.xx file has been found for this arch, throw an error
+             */
+            if ($arch == 'src') {
+                $this->logError('No ' . $arch . ' Sources indices file has been found in the Release file.', 'Cannot retrieve ' . $arch . ' Packages indices file');
+            }
+            if ($arch != 'src') {
+                $this->logError('No ' . $arch . ' Packages indices file has been found in the Release file.', 'Cannot retrieve ' . $arch . ' Packages indices file');
             }
         }
 
@@ -105,49 +140,8 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         if (empty($this->packagesIndicesLocation)) {
             $this->logError('No Packages indices file location has been found.', 'Cannot retrieve Packages indices file');
         }
-
-        $this->logOK();
-
-        /**
-         *  Process research of Sources files for the current section
-         */
-        if ($this->syncSource == 'yes') {
-            $this->logOutput(PHP_EOL . '- Searching for <b>Sources</b> indices file location ... ');
-
-            /**
-             *  Sources pattern to search in the Release file
-             *  e.g: main/source/Sources
-             */
-            $regex = $this->section . '/source/Sources';
-
-            /**
-             *  Parse the whole file, searching for the desired lines
-             */
-            foreach ($content as $line) {
-                if (preg_match("#$regex$#", $line)) {
-                    /**
-                     *  Explode the line to separate hashes and location
-                     */
-                    $splittedLine = explode(' ', trim($line));
-
-                    /**
-                     *  We only need the location with its md5sum (32 caracters long)
-                     *  e.g: 1440dd54895a24684cdbb39ddc54ea22 40470389 main/source/Sources
-                     */
-                    if (strlen($splittedLine[0]) == '32') {
-                        $this->sourcesIndicesLocation[] = array('location' => end($splittedLine), 'md5sum' => $splittedLine[0]);
-                    }
-                }
-            }
-
-            /**
-             *  Throw an error if no Sources indices file location has been found
-             */
-            if (empty($this->packagesIndicesLocation)) {
-                $this->logError('No Sources indices file location has been found. Check that specified distribution and section names are correct.', 'Cannot retrieve Sources indices file');
-            }
-
-            $this->logOK();
+        if (in_array('src', $this->arch) and empty($this->sourcesIndicesLocation)) {
+            $this->logError('No Sources indices file location has been found.', 'Cannot retrieve Sources indices file');
         }
 
         /**
@@ -203,7 +197,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parsePackagesIndiceFile()
     {
-        $this->logOutput('- Retrieving deb packages list ... ');
+        $this->logOutput(PHP_EOL . '- Retrieving deb packages list ... ');
 
         /**
          *  Process research for each Package file (could have multiple if multiple archs have been specified)
@@ -240,9 +234,9 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
             if (preg_match('/.xz$/i', $packageIndicesName)) {
                 try {
-                    \Controllers\Common::xzUncompress($this->workingDir . '/Packages.xz');
+                    \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing Packages.xz');
+                    $this->logError($e, 'Error while uncompressing ' . $packageIndicesName);
                 }
             }
 
@@ -299,55 +293,73 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parseSourcesIndiceFile()
     {
-        if ($this->syncSource != 'yes') {
+        /**
+         *  Ignore this function if no 'src' arch has been specified
+         */
+        if (!in_array('src', $this->arch)) {
             return;
         }
 
-        $this->logOutput('- Retrieving sources packages list ... ');
+        $this->logOutput(PHP_EOL . '- Retrieving sources packages list ... ');
 
         /**
          *  Process research for each Sources file
          */
         foreach ($this->sourcesIndicesLocation as $sourcesIndice) {
             $sourcesIndicesLocation = $sourcesIndice['location'];
-            $sourcesIndexMd5 = $sourcesIndice['md5sum'];
+            $sourcesIndexChecksum = $sourcesIndice['checksum'];
+            $sourcesIndicesName = preg_split('#/#', $sourcesIndicesLocation);
+            $sourcesIndicesName = end($sourcesIndicesName);
 
             /**
              *  Download Source file using its location
              */
-            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/Sources')) {
-                $this->logError('Error while downloading Sources indices file: ' . $this->url . '/' . $sourcesIndicesLocation, 'Could not download Sources indices file');
+            if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
+                $this->logError('Error while downloading ' . $sourcesIndicesName . ' indices file: ' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, 'Could not download Sources indices file');
             }
 
             /**
-             *  Gunzip Sources.gz
+             *  Uncompress Sources.xx if it is compressed (.gz or .xz)
              */
-            // try {
-            //     \Controllers\Common::gunzip($this->workingDir . '/Sources.gz');
-            // } catch(Exception $e) {
-            //     $this->logError($e, 'Error while uncompressing Sources.gz');
-            // }
+            if (preg_match('/.gz$/i', $sourcesIndicesName)) {
+                try {
+                    \Controllers\Common::gunzip($this->workingDir . '/' . $sourcesIndicesName);
+                } catch (Exception $e) {
+                    $this->logError($e, 'Error while uncompressing ' . $sourcesIndicesName);
+                }
+            }
+            if (preg_match('/.xz$/i', $sourcesIndicesName)) {
+                try {
+                    \Controllers\Common::xzUncompress($this->workingDir . '/' . $sourcesIndicesName);
+                } catch (Exception $e) {
+                    $this->logError($e, 'Error while uncompressing ' . $sourcesIndicesName);
+                }
+            }
 
             /**
              *  Then check that the gunzip Sources file's md5 is the same as the one that what specified in Release file
              */
-            if (md5_file($this->workingDir . '/Sources') !== $sourcesIndexMd5) {
-                $this->logError('Sources indices file\'s md5 (' . md5_file($this->workingDir . '/Sources') . ') does not match the md5 specified in the Release file ' . $sourcesIndexMd5, 'Could not verify Packages indices file');
+            if (hash_file('sha256', $this->workingDir . '/' . $sourcesIndicesName) !== $sourcesIndexChecksum) {
+                $this->logError($sourcesIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $sourcesIndexChecksum, 'Could not verify Sources indices file');
             }
 
             /**
              *  Get all .dsc/tar.gz/tar.xz sources packages location from the Sources file
              */
-            $directory = '';
-            $packageLocation = '';
-            $packageMd5 = '';
             $linecount = 0;
             $handle = fopen($this->workingDir . '/Sources', 'r');
 
+            /**
+             *  Read all lines from Sources file
+             */
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
+                    $directory = '';
+                    $packageLocation = '';
+                    $packageMd5 = '';
+
                     /**
-                     *  Get .dsc/tar.gz/tar.xz directory location
+                     *  Get .dsc/tar.gz/tar.xz package directory location
                      */
                     if (preg_match('/^Directory:\s+(.*)/im', $line)) {
                         $directory = trim(str_replace('Directory: ', '', $line));
@@ -358,27 +370,71 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                      */
                     if (preg_match('/^Files:$/im', $line)) {
                         /**
-                         *  If line starts with 'Files:' then get the next 3 lines that contain the packages name and md5sum
-                         *  Use current $linecount to get the next 3 lines
+                         *  If line starts with 'Files:' then get the next XX lines that contain the packages md5sum and name
+                         *  Start from current $linecount to get the next lines
                          */
                         $spl = new \SplFileObject($this->workingDir . '/Sources');
 
-                        for ($i = 1; $i < 4; $i++) {
+                        for ($i = 1; $i < 999; $i++) {
                             $spl->seek($linecount + $i);
                             $packageLine = $spl->current();
-                            $packageLine = explode(' ', $packageLine);
-                            $packageMd5 = trim($packageLine[1]);
-                            $packageLocation = trim($packageLine[3]);
 
+                            /**
+                             *  If the current line does not start with an empty space and a md5sum, then it is the end of the packages list
+                             */
+                            if (!preg_match('/^ [a-f0-9]{32}/', $packageLine)) {
+                                break 1;
+                            }
+
+                            /**
+                             *  Explode the line to separate md5sum and package location
+                             */
+                            $packageLine = explode(' ', $packageLine);
+
+                            /**
+                             *  If the first part of the line is not empty and is a md5sum, then it is the md5sum of the package
+                             */
+                            if (!empty($packageLine[1]) and \Controllers\Common::isMd5($packageLine[1])) {
+                                $packageMd5 = trim($packageLine[1]);
+                            }
+
+                            /**
+                             *  If the third part of the line is not empty, then it is the package location
+                             */
+                            if (!empty($packageLine[3]) and preg_match('/^.*\.(asc|bz2|dsc|gz|xz)$/i', $packageLine[3])) {
+                                $packageLocation = trim($packageLine[3]);
+                            }
+
+                            /**
+                             *  Add founded packages location and md5sum to a global 'packages' array
+                             */
+                            if (!empty($packageLocation) and !empty($packageMd5)) {
+                                $packages[] = array('location' => $packageLocation, 'md5sum' => $packageMd5);
+                            }
                             /**
                              *  Add founded packages to the global array
                              */
-                            if (!empty($directory) and !empty($packageLocation) and !empty($packageMd5)) {
-                                $this->sourcesPackagesLocation[] = array('location' => $directory . '/' . $packageLocation, 'md5sum' => $packageMd5);
-                            }
+                            // if (!empty($directory) and !empty($packageLocation) and !empty($packageMd5)) {
+                            //     $this->sourcesPackagesLocation[] = array('location' => $directory . '/' . $packageLocation, 'md5sum' => $packageMd5);
+                            // }
+                            unset($packageLocation, $packageMd5);
                         }
 
                         unset($spl, $packageLocation, $packageMd5);
+                    }
+
+                    /**
+                     *  If directory and packages have been parsed, had them to the global sources packages list array
+                     */
+                    if (!empty($directory) and !empty($packages)) {
+                        foreach ($packages as $package) {
+                            $this->sourcesPackagesLocation[] = array('location' => $directory . '/' . $package['location'], 'md5sum' => $package['md5sum']);
+                        }
+
+                        /**
+                         *  Then reset $directory and $packages variables to be ready for the next directory
+                         */
+                        unset($directory, $packages);
                     }
 
                     $linecount++;
@@ -392,7 +448,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Quit if no sources packages have been found
          */
         if (empty($this->sourcesPackagesLocation)) {
-            $this->logError('No packages found in Packages indices file');
+            $this->logError('No packages found in Sources indices file');
         }
 
         $this->logOK();
@@ -532,7 +588,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function downloadDebSourcesPackages($url)
     {
-        if ($this->syncSource != 'yes') {
+        /**
+         *  Ignore this function if no 'src' arch has been specified
+         */
+        if (!in_array('src', $this->arch)) {
             return;
         }
 
@@ -571,7 +630,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
              */
             if (md5_file($this->workingDir . '/sources/' . $sourcePackageName) != $sourcePackageMd5) {
-                $this->logError('md5 does not match', 'Error while retrieving sources packages');
+                $this->logError('md5 of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
             }
 
             /**

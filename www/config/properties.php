@@ -8,8 +8,8 @@ $config = array(
     'project_update_doc_url' => 'https://github.com/lbr38/repomanager/wiki/01.-Installation-and-update#update-repomanager',
 
     // DEB default values
-    'deb_archs' => array('all', 'amd64', 'arm64', 'armel', 'armhf', 'i386', 'mips', 'mips64el', 'mipsel', 'ppc64el', 's390x'),
+    'deb_archs' => array('amd64', 'arm64', 'armel', 'armhf', 'i386', 'mips', 'mips64el', 'mipsel', 'ppc64el', 's390x', 'src'),
 
     // RPM default values
-    'rpm_archs' => array('noarch', 'i386', 'i586', 'i686', 'x86_64', 'armv6hl', 'armv7hl', 'aarch64', 'ppc64', 'ppc64le', 's390x'),
+    'rpm_archs' => array('noarch', 'i386', 'i586', 'i686', 'x86_64', 'armv6hl', 'armv7hl', 'aarch64', 'ppc64', 'ppc64le', 's390x', 'src'),
 );

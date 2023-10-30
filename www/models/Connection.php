@@ -522,7 +522,7 @@ class Connection extends SQLite3
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         /* General settings */
         REPOS_DIR VARCHAR(255) NOT NULL,
-        EMAIL_RECIPIENT VARCHAR(255), /* EMAIL_RECIPIENT */
+        EMAIL_RECIPIENT VARCHAR(255),
         DEBUG_MODE CHAR(5),
         REPO_CONF_FILES_PREFIX VARCHAR(255),
         TIMEZONE VARCHAR(255),
@@ -535,31 +535,34 @@ class Connection extends SQLite3
         UPDATE_BRANCH VARCHAR(255),
         UPDATE_BACKUP CHAR(5),
         UPDATE_BACKUP_DIR VARCHAR(255),
-        /* RPM settings */
+        /* Repo settings */
+        /* Mirroring */
+        MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT INTEGER,
+        /* RPM */
         RPM_REPO CHAR(5),
         RPM_SIGN_PACKAGES CHAR(5),
         RPM_SIGN_METHOD VARCHAR(255),
         RELEASEVER CHAR(5),
         RPM_DEFAULT_ARCH VARCHAR(255),
         RPM_INCLUDE_SOURCE CHAR(5),
-        /* DEB settings */
+        /* DEB */
         DEB_REPO CHAR(5),
         DEB_SIGN_REPO CHAR(5),
         DEB_DEFAULT_ARCH VARCHAR(255),
         DEB_INCLUDE_SOURCE CHAR(5),
         DEB_DEFAULT_TRANSLATION VARCHAR(255),
-        /* GPG settings */
+        /* GPG signature key */
         GPG_SIGNING_KEYID VARCHAR(255),
-        /* Plans settings */
+        /* Planifications settings */
         PLANS_ENABLED CHAR(5),
         PLANS_REMINDERS_ENABLED CHAR(5),
         PLANS_UPDATE_REPO CHAR(5),
         PLANS_CLEAN_REPOS CHAR(5),
         RETENTION INTEGER,
-        /* Stats settings */
+        /* Statistics & metrics settings */
         STATS_ENABLED CHAR(5),
         STATS_LOG_PATH VARCHAR(255),
-        /* Hosts settings */
+        /* Hosts and profiles settings */
         MANAGE_HOSTS CHAR(5),
         MANAGE_PROFILES CHAR(5),
         /* CVE settings */
@@ -586,7 +589,7 @@ class Connection extends SQLite3
              */
             $gpgKeyId = 'repomanager@' . $fqdn;
 
-            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES, CVE_IMPORT, CVE_IMPORT_TIME, CVE_SCAN_HOSTS) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . 'www-data' . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_access.log', 'false', 'false', 'false', '00:00', 'false')");
+            $this->exec("INSERT INTO settings (WWW_DIR, REPOS_DIR, EMAIL_RECIPIENT, DEBUG_MODE, REPO_CONF_FILES_PREFIX, TIMEZONE, WWW_USER, WWW_HOSTNAME, UPDATE_AUTO, UPDATE_BRANCH, UPDATE_BACKUP, UPDATE_BACKUP_DIR, MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT, RPM_REPO, RPM_SIGN_PACKAGES, RPM_SIGN_METHOD, RELEASEVER, RPM_DEFAULT_ARCH, RPM_INCLUDE_SOURCE, DEB_REPO, DEB_SIGN_REPO, DEB_DEFAULT_ARCH, DEB_INCLUDE_SOURCE, DEB_DEFAULT_TRANSLATION, GPG_SIGNING_KEYID, PLANS_ENABLED, PLANS_REMINDERS_ENABLED, PLANS_UPDATE_REPO, PLANS_CLEAN_REPOS, RETENTION, STATS_ENABLED, STATS_LOG_PATH, MANAGE_HOSTS, MANAGE_PROFILES, CVE_IMPORT, CVE_IMPORT_TIME, CVE_SCAN_HOSTS) VALUES ('/var/www/repomanager', '/home/repo', '', 'false', 'repomanager-', 'Europe/Paris', '" . 'www-data' . "', '$fqdn', 'false', 'stable', 'true', '/var/lib/repomanager/backups', '300', 'true', 'true', 'rpmsign', '8', 'x86_64', 'false', 'true', 'true', 'amd64', 'false', '', '$gpgKeyId', 'false', 'false', 'false', 'false', '3', 'false', '/var/log/nginx/repomanager_access.log', 'false', 'false', 'false', '00:00', 'false')");
         }
 
         /**

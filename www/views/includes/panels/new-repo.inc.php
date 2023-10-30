@@ -141,32 +141,10 @@
                 </td>
                 <td><input type="text" class="operation_param" param-name="targetDescription" package-type="all" /></td>
             </tr>
-            <tr field-type="mirror rpm deb">
-                <td class="td-30">Check GPG signatures</td>
-                <td>
-                    <label class="onoff-switch-label">
-                        <input name="repoGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetGpgCheck" package-type="all" checked />
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-            </tr>
-            <tr field-type="mirror rpm deb">
-                <td class="td-30">Sign with GPG</td>
-                <td>
-                    <label class="onoff-switch-label" field-type="mirror rpm">
-                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?> />
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                    <label class="onoff-switch-label" field-type="mirror deb">
-                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" param-name="targetGpgResign" package-type="deb" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?> />
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-            </tr>
 
             <?php
             /**
-             *  Possibilité d'ajouter à un groupe, si il y en a
+             *  Possibility to add to a group, if there is at least one group
              */
             if (!empty($newRepoFormGroupList)) : ?>
                 <tr>
@@ -188,8 +166,37 @@
             endif ?>
 
             <tr field-type="mirror rpm deb">
+                <td colspan="100%"><b>GPG parameters</b></td>
+            </tr>
+
+            <tr field-type="mirror rpm deb">
+                <td class="td-30">Check GPG signatures</td>
+                <td>
+                    <label class="onoff-switch-label">
+                        <input name="repoGpgCheck" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetGpgCheck" package-type="all" checked />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+            </tr>
+
+            <tr field-type="mirror rpm deb">
+                <td class="td-30">Sign with GPG</td>
+                <td>
+                    <label class="onoff-switch-label" field-type="mirror rpm">
+                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_rpm" value="yes" param-name="targetGpgResign" package-type="rpm" <?php echo (RPM_SIGN_PACKAGES == "true") ? 'checked' : ''; ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                    <label class="onoff-switch-label" field-type="mirror deb">
+                        <input name="repoGpgResign" type="checkbox" class="onoff-switch-input operation_param type_deb" value="yes" param-name="targetGpgResign" package-type="deb" <?php echo (DEB_SIGN_REPO == "true") ? 'checked' : ''; ?> />
+                        <span class="onoff-switch-slider"></span>
+                    </label>
+                </td>
+            </tr>
+
+            <tr field-type="mirror rpm deb">
                 <td colspan="100%"><b>Advanced parameters</b></td>
             </tr>
+
             <tr field-type="mirror local rpm deb">
                 <td class="td-30">Architecture</td>
                 <td field-type="mirror local rpm">
@@ -217,19 +224,7 @@
                     </select>
                 </td>
             </tr>
-            <tr field-type="mirror rpm deb">
-                <td class="td-30">Include sources packages</td>
-                <td>
-                    <label field-type="mirror rpm" class="onoff-switch-label">
-                        <input name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="rpm" <?php echo (RPM_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                    <label field-type="mirror deb" class="onoff-switch-label">
-                        <input field-type="mirror deb" name="repoIncludeSource" type="checkbox" class="onoff-switch-input operation_param" value="yes" param-name="targetSourcePackage" package-type="deb" <?php echo (DEB_INCLUDE_SOURCE == 'true') ? 'checked' : ''; ?> />
-                        <span class="onoff-switch-slider"></span>
-                    </label>
-                </td>
-            </tr>
+
             <!-- <tr field-type="mirror deb">
                 <td class="td-30">Include translation</td>
                 <td>

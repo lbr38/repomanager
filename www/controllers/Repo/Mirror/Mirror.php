@@ -121,11 +121,11 @@ class Mirror
         /**
          *  Use a shared curl handle '$this->curlHandle' and do not reinitialize it every time to speed up downloads
          */
-        curl_setopt($this->curlHandle, CURLOPT_URL, $url);            // set remote file url
-        curl_setopt($this->curlHandle, CURLOPT_FILE, $localFile);     // set output file
-        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, 300);         // set timeout
-        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true); // follow redirect
-        curl_setopt($this->curlHandle, CURLOPT_ENCODING, '');         // use compression if any
+        curl_setopt($this->curlHandle, CURLOPT_URL, $url);                                   // set remote file url
+        curl_setopt($this->curlHandle, CURLOPT_FILE, $localFile);                            // set output file
+        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT); // set timeout
+        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true);                        // follow redirect
+        curl_setopt($this->curlHandle, CURLOPT_ENCODING, '');                                // use compression if any
 
         /**
          *  If a custom ssl certificate and private key must be used
@@ -162,9 +162,9 @@ class Mirror
              *  If return code is 404
              */
             if ($status["http_code"] == '404') {
-                $this->logOutput('File not found (404)');
+                $this->logOutput('File not found (404)' . PHP_EOL);
             } else {
-                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ')');
+                $this->logOutput('File could not be downloaded (http return code is: ' . $status["http_code"] . ')' . PHP_EOL);
             }
 
             curl_close($this->curlHandle);
@@ -237,6 +237,7 @@ class Mirror
         }
 
         $this->logOutput('<span class="redtext">' . $errorMessage . '</span>' . PHP_EOL);
+
         throw new Exception($exceptionMessage);
     }
 

@@ -31,7 +31,7 @@ class Duplicate extends Operation
          */
         $operationParams['targetGpgResign'] = $this->repo->getSigned();
         $operationParams['targetArch'] = $this->repo->getArch();
-        $operationParams['targetSourcePackage'] = $this->repo->getSourcePackage();
+        // $operationParams['targetSourcePackage'] = $this->repo->getSourcePackage();
         $operationParams['targetPackageTranslation'] = $this->repo->getPackageTranslation();
 
         /**

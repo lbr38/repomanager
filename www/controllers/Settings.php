@@ -32,19 +32,16 @@ class Settings
         $settingsToApply = array();
 
         /**
-         *  General settings
+         *  Main configuration / Global settings
          */
-        if (!empty($sendSettings['reposDir'])) {
-            $reposDir = rtrim(Common::validateData($sendSettings['reposDir']), '/');
+        if (!empty($sendSettings['timezone'])) {
+            $timezone = Common::validateData($sendSettings['timezone']);
 
-            /**
-             *  Le chemin ne doit comporter que des lettres, des chiffres, des tirets et des slashs
-             */
-            if (!Common::isAlphanumDash($reposDir, array('/'))) {
-                throw new Exception('Invalid directory value for ' . $reposDir);
+            if (!Common::isAlphanumDash($timezone, array('/'))) {
+                throw new Exception('Invalid timezone value for ' . $timezone);
             }
 
-            $settingsToApply['REPOS_DIR'] = $reposDir;
+            $settingsToApply['TIMEZONE'] = $timezone;
         }
 
         if (!empty($sendSettings['emailRecipient'])) {
@@ -72,61 +69,19 @@ class Settings
             $settingsToApply['REPO_CONF_FILES_PREFIX'] = $repoConfFilesPrefix;
         }
 
-        if (!empty($sendSettings['timezone'])) {
-            $timezone = Common::validateData($sendSettings['timezone']);
-
-            if (!Common::isAlphanumDash($timezone, array('/'))) {
-                throw new Exception('Invalid timezone value for ' . $timezone);
-            }
-
-            $settingsToApply['TIMEZONE'] = $timezone;
-        }
-
         /**
-         *  Web settings
+         *  Repositories / Mirroring settings
          */
-        if (!empty($sendSettings['wwwDir'])) {
-            $wwwDir = rtrim(Common::validateData($sendSettings['wwwDir']), '/');
-
-            /**
-             *  Le chemin ne doit comporter que des lettres, des chiffres, des tirets et des slashs
-             */
-            if (!Common::isAlphanumDash($wwwDir, array('/'))) {
-                throw new Exception('Invalid directory value for ' . $wwwDir);
-            }
-
-            $settingsToApply['WWW_DIR'] = $wwwDir;
-        }
-
-        /**
-         *  CVE settings
-         */
-        if (!empty($sendSettings['cveImport'])) {
-            if ($sendSettings['cveImport'] == 'true') {
-                $settingsToApply['CVE_IMPORT'] = 'true';
+        if (!empty($sendSettings['mirrorPackageDownloadTimeout'])) {
+            if (is_numeric($sendSettings['mirrorPackageDownloadTimeout']) and $sendSettings['mirrorPackageDownloadTimeout'] > 0) {
+                $settingsToApply['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT'] = $sendSettings['mirrorPackageDownloadTimeout'];
             } else {
-                $settingsToApply['CVE_IMPORT'] = 'false';
-            }
-        }
-
-        if (!empty($sendSettings['cveImportTime'])) {
-            $cveImportTime = Common::validateData($sendSettings['cveImportTime']);
-
-            if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $cveImportTime)) {
-                $settingsToApply['CVE_IMPORT_TIME'] = $cveImportTime;
-            }
-        }
-
-        if (!empty($sendSettings['cveScanHosts'])) {
-            if ($sendSettings['cveScanHosts'] == 'true') {
-                $settingsToApply['CVE_SCAN_HOSTS'] = 'true';
-            } else {
-                $settingsToApply['CVE_SCAN_HOSTS'] = 'false';
+                $settingsToApply['MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT'] = 300;
             }
         }
 
         /**
-         *  RPM repo settings
+         *  Repositories / RPM
          */
         if (!empty($sendSettings['rpmRepo'])) {
             if ($sendSettings['rpmRepo'] == 'true') {
@@ -173,7 +128,7 @@ class Settings
         }
 
         /**
-         *  DEB repo settings
+         *  Repositories / DEB
          */
         if (!empty($sendSettings['debRepo'])) {
             if ($sendSettings['debRepo'] == 'true') {
@@ -226,7 +181,7 @@ class Settings
         }
 
         /**
-         *  GPG settings
+         *  Repositories / GPG signature key
          */
         if (!empty($sendSettings['gpgKeyID'])) {
             $gpgKeyID = Common::validateData($sendSettings['gpgKeyID']);
@@ -239,7 +194,21 @@ class Settings
         }
 
         /**
-         *  Plans settings
+         *  Repositories / Statistics
+         */
+        if (!empty($sendSettings['statsEnable'])) {
+            if ($sendSettings['statsEnable'] == "true") {
+                $settingsToApply['STATS_ENABLED'] = 'true';
+            } else {
+                $settingsToApply['STATS_ENABLED'] = 'false';
+            }
+        }
+
+        // hardcoded for now
+        $settingsToApply['STATS_LOG_PATH'] = '/var/log/nginx/repomanager_access.log';
+
+        /**
+         *  Planifications
          */
         if (!empty($sendSettings['plansEnable'])) {
             if ($sendSettings['plansEnable'] == "true") {
@@ -284,21 +253,7 @@ class Settings
         }
 
         /**
-         *  Stats settings
-         */
-        if (!empty($sendSettings['statsEnable'])) {
-            if ($sendSettings['statsEnable'] == "true") {
-                $settingsToApply['STATS_ENABLED'] = 'true';
-            } else {
-                $settingsToApply['STATS_ENABLED'] = 'false';
-            }
-        }
-
-        // hardcoded for now
-        $settingsToApply['STATS_LOG_PATH'] = '/var/log/nginx/repomanager_access.log';
-
-        /**
-         *  Hosts settings
+         *  Hosts & profiles
          */
         if (!empty($sendSettings['manageHosts'])) {
             if ($sendSettings['manageHosts'] == "true") {
@@ -313,6 +268,33 @@ class Settings
                 $settingsToApply['MANAGE_PROFILES'] = 'true';
             } else {
                 $settingsToApply['MANAGE_PROFILES'] = 'false';
+            }
+        }
+
+        /**
+         *  CVE
+         */
+        if (!empty($sendSettings['cveImport'])) {
+            if ($sendSettings['cveImport'] == 'true') {
+                $settingsToApply['CVE_IMPORT'] = 'true';
+            } else {
+                $settingsToApply['CVE_IMPORT'] = 'false';
+            }
+        }
+
+        if (!empty($sendSettings['cveImportTime'])) {
+            $cveImportTime = Common::validateData($sendSettings['cveImportTime']);
+
+            if (preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $cveImportTime)) {
+                $settingsToApply['CVE_IMPORT_TIME'] = $cveImportTime;
+            }
+        }
+
+        if (!empty($sendSettings['cveScanHosts'])) {
+            if ($sendSettings['cveScanHosts'] == 'true') {
+                $settingsToApply['CVE_SCAN_HOSTS'] = 'true';
+            } else {
+                $settingsToApply['CVE_SCAN_HOSTS'] = 'false';
             }
         }
 

@@ -140,24 +140,6 @@
                     <div></div>
                 </div>
 
-                <!-- <div class="settings-div">
-                    <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify storage directory for repositories created by repomanager." />
-                    </div>
-                    <div>
-                        <p>Repositories storage directory</p>
-                    </div>
-                    <div>
-                        <input class="settings-param" param-name="reposDir" type="text" value="<?= REPOS_DIR ?>" />
-                    </div>
-                    <div>
-                        <?php
-                        if (empty(REPOS_DIR)) {
-                            echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
-                </div> -->
-
                 <div class="settings-div">
                     <div>
                         <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." />
@@ -185,6 +167,20 @@
                     </div>
                     <div>
                         <input class="settings-param" param-name="repoConfFilesPrefix" type="text" value="<?= REPO_CONF_FILES_PREFIX ?>">
+                    </div>
+                </div>
+
+                <h5>MIRRORING SETTINGS</h5>
+
+                <div class="settings-div">
+                    <div>
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum time (in seconds) allowed to download a package during a mirror process." />
+                    </div>
+                    <div>
+                        <p>Package download timeout (in seconds)</p>
+                    </div>
+                    <div>
+                        <input class="settings-param" param-name="mirrorPackageDownloadTimeout" type="number" value="<?= MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT ?>">
                     </div>
                 </div>
     
@@ -267,21 +263,6 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Retrieve and include packages sources when creating rpm mirror.">
-                        </div>
-                        <div>
-                            <p>Include sources packages when creating rpm mirror</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="rpmIncludeSource" type="checkbox" value="yes" <?php echo (RPM_INCLUDE_SOURCE == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                    </div>
                     <?php
                 endif ?>
 
@@ -344,21 +325,6 @@
                                     }
                                 } ?>
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Include sources packages when creating deb mirror.">
-                        </div>
-                        <div>
-                            <p>Include sources packages when creating deb mirror</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="debIncludeSource" type="checkbox" value="yes" <?php echo (DEB_INCLUDE_SOURCE == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
                         </div>
                     </div>
 

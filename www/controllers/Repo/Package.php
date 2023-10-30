@@ -45,6 +45,14 @@ class Package
             throw new Exception('Repo directory ' . $repoPath . ' does not exist');
         }
 
+
+        /**
+         *  If no files are actually uploaded to the server we quit
+         */
+        if (array_sum($_FILES['packages']['size']) == 0) {
+            throw new Exception('You must upload a file.');
+        }
+
         /**
          *  Sort the list of files transmitted
          */
@@ -57,12 +65,12 @@ class Package
         $packageInvalid = array();     // will contain the list of packages whose format is invalid
 
         foreach ($packages as $package) {
-            $uploadError = 0;
+            $uploadError    = 0;
             $packageName    = $package['name'];
-            $packageType    = $package['type'];
             $packageSize    = $package['size'];
             $packageError   = $package['error'];
             $packageTmpName = $package['tmp_name'];
+            $packageType    = mime_content_type($packageTmpName);
 
             /**
              *  Package name must not contain special characters
@@ -75,9 +83,9 @@ class Package
             }
 
             /**
-             *  If package is in error then we ignore it and move on to the next one
+             *  If package is in error or not actually an uploaded file, then we ignore it and move on to the next one
              */
-            if ($packageError != 0) {
+            if ($packageError != 0 || !is_uploaded_file($packageTmpName)) {
                 $uploadError++;
                 $packagesError[] = $packageName;
                 continue;
@@ -158,26 +166,28 @@ class Package
             }
 
             /**
-             *  Check that the package is valid
+             *  Check that the file has a valid mime type and said mime type matches the repo type
              */
-            if ($packageType !== 'application/x-rpm' and $packageType !== 'application/vnd.debian.binary-package') {
+            if (!($packageType == 'application/x-rpm' && $myrepo->getPackageType() == 'rpm') &&
+                !($packageType == 'application/vnd.debian.binary-package' && $myrepo->getPackageType() == 'deb')) {
                 $uploadError++;
                 $packageInvalid[] = $packageName;
-            }
-
-            /**
-             *  Create the target dir
-             */
-            if (!is_dir($targetDir)) {
-                if (!mkdir($targetDir, 0770, true)) {
-                    throw new Exception('Error: cannot create upload directory <b>' . $target_dir . '</b>');
-                }
             }
 
             /**
              *  If there has been no error so far, then we can move the file to its final location
              */
             if ($uploadError == 0 and file_exists($packageTmpName)) {
+
+                /**
+                 *  Create the target dir
+                 */
+                if (!is_dir($targetDir)) {
+                    if (!mkdir($targetDir, 0770, true)) {
+                        throw new Exception('Error: cannot create upload directory <b>' . $targetDir . '</b>');
+                    }
+                }
+
                 move_uploaded_file($packageTmpName, $targetDir . '/' . $packageName);
             }
         }
@@ -195,7 +205,7 @@ class Package
             }
 
             if (!empty($packageInvalid)) {
-                $errorMessage .= '<br>Following packages are not considered as valid packages and have not been uploaded:';
+                $errorMessage .= '<br>Following files are not considered valid packages and have not been uploaded:';
                 foreach ($packageInvalid as $package) {
                     $errorMessage .= '<br><b>' . $package . '</b>';
                 }

@@ -774,13 +774,14 @@ footer #github img { width: 25px; }
 /* Container */
 .header-container {
     width: 100%;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 /* rubans de couleurs */
 .header-green, .header-blue, .header-light-blue, .header-red {
     border-radius: 6px;
-    padding: 0px 8px 0px 8px;
+    /* padding: 0px 8px 0px 8px; */
+    padding: 2px 8px 2px 8px;
 }
 .header-green-min, .header-blue-min, .header-light-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
     border-radius: 6px;
