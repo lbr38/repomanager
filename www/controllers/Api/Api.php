@@ -9,40 +9,60 @@ class Api
     private $method;
     private $uri;
     private $route;
+    private $authHeader;
     private $data;
-    private $authenticationController;
+    private $loginController;
+    private $hostController;
     private $apiKeyAuthentication = false;
     private $hostAuthentication = false;
+    private $hostId;
+    private $hostToken;
 
     public function __construct()
     {
-        $this->authenticationController = new \Controllers\Api\Authentication\Authentication();
+        $this->loginController = new \Controllers\Login();
+        $this->hostController = new \Controllers\Host();
 
         /**
          *  Exit if method is not allowed
          */
         if ($_SERVER['REQUEST_METHOD'] != 'GET' and $_SERVER['REQUEST_METHOD'] != 'POST' and $_SERVER['REQUEST_METHOD'] != 'PUT' and $_SERVER['REQUEST_METHOD'] != 'DELETE') {
             http_response_code(405);
-            echo json_encode(["return" => "405", "message_error" => array('Method not allowed.')]);
+            echo json_encode(["return" => "405", "message_error" => array('Method not allowed')]);
             exit;
         }
 
         /**
-         *  Get method
+         *  Retrieve method
          */
         $this->method = $_SERVER['REQUEST_METHOD'];
 
         /**
-         *  Retrieve data
+         *  Retrieve data if any
          */
-        $this->data = json_decode(file_get_contents("php://input"));
+        $this->data = file_get_contents("php://input");
+
+        if (!empty($this->data)) {
+            $this->data = json_decode($this->data);
+
+            if ($this->data == null) {
+                self::returnError(400, 'Invalid JSON data');
+            }
+        }
+
+        /**
+         *  Retrieve authentication header if any
+         */
+        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $this->authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        }
 
         /**
          *  Quit on error if no data was sent
          */
-        if (empty($this->data)) {
-            self::returnError(400, 'Missing data.');
-        }
+        // if (empty($this->data)) {
+        //     self::returnError(400, 'Missing data.');
+        // }
 
         /**
          *  Retrieve URI
@@ -51,7 +71,7 @@ class Api
         $this->uri = explode('/', $this->uri);
 
         /**
-         *  Get route from URI
+         *  Retrieve route from URI
          */
         $this->route = $this->uri[3];
 
@@ -76,25 +96,147 @@ class Api
         /**
          *  Check if authentication is valid from data sent
          */
-        if (!$this->authenticationController->valid($this->data)) {
-            self::returnError(401, 'Bad credentials.');
+        if (!$this->authenticate($this->authHeader, $this->data)) {
+            self::returnError(401, 'Bad credentials');
         }
-
-        /**
-         *  Retrieve valid authentication method
-         */
-        $this->apiKeyAuthentication = $this->authenticationController->getApiKeyAuthenticationStatus();
-        $this->hostAuthentication = $this->authenticationController->getHostAuthenticationStatus();
 
         /**
          *  Check if method and URI are specified
          */
         if (empty($_SERVER['REQUEST_METHOD'])) {
-            throw new Exception('No method specified.');
+            throw new Exception('No method specified');
         }
         if (empty($_SERVER['REQUEST_URI'])) {
-            throw new Exception('No route specified.');
+            throw new Exception('No route specified');
         }
+    }
+
+    /**
+     *  Check if authentication is valid
+     *  It can be an API key authentication or a host authId+token authentication
+     */
+    public function authenticate(string $authHeader = null, string|object $data = null)
+    {
+        /**
+         *  New authentication method
+         */
+
+        /**
+         *  If API key or host Id+token is specified through the Authorization header
+         *  e.g.
+         *      "Authorization: Bearer <API_KEY>"
+         *      "Authorization: Host <HOST_ID>:<HOST_TOKEN>"
+         */
+        if (!empty($authHeader)) {
+            if (strpos($authHeader, 'Bearer ') === 0) {
+                /**
+                 *  Extract the token
+                 *  Remove "Bearer " from the header
+                 */
+                $apiKey = substr($authHeader, 7);
+            }
+
+            /**
+             *  If host Id+token are specified through the Authorization header
+             */
+            if (strpos($authHeader, 'Host ') === 0) {
+                /**
+                 *  Extract the host Id and token
+                 *  Remove "Host " from the header
+                 */
+                $hostIdToken = substr($authHeader, 5);
+
+                /**
+                 *  Split the host Id and token
+                 */
+                $hostIdToken = explode(':', $hostIdToken);
+
+                /**
+                 *  Check if host Id and token are specified
+                 */
+                if (count($hostIdToken) != 2) {
+                    return false;
+                }
+
+                /**
+                 *  Set host authId and token
+                 */
+                $hostId = $hostIdToken[0];
+                $hostToken = $hostIdToken[1];
+            }
+        }
+
+        /**
+         *  Old authentication method
+         */
+
+        /**
+         *  If API key is specified in data
+         */
+        if (!empty($data->apikey)) {
+            $apiKey = $data->apikey;
+        }
+
+        /**
+         *  If host authId and token are specified in data
+         */
+        if (!empty($data->id)) {
+            $hostId = $data->id;
+        }
+        if (!empty($data->token)) {
+            $hostToken = $data->token;
+        }
+
+        /**
+         *  If no API key or host authId and token are specified
+         */
+        if (empty($apiKey) and (empty($hostId) or empty($hostToken))) {
+            return false;
+        }
+
+        /**
+         *  If API key is specified, check that it is valid
+         */
+        if (!empty($apiKey)) {
+            /**
+             *  Check if API key exists
+             */
+            if (!$this->loginController->apiKeyValid($apiKey)) {
+                return false;
+            }
+
+            /**
+             *  Set apiKeyAuthentication to true if API key is valid
+             */
+            $this->apiKeyAuthentication = true;
+
+            /**
+             *  Check if API key is an Admin API key
+             */
+            if ($this->loginController->apiKeyIsAdmin($apiKey)) {
+                if (!defined('IS_API_ADMIN')) {
+                    define('IS_API_ADMIN', true);
+                }
+            }
+        }
+
+        /**
+         *  If a host authId and token have been specified, check if they are valid
+         */
+        if (!empty($hostId) and !empty($hostToken)) {
+            if (!$this->hostController->checkIdToken($hostId, $hostToken)) {
+                return false;
+            }
+
+            /**
+             *  Set hostAuthentication to true if host authId and token are valid
+             */
+            $this->hostAuthentication = true;
+            $this->hostId = $hostId;
+            $this->hostToken = $hostToken;
+        }
+
+        return true;
     }
 
     /**
@@ -116,7 +258,7 @@ class Api
              *  Check if route is valid by checking if corresponding controller exists
              */
             if (!file_exists(ROOT . '/controllers/Api/' . ucfirst($this->route) . '/' . ucfirst($this->route) . '.php')) {
-                throw new Exception('No matching route.');
+                throw new Exception('No matching route');
             }
 
             $apiControllerPath = '\Controllers\Api\\' . ucfirst($this->route) . '\\' . ucfirst($this->route);
@@ -124,9 +266,29 @@ class Api
             /**
              *  Call API controller
              */
-            $myapiController = new $apiControllerPath($this->method, $this->uri, $this->data);
+            $myapiController = new $apiControllerPath($this->method, $this->uri);
+
+            /**
+             *  Set authentication method (true or false)
+             */
             $myapiController->setApiKeyAuthentication($this->apiKeyAuthentication);
             $myapiController->setHostAuthentication($this->hostAuthentication);
+
+            if ($this->hostAuthentication) {
+                $myapiController->setHostId($this->hostId);
+                $myapiController->setHostToken($this->hostToken);
+            }
+
+            /**
+             *  Set JSON data if any
+             */
+            if (!empty($this->data)) {
+                $myapiController->setJsonData($this->data);
+            }
+
+            /**
+             *  Execute API controller and return results
+             */
             $resultArray = $myapiController->execute();
             self::returnSuccess($resultArray);
         } catch (Exception $e) {

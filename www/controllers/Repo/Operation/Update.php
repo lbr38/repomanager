@@ -33,7 +33,6 @@ class Update extends Operation
          *  Check and set others operation parameters
          */
         $requiredParams = array('targetGpgCheck', 'targetGpgResign', 'targetArch', 'onlySyncDifference');
-        // $optionnalParams = array('targetEnv', 'targetSourcePackage', 'targetPackageTranslation');
         $optionnalParams = array('targetEnv', 'targetPackageTranslation');
         $this->operationParamsCheck('Update repo', $operationParams, $requiredParams);
         $this->operationParamsSet($operationParams, $requiredParams, $optionnalParams);

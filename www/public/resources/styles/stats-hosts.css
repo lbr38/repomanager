@@ -273,7 +273,7 @@ td:last-child,
     font-size: 35px;
 }
 #hosts-requiring-reboot-chart:hover #hosts-requiring-reboot-chart-list {
-    display: block;
+    display: flex;
 }
 
 #packagesContainer, #eventsContainer {
@@ -311,11 +311,13 @@ td:last-child,
 .showEventDetails p {
     margin-bottom: 5px;
 }
-.hosts-charts-list-label-hosts-list {
-    margin-top: 15px;
-}
-#hosts-requiring-reboot-chart-list {
+
+#hosts-requiring-reboot-chart-list, .hosts-charts-list-label-hosts-list {
+    flex-direction: column;
+    row-gap: 6px;
     top: 100px;
+    max-height: 500px;
+    overflow: auto;
 }
 
 /* Timeline de l'historique d'un paquet

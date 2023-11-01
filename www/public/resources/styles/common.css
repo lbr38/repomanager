@@ -1,5 +1,5 @@
 /**
- *  v1.2
+ *  v1.4
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
@@ -128,13 +128,18 @@ pre {
 .grid-2 {grid-template-columns: auto auto}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
+.justify-end {justify-content: flex-end}
 .align-content-center {align-content: center}
 .align-content-right {align-content: flex-end}
 .align-item-center {align-items: center}
 .align-item-right {align-items: flex-end}
 .align-self-center {align-self: center}
-.column-gap-1 {column-gap: 1px;}.column-gap-2 {column-gap: 2px;}.column-gap-4 {column-gap: 4px;}.column-gap-5 {column-gap: 5px;}.column-gap-6 {column-gap: 6px;}.column-gap-7 {column-gap: 7px;}.column-gap-8 {column-gap: 8px;}.column-gap-9 {column-gap: 9px;}.column-gap-10 {column-gap: 10px;}
+.column-gap-1{column-gap: 1px}.column-gap-2 {column-gap: 2px}.column-gap-4 {column-gap: 4px}.column-gap-5{column-gap: 5px}.column-gap-6{column-gap: 6px}.column-gap-7{column-gap: 7px}.column-gap-8{column-gap: 8px}.column-gap-9{column-gap: 9px}.column-gap-10{column-gap: 10px}
+.column-gap-20{column-gap: 20px}
 .row-gap-1 {row-gap: 1px;}.row-gap-2 {row-gap: 2px;}.row-gap-4 {row-gap: 4px;}.row-gap-5 {row-gap: 5px;}.row-gap-6 {row-gap: 6px;}.row-gap-7 {row-gap: 7px;}
+.padding-left-15 {padding-left: 15px !important}
+.padding-right-15 {padding-right: 15px !important}
+.margin-bottom-0 {margin-bottom: 0px !important}
 
 /**
  *   Tables
@@ -246,13 +251,12 @@ td {
  */
 input[type=text], input[type=date], input[type=time], input[type=number], input[type=email], input[type=password], input[type=color], input[type=file], select {
     width: 100%;
-    height: 30px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 4px;
-    /* display: inline-block; */
+    height: 35px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 10px;
     border: none;
-    border-radius: 2px;
+    border-radius: 20px;
     box-sizing: border-box;
     font-size: 14px;
     color: white;
@@ -277,7 +281,7 @@ input::placeholder {
 [class^="btn-"], [class*=" btn-"] {
     padding: 7px 5px 7px 5px;
     border: none;
-    border-radius: 2px;
+    border-radius: 16px;
     color: white;
     text-align: center;
     text-decoration: none;
@@ -287,19 +291,19 @@ input::placeholder {
 }
 
 /* Tous les boutons bleus */
-.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue {
+.btn-large-blue, .btn-medium-blue, .btn-small-blue, .btn-xsmall-blue, .btn-xxsmall-blue, .btn-fit-blue, .btn-round-blue {
     background-color: #5473e8;
 }
 /* Tous les boutons verts */
-.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green {
+.btn-large-green, .btn-medium-green, .btn-small-green, .btn-xsmall-green, .btn-xxsmall-green, .btn-fit-green, .btn-round-green {
     background-color: #15bf7f;
 }
 /* Tous les boutons rouges */
-.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red {
+.btn-large-red, .btn-medium-red, .btn-small-red, .btn-xsmall-red, .btn-xxsmall-red, .btn-fit-red, .btn-round-red {
     background-color: #ff0044;
 }
 /* Tous les boutons jaunes */
-.btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow {
+.btn-large-yellow, .btn-medium-yellow, .btn-small-yellow, .btn-xsmall-yellow, .btn-xxsmall-yellow, .btn-fit-yellow, .btn-round-yellow {
     background-color: #ffb536;
 }
 /* Boutons taille large */
@@ -325,17 +329,17 @@ input::placeholder {
 }
 
 /* Tous les boutons bleus :hover */
-.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover, .btn-fit-blue:hover {
+.btn-large-blue:hover, .btn-medium-blue:hover, .btn-small-blue:hover, .btn-xsmall-blue:hover, .btn-xxsmall-blue:hover, .btn-fit-blue:hover, .btn-round-blue:hover {
     transition-duration: 0.4s;
     background-color: #4e69cd;
 }
 /* Tous les boutons verts :hover */
-.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover, .btn-fit-green:hover {
+.btn-large-green:hover, .btn-medium-green:hover, .btn-small-green:hover, .btn-xsmall-green:hover, .btn-xxsmall-green:hover, .btn-fit-green:hover, .btn-round-green:hover {
     transition-duration: 0.4s;
     background-color: #12a16a;
 }
 /* Tous les boutons rouges :hover */
-.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover {
+.btn-large-red:hover, .btn-medium-red:hover, .btn-small-red:hover, .btn-xsmall-red:hover, .btn-xxsmall-red:hover, .btn-fit-red:hover, .btn-round-red:hover {
     transition-duration: 0.4s;
     background-color: #dc0044;
 }
@@ -343,14 +347,31 @@ input::placeholder {
 /**
  *  Round btns
  */
-[class^="round-btn"] {
-    max-width: 300px !important;
+[class^="btn-round"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-decoration: none;
+    width: 28px;
+    height: 28px;
+    -webkit-transition: max-width 0.7s;
+    transition: max-width 0.7s;
+    margin: 0 3px 0 3px;
+    color: white;
+    background-color: #15bf7f;
+    border-radius: 60px;
+    cursor: pointer;
+}
+
+[class^="btn-round"] img {
+    width: 16px;
 }
 
 /**
  *  Slide btns
  */
-[class^="slide-btn"], [class^="round-btn"] {
+[class^="slide-btn"] {
     display: inline-flex;
     align-items: center;
     overflow: hidden;
@@ -366,38 +387,44 @@ input::placeholder {
     border-radius: 60px;
     cursor: pointer;
 }
-[class^="slide-btn"] img, [class^="round-btn"] img {
+[class^="slide-btn"] img {
     width: 16px;
     padding-left: 6px;
     display: flex;
     align-items: center;
 }
-[class^="slide-btn"] span, [class^="round-btn"] span {
+[class^="slide-btn"] span {
     white-space: nowrap;
     padding-right: 12px;
     padding-left: 8px;
 }
-.slide-btn-red, .round-btn-red {
+.slide-btn-red {
     background-color: #ff0044;
 }
-.slide-btn-red:hover, .round-btn-red:hover {
+.slide-btn-red:hover {
     background-color: #dc0044;
 }
-.slide-btn-yellow, .round-btn-yellow {
+.slide-btn-yellow {
     background-color: #eb984e;
 }
-.slide-btn-yellow:hover, .round-btn-yellow:hover {
+.slide-btn-yellow:hover {
     background-color: #eb984e;
 }
 
 textarea {
     width: 100%;
-    text-indent: 5px;
+    text-indent: 0px;
+    padding-top: 5px;
+    padding-left: 5px;
     font-size: 14px;
     color: white;
     background-color:#25394b;
-    border-radius: 3px;
+    border-radius: 16px;
     border: none;
+}
+
+.textarea-100 {
+    min-height: 100px;
 }
 
 .round-item {
@@ -411,7 +438,7 @@ textarea {
     font-size: 13px;
     vertical-align: middle;
     display: inline-block;
-    padding: 4px 6px 4px 6px;
+    padding: 6px 8px 6px 8px;
     border-radius: 16px;
     color: white;
     box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
@@ -517,7 +544,7 @@ textarea {
     color: #3b3b3b;
     line-height: 1;
     text-align: center;
-    padding: 3px 7px;
+    padding: 6px 8px;
     margin-right: -1px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
@@ -605,7 +632,6 @@ textarea {
 }
 .confirmAlert {
     grid-template-columns: repeat(3, 33%);
-    justify-content: space-between;
 }
 .alert-success { background-color: #14be7e; }
 .alert-error { background-color: #ff0044; }

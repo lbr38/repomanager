@@ -16,7 +16,7 @@ if [ ! -z "$FQDN" ];then
     echo $FQDN > /etc/mailname
 
     # Repomanager configuration
-    echo $FQDN > /var/www/repomanager/.fqdn
+    echo $FQDN > "$WWW_DIR/.fqdn"
 fi
 if [ ! -z "$MAX_UPLOAD_SIZE" ];then
     # Nginx configuration

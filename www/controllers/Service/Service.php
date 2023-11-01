@@ -166,15 +166,13 @@ class Service
             /**
              *  Execute curl
              */
-            curl_exec($this->curlHandle);
-
-            /**
-             *  If curl has failed (meaning a curl param might be invalid)
-             */
-            if (curl_errno($this->curlHandle)) {
+            if (curl_exec($this->curlHandle) === false) {
                 curl_close($this->curlHandle);
                 fclose($outputFile);
 
+                /**
+                 *  If curl has failed (meaning a curl param might be invalid)
+                 */
                 throw new Exception('Error while retrieving new version from Github (curl error): ' . curl_error($this->curlHandle));
             }
 

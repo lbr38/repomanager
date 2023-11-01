@@ -75,8 +75,8 @@ RUN usermod -a -G repomanager www-data
 RUN chown -R www-data:repomanager $WWW_DIR $DATA_DIR $REPOS_DIR
 
 # Copy entrypoint script
-RUN cp /tmp/repomanager/docker/entrypoint.sh /tmp/entrypoint.sh
-RUN chmod 700 /tmp/entrypoint.sh
+RUN cp /tmp/repomanager/docker/entrypoint.sh /entrypoint.sh
+RUN chmod 700 /entrypoint.sh
 
 # Clean
 RUN rm -rf /tmp/repomanager
@@ -87,4 +87,4 @@ EXPOSE 8080
 # Set working dir
 WORKDIR ${DATA_DIR}
 
-ENTRYPOINT ["/tmp/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

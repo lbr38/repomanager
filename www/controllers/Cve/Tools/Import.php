@@ -119,13 +119,15 @@ class Import
                 curl_setopt($ch, CURLOPT_TIMEOUT, 120);         // set timeout
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // follow redirect
                 curl_setopt($ch, CURLOPT_ENCODING, '');         // use compression if any
-                curl_exec($ch);
 
-                if (curl_errno($ch)) {
+                if (curl_exec($ch) === false) {
+                    /**
+                     *  If curl has failed (meaning a curl param might be invalid)
+                     */
+                    throw new Exception('Curl error: ' . curl_error($ch));
+
                     curl_close($ch);
                     fclose($gzippedFeed);
-
-                    throw new Exception('Curl error: ' . curl_error($ch));
                 }
 
                 /**

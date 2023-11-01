@@ -56,7 +56,7 @@
                         <td class="td-10">Action</td>
                         <td>
                             <select id="planActionSelect">
-                                <option></option>
+                                <option>Select an action...</option>
                                 <option value="update" id="updateRepoSelect">Update</option>
                             </select>
                         </td>
@@ -277,8 +277,7 @@
 
 <script>
 $(document).ready(function(){
-
-    idToSelect2('#planActionSelect', 'Select action...', true);
+    // idToSelect2('#planActionSelect', 'Select action...', true);
     idToSelect2('#planReminderSelect', 'Select reminder...', true);
     idToSelect2('#planDayOfWeekSelect', 'Select day(s)...', true);
     idToSelect2('#addPlanMailRecipient', 'Select recipients...', true);

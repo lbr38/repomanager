@@ -45,7 +45,6 @@ class Create extends Operation
             $requiredParams[] = 'source';
             $requiredParams[] = 'targetGpgCheck';
             $requiredParams[] = 'targetGpgResign';
-            // $requiredParams[] = 'targetSourcePackage';
         }
 
         /**

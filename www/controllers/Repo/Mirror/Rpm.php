@@ -530,9 +530,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         foreach ($this->archUrls as $arch => $archUrls) {
             foreach ($archUrls as $url) {
-                if (!\Controllers\Common::urlFileExists($url . '/repodata', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-                    // $this->logOutput(' - ' . $url . ' (unreachable or nothing here?)' . PHP_EOL);
-
+                if (!\Controllers\Common::urlFileExists($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
                     /**
                      *  Remove unreachable URL from array
                      */
@@ -546,18 +544,16 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  Print an error and quit if no valid/reachable URL has been found
+         *  Remove all empty subarray of $this->archUrls and print an error and quit if no valid/reachable URL has been found
          */
-        if (empty($this->archUrls)) {
-            $this->logError('No reachable URL found');
+        if (empty(array_filter($this->archUrls))) {
+            $this->logError('No reachable URL found. The source repository URL might be incorrect or unreachable', 'No reachable URL found');
         }
 
         /**
          *  Retrieve packages for each arch and their URLs
          */
         foreach ($this->archUrls as $this->currentArch => $archUrl) {
-            // $this->logOutput(PHP_EOL . 'Retrieving packages for arch: <b>' . $this->currentArch . '</b>' . PHP_EOL);
-
             foreach ($archUrl as $url) {
                 /**
                  *  Get repomd.xml

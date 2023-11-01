@@ -1,4 +1,4 @@
-@font-face{ font-family: 'ethnocentric'; src: url('../../assets/fonts/ethnocentric rg.ttf') format('truetype'); }
+@font-face{ font-family: 'ethnocentric'; src: url('/assets/fonts/ethnocentric rg.ttf') format('truetype'); }
 
 body {
     display: flex;
@@ -95,7 +95,7 @@ header {
     top: -30px;
     right: -15px;
     border: none;
-    border-radius: 2px;
+    border-radius: 8px;
     color: white;
     padding: 2px 3px;
     text-align: center;
@@ -127,7 +127,7 @@ header {
     right: -9px;
     top: 12px;
     border: none;
-    border-radius: 2px;
+    border-radius: 8px;
     color: white;
     background-color: #ff0044;
     padding: 1px 3px;
@@ -544,20 +544,6 @@ td .label-white, td .label-black, td .label-green, td .label-red, td .label-yell
     vertical-align: middle;
 }
 
-textarea {
-    width: 100%;
-    text-indent: 5px;
-    font-size: 14px;
-    color: white;
-    background-color:#25394b;
-    border-radius: 3px;
-    border: none;
-}
-
-.textarea-100 {
-    min-height: 100px;
-}
-
 .div-flex {
     display: flex;
     justify-content: space-between;
@@ -578,10 +564,6 @@ footer {
      0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
      0px 2px 2px 0px rgba(109, 109, 109, 0.2);
     background-color:#182b3e;
-}
-
-footer div {
-    width: max-content;
 }
 
 footer #github img { width: 25px; }
@@ -693,7 +675,7 @@ footer #github img { width: 25px; }
 }
 
 .profileDiv {
-    border-radius: 2px;
+    border-radius: 8px;
     width: 100%;
     margin-bottom: 2px;
     display: inline-block;
@@ -806,10 +788,10 @@ footer #github img { width: 25px; }
     flex: 0 0 50%;
 }
 
-.operation-form span:not(.onoff-switch-slider) { /* On applique à tous les span de .operation-form sauf ceux ayant la class .onoff-switch-slider */
+/* .operation-form span:not(.onoff-switch-slider) { /* On applique à tous les span de .operation-form sauf ceux ayant la class .onoff-switch-slider
     margin-top: 5px;
     margin-bottom: 5px;
-}
+} */
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
 .operation-form p, .operation-form h3 {

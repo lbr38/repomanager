@@ -115,7 +115,6 @@ class Mirror
      */
     public function download(string $url, string $savePath)
     {
-        $curlError = 0;
         $localFile = fopen($savePath, "w");
 
         /**
@@ -140,12 +139,10 @@ class Mirror
         /**
          *  Execute curl
          */
-        curl_exec($this->curlHandle);
-
-        /**
-         *  If curl has failed (meaning a curl param might be invalid)
-         */
-        if (curl_errno($this->curlHandle)) {
+        if (curl_exec($this->curlHandle) === false) {
+            /**
+             *  If curl has failed (meaning a curl param might be invalid)
+             */
             $this->logError('Curl error: ' . curl_error($this->curlHandle), 'Download error');
 
             curl_close($this->curlHandle);
@@ -221,7 +218,7 @@ class Mirror
      */
     public function logOK()
     {
-        $this->logOutput('<span class="greentext">OK</span>' . PHP_EOL);
+        $this->logOutput('<span class="greentext font-size-13">OK</span>' . PHP_EOL);
     }
 
     /**
@@ -236,7 +233,7 @@ class Mirror
             $exceptionMessage = $errorMessage;
         }
 
-        $this->logOutput('<span class="redtext">' . $errorMessage . '</span>' . PHP_EOL);
+        $this->logOutput('<span class="redtext font-size-13">' . $errorMessage . '</span>' . PHP_EOL);
 
         throw new Exception($exceptionMessage);
     }

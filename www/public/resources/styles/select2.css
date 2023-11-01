@@ -8,6 +8,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   box-sizing: border-box;
   display: inline-block;
   margin: 0;
+  margin: 4px 0 4px 0;
   position: relative;
   vertical-align: middle; }
   .select2-container .select2-selection--single {
@@ -52,7 +53,8 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
     border: none;
     font-size: 100%;
     /* margin-top: 5px; */
-    margin-top: 8px;
+    /* margin-top: 8px; */
+    margin-top: 10px;
     margin-left: 5px;
     padding: 0;
     max-width: 100%;
@@ -97,14 +99,16 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   left: 0; }
 
 .select2-container--open .select2-dropdown--above {
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0; }
+  /* border-bottom: none; */
+  border-radius: 8px;
+  /* border-bottom-left-radius: 0; */
+  /* border-bottom-right-radius: 0; */ }
 
 .select2-container--open .select2-dropdown--below {
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0; }
+  /* border-top: none; */
+  border-radius: 8px;
+  /* border-top-left-radius: 0; */
+  /* border-top-right-radius: 0; */}
 
 .select2-search--dropdown {
   display: block;
@@ -203,11 +207,13 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
 
 .select2-container--default .select2-selection--multiple {
   background-color: #25394b; /* modifié */
-  border-radius: 2px;
+  border-radius: 20px;
   cursor: text;
   padding-bottom: 5px;
+  padding-left: 10px;
   padding-right: 5px;
   height: 100%;
+  min-height: 35px;
   position: relative; }
   .select2-container--default .select2-selection--multiple.select2-selection--clearable {
     padding-right: 25px; }
@@ -294,12 +300,12 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   display: none; }
 
 .select2-container--default.select2-container--open.select2-container--above .select2-selection--single, .select2-container--default.select2-container--open.select2-container--above .select2-selection--multiple {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0; }
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px; }
 
 .select2-container--default.select2-container--open.select2-container--below .select2-selection--single, .select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0; }
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px; }
 
 .select2-container--default .select2-search--dropdown .select2-search__field {
   border: 1px solid #aaa; }
@@ -312,6 +318,7 @@ https://github.com/select2/select2/issues/3278#issuecomment-258481272 : */
   -webkit-appearance: textfield; }
 
 .select2-container--default .select2-results > .select2-results__options {
+  border-radius: 8px;
   max-height: 500px;
   overflow-y: auto; }
 
