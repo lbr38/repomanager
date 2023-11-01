@@ -178,7 +178,6 @@ class Package
              *  If there has been no error so far, then we can move the file to its final location
              */
             if ($uploadError == 0 and file_exists($packageTmpName)) {
-
                 /**
                  *  Create the target dir
                  */
