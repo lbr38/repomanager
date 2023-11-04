@@ -530,7 +530,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
         foreach ($this->archUrls as $arch => $archUrls) {
             foreach ($archUrls as $url) {
-                if (!\Controllers\Common::urlFileExists($url . '/repodata', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                if (!\Controllers\Common::urlFileExists($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
                     // $this->logOutput(' - ' . $url . ' (unreachable or nothing here?)' . PHP_EOL);
 
                     /**
