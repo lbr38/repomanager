@@ -593,7 +593,9 @@ class Common
             curl_setopt($ch, CURLOPT_SSLKEY, $sslPrivateKeyPath);
         }
 
-        curl_exec($ch);
+        if (curl_exec($ch) === false) {
+            return false;
+        }
 
         $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 

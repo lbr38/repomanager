@@ -213,16 +213,16 @@ class Source
         $myprocess = new \Controllers\Process('/usr/bin/gpg --no-default-keyring --keyring ' . GPGHOME . '/trustedkeys.gpg --import ' . $gpgTempFile);
         $myprocess->execute();
 
-        if ($myprocess->getExitCode() != 0) {
-            throw new Exception('Error while importing specified GPG key');
-        }
-
-        $myprocess->close();
-
         /**
          *  Delete temp file
          */
         unlink($gpgTempFile);
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while importing specified GPG key: <br>' . $myprocess->getOutput());
+        }
+
+        $myprocess->close();
     }
 
     /**

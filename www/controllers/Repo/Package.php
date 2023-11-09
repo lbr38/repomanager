@@ -13,10 +13,6 @@ class Package
     {
         $myrepo = new \Controllers\Repo\Repo();
 
-        if (!IS_ADMIN) {
-            throw new Exception('You are not allowed to upload packages.');
-        }
-
         /**
          *  Retrieve repo infos from DB
          */
@@ -45,18 +41,14 @@ class Package
             throw new Exception('Repo directory ' . $repoPath . ' does not exist');
         }
 
-
         /**
-         *  If no files are actually uploaded to the server we quit
+         *  Check each file size to make sure it is not empty
          */
-        if (array_sum($_FILES['packages']['size']) == 0) {
-            throw new Exception('You must upload a file.');
+        foreach ($packages as $package) {
+            if ($package['size'] == 0) {
+                throw new Exception('You must upload a file.');
+            }
         }
-
-        /**
-         *  Sort the list of files transmitted
-         */
-        $packages = \Controllers\Browse::reArrayFiles($_FILES['packages']);
 
         $packageExists = array();      // will contain the list of packages that already exist
         $packagesError = array();      // will contain the list of packages uploaded with an error
@@ -178,7 +170,6 @@ class Package
              *  If there has been no error so far, then we can move the file to its final location
              */
             if ($uploadError == 0 and file_exists($packageTmpName)) {
-
                 /**
                  *  Create the target dir
                  */

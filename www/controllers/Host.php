@@ -880,16 +880,16 @@ class Host
     /**
      *  Vérifie que le couple ID/token est valide
      */
-    public function checkIdToken()
+    public function checkIdToken(string $authId, string $token)
     {
         /**
          *  Si l'ID ou le token est manquant alors on quittes
          */
-        if (empty($this->authId) or empty($this->token)) {
+        if (empty($authId) or empty($token)) {
             return false;
         }
 
-        return $this->model->checkIdToken($this->authId, $this->token);
+        return $this->model->checkIdToken($authId, $token);
     }
 
     /**

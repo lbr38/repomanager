@@ -42,7 +42,7 @@ class Settings
         }
 
         if (!defined('REPOS_DIR')) {
-                define('REPOS_DIR', '/home/repo');
+            define('REPOS_DIR', '/home/repo');
         }
 
         if (!is_writable(REPOS_DIR)) {
@@ -81,15 +81,19 @@ class Settings
         }
 
         /**
-         *  Paramètres web
+         *  Global settings
          */
         if (!defined('WWW_HOSTNAME')) {
-            if (!empty($settings['WWW_HOSTNAME'])) {
-                define('WWW_HOSTNAME', $settings['WWW_HOSTNAME']);
+            /**
+             *  FQDN file is created by the dockerfile
+             */
+            if (file_exists(ROOT . '/.fqdn')) {
+                define('WWW_HOSTNAME', trim(file_get_contents(ROOT . '/.fqdn')));
             } else {
                 define('WWW_HOSTNAME', 'localhost');
             }
         }
+
         if (!defined('WWW_REPOS_DIR_URL')) {
             define('WWW_REPOS_DIR_URL', __SERVER_PROTOCOL__ . '://' . WWW_HOSTNAME . '/repo');
         }

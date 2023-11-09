@@ -62,7 +62,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Last plan (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
+                                <a href="/plans">Last planification (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Next plan (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
+                                <a href="/plans">Next planification (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>

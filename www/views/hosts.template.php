@@ -139,9 +139,18 @@
                             <div id="hosts-requiring-reboot-chart-list">
                                 <?php
                                 foreach ($rebootRequiredList as $rebootRequiredHost) : ?>
-                                    <div class="flex align-item-center">
-                                        <?= \Controllers\Common::printOsIcon($rebootRequiredHost['Os']) ?>
-                                        <span><?= $rebootRequiredHost['Hostname'] . ' (' . $rebootRequiredHost['Ip'] . ')' ?></span>
+                                    <div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">
+                                        <div>
+                                            <?= \Controllers\Common::printOsIcon($rebootRequiredHost['Os']) ?>
+                                        </div>
+                                        <div class="flex flex-direction-column row-gap-4">
+                                            <span class="copy">
+                                                <a href="/host?id=<?= $rebootRequiredHost['Id'] ?>" target="_blank" rel="noopener noreferrer">
+                                                    <?= $rebootRequiredHost['Hostname'] ?>
+                                                </a>
+                                            </span>
+                                            <span class="copy font-size-12 lowopacity-cst" title="<?= $rebootRequiredHost['Hostname'] ?> IP address"><?= $rebootRequiredHost['Ip'] ?></span>
+                                        </div>
                                     </div>
                                     <?php
                                 endforeach; ?>

@@ -14,7 +14,6 @@ $snapId = __ACTUAL_URI__[2];
 /**
  *  Retrieve repo infos from DB
  */
-// $myrepo->setSnapId($snapId);
 $myrepo->getAllById('', $snapId, '');
 
 /**
@@ -28,8 +27,12 @@ $reconstruct = $myrepo->getReconstruct();
 if (!empty($_POST['action']) and $_POST['action'] == 'uploadPackage' and !empty($_POST['snapId']) and is_numeric($_POST['snapId']) and !empty($_FILES['packages'])) {
     $myrepoPackage = new \Controllers\Repo\Package();
 
+    if (!IS_ADMIN) {
+        throw new Exception('You are not allowed to upload packages.');
+    }
+
     try {
-        $myrepoPackage->upload($_POST['snapId'], $_FILES['packages']);
+        $myrepoPackage->upload($_POST['snapId'], \Controllers\Browse::reArrayFiles($_FILES['packages']));
         $uploadSuccessMessage = '<br>Packages uploaded successfully';
     } catch (\Exception $e) {
         $uploadErrorMessage = $e->getMessage();

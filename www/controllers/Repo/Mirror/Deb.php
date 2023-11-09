@@ -475,7 +475,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         if (file_exists($this->workingDir . '/InRelease')) {
             $this->checkGPGSignature($this->workingDir . '/InRelease');
         } elseif (file_exists($this->workingDir . '/Release.gpg')) {
-            $this->checkGPGSignature($this->workingDir . '/Release.gpg');
+            $this->checkGPGSignature($this->workingDir . '/Release.gpg', $this->workingDir . '/Release');
         }
 
         $this->logOK();
@@ -485,9 +485,20 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      *  Check GPG signature of specified file
      *  (DEB mirror)
      */
-    private function checkGPGSignature(string $file)
+    private function checkGPGSignature(string $signatureFile, string $clearFile = null)
     {
-        $myprocess = new \Controllers\Process('gpgv --homedir ' . GPGHOME . ' ' . $file);
+        /**
+         *  If a clear file exists (e.g. Release) then specify it as second argument, as suggested by gpgv:
+         *    Please remember that the signature file (.sig or .asc)
+         *    should be the first file given on the command line.
+         *  e.g. gpgv --homedir /var/lib/repomanager/.gnupg/ Release.gpg Release
+         */
+        if (!empty($clearFile)) {
+            $myprocess = new \Controllers\Process('gpgv --homedir ' . GPGHOME . ' ' . $signatureFile . ' ' . $clearFile);
+        } else {
+            $myprocess = new \Controllers\Process('gpgv --homedir ' . GPGHOME . ' ' . $signatureFile);
+        }
+
         $myprocess->execute();
         $output = $myprocess->getOutput();
         $myprocess->close();
@@ -496,7 +507,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  If gpgv returned an error then signature is invalid
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('No GPG key could verify the signature of downloaded file ' . $file . ': ' . PHP_EOL . $output, 'Error while checking GPG signature');
+            $this->logError('No GPG key could verify the signature of downloaded file ' . $signatureFile . ': ' . PHP_EOL . $output, 'Error while checking GPG signature');
         }
     }
 

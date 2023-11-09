@@ -96,12 +96,14 @@
                 <td>
                     <select class="operation_param" param-name="dist" package-type="deb" multiple>
                         <optgroup label="Debian">
+                            <option value="stretch">stretch (Debian 9)</option>
                             <option value="buster">buster (Debian 10)</option>
                             <option value="bullseye">bullseye (Debian 11)</option>
                             <option value="bookworm">bookworm (Debian 12)</option>
                         </optgroup>
                         <optgroup label="Ubuntu">
                             <option value="focal">focal (Ubuntu 20.04)</option>
+                            <option value="hirsute">hirsute (Ubuntu 21.04)</option>
                             <option value="jammy">jammy (Ubuntu 22.04)</option>
                         </optgroup>
                     </select>

@@ -424,7 +424,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os, Os_family FROM hosts
+            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts
             WHERE Kernel = :kernel
             AND Status = 'active'
             ORDER BY Hostname ASC");
@@ -449,7 +449,7 @@ class Host extends Model
         $hosts = array();
 
         try {
-            $stmt = $this->db->prepare("SELECT Hostname, Ip, Os, Os_family FROM hosts
+            $stmt = $this->db->prepare("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts
             WHERE Profile = :profile
             AND Status = 'active'
             ORDER BY Hostname ASC");
@@ -749,7 +749,7 @@ class Host extends Model
     {
         $hosts = array();
 
-        $result = $this->db->query("SELECT Hostname, Ip, Os, Os_family FROM hosts WHERE Status = 'active' AND Reboot_required = 'true' ORDER BY Hostname ASC");
+        $result = $this->db->query("SELECT Id, Hostname, Ip, Os, Os_family FROM hosts WHERE Status = 'active' AND Reboot_required = 'true' ORDER BY Hostname ASC");
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $hosts[] = $row;

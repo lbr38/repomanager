@@ -1,22 +1,23 @@
 <footer>
     <div>
         <h5>HELP</h5>
-        <div>
-            <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
-                <p class="lowopacity">Documentation<img src="/assets/icons/external-link.svg" class="icon" /></p>
-            </a>
-            <br>
-            <a href="mailto:repomanager@protonmail.com">
-                <p class="lowopacity">Contact</p>
-            </a>
-        </div>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager/wiki">
+            <span class="lowopacity">Documentation<img src="/assets/icons/external-link.svg" class="icon" /></span>
+        </a>
+        
+        <br><br>
+        
+        <a href="mailto:repomanager@protonmail.com">
+             <span class="lowopacity">Contact</span>
+        </a>
+    
     </div>
 
     <div>
         <h5>GITHUB</h5>
-        <div class="lowopacity">
+        <span class="lowopacity">
             <a target="_blank" rel="noopener noreferrer" href="https://github.com/lbr38/repomanager" id="github"><img src="/assets/images/github.png" /></a>
-        </div>
+        </span>
     </div>    
 
     <div class="text-center margin-auto">

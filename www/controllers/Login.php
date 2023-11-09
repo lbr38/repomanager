@@ -419,7 +419,7 @@ class Login
     }
 
     /**
-     *  Check if API key is part of one of the hashed API key in database
+     *  Return true if API key is part of one of the hashed API key in database
      */
     public function apiKeyValid(string $apiKey)
     {
@@ -437,6 +437,38 @@ class Login
              */
             if (password_verify($apiKey, $user['Api_key'])) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     *  Return true if specified API key is an Admin API key
+     */
+    public function apiKeyIsAdmin(string $apiKey)
+    {
+        /**
+         *  Get all users to retrieve their API key
+         */
+        $usersList = $this->model->getUsers();
+
+        /**
+         *  Loop through all users API key
+         */
+        foreach ($usersList as $user) {
+            /**
+             *  Test if specified API key is one of the users API key
+             */
+            if (password_verify($apiKey, $user['Api_key'])) {
+                /**
+                 *  Then check if user is an Admin
+                 */
+                if ($user['Role_name'] === 'super-administrator' or $user['Role_name'] === 'administrator') {
+                    return true;
+                }
+
+                return false;
             }
         }
 

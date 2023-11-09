@@ -5,54 +5,33 @@ namespace Controllers\Api\Host;
 use Exception;
 use Datetime;
 
-class Host
+class Host extends \Controllers\Api\Controller
 {
-    private $hostController;
-    private $method;
     private $component;
     private $action;
-    private $data;
-    private $apiKeyAuthentication = false;
-    private $hostAuthentication = false;
-
-    public function __construct(string $method, array $uri, object $data)
-    {
-        $this->hostController = new \Controllers\Host();
-        $this->method = $method;
-
-        /**
-         *  Retrive component and action from URI
-         */
-        if (isset($uri[4])) {
-            $this->component = $uri[4];
-        }
-        if (isset($uri[5])) {
-            $this->action = $uri[5];
-        }
-
-        $this->data = $data;
-    }
-
-    public function setApiKeyAuthentication(bool $apiKeyAuthentication)
-    {
-        $this->apiKeyAuthentication = $apiKeyAuthentication;
-    }
-
-    public function setHostAuthentication(bool $hostAuthentication)
-    {
-        $this->hostAuthentication = $hostAuthentication;
-    }
 
     public function execute()
     {
+        $myhost = new \Controllers\Host();
+
+        /**
+         *  Retrieve component and action from URI
+         */
+        if (isset($this->uri[4])) {
+            $this->component = $this->uri[4];
+        }
+        if (isset($this->uri[5])) {
+            $this->action = $this->uri[5];
+        }
+
         /**
          *  Retrieve ip and hostname from data sent
          */
         if (!empty($this->data->ip)) {
-            $this->hostController->setIp($this->data->ip);
+            $myhost->setIp($this->data->ip);
         }
         if (!empty($this->data->hostname)) {
-            $this->hostController->setHostname($this->data->hostname);
+            $myhost->setHostname($this->data->hostname);
         }
 
         /**
@@ -68,7 +47,7 @@ class Host
                  */
                 if ($this->method == 'GET') {
                     try {
-                        $list = $this->hostController->listAll();
+                        $list = $myhost->listAll();
                         return array('results' => $list);
                     } catch (Exception $e) {
                         throw new Exception('Hosts listing has failed.');
@@ -85,27 +64,26 @@ class Host
             /**
              *  Register a new host
              *  https://repomanager.mydomain.net/api/v2/host/registering
-             *  Registering is the only request that does not require authentication as it is used to register a new host which does not have any authentication yet
              */
             if ($this->component == 'registering' and $this->method == 'POST') {
                 /**
                  *  Try registering the host
                  */
-                $this->hostController->register();
+                $myhost->register();
 
                 /**
                  *  If register is successful, then return generated id and token
                  */
-                return array('message' => array('Host successfully registered.'), 'results' => array('id' => $this->hostController->getAuthId(), 'token' => $this->hostController->getToken()));
+                return array('message' => array('Host successfully registered.'), 'results' => array('id' => $myhost->getAuthId(), 'token' => $myhost->getToken()));
             }
 
             /**
              *  Retrieve host database Id if its authId has been specified, it will be useful for next operations
              */
-            if (!empty($this->data->id)) {
+            if (!empty($this->hostId)) {
                 try {
-                    $this->hostController->setAuthId($this->data->id);
-                    $this->hostController->setId($this->hostController->getIdByAuth());
+                    $myhost->setAuthId($this->hostId);
+                    $myhost->setId($myhost->getIdByAuth());
                 } catch (Exception $e) {
                     throw new Exception('Coult not retrieve host Id in database');
                 }
@@ -115,13 +93,13 @@ class Host
              *  Following requests are only available if host authentication is valid and
              *  database Id has been retrieved
              */
-            if ($this->hostAuthentication === true and !empty($this->hostController->getId())) {
+            if ($this->hostAuthentication === true and !empty($myhost->getId())) {
                 /**
                  *  Unregister a host
                  *  https://repomanager.mydomain.net/api/v2/host/registering
                  */
                 if ($this->component == 'registering' and $this->method == 'DELETE') {
-                    $this->hostController->unregister();
+                    $myhost->unregister();
                     return array('message' => array('Host has been deleted.'));
                 }
 
@@ -137,7 +115,7 @@ class Host
                      */
                     if (!empty($this->data->hostname)) {
                         try {
-                            $this->hostController->updateHostname($this->data->hostname);
+                            $myhost->updateHostname($this->data->hostname);
                             $message[] = 'Hostname updated successfully.';
                         } catch (Exception $e) {
                             throw new Exception('Hostname update has failed.');
@@ -149,7 +127,7 @@ class Host
                      */
                     if (!empty($this->data->os)) {
                         try {
-                            $this->hostController->updateOS($this->data->os);
+                            $myhost->updateOS($this->data->os);
                             $message[] = 'OS updated successfully.';
                         } catch (Exception $e) {
                             throw new Exception('OS update has failed.');
@@ -161,7 +139,7 @@ class Host
                      */
                     if (!empty($this->data->os_version)) {
                         try {
-                            $this->hostController->updateOsVersion($this->data->os_version);
+                            $myhost->updateOsVersion($this->data->os_version);
                             $message[] = 'OS version updated successfully.';
                         } catch (Exception $e) {
                             throw new Exception('OS version update has failed.');
@@ -173,7 +151,7 @@ class Host
                      */
                     if (!empty($this->data->os_family)) {
                         try {
-                            $this->hostController->updateOsFamily($this->data->os_family);
+                            $myhost->updateOsFamily($this->data->os_family);
                             $message[] = 'OS family updated successfully.';
                         } catch (Exception $e) {
                             throw new Exception('OS family update has failed.');
@@ -185,7 +163,7 @@ class Host
                      */
                     if (!empty($this->data->type)) {
                         try {
-                            $this->hostController->updateType($this->data->type);
+                            $myhost->updateType($this->data->type);
                             $message[] = 'Virtualization type updated successfully.';
                         } catch (Exception $e) {
                             throw new Exception('Virtualization type update has failed.');
@@ -197,7 +175,7 @@ class Host
                      */
                     if (!empty($this->data->kernel)) {
                         try {
-                            $this->hostController->updateKernel($this->data->kernel);
+                            $myhost->updateKernel($this->data->kernel);
                             $message[] = "Kernel updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Kernel update has failed.');
@@ -209,7 +187,7 @@ class Host
                      */
                     if (!empty($this->data->arch)) {
                         try {
-                            $this->hostController->updateArch($this->data->arch);
+                            $myhost->updateArch($this->data->arch);
                             $message[] = "Arch updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Arch update has failed.');
@@ -221,7 +199,7 @@ class Host
                      */
                     if (!empty($this->data->profile)) {
                         try {
-                            $this->hostController->updateProfile($this->data->profile);
+                            $myhost->updateProfile($this->data->profile);
                             $message[] = "Profile updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Profile update has failed.');
@@ -233,7 +211,7 @@ class Host
                      */
                     if (!empty($this->data->env)) {
                         try {
-                            $this->hostController->updateEnv($this->data->env);
+                            $myhost->updateEnv($this->data->env);
                             $message[] = "Environment updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Environment update has failed.');
@@ -245,7 +223,7 @@ class Host
                      */
                     if (!empty($this->data->agent_status)) {
                         try {
-                            $this->hostController->updateAgentStatus($this->data->agent_status);
+                            $myhost->updateAgentStatus($this->data->agent_status);
                             $message[] = "Agent status updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Agent status update has failed.');
@@ -257,7 +235,7 @@ class Host
                      */
                     if (!empty($this->data->linupdate_version)) {
                         try {
-                            $this->hostController->updateLinupdateVersion($this->data->linupdate_version);
+                            $myhost->updateLinupdateVersion($this->data->linupdate_version);
                             $message[] = "Linupdate version updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Linupdate version update has failed.');
@@ -269,7 +247,7 @@ class Host
                      */
                     if (!empty($this->data->reboot_required)) {
                         try {
-                            $this->hostController->updateRebootRequired($this->data->reboot_required);
+                            $myhost->updateRebootRequired($this->data->reboot_required);
                             $message[] = "Reboot status updated successfully.";
                         } catch (Exception $e) {
                             throw new Exception('Reboot status update has failed.');
@@ -294,7 +272,7 @@ class Host
                          */
                         if (!empty($this->data->installed_packages)) {
                             try {
-                                $this->hostController->setPackagesInventory($this->data->installed_packages);
+                                $myhost->setPackagesInventory($this->data->installed_packages);
                                 return array('message' => array('Installed packages updated successfully.'));
                             } catch (Exception $e) {
                                 throw new Exception('Installed packages update has failed.');
@@ -312,7 +290,7 @@ class Host
                          */
                         if (!empty($this->data->available_packages)) {
                             try {
-                                $this->hostController->setPackagesAvailable($this->data->available_packages);
+                                $myhost->setPackagesAvailable($this->data->available_packages);
                                 return array('message' => array('Available packages updated successfully.'));
                             } catch (Exception $e) {
                                 throw new Exception('Available packages update has failed.');
@@ -330,7 +308,7 @@ class Host
                          */
                         if (!empty($this->data->events)) {
                             try {
-                                $this->hostController->setEventsFullHistory($this->data->events);
+                                $myhost->setEventsFullHistory($this->data->events);
                                 return array('message' => array('Package events history updated successfully.'));
                             } catch (Exception $e) {
                                 throw new Exception('Package events history update has failed.');
@@ -352,7 +330,7 @@ class Host
                      */
                     if (!empty($this->data->status) and ($this->action == 'packages-update' or $this->action == 'general-status-update' or $this->action == 'packages-status-update' or $this->action == 'full-history-update') and $this->method == 'PUT') {
                         try {
-                            $this->hostController->acknowledgeRequest($this->action, $this->data->status);
+                            $myhost->acknowledgeRequest($this->action, $this->data->status);
                             return array('message' => 'Acknowledge has been taken into account.');
                         } catch (Exception $e) {
                             throw new Exception($e->getMessage());
