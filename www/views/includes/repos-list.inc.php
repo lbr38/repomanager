@@ -112,7 +112,7 @@ if (!empty($groupsList)) {
                                 $printEmptyLine = true;
                                 $envCounter = 1;
                             }
-                            if ($name == $previousName and $releaseVersion == $repoLastReleaseVersion) {
+                            if ($name == $previousName and $releaseVersion == $previousReleaseVersion) {
                                 $printReleaseVersion = false;
                             }
                         }
@@ -355,9 +355,8 @@ if (!empty($groupsList)) {
                         }
                         echo '</div>';
 
-                        // if (!empty($name)) {
-                            $previousName = $name;
-                        // }
+                        $previousName = $name;
+
                         if (!empty($dist)) {
                             $previousDist = $dist;
                         }
@@ -365,14 +364,10 @@ if (!empty($groupsList)) {
                             $previousSection = $section;
                         }
                         if (!empty($releaseVersion)) {
-                            $repoLastReleaseVersion = $releaseVersion;
+                            $previousReleaseVersion = $releaseVersion;
                         }
-                        // if (!empty($snapId)) {
-                            $previousSnapId = $snapId;
-                        // }
-                        // if (!empty($packageType)) {
-                            $previousPackageType = $packageType;
-                        // }
+                        $previousSnapId = $snapId;
+                        $previousPackageType = $packageType;
                     endforeach ?>
                 </div>
                 <?php

@@ -51,7 +51,6 @@ class Repo
     private $gpgCheck;
     private $gpgResign;
     private $workingDir;
-    private $rpmSignMethod = RPM_SIGN_METHOD;
     private $onlySyncDifference = 'no';
 
     public function __construct()
@@ -834,13 +833,11 @@ class Repo
 
                         if ($packageType == 'rpm') {
                             if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
-                                // exec('rm -rf ' . REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName, $output, $result);
                                 $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
                             }
                         }
                         if ($packageType == 'deb') {
                             if (is_dir(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection)) {
-                                // exec('rm -rf ' . REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection, $output, $result);
                                 $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
                             }
                         }

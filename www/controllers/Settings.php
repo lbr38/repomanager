@@ -99,9 +99,6 @@ class Settings
             }
         }
 
-        // hardcoded for now
-        $settingsToApply['RPM_SIGN_METHOD'] = 'rpmsign';
-
         if (!empty($sendSettings['releasever']) and is_numeric($sendSettings['releasever'])) {
             $settingsToApply['RELEASEVER'] = $sendSettings['releasever'];
         }
@@ -117,14 +114,6 @@ class Settings
             }
 
             $settingsToApply['RPM_DEFAULT_ARCH'] = $rpmDefaultArch;
-        }
-
-        if (!empty($sendSettings['rpmIncludeSource'])) {
-            if ($sendSettings['rpmIncludeSource'] == "true") {
-                $settingsToApply['RPM_INCLUDE_SOURCE'] = 'true';
-            } else {
-                $settingsToApply['RPM_INCLUDE_SOURCE'] = 'false';
-            }
         }
 
         /**
@@ -157,14 +146,6 @@ class Settings
             }
 
             $settingsToApply['DEB_DEFAULT_ARCH'] = $debDefaultArch;
-        }
-
-        if (!empty($sendSettings['debIncludeSource'])) {
-            if ($sendSettings['debIncludeSource'] == "true") {
-                $settingsToApply['DEB_INCLUDE_SOURCE'] = 'true';
-            } else {
-                $settingsToApply['DEB_INCLUDE_SOURCE'] = 'false';
-            }
         }
 
         if (!empty($sendSettings['debDefaultTranslation'])) {
@@ -203,9 +184,6 @@ class Settings
                 $settingsToApply['STATS_ENABLED'] = 'false';
             }
         }
-
-        // hardcoded for now
-        $settingsToApply['STATS_LOG_PATH'] = '/var/log/nginx/repomanager_access.log';
 
         /**
          *  Planifications

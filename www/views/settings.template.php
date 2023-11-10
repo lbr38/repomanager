@@ -115,7 +115,9 @@
                         if (empty(EMAIL_RECIPIENT)) {
                             echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } else {
-                            echo '<img id="send-test-email-btn" src="/assets/icons/send.svg" class="icon" title="Send a test email">';
+                            echo '<span class="round-btn-green">';
+                            echo '<img id="send-test-email-btn" src="/assets/icons/send.svg" title="Send a test email">';
+                            echo '</span>';
                         } ?>
                     </div>
                 </div>
@@ -129,7 +131,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Access URL to Repomanager repos directory." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Root URL of repositories. This URL is not browseable, you can browse repositories content by clicking on snapshots in the REPOS tab." />
                     </div>
                     <div>
                         <p>Repos URL</p>
@@ -392,7 +394,9 @@
                                     <input class="env-input" type="text" value="<?= $envName ?>" />
                                 </div>
                                 <div>
-                                    <img src="/assets/icons/delete.svg" class="delete-env-btn icon-lowopacity" env-name="<?= $envName ?>" title="Delete <?= $envName ?> environment"/>
+                                    <span class="round-btn-red">
+                                        <img src="/assets/icons/delete.svg" class="delete-env-btn" env-name="<?= $envName ?>" title="Delete <?= $envName ?> environment"/>
+                                    </span>
                                 </div>
                             </div>
                             <?php

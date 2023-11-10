@@ -21,7 +21,7 @@ class Notification
         $notifications = file_get_contents('https://raw.githubusercontent.com/lbr38/repomanager/stable/notifications/notifications.json');
 
         if ($notifications === false) {
-            throw new Exception('Unable to retrieve notifications');
+            throw new Exception('Unable to retrieve notifications from Github. Resource may be temporarily unavailable.');
         }
 
         $notifications = json_decode($notifications, true);

@@ -30,7 +30,7 @@ class Settings
             /**
              *  Following parameters can be empty, we don't increment the error counter in their case
              */
-            $ignoreEmptyParam = array('STATS_LOG_PATH', 'RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
+            $ignoreEmptyParam = array('RPM_DEFAULT_ARCH', 'DEB_DEFAULT_ARCH', 'DEB_DEFAULT_TRANSLATION', 'REPO_CONF_FILES_PREFIX');
 
             if (in_array($key, $ignoreEmptyParam)) {
                 continue;
@@ -152,10 +152,6 @@ class Settings
             }
         }
 
-        if (!defined('RPM_SIGN_METHOD')) {
-            define('RPM_SIGN_METHOD', 'rpmsign');
-        }
-
         if (!defined('RELEASEVER')) {
             if (!empty($settings['RELEASEVER'])) {
                 define('RELEASEVER', $settings['RELEASEVER']);
@@ -176,14 +172,6 @@ class Settings
                 define('RPM_DEFAULT_ARCH', explode(',', $settings['RPM_DEFAULT_ARCH']));
             } else {
                 define('RPM_DEFAULT_ARCH', array());
-            }
-        }
-
-        if (!defined('RPM_INCLUDE_SOURCE')) {
-            if (!empty($settings['RPM_INCLUDE_SOURCE'])) {
-                define('RPM_INCLUDE_SOURCE', $settings['RPM_INCLUDE_SOURCE']);
-            } else {
-                define('RPM_INCLUDE_SOURCE', 'false');
             }
         }
 
@@ -209,14 +197,6 @@ class Settings
                 define('DEB_DEFAULT_ARCH', explode(',', $settings['DEB_DEFAULT_ARCH']));
             } else {
                 define('DEB_DEFAULT_ARCH', array());
-            }
-        }
-
-        if (!defined('DEB_INCLUDE_SOURCE')) {
-            if (!empty($settings['DEB_INCLUDE_SOURCE'])) {
-                define('DEB_INCLUDE_SOURCE', $settings['DEB_INCLUDE_SOURCE']);
-            } else {
-                define('DEB_INCLUDE_SOURCE', 'false');
             }
         }
 
@@ -251,22 +231,17 @@ class Settings
             }
         }
 
-        if (STATS_ENABLED == "true") {
+        if (STATS_ENABLED == 'true') {
             if (!defined('STATS_LOG_PATH')) {
-                if (!empty($settings['STATS_LOG_PATH'])) {
-                    define('STATS_LOG_PATH', $settings['STATS_LOG_PATH']);
+                define('STATS_LOG_PATH', '/var/log/nginx/repomanager_access.log');
+            }
 
-                    /**
-                     *  On teste l'accès au chemin renseigné
-                     */
-                    if (!is_readable(STATS_LOG_PATH)) {
-                        ++$__LOAD_SETTINGS_ERROR; // On force l'affichage d'un message d'erreur même si le paramètre n'est pas vide
-                        $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
-                    }
-                } else {
-                    define('STATS_LOG_PATH', '');
-                    $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not defined.";
-                }
+            /**
+             *  Test if log file is readable
+             */
+            if (!is_readable(STATS_LOG_PATH)) {
+                ++$__LOAD_SETTINGS_ERROR;
+                $__LOAD_SETTINGS_MESSAGES[] = "Access log file to scan for statistics is not readable: '" . STATS_LOG_PATH . "'";
             }
         }
 

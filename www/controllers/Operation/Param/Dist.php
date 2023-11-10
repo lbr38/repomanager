@@ -12,7 +12,7 @@ class Dist
             throw new Exception('Distribution name must be specified');
         }
 
-        if (!\Controllers\Common::isAlphanum($dist, array('-', '/'))) {
+        if (!\Controllers\Common::isAlphanum($dist, array('-', '_', '.', '/'))) {
             throw new Exception('Distribution name cannot contain special characters except hyphen');
         }
     }
