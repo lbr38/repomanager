@@ -1,7 +1,7 @@
 # Dockerfile for Repomanager
 
 # Base image
-FROM debian:11
+FROM debian:12-slim
 
 # Metadata
 LABEL version="1.2" maintainer="lbr38 <repomanager@protonmail.com>"
@@ -26,8 +26,8 @@ RUN apt-get install postfix -y
 
 # Add nginx and PHP 8.1 repositories
 RUN curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bullseye/nginx_prod bullseye nginx" > /etc/apt/sources.list.d/nginx.list
-RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/php.list
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-nginx/bookworm/nginx_prod bookworm nginx" > /etc/apt/sources.list.d/nginx.list
+RUN echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
 RUN apt-get update -y
 
 # Install nginx and PHP 8.1

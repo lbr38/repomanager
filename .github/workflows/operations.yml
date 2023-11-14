@@ -11,19 +11,21 @@ jobs:
   run-operations:
     runs-on: ubuntu-latest
     container:
-      image: debian:11
+      image: debian:12-slim
       options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Install dependencies packages
-        run: apt-get update && apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
+        run: |
+          apt-get update -y
+          apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
 
       - name: Setup PHP
         run: |
           curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-          echo "deb https://packages.bespin.ovh/repo/repomanager-php/bullseye/main_prod bullseye main" > /etc/apt/sources.list.d/php.list
+          echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
 
       - name: Install PHP modules
         run: apt-get update && apt-get install -y php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3

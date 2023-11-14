@@ -125,6 +125,10 @@ class Mirror
         curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT); // set timeout
         curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true);                        // follow redirect
         curl_setopt($this->curlHandle, CURLOPT_ENCODING, '');                                // use compression if any
+        curl_setopt($this->curlHandle, CURLOPT_FAILONERROR, true);                           // fail if http return code is >= 400
+        curl_setopt($this->curlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);         // Hardcode http version to 1.1 to avoid curl error 16 (fix https://github.com/lbr38/repomanager/issues/127)
+        // Enable verbose on stderr (debug only):
+        // curl_setopt($this->curlHandle, CURLOPT_VERBOSE, true);
 
         /**
          *  If a custom ssl certificate and private key must be used
@@ -141,9 +145,9 @@ class Mirror
          */
         if (curl_exec($this->curlHandle) === false) {
             /**
-             *  If curl has failed (meaning a curl param might be invalid)
+             *  If curl has failed (meaning a curl param might be invalid or timeout has been reached)
              */
-            $this->logError('Curl error: ' . curl_error($this->curlHandle), 'Download error');
+            $this->logError('Curl error (' . curl_errno($this->curlHandle) . '): ' . curl_error($this->curlHandle), 'Download error');
 
             curl_close($this->curlHandle);
             fclose($localFile);
