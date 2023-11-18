@@ -244,7 +244,7 @@ trait Create
                 }
             }
 
-            $distributionsFileContent = 'Origin: ' . $this->repo->getName() . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
+            $distributionsFileContent  = 'Origin: ' . $this->repo->getName() . ' repo on ' . WWW_HOSTNAME . PHP_EOL;
             $distributionsFileContent .= 'Label: apt repository' . PHP_EOL;
             $distributionsFileContent .= 'Codename: ' . $this->repo->getDist() . PHP_EOL;
             $distributionsFileContent .= 'Suite: stable' . PHP_EOL;
@@ -391,7 +391,7 @@ trait Create
                         /**
                          *  Then build the includeb command from the string generated
                          */
-                        $repreproIncludeParams = 'includedeb ' . $this->repo->getDist() . ' ' . $debFilesConcatenatePaths;
+                        $repreproIncludeParams = '-S ' . $this->repo->getSection() .  ' includedeb ' . $this->repo->getDist() . ' ' . $debFilesConcatenatePaths;
 
                         /**
                          *  Proceed to import those 100 deb packages into the repo

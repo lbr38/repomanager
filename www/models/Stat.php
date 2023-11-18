@@ -147,35 +147,6 @@ class Stat extends Model
     }
 
     /**
-     *  Retourne le détail des requêtes sur le repo/section spécifié, des 5 dernières minutes
-     */
-    public function getLastMinutesAccess(string $name, string $dist = null, string $section = null, string $env)
-    {
-        $timeEnd   = date("H:i:s");
-        $timeStart = date('H:i:s', strtotime('-5 minutes', strtotime($timeEnd)));
-
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Date = '" . DATE_YMD . "' AND Time BETWEEN '$timeStart' AND '$timeEnd' AND Request LIKE :request ORDER BY Date DESC LIMIT 30");
-            if (!empty($dist) and !empty($section)) {
-                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
-            } else {
-                $stmt->bindValue(':request', "%/${name}_${env}/%");
-            }
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $datas = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
-        }
-
-        return $datas;
-    }
-
-    /**
      *  Compte le nombre de requêtes d'accès au repo/section spécifié, sur une date donnée
      */
     public function getDailyAccessCount(string $name, string $dist = null, string $section = null, string $env, string $date)

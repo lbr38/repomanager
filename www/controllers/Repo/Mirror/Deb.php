@@ -411,12 +411,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             if (!empty($packageLocation) and !empty($packageMd5)) {
                                 $packages[] = array('location' => $packageLocation, 'md5sum' => $packageMd5);
                             }
-                            /**
-                             *  Add founded packages to the global array
-                             */
-                            // if (!empty($directory) and !empty($packageLocation) and !empty($packageMd5)) {
-                            //     $this->sourcesPackagesLocation[] = array('location' => $directory . '/' . $packageLocation, 'md5sum' => $packageMd5);
-                            // }
+
                             unset($packageLocation, $packageMd5);
                         }
 

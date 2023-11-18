@@ -9,7 +9,7 @@ class Process
 {
     private $workingDir = ROOT . '/.temp'; // Répertoire de travail pour php
     private $command;
-    private $env;
+    private $env = array('HOME' => ROOT, 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');
     private $process;
     private $pipes;
     private $pid;
@@ -20,11 +20,6 @@ class Process
     public function __construct(string $command, array $env = null)
     {
         $this->command = $command;
-
-        /**
-         *  Define minimal environment variables for this process
-         */
-        $this->env = array('HOME' => ROOT);
 
         /**
          *  If others env vars have been specified then add them

@@ -11,7 +11,7 @@ services:
       args:
         env: devel
         fqdn: repomanager-dev.localhost
-        max_upload_size: 32M
+        max_upload_size: 64M
     restart: always
     ports:
       - "8080:8080"

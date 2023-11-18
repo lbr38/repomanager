@@ -41,7 +41,7 @@
 
     <div id="repo-access-chart-div" class="div-generic-blue">
         <?php
-        if (!empty($repoAccessChartLabels) and !empty($repoAccessChartData)) : ?>
+        if (!empty($repoAccessChartDates) and !empty($repoAccessChartData)) : ?>
             <span class="btn-small-green repo-access-chart-filter-button" filter="1week">1 week</span>
             <span class="btn-small-green repo-access-chart-filter-button" filter="1month">1 month</span>
             <span class="btn-small-green repo-access-chart-filter-button" filter="3months">3 months</span>
@@ -55,7 +55,7 @@
                  *  Utilisés par jqeury pour récupérer de nouvelles valeurs en fonction du filtre choisi par l'utilisateur (1week...)
                  */ ?>
                 <canvas id="repo-access-chart">
-                    <span id="repo-access-chart-labels" labels="<?= $repoAccessChartLabels ?>"></span>
+                    <span id="repo-access-chart-labels" labels="<?= $repoAccessChartDates ?>"></span>
                     <span id="repo-access-chart-data" data="<?= $repoAccessChartData ?>"></span>
                 </canvas>
 
@@ -64,7 +64,7 @@
                     var myRepoAccessChart = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: [<?= $repoAccessChartLabels ?>],
+                            labels: [<?= $repoAccessChartDates ?>],
                             datasets: [{
                                 data: [<?= $repoAccessChartData ?>],
                                 label: "Total access",
