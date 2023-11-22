@@ -9,7 +9,6 @@ class Gpg
     private $length = 4096;
     private $name = 'Repomanager';
     private $description = 'Repomanager GPG signing key';
-    private $keyId = GPG_SIGNING_KEYID;
     private $passphrase = '';
 
     /**
@@ -175,7 +174,7 @@ class Gpg
         $template .= 'Key-Usage: sign' . PHP_EOL;
         $template .= 'Name-Real: ' . $this->name . PHP_EOL;
         $template .= 'Name-Comment: ' . $this->description . PHP_EOL;
-        $template .= 'Name-Email: ' . $this->keyId . PHP_EOL;
+        $template .= 'Name-Email: ' . GPG_SIGNING_KEYID . PHP_EOL;
         $template .= 'Expire-Date: 0' . PHP_EOL;
         $template .= 'Passphrase: ' . $this->passphrase . PHP_EOL;
 
@@ -209,7 +208,7 @@ class Gpg
          *  Write passphrase to file
          */
         if (!file_put_contents(PASSPHRASE_FILE, $this->passphrase)) {
-            throw new Exception('Cannot write to: ' . PASSPHRASE_FILE);
+            throw new Exception('Cannot write passphrase to: ' . PASSPHRASE_FILE);
         }
 
         unset($template, $myprocess);
@@ -263,7 +262,7 @@ class Gpg
         if (!file_exists(MACROS_FILE)) {
             $configuration = '%__gpg /usr/bin/gpg2' . PHP_EOL;
             $configuration .= '%_gpg_path ' . GPGHOME . PHP_EOL;
-            $configuration .= '%_gpg_name ' . $this->keyId . PHP_EOL;
+            $configuration .= '%_gpg_name ' . GPG_SIGNING_KEYID . PHP_EOL;
             $configuration .= '%_gpg_passphrase_file ' . PASSPHRASE_FILE . PHP_EOL;
             $configuration .= '%__gpg_sign_cmd %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase-file %{_gpg_passphrase_file} %{?_gpg_digest_algo:--digest-algo %{_gpg_digest_algo}} --no-secmem-warning -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}';
 

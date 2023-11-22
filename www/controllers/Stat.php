@@ -46,14 +46,6 @@ class Stat
     }
 
     /**
-     *  Retourne le détail des requêtes sur le repo/section spécifié, des 5 dernières minutes
-     */
-    public function getLastMinutesAccess(string $name, string $dist = null, string $section = null, string $env)
-    {
-        return $this->model->getLastMinutesAccess($name, $dist, $section, $env);
-    }
-
-    /**
      *  Compte le nombre de requêtes d'accès au repo/section spécifié, sur une date donnée
      */
     public function getDailyAccessCount(string $name, string $dist = null, string $section = null, string $env, string $date)

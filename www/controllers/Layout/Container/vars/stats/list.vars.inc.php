@@ -107,7 +107,7 @@ if ($chartFilter == "1year") {
     $dateCounter = date('Y-m-d', strtotime('-1 year', strtotime(DATE_YMD)));
 }
 
-$repoAccessChartLabels = '';
+$repoAccessChartDates = '';
 $repoAccessChartData = '';
 
 /**
@@ -130,7 +130,7 @@ while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) 
     /**
      *  Add the current date to the labels
      */
-    $repoAccessChartLabels .= "'$dateCounter', ";
+    $repoAccessChartDates .= "'$dateCounter', ";
 
     /**
      *  Increment by 1 day to be able to process the next date
@@ -141,7 +141,7 @@ while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) 
 /**
  *  Remove the last comma
  */
-$repoAccessChartLabels = rtrim($repoAccessChartLabels, ', ');
+$repoAccessChartDates = rtrim($repoAccessChartDates, ', ');
 $repoAccessChartData  = rtrim($repoAccessChartData, ', ');
 
 /**
