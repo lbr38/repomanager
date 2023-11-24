@@ -511,6 +511,31 @@ class Common
     }
 
     /**
+     *  Uncompress bzip2 file
+     */
+    public static function bunzip2(string $filename, string $outputFilename = null)
+    {
+        /**
+         *  If a custom output filename has been specified
+         */
+        if (!empty($outputFilename)) {
+            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k -c ' . $filename . ' > ' . $outputFilename);
+        } else {
+            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k ' . $filename);
+        }
+
+        $myprocess->execute();
+        $content = $myprocess->getOutput();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            throw new Exception('Error while uncompressing bzip2 file ' . $filename . ': ' . $content);
+        }
+
+        unset($myprocess);
+    }
+
+    /**
      *  Uncompress specified gzip file 'file.gz' to 'file'
      */
     public static function gunzip(string $filename)
@@ -573,6 +598,8 @@ class Common
         if ($myprocess->getExitCode() != 0) {
             throw new Exception('Error while uncompressing xz file ' . $filename . ': ' . $content);
         }
+
+        unset($myprocess);
     }
 
     /**

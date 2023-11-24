@@ -84,7 +84,7 @@ trait Finalize
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), $this->repo->getTargetGpgResign(), $this->repo->getTargetArch(), $this->repo->getTargetSourcePackage(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), $this->repo->getTargetGpgResign(), $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
@@ -112,6 +112,11 @@ trait Finalize
                 $this->repo->snapSetSigned($this->repo->getSnapId(), $this->repo->getTargetGpgResign());
 
                 /**
+                 *  Update architecture (it could be different from the previous one)
+                 */
+                $this->repo->snapSetArch($this->repo->getSnapId(), $this->repo->getTargetArch());
+
+                /**
                  *  Mise à jour de la date
                  */
                 $this->repo->snapSetDate($this->repo->getSnapId(), date('Y-m-d'));
@@ -128,7 +133,7 @@ trait Finalize
                 /**
                  *  Cas où un nouveau snapshot a été créé, on l'ajoute en base de données
                  */
-                $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), $this->repo->getTargetGpgResign(), $this->repo->getTargetArch(), $this->repo->getTargetSourcePackage(), $this->repo->getTargetPackageTranslation(), 'mirror', 'active', $this->repo->getRepoId());
+                $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), $this->repo->getTargetGpgResign(), $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), 'mirror', 'active', $this->repo->getRepoId());
 
                 /**
                  *  On récupère l'Id du snapshot précédemment créé

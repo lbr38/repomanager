@@ -266,7 +266,6 @@ class Connection extends SQLite3
         Time TIME NOT NULL,
         Signed CHAR(3) NOT NULL,
         Arch VARCHAR(255),
-        Pkg_source CHAR(3),
         Pkg_translation VARCHAR(255),
         Type CHAR(6) NOT NULL,
         Reconstruct CHAR(8), /* needed, running, failed */
@@ -538,7 +537,7 @@ class Connection extends SQLite3
         DEB_SIGN_REPO CHAR(5),
         DEB_DEFAULT_ARCH VARCHAR(255),
         DEB_DEFAULT_TRANSLATION VARCHAR(255),
-        /* GPG signature key */
+        /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Planifications settings */
         PLANS_ENABLED CHAR(5),

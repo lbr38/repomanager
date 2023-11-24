@@ -7,7 +7,7 @@ class Plans
     public static function render()
     {
         \Controllers\Layout\Container\Render::render('repos/list');
-        \Controllers\Layout\Container\Render::render('plans/all');
+        \Controllers\Layout\Container\Render::render('planifications/all');
 
         if (IS_ADMIN) {
             \Controllers\Layout\Panel\RepoGroup::render();

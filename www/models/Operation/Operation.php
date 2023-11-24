@@ -1,10 +1,10 @@
 <?php
 
-namespace Models;
+namespace Models\Operation;
 
 use Exception;
 
-class Operation extends Model
+class Operation extends \Models\Model
 {
     public function __construct()
     {
@@ -39,80 +39,103 @@ class Operation extends Model
     }
 
     /**
-     *  Lister les opérations en cours d'exécution en fonction du type souhaité (opérations manuelles ou planifiées)
+     *  List all running operations
+     *  It is possible to filter the type of operation ('manual' or 'plan')
+     *  It is possible to add an offset to the request
      */
-    public function listRunning(string $type = '')
+    public function listRunning(string $type, bool $withOffset, int $offset)
     {
+        $data = array();
+
         /**
-         *  Cas où on souhaite tous les types
+         *  Case where we want all types
          */
         try {
             if (empty($type)) {
-                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' ORDER BY Date DESC, Time DESC");
+                $query = "SELECT * FROM operations
+                WHERE Status = 'running'
+                ORDER BY Date DESC, Time DESC";
 
             /**
-             *  Cas où souhaite filtrer par un type en particulier
+             *  Case where we want to filter by operation type only
              */
             } else {
-                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'running' and Type = :type ORDER BY Date DESC, Time DESC");
-                $stmt->bindValue(':type', $type);
+                $query = "SELECT * FROM operations
+                WHERE Status = 'running' and Type = :type
+                ORDER BY Date DESC, Time DESC";
             }
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
-        $operations = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $operations[] = $datas;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
         }
 
-        return $operations;
+        return $data;
     }
 
     /**
-     *  Lister les opérations terminées (avec ou sans erreurs)
-     *  Il est possible de filtrer le type d'opération ('manual' ou 'plan')
-     *  Il est possible de filtrer si le type de planification qui a lancé cette opération ('plan' ou 'regular' (planification unique ou planification récurrente))
+     *  List all done operations (with or without errors)
+     *  It is possible to filter the type of operation ('manual' or 'plan')
+     *  It is possible to filter the type of planification that launched this operation ('plan' or 'regular' (unique planification or recurrent planification))
+     *  It is possible to add an offset to the request
      */
-    public function listDone(string $type = '', string $planType = '')
+    public function listDone(string $type, string $planType, bool $withOffset, int $offset)
     {
+        $data = array();
+
         try {
             /**
-             *  Cas où on souhaite tous les types
+             *  Case where we want all types
              */
             if (empty($type) and empty($planType)) {
-                $stmt = $this->db->prepare("SELECT * FROM operations WHERE Status = 'error' or Status = 'done' or Status = 'stopped' ORDER BY Date DESC, Time DESC");
+                $query = "SELECT * FROM operations
+                WHERE Status = 'error' or Status = 'done' or Status = 'stopped'
+                ORDER BY Date DESC, Time DESC";
             }
 
             /**
-             *  Cas où on filtre par type d'opération seulement
+             *  Case where we want to filter by operation type only
              */
             if (!empty($type) and empty($planType)) {
-                $stmt = $this->db->prepare("SELECT * FROM operations
+                $query = "SELECT * FROM operations
                 WHERE Type = :type and (Status = 'error' or Status = 'done' or Status = 'stopped')
-                ORDER BY Date DESC, Time DESC");
-                $stmt->bindValue(':type', $type);
+                ORDER BY Date DESC, Time DESC";
             }
 
             /**
-             *  Cas où on filtre par type de planification seulement
+             *  Case where we want to filter by planification type only
              */
             if (empty($type) and !empty($planType)) {
-                $stmt = $this->db->prepare("SELECT * FROM operations 
+                $query = "SELECT * FROM operations 
                 INNER JOIN planifications
                 ON operations.Id_plan = planifications.Id
                 WHERE planifications.Type = :plantype and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
-                ORDER BY operations.Date DESC, operations.Time DESC");
-                $stmt->bindValue(':plantype', $planType);
+                ORDER BY operations.Date DESC, operations.Time DESC";
             }
 
             /**
-             *  Cas où on filtre par type d'opération ET par type de planification
+             *  Case where we want to filter by operation type AND planification type
              */
             if (!empty($type) and !empty($planType)) {
-                $stmt = $this->db->prepare("SELECT
+                $query = "SELECT
                 operations.Id,
                 operations.Date,
                 operations.Time,
@@ -133,22 +156,39 @@ class Operation extends Model
                 WHERE operations.Type = :type
                 and planifications.Type = :plantype
                 and (operations.Status = 'error' or operations.Status = 'done' or operations.Status = 'stopped')
-                ORDER BY operations.Date DESC, operations.Time DESC");
-                $stmt->bindValue(':type', $type);
-                $stmt->bindValue(':plantype', $planType);
+                ORDER BY operations.Date DESC, operations.Time DESC";
             }
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+
+            /**
+             *  Bind values if exists
+             */
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':plantype', $planType);
+            $stmt->bindValue(':type', $type);
+            $stmt->bindValue(':plantype', $planType);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
-        $datas = array();
-
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
     }
 
     /**

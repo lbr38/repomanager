@@ -1,7 +1,4 @@
 <?php
-/**
- *  v1.0
- */
 
 define('ROOT', '/var/www/repomanager');
 

@@ -46,6 +46,21 @@ if ($action == "getContainerState") {
 }
 
 /**
+ *  Return specified table content
+ */
+if ($action == "getTable" && !empty($_POST['table']) && isset($_POST['offset'])) {
+    try {
+        ob_start();
+        \Controllers\Layout\Table\Render::render($_POST['table'], $_POST['offset']);
+        $content = ob_get_clean();
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, $content);
+}
+
+/**
  *  Return specified alert confirm box content
  */
 if ($action == "getConfirmBox" && !empty($_POST['name'])) {

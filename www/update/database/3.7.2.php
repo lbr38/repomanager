@@ -10,7 +10,7 @@ $mysource = new \Controllers\Source();
  *  How to find Debian missing keys:
  *  1. Start a debian repository mirroring and wait for the 'Error while checking GPG signature' error message
  *  2. Go inside the container and the download directory (e.g. /home/repo/download-mirror-debian-bullseye-contrib-1686917775)
- *  3. Use gpgv to find which signature keys are missing:
+ *  3. Use gpgv to find which signing keys are missing:
  *      gpgv --homedir /var/lib/repomanager/.gnupg/ Release.gpg Release
  *  4. Copy the missing keys ID, and search for them on https://keyserver.ubuntu.com/
  *  5. Import the missing keys

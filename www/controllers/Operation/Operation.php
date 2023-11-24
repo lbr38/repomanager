@@ -30,7 +30,7 @@ class Operation
 
     public function __construct()
     {
-        $this->model = new \Models\Operation();
+        $this->model = new \Models\Operation\Operation();
         $this->profileController = new \Controllers\Profile();
         $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
 
@@ -174,21 +174,24 @@ class Operation
     }
 
     /**
-     *  Lister les opérations en cours d'exécution en fonction du type souhaité (opérations manuelles ou planifiées)
+     *  List all running operations
+     *  It is possible to filter the type of operation ('manual' or 'plan')
+     *  It is possible to add an offset to the request
      */
-    public function listRunning(string $type = '')
+    public function listRunning(string $type = '', bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->listRunning($type);
+        return $this->model->listRunning($type, $withOffset, $offset);
     }
 
     /**
-     *  Lister les opérations terminées (avec ou sans erreurs)
-     *  Il est possible de filtrer le type d'opération ('manual' ou 'plan')
-     *  Il est possible de filtrer si le type de planification qui a lancé cette opération ('plan' ou 'regular' (planification unique ou planification récurrente))
+     *  List all done operations (with or without errors)
+     *  It is possible to filter the type of operation ('manual' or 'plan')
+     *  It is possible to filter the type of planification that launched this operation ('plan' or 'regular' (unique planification or recurrent planification))
+     *  It is possible to add an offset to the request
      */
-    public function listDone(string $type = '', string $planType = '')
+    public function listDone(string $type = '', string $planType = '', bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->listDone($type, $planType);
+        return $this->model->listDone($type, $planType, $withOffset, $offset);
     }
 
     /**
@@ -277,7 +280,7 @@ class Operation
          */
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('plans/planned');
+        $this->layoutContainerStateController->update('planifications/queued-running');
         $this->layoutContainerStateController->update('operations/list');
 
         unset($myplan);
@@ -357,7 +360,7 @@ class Operation
          */
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('plans/planned');
+        $this->layoutContainerStateController->update('planifications/queued-running');
         $this->layoutContainerStateController->update('operations/list');
         $this->layoutContainerStateController->update('browse/list');
         $this->layoutContainerStateController->update('browse/actions');
@@ -406,8 +409,8 @@ class Operation
         $this->layoutContainerStateController->update('header/menu');
         $this->layoutContainerStateController->update('repos/list');
         $this->layoutContainerStateController->update('repos/properties');
-        $this->layoutContainerStateController->update('plans/planned');
-        $this->layoutContainerStateController->update('plans/history');
+        $this->layoutContainerStateController->update('planifications/queued-running');
+        $this->layoutContainerStateController->update('planifications/history');
         $this->layoutContainerStateController->update('operations/list');
         $this->layoutContainerStateController->update('browse/list');
         $this->layoutContainerStateController->update('browse/actions');
@@ -514,102 +517,6 @@ class Operation
         }
 
         return;
-    }
-
-    /**
-     *  Affiche l'état d'une opération
-     */
-    public function printOperation(string $id, bool $startedByPlan = false)
-    {
-        /**
-         *  Récupération de toutes les informations concernant l'opération en base de données
-         */
-        $opInfo = $this->model->getAll($id);
-
-        $action = $opInfo['Action'];
-        $date = $opInfo['Date'];
-        $time = $opInfo['Time'];
-        $status = $opInfo['Status'];
-        $logfile = $opInfo['Logfile'];
-        $poolId = $opInfo['Pool_id'];
-
-        /**
-         *  Défini la position et la couleur du bandeau selon si l'opération a été intiiée par une planification ou non
-         */
-        if ($startedByPlan === true) {
-            $containerClass = 'op-header-container';
-            $subContainerClass = 'header-light-blue';
-        } else {
-            $containerClass = 'header-container';
-            $subContainerClass = 'header-blue';
-        } ?>
-
-        <div class="<?=$containerClass?>">
-            <div class="<?=$subContainerClass?>">
-                <table>
-                    <tr>
-                        <td class="td-fit">
-                            <?php
-                            if ($action == "new") {
-                                echo '<img class="icon" src="/assets/icons/plus.svg" title="New repo" />';
-                            }
-                            if ($action == "update") {
-                                echo '<img class="icon" src="/assets/icons/update.svg" title="Update repo" />';
-                            }
-                            if ($action == "reconstruct") {
-                                echo '<img class="icon" src="/assets/icons/update.svg" title="Rebuild metadata" />';
-                            }
-                            if ($action == "env" or strpos(htmlspecialchars_decode($action), '->') !== false) {
-                                echo '<img class="icon" src="/assets/icons/link.svg" title="Point an environment" />';
-                            }
-                            if ($action == "duplicate") {
-                                echo '<img class="icon" src="/assets/icons/duplicate.svg" title="Duplicate" />';
-                            }
-                            if ($action == "delete" or $action == "removeEnv") {
-                                echo '<img class="icon" src="/assets/icons/delete.svg" title="Delete" />';
-                            } ?>
-                        </td>
-                        <td class="td-small pointer show-logfile-btn" logfile="<?= $logfile ?>">
-                            <b><?=$date?> <?=$time?></b>
-                        </td>
-
-                        <td>
-                            <?php
-                                $this->printRepoOrGroup($id);
-                            ?>
-                        </td>
-
-                        <td class="td-fit">
-                            <?php
-                            /**
-                             *  Print relaunch button if pool Id JSON file still exists
-                             */
-                            if ($status != 'running' and file_exists(POOL . '/' . $poolId . '.json') and IS_ADMIN) {
-                                echo '<img class="icon-lowopacity relaunch-operation-btn" src="/assets/icons/update.svg" pool-id="' . $poolId . '" title="Relaunch this operation with the same parameters." />';
-                            }
-
-                            /**
-                             *  Affichage de l'icone en cours ou terminée ou en erreur
-                             */
-                            if ($status == "running") {
-                                echo 'running<img src="/assets/images/loading.gif" class="icon" title="running" />';
-                            }
-                            if ($status == "done") {
-                                echo '<img class="icon-small" src="/assets/icons/greencircle.png" title="Operation completed" />';
-                            }
-                            if ($status == "error") {
-                                echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Operation has failed" />';
-                            }
-                            if ($status == "stopped") {
-                                echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Operation stopped by the user" />';
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <?php
     }
 
     /**

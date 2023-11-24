@@ -19,7 +19,7 @@ ARG max_upload_size
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils vim -y
+RUN apt-get install findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils bzip2 vim -y
 
 # Install postfix
 RUN apt-get install postfix -y

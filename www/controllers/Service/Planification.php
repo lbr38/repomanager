@@ -40,7 +40,7 @@ class Planification extends Service
         /**
          *  Get queued plans
          */
-        $plansQueued = $this->planController->listQueue();
+        $plansQueued = $this->planController->getByStatus(array('queued'));
 
         /**
          *  Quit if there is no planification to execute
@@ -174,7 +174,7 @@ class Planification extends Service
         /**
          *  Get queued plans
          */
-        $plansQueued = $this->planController->listQueue();
+        $plansQueued = $this->planController->getByStatus(array('queued'));
 
         /**
          *  Quit if there is no planification to execute

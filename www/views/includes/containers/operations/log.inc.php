@@ -4,28 +4,29 @@
     <div id="log-container">
         <div id="scrollButtons-container">
             <div id="scrollButtons">
-
                 <?php
                 if (!empty($_COOKIE['display-log']) && $_COOKIE['display-log'] == 'true') : ?>
-                    <div id="display-log-btn" display="false" class="button-top-down-details pointer" title="Show/hide details">
+                    <div id="display-log-btn" display="false" class="round-btn-green pointer" title="Show/hide details">
                         <img src="/assets/icons/search.svg" />
                     </div>
                     <?php
                 else : ?>
-                    <div id="display-log-btn" display="true" class="button-top-down-details pointer" title="Show/hide details">
+                    <div id="display-log-btn" display="true" class="round-btn-green pointer" title="Show/hide details">
                         <img src="/assets/icons/search.svg" />
                     </div>
                     <?php
                 endif; ?>
 
-                <br><br>
+                <br>
+
                 <div>
-                    <a href="#top" class="button-top-down" title="Go to the top">
+                    <a href="#top" class="round-btn-green" title="Go to the top">
                         <img src="/assets/icons/up.svg" />
                     </a>
                 </div>
+
                 <div>
-                    <a href="#bottom" class="button-top-down" title="Go to the bottom">
+                    <a href="#bottom" class="round-btn-green" title="Go to the bottom">
                         <img src="/assets/icons/down.svg" />
                     </a>
                 </div>

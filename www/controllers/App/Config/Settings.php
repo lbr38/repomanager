@@ -208,7 +208,7 @@ class Settings
             }
         }
 
-        //  GPG signature key
+        //  GPG signing key
         if (!defined('GPG_SIGNING_KEYID')) {
             if (!empty($settings['GPG_SIGNING_KEYID'])) {
                 define('GPG_SIGNING_KEYID', $settings['GPG_SIGNING_KEYID']);
@@ -217,7 +217,7 @@ class Settings
                  *  Define a default key ID
                  */
                 define('GPG_SIGNING_KEYID', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "GPG signature key Id is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "GPG signing key Id is not defined.";
             }
         }
 

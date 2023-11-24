@@ -60,7 +60,10 @@ $(document).on('mouseleave','.copy',function () {
 /**
  *  Event: copy parent text on click on element with .icon-copy class
  */
-$(document).on('click','.icon-copy',function () {
+$(document).on('click','.icon-copy',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var text = $(this).parent().text().trim();
 
     navigator.clipboard.writeText(text).then(() => {
@@ -68,6 +71,61 @@ $(document).on('click','.icon-copy',function () {
     },() => {
         printAlert('Failed to copy', 'error');
     });
+});
+
+/**
+ *  Event: click on a reloadable table 'Previous' button
+ */
+$(document).on('click','.reloadable-table-previous-btn',function () {
+    /**
+     *  Get table name and offset from parent
+     */
+    var table = $(this).parents('.reloadable-table').attr('table');
+    var offset = $(this).parents('.reloadable-table').attr('offset');
+
+    /**
+     *  Decrement offset -10
+     */
+    offset = parseInt(offset) - 10;
+
+    /**
+     *  If offset is negative, set it to 0
+     */
+    if (offset < 0) {
+        offset = 0;
+    }
+
+    /**
+     *  Set cookie for PHP to load the right content
+     *  e.g tables/operations/list-done/offset
+     */
+    setCookie('tables/' + table + '/offset', offset, 1);
+
+    reloadTable(table, offset);
+});
+
+/**
+ * Event: click on a reloadable table 'Next' button
+ */
+$(document).on('click','.reloadable-table-next-btn',function () {
+    /**
+     *  Get table name and offset from parent
+     */
+    var table = $(this).parents('.reloadable-table').attr('table');
+    var offset = $(this).parents('.reloadable-table').attr('offset');
+
+    /**
+     *  Increment offset +10
+     */
+    offset = parseInt(offset) + 10;
+
+    /**
+     *  Set cookie for PHP to load the right content
+     *  e.g tables/operations/list-done/offset
+     */
+    setCookie('tables/' + table + '/offset', offset, 1);
+
+    reloadTable(table, offset);
 });
 
 /**
@@ -186,6 +244,41 @@ function getContainerState()
             printAlert(jsonValue.message, 'error');
         },
     });
+}
+
+/**
+ * Ajax: Get and reload table
+ * @param {*} table
+ * @param {*} offset
+ */
+function reloadTable(table, offset)
+{
+    printLoading();
+
+    $.ajax({
+        type: "POST",
+        url: "/ajax/controller.php",
+        data: {
+            controller: "general",
+            action: "getTable",
+            table: table,
+            offset: offset
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            /**
+             *  Replace table with itself, with new content
+             */
+            $('.reloadable-table[table="' + table + '"]').replaceWith(jsonValue.message);
+        },
+        error: function (jqXHR, textStatus, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+
+    hideLoading();
 }
 
 /**

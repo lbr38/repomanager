@@ -261,6 +261,13 @@
         </div>
 
         <div>
+            <div>
+                <div class="flex column-gap-5 align-item-center">
+                    <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
+                    <span class="lowopacity-cst font-size-11">CPU load: <?= $currentLoad ?></span>
+                </div>
+            </div>
+
             <div class="menu-sub-container relative">
                 <img src="/assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
                 <?php

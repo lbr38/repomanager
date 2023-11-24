@@ -238,25 +238,42 @@ class Source extends Model
     /**
      *  List all source repos
      */
-    public function listAll(string $type = null)
+    public function listAll(string $type, bool $withOffset, int $offset)
     {
-        $sources = array();
+        $data = array();
+
+        $query = "SELECT * FROM sources";
 
         /**
          *  If a source type has been specified
          */
         if (!empty($type)) {
-            $stmt = $this->db->prepare("SELECT * FROM sources WHERE Type = :type ORDER BY Type ASC, Name ASC");
-            $stmt->bindValue(':type', $type);
-        } else {
-            $stmt = $this->db->prepare("SELECT * FROM sources ORDER BY Type ASC, Name ASC");
+            $query .= " WHERE Type = :type";
         }
+
+        $query .= " ORDER BY Type ASC, Name ASC";
+
+        /**
+         *  If offset is specified
+         */
+        if ($withOffset) {
+            $query .= " LIMIT 10 OFFSET :offset";
+        }
+
+        /**
+         *  Prepare query
+         */
+        $stmt = $this->db->prepare($query);
+
+
+        $stmt->bindValue(':type', $type);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         $result = $stmt->execute();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $sources[] = $row;
+            $data[] = $row;
         }
 
-        return $sources;
+        return $data;
     }
 }

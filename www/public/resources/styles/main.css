@@ -467,7 +467,7 @@ article {
 
 /* Menu gestion des profils */
 /* input qui ont le même fond que la couleur de fond de leur conteneur permettant que le cadre de l'input soit 'invisible' */
-input[type=text].invisibleInput, input[type=text].invisibleInput-blue, input[type=text].invisibleInput-light-blue {
+input[type=text].invisibleInput, input[type=text].invisibleInput-blue {
     border: none;
 }
 
@@ -477,11 +477,6 @@ input[type=text].invisibleInput {
 
 input[type=text].invisibleInput-blue {
     background-color: #1d3349;
-    width: 100%;
-}
-
-input[type=text].invisibleInput-light-blue {
-    background-color: #2b4d6e;
     width: 100%;
 }
 
@@ -520,12 +515,12 @@ input::placeholder {
 
 [class^="label-pkg"] {
     display: block;
-    width: fit-content;
-    height: fit-content;
-    padding: 3px 2px 3px 2px !important;
-    border-radius: 6px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px !important;
+    text-align: center;
+    border-radius: 50%;
     font-size: 9px;
-    -webkit-box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
 }
 .label-pkg-rpm {
@@ -568,15 +563,11 @@ footer {
 
 footer #github img { width: 25px; }
 
-#hideAllReposGroups, #currentload {
+#hideAllReposGroups {
     position: absolute;
     right: 6px;
     top: -23px;
     font-size: 13px;
-}
-
-#currentload span {
-    font-size: 12px;
 }
 
 .round-item {
@@ -710,7 +701,7 @@ footer #github img { width: 25px; }
     height: 100px;
 }
 
-.detailsDiv, .planInfo {
+.detailsDiv, .plan-info-div {
     padding: 10px;
     background-color: #182b3e;
     border-left: 1px solid #24405c;
@@ -720,11 +711,11 @@ footer #github img { width: 25px; }
     border-radius: 8px;
 }
 
-.planInfo div {
+.plan-info-div div {
     display: table-row;
 }
 
-.planInfo div span {
+.plan-info-div div span {
     display: table-cell;
     width: 60%;
     padding: 10px;
@@ -749,7 +740,6 @@ footer #github img { width: 25px; }
 ::-webkit-scrollbar-thumb {
     background: #5473e8;
     border-radius: 5px;
-    /*border: 1px solid #5473e8;*/
 }
 
 /* divs avec rubans de couleurs */
@@ -759,18 +749,7 @@ footer #github img { width: 25px; }
     margin-top: 6px;
     margin-bottom: 6px;
 }
-/* rubans de couleurs */
-.header-green, .header-blue, .header-light-blue, .header-red {
-    border-radius: 6px;
-    /* padding: 0px 8px 0px 8px; */
-    padding: 2px 8px 2px 8px;
-}
-.header-green-min, .header-blue-min, .header-light-blue-min, .header-red-min { /* idem au dessus mais convient mieux lorsqu'il y a un <input> à l'intérieur du container */
-    border-radius: 6px;
-    /* pas de padding lorsqu'il y a un <input> */
-    padding-bottom: 0px;
-    padding-top: 0px;
-}
+
 .header-green, .header-green-min { background-color: #14be7e; }
 .header-red, .header-red-min { background-color: #ff0044; }
 .header-blue, .header-blue-min { background-color: #1d3349; }
@@ -787,11 +766,6 @@ footer #github img { width: 25px; }
 .operation-form span, .operation-form input[type=text], .operation-form select {
     flex: 0 0 50%;
 }
-
-/* .operation-form span:not(.onoff-switch-slider) { /* On applique à tous les span de .operation-form sauf ceux ayant la class .onoff-switch-slider
-    margin-top: 5px;
-    margin-bottom: 5px;
-} */
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
 .operation-form p, .operation-form h3 {

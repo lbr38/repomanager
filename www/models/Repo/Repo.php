@@ -37,7 +37,6 @@ class Repo extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -72,7 +71,6 @@ class Repo extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -104,7 +102,6 @@ class Repo extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -129,7 +126,6 @@ class Repo extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -1004,15 +1000,14 @@ class Repo extends \Models\Model
     /**
      *  Add a repo snapshot in database
      */
-    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, string $includeSource, array $includeTranslation, string $type, string $status, string $repoId)
+    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, string $type, string $status, string $repoId)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_source', 'Pkg_translation', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeSource, :includeTranslation, :type, :status, :repoId)");
+            $stmt = $this->db->prepare("INSERT INTO repos_snap ('Date', 'Time', 'Signed', 'Arch', 'Pkg_translation', 'Type', 'Status', 'Id_repo') VALUES (:date, :time, :signed, :arch, :includeTranslation, :type, :status, :repoId)");
             $stmt->bindValue(':date', $date);
             $stmt->bindValue(':time', $time);
             $stmt->bindValue(':signed', $gpgSignature);
             $stmt->bindValue(':arch', implode(',', $arch));
-            $stmt->bindValue(':includeSource', $includeSource);
             $stmt->bindValue(':includeTranslation', implode(',', $includeTranslation));
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':status', $status);

@@ -19,7 +19,6 @@ class Repo
     private $source;
     private $packageType;
     private $arch;
-    private $sourcePackagesIncluded;
     private $translationIncluded;
     private $dist;
     private $section;
@@ -42,7 +41,6 @@ class Repo
     private $targetGpgResign;
     private $releasever;
     private $targetArch;
-    private $targetSourcePackage = 'no';
     private $targetPackageTranslation = array();
 
     /**
@@ -203,11 +201,6 @@ class Repo
         $this->arch = $arch;
     }
 
-    public function setIncludePackageSource(string $sourcePackagesIncluded)
-    {
-        $this->sourcePackagesIncluded = $sourcePackagesIncluded;
-    }
-
     public function setPackageTranslation(array $translationIncluded)
     {
         $this->translationIncluded = $translationIncluded;
@@ -221,11 +214,6 @@ class Repo
     public function setTargetArch(array $targetArch)
     {
         $this->targetArch = $targetArch;
-    }
-
-    public function setTargetSourcePackage(string $targetSourcePackage)
-    {
-        $this->targetSourcePackage = $targetSourcePackage;
     }
 
     public function setTargetPackageTranslation(array $targetPackageTranslation)
@@ -363,16 +351,6 @@ class Repo
         return $this->targetArch;
     }
 
-    public function getSourcePackage()
-    {
-        return $this->sourcePackagesIncluded;
-    }
-
-    public function getTargetSourcePackage()
-    {
-        return $this->targetSourcePackage;
-    }
-
     public function getPackageTranslation()
     {
         return $this->translationIncluded;
@@ -500,9 +478,6 @@ class Repo
         }
         if (!empty($data['Arch'])) {
             $this->setArch(explode(',', $data['Arch']));
-        }
-        if (!empty($data['Pkg_source'])) {
-            $this->setIncludePackageSource($data['Pkg_source']);
         }
         if (!empty($data['Pkg_translation'])) {
             $this->setPackageTranslation(explode(',', $data['Pkg_translation']));
@@ -986,9 +961,9 @@ class Repo
     /**
      *  Add a repo snapshot in database
      */
-    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, string $includeSource, array $includeTranslation, string $type, string $status, string $repoId)
+    public function addSnap(string $date, string $time, string $gpgSignature, array $arch, array $includeTranslation, string $type, string $status, string $repoId)
     {
-        $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeSource, $includeTranslation, $type, $status, $repoId);
+        $this->model->addSnap($date, $time, $gpgSignature, $arch, $includeTranslation, $type, $status, $repoId);
     }
 
     /**

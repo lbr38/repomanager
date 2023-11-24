@@ -311,8 +311,8 @@ class Source
     /**
      *  List all source repos
      */
-    public function listAll(string $type = null)
+    public function listAll(string $type = null, bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->listAll($type);
+        return $this->model->listAll($type, $withOffset, $offset);
     }
 }

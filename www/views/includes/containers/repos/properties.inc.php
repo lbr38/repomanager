@@ -2,20 +2,6 @@
     <div>
         <h3>PROPERTIES</h3>
 
-        <?php
-        /**
-         *  Only print CPU load if >= 2
-         */
-        if ($currentLoad >= 2) : ?>
-            <div class="relative">
-                <div id="currentload" >
-                    <span class="round-item bkg-<?= $currentLoadColor ?>"></span>
-                    <span class="lowopacity-cst">CPU load: <?= $currentLoad ?></span>
-                </div>
-            </div>
-            <?php
-        endif ?>
-
         <div class="div-generic-blue circle-div-container-container">
             <div>
                 <div class="circle-div-container">
@@ -62,7 +48,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Last planification (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
+                                <a href="/plans">Last planned task (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>
@@ -103,7 +89,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Next planification (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
+                                <a href="/plans">Next planned task (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>

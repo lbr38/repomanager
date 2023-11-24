@@ -80,7 +80,7 @@ $(document).on('change', '#addPlanDate, #addPlanTargetEnv', function () {
 /**
  *  Event : affichage des détails d'une planification
  */
-$(document).on('click','.planDetailsBtn',function () {
+$(document).on('click','.plan-details-btn',function () {
     /**
      *  Récupération de l'Id de la planification
      */
@@ -88,7 +88,7 @@ $(document).on('click','.planDetailsBtn',function () {
     /**
      *  Affichage du div portant cet Id
      */
-    $('.planInfo[plan-id=' + planId + ']').slideToggle(100);
+    $('.plan-info-div[plan-id=' + planId + ']').slideToggle(100);
 });
 
 /**
@@ -218,9 +218,12 @@ $(document).on('submit','#newPlanForm',function () {
 });
 
 /**
- *  Event : Suppression d'une planification
+ *  Event: Delete planification
  */
-$(document).on('click','.deletePlanBtn',function () {
+$(document).on('click','.deletePlanBtn',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var planId = $(this).attr('plan-id');
     var planType = $(this).attr('plan-type');
 
@@ -235,9 +238,12 @@ $(document).on('click','.deletePlanBtn',function () {
 });
 
 /**
- *  Disable recurrent plan
+ *  Event: Disable recurrent planification
  */
-$(document).on('click','.disablePlanBtn',function () {
+$(document).on('click','.disablePlanBtn',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var planId = $(this).attr('plan-id');
 
     confirmBox('Disable recurrent plan execution?', function () {
@@ -245,9 +251,12 @@ $(document).on('click','.disablePlanBtn',function () {
 });
 
 /**
- *  Enable recurrent plan
+ *  Event: Enable recurrent planification
  */
-$(document).on('click','.enablePlanBtn',function () {
+$(document).on('click','.enablePlanBtn',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var planId = $(this).attr('plan-id');
 
     confirmBox('Enable recurrent plan execution?', function () {
@@ -288,7 +297,7 @@ function newPlan(type, day, date, time, frequency, planAction, snapId, groupId, 
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadContainer('plans/planned');
+            reloadContainer('planifications/queued-running');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -315,7 +324,7 @@ function deletePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadContainer('plans/planned');
+            reloadContainer('planifications/queued-running');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -342,7 +351,7 @@ function disablePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadContainer('plans/planned');
+            reloadContainer('planifications/queued-running');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -369,7 +378,7 @@ function enablePlan(id)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadContainer('plans/planned');
+            reloadContainer('planifications/queued-running');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

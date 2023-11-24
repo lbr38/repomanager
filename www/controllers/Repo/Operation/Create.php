@@ -296,7 +296,7 @@ class Create extends Operation
             /**
              *  Ajout du snapshot en base de données
              */
-            $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), 'no', $this->repo->getTargetArch(), $this->repo->getTargetSourcePackage(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), 'active', $this->repo->getRepoId());
+            $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), 'no', $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
              *  Récupération de l'Id du snapshot ajouté précédemment
