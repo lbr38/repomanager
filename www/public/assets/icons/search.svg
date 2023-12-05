@@ -1,48 +1,74 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
 
 <svg
+   width="256px"
+   height="256px"
+   viewBox="0 0 64.00 64.00"
+   fill="none"
+   stroke="#ffffff"
+   stroke-width="1.28"
    version="1.1"
-   id="Layer_1"
-   width="800px"
-   height="800px"
-   viewBox="0 0 512 512"
-   enable-background="new 0 0 512 512"
-   xml:space="preserve"
-   sodipodi:docname="search-svgrepo-com.svg"
+   id="svg11"
+   sodipodi:docname="search.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs11" /><sodipodi:namedview
-   id="namedview9"
-   pagecolor="#ffffff"
-   bordercolor="#666666"
-   borderopacity="1.0"
-   inkscape:pageshadow="2"
-   inkscape:pageopacity="0.0"
-   inkscape:pagecheckerboard="0"
-   showgrid="false"
-   inkscape:zoom="0.90875"
-   inkscape:cx="400"
-   inkscape:cy="400"
-   inkscape:window-width="1920"
-   inkscape:window-height="979"
-   inkscape:window-x="705"
-   inkscape:window-y="1109"
-   inkscape:window-maximized="1"
-   inkscape:current-layer="g4" />
-<g
-   id="g6">
-	<g
-   id="g4">
-		<path
-   fill="#1d1d1b"
-   d="M 302.188,279.563 C 313.36,263.875 320,244.727 320,224 c 0,-53.032 -42.984,-96 -96,-96 -53.017,0 -96,42.968 -96,96 0,53.016 42.983,96 96,96 20.727,0 39.875,-6.64 55.563,-17.812 l 77.124,77.124 c 6.25,6.252 16.375,6.252 22.624,0 6.252,-6.249 6.252,-16.374 0,-22.623 z m -23.235,-23.244 c -5.53,9.36 -13.273,17.104 -22.634,22.634 -9.514,5.61 -20.476,9.047 -32.319,9.047 -35.345,0 -64,-28.656 -64,-64 0,-35.344 28.655,-64 64,-64 35.344,0 64,28.656 64,64 0,11.843 -3.437,22.805 -9.047,32.319 z M 256,0 C 114.609,0 0,114.609 0,256 0,397.391 114.609,512 256,512 397.391,512 512,397.391 512,256 512,114.609 397.391,0 256,0 Z m 0,488 C 127.86511,488 24,384.13489 24,256 24,127.86619 127.86511,24 256,24 384.13489,24 488,127.86619 488,256 488,384.13489 384.13489,488 256,488 Z"
-   id="path2"
-   sodipodi:nodetypes="csssscccccccsssscssssssssss"
-   style="fill:#ffffff;fill-opacity:1" />
-	</g>
-</g>
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs15" />
+  <sodipodi:namedview
+     id="namedview13"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="2.8398438"
+     inkscape:cx="128"
+     inkscape:cy="128"
+     inkscape:window-width="1920"
+     inkscape:window-height="979"
+     inkscape:window-x="701"
+     inkscape:window-y="1109"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg11" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0"
+     style="fill:none;fill-opacity:1"
+     transform="matrix(1.2980357,0,0,1.3030075,-9.5535428,-9.5901352)" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     style="fill:none;fill-opacity:1"
+     transform="matrix(1.2980357,0,0,1.3030075,-9.5535428,-9.5901352)" />
+  <g
+     id="SVGRepo_iconCarrier"
+     style="fill:none;fill-opacity:1"
+     transform="matrix(1.2980357,0,0,1.3030075,-9.5535428,-9.5901352)">
+    <circle
+       cx="32"
+       cy="32"
+       r="24"
+       id="circle4"
+       style="fill:none;fill-opacity:1" />
+    <circle
+       cx="28"
+       cy="28"
+       r="8"
+       id="circle6"
+       style="fill:none;fill-opacity:1" />
+    <line
+       x1="44"
+       y1="44"
+       x2="33.66"
+       y2="33.66"
+       id="line8"
+       style="fill:none;fill-opacity:1" />
+  </g>
 </svg>

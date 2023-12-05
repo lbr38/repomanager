@@ -165,7 +165,7 @@ if (!empty($groupsList)) {
                         <div class="item-repo">
                             <?php
                             if ($printRepoName) : ?>
-                                <div class="flex column-gap-8">
+                                <div class="flex align-item-center column-gap-8">
                                     <span class="copy bold wordbreakall"><?= $name ?></span>
                                     <span class="label-pkg-<?= $packageType ?>" title="This repository contains <?= $packageType ?> packages"><?= $packageType ?></span>
                                 </div>

@@ -47,7 +47,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager FQDN." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager FQDN, defined during the creation of the Docker container." />
                     </div>
                     <div>
                         <p>Hostname</p>
@@ -55,17 +55,12 @@
                     <div>
                         <p class="copy"><?= WWW_HOSTNAME ?></p>
                     </div>
-                    <div>
-                        <?php
-                        if (empty(WWW_HOSTNAME)) {
-                            echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                        } ?>
-                    </div>
+                    <div></div>
                 </div>
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone. This is especially useful to ensure that scheduled tasks (planifications) run at the specified time." />
                     </div>
                     <div>
                         <p>Timezone</p>
@@ -88,7 +83,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify email recipient(s) that will receive plan error/success notifications and plan reminder notifications. You can specify multiple recipients separated by a comma." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default contact for receiving emails. Currently, only scheduled tasks and their reminders are sending emails. You can specify multiple recipients." />
                     </div>
                     <div>
                         <p>Default contact</p>
@@ -131,7 +126,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Root URL of repositories. This URL is not browseable, you can browse repositories content by clicking on snapshots in the REPOS tab." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Root URL for accessing repositories. This URL is not browseable for security reasons. To explore the content of a repository snapshot, use the snapshot browsing system." />
                     </div>
                     <div>
                         <p>Repos URL</p>
@@ -144,7 +139,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep by repo, before deleting." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum number of snapshots to keep per repository." />
                     </div>
                     <div>
                         <p>Retention</p>
@@ -162,7 +157,7 @@
            
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Prefix that can be added to repositories configuration files when installing on client hosts (e.g. 'myprefix-debian.list')." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Prefix added to repository configuration files when installing on client hosts (e.g., '<myprefix>-debian.list' or '<myprefix>-nginx.repo'). Leave empty if you want no prefix." />
                     </div>
                     <div>
                         <p>Repo configuration file name prefix</p>
@@ -176,7 +171,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum time (in seconds) allowed to download a package during a mirror process." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Maximum time (in seconds) allowed to download a package during a mirroring process." />
                     </div>
                     <div>
                         <p>Package download timeout (in seconds)</p>
@@ -191,7 +186,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .rpm packages repositories">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable RPM package repositories.">
                     </div>
                     <div>
                         <p>Enable RPM repositories</p>
@@ -208,7 +203,7 @@
                 if (RPM_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Sign RPM repos' packages with a GPG key.">
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the signing of RPM packages when creating a RPM package repository (mirror or local repository). Packages will be signed using the GPG signing key specified by the GPG key Id parameter.">
                         </div>
                         <div>
                             <p>Sign packages with GPG</p>
@@ -229,13 +224,17 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="This server will create and serve repos for RHEL/CentOS release <?= RELEASEVER ?>. Be careful, if modified, this value will globally affect yum and own local yum updates of this server (if this server is RHEL/CentOS)." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default release version to use when creating RPM repositories." />
                         </div>
                         <div>
-                            <p>Release version</p>
+                            <p>Default release version</p>
                         </div>
                         <div>
-                            <input class="settings-param" param-name="releasever" type="text" value="<?= RELEASEVER ?>">
+                            <select class="settings-param" param-name="releasever">
+                                <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
+                                <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
+                                <option value="9" <?php echo (RELEASEVER == 9) ? 'selected' : '' ?>>9 (Redhat 9 and derivatives)</option>
+                            </select>
                         </div>
                         <div>
                             <?php
@@ -247,7 +246,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating rpm mirror.">
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating RPM repositories.">
                         </div>
                         <div>
                             <p>Default package architecture</p>
@@ -273,7 +272,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, this server will manage and serve .deb packages repositories">
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable DEB package repositories.">
                     </div>
                     <div>
                         <p>Enable DEB repositories</p>
@@ -290,10 +289,10 @@
                 if (DEB_REPO == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Sign DEB repos with a GPG key.">
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the signing of DEB repositories when creating a DEB package repository (mirror or local repository). The repository metadata will be signed using the GPG signing key specified by the GPG key Id parameter.">
                         </div>
                         <div>
-                            <p>Sign repos with GPG</p>
+                            <p>Sign repositories with GPG</p>
                         </div>
                         <div>
                             <label class="onoff-switch-label">
@@ -311,7 +310,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Select default package architecture to use when creating deb mirror.">
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default package architecture to use when creating DEB repositories.">
                         </div>
                         <div>
                             <p>Default package architecture</p>
@@ -351,11 +350,11 @@
 
                 if (RPM_SIGN_PACKAGES == 'true' or DEB_SIGN_REPO == 'true') : ?>
                     <br>
-                    <h5>GPG signature key</h5>
+                    <h5>GPG SIGNING KEY</h5>
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="GPG key email address identifier. Needed to sign RPM packages or DEB repo.">
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="GPG key for signing packages and repositories, identified by its email address. This key is randomly generated upon Repomanager's first startup (4096 bits RSA key).">
                         </div>
                         <div>
                             <p>GPG key Id (email address identifier)</p>
@@ -424,7 +423,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable repositories access logging, size and packages statistics." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable logging and statistics on: repositories access, repositories size, repositories packages count" />
                     </div>
                     <div>
                         <p>Enable repositories statistics</p>
@@ -449,7 +448,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable planifications" />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable task scheduling (updates of repositories on a desired date, time, or recurrence)." />
                     </div>
                     <div>
                         <p>Enable planifications</p>
@@ -472,10 +471,10 @@
                 if (PLANS_ENABLED == "true") : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, planifications will be able to update repos by creating new repo snapshot on the planned day and time." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Allow planifications to update repositories. This option is no longer useful, it will be deprecated soon, and enabled by default." />
                         </div>
                         <div>
-                            <p>Allow planifications to update repos</p>
+                            <p>Allow planifications to update repositories</p>
                         </div>
                         <div>
                             <label class="onoff-switch-label">
@@ -493,10 +492,10 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, planifications will be able to delete oldest repos snapshots, depending on the specified retention parameter." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Allow planifications to delete the oldest snapshots of repositories based on the configured retention parameter." />
                         </div>
                         <div>
-                            <p>Allow automatic deletion of old repos snapshots</p>
+                            <p>Allow automatic deletion of old repositories snapshots</p>
                         </div>
                         <div>
                             <label class="onoff-switch-label">
@@ -514,7 +513,7 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="If enabled, specified email recipients will receive reminder(s) for each planned tasks to come. A mail configuration must be setted on this server (e.g. sendmail)." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for schedules (upcoming tasks). Reminders are sent via email to the recipients defined when adding a new scheduled task." />
                         </div>
                         <div>
                             <p>Enable planifications reminder</p>
@@ -541,7 +540,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable hosts management. For hosts using linupdate." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the management of client hosts. These hosts can register with Repomanager via the API using linupdate." />
                     </div>
                     <div>
                         <p>Manage hosts</p>
@@ -562,7 +561,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable hosts profiles management. For hosts using linupdate." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the management of profiles for configuring client hosts." />
                     </div>
                     <div>
                         <p>Manage profiles</p>
@@ -587,7 +586,7 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable the import of CVEs into Repomanager. The import uses feeds from https://nvd.nist.gov/ Eventually, the CVEs tab should be able to list client hosts imported into Repomanager that have vulnerable packages." />
                     </div>
                     <div>
                         <p>Import CVEs</p>
@@ -605,7 +604,7 @@
                 if (CVE_IMPORT == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Every day time at which the import of CVEs runs." />
                         </div>
                         <div>
                             <p>Import scheduled time</p>
@@ -621,7 +620,7 @@
                 // if (MANAGE_HOSTS == 'true' && CVE_IMPORT == 'true') : ?>
                     <!-- <div class="settings-div">
                         <div>
-                            <img src="/resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="" />
                         </div>
                         <div>
                             <p>Scan for CVEs affected hosts</p>
@@ -640,7 +639,7 @@
                     if (CVE_IMPORT == 'true') : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/resources/icons/info.svg" class="icon-verylowopacity" title="" />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="" />
                         </div>
                         <div>
                             <p><a href="/cves" target="_blank" rel="noopener noreferrer">Access CVEs page (beta)</a><img src="/assets/icons/external-link.svg" class="icon" /></p>

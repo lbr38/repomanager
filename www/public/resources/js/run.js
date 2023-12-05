@@ -40,29 +40,12 @@ $(document).on('click','.show-logfile-btn',function () {
 });
 
 /**
- *  Event: print all done operations
- */
-$(document).on('click','#print-all-op',function () {
-    $(".hidden-op").show();        // On affiche les opérations masquées
-    $("#print-all-op").hide();    // On masque le bouton "Afficher tout"
-    // Création d'un cookie (expiration 15min)
-    document.cookie = "printAllOp=yes;max-age=900; Secure";
-});
-
-/**
- *  Event: print all done regular operations
- */
-$(document).on('click','#print-all-regular-op',function () {
-    $(".hidden-regular-op").show();        // On affiche les opérations masquées
-    $("#print-all-regular-op").hide();    // On masque le bouton "Afficher tout"
-    // Création d'un cookie (expiration 15min)
-    document.cookie = "printAllRegularOp=yes;max-age=900; Secure";
-});
-
-/**
  *  Event: relaunch operation
  */
-$(document).on('click','.relaunch-operation-btn',function () {
+$(document).on('click','.relaunch-operation-btn',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var poolId = $(this).attr('pool-id');
 
     relaunchOperation(poolId);
@@ -70,7 +53,7 @@ $(document).on('click','.relaunch-operation-btn',function () {
 
 
 /**
- *  Ajax : Relaunch operation
+ *  Ajax: Relaunch operation
  *  @param {string} poolId
  */
 function relaunchOperation(poolId)

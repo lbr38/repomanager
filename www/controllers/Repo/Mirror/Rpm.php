@@ -141,18 +141,42 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         $this->logOutput(PHP_EOL . '- Retrieving packages list from ' . $primaryFile . ' ... ');
 
         /**
-         *  Gunzip primary.xml.gz
+         *  Get primary.xml.gz mime type
+         *  Sometimes it can be bzip2 instead of gzip even if the file extension is .gz (e.g. some Remi repos)
+         */
+        $mime = mime_content_type($primaryFile);
+
+        /**
+         *  Uncompress primary.xml.gz
          */
         try {
-            \Controllers\Common::gunzip($primaryFile);
+            /**
+             *  Case mime type is bzip2
+             *  Uncompress to 'primary.xml'
+             */
+            if ($mime == 'application/x-bzip2') {
+                $primaryFile = \Controllers\Common::bunzip2($primaryFile, $this->workingDir . '/primary.xml');
+            /**
+             *  Else it should be gzip
+             */
+            } else {
+                $primaryFile = \Controllers\Common::gunzip($primaryFile);
+            }
         } catch (Exception $e) {
             $this->logError($e, 'Error while uncompressing primary.xml.gz');
         }
 
         /**
-         *  Read the now gunzipped primary.xml.gz file
+         *  Primary.xml.gz has been uncompressed to primary.xml
          */
-        $primaryFile = str_replace('.gz', '', $primaryFile);
+        $primaryFile = $this->workingDir . '/primary.xml';
+
+        /**
+         *  Check that primary.xml file exists
+         */
+        if (!file_exists($primaryFile)) {
+            $this->logError('Could not parse ' . $primaryFile . ': File not found after uncompressing primary.xml.gz');
+        }
 
         /**
          *  Convert primary.xml content from XML to JSON to PHP array for a simpler parsing
@@ -291,11 +315,11 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             $mygpg = new \Controllers\GPG();
 
             /**
-             *  If the source repo has a distant http:// gpg signature key, then download it
+             *  If the source repo has a distant http:// gpg signing key, then download it
              */
             if (!empty($this->gpgKeyUrl)) {
                 if (!$this->download($this->gpgKeyUrl, TEMP_DIR . '/gpgkey-to-import.gpg')) {
-                    $this->logError('Could not retrieve distant GPG signature key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signature key');
+                    $this->logError('Could not retrieve distant GPG signing key: ' . $this->gpgKeyUrl, 'Could not retrieve distant GPG signing key');
                 }
 
                 /**
@@ -313,7 +337,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  Quits if import has failed
                  */
                 if ($myprocess->getExitCode() != 0) {
-                    $this->logError('Error while importing distant GPG signature key', 'Could not import distant GPG signature key');
+                    $this->logError('Error while importing distant GPG signing key', 'Could not import distant GPG signing key');
                 }
 
                 $myprocess->close();
@@ -414,14 +438,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $myprocess->close();
 
                 /**
-                 *  Parse package's GPG signature key Id from header content
+                 *  Parse package's GPG signing key Id from header content
                  */
                 if (!preg_match('/key ID(.*) /i', $content, $matches)) {
-                    $this->logError('GPG signature key ID is not found in the package header', 'Could not verify GPG signatures');
+                    $this->logError('GPG signing key ID is not found in the package header', 'Could not verify GPG signatures');
                 }
 
                 /**
-                 *  Retrieve GPG signature key Id from $matches
+                 *  Retrieve GPG signing key Id from $matches
                  */
                 $keyId = trim($matches[1]);
 

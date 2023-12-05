@@ -212,7 +212,7 @@ class Duplicate extends Operation
             /**
              *  On ajoute le snapshot copié en base de données
              */
-            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getTargetArch(), $this->repo->getTargetSourcePackage(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
+            $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
 
             /**
              *  On récupère l'Id du snapshot créé en base de données

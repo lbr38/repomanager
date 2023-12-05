@@ -32,7 +32,6 @@ class Listing extends \Models\Model
             repos_snap.Time,
             repos_snap.Signed,
             repos_snap.Arch,
-            repos_snap.Pkg_source,
             repos_snap.Pkg_translation,
             repos_snap.Type,
             repos_env.Description
@@ -115,7 +114,6 @@ class Listing extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -144,7 +142,6 @@ class Listing extends \Models\Model
                 repos_snap.Time,
                 repos_snap.Signed,
                 repos_snap.Arch,
-                repos_snap.Pkg_source,
                 repos_snap.Pkg_translation,
                 repos_snap.Type,
                 repos_snap.Reconstruct,
@@ -240,7 +237,6 @@ class Listing extends \Models\Model
             repos_snap.Time,
             repos_snap.Signed,
             repos_snap.Arch,
-            repos_snap.Pkg_source,
             repos_snap.Pkg_translation,
             repos_snap.Type
             FROM repos

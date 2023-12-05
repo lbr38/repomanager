@@ -24,8 +24,8 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 
 <h3>Hardware</h3>
 
-- CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled.
-- Disk space depends on the size of the repos you need to clone.
+- CPU and RAM are mostly sollicited during mirror creation if GPG signature is enabled
+- Disk space depends on the size of the repos you need to clone
 
 <h3>Software and configuration</h3>
 
@@ -38,3 +38,13 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 Official documentation is available <a href="https://github.com/lbr38/repomanager/wiki">here</a>.
 
 It should help you **installing** and starting using Repomanager.
+
+<h2>Roadmap</h2>
+
+No roadmap, just a todolist with some bug reports and ideas you can find <a href="https://github.com/lbr38/repomanager/blob/devel/Todolist">here</a>.
+
+<h2>Contact</h2>
+
+- For bug reports or any issue using Repomanager, please open a new issue in the Github ``Issues`` section
+- For features requests, please open a new idea in the Github ``Discussions`` section
+- For any other question you please contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)

@@ -162,7 +162,7 @@ class Settings
         }
 
         /**
-         *  Repositories / GPG signature key
+         *  Repositories / GPG signing key
          */
         if (!empty($sendSettings['gpgKeyID'])) {
             $gpgKeyID = Common::validateData($sendSettings['gpgKeyID']);

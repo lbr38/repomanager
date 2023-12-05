@@ -15,6 +15,73 @@ class Planification extends Model
     }
 
     /**
+     *  Return planification info, by Id
+     */
+    public function get(string $id)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return list of planifications with specified status
+     *  It is possible to add an offset to the request
+     */
+    public function getByStatus(array $status, bool $withOffset, int $offset)
+    {
+        $data = array();
+        $i = 0;
+
+        $query = "SELECT * FROM planifications";
+
+        foreach ($status as $stat) {
+            if ($i === 0) {
+                $query .= " WHERE Status = '" . $stat . "'";
+            } else {
+                $query .= " OR Status = '" . $stat . "'";
+            }
+
+            $i++;
+        }
+
+        $query = $query . " ORDER BY Date DESC, Time DESC";
+
+        /**
+         *  Add offset if needed
+         */
+        if ($withOffset === true) {
+            $query .= " LIMIT 10 OFFSET :offset";
+        }
+
+        /**
+         *  Prepare query
+         */
+        $stmt = $this->db->prepare($query);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      *  Ajout d'une planification en base de données
      */
     public function add(
@@ -100,42 +167,6 @@ class Planification extends Model
     }
 
     /**
-     *  Retourne les informations complètes d'un planification en base de données
-     */
-    public function getInfo(string $planId)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM planifications WHERE Id = :id");
-            $stmt->bindValue(':id', $planId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $data = $row;
-        }
-
-        return $data;
-    }
-
-    /**
-     *  Retourne la liste des planifications en attente d'exécution
-     */
-    public function getQueue()
-    {
-        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'queued'");
-
-        $queue = array();
-
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
-            $queue[] = $datas;
-        }
-
-        return $queue;
-    }
-
-    /**
      *  Défini le status d'une planification en base de données
      */
     public function setStatus(string $planId, string $status)
@@ -163,54 +194,6 @@ class Planification extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-    }
-
-    /**
-     *  Liste les planifications en cours d'exécution
-     */
-    public function listRunning()
-    {
-        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'running' ORDER BY Date DESC, Time DESC");
-
-        $plans = array();
-
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
-            $plans[] = $datas;
-        }
-
-        return $plans;
-    }
-
-    /**
-     *  List disabled recurrent plan
-     */
-    public function listDisabled()
-    {
-        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'disabled' ORDER BY Date DESC, Time DESC");
-
-        $plans = array();
-
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
-            $plans[] = $datas;
-        }
-
-        return $plans;
-    }
-
-    /**
-    *  Liste les planifications terminées (tout status compris sauf canceled)
-    */
-    public function listDone()
-    {
-        $query = $this->db->query("SELECT * FROM planifications WHERE Status = 'done' or Status = 'error' or Status = 'stopped' ORDER BY Date DESC, Time DESC");
-
-        $plans = array();
-
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
-            $plans[] = $datas;
-        }
-
-        return $plans;
     }
 
     /**

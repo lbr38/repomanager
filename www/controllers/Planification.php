@@ -215,10 +215,22 @@ class Planification
     }
 
     /**
+     *  Return planification info, by Id
+     */
+    public function get(string $id)
+    {
+        return $this->model->get($id);
+    }
+
+    /**
      *  Création d'une nouvelle planification
      */
     public function new()
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to create a planification');
+        }
+
         $myrepo = new \Controllers\Repo\Repo();
         $mygroup = new \Controllers\Group('repo');
         $myenv = new \Controllers\Environment();
@@ -400,6 +412,10 @@ class Planification
      */
     public function remove(string $planId)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to remove a planification');
+        }
+
         $this->model->setStatus($planId, 'canceled');
     }
 
@@ -408,6 +424,10 @@ class Planification
      */
     public function suspend(string $planId)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to suspend a planification');
+        }
+
         $this->model->setStatus($planId, 'disabled');
     }
 
@@ -416,6 +436,10 @@ class Planification
      */
     public function enable(string $planId)
     {
+        if (!IS_ADMIN) {
+            throw new Exception('You are not allowed to enable a planification');
+        }
+
         $this->model->setStatus($planId, 'queued');
     }
 
@@ -976,35 +1000,12 @@ class Planification
     }
 
     /**
-     *  Retourne la liste des planifications en attente d'exécution
+     *  Return list of planifications with specified status
+     *  It is possible to add an offset to the request
      */
-    public function listQueue()
+    public function getByStatus(array $status = ['running', 'queued', 'disabled', 'done'], bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getQueue();
-    }
-
-    /**
-     *  Liste les planifications en cours d'exécution
-     */
-    public function listRunning()
-    {
-        return $this->model->listRunning();
-    }
-
-    /**
-     *  List disabled recurrent plan
-     */
-    public function listDisabled()
-    {
-        return $this->model->listDisabled();
-    }
-
-    /**
-    *  Liste les planifications terminées (tout status compris sauf canceled)
-    */
-    public function listDone()
-    {
-        return $this->model->listDone();
+        return $this->model->getByStatus($status, $withOffset, $offset);
     }
 
     /**
@@ -1037,7 +1038,7 @@ class Planification
     */
     private function getInfo(string $id)
     {
-        $planInfo = $this->model->getInfo($id);
+        $planInfo = $this->get($id);
 
         /**
          *  On défini les propriété de la planification à partir des infos récupérées

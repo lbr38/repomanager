@@ -139,6 +139,11 @@ class Gpg
 
         unset($content, $gpgKeys);
 
+        /**
+         *  Sort keys array by name
+         */
+        array_multisort(array_column($knownGpgKeys, 'name'), SORT_ASC, $knownGpgKeys);
+
         return $knownGpgKeys;
     }
 

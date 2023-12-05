@@ -85,9 +85,9 @@
                 <td class="td-30">Release version</td>
                 <td>
                     <select class="operation_param" param-name="releasever" package-type="rpm" multiple>
-                        <option value="7">7 (Redhat 7 and derivatives)</option>
-                        <option value="8">8 (Redhat 8 and derivatives)</option>
-                        <option value="9">9 (Redhat 9 and derivatives)</option>
+                        <option value="7" <?php echo (RELEASEVER == 7) ? 'selected' : '' ?>>7 (Redhat 7 and derivatives)</option>
+                        <option value="8" <?php echo (RELEASEVER == 8) ? 'selected' : '' ?>>8 (Redhat 8 and derivatives)</option>
+                        <option value="9" <?php echo (RELEASEVER == 9) ? 'selected' : '' ?>>9 (Redhat 9 and derivatives)</option>
                     </select>
                 </td>
             </tr>

@@ -133,7 +133,10 @@ $(document).on('keypress','.source-repo-key-input',function () {
 /**
  *  Event : Suppression d'une source
  */
-$(document).on('click','.source-repo-delete-btn',function () {
+$(document).on('click','.source-repo-delete-btn',function (e) {
+    // Prevent parent to be clicked
+    e.stopPropagation();
+
     var sourceId = $(this).attr('source-id');
     var name = $(this).attr('source-name');
 
@@ -292,6 +295,7 @@ function editSourceUrl(type, name, url)
             *  Affichage d'une alerte success
             */
             printAlert(jsonValue.message, 'success');
+            reloadSourcesDiv();
             reloadNewRepoDiv();
         },
         error: function (jqXHR, ajaxOptions, thrownError) {

@@ -205,7 +205,6 @@ trait Sync
                 $mymirror->setDist($this->repo->getDist());
                 $mymirror->setSection($this->repo->getSection());
                 $mymirror->setArch($this->repo->getTargetArch());
-                $mymirror->setSyncSource($this->repo->getTargetSourcePackage());
                 $mymirror->setCheckSignature($this->repo->getTargetGpgCheck());
                 $mymirror->setTranslation($this->repo->getTargetPackageTranslation());
                 $mymirror->setOutputFile($this->log->getStepLog());
@@ -287,13 +286,12 @@ trait Sync
                 $mymirror->setWorkingDir($this->repo->getWorkingDir());
                 $mymirror->setReleasever($this->repo->getReleasever());
                 $mymirror->setArch($this->repo->getTargetArch());
-                $mymirror->setSyncSource($this->repo->getTargetSourcePackage());
                 $mymirror->setCheckSignature($this->repo->getTargetGpgCheck());
                 $mymirror->setOutputFile($this->log->getStepLog());
                 $mymirror->outputToFile(true);
 
                 /**
-                 *  If the source repo has a http:// GPG signature key, then it will be used to check for package signature
+                 *  If the source repo has a http:// GPG signing key, then it will be used to check for package signature
                  */
                 if (!empty($sourceDetails['Gpgkey'])) {
                     $mymirror->setGpgKeyUrl($sourceDetails['Gpgkey']);

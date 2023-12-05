@@ -12,7 +12,6 @@ class Mirror
     protected $releasever;
     protected $arch;
     protected $translation;
-    protected $syncSource;
     protected $checkSignature = 'yes';
     protected $gpgKeyUrl;
     protected $primaryLocation;
@@ -73,11 +72,6 @@ class Mirror
     public function setWorkingDir(string $dir)
     {
         $this->workingDir = $dir;
-    }
-
-    public function setSyncSource(string $syncSource)
-    {
-        $this->syncSource = $syncSource;
     }
 
     public function setSslCustomCertificate(string $path)

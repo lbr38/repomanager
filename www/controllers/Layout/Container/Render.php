@@ -9,7 +9,7 @@ class Render
     public static function render(string $container)
     {
         /**
-         *  Include container content
+         *  Check if container exists
          */
         if (!file_exists(ROOT . '/views/includes/containers/' . $container . '.inc.php')) {
             throw new Exception('Could not retrieve content: unknow container ' . $container);
@@ -22,6 +22,9 @@ class Render
             include_once(ROOT . '/controllers/Layout/Container/vars/' . $container . '.vars.inc.php');
         }
 
+        /**
+         *  Include container content
+         */
         include_once(ROOT . '/views/includes/containers/' . $container . '.inc.php');
     }
 }

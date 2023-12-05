@@ -6,7 +6,7 @@
         <div id="top"></div> <!-- to go to the top of the page -->
 
         <?php
-            include_once(ROOT . '/views/includes/containers/header/menu.inc.php');
+            \Controllers\Layout\Container\Render::render('header/menu');
             include_once(ROOT . '/views/includes/containers/header/general-error-messages.inc.php');
             include_once(ROOT . '/views/includes/containers/header/general-log-messages.inc.php');
             include_once(ROOT . '/views/includes/containers/header/service-status.inc.php');

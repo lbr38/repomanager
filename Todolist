@@ -1,0 +1,69 @@
+[ IN PROGRESS ]
+
+- Update documentation
+- (JS/PHP) Add pagination in tables
+
+[ BUGS ]
+
+    [ GENERAL ]
+
+    - Reloading the menu makes the blue bar of the menu disappear
+
+
+    [ REPOS ]
+
+    - When mirroring with 'Check GPG signatures', see how to deal with the case of RPM packages that have no signatures, e.g :
+        wget https://repo.mysql.com/yum/mysql-connectors-community/el/7/x86_64/mysql-community-release-el7-5.noarch.rpm
+        /usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" mysql-community-release-el7-5.noarch.rpm
+    - (KO) Mirror a debian repo with translations => translations are not included by reprepro
+    - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
+    - (DEB) Error with reprepro hanging while mirroring ubuntu > jammy > main
+        https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1056380
+        https://salsa.debian.org/debian/reprepro.git
+
+
+    [ SERVICE ]
+
+    - logparser is sometimes using too much cpu, see how to improve
+
+
+[ IMPROVEMENTS / FEATURES ]
+
+    [ GENERAL ]
+
+    - (JS) Refactor and mutualize the ajax functions
+    - Better handle errors in execute.php
+
+
+    [ REPOS ]
+    
+    - Add a search bar in the repos list
+    - Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
+    - Operations: replace 'reconstruct' with 'rebuild'
+    - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
+    - (RPM) See how to accelerate the rpm signing process by using multi-threading
+    - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
+
+
+    [ HOSTS / LINUPDATE ]
+
+    - Be able to ask a host to update one or more specific packages
+    - (linupdate) Add a feature to be able to restart services based on the packages that have been updated, e.g :
+        - Restart nginx-app-protect if the following packages are updated: app-protect*
+        - Restart nginx if the following packages are updated: nginx, nginx-plus*
+
+
+    [ CVE ]
+
+    - Check for affected hosts when sending packages with linupdate
+
+
+    [ LOGIN ]
+
+    - Support SSO
+    - Support LDAP
+
+
+    [ API ]
+
+    - Remove the old authentication method (via -d parameters), once linupdate 2.2.11 is released
