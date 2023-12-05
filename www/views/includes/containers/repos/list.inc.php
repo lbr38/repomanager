@@ -6,17 +6,17 @@
             <?php
             if (IS_ADMIN) : ?>
                 <div id="title-button-container">
-                    <div class="slide-btn slide-panel-btn" slide-panel="repo-groups" title="Manage repos groups">
+                    <div class="slide-btn slide-panel-btn" slide-panel="repos/groups" title="Manage repos groups">
                         <img src="/assets/icons/folder.svg" />
                         <span>Manage groups</span>
                     </div>
 
-                    <div class="slide-btn slide-panel-btn" slide-panel="source-repo" title="Manage source repositories">
+                    <div class="slide-btn slide-panel-btn" slide-panel="repos/sources" title="Manage source repositories">
                         <img src="/assets/icons/internet.svg" />
                         <span>Manage source repos</span>
                     </div>
 
-                    <div class="slide-btn slide-panel-btn" slide-panel="new-repo" title="Create a new mirror or local repository">
+                    <div class="slide-btn slide-panel-btn" slide-panel="repos/new" title="Create a new mirror or local repository">
                         <img src="/assets/icons/plus.svg" />
                         <span>Create a new repo</span>
                     </div>

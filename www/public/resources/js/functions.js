@@ -5,10 +5,10 @@
  */
 function openPanel(name)
 {
-    $('.slide-panel-container[slide-panel=' + name + ']').css({
+    $('.slide-panel-container[slide-panel="' + name + '"]').css({
         visibility: 'visible'
     }).promise().done(function () {
-        $('.slide-panel-container[slide-panel=' + name + ']').find('.slide-panel').animate({
+        $('.slide-panel-container[slide-panel="' + name + '"]').find('.slide-panel').animate({
             right: '0'
         })
     })
@@ -154,6 +154,35 @@ function hideLoading()
     setTimeout(function () {
         $('#loading').remove();
     },1500);
+}
+
+/**
+ *  Slide div by class name or Id and save state in sessionStorage
+ *  @param {*} name
+ */
+function slide(name)
+{
+    /**
+     *  Get element display state (display: none or display: block/grid etc...)
+     */
+    var state = $(name).css('display');
+
+    /**
+     *  Open or close element
+     */
+    $(name).slideToggle('fast');
+
+    /**
+     *  If element was hidden (display: none) then it is now opened
+     */
+    if (state == 'none') {
+        sessionStorage.setItem(name + '/opened', 'true');
+    } else {
+        /**
+         *  Else it was opened and is now closed
+         */
+        sessionStorage.setItem(name + '/opened', 'false');
+    }
 }
 
 /**

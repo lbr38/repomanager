@@ -27,45 +27,50 @@
             </div>
 
             <div class="hide source-repo-param-div detailsDiv margin-bottom-5" source-id="<?= $item['Id'] ?>">
-                <div class="grid grid-fr-1-2 align-item-center column-gap-10">
-                    <span>Name</span>
-                    <span>
-                        <input class="source-input-name" type="text" source-name="<?= $item['Name'] ?>" source-type="<?= $item['Type'] ?>" value="<?= $item['Name'] ?>" />
-                    </span>
+                <form class="source-form" source-id="<?= $item['Id'] ?>" autocomplete="off">
+                    <div class="grid grid-fr-1-2 align-item-center column-gap-10">
+                        <span>Name</span>
+                        <span>
+                            <input class="source-input-name" type="text" value="<?= $item['Name'] ?>" />
+                        </span>
 
-                    <span>URL</span>
-                    <span>
-                        <input class="source-input-url" type="text" source-name="<?= $item['Name'] ?>" source-type="<?= $item['Type'] ?>" value="<?= $item['Url'] ?>" />
-                    </span>
-                </div>
+                        <span>URL</span>
+                        <span>
+                            <input class="source-input-url" type="text" value="<?= $item['Url'] ?>" />
+                        </span>
+                    </div>
 
-                <br>
+                    <br>
 
-                <p><b>GPG parameters</b></p>
+                    <p><b>GPG parameters</b></p>
 
-                <div class="grid grid-fr-1-2 align-item-center column-gap-10">
-                    <span>GPG signing key URL</span>
-                    <span>
-                        <input class="source-repo-gpgkey-input" source-id="<?= $item['Id'] ?>" type="text" value="<?= $item['Gpgkey'] ?>" placeholder="http://..." />
-                    </span>
-                </div>
+                    <div class="grid grid-fr-1-2 align-item-center column-gap-10">
+                        <span>GPG signing key URL</span>
+                        <span>
+                            <input class="source-gpgkey-input" type="text" value="<?= $item['Gpgkey'] ?>" placeholder="http://..." />
+                        </span>
+                    </div>
 
-                <br>
+                    <br>
 
-                <p><b>SSL parameters</b></p>
-                <p class="lowopacity-cst">Use a SSL certificate and private key to authenticate to the source repository</p>
+                    <p><b>SSL parameters</b></p>
+                    <p class="lowopacity-cst">Use a SSL certificate and private key to authenticate to the source repository</p>
 
-                <div class="grid grid-fr-1-2 align-item-center column-gap-10">
-                    <span>Path to SSL certificate</span>
-                    <span>
-                        <input class="source-repo-crt-input" source-id="<?= $item['Id'] ?>" type="text" value="<?= $item['Ssl_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/certificate.crt" />
-                    </span>
-                
-                    <span>Path to SSL private key</span>
-                    <span>
-                        <input class="source-repo-key-input" source-id="<?= $item['Id'] ?>" type="text" value="<?= $item['Ssl_private_key_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/private.key" />
-                    </span>
-                </div>
+                    <div class="grid grid-fr-1-2 align-item-center column-gap-10">
+                        <span>Path to SSL certificate</span>
+                        <span>
+                            <input class="source-sslcrt-input" type="text" value="<?= $item['Ssl_certificate_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/certificate.crt" />
+                        </span>
+                    
+                        <span>Path to SSL private key</span>
+                        <span>
+                            <input class="source-sslkey-input" type="text" value="<?= $item['Ssl_private_key_path'] ?>" placeholder="e.g. /var/lib/repomanager/ssl/private.key" />
+                        </span>
+                    </div>
+
+                    <br>
+                    <button type="submit" class="btn-large-green" title="Save">Save</button>
+                </form>
             </div>
             <?php
         endforeach; ?>

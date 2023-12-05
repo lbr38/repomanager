@@ -23,7 +23,7 @@ class HostSettings
          */
         $pkgs_count_considered_critical = $hostsSettings['pkgs_count_considered_critical'];
 
-        include_once(ROOT . '/views/includes/panels/hosts-settings.inc.php');
+        include_once(ROOT . '/views/includes/panels/hosts/settings.inc.php');
 
         unset($myhost, $hostsSettings);
     }

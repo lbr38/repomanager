@@ -236,6 +236,21 @@ class Operation
             foreach ($subpids[0] as $subpid) {
                 $subpid = trim(str_replace('"', '', $subpid));
 
+                /**
+                 *  Check if the PID is still running
+                 */
+                $myprocess = new \Controllers\Process('ps --pid ' . $subpid);
+                $myprocess->execute();
+                $content = $myprocess->getOutput();
+                $myprocess->close();
+
+                if ($myprocess->getExitCode() != 0) {
+                    continue;
+                }
+
+                /**
+                 *  Kill the process
+                 */
                 $myprocess = new \Controllers\Process('kill -9 ' . $subpid);
                 $myprocess->execute();
                 $content = $myprocess->getOutput();

@@ -15,7 +15,23 @@ class Profile
     }
 
     /**
-     *  Retourne la liste des paquets dans la table profile_package
+     *  Return profile name by Id
+     */
+    public function getNameById(int $id)
+    {
+        return $this->model->getNameById($id);
+    }
+
+    /**
+     *  Return profile Id by name
+     */
+    public function getIdByName(string $name)
+    {
+        return $this->model->getIdByName($name);
+    }
+
+    /**
+     *  Return a list of all packages in profile_package table
      */
     public function getPackages()
     {
@@ -23,7 +39,7 @@ class Profile
     }
 
     /**
-     *  Retourne la liste des services dans la table profile_service
+     *  Return a list of all services in profile_service table
      */
     public function getServices()
     {
@@ -31,7 +47,7 @@ class Profile
     }
 
     /**
-     *  Retourne la configuration générale du serveur pour la gestion des profils
+     *  Return server configuration for profiles management
      */
     public function getServerConfiguration()
     {
@@ -53,7 +69,7 @@ class Profile
         /**
          *  Get profile Id from database
          */
-        $profileId = $this->model->getIdByName($profile);
+        $profileId = $this->getIdByName($profile);
 
         /**
          *  Get profile full configuration
@@ -75,9 +91,9 @@ class Profile
 
         /**
          *  Return only main configuration
+         *  For now we only return the profile name but we could return more in the future
          */
-        $configuration['Linupdate_get_pkg_conf'] = $fullConfiguration['Linupdate_get_pkg_conf'];
-        $configuration['Linupdate_get_repos_conf'] = $fullConfiguration['Linupdate_get_repos_conf'];
+        $configuration['Name'] = $fullConfiguration['Name'];
 
         return $configuration;
     }
@@ -105,54 +121,47 @@ class Profile
     }
 
     /**
-     *  Retourne un array contenant la liste des repos membres d'un profil
+     *  Return an array containing repos members of a profile
      */
     public function getReposMembersList(string $profile)
     {
         /**
-         *  D'abord on vérifie que le profil spécifié existe en base de données
+         *  First check that profile exists
          */
         if ($this->model->exists($profile) === false) {
             throw new Exception("$profile profile does not exist");
         }
 
         /**
-         *  On récupère l'id du profil spécifié en base de données
+         *  Retrieve profile Id from database
          */
-        $profileId = $this->model->getIdByName($profile);
+        $profileId = $this->getIdByName($profile);
 
         /**
-         *  Récupération de la configuration des repos
+         *  Retrieve repos configuration
          */
-        $repos = $this->model->reposMembersList($profileId);
+        $repos = $this->model->getReposMembersList($profileId);
 
         /**
-         *  Formattage des fichiers de configuration .repo ou .list avant de envoyer au format JSON
+         *  Format repos members configuration files (.repo or .list) before sending to JSON format
          */
         $globalArray = array();
 
         foreach ($repos as $repo) {
-            $name = $repo['Name'];
-            $dist = $repo['Dist'];
-            $section = $repo['Section'];
-            $packageType = $repo['Package_type'];
-
-            if ($packageType == 'rpm') {
-                $repoArray =
-                array(
-                    'filename' => REPO_CONF_FILES_PREFIX . $name . '.repo',
-                    'description' => $name . ' repo on ' . __SERVER_URL__,
-                    'content' => '[' . REPO_CONF_FILES_PREFIX . $name . '___ENV__]' . PHP_EOL . 'name=' . $name . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'comment=' . $name . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $name . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1'
-                );
+            if ($repo['Package_type'] == 'rpm') {
+                $repoArray = array(
+                                'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.repo',
+                                'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                                'content' => '[' . REPO_CONF_FILES_PREFIX . $repo['Name'] . '___ENV__]' . PHP_EOL . 'name=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'comment=' . $repo['Name'] . ' repo on ' . WWW_HOSTNAME . PHP_EOL . 'baseurl=' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '___ENV__' . PHP_EOL . 'enabled=1' . PHP_EOL . 'gpgkey=' . __SERVER_URL__ . '/repo/gpgkeys/' . WWW_HOSTNAME . '.pub' . PHP_EOL . 'gpgcheck=1'
+                            );
             }
 
-            if ($packageType == 'deb') {
-                $repoArray =
-                array(
-                    'filename' => REPO_CONF_FILES_PREFIX . $name . '.list',
-                    'description' => $name . ' repo on ' . __SERVER_URL__,
-                    'content' => 'deb ' . __SERVER_URL__ . '/repo/' . $name . '/' . $dist . '/' . $section . '___ENV__ ' . $dist . ' ' . $section
-                );
+            if ($repo['Package_type'] == 'deb') {
+                $repoArray = array(
+                                'filename' => REPO_CONF_FILES_PREFIX . $repo['Name'] . '.list',
+                                'description' => $repo['Name'] . ' repo on ' . __SERVER_URL__,
+                                'content' => 'deb ' . __SERVER_URL__ . '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '___ENV__ ' . $repo['Dist'] . ' ' . $repo['Section']
+                            );
             }
 
             $globalArray[] = $repoArray;
@@ -162,38 +171,19 @@ class Profile
     }
 
     /**
-     *  Modifie la configuration générale du serveur pour la gestion des profils
-     */
-    public function setServerConfiguration(string $serverManageClientConf, string $serverManageClientRepos)
-    {
-        if (DEB_REPO == 'true' && RPM_REPO == 'true') {
-            $serverPackageType = 'deb,rpm';
-        } elseif (DEB_REPO == 'true') {
-            $serverPackageType = 'deb';
-        } elseif (RPM_REPO == 'true') {
-            $serverPackageType = 'rpm';
-        }
-
-        if ($serverManageClientConf != 'yes' && $serverManageClientConf != 'no') {
-            throw new Exception("Parameter 'Manage profiles packages configuration");
-        }
-        if ($serverManageClientRepos != 'yes' && $serverManageClientRepos != 'no') {
-            throw new Exception("Parameter 'Manage profiles repos configuration' is invalid");
-        }
-
-        $this->model->setServerConfiguration($serverPackageType, $serverManageClientConf, $serverManageClientRepos);
-    }
-
-    /**
-     *  Retourne true ou false suivant si le profil existe en base de données
+     *  Return true if profile exists in database
      */
     public function exists(string $name)
     {
-        if ($this->model->exists($name) === false) {
-            return false;
-        }
+        return $this->model->exists($name);
+    }
 
-        return true;
+    /**
+     *  Return true if profile Id exists in database
+     */
+    public function existsId(int $id)
+    {
+        return $this->model->existsId($id);
     }
 
     /**
@@ -205,7 +195,7 @@ class Profile
     }
 
     /**
-     *  Retourne la liste des profils en base de données
+     *  Return a list of all profiles
      */
     public function list()
     {
@@ -213,7 +203,7 @@ class Profile
     }
 
     /**
-     *  Retourne le nombre d'hôtes utilisant le profil spécifié
+     *  Return the number of hosts using the specified profile
      */
     public function countHosts(string $profile)
     {
@@ -221,29 +211,26 @@ class Profile
     }
 
     /**
-     *  Création d'un nouveau profil
+     *  Create a new profile
      */
     public function new(string $name)
     {
         $name = Common::validateData($name);
 
         /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
+         *  Check that profile name does not contain forbidden characters
          */
         if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile contains invalid characters");
         }
 
         /**
-         *  2. On vérifie qu'un profil du même nom n'existe pas déjà
+         *  Check that profile does not already exist
          */
         if ($this->model->exists($name) === true) {
             throw new Exception("<b>$name</b> profile already exists");
         }
 
-        /**
-         *  3. Si pas d'erreur alors on peut créer le répertoire en base de données
-         */
         $this->model->add($name);
 
         $myhistory = new \Controllers\History();
@@ -251,94 +238,64 @@ class Profile
     }
 
     /**
-     *  Renommage d'un profil
+     *  Duplicate a profile and its configuration
      */
-    public function rename(string $name, string $newName)
+    public function duplicate(string $id)
     {
-        $name = Common::validateData($name);
-        $newName = Common::validateData($newName);
-
         /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
+         *  Check that profile exists
          */
-        if (Common::isAlphanumDash($name) === false) {
-            throw new Exception("<b>$name</b> profile name contains invalid characters");
-        }
-
-        if (Common::isAlphanumDash($newName) === false) {
-            throw new Exception("<b>$newName</b> profile name contains invalid characters");
+        if (!$this->existsId($id)) {
+            throw new Exception('Profile does not exist');
         }
 
         /**
-         *  2. On vérifie qu'un profil du même nom n'existe pas déjà. Si c'est le cas on affiche un message d'erreur
+         *  Retrieve profile name
          */
-        if ($this->model->exists($newName) === true) {
-            throw new Exception("<b>$newName</b> profile already exists");
-        }
+        $name = $this->model->getNameById($id);
 
         /**
-         *  3. Si pas d'erreur alors on peut renommer le profil en base de données
-         */
-        $this->model->rename($name, $newName);
-
-        $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], "<b>$name</b> profile renamed to <b>$newName</b>", 'success');
-    }
-
-    /**
-     *  Dupliquer un profil et sa configuration
-     */
-    public function duplicate(string $name)
-    {
-        $name = Common::validateData($name);
-
-        /**
-         *  Récupéraiton de l'Id du profil source
-         */
-        $profileId = $this->model->getIdByName($name);
-
-        /**
-         *  On génère un nouveau nom de profil basé sur le nom du profil dupliqué + suivi d'un nombre aléatoire
+         *  Generate a new profile name based on the duplicated profile name + a random number
          */
         $newName = $name . '-' . mt_rand(100000, 200000);
 
         /**
-         *  On vérifie que le nouveau nom n'existe pas déjà
+         *  Check that new profile name does not already exist
          */
         while ($this->model->exists($newName) === true) {
             /**
-             *  Re-génération d'un nom si celui-ci est déjà prit
+             *  Re-generate a new name if the previous one already exists
              */
             $newName = $name . '-' . mt_rand(100000, 200000);
         }
 
         /**
-         *  Création du du nouveau profil en base de données
+         *  Create new profile in database
          */
         $this->model->add($newName);
 
         /**
-         *  Récupération de l'Id du profil créé
+         *  Retrive new profile Id
          */
         $newProfileId = $this->model->getLastInsertRowID();
 
         /**
-         *  Récupération de la configuration générale actuelle du profil source
+         *  Retrieve source profile configuration
          */
-        $profileConf = $this->model->getProfileFullConfiguration($profileId);
+        $profileConf = $this->model->getProfileFullConfiguration($id);
 
         /**
-         *  Copie de la configuration du profil dupliqué vers le nouveau profil
+         *  Copy source profile configuration to new profile
          */
-        $this->model->configure($newProfileId, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Linupdate_get_pkg_conf'], $profileConf['Linupdate_get_repos_conf'], $profileConf['Notes']);
+        $this->model->configure($newProfileId, $newName, $profileConf['Package_exclude'], $profileConf['Package_exclude_major'], $profileConf['Service_restart'], $profileConf['Notes']);
 
         /**
-         *  Récupération des repos membres du profil source
+         *  Retrieve source profile repos members
          */
-        $reposMembersId = $this->model->reposMembersIdList($profileId);
+        $reposMembersId = $this->reposMembersIdList($id);
 
         /**
-         *  On ajoute chaque repos au nouveau profil
+         *  Add each repo to new profile
          */
         foreach ($reposMembersId as $repoMemberId) {
             $this->model->addRepoToProfile($newProfileId, $repoMemberId);
@@ -349,87 +306,95 @@ class Profile
     }
 
     /**
-     *  Supprimer un profil
+     *  Delete a profile
      */
-    public function delete(string $name)
+    public function delete(int $id)
     {
-        $name = Common::validateData($name);
-
         /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
+         *  Check that profile Id exists in database
          */
-        if (Common::isAlphanumDash($name) === false) {
-            throw new Exception("<b>$name</b> profile name contains invalid characters");
+        if ($this->existsId($id) === false) {
+            throw new Exception('Profile does not exist');
         }
 
         /**
-         *  2. Suppression du profil en base de données
+         *  Delete
          */
-        $this->model->delete($name);
+        $this->model->delete($id);
+
+        /**
+         *  Retrieve profile name
+         */
+        $name = $this->model->getNameById($id);
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], "Delete <b>$name</b> profile", 'success');
     }
 
     /**
-     *  Configuration d'un profil
-     *  Gestion des repos du profil
-     *  Gestion des paquets à exclure
+     *  Configure profile
      */
-    public function configure(string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $linupdateGetPkgConf, string $linupdateGetReposConf, string $notes)
+    public function configure(int $id, string $name, array $reposIds = null, array $packagesExcluded = null, array $packagesMajorExcluded = null, array $serviceNeedRestart = null, string $notes)
     {
-        $name = Common::validateData($name);
-
         $error = 0;
 
+        $name = Common::validateData($name);
+
         /**
-         *  1. On vérifie que le nom du profil ne contient pas des caractères interdits
+         *  Check that profile name does not contain forbidden characters
          */
         if (Common::isAlphanumDash($name) === false) {
             throw new Exception("<b>$name</b> profile name contains invalid characters");
         }
 
         /**
-         *  2. On vérifie que le profil existe en base de données
+         *  Check that profile exists
          */
-        if ($this->model->exists($name) === false) {
-            throw new Exception("$name profile does not exist");
+        if ($this->existsId($id) === false) {
+            throw new Exception($name . ' profile does not exist');
         }
 
         /**
-         *  3. Récupération de l'Id du profil en base de données
+         *  Retrieve actual profile name from its Id
          */
-        $profileId = $this->model->getIdByName($name);
+        $actualName = $this->model->getNameById($id);
 
         /**
-         *  4. D'abord on vide tous les repos membres du profil avant d'ajouter ensuite uniquement ceux qui ont été spécifiés
+         *  If the name is being changed then we check that the new name does not already exist
          */
-        $this->model->cleanProfileRepoMembers($profileId);
-
-        /**
-         *  5. Si l'array $reposIds est vide alors on s'arrête là, le profil restera sans repo configuré. Sinon on continue.
-         *  Ce n'est pas une erreur alors on retourne true
-         */
-        if (!empty($reposIds)) {
-
-            /**
-             *  On ajoute chaque Id de repo dans la table profile_repo_members
-             */
-            foreach ($reposIds as $repoId) {
-                $this->model->addRepoToProfile($profileId, $repoId);
+        if ($name != $actualName) {
+            if ($this->model->exists($name) === true) {
+                throw new Exception($name . ' profile already exists');
             }
         }
 
         /**
-         *  6. Gestion des exclusions et autres paramètres...
+         *  First we clean all profile repos members before adding the new ones
+         */
+        $this->model->cleanProfileRepoMembers($id);
+
+        /**
+         *  If $reposIds array is empty then we stop here, the profile will remain without any repo configured. Else we continue.
+         */
+        if (!empty($reposIds)) {
+            /**
+             *  Add each repo Id to profile_repo_members table
+             */
+            foreach ($reposIds as $repoId) {
+                $this->model->addRepoToProfile($id, $repoId);
+            }
+        }
+
+        /**
+         *  Manage packages excludes and other parameters...
          *
-         *  Pour chaque paramètre ci-dessous,
-         *  Si non-vide alors on implode l'array en string en séparant chaque valeurs par une virgule car c'est comme ça qu'elles seront renseignées en base de données
-         *  Si vide, alors on set une valeur vide
+         *  For each parameter below,
+         *  If not empty then we implode the array into a string with each values separated by a comma because this is how they will be stored in database
+         *  If empty then we set an empty value
          */
 
         /**
-         *  Vérification des paquets à exclure (toute version)
+         *  Packages to exclude on major version update
          */
         if (!empty($packagesMajorExcluded)) {
             foreach ($packagesMajorExcluded as $packageName) {
@@ -440,9 +405,8 @@ class Profile
                 }
 
                 /**
-                 *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
-                 *
-                 *  Si le package possède un wildcard .* alors on retire d'abord ce wildcard avant d'effectuer le test
+                 *  For each package, we check its syntax then we add it to database if it does not already exist
+                 *  If package contains a wildcard .* then we remove it before testing
                  */
                 if (substr($packageName, -2) == ".*") {
                     $packageNameFormatted = rtrim($packageName, ".*");
@@ -451,14 +415,14 @@ class Profile
                 }
 
                 /**
-                 *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
+                 *  Add package to profile_package table if it does not already exist
                  */
                 $this->model->addPackage($packageNameFormatted);
             }
         }
 
         /**
-         *  Vérification des paquets à exclure
+         *  Packages to exclude
          */
         if (!empty($packagesExcluded)) {
             foreach ($packagesExcluded as $packageName) {
@@ -469,9 +433,8 @@ class Profile
                 }
 
                 /**
-                 *  Pour chaque paquet, on vérifie sa syntaxe puis on l'ajoute en base de données si il n'existe pas
-                 *
-                 *  Si le package possède un wildcard .* alors on retire d'abord ce wildcard avant d'effectuer le test
+                 *  For each package, we check its syntax then we add it to database if it does not already exist
+                 *  If package contains a wildcard .* then we remove it before testing
                  */
                 if (substr($packageName, -2) == ".*") {
                     $packageNameFormatted = rtrim($packageName, ".*");
@@ -480,14 +443,14 @@ class Profile
                 }
 
                 /**
-                 *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
+                 *  Add package to profile_package table if it does not already exist
                  */
                 $this->model->addPackage($packageNameFormatted);
             }
         }
 
         /**
-         *  Vérification des services à redémarrer
+         *  Services to restart
          */
         if (!empty($serviceNeedRestart)) {
             foreach ($serviceNeedRestart as $serviceName) {
@@ -496,53 +459,46 @@ class Profile
                 /**
                  *  On vérifie que le nom du service ne contient pas de caractères interdits
                  */
-                if (!Common::isAlphanumDash($serviceName, array('@'))) {
+                if (!Common::isAlphanumDash($serviceName, array('@', ':', '.*'))) {
                     throw new Exception('Service ' . $serviceName . ' contains invalid characters');
                 }
 
                 /**
-                 *  Ajout du paquet dans la table profile_package si il n'existe pas déjà.
+                 *  Add service to profile_service table if it does not already exist
+                 *  But only if it does not contain a conditionnal restart with a ':' character
                  */
-                $this->model->addService($serviceName);
+                if (strpos($serviceName, ':') === false) {
+                    $this->model->addService($serviceName);
+                }
             }
         }
 
         /**
-         *  Si on tente de passer une autre valeur de paramètre differente de 'yes' ou 'no' alors on ne fait rien
-         */
-        if ($linupdateGetPkgConf != 'true' and $linupdateGetPkgConf != 'false') {
-            return;
-        }
-        if ($linupdateGetReposConf != 'true' and $linupdateGetReposConf != 'false') {
-            return;
-        }
-
-        /**
-         *  Si toutes les vérifications sont passées alors on peut insérer les données en base
-         *  On implode tous les arrays transmis en string avec les valeurs séparées par une virgule
+         *  If all checks are passed then we can insert data into database
+         *  Implode all arrays into a string with each values separated by a comma
          */
         $packagesExcludedExploded = implode(',', $packagesExcluded);
         $packagesMajorExcludedExploded = implode(',', $packagesMajorExcluded);
         $serviceNeedRestartExploded = implode(',', $serviceNeedRestart);
 
         /**
-         *  Vérification des notes
+         *  Check notes
          */
         if (!empty($notes)) {
             $notes = Common::validateData($notes);
         }
 
         /**
-         *  Insertion de la nouvelle configuration en base de données
+         *  Insert new configuration into database
          */
-        $this->model->configure($profileId, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $linupdateGetPkgConf, $linupdateGetReposConf, $notes);
+        $this->model->configure($id, $name, $packagesExcludedExploded, $packagesMajorExcludedExploded, $serviceNeedRestartExploded, $notes);
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], "Modification of <b>$name</b> profile configuration", 'success');
     }
 
     /**
-     *  Retourne un array contenant les Id de repos membres d'un profil
+     *  Return an array containing repos Id members of a profile
      */
     public function reposMembersIdList(string $profileId)
     {

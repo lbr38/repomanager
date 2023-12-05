@@ -31,44 +31,29 @@ class Group extends Model
     }
 
     /**
-     *  Renommer un groupe en base de données
+     *  Delete a group
+     *  Also delete group_members entries
+     *  @param id
      */
-    public function rename(string $actualName, string $newName)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE groups SET Name = :newname WHERE Name = :actualname");
-            $stmt->bindValue(':newname', $newName);
-            $stmt->bindValue(':actualname', $actualName);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Supprimer un groupe en base de données
-     *  Supprimer également les correspondances repo <=> groupe dans la table group_members
-     *  @param name
-     */
-    public function delete(string $name)
+    public function delete(string $id)
     {
         /**
-         *  1. Suppression de toutes les entrées concernant ce groupe dans group_members afin que les repos repassent sur le groupe par défaut
+         *  Delete all entries in group_members table for this group
          */
         try {
-            $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group IN (SELECT Id FROM groups WHERE Name = :name)");
-            $stmt->bindValue(':name', $name);
+            $stmt = $this->db->prepare("DELETE FROM group_members WHERE Id_group = :id");
+            $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         /**
-         *  2. Suppression du groupe
+         *  Delete group
          */
         try {
-            $stmt = $this->db->prepare("DELETE FROM groups WHERE Name = :name");
-            $stmt->bindValue(':name', $name);
+            $stmt = $this->db->prepare("DELETE FROM groups WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -129,29 +114,12 @@ class Group extends Model
      */
     public function listAll()
     {
-        $result = $this->db->query("SELECT * FROM groups");
+        $result = $this->db->query("SELECT * FROM groups ORDER BY Name ASC");
 
         $group = array();
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
             $group[] = $datas;
-        }
-
-        return $group;
-    }
-
-    /**
-     *  LISTER TOUS LES NOMS DE GROUPES
-     *  Sauf le groupe par défaut
-     */
-    public function listAllName()
-    {
-        $query = $this->db->query("SELECT * FROM groups");
-
-        $group = array();
-
-        while ($datas = $query->fetchArray(SQLITE3_ASSOC)) {
-            $group[] = $datas['Name'];
         }
 
         return $group;
@@ -174,9 +142,9 @@ class Group extends Model
 
         if ($this->db->isempty($result) === true) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -194,8 +162,144 @@ class Group extends Model
 
         if ($this->db->isempty($result) === true) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
+    }
+
+    /**
+     *  Update group name in database
+     */
+    public function updateName(int $id, string $name)
+    {
+        try {
+            $stmt = $this->db->prepare("UPDATE groups SET Name = :name WHERE Id = :id");
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
+     *  Return the list of repos in a group
+     */
+    public function getReposMembers(int $id)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT DISTINCT
+            repos.Id AS repoId,
+            repos.Name,
+            repos.Releasever,
+            repos.Dist,
+            repos.Section,
+            repos.Source,
+            repos.Package_type
+            FROM group_members 
+            INNER JOIN repos
+                ON repos.Id = group_members.Id_repo
+            INNER JOIN repos_snap
+                ON repos_snap.Id_repo = repos.Id
+            WHERE repos_snap.Status = 'active' 
+            AND Id_group = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return the list of repos not in any group
+     */
+    public function getReposNotMembers()
+    {
+        $data = array();
+
+        $result = $this->db->query("SELECT DISTINCT
+        repos.Id AS repoId,
+        repos.Name,
+        repos.Releasever,
+        repos.Dist,
+        repos.Section,
+        repos.Source,
+        repos.Package_type
+        FROM repos
+        INNER JOIN repos_snap
+            ON repos_snap.Id_repo = repos.Id
+        WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)");
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return the list of hosts in a group
+     */
+    public function getHostsMembers(int $id)
+    {
+        $data = array();
+
+        try {
+            $stmt = $this->db->prepare("SELECT
+            hosts.Id,
+            hosts.Hostname,
+            hosts.Ip
+            FROM hosts
+            INNER JOIN group_members
+                ON hosts.Id = group_members.Id_host
+            INNER JOIN groups
+                ON groups.Id = group_members.Id_group
+            WHERE Id_group = :id
+            AND hosts.Status = 'active'");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     *  Return the list of hosts not in any group
+     */
+    public function getHostsNotMembers()
+    {
+        $data = array();
+
+        try {
+            $result = $this->db->query("SELECT
+            hosts.Id,
+            hosts.Hostname,
+            hosts.Ip
+            FROM hosts
+            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)
+            AND hosts.Status = 'active'");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 }

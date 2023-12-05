@@ -27,7 +27,7 @@ else :
 endif;
 
 $content = ob_get_clean();
-$slidePanelName = 'notification';
+$slidePanelName = 'general/notification';
 $slidePanelTitle = 'NOTIFICATIONS';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

@@ -43,7 +43,7 @@ $(document).on('click','.show-logfile-btn',function () {
  *  Event: relaunch operation
  */
 $(document).on('click','.relaunch-operation-btn',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var poolId = $(this).attr('pool-id');

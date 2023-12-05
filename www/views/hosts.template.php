@@ -177,12 +177,12 @@
                         <?php
                         if (IS_ADMIN) : ?>
                             <div id="title-button-container">
-                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-groups" title="Manage hosts groups">
+                                <div class="slide-btn slide-panel-btn" slide-panel="hosts/groups" title="Manage hosts groups">
                                     <img src="/assets/icons/folder.svg" />
                                     <span>Manage groups</span>
                                 </div>
 
-                                <div class="slide-btn slide-panel-btn" slide-panel="hosts-settings" title="Edit display settings">
+                                <div class="slide-btn slide-panel-btn" slide-panel="hosts/settings" title="Edit display settings">
                                     <img src="/assets/icons/cog.svg" />
                                     <span>Settings</span>
                                 </div>
@@ -192,7 +192,7 @@
                     </div>
 
                     <?php
-                    if (!empty($hostGroupsListWithDefault)) :
+                    if (!empty($hostGroupsList)) :
                         /**
                          *  Si il y a au moins 1 hôte actif alors on fait apparaitre les champs de recherche
                          */
@@ -216,27 +216,28 @@
                         
                         <div class="groups-container">
                             <?php
-                            foreach ($hostGroupsListWithDefault as $groupName) :
+                            foreach ($hostGroupsList as $group) :
                                 /**
                                  *  Récupération de la liste des hôtes du groupe
                                  */
-                                $hostsList = $myhost->listByGroup($groupName);
+                                $hostsList = $myhost->listByGroup($group['Name']);
+
                                 /**
                                  *  Si il s'agit du groupe par défaut 'Default' et que celui-ci ne possède aucun hôte alors on ignore son affichage
                                  */
-                                if ($groupName == "Default" and empty($hostsList)) {
+                                if ($group['Name'] == "Default" and empty($hostsList)) {
                                     continue;
                                 } ?>
-                                <input type='hidden' name='groupname' value='<?=$groupName?>'>
+                                <input type='hidden' name='groupname' value='<?=$group['Name']?>'>
                 
                                 <div class="div-generic-blue hosts-group-container">
                                     <?php
                                     /**
                                      *  On affiche le nom du groupe sauf si il s'agit du groupe Default
                                      */
-                                    if ($groupName != "Default") :
+                                    if ($group['Name'] != "Default") :
                                         echo '<h3>';
-                                        echo $groupName;
+                                        echo $group['Name'];
 
                                         /**
                                          *  Affichage du nombre d'hôtes dans ce groupe
@@ -263,7 +264,7 @@
                                                 <?php
                                                 if (IS_ADMIN) : ?>
                                                     <span class="text-right">
-                                                        <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$groupName?>" title="Select all" >
+                                                        <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
                                                     </span>
                                                     <?php
                                                 endif ?>
@@ -525,7 +526,7 @@
                                                     <?php
                                                     if (IS_ADMIN) : ?>
                                                         <div class="text-right" title="Select <?= $hostname ?>">
-                                                            <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $groupName ?>" value="<?= $id ?>">
+                                                            <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
                                                         </div>
                                                         <?php
                                                     endif ?>

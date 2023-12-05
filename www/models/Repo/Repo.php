@@ -201,11 +201,14 @@ class Repo extends \Models\Model
     /**
      *  Return environment Id from repo name
      */
-    public function getEnvIdFromRepoName(string $name, string $dist = null, string $section = null, string $env)
+    public function getEnvIdFromRepoName(string $name, string|null $dist, string|null $section, string $env)
     {
-        $id = array();
+        $data = array();
 
         try {
+            /**
+             *  Case RPM
+             */
             if (empty($dist) and empty($section)) {
                 $stmt = $this->db->prepare("SELECT repos_env.Id
                 FROM repos_env
@@ -214,7 +217,12 @@ class Repo extends \Models\Model
                 INNER JOIN repos
                     ON repos.Id = repos_snap.Id_repo
                 WHERE repos.Name = :name
+                AND repos.Dist IS NULL
+                AND repos.Section IS NULL
                 AND repos_env.Env = :env");
+            /**
+             *  Case DEB (dist and section are specified)
+             */
             } else {
                 $stmt = $this->db->prepare("SELECT repos_env.Id
                 FROM repos_env
@@ -237,10 +245,10 @@ class Repo extends \Models\Model
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $id = $row;
+            $data[] = $row;
         }
 
-        return $id;
+        return $data;
     }
 
     public function getEnvIdBySnapId(string $snapId)
@@ -391,69 +399,6 @@ class Repo extends \Models\Model
         }
 
         return $description;
-    }
-
-    /**
-     *  Retourne les repos membres d'un groupe à partir de son Id
-     */
-    public function getReposGroupMembers(string $groupId)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT DISTINCT
-            repos.Id AS repoId,
-            repos.Name,
-            repos.Releasever,
-            repos.Dist,
-            repos.Section,
-            repos.Source,
-            repos.Package_type
-            FROM group_members 
-            INNER JOIN repos
-                ON repos.Id = group_members.Id_repo
-            INNER JOIN repos_snap
-                ON repos_snap.Id_repo = repos.Id
-            WHERE repos_snap.Status = 'active' 
-            AND Id_group = :idgroup");
-            $stmt->bindValue(':idgroup', $groupId);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $row;
-        }
-
-        return $repos;
-    }
-
-    /**
-     *  Retourne les repos qui ne sont membres d'aucun groupe
-     */
-    public function getReposNotMembersOfAnyGroup()
-    {
-        $result = $this->db->query("SELECT DISTINCT
-        repos.Id AS repoId,
-        repos.Name,
-        repos.Releasever,
-        repos.Dist,
-        repos.Section,
-        repos.Source,
-        repos.Package_type
-        FROM repos
-        INNER JOIN repos_snap
-            ON repos_snap.Id_repo = repos.Id
-        WHERE repos_snap.Status = 'active' AND repos.Id NOT IN (SELECT Id_repo FROM group_members)");
-
-        $repos = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $row;
-        }
-
-        return $repos;
     }
 
     /**

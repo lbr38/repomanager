@@ -147,7 +147,6 @@ trait Finalize
          *  Si l'utilisateur a renseigné un environnement à faire pointer sur le snapshot créé
          */
         if (!empty($this->repo->getTargetEnv())) {
-
             /**
              *  Si l'utilisateur n'a précisé aucune description alors on récupère celle actuellement en place sur l'environnement de même nom (si l'environnement existe et si il possède une description)
              */
@@ -179,7 +178,7 @@ trait Finalize
              */
             if (!empty($actualEnvIds)) {
                 foreach ($actualEnvIds as $actualEnvId) {
-                    $this->repo->removeEnv($actualEnvId);
+                    $this->repo->removeEnv($actualEnvId['Id']);
                 }
             }
 

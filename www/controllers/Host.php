@@ -1508,70 +1508,6 @@ class Host
     }
 
     /**
-     *  Génère un <select> contenant la liste des hôtes par groupe
-     */
-    public function selectServers(string $groupName)
-    {
-        /**
-         *  On aura besoin d'un objet Group()
-         */
-        $mygroup = new Group('host');
-
-        /**
-         *  On vérifie que le groupe existe
-         */
-        if ($mygroup->exists($groupName) === false) {
-            throw new Exception("Group <b>$groupName</b> does not exist");
-        }
-
-        /**
-         *  Récupération de l'Id du groupe en base de données
-         */
-        $groupId = $mygroup->getIdByName($groupName);
-
-        /**
-         *  Récupération de tous les hosts membres de ce groupe
-         */
-        $hostsIn = $this->model->getHostsGroupMembers($groupId);
-
-        /**
-         *  Récupération de tous les hosts membres d'aucun groupe
-         */
-        $hostsNotIn = $this->model->getHostsNotMembersOfAnyGroup();
-
-        echo '<select class="hostsSelectList" groupname="' . $groupName . '" name="groupAddServerId[]" multiple>';
-
-            /**
-             *  Les hôtes membres du groupe seront par défaut sélectionnés dans la liste
-             */
-        if (!empty($hostsIn)) {
-            foreach ($hostsIn as $host) {
-                $hostId = $host['hostId'];
-                $hostIp = $host['Ip'];
-                $hostName = $host['Hostname'];
-
-                echo '<option value="' . $hostId . '" selected>' . $hostName . ' (' . $hostIp . ')</option>';
-            }
-        }
-
-            /**
-             *  Les hôtes non-membres du groupe seront dé-sélectionnés dans la liste
-             */
-        if (!empty($hostsNotIn)) {
-            foreach ($hostsNotIn as $host) {
-                $hostId = $host['Id'];
-                $hostIp = $host['Ip'];
-                $hostName = $host['Hostname'];
-
-                echo '<option value="' . $hostId . '">' . $hostName . ' (' . $hostIp . ')</option>';
-            }
-        }
-        echo '</select>';
-
-        unset($hostsIn, $hostsNotIn);
-    }
-
-    /**
      *  Update hostname in database
      */
     public function updateHostname(string $hostname)
@@ -1678,13 +1614,9 @@ class Host
     /**
      *  Ajouter / supprimer des hôtes dans un groupe
      */
-    public function addHostsIdToGroup(array $hostsId = null, string $groupName)
+    public function addHostsIdToGroup(array $hostsId = null, int $groupId)
     {
-        /**
-         *  On aura besoin d'un objet Group()
-         */
-        $mygroup = new Group('host');
-        $groupId = $mygroup->getIdByName($groupName);
+        $mygroup = new \Controllers\Group('host');
 
         if (!empty($hostsId)) {
             foreach ($hostsId as $hostId) {
@@ -1705,7 +1637,7 @@ class Host
         /**
          *  3. On récupère la liste des hôtes actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
          */
-        $actualHostsMembers = $this->model->getHostsGroupMembers($groupId);
+        $actualHostsMembers = $mygroup->getHostsMembers($groupId);
 
         /**
          *  4. Parmis cette liste on ne récupère que les Id des repos actuellement membres
@@ -1713,7 +1645,7 @@ class Host
         $actualHostsId = array();
 
         foreach ($actualHostsMembers as $actualHostsMember) {
-            $actualHostsId[] = $actualHostsMember['hostId'];
+            $actualHostsId[] = $actualHostsMember['Id'];
         }
 
         /**
@@ -1724,8 +1656,5 @@ class Host
                 $this->model->removeFromGroup($actualHostId, $groupId);
             }
         }
-
-        $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Modification of hosts members of the group <span class="label-white">' . $groupName . '</span>', 'success');
     }
 }

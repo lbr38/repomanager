@@ -22,19 +22,16 @@ class Source
     }
 
     /**
-     *  Return source repo URL
+     *  Get source repo Id from its name
      */
-    public function getUrl(string $sourceType, string $sourceName)
+    public function getIdByName(string $name)
     {
-        return $this->model->getUrl($sourceType, $sourceName);
+        return $this->model->getIdByName($name);
     }
 
-    /**
-     *  Get GPG key URL of the specified source repo
-     */
-    public function getGpgKeyUrl(string $sourceType, string $sourceName)
+    public function getType(string $id)
     {
-        return $this->model->getGpgKeyUrl($sourceType, $sourceName);
+        return $this->model->getType($id);
     }
 
     /**
@@ -102,65 +99,53 @@ class Source
     }
 
     /**
-     *  Delete a source repo
+     *  Edit a source repo
      */
-    public function delete(string $sourceId)
+    public function edit(int $id, string $name, string $url, string $gpgKeyURL = null, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
     {
-        $this->model->delete($sourceId);
-    }
-
-    /**
-     *  Rename a source repo
-     */
-    public function rename(string $type, string $name, string $newName)
-    {
-        if ($type != 'rpm' and $type != 'deb') {
-            throw new Exception('Repo type is invalid');
-        }
-
-        $name = \Controllers\Common::validateData($name);
-        $newName = \Controllers\Common::validateData($newName);
-
         /**
-         *  Check that names does not contains invalid characters
+         *  Check that source repo exists
          */
-        if (\Controllers\Common::isAlphanumDash($name) === false) {
-            throw new Exception('Repo name contains invalid characters');
-        }
-        if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception('Repo new name contains invalid characters');
+        if (!$this->model->existsId($id)) {
+            throw new Exception('Source repo does not exist');
         }
 
         /**
-         *  New name must be different than the actual name
+         *  Check that source repo name is valid
          */
-        if ($name == $newName) {
-            throw new Exception('You must specify a different name from the actual');
+        if (!\Controllers\Common::isAlphanumDash($name)) {
+            throw new Exception('Source repo name cannot contain special characters except hyphen and underscore');
         }
 
         /**
-         *  Check if a source repo with the same name already exists
+         *  Get source type
          */
-        if ($this->exists($type, $newName) === true) {
-            throw new Exception("Source repo <b>$newName</b> already exists");
-        }
-
-        $this->model->rename($type, $name, $newName);
-    }
-
-    /**
-     *  Edit source repo URL
-     */
-    public function editUrl(string $type, string $name, string $url)
-    {
-        $type = \Controllers\Common::validateData($type);
-        $name = \Controllers\Common::validateData($name);
+        $type = $this->getType($id);
 
         /**
-         *  Format URL
+         *  Check that source repo name is not already used by another source repo
+         */
+        if ($this->exists($type, $name)) {
+            /**
+             *  Retrieve the Id of the source repo with the same name
+             */
+            $testId = $this->getIdByName($name);
+
+            /**
+             *  If the Id is different from the one we are editing, then the name is already used
+             */
+            if ($testId !== false and $testId != $id) {
+                throw new Exception('A source repo <b>' . $name . '</b> already exists');
+            }
+        }
+
+        /**
+         *  Format specified URL
+         *  Delete spaces
+         *  Delete anti-slash
          */
         $url = trim($url);
-        $url = stripslashes($url); // Remove anti-slash
+        $url = stripslashes($url);
 
         /**
          *  Check that URL is valid
@@ -173,10 +158,49 @@ class Source
          *  Check that URL starts with http(s)://
          */
         if (!preg_match('#^https?://#', $url)) {
-            throw new Exception("Specified URL must start with http(s)://");
+            throw new Exception('Repository URL must start with http(s)://');
         }
 
-        $this->model->editUrl($type, $name, $url);
+        /**
+         *  GPG key URL can either be empty, either start with http(s)://
+         */
+        if (!empty($gpgKeyURL) and !preg_match('#^https?://#', $gpgKeyURL)) {
+            throw new Exception('GPG signing key URL must start with http(s)://');
+        }
+
+        /**
+         *  SSL certificate file must be a file that exist and is readable
+         */
+        if (!empty($sslCertificatePath)) {
+            if (!file_exists($sslCertificatePath)) {
+                throw new Exception('Specified certificate file does not exist');
+            }
+            if (!is_readable($sslCertificatePath)) {
+                throw new Exception('Specified certificate file is not readable');
+            }
+        }
+
+        /**
+         *  SSL private key file must be a file that exists and is readable
+         */
+        if (!empty($sslPrivateKeyPath)) {
+            if (!file_exists($sslPrivateKeyPath)) {
+                throw new Exception('Specified private key file does not exist');
+            }
+            if (!is_readable($sslPrivateKeyPath)) {
+                throw new Exception('Specified private key file is not readable');
+            }
+        }
+
+        $this->model->edit($id, $name, $url, $gpgKeyURL, $sslCertificatePath, $sslPrivateKeyPath);
+    }
+
+    /**
+     *  Delete a source repo
+     */
+    public function delete(string $sourceId)
+    {
+        $this->model->delete($sourceId);
     }
 
     /**
@@ -226,61 +250,6 @@ class Source
     }
 
     /**
-     *  Edit source repo GPG key URL
-     */
-    public function editGpgKey(string $sourceId, string $url = '')
-    {
-        /**
-         *  Key URL can either be empty, either start with http(s)://
-         */
-        if (!empty($url) and !preg_match('#^https?://#', $url)) {
-            throw new Exception('Specified URL must start with http(s)://');
-        }
-
-        $this->model->editGpgKey($sourceId, $url);
-    }
-
-    /**
-     *  Edit source repo SSL certificate file path
-     */
-    public function editSslCertificatePath(string $sourceId, string $path = '')
-    {
-        /**
-         *  SSL certificate file must be a file that exist and is readable
-         */
-        if (!empty($path)) {
-            if (!file_exists($path)) {
-                throw new Exception('Specified certificate file does not exist');
-            }
-            if (!is_readable($path)) {
-                throw new Exception('Specified certificate file is not readable');
-            }
-        }
-
-        $this->model->editSslCertificatePath($sourceId, $path);
-    }
-
-    /**
-     *  Edit source repo SSL private key file path
-     */
-    public function editSslPrivateKeyPath(string $sourceId, string $path = '')
-    {
-        /**
-         *  SSL private key file must be a file that exists and is readable
-         */
-        if (!empty($path)) {
-            if (!file_exists($path)) {
-                throw new Exception('Specified private key file does not exist');
-            }
-            if (!is_readable($path)) {
-                throw new Exception('Specified private key file is not readable');
-            }
-        }
-
-        $this->model->editSslPrivateKeyPath($sourceId, $path);
-    }
-
-    /**
      *  Delete a GPG key from Repomanager's trusted keyring
      */
     public function deleteGpgKey(string $gpgKeyId)
@@ -306,6 +275,14 @@ class Source
     public function exists(string $type, string $sourceName)
     {
         return $this->model->exists($type, $sourceName);
+    }
+
+    /**
+     *  Check if source repo exists in database
+     */
+    public function existsId(string $id)
+    {
+        return $this->model->existsId($id);
     }
 
     /**

@@ -55,7 +55,7 @@
  *  Affichage de la liste des groupes
  */
 $group = new \Controllers\Group('repo');
-$groupList = $group->listAllName();
+$groupList = $group->listAll();
 
 if (!empty($groupList)) : ?>
     <tr>
@@ -66,8 +66,8 @@ if (!empty($groupList)) : ?>
             <select class="operation_param" param-name="targetGroup">
                 <option value="">Select group...</option>
                 <?php
-                foreach ($groupList as $groupName) {
-                    echo '<option value="' . $groupName . '">' . $groupName . '</option>';
+                foreach ($groupList as $group) {
+                    echo '<option value="' . $group['Name'] . '">' . $group['Name'] . '</option>';
                 } ?>
             </select>
         </td>

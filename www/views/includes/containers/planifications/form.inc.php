@@ -1,4 +1,4 @@
-<div class="section-right reloadable-container" container="planifications/form">
+<div class="reloadable-container" container="planifications/form">
     <?php
     if (IS_ADMIN) : ?>
         <h5>PLAN A TASK</h5>

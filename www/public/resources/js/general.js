@@ -61,7 +61,7 @@ $(document).on('mouseleave','.copy',function () {
  *  Event: copy parent text on click on element with .icon-copy class
  */
 $(document).on('click','.icon-copy',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var text = $(this).parent().text().trim();
@@ -129,6 +129,33 @@ $(document).on('click','.reloadable-table-next-btn',function () {
 });
 
 /**
+ *  Reload opened or closed elements that where opened/closed before reloading
+ */
+function reloadOpenedClosedElements()
+{
+    /**
+     *  Retrieve sessionStorage with key finishing by /opened (<element>/opened)
+     */
+    var openedElements = Object.keys(sessionStorage).filter(function (key) {
+        return key.endsWith('/opened');
+    });
+
+    /**
+     *  If there are /opened elements set to true, open them
+     */
+    openedElements.forEach(function (element) {
+        if (sessionStorage.getItem(element) == 'true') {
+            var element = element.replace('/opened', '');
+            $(element).show();
+        }
+        if (sessionStorage.getItem(element) == 'false') {
+            var element = element.replace('/opened', '');
+            $(element).hide();
+        }
+    });
+}
+
+/**
  * Ajax: Mark log as read
  * @param {string} id
  */
@@ -151,6 +178,28 @@ function acquitLog(id)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'error');
         },
+    });
+}
+
+/**
+ * Reload panel and execute function if needed
+ * @param {*} panel
+ * @param {*} myfunction
+ */
+function reloadPanel(panel, myfunction = null)
+{
+    $('.slide-panel-reloadable-div[slide-panel="' + panel + '"]').load(' .slide-panel-reloadable-div[slide-panel="' + panel + '"] > *', function () {
+        /**
+         *  If myfunction is not null, execute it after reloading
+         */
+        if (myfunction != null) {
+            myfunction();
+        }
+
+        /**
+         *  Reload opened or closed elements that where opened/closed before reloading
+         */
+        reloadOpenedClosedElements();
     });
 }
 
@@ -179,6 +228,11 @@ function reloadContainer(container)
              *  Replace container with itself, with new content
              */
             $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
+
+            /**
+             *  Reload opened or closed elements that where opened/closed before reloading
+             */
+            reloadOpenedClosedElements();
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

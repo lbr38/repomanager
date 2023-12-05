@@ -575,13 +575,9 @@ class Repo
     /**
      *  Ajouter / supprimer des repos dans un groupe
      */
-    public function addReposIdToGroup(array $reposId = null, string $groupName)
+    public function addReposIdToGroup(array $reposId = null, int $groupId)
     {
-        /**
-         *  On aura besoin d'un objet Group()
-         */
         $mygroup = new \Controllers\Group('repo');
-        $groupId = $mygroup->getIdByName($groupName);
 
         if (!empty($reposId)) {
             foreach ($reposId as $repoId) {
@@ -602,7 +598,7 @@ class Repo
         /**
          *  3. On récupère la liste des repos actuellement dans le groupe afin de supprimer ceux qui n'ont pas été sélectionnés
          */
-        $actualReposMembers = $this->model->getReposGroupMembers($groupId);
+        $actualReposMembers = $mygroup->getReposMembers($groupId);
 
         /**
          *  4. Parmis cette liste on ne récupère que les Id des repos actuellement membres
@@ -621,11 +617,6 @@ class Repo
                 $this->model->removeFromGroup($actualRepoId, $groupId);
             }
         }
-
-        $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Modification of repos members of the group <span class="label-white">' . $groupName . '</span>', 'success');
-
-        \Controllers\App\Cache::clear();
     }
 
     /**
@@ -669,85 +660,6 @@ class Repo
     public function getDescriptionByName(string $name, string $dist = null, string $section = null, string $env)
     {
         return $this->model->getDescriptionByName($name, $dist, $section, $env);
-    }
-
-    /**
-     *  Génère un <select> contenant la liste des repos par groupe
-     */
-    public function selectRepoByGroup($groupName)
-    {
-        /**
-         *  On aura besoin d'un objet Group()
-         */
-        $mygroup = new \Controllers\Group('repo');
-
-        /**
-         *  On vérifie que le groupe existe
-         */
-        if ($mygroup->exists($groupName) === false) {
-            throw new Exception("Group $groupName does not exist");
-        }
-
-        /**
-         *  Récupération de l'Id du groupe en base de données
-         */
-        $groupId = $mygroup->getIdByName($groupName);
-
-        /**
-         *  Récupération de tous les repos membres de ce groupe
-         */
-        $reposIn = $this->model->getReposGroupMembers($groupId);
-
-        /**
-         *  Récupération de tous les repos membres d'aucun groupe
-         */
-        $reposNotIn = $this->model->getReposNotMembersOfAnyGroup();
-
-        echo '<select class="reposSelectList" groupname="' . $groupName . '" name="groupAddRepoName[]" multiple>';
-
-        /**
-         *  Les repos membres du groupe seront par défaut sélectionnés dans la liste
-         */
-        if (!empty($reposIn)) {
-            foreach ($reposIn as $repo) {
-                $repoId = $repo['repoId'];
-                $repoName = $repo['Name'];
-                $repoDist = $repo['Dist'];
-                $repoSection = $repo['Section'];
-                $this->packageType = $repo['Package_type'];
-
-                if ($this->getPackageType() == 'rpm') {
-                    echo '<option value="' . $repoId . '" selected>' . $repoName . '</option>';
-                }
-                if ($this->getPackageType() == 'deb') {
-                    echo '<option value="' . $repoId . '" selected>' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</option>';
-                }
-            }
-        }
-
-        /**
-         *  Les repos non-membres du groupe seront dé-sélectionnés dans la liste
-         */
-        if (!empty($reposNotIn)) {
-            foreach ($reposNotIn as $repo) {
-                $repoId = $repo['repoId'];
-                $repoName = $repo['Name'];
-                $repoDist = $repo['Dist'];
-                $repoSection = $repo['Section'];
-                $this->packageType = $repo['Package_type'];
-
-                if ($this->getPackageType() == 'rpm') {
-                    echo '<option value="' . $repoId . '">' . $repoName . '</option>';
-                }
-                if ($this->getPackageType() == 'deb') {
-                    echo '<option value="' . $repoId . '">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</option>';
-                }
-            }
-        }
-
-        echo '</select>';
-
-        unset($mygroup, $reposIn, $reposNotIn);
     }
 
     /**

@@ -105,7 +105,7 @@ pre {
 .no-bkg {background: none !important}
 .center { text-align: center; }
 .baseline { vertical-align: baseline; }
-.font-size-11{font-size: 11px !important}.font-size-12{font-size: 12px !important}.font-size-13{font-size: 13px !important}.font-size-14{font-size: 14px !important}
+.font-size-11{font-size: 11px !important}.font-size-12{font-size: 12px !important}.font-size-13{font-size: 13px !important}.font-size-14{font-size: 14px !important}.font-size-15{font-size: 15px !important}.font-size-16{font-size: 16px !important}.font-size-17{font-size: 17px !important}.font-size-18{font-size: 18px !important}
 .lowopacity, .lowopacity-cst { opacity: 0.33; } /* lowopacity-cst is used for constant lowopacity even on hover */
 .mediumopacity { opacity: 0.55 }
 .verylowopacity { opacity: 0.08; }
@@ -145,7 +145,17 @@ pre {
 .padding-left-15 {padding-left: 15px !important}
 .padding-right-15 {padding-right: 15px !important}
 .margin-left-15 {margin-left: 15px !important}
+.margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}
 .margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}
+
+code {
+    font-family: monospace, monospace;
+    font-size: 12px;
+    color: white;
+    background-color: #3c434d;
+    padding: .2em .4em;
+    border-radius: 6px;
+}
 
 /**
  *   Tables
@@ -156,8 +166,7 @@ table {
     table-layout: auto !important;
 }
 .table-large  { width: 100%; }
-.table-medium { width: 65%; }
-.table-small  { width: 25% }
+
 th {
     text-align: left;
     font-weight: 600;
@@ -313,7 +322,7 @@ input::placeholder {
 [class^="btn-"], [class*=" btn-"], input::file-selector-button {
     padding: 7px 5px 7px 5px;
     border: none;
-    border-radius: 16px;
+    border-radius: 60px;
     color: white;
     text-align: center;
     text-decoration: none;

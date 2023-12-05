@@ -1,101 +1,67 @@
-groupSelect2();
-
-/**
- *  Functions
- */
-
-/**
- *  Configure select2 for repo groups
- */
-function groupSelect2()
-{
-    $(".slide-panel-container[slide-panel='repo-groups']").find('.reposSelectList').select2({
-        closeOnSelect: false,
-        placeholder: 'Add repo...'
-    });
-}
-
-
-/**
- *  Reload repo groups panel content
- */
-function reloadGroupsDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='repo-groups']").load(" .slide-panel-reloadable-div[slide-panel='repo-groups'] > *",function () {
-        groupSelect2();
-    });
-}
-
+classToSelect2('select.group-repos-list', 'Add repo...');
 
 /**
  *  Events listeners
  */
 
 /**
- *  Event : Création d'un nouveau groupe
+ *  Event: Create new group
  */
 $(document).on('submit','#newGroupForm',function () {
     event.preventDefault();
     /**
-     *  Récupération du nom de groupe à créer dans l'input prévu à cet effet
+     *  Retrieve group name from input
      */
     var name = $("#newGroupInput").val();
+
     newGroup(name);
 
     return false;
 });
 
 /**
- *  Event : Renommage d'un groupe
+ *  Event: Delete group
  */
-$(document).on('submit','.groupForm',function () {
-    event.preventDefault();
-    /**
-     *  Récupération du nom actuel (dans <form>) et du nouveau nom (dans <input> contenant l'attribut groupname="name")
-     */
-    var name = $(this).attr('groupname');
-    var newname = $('input[groupname=' + name + '].groupFormInput').val();
-    renameGroup(name, newname);
+$(document).on('click','.delete-group-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
 
-    return false;
-});
+    var id = $(this).attr('group-id');
+    var name = $(this).attr('group-name');
 
-/**
- *  Event : Suppression d'un groupe
- */
-$(document).on('click','.deleteGroupButton',function () {
-    var name = $(this).attr('name');
     confirmBox('Are you sure you want to delete group ' + name + '?', function () {
-        deleteGroup(name)});
+        deleteGroup(id)});
 });
 
 /**
- *  Event : ajouter / supprimer des repos d'un groupe
+ *  Event: Edit group
  */
-$(document).on('submit','.groupReposForm',function () {
+$(document).on('submit','.group-form',function () {
     event.preventDefault();
-    /**
-     *  Récupération du nom du groupe (dans <form>) puis de la liste des repos (dans le <select>)
-     */
-    var name = $(this).attr('groupname');
-    var reposId = $('select[groupname=' + name + '].reposSelectList').val();
 
-    editGroupRepos(name, reposId);
+    /**
+     *  Retrieve group name (from <form>) and repos list (from <select>)
+     */
+    var id = $(this).attr('group-id');
+    var name = $(this).find('.group-name-input[group-id="' + id + '"]').val();
+    var reposId = $(this).find('select.group-repos-list[group-id="' + id + '"]').val();
+
+    editGroup(id, name, reposId);
 
     return false;
 });
 
 /**
- * Event : Afficher la configuration d'un groupe
- * @param {*} name
+ *  Event: Print group configuration div
  */
-$(document).on('click','.groupConfigurationButton',function () {
-    var name = $(this).attr('name');
-    $('#groupConfigurationDiv-' + name).slideToggle(150);
+$(document).on('click','.group-config-btn',function () {
+    var id = $(this).attr('group-id');
+
+    slide('.group-config-div[group-id="' + id + '"]');
 });
 
 /**
- * Ajax: Créer un nouveau groupe
+ * Ajax: Create a new group
  * @param {string} name
  */
 function newGroup(name)
@@ -105,18 +71,16 @@ function newGroup(name)
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "newGroup",
+            action: "new",
             name: name,
             type: "repo"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
+            reloadPanel('repos/groups', function () {
+                classToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
@@ -128,28 +92,26 @@ function newGroup(name)
 }
 
 /**
- * Ajax : Supprimer un groupe
- * @param {string} name
+ * Ajax: Delete a group
+ * @param {string} id
  */
-function deleteGroup(name)
+function deleteGroup(id)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "deleteGroup",
-            name: name,
+            action: "delete",
+            id: id,
             type: "repo"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
+            reloadPanel('repos/groups', function () {
+                classToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
@@ -161,61 +123,31 @@ function deleteGroup(name)
 }
 
 /**
- * Ajax: Renommer un groupe
+ * Ajax: Edit a group
+ * @param {string} id
  * @param {string} name
+ * @param {string} reposId
  */
-function renameGroup(name, newname)
+function editGroup(id, name, reposId)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "renameGroup",
+            action: "edit",
+            id: id,
             name: name,
-            newname : newname,
+            data: reposId,
             type: "repo"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
+            reloadPanel('repos/groups', function () {
+                classToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
-            reloadContainer('repos/list');
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Ajouter ou supprimer des repos d'un groupe
- * @param {string} name
- */
-function editGroupRepos(name, reposId)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "editGroupRepos",
-            name: name,
-            reposId : reposId
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
-            printAlert(jsonValue.message, 'success');
             reloadContainer('repos/list');
         },
         error: function (jqXHR, textStatus, thrownError) {

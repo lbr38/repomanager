@@ -244,8 +244,8 @@
                                             $op->printRepoOrGroup($opId); ?>
                                         </a>
                                     </span>
-                                    <span title="Stop operation">
-                                        <a href="/run?stop=<?=$opPid?>"><img src="/assets/icons/delete.svg" class="icon"></a>
+                                    <span title="Stop operation" class="kill-btn" pid="<?= $opPid ?>">
+                                        <img src="/assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>
                                 <?php
@@ -269,7 +269,7 @@
             </div>
 
             <div class="menu-sub-container relative">
-                <img src="/assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="notification" title="Show notifications" />
+                <img src="/assets/icons/alarm.svg" class="icon-lowopacity slide-panel-btn" slide-panel="general/notification" title="Show notifications" />
                 <?php
                 if (NOTIFICATION != 0) : ?>
                     <span id="notification-count"><?= NOTIFICATION ?></span>
@@ -286,7 +286,7 @@
             } ?>
 
             <div class="<?= $headerMenuClass ?>">
-                <div class="flex align-item-center column-gap-3 slide-panel-btn lowopacity pointer" slide-panel="userspace" title="Userspace">
+                <div class="flex align-item-center column-gap-3 slide-panel-btn lowopacity pointer" slide-panel="general/userspace" title="Userspace">
                     <img src="/assets/icons/user.svg" class="icon" />
                     <span class="menu-section-title">
                         <?php

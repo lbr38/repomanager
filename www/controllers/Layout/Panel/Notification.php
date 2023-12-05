@@ -6,6 +6,6 @@ class Notification
 {
     public static function render()
     {
-        include_once(ROOT . '/views/includes/panels/notification.inc.php');
+        include_once(ROOT . '/views/includes/panels/general/notification.inc.php');
     }
 }

@@ -45,6 +45,5 @@ No roadmap, just a todolist with some bug reports and ideas you can find <a href
 
 <h2>Contact</h2>
 
-- For bug reports or any issue using Repomanager, please open a new issue in the Github ``Issues`` section
-- For features requests, please open a new idea in the Github ``Discussions`` section
-- For any other question you please contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)
+- For bug reports, issues or features requests, please open a new issue in the Github ``Issues`` section
+- For any other question you can contact me at <a href="mailto:repomanager@protonmail.com">repomanager@protonmail.com</a> (English or French spoken)

@@ -1,140 +1,71 @@
 /**
- *  Rechargement de la div des sources
- */
-function reloadSourcesDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='source-repo']").load(" .slide-panel-reloadable-div[slide-panel='source-repo'] > *");
-}
-
-/**
  *  Events listeners
  */
 
 /**
- *  Event : ajouter une source
+ *  Event: Add source repo
  */
 $(document).on('submit','#addSourceForm',function () {
     event.preventDefault();
 
-    var repoType = '';
-    var gpgKeyURL = '';
-    var gpgKeyText = '';
-
     /**
-     *  Récupération du type de repo source
+     *  Retrieve source repo type
      */
     var repoType = $('input[name=addSourceRepoType]:checked').val();
 
     /**
-     *  Récupération du nom de la source à ajouter
+     *  Retrieve source repo name
      */
     var name = $('input[name=addSourceName]').val();
 
     /**
-     *  Récupération de l'url
+     *  Retrieve source repo url
      */
     var url = $('input[name=addSourceUrl]').val();
 
     /**
-     *  Clé GPG
+     *  Retrieve source repo gpg key url or text
      */
     var gpgKeyURL = $('input[name=gpgKeyURL]').val();
     var gpgKeyText = $('#gpgKeyText').val();
 
-    addSource(repoType, name, url, gpgKeyURL, gpgKeyText);
+    newSource(repoType, name, url, gpgKeyURL, gpgKeyText);
 
     return false;
 });
 
 /**
- *  Event : Renommage d'une source
+ *  Event: Edit source repo
  */
-$(document).on('keypress','.source-input-name',function () {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == '13') {
-        /**
-         *  Récupération du nom actuel et du nouveau nom
-         */
-        var type = $(this).attr('source-type');
-        var name = $(this).attr('source-name');
-        var newname = $(this).val();
+$(document).on('submit','.source-form',function () {
+    event.preventDefault();
 
-        renameSource(type, name, newname);
-    }
-    event.stopPropagation();
+    var id = $(this).attr('source-id');
+    var name = $(this).find('.source-input-name').val();
+    var url = $(this).find('.source-input-url').val();
+    var gpgkey = $(this).find('.source-gpgkey-input').val();
+    var sslCertificatePath = $(this).find('.source-sslcrt-input').val();
+    var sslPrivateKeyPath = $(this).find('.source-sslkey-input').val();
+
+    editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath);
+
+    return false;
 });
 
 /**
- *  Event : Modification d'une url source
- */
-$(document).on('keypress','.source-input-url',function () {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == '13') {
-        var type = $(this).attr('source-type');
-        var name = $(this).attr('source-name');
-        var url = $(this).val();
-
-        editSourceUrl(type, name, url);
-    }
-    event.stopPropagation();
-});
-
-/**
- *  Event: Show/hide source repo gpg key
+ *  Event: Show/hide source repo params
  */
 $(document).on('click','.source-repo-edit-param-btn',function () {
     var sourceId = $(this).attr('source-id');
 
-    $('.source-repo-param-div[source-id='+sourceId+']').slideToggle();
+    slide('.source-repo-param-div[source-id="' + sourceId + '"]');
 });
 
 /**
- *  Event: Edit source repo gpg key
- */
-$(document).on('keypress','.source-repo-gpgkey-input',function () {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == '13') {
-        var sourceId = $(this).attr('source-id');
-        var gpgkey = $(this).val();
-
-        editSourceGpgKey(sourceId, gpgkey);
-    }
-    event.stopPropagation();
-});
-
-/**
- *  Event: Edit source repo SSL certificate file
- */
-$(document).on('keypress','.source-repo-crt-input',function () {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == '13') {
-        var sourceId = $(this).attr('source-id');
-        var sslCertificatePath = $(this).val();
-
-        editSourceSslCertificatePath(sourceId, sslCertificatePath);
-    }
-    event.stopPropagation();
-});
-
-/**
- *  Event: Edit source repo SSL private key file
- */
-$(document).on('keypress','.source-repo-key-input',function () {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == '13') {
-        var sourceId = $(this).attr('source-id');
-        var sslPrivateKeyPath = $(this).val();
-
-        editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath);
-    }
-    event.stopPropagation();
-});
-
-/**
- *  Event : Suppression d'une source
+ *  Event: Delete a source repo
  */
 $(document).on('click','.source-repo-delete-btn',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var sourceId = $(this).attr('source-id');
@@ -146,7 +77,7 @@ $(document).on('click','.source-repo-delete-btn',function (e) {
 });
 
 /**
- *  Event : suppression d'une clé GPG
+ *  Event: delete a GPG key
  */
 $(document).on('click','.gpgKeyDeleteBtn',function () {
     var gpgKeyId = $(this).attr('gpgkey-id');
@@ -170,19 +101,18 @@ $(document).on('submit','#source-repo-add-key-form',function () {
     return false;
 });
 
-
 /**
- * Ajax : Ajouter une nouvelle source
+ * Ajax: Add source repo
  * @param {string} name
  */
-function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
+function newSource(repoType, name, url, gpgKeyURL, gpgKeyText)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "source",
-            action: "addSource",
+            action: "new",
             repoType: repoType,
             name: name,
             url: url,
@@ -192,11 +122,8 @@ function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success et rechargement des sources
-            */
             printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
+            reloadPanel('repos/sources');
             reloadNewRepoDiv();
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
@@ -207,7 +134,45 @@ function addSource(repoType, name, url, gpgKeyURL, gpgKeyText)
 }
 
 /**
- * Ajax : Supprimer une source
+ * Ajax: Edit source repo
+ * @param {*} id
+ * @param {*} name
+ * @param {*} url
+ * @param {*} gpgkey
+ * @param {*} sslCertificatePath
+ * @param {*} sslPrivateKeyPath
+ */
+function editSource(id, name, url, gpgkey, sslCertificatePath, sslPrivateKeyPath)
+{
+    $.ajax({
+        type: "POST",
+        url: "/ajax/controller.php",
+        data: {
+            controller: "source",
+            action: "edit",
+            id: id,
+            name: name,
+            url: url,
+            gpgkey: gpgkey,
+            sslCertificatePath: sslCertificatePath,
+            sslPrivateKeyPath: sslPrivateKeyPath
+        },
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'success');
+            reloadPanel('repos/sources');
+            reloadNewRepoDiv();
+        },
+        error: function (jqXHR, ajaxOptions, thrownError) {
+            jsonValue = jQuery.parseJSON(jqXHR.responseText);
+            printAlert(jsonValue.message, 'error');
+        },
+    });
+}
+
+/**
+ * Ajax: Delete source repo
  * @param {string} sourceId
  */
 function deleteSource(sourceId)
@@ -217,17 +182,14 @@ function deleteSource(sourceId)
         url: "/ajax/controller.php",
         data: {
             controller: "source",
-            action: "deleteSource",
+            action: "delete",
             sourceId: sourceId
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success et rechargement des sources
-            */
             printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
+            reloadPanel('repos/sources');
             reloadNewRepoDiv();
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
@@ -238,75 +200,7 @@ function deleteSource(sourceId)
 }
 
 /**
- * Ajax : Renommer une source
- * @param {string} name
- */
-function renameSource(type, name, newname)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "renameSource",
-            type: type,
-            name: name,
-            newname: newname
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success
-            */
-            printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
-            reloadNewRepoDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax : Modifier l'url d'un repo source (repo source de type deb uniquement)
- * @param {string} type
- * @param {string} name
- * @param {string} url
- */
-function editSourceUrl(type, name, url)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "editSourceUrl",
-            type: type,
-            name: name,
-            url: url
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success
-            */
-            printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
-            reloadNewRepoDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax : Supprimer une clé GPG
+ * Ajax: Delete a gpg key
  * @param {string} gpgkey
  */
 function deleteGpgKey(gpgKeyId)
@@ -322,95 +216,8 @@ function deleteGpgKey(gpgKeyId)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success
-            */
             printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Edit source repo gpg key url
- * @param {string} sourceId
- * @param {string} gpgkey
- */
-function editSourceGpgKey(sourceId, gpgkey)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "editGpgKey",
-            sourceId: sourceId,
-            gpgkey: gpgkey
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Edit source repo SSL certificate path
- * @param {string} sourceId
- * @param {string} sslCertificatePath
- */
-function editSourceSslCertificatePath(sourceId, sslCertificatePath)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "editSslCertificatePath",
-            sourceId: sourceId,
-            sslCertificatePath: sslCertificatePath
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
-        },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Edit source repo SSL certificate path
- * @param {string} sourceId
- * @param {string} sslPrivateKeyPath
- */
-function editSourceSslPrivateKeyPath(sourceId, sslPrivateKeyPath)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "source",
-            action: "editSslPrivateKeyPath",
-            sourceId: sourceId,
-            sslPrivateKeyPath: sslPrivateKeyPath
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
+            reloadPanel('repos/sources');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -436,11 +243,8 @@ function importGpgKey(gpgkey)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-           /**
-            *  Affichage d'une alerte success
-            */
             printAlert(jsonValue.message, 'success');
-            reloadSourcesDiv();
+            reloadPanel('repos/sources');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

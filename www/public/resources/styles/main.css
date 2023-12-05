@@ -659,46 +659,14 @@ footer #github img { width: 25px; }
     transform: translate(-50%, -50%);
 }
 
-.profileDivContainer {
+.profiles-container {
     columns: 1;
     column-count: 1;
     width: 100%;
 }
 
-.profileDiv {
-    border-radius: 8px;
-    width: 100%;
-    margin-bottom: 2px;
-    display: inline-block;
-    background-color: #1d3349;
+.profiles-container > div {
     break-inside: avoid;
-}
-
-.profileDiv table {
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-.profileDiv table td span {
-    vertical-align: bottom;
-}
-.profileDiv table span.hosts-count {
-    font-size: 10px;
-}
-
-.profileDivConf {
-    margin: 0px;
-    padding: 4px;
-    background-color: #182b3e;
-    border-left: 1px solid #24405c;
-    border-right: 1px solid #24405c;
-    border-bottom: 1px solid #24405c;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-    table-layout: auto !important;
-}
-
-.profileDiv textarea {
-    height: 100px;
 }
 
 .detailsDiv, .plan-info-div {
@@ -825,7 +793,7 @@ footer #github img { width: 25px; }
         order: 2;
     }
 
-    .profileDivContainer {
+    .profiles-container {
         columns: 2;
         column-count: 2;
     }

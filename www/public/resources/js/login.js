@@ -60,8 +60,8 @@ function generateApikey()
             /**
              *  Print API key
              */
-            $('.slide-panel-container[slide-panel=userspace]').find('#user_apikey').html(jsonValue.message.apikey);
-            $('.slide-panel-container[slide-panel=userspace]').find('#user-apikey-copy-btn').css('display', 'inline-block');
+            $('.slide-panel-container[slide-panel="general/userspace"]').find('#user_apikey').html(jsonValue.message.apikey);
+            $('.slide-panel-container[slide-panel="general/userspace"]').find('#user-apikey-copy-btn').css('display', 'inline-block');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

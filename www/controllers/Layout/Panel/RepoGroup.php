@@ -12,8 +12,8 @@ class RepoGroup
         /**
          *  Get repos groups list
          */
-        $repoGroupsList = $mygroup->listAllName();
+        $repoGroupsList = $mygroup->listAll();
 
-        include_once(ROOT . '/views/includes/panels/repo-group.inc.php');
+        include_once(ROOT . '/views/includes/panels/repos/groups.inc.php');
     }
 }
