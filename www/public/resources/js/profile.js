@@ -1,188 +1,77 @@
 /**
- *  Chargement des menus Select2
- */
-loadProfilesSelect2();
-
-/**
- *  Fonctions utiles
- */
-/**
- *  Chargement de tous les Select2 de la pages des profils
- */
-function loadProfilesSelect2()
-{
-    classToSelect2('.select-repos', 'Add repo 🖉');
-    classToSelect2('.select-exclude-major', 'Select package 🖉', true);
-    classToSelect2('.select-exclude', 'Select package 🖉', true);
-    classToSelect2('.select-need-restart', 'Select service 🖉', true);
-}
-
-/**
- *  Rechargement de la div des profils
- *  Recharge les menus select2 en même temps
- */
-function reloadProfileDiv()
-{
-    $("#profilesDiv").load(" #profilesDiv > *",function () {
-        /**
-         *  Rechargement de tous les menus Select2
-         */
-        loadProfilesSelect2();
-    });
-}
-
-/**
  *  Events listeners
  */
 
 /**
- *  Event : Création d'un nouveau profil
+ *  Event: Create new profile
  */
 $(document).on('submit','#newProfileForm',function () {
     event.preventDefault();
-    /**
-     *  Récupération du nom de profil à créer dans l'input prévu à cet effet
-     */
+
     var name = $("#newProfileInput").val();
+
     newProfile(name);
 
     return false;
 });
 
 /**
- *  Event : Suppression d'un profil
+ *  Event: Delete profile
  */
-$(document).on('click','.deleteProfileBtn',function () {
-     var name = $(this).attr('profilename');
+$(document).on('click','.profile-delete-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('profile-id');
+
     confirmBox('Are you sure you want to delete profile <b>' + name + '</b>?', function () {
-        deleteProfile(name)});
+        deleteProfile(id)});
 });
 
 /**
- *  Event : Renommage d'un profil
+ *  Event: Duplicate profile
  */
-$(document).on('submit','.profileForm',function () {
+$(document).on('click','.profile-duplicate-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var id = $(this).attr('profile-id');
+
+    duplicate(id);
+});
+
+/**
+ *  Event: Print profile configuration
+ */
+$(document).on('click','.profile-config-btn',function () {
+    var id = $(this).attr('profile-id');
+
+    slide('.profile-config-div[profile-id=' + id + ']');
+});
+
+/**
+ *  Event: Save profile configuration
+ */
+$(document).on('submit','.profile-config-form',function () {
     event.preventDefault();
     /**
-     *  Récupération du nom actuel (dans <form>) et du nouveau nom (dans <input> contenant l'attribut profilename="name")
+     *  Retrieve profile configuration
      */
-    var name = $(this).attr('profilename');
-    var newname = $('input[profilename=' + name + '].profileFormInput').val();
-    renameProfile(name, newname);
+    var id = $(this).attr('profile-id');
+    var name = $(this).find('input[name=profile-name]').val();
+    var reposList = $(this).find('select[name=profile-repos]').val();
+    var exclude = $(this).find('select[name=profile-exclude]').val();
+    var excludeMajor = $(this).find('select[name=profile-exclude-major]').val();
+    var serviceRestart = $(this).find('select[name=profile-service-restart]').val();
+    var notes = $(this).find('textarea[name=profile-notes]').val();
+
+    configure(id, name, reposList, exclude, excludeMajor, serviceRestart, notes);
 
     return false;
 });
 
 /**
- *  Event : duplication d'un profil
- */
-$(document).on('click','.duplicateProfileBtn',function () {
-    var name = $(this).attr('profilename');
-
-    duplicateProfile(name);
-});
-
-/**
- *  Event : Afficher la configuration d'un profil
- */
-$(document).on('click','.profileConfigurationBtn',function () {
-    var name = $(this).attr('profilename');
-    $("#profileConfigurationDiv-" + name).slideToggle(150);
-});
-
-/**
- *  Event : modifier la configuration serveur
- */
-$(document).on('submit','#applyServerConfigurationForm',function () {
-    event.preventDefault();
-
-    if ($('#serverManageClientConf').is(':checked')) {
-        var serverManageClientConf = 'yes';
-    } else {
-        var serverManageClientConf = 'no';
-    }
-
-    if ($('#serverManageClientRepos').is(':checked')) {
-        var serverManageClientRepos = 'yes';
-    } else {
-        var serverManageClientRepos = 'no';
-    }
-
-    applyServerConfiguration(serverManageClientConf, serverManageClientRepos);
-
-    return false;
-});
-
-/**
- *  Event : modifier la configuration d'un profil (repos, exclusions...)
- */
-$(document).on('submit','.profileConfigurationForm',function () {
-    event.preventDefault();
-    /**
-     *  Récupération du nom du groupe (dans <form>)
-     *  de la liste des repos (dans le <select>)
-     *  de la liste des exclusions
-     *  des paramètres de mise à jour
-     *  etc...
-     */
-    var name = $(this).attr('profilename');
-
-    var reposList = $('select[profilename=' + name + '].select-repos').val();
-    var packagesMajorExcluded = $('select[profilename=' + name + '].select-exclude-major').val();
-    var packagesExcluded = $('select[profilename=' + name + '].select-exclude').val();
-    var serviceNeedRestart = $('select[profilename=' + name + '].select-need-restart').val();
-
-    if ($('#profile-linupdate-get-pkg-conf[profilename=' + name + ']').is(':checked')) {
-        var linupdateGetPkgConf = 'true';
-    } else {
-        var linupdateGetPkgConf = 'false';
-    }
-    if ($('#profile-linupdate-get-repos-conf[profilename=' + name + ']').is(':checked')) {
-        var linupdateGetReposConf = 'true';
-    } else {
-        var linupdateGetReposConf = 'false';
-    }
-
-    var notes = $('textarea[profilename=' + name + '].profile-conf-notes').val();
-
-    configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, linupdateGetPkgConf, linupdateGetReposConf, notes);
-
-    return false;
-});
-
-
-/**
- * Ajax: Modifier la configuration serveur
- */
-function applyServerConfiguration(serverManageClientConf, serverManageClientRepos)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "applyServerConfiguration",
-            serverManageClientConf: serverManageClientConf,
-            serverManageClientRepos: serverManageClientRepos
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
-            printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Créer un nouveau profil
+ * Ajax: Create a new profile
  * @param {string} name
  */
 function newProfile(name)
@@ -192,17 +81,14 @@ function newProfile(name)
         url: "/ajax/controller.php",
         data: {
             controller: "profile",
-            action: "newProfile",
+            action: "new",
             name: name
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
             printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
+            reloadContainer('profiles/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -212,27 +98,24 @@ function newProfile(name)
 }
 
 /**
- * Ajax : Supprimer un profil
- * @param {string} name
+ * Ajax: Delete a profile
+ * @param {string} id
  */
-function deleteProfile(name)
+function deleteProfile(id)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "profile",
-            action: "deleteProfile",
-            name: name
+            action: "delete",
+            id: id
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
             printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
+            reloadContainer('profiles/list');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -242,28 +125,24 @@ function deleteProfile(name)
 }
 
 /**
- * Ajax: Renommer un profil
- * @param {string} name
+ * Ajax: Duplicate a profile
+ * @param {string} id
  */
-function renameProfile(name, newname)
+function duplicate(id)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "profile",
-            action: "renameProfile",
-            name: name,
-            newname : newname
+            action: "duplicate",
+            id: id
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
             printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
+            reloadContainer('profiles/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -273,62 +152,36 @@ function renameProfile(name, newname)
 }
 
 /**
- * Ajax: Dupliquer un profil
+ * Ajax: Modify profile configuration
+ * @param {string} id
  * @param {string} name
+ * @param {string} reposList
+ * @param {string} exclude
+ * @param {string} excludeMajor
+ * @param {string} serviceRestart
+ * @param {string} notes
  */
-function duplicateProfile(name)
+function configure(id, name, reposList, exclude, excludeMajor, serviceRestart, notes)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "profile",
-            action: "duplicateProfile",
-            name: name
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des profils
-             */
-            printAlert(jsonValue.message, 'success');
-            reloadProfileDiv();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Modifier la configuration d'un profil
- */
-function configureProfile(name, reposList, packagesMajorExcluded, packagesExcluded, serviceNeedRestart, linupdateGetPkgConf, linupdateGetReposConf, notes)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "profile",
-            action: "configureProfile",
+            action: "configure",
+            id: id,
             name: name,
             reposList: reposList,
-            packagesMajorExcluded: packagesMajorExcluded,
-            packagesExcluded: packagesExcluded,
-            serviceNeedRestart: serviceNeedRestart,
-            linupdateGetPkgConf: linupdateGetPkgConf,
-            linupdateGetReposConf: linupdateGetReposConf,
+            exclude: exclude,
+            excludeMajor: excludeMajor,
+            serviceRestart: serviceRestart,
             notes: notes
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
+            reloadContainer('profiles/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

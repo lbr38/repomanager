@@ -74,21 +74,21 @@ printEnv();
 $(document).on('change', '#addPlanDate, #addPlanTargetEnv', function () {
     printDate();
     printEnv();
-
 }).trigger('change');
 
 /**
- *  Event : affichage des détails d'une planification
+ *  Event: print planification details
  */
 $(document).on('click','.plan-details-btn',function () {
     /**
-     *  Récupération de l'Id de la planification
+     *  Retrieve planification Id
      */
     var planId = $(this).attr('plan-id');
+
     /**
-     *  Affichage du div portant cet Id
+     *  Print planification details
      */
-    $('.plan-info-div[plan-id=' + planId + ']').slideToggle(100);
+    slide('.plan-info-div[plan-id=' + planId + ']');
 });
 
 /**
@@ -221,7 +221,7 @@ $(document).on('submit','#newPlanForm',function () {
  *  Event: Delete planification
  */
 $(document).on('click','.deletePlanBtn',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var planId = $(this).attr('plan-id');
@@ -241,7 +241,7 @@ $(document).on('click','.deletePlanBtn',function (e) {
  *  Event: Disable recurrent planification
  */
 $(document).on('click','.disablePlanBtn',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var planId = $(this).attr('plan-id');
@@ -254,7 +254,7 @@ $(document).on('click','.disablePlanBtn',function (e) {
  *  Event: Enable recurrent planification
  */
 $(document).on('click','.enablePlanBtn',function (e) {
-    // Prevent parent to be clicked
+    // Prevent parent to be triggered
     e.stopPropagation();
 
     var planId = $(this).attr('plan-id');

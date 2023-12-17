@@ -96,15 +96,16 @@
                 <td>
                     <select class="operation_param" param-name="dist" package-type="deb" multiple>
                         <optgroup label="Debian">
-                            <option value="stretch">stretch (Debian 9)</option>
-                            <option value="buster">buster (Debian 10)</option>
-                            <option value="bullseye">bullseye (Debian 11)</option>
-                            <option value="bookworm">bookworm (Debian 12)</option>
+                            <?php
+                            foreach (DEBIAN_DISTRIBUTIONS as $dist => $alias) {
+                                echo '<option value="' . $dist . '">' . $dist . ' (' . $alias . ')</option>';
+                            } ?>
                         </optgroup>
                         <optgroup label="Ubuntu">
-                            <option value="focal">focal (Ubuntu 20.04)</option>
-                            <option value="hirsute">hirsute (Ubuntu 21.04)</option>
-                            <option value="jammy">jammy (Ubuntu 22.04)</option>
+                            <?php
+                            foreach (UBUNTU_DISTRIBUTIONS as $dist => $alias) {
+                                echo '<option value="' . $dist . '">' . $dist . ' (' . $alias . ')</option>';
+                            } ?>
                         </optgroup>
                     </select>
                 </td>
@@ -158,8 +159,8 @@
                         <select class="operation_param" param-name="targetGroup" package-type="all" >
                             <option value="">Select group...</option>
                             <?php
-                            foreach ($newRepoFormGroupList as $groupName) {
-                                echo '<option value="' . $groupName . '">' . $groupName . '</option>';
+                            foreach ($newRepoFormGroupList as $group) {
+                                echo '<option value="' . $group['Name'] . '">' . $group['Name'] . '</option>';
                             } ?>
                         </select>
                     </td>
@@ -248,7 +249,7 @@
 
 <?php
 $content = ob_get_clean();
-$slidePanelName = 'new-repo';
+$slidePanelName = 'repos/new';
 $slidePanelTitle = 'CREATE A NEW REPO';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

@@ -8,17 +8,16 @@ class Profile extends Model
 {
     public function __construct()
     {
-        /**
-         *  Ouverture d'une connexion à la base de données
-         */
         $this->getConnection('main');
     }
 
     /**
-     *  Retourne l'Id du profil en base de données, à partir de son nom
+     *  Return profile Id by name
      */
     public function getIdByName(string $name)
     {
+        $id = '';
+
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Name = :name");
             $stmt->bindValue(':name', $name);
@@ -26,8 +25,6 @@ class Profile extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        $id = '';
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $id = $row['Id'];
@@ -37,17 +34,39 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne la liste des paquets dans la table profile_package
+     *  Return profile name by Id
      */
-    public function getPackages()
+    public function getNameById(int $id)
     {
+        $name = '';
+
         try {
-            $result = $this->db->query("SELECT Name FROM profile_package");
+            $stmt = $this->db->prepare("SELECT Name FROM profile WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $name = $row['Name'];
+        }
+
+        return $name;
+    }
+
+    /**
+     *  Return a list of all packages in profile_package table
+     */
+    public function getPackages()
+    {
         $packages = array();
+
+        try {
+            $result = $this->db->query("SELECT Name FROM profile_package ORDER BY Name ASC");
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
 
         while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
             $packages[] = $datas['Name'];
@@ -57,37 +76,37 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne la liste des services dans la table profile_service
+     *  Return a list of all services in profile_service table
      */
     public function getServices()
     {
+        $data = array();
+
         try {
-            $result = $this->db->query("SELECT Name FROM profile_service");
+            $result = $this->db->query("SELECT Name FROM profile_service ORDER BY Name ASC");
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
-        $services = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $services[] = $datas['Name'];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row['Name'];
         }
 
-        return $services;
+        return $data;
     }
 
     /**
-     *  Retourne les informations d'un profil en base données
+     *  Get profile full configuration from database
      */
     public function getProfileFullConfiguration(string $profileId)
     {
+        $profile = array();
+
         try {
             $stmt = $this->db->prepare("SELECT
             Package_exclude,
             Package_exclude_major,
             Service_restart,
-            Linupdate_get_pkg_conf,
-            Linupdate_get_repos_conf,
             Notes
             FROM profile WHERE Id = :profileId");
             $stmt->bindValue(':profileId', $profileId);
@@ -95,8 +114,6 @@ class Profile extends Model
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
-
-        $profile = array();
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $profile = $row;
@@ -106,7 +123,7 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne la configuration générale du serveur pour la gestion des profils
+     *  Return server configuration for profiles management
      */
     public function getServerConfiguration()
     {
@@ -127,28 +144,11 @@ class Profile extends Model
 
         $settings = array_merge($settings, $profileSettings);
 
-
         return $settings;
     }
 
     /**
-     *  Modifie la configuration générale du serveur pour la gestion des profils
-     */
-    public function setServerConfiguration(string $serverPackageType, string $serverManageClientConf, string $serverManageClientRepos)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE profile_settings SET Package_type = :packageType, Manage_client_conf = :manageClientConf, Manage_client_repos = :manageClientRepos");
-            $stmt->bindValue(':packageType', $serverPackageType);
-            $stmt->bindValue(':manageClientConf', $serverManageClientConf);
-            $stmt->bindValue(':manageClientRepos', $serverManageClientRepos);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Retourne true si un profil existe en base de données
+     *  Return true if profile exists in database
      */
     public function exists(string $name)
     {
@@ -161,7 +161,7 @@ class Profile extends Model
         }
 
         /**
-         *  Si le résultat obtenu est vide alors le profil n'existe pas
+         *  If result is empty then profile does not exist
          */
         if ($this->db->isempty($result)) {
             return false;
@@ -171,12 +171,35 @@ class Profile extends Model
     }
 
     /**
-     *  Ajout d'un nouveau profil en base de données
+     *  Return true if profile Id exists in database
+     */
+    public function existsId(int $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM profile WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        /**
+         *  If result is empty then profile does not exist
+         */
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Create new profile in database
      */
     public function add(string $name)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO profile (Name, Linupdate_get_pkg_conf, Linupdate_get_repos_conf) VALUES (:name, 'true', 'true')");
+            $stmt = $this->db->prepare("INSERT INTO profile (Name) VALUES (:name)");
             $stmt->bindValue(':name', $name);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -185,33 +208,17 @@ class Profile extends Model
     }
 
     /**
-     *  Renommage d'un profil en base de données
+     *  Configure profile
      */
-    public function rename(string $name, string $newName)
+    public function configure(int $id, string $name, string $packageExclude = null, string $packageExcludeMajor = null, string $serviceRestart = null, string $notes = null)
     {
         try {
-            $stmt = $this->db->prepare("UPDATE profile SET Name = :newName WHERE Name = :name");
-            $stmt->bindValue(':newName', $newName);
+            $stmt = $this->db->prepare("UPDATE profile SET Name = :name, Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Notes = :notes WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $stmt->bindValue(':name', $name);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Modification de la configuration d'un profil en base de données
-     */
-    public function configure(string $profileId, string $packageExclude, string $packageExcludeMajor, string $serviceRestart, string $linupdateGetPkgConf, string $linupdateGetReposConf, string $notes)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE profile SET Package_exclude = :packageExclude, Package_exclude_major = :packageExcludeMajor, Service_restart = :serviceRestart, Linupdate_get_pkg_conf = :linupdateGetPkgConf, Linupdate_get_repos_conf = :linupdateGetReposConf, Notes = :notes WHERE Id = :profileId");
-            $stmt->bindValue(':profileId', $profileId);
             $stmt->bindValue(':packageExclude', $packageExclude);
             $stmt->bindValue(':packageExcludeMajor', $packageExcludeMajor);
             $stmt->bindValue(':serviceRestart', $serviceRestart);
-            $stmt->bindValue(':linupdateGetPkgConf', $linupdateGetPkgConf);
-            $stmt->bindValue(':linupdateGetReposConf', $linupdateGetReposConf);
             $stmt->bindValue(':notes', $notes);
             $stmt->execute();
         } catch (\Exception $e) {
@@ -220,13 +227,13 @@ class Profile extends Model
     }
 
     /**
-     *  Supprime un profil en base de données
+     *  Delete a profile
      */
-    public function delete(string $name)
+    public function delete(int $id)
     {
         try {
-            $stmt = $this->db->prepare("DELETE FROM profile WHERE Name = :name");
-            $stmt->bindValue(':name', $name);
+            $stmt = $this->db->prepare("DELETE FROM profile WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -254,7 +261,7 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne la liste des profils en base de données
+     *  Return a list of all profiles
      */
     public function list()
     {
@@ -274,11 +281,10 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne un array contenant les noms de repos membres d'un profil
-     *  Ici on vérifie bien que les repos membres ont au moins 1 snapshot actif (repos.Status == 'active'), si ce
-     *  n'est pas le cas alors le repos n'est pas considéré comme membre du profil
+     *  Return an array containing repos names members of a profile
+     *  Check that repos members have at least 1 active snapshot (repos.Status == 'active'), if not then the repo is not considered as a member of the profile
      */
-    public function reposMembersList($profileId)
+    public function getReposMembersList($profileId)
     {
         try {
             $stmt = $this->db->prepare("SELECT DISTINCT
@@ -310,9 +316,8 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne un array contenant les Id de repos membres d'un profil
-     *  Ici on vérifie bien que les repos membres ont au moins 1 snapshot actif (repos.Status == 'active'), si ce
-     *  n'est pas le cas alors le repos n'est pas considéré comme membre du profil
+     *  Return an array containing repos Id members of a profile
+     *  Check that repos members have at least 1 active snapshot (repos.Status == 'active'), if not then the repo is not considered as a member of the profile
      */
     public function reposMembersIdList($profileId)
     {
@@ -339,41 +344,18 @@ class Profile extends Model
         }
 
         /**
-         *  L'array retourné est au format array('Id', 'Id', 'Id'...)
+         *  Returned array is like array('Id', 'Id', 'Id'...)
          */
         return $repos;
     }
 
     /**
-     *  Vérifier qu'un nom de service est présent dans la table profile_service
-     */
-    public function serviceExists(string $service)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM profile_service WHERE Name=:name");
-            $stmt->bindValue(':name', $service);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        /**
-         *  Si le résultat obtenu est vide alors le service n'existe pas, on renvoie false
-         */
-        if ($this->db->isempty($result)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Ajout d'un nouveau nom de paquet dans la table profile_package
+     *  Add package to profile_package table if it does not already exist
      */
     public function addPackage(string $packageName)
     {
         /**
-         *  D'abord on vérifie que le paquet n'est pas déjà présent en base de données
+         *  Check if package is already present in profile_package table
          */
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile_package WHERE Name = :name");
@@ -384,14 +366,14 @@ class Profile extends Model
         }
 
         /**
-         *  Si le paquet est déjà présent dans la table profile_package alors on ne fait rien
+         *  If package is already present in profile_package table then do nothing
          */
         if ($this->db->isempty($result) === false) {
             return;
         }
 
         /**
-         *  Ajout du paquet en base de données
+         *  Add package to profile_package table
          */
         try {
             $stmt = $this->db->prepare("INSERT INTO profile_package (Name) VALUES (:name)");
@@ -405,12 +387,12 @@ class Profile extends Model
     }
 
     /**
-     *  Ajout d'un nouveau nom de service dans la table profile_service
+     *  Add a new service name in profile_service table
      */
     public function addService(string $serviceName)
     {
         /**
-         *  D'abord on vérifie que le service n'est pas déjà présent en base de données
+         *  Check if service is already present in profile_service table
          */
         try {
             $stmt = $this->db->prepare("SELECT Id FROM profile_service WHERE Name = :name");
@@ -421,14 +403,14 @@ class Profile extends Model
         }
 
         /**
-         *  Si le service est déjà présent dans la table profile_service alors on ne fait rien
+         *  If service is already present in profile_service table then do nothing
          */
         if ($this->db->isempty($result) === false) {
             return;
         }
 
         /**
-         *  Ajout du service en base de données
+         *  Add service to profile_service table
          */
         try {
             $stmt = $this->db->prepare("INSERT INTO profile_service (Name) VALUES (:name)");
@@ -442,7 +424,7 @@ class Profile extends Model
     }
 
     /**
-     *  Retire tous les repos membres d'un profil dans la table profile_repo_members (généralement avant d'en ajouter de nouveaux)
+     *  Delete all repos members of a profile in profile_repo_members table (usually before adding new ones)
      */
     public function cleanProfileRepoMembers(string $profileId)
     {
@@ -456,7 +438,7 @@ class Profile extends Model
     }
 
     /**
-     *  Ajouter un repo membre à un profil
+     *  Add a repo member to a profile
      */
     public function addRepoToProfile(string $profileId, string $repoId)
     {
@@ -471,7 +453,7 @@ class Profile extends Model
     }
 
     /**
-     *  Retourne le nombre d'hôtes utilisant le profil spécifié en base de données
+     *  Return the number of hosts using the specified profile
      */
     public function countHosts(string $profile)
     {

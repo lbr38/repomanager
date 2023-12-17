@@ -11,17 +11,12 @@ class NewRepo
         $mysource = new \Controllers\Source();
 
         /**
-         *  Get repos groups list
-         */
-        $repoGroupsList = $mygroup->listAllName();
-
-        /**
          *  New repo form variables
          */
         $newRepoRpmSourcesList = $mysource->listAll('rpm');
         $newRepoDebSourcesList = $mysource->listAll('deb');
-        $newRepoFormGroupList = $mygroup->listAllName();
+        $newRepoFormGroupList = $mygroup->listAll();
 
-        include_once(ROOT . '/views/includes/panels/new-repo.inc.php');
+        include_once(ROOT . '/views/includes/panels/repos/new.inc.php');
     }
 }

@@ -1553,65 +1553,6 @@ class Host extends Model
     }
 
     /**
-     *  Retourne les hosts membres d'un groupe à partir de son Id
-     */
-    public function getHostsGroupMembers(string $groupId)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT
-            hosts.Id AS hostId,
-            hosts.Hostname,
-            hosts.Ip
-            FROM hosts
-            INNER JOIN group_members
-                ON hosts.Id = group_members.Id_host
-            INNER JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE Id_group = :idgroup
-            AND hosts.Status = 'active'");
-            $stmt->bindValue(':idgroup', $groupId);
-            ;
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $hosts = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $hosts[] = $row;
-        }
-
-        return $hosts;
-    }
-
-    /**
-     *  Retourne les hosts qui ne sont membres d'aucun groupe
-     */
-    public function getHostsNotMembersOfAnyGroup()
-    {
-        try {
-            $result = $this->db->query("SELECT
-            hosts.Id,
-            hosts.Hostname,
-            hosts.Ip
-            FROM hosts
-            WHERE hosts.Id NOT IN (SELECT Id_host FROM group_members)
-            AND hosts.Status = 'active'");
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $hosts = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $hosts[] = $row;
-        }
-
-        return $hosts;
-    }
-
-    /**
      *  Retourne true si l'Id d'hôte existe en base de données
      */
     public function existsId(string $id)

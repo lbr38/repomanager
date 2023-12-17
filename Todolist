@@ -3,6 +3,7 @@
 - Update documentation
 - (JS/PHP) Add pagination in tables
 
+
 [ BUGS ]
 
     [ GENERAL ]
@@ -20,6 +21,11 @@
     - (DEB) Error with reprepro hanging while mirroring ubuntu > jammy > main
         https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1056380
         https://salsa.debian.org/debian/reprepro.git
+
+
+    [ OPERATIONS ]
+
+    - (RPM mirroring) Ignore warning if 'already contains identical signature' is found in the output of rpm --addsign
 
 
     [ SERVICE ]
@@ -45,13 +51,15 @@
     - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
 
 
+    [ STATS ]
+
+    - Convert 'Last access requets' table to a paginated table
+
+
     [ HOSTS / LINUPDATE ]
 
     - Be able to ask a host to update one or more specific packages
-    - (linupdate) Add a feature to be able to restart services based on the packages that have been updated, e.g :
-        - Restart nginx-app-protect if the following packages are updated: app-protect*
-        - Restart nginx if the following packages are updated: nginx, nginx-plus*
-
+    
 
     [ CVE ]
 
@@ -67,3 +75,8 @@
     [ API ]
 
     - Remove the old authentication method (via -d parameters), once linupdate 2.2.11 is released
+
+
+    [ MAIL ]
+
+    - Add an alternative way of sending mails via SMTP server: https://github.com/lbr38/repomanager/issues/139

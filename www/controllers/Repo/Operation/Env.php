@@ -162,7 +162,7 @@ class Env extends Operation
                      */
                     if (!empty($actualEnvIds)) {
                         foreach ($actualEnvIds as $actualEnvId) {
-                            $this->repo->removeEnv($actualEnvId);
+                            $this->repo->removeEnv($actualEnvId['Id']);
                         }
                     }
 
@@ -231,7 +231,7 @@ class Env extends Operation
                      */
                     if (!empty($actualEnvIds)) {
                         foreach ($actualEnvIds as $actualEnvId) {
-                            $this->repo->removeEnv($actualEnvId);
+                            $this->repo->removeEnv($actualEnvId['Id']);
                         }
                     }
 

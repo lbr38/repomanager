@@ -1,4 +1,4 @@
-classToSelect2('.hostsSelectList', 'Add host...');
+classToSelect2('select.group-hosts-list', 'Add host...');
 
 $(document).ready(function () {
     /**
@@ -37,17 +37,6 @@ function filterPackage()
             }
         }
     }
-}
-
-/**
- *  Rechargement de la div des groupes
- *  Recharge les menus select2 en même temps
- */
-function reloadGroupsDiv()
-{
-    $(".slide-panel-reloadable-div[slide-panel='hosts-groups']").load(" .slide-panel-reloadable-div[slide-panel='hosts-groups'] > *",function () {
-        classToSelect2('.hostsSelectList', 'Add host...');
-    });
 }
 
 /**
@@ -415,64 +404,57 @@ $(document).on('mouseleave',".hosts-charts-list-label-hosts-list",function () {
 });
 
 /**
- *  Event : Création d'un nouveau groupe
+ *  Event: Create new group
  */
 $(document).on('submit','#newGroupForm',function () {
     event.preventDefault();
     /**
-     *  Récupération du nom de groupe à créer dans l'input prévu à cet effet
+     *  Retrieve group name from input
      */
     var name = $("#newGroupInput").val();
+
     newGroup(name);
 
     return false;
 });
 
 /**
- *  Event : Renommage d'un groupe
+ *  Event: Delete group
  */
-$(document).on('submit','.groupForm',function () {
-    event.preventDefault();
-    /**
-     *  Récupération du nom actuel (dans <form>) et du nouveau nom (dans <input> contenant l'attribut groupname="name")
-     */
-    var name = $(this).attr('groupname');
-    var newname = $('input[groupname=' + name + '].groupFormInput').val();
-    renameGroup(name, newname);
+$(document).on('click','.delete-group-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
 
-    return false;
-});
+    var id = $(this).attr('group-id');
+    var name = $(this).attr('group-name');
 
-/**
- *  Event : Suppression d'un groupe
- */
-$(document).on('click','.deleteGroupButton',function () {
-    var name = $(this).attr('name');
     confirmBox('Are you sure you want to delete group ' + name + '?', function () {
-        deleteGroup(name)});
+        deleteGroup(id)});
 });
 
 /**
- * Event : Afficher la configuration d'un groupe
- * @param {*} name
+ *  Event: Print group configuration div
  */
-$(document).on('click','.groupConfigurationButton',function () {
-    var name = $(this).attr('name');
-    $('#groupConfigurationDiv-' + name).slideToggle(150);
+$(document).on('click','.group-config-btn',function () {
+    var id = $(this).attr('group-id');
+
+    slide('.group-config-div[group-id="' + id + '"]');
 });
 
 /**
- *  Event : ajouter / supprimer des hotes d'un groupe
+ *  Event: Edit group
  */
-$(document).on('submit','.groupHostsForm',function () {
+$(document).on('submit','.group-form',function () {
     event.preventDefault();
-    /**
-     *  Récupération du nom du groupe (dans <form>) puis de la liste des repos (dans le <select>)
-     */
-    var name = $(this).attr('groupname');
-    var hostsId = $('select[groupname=' + name + '].hostsSelectList').val();
 
-    editGroupHosts(name, hostsId);
+    /**
+     *  Retrieve group name (from <form>) and hosts list (from <select>)
+     */
+    var id = $(this).attr('group-id');
+    var name = $(this).find('.group-name-input[group-id="' + id + '"]').val();
+    var hostsId = $(this).find('select.group-hosts-list[group-id="' + id + '"]').val();
+
+    editGroup(id, name, hostsId);
 
     return false;
 });
@@ -611,7 +593,7 @@ $(document).on('click','#packagesAvailableButton',function () {
     if ($("#packagesAvailableDiv").is(":visible")) {
         $("#packagesAvailableDiv").hide();
     } else {
-        $("#packagesAvailableDiv").slideDown('slow');
+        $("#packagesAvailableDiv").show();
     }
 });
 $(document).on('click','#packagesInstalledButton',function () {
@@ -621,7 +603,7 @@ $(document).on('click','#packagesInstalledButton',function () {
     } else {
         $("#packagesContainerLoader").show();
         setTimeout(function () {
-            $("#packagesInstalledDiv").slideDown('slow');
+            $("#packagesInstalledDiv").show();
             $("#packagesContainerLoader").hide();
         },100);
     }
@@ -736,7 +718,7 @@ $(document).on('click','#showUpdateRequests',function () {
 
 
 /**
- * Ajax: Créer un nouveau groupe d'hôtes
+ * Ajax: Create a new group
  * @param {string} name
  */
 function newGroup(name)
@@ -746,18 +728,16 @@ function newGroup(name)
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "newGroup",
+            action: "new",
             name: name,
             type: "host"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
+            reloadPanel('hosts/groups', function () {
+                classToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadHostsDiv();
         },
         error: function (jqXHR, textStatus, thrownError) {
@@ -768,28 +748,26 @@ function newGroup(name)
 }
 
 /**
- * Ajax : Supprimer un groupe d'hôtes
- * @param {string} name
+ * Ajax: Delete a group
+ * @param {string} id
  */
-function deleteGroup(name)
+function deleteGroup(id)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "deleteGroup",
-            name: name,
+            action: "delete",
+            id: id,
             type: "host"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
+            reloadPanel('hosts/groups', function () {
+                classToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadHostsDiv();
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
@@ -800,62 +778,30 @@ function deleteGroup(name)
 }
 
 /**
- * Ajax: Renommer un groupe d'hôtes
+ * Ajax: Edit a group
+ * @param {string} id
  * @param {string} name
- * @param {string} newname
+ * @param {string} hostsId
  */
-function renameGroup(name, newname)
+function editGroup(id, name, hostsId)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "group",
-            action: "renameGroup",
+            action: "edit",
+            id: id,
             name: name,
-            newname : newname,
+            data: hostsId,
             type: "host"
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
             printAlert(jsonValue.message, 'success');
-            reloadGroupsDiv();
-            reloadHostsDiv();
-        },
-        error: function (jqXHR, textStatus, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
-    });
-}
-
-/**
- * Ajax: Ajouter ou supprimer des hôtes d'un groupe
- * @param {string} name
- * @param {string} hostsId
- */
-function editGroupHosts(name, hostsId)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "group",
-            action: "editGroupHosts",
-            name: name,
-            hostsId : hostsId
-        },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            /**
-             *  Affichage d'une alerte success et rechargement des groupes et de la liste des repos
-             */
-            printAlert(jsonValue.message, 'success');
+            reloadPanel('hosts/groups', function () {
+                classToSelect2('select.group-hosts-list', 'Add host...'); });
             reloadHostsDiv();
         },
         error: function (jqXHR, textStatus, thrownError) {

@@ -10,7 +10,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Get distant repomd.xml file
-     *  (RPM mirror)
      */
     private function getRepoMd(string $url)
     {
@@ -24,8 +23,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     }
 
     /**
-     *  Get primary packages list file
-     *  (RPM mirror)
+     *  Get primary.xml packages list file
      */
     private function getPackagesList(string $url, string $checksum)
     {
@@ -52,7 +50,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Parsing repomd.xml to get database location
-     *  (RPM mirror)
      */
     private function parseRepoMd()
     {
@@ -131,7 +128,6 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Parse primary packages list file to find .rpm packages location and their checksum
-     *  (RPM mirror)
      */
     private function parsePrimaryPackagesList(string $primaryFile)
     {
@@ -200,7 +196,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If package arch is not part of the archs selected by the user then skip it
              */
             if (!in_array($jsonArray['package']['arch'], $this->arch)) {
-                $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Package architecture ' . $jsonArray['package']['arch'] . ' is not matching the desired architecture ' . $this->currentArch . ' (ignored)</span>' . PHP_EOL);
+                $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Package architecture ' . $jsonArray['package']['arch'] . ' is not matching any of the desired architecture (ignored)</span>' . PHP_EOL);
                 $error++;
             }
 
@@ -246,20 +242,27 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     $packageLocation = $data['location']['@attributes']['href'];
 
                     /**
+                     *  If package arch is not found then it can not be retrieved
+                     */
+                    if (empty($data['arch'])) {
+                        $this->logError('Could not find architecture value for package ' . $packageLocation . ' in primary.xml file', 'Could not find architecture for package');
+                    }
+
+                    $packageArch = $data['arch'];
+
+                    /**
                      *  If package checksum is not found then it can not be retrieved
                      */
                     if (empty($data['checksum'])) {
-                        $this->logOutput(PHP_EOL . ' <span class="yellowtext"> Could not find checksum value for package ' . $packageLocation . '</span>' . PHP_EOL);
-                        $error++;
-                        continue;
+                        $this->logError('Could not find checksum value for package ' . $packageLocation . ' in primary.xml file', 'Could not find checksum for package');
                     }
 
                     $packageChecksum = $data['checksum'];
 
                     /**
-                     *  If path and checksum have been parsed, had them to the global rpm packages list array
+                     *  If path, arch and checksum have been parsed, had them to the global rpm packages list array
                      */
-                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'checksum' => $packageChecksum);
+                    $this->rpmPackagesLocation[] = array('location' => $packageLocation, 'arch' => $packageArch, 'checksum' => $packageChecksum);
                 }
             }
         }
@@ -281,33 +284,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Download rpm packages
-     *  (RPM mirror)
      */
     private function downloadRpmPackages(string $url)
     {
-        /**
-         *  Target directory in which packages will be downloaded
-         */
-
-        /**
-         *  If the current arch is 'src' then packages will be downloaded in a 'SRPMS' directory to respect most of the RPM repositories architecture
-         */
-        if ($this->currentArch == 'src') {
-            $targetDir = $this->workingDir . '/packages/SRPMS';
-        /**
-         *  Else, packages will be downloaded in a directory named after the current arch
-         */
-        } else {
-            $targetDir = $this->workingDir . '/packages/' . $this->currentArch;
-        }
-
-        /**
-         *  Create directory in which packages will be downloaded
-         */
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0770, true);
-        }
-
         /**
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
@@ -376,16 +355,54 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
             }
 
+            /**
+             *  Retrieve package informations from $rpmPackagesLocation array (what has been parsed from primary.xml file)
+             */
             $rpmPackageLocation = $rpmPackage['location'];
+            $rpmPackageArch     = $rpmPackage['arch'];
             $rpmPackageChecksum = $rpmPackage['checksum'];
-            $rpmPackageName = preg_split('#/#', $rpmPackageLocation);
-            $rpmPackageName = end($rpmPackageName);
+            $rpmPackageName     = preg_split('#/#', $rpmPackageLocation);
+            $rpmPackageName     = end($rpmPackageName);
             $packageCounter++;
 
             /**
              *  Output package to download to log file
              */
             $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... ');
+
+            /**
+             *  Check that package architecture is valid
+             */
+            if (!in_array($rpmPackageArch, RPM_ARCHS)) {
+                $this->logError('Package architecture is not valid: ' . $rpmPackageArch . ' for package: ' . $rpmPackageLocation, 'Package architecture is not valid');
+            }
+
+            /**
+             *  If no package arch has been found when parsing primary.xml file, throw an error
+             */
+            if (empty($rpmPackageArch)) {
+                $this->logError('An empty package architecture has been retrieved from distant repository metadata for package: ' . $rpmPackageLocation, 'Package architecture is not valid');
+            }
+
+            /**
+             *  If package arch is 'src' then package will be downloaded in a 'SRPMS' directory to respect most of the RPM repositories architecture
+             */
+            if ($rpmPackageArch == 'src') {
+                $targetDir = $this->workingDir . '/packages/SRPMS';
+
+            /**
+             *  Else, package will be downloaded in a directory named after the package arch
+             */
+            } else {
+                $targetDir = $this->workingDir . '/packages/' . $rpmPackageArch;
+            }
+
+            /**
+             *  Create directory in which package will be downloaded
+             */
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0770, true);
+            }
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
@@ -396,14 +413,14 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Download file if it does not already exist
+             *  Download package if it does not already exist
              */
             if (!$this->download($url . '/' . $rpmPackageLocation, $targetDir . '/' . $rpmPackageName)) {
                 $this->logError('error', 'Error while retrieving packages');
             }
 
             /**
-             *  Check that downloaded rpm package's matches the checksum specified by the primary.xml file
+             *  Check that downloaded rpm package matches the checksum specified by the primary.xml file
              *  Try with sha256 then sha1
              */
             if (hash_file('sha256', $targetDir . '/' . $rpmPackageName) != $rpmPackageChecksum) {
@@ -494,11 +511,22 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Building all possibly URLs to explore, from the base URL, the releasever and all the archs selected by the user
          */
+
+        /**
+         *  First start by adding just the base URL to the array, with no arch in the URL (because some distant repos do not have arch in their URL)
+         *  replacing '$releasever' with the specified releasever
+         *  and '$basearch' with an empty string
+         */
+        $this->archUrls[] = str_replace('$releasever', $this->releasever, $this->url);
+
+        /**
+         *  Then loop through all the archs selected by the user to build all the possible URLs to explore
+         */
         foreach ($this->arch as $arch) {
             $url = $this->url;
 
             /**
-             *  Replace releasever variable in the URL if exists
+             *  Replace $releasever variable in the URL if exists
              */
             $url = str_replace('$releasever', $this->releasever, $url);
 
@@ -506,12 +534,12 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If there is a $basearch variable in the URL, replace it with the current arch
              */
             if (preg_match('/\$basearch/i', $url)) {
-                $this->archUrls[$arch][] = str_replace('$basearch', $arch, $url);
+                $this->archUrls[] = str_replace('$basearch', $arch, $url);
             /**
              *  Else if there is no $basearch variable in the URL, just append the arch to the URL as this could be a possible URL to explore
              */
             } else {
-                $this->archUrls[$arch][] = $url . '/' . $arch;
+                $this->archUrls[] = $url . '/' . $arch;
             }
         }
 
@@ -523,47 +551,38 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  If there is a $basearch variable in the URL, replace it with 'SRPMS'
              */
             if (preg_match('/\$basearch/i', $this->url)) {
-                $this->archUrls[$arch][] = str_replace('$basearch', 'SRPMS', $this->url);
+                $this->archUrls[] = str_replace('$basearch', 'SRPMS', $this->url);
             /**
              *  Else if there is no $basearch variable in the URL, just append 'SRPMS' to the URL as this could be a possible URL to explore
              */
             } else {
-                $this->archUrls[$arch][] = $this->url . '/SRPMS';
+                $this->archUrls[] = $this->url . '/SRPMS';
             }
         }
 
         $this->logOutput('Packages will be retrieved from following URLs:' . PHP_EOL);
 
         /**
-         *  Foreach arch URL, test if it is reachable and got a repodata directory, else remove the URL from the array
+         *  Foreach arch URL, test if it is reachable and got a /repodata/repomd.xml file, else remove the URL from the array
          *  e.g. of $this->archUrls content:
          *  Array
          *  (
-         *      [x86_64] => Array
-         *          (
-         *              [0] => http://nginx.org/packages/centos/7/x86_64
-         *          )
-         *
-         *      [src] => Array
-         *          (
-         *              [0] => http://nginx.org/packages/centos/7/src
-         *              [1] => http://nginx.org/packages/centos/7/SRPMS
-         *          )
-         *
+         *      [0] => http://nginx.org/packages/centos/7/x86_64
+         *      [1] => http://nginx.org/packages/centos/7/src
+         *      [2] => http://nginx.org/packages/centos/7/SRPMS
          *  )
          */
-        foreach ($this->archUrls as $arch => $archUrls) {
-            foreach ($archUrls as $url) {
-                if (!\Controllers\Common::urlFileExists($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-                    /**
-                     *  Remove unreachable URL from array
-                     */
-                    if (($key = array_search($url, $this->archUrls[$arch])) !== false) {
-                        unset($this->archUrls[$arch][$key]);
-                    }
-                } else {
-                    $this->logOutput(' - ' . $url . PHP_EOL);
+
+        foreach ($this->archUrls as $url) {
+            if (!\Controllers\Common::urlFileExists($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                /**
+                 *  Remove unreachable URL from array
+                 */
+                if (($key = array_search($url, $this->archUrls)) !== false) {
+                    unset($this->archUrls[$key]);
                 }
+            } else {
+                $this->logOutput(' - ' . $url . PHP_EOL);
             }
         }
 
@@ -575,40 +594,38 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  Retrieve packages for each arch and their URLs
+         *  Retrieve packages for each URLs
          */
-        foreach ($this->archUrls as $this->currentArch => $archUrl) {
-            foreach ($archUrl as $url) {
-                /**
-                 *  Get repomd.xml
-                 */
-                $this->getRepoMd($url);
+        foreach ($this->archUrls as $url) {
+            /**
+             *  Get repomd.xml
+             */
+            $this->getRepoMd($url);
 
-                /**
-                 *  Find primary packages list location
-                 */
-                $this->parseRepoMd();
+            /**
+             *  Find primary packages list location
+             */
+            $this->parseRepoMd();
 
-                /**
-                 *  Get primary packages list file
-                 */
-                $this->getPackagesList($url . '/' . $this->primaryLocation, $this->primaryChecksum);
+            /**
+             *  Get primary packages list file
+             */
+            $this->getPackagesList($url . '/' . $this->primaryLocation, $this->primaryChecksum);
 
-                /**
-                 *  Parse primary packages list file
-                 */
-                $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz');
+            /**
+             *  Parse primary packages list file
+             */
+            $this->parsePrimaryPackagesList($this->workingDir . '/primary.xml.gz');
 
-                /**
-                 *  Download rpm packages
-                 */
-                $this->downloadRpmPackages($url);
+            /**
+             *  Download rpm packages
+             */
+            $this->downloadRpmPackages($url);
 
-                /**
-                 *  Clean remaining files
-                 */
-                $this->clean();
-            }
+            /**
+             *  Clean remaining files
+             */
+            $this->clean();
         }
     }
 }

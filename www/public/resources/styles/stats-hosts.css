@@ -286,11 +286,11 @@ td:last-child,
 
 #packagesContainerLoader {
     display: none;
-    position: absolute;
+    /* position: absolute;
     top: -8px;
     left: 50%;
     transform: translate(-50%);
-    z-index: 10;
+    z-index: 10; */
 }
 
 .showEventDetails, .hosts-charts-list-label-hosts-list, #hosts-requiring-reboot-chart-list {

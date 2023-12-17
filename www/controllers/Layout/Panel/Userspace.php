@@ -6,6 +6,6 @@ class Userspace
 {
     public static function render()
     {
-        include_once(ROOT . '/views/includes/panels/userspace.inc.php');
+        include_once(ROOT . '/views/includes/panels/general/userspace.inc.php');
     }
 }

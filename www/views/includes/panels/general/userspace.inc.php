@@ -67,7 +67,7 @@
 
 <?php
 $content = ob_get_clean();
-$slidePanelName = 'userspace';
+$slidePanelName = 'general/userspace';
 $slidePanelTitle = 'USERSPACE';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');

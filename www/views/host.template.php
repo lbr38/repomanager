@@ -272,46 +272,34 @@
         <div class="div-generic-blue">
 
             <h4>PACKAGES</h4>
-            <table class="hosts-table">
-                <thead>
-                    <tr>
-                        <th>To update</th>
-                        <th>Total installed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                        <?php
-                        if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
-                            echo '<span class="label-red">' . $packagesAvailableTotal . '</span>';
-                        } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
-                            echo '<span class="label-yellow">' . $packagesAvailableTotal . '</span>';
-                        } else {
-                            echo '<span class="label-white">' . $packagesAvailableTotal . '</span>';
-                        }
-                        /**
-                         *  Print a 'show details' button if there is at least 1 available package
-                         */
-                        if ($packagesAvailableTotal > 0) {
-                            echo ' <img src="/assets/icons/search.svg" id="packagesAvailableButton" class="icon-lowopacity" />';
-                        } ?>
-                        </td>
-                        <td>
-                            <?php
-                            echo '<span class="label-white">' . $packagesInstalledCount . '</span>';
-                            /**
-                             *  Print a 'show details' button if there is at least 1 installed package
-                             */
-                            if ($packagesInstalledCount > 0) {
-                                echo ' <img src="/assets/icons/search.svg" id="packagesInstalledButton" class="icon-lowopacity" />';
-                            } ?>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                
+            <div class="grid grid-2">
+                <div id="packagesAvailableButton" class="flex align-item-center column-gap-5 pointer">
+                    <?php
+                    if ($packagesAvailableTotal >= $pkgs_count_considered_critical) {
+                        $labelColor = 'red';
+                    } elseif ($packagesAvailableTotal >= $pkgs_count_considered_outdated) {
+                        $labelColor = 'yellow';
+                    } else {
+                        $labelColor = 'white';
+                    } ?>
+
+                    <span class="label-<?= $labelColor ?>"><?= $packagesAvailableTotal ?></span>
+                    <span><b>To update</b></span>
+                </div>
+
+                <div id="packagesInstalledButton" class="flex align-item-center column-gap-5 pointer">
+                    <span class="label-white"><?= $packagesInstalledCount ?></span>
+                    <span><b>Total installed</b></span>
+                </div>
+            </div>
+
+            <div id="packagesContainerLoader">
+                <br><br>
+                <span>Loading <img src="/assets/images/loading.gif" class="icon" /></span>
+            </div>
+        
             <div id="packagesContainer">
-                <span id="packagesContainerLoader">Loading <img src="/assets/images/loading.gif" class="icon" /></span>
                 <div id="packagesAvailableDiv" class="hide">
                     <h4>Package to update</h4>
                     <table class="packages-table">
@@ -342,7 +330,7 @@
                 </div>
 
                 <div id="packagesInstalledDiv" class="hide">
-                    <h4>Package inventory</h4>
+                    <h4>Package inventory (<?= count($packagesInventored) ?>)</h4>
                     <input type="text" id="packagesIntalledSearchInput" onkeyup="filterPackage()" autocomplete="off" placeholder="Search...">
                     <table id="packagesIntalledTable" class="packages-table">
                         <thead>
@@ -408,7 +396,7 @@
 
         <div class="div-generic-blue">
             <h4>HISTORY</h4>
-            <p>Events history (installation, update, uninstallation...)</p>
+            <p>Packages events history (installation, update, uninstallation...)</p>
             <br>
             <div id="eventsContainer">
                     <?php

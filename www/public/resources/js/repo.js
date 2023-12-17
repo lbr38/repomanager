@@ -25,7 +25,7 @@ function loadNewRepoFormJS()
  */
 function reloadNewRepoDiv()
 {
-    $(".slide-panel-reloadable-div[slide-panel='new-repo']").load(" .slide-panel-reloadable-div[slide-panel='new-repo'] > *",function () {
+    $(".slide-panel-reloadable-div[slide-panel='repos/new']").load(" .slide-panel-reloadable-div[slide-panel='repos/new'] > *",function () {
         loadNewRepoFormJS();
     });
 }
@@ -87,29 +87,83 @@ $(document).on('change','#new-repo-target-env-select',function () {
 }).trigger('change');
 
 /**
- *  Event : afficher/masquer le contenu de tous les groupes de repos actifs
+ *  Event: print/hide all repos groups
  */
 $(document).on('click','#hideAllReposGroups',function () {
     var state = $(this).attr('state');
 
+    /**
+     *  If actual state is 'visible' then hide all groups
+     */
     if (state == 'visible') {
+        /**
+         *  Change state to 'hidden'
+         */
         $(this).attr('state', 'hidden');
         $(this).find('img').attr('src', 'assets/icons/down.svg');
-        $('.repos-list-group-flex-div').slideUp();
+
+        /**
+         *  Retrieve all groups and hide them if they are visible
+         */
+        $('.repo-list-group-container').each(function () {
+            /**
+             *  Retrieve group id
+             */
+            var id = $(this).attr('group-id');
+
+            /**
+             *  If the group is visible then hide it, else do nothing
+             */
+            if ($(this).is(":visible")) {
+                slide('.repo-list-group-container[group-id="' + id + '"]');
+            }
+        });
+
+        /**
+         *  Change all up/down icons to 'down'
+         */
+        $('img.hideGroup').attr('src', 'assets/icons/down.svg');
     }
 
+    /**
+     *  If actual state is 'hidden' then show all groups
+     */
     if (state == 'hidden') {
+        /**
+         *  Change state to 'visible'
+         */
         $(this).attr('state', 'visible');
         $(this).find('img').attr('src', 'assets/icons/up.svg');
-        $('.repos-list-group-flex-div').slideDown();
+
+        /**
+         *  Retrieve all groups and show them if they are hidden
+         */
+        $('.repo-list-group-container').each(function () {
+            /**
+             *  Retrieve group id
+             */
+            var id = $(this).attr('group-id');
+
+            /**
+             *  If the group is hidden then show it, else do nothing
+             */
+            if ($(this).is(":hidden")) {
+                slide('.repo-list-group-container[group-id="' + id + '"]');
+            }
+        });
+
+        /**
+         *  Change all up/down icons to 'up'
+         */
+        $('img.hideGroup').attr('src', 'assets/icons/up.svg');
     }
 });
 
 /**
- *  Event : afficher/masquer le contenu d'un groupe de repos
+ *  Event: show / hide repos group content
  */
 $(document).on('click','.hideGroup',function () {
-    var groupname = $(this).attr('group');
+    var id = $(this).attr('group-id');
     var state = $(this).attr('state');
 
     if (state == 'visible') {
@@ -122,12 +176,12 @@ $(document).on('click','.hideGroup',function () {
         $(this).attr('src', 'assets/icons/up.svg');
     }
 
-    $('.repos-list-group[group=' + groupname + ']').find('.repos-list-group-flex-div').slideToggle();
+    slide('.repo-list-group-container[group-id="' + id + '"]');
 });
 
 
 /**
- *  Event : affiche/masque des inputs en fonction du type de repo ou du type de paquets sélectionné
+ *  Event: show / hide inputs depending on the selected repo type or package type
  */
 $(document).on('change','input:radio[name="repoType"], input:radio[name="packageType"]',function () {
     newRepoFormPrintFields();
@@ -139,7 +193,7 @@ $(document).on('change','input:radio[name="repoType"], input:radio[name="package
  */
 $(document).on('mouseenter','.item-env, .item-env-info',function () {
     var envId = $(this).attr('env-id');
-    $('#repos-list-container').find('.item-env-info[env-id=' + envId + ']').css('visibility', 'visible');
+    $('#repos-list-container').find('.item-env-info[env-id="' + envId + '"]').css('visibility', 'visible');
 });
 
 /**
@@ -265,7 +319,7 @@ $(document).on('click',".repo-action-btn",function () {
      *  Rechargement de operationsDiv, affichage et demande du formulaire correspondant à l'opération sélectionnée
      */
     getForm(action, repos_array);
-    openPanel('operation');
+    openPanel('repos/operation');
 });
 
 /**
@@ -499,7 +553,7 @@ function getForm(action, repos_array)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('.slide-panel-container[slide-panel=operation]').find('.slide-panel-reloadable-div').html(jsonValue.message);
+            $('.slide-panel-container[slide-panel="repos/operation"]').find('.slide-panel-reloadable-div').html(jsonValue.message);
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

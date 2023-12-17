@@ -444,16 +444,14 @@ class Connection extends SQLite3
          *  Crée la table profile_settings si n'existe pas
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
-        Package_type VARCHAR(255),
-        Manage_client_conf CHAR(3),
-        Manage_client_repos CHAR(3))");
+        Package_type VARCHAR(255))");
 
         /**
          *  Si la table profile_settings est vide (vient d'être créée) alors on la peuple
          */
         $result = $this->query("SELECT * FROM profile_settings");
         if ($this->isempty($result) === true) {
-            $this->exec("INSERT INTO profile_settings (Package_type, Manage_client_conf, Manage_client_repos) VALUES ('deb,rpm', 'no', 'no')");
+            $this->exec("INSERT INTO profile_settings (Package_type) VALUES ('deb,rpm')");
         }
 
         /**
@@ -465,8 +463,6 @@ class Connection extends SQLite3
         Package_exclude VARCHAR(255),
         Package_exclude_major VARCHAR(255),
         Service_restart VARCHAR(255),
-        Linupdate_get_pkg_conf CHAR(5),
-        Linupdate_get_repos_conf CHAR(5),
         Notes VARCHAR(255))");
 
         /**

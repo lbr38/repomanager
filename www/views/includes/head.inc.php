@@ -32,6 +32,8 @@
         echo '<link rel="stylesheet" type="text/css" href="/resources/styles/cve.css">';
     } ?>
 
+    <!-- Load pre JS -->
+    <script src="/resources/js/pre.js"></script>
     <!-- jQuery -->
     <script src="/resources/js/jquery/jquery-3.5.1.min.js"></script>
     <!-- Select2 https://select2.org/ -->

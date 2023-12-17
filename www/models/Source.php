@@ -38,49 +38,47 @@ class Source extends Model
     }
 
     /**
-     *  Return source repo URL
+     *  Get source repo Id from its name
      */
-    public function getUrl(string $sourceType, string $sourceName)
+    public function getIdByName(string $name)
     {
-        $fullUrl = '';
+        $id = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT Url FROM sources WHERE Type = :type AND Name = :name");
-            $stmt->bindValue(':type', $sourceType);
-            $stmt->bindValue(':name', $sourceName);
+            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Name = :name");
+            $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $fullUrl = $row['Url'];
+            $id = $row['Id'];
         }
 
-        return $fullUrl;
+        return $id;
     }
 
     /**
-     *  Get GPG key URL of the specified source repo
+     *  Get source repo type from its Id
      */
-    public function getGpgKeyUrl(string $sourceType, string $sourceName)
+    public function getType(string $id)
     {
-        $gpgKeyUrl = '';
+        $type = '';
 
         try {
-            $stmt = $this->db->prepare("SELECT Gpgkey FROM sources WHERE Type = :type AND Name = :name");
-            $stmt->bindValue(':type', $sourceType);
-            $stmt->bindValue(':name', $sourceName);
+            $stmt = $this->db->prepare("SELECT Type FROM sources WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $gpgKeyUrl = $row['Gpgkey'];
+            $type = $row['Type'];
         }
 
-        return $gpgKeyUrl;
+        return $type;
     }
 
     /**
@@ -108,6 +106,25 @@ class Source extends Model
     }
 
     /**
+     *  Edit a source repo
+     */
+    public function edit(string $id, string $name, string $url, string|null $gpgKeyURL, string|null $sslCertificatePath, string|null $sslPrivateKeyPath)
+    {
+        try {
+            $stmt = $this->db->prepare('UPDATE sources SET Name = :name, Url = :url, Gpgkey = :gpgKeyUrl, Ssl_certificate_path = :sslCertificatePath, Ssl_private_key_path = :sslPrivateKeyPath WHERE Id = :id');
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':name', $name);
+            $stmt->bindValue(':url', $url);
+            $stmt->bindValue(':gpgKeyUrl', $gpgKeyURL);
+            $stmt->bindValue(':sslCertificatePath', $sslCertificatePath);
+            $stmt->bindValue(':sslPrivateKeyPath', $sslPrivateKeyPath);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+    }
+
+    /**
      *  Delete a source repo
      */
     public function delete(string $sourceId)
@@ -115,99 +132,6 @@ class Source extends Model
         try {
             $stmt = $this->db->prepare("DELETE FROM sources WHERE Id = :id");
             $stmt->bindValue(':id', $sourceId);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Rename a source repo in database
-     */
-    public function rename(string $type, string $name, string $newName)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE sources SET Name = :newname WHERE Type = :type AND Name = :name");
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':newname', $newName);
-            $stmt->bindValue(':name', $name);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        /**
-         *  Also rename source in 'repos' table
-         */
-        try {
-            $stmt = $this->db->prepare("UPDATE repos SET Source = :newname WHERE Source = :name AND Package_type = :type");
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':newname', $newName);
-            $stmt->bindValue(':name', $name);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Edit source repo URL in database
-     */
-    public function editUrl(string $type, string $name, string $url)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE sources SET Url = :url WHERE Type = :type AND Name = :name");
-            $stmt->bindValue(':type', $type);
-            $stmt->bindValue(':url', $url);
-            $stmt->bindValue(':name', $name);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Edit source repo GPG key URL
-     */
-    public function editGpgKey(string $sourceId, string $url = '')
-    {
-        /**
-         *  Insert new URL in database
-         */
-        try {
-            $stmt = $this->db->prepare('UPDATE sources SET Gpgkey = :gpgkeyurl WHERE Id = :id');
-            $stmt->bindValue(':id', $sourceId);
-            $stmt->bindValue(':gpgkeyurl', $url);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Edit source repo SSL certificate file path
-     */
-    public function editSslCertificatePath(string $sourceId, string $path = '')
-    {
-        try {
-            $stmt = $this->db->prepare('UPDATE sources SET Ssl_certificate_path = :path WHERE Id = :id');
-            $stmt->bindValue(':id', $sourceId);
-            $stmt->bindValue(':path', $path);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
-
-    /**
-     *  Edit source repo SSL private key file path
-     */
-    public function editSslPrivateKeyPath(string $sourceId, string $path = '')
-    {
-        try {
-            $stmt = $this->db->prepare('UPDATE sources SET Ssl_private_key_path = :path WHERE Id = :id');
-            $stmt->bindValue(':id', $sourceId);
-            $stmt->bindValue(':path', $path);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -223,6 +147,26 @@ class Source extends Model
             $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Type = :type AND Name = :name");
             $stmt->bindValue(':type', $type);
             $stmt->bindValue(':name', $source);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        if ($this->db->isempty($result)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *  Check if source repo exists in database
+     */
+    public function existsId(string $id)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM sources WHERE Id = :id");
+            $stmt->bindValue(':id', $id);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);

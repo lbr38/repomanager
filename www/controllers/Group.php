@@ -14,10 +14,10 @@ class Group
     public function __construct(string $type)
     {
         /**
-         *  Cette class permet de manipuler des groupes de repos ou d'hôtes.
-         *  Selon ce qu'on souhaite traiter, la base de données n'est pas la même.
-         *  Si on a renseigné une base de données au moment de l'instanciation d'un objet Group alors on utilise cette base
-         *  Sinon par défaut on utilise la base principale de repomanager
+         *  This class allows to manipulate repos or hosts groups.
+         *  Depending on what we want to manipulate, the database is not the same.
+         *  If we have specified a database when instantiating a Group object then we use this database
+         *  Else we use the main database
          */
 
         if ($type != 'repo' and $type != 'host') {
@@ -55,12 +55,12 @@ class Group
     }
 
     /**
-     *  Retourne l'Id du groupe à partir de son nom
+     *  Return false if group does not exist
      */
     public function getIdByName(string $name)
     {
         /**
-         *  On vérifie que le groupe existe
+         *  Check if group exists
          */
         if ($this->exists($name) === false) {
             throw new Exception("Group <b>$name</b> does not exist");
@@ -101,7 +101,7 @@ class Group
     }
 
     /**
-     *  Créer un nouveau groupe
+     *  Create a new group
      *  @param name
      */
     public function new(string $name)
@@ -134,57 +134,77 @@ class Group
     }
 
     /**
-     *  Renommer un groupe
-     *  @param actualName
-     *  @param newName
+     *  Edit a group
      */
-    public function rename(string $actualName, string $newName)
+    public function edit(int $id, string $name, array $data)
     {
         /**
-         *  1. On vérifie que le nom du groupe ne contient pas des caractères interdits
+         *  Check if group exists
          */
-        if (\Controllers\Common::isAlphanumDash($actualName) === false) {
-            throw new Exception("Actual group name <b>$actualName</b> contains invalid characters");
-        }
-        if (\Controllers\Common::isAlphanumDash($newName) === false) {
-            throw new Exception("New group name <b>$newName</b> contains invalid characters");
+        if (!$this->existsId($id)) {
+            throw new Exception('Group does not exist');
         }
 
         /**
-         *  2. On vérifie que le nouveau nom de groupe n'existe pas déjà
+         *  Check if group name is valid
          */
-        if ($this->model->exists($newName) === true) {
-            throw new Exception("Group name <b>$newName</b> already exists");
+        if (\Controllers\Common::isAlphanumDash($name) === false) {
+            throw new Exception("Group name <b>$name</b> contains invalid characters");
         }
 
         /**
-         *  3. Renommage du groupe
+         *  Edit group name
          */
-        $this->model->rename($actualName, $newName);
+        $this->updateName($id, $name);
+
+        /**
+         *  Edit group data
+         */
+
+        /**
+         *  If group type is 'repo'
+         */
+        if ($this->type == 'repo') {
+            $myrepo = new \Controllers\Repo\Repo();
+            $myrepo->addReposIdToGroup($data, $id);
+        }
+
+        /**
+         *  If group type is 'host'
+         */
+        if ($this->type == 'host') {
+            $myhost = new \Controllers\Host();
+            $myhost->addHostsIdToGroup($data, $id);
+        }
 
         $myhistory = new \Controllers\History();
-        $myhistory->set($_SESSION['username'], 'Rename group: <span class="label-white">' . $actualName . '</span> to <span class="label-white">' . $newName . '</span> (type: ' . $this->type . ')', 'success');
+        $myhistory->set($_SESSION['username'], 'Group <span class="label-white">' . $name . '</span> (type: ' . $this->type . ') edited', 'success');
 
         \Controllers\App\Cache::clear();
     }
 
     /**
-     *  Supprimer un groupe
-     *  @param name
+     *  Delete a group
+     *  @param id
      */
-    public function delete(string $name)
+    public function delete(int $id)
     {
         /**
-         *  1. On vérifie que le groupe existe
+         *  Check if group exists
          */
-        if ($this->model->exists($name) === false) {
-            throw new Exception("Group <b>$name</b> does not exist");
+        if (!$this->existsId($id)) {
+            throw new Exception('Group does not exist');
         }
 
         /**
-         *  2. Suppression du groupe en base de données
+         *  Retrieve name, for history
          */
-        $this->model->delete($name);
+        $name = $this->getNameById($id);
+
+        /**
+         *  Delete group in database
+         */
+        $this->model->delete($id);
 
         $myhistory = new \Controllers\History();
         $myhistory->set($_SESSION['username'], 'Delete group <span class="label-white">' . $name . '</span> (type: '. $this->type . ')', 'success');
@@ -196,37 +216,16 @@ class Group
      *  Retourne les informations de tous les groupes en base de données
      *  Sauf le groupe par défaut
      */
-    public function listAll()
+    public function listAll($withDefault = false)
     {
-        return $this->model->listAll();
-    }
-
-    /**
-     *  Retourne tous les noms de groupes en bases de données
-     *  Sauf le groupe par défaut
-     */
-    public function listAllName()
-    {
-        return $this->model->listAllName();
-    }
-
-    /**
-     *  Returns the names of groups in database
-     *  With the default group name
-     */
-    public function listAllWithDefault()
-    {
-        $groups = $this->model->listAllName();
+        $groups = $this->model->listAll();
 
         /**
-         *  Sort by name
+         *  Add default group 'Default' to the end of the list
          */
-        asort($groups);
-
-        /**
-         *  Then add default group 'Default' to the end of the list
-         */
-        $groups[] = 'Default';
+        if ($withDefault === true) {
+            $groups[] = array('Id' => 0, 'Name' => 'Default');
+        }
 
         return $groups;
     }
@@ -237,5 +236,45 @@ class Group
     public function cleanRepos()
     {
         $this->model->cleanRepos();
+    }
+
+    /**
+     *  Update group name in database
+     */
+    private function updateName(int $id, string $name)
+    {
+        $this->model->updateName($id, $name);
+    }
+
+    /**
+     *  Return the list of repos in a group
+     */
+    public function getReposMembers(int $id)
+    {
+        return $this->model->getReposMembers($id);
+    }
+
+    /**
+     *  Return the list of repos not in any group
+     */
+    public function getReposNotMembers()
+    {
+        return $this->model->getReposNotMembers();
+    }
+
+    /**
+     *  Return the list of hosts in a group
+     */
+    public function getHostsMembers(int $id)
+    {
+        return $this->model->getHostsMembers($id);
+    }
+
+    /**
+     *  Return the list of hosts not in any group
+     */
+    public function getHostsNotMembers()
+    {
+        return $this->model->getHostsNotMembers();
     }
 }

@@ -12,9 +12,9 @@ class HostGroup
         /**
          *  Get hosts groups list
          */
-        $hostGroupsList = $mygroup->listAllName();
+        $hostGroupsList = $mygroup->listAll();
 
-        include_once(ROOT . '/views/includes/panels/hosts-groups.inc.php');
+        include_once(ROOT . '/views/includes/panels/hosts/groups.inc.php');
 
         unset($myhost, $mygroup);
     }

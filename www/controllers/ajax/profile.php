@@ -1,28 +1,9 @@
 <?php
 
-/**
- *  Edit server settings
- */
-if (
-    $_POST['action'] == "applyServerConfiguration"
-    and !empty($_POST['serverManageClientConf'])
-    and !empty($_POST['serverManageClientRepos'])
-) {
-    $myprofile = new \Controllers\Profile();
-
-    try {
-        $myprofile->setServerConfiguration($_POST['serverManageClientConf'], $_POST['serverManageClientRepos']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, "Server configuration has been saved");
-}
-
 /*
  *  Create a new profile
  */
-if ($_POST['action'] == "newProfile" and !empty($_POST['name'])) {
+if ($_POST['action'] == 'new' and !empty($_POST['name'])) {
     $myprofile = new \Controllers\Profile();
 
     try {
@@ -37,106 +18,82 @@ if ($_POST['action'] == "newProfile" and !empty($_POST['name'])) {
 /**
  *  Delete a profile
  */
-if ($_POST['action'] == "deleteProfile" and !empty($_POST['name'])) {
+if ($_POST['action'] == 'delete' and !empty($_POST['id'])) {
     $myprofile = new \Controllers\Profile();
 
     try {
-        $myprofile->delete($_POST['name']);
+        $myprofile->delete($_POST['id']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been deleted");
-}
-
-/**
- *  Rename a profile
- */
-if ($_POST['action'] == "renameProfile" and !empty($_POST['name']) and !empty($_POST['newname'])) {
-    $myprofile = new \Controllers\Profile();
-
-    try {
-        $myprofile->rename($_POST['name'], $_POST['newname']);
-    } catch (\Exception $e) {
-        response(HTTP_BAD_REQUEST, $e->getMessage());
-    }
-
-    response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been renamed to <b>" . $_POST['newname'] . "</b>");
+    response(HTTP_OK, 'Profile has been deleted');
 }
 
 /**
  *  Duplicate a profile
  */
-if ($_POST['action'] == "duplicateProfile" and !empty($_POST['name'])) {
+if ($_POST['action'] == 'duplicate' and !empty($_POST['id'])) {
     $myprofile = new \Controllers\Profile();
 
     try {
-        $myprofile->duplicate($_POST['name']);
+        $myprofile->duplicate($_POST['id']);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "<b>" . $_POST['name'] . "</b> profile has been duplicated");
+    response(HTTP_OK, 'Profile has been duplicated');
 }
 
 /**
  *  Configure a profile
  */
-if (
-    $_POST['action'] == "configureProfile"
-    and !empty($_POST['name'])
-    and !empty($_POST['linupdateGetPkgConf'])
-    and !empty($_POST['linupdateGetReposConf'])
-) {
+if ($_POST['action'] == 'configure' and !empty($_POST['id']) and !empty($_POST['name'])) {
+    $reposList = array();
+    $exclude = array();
+    $excludeMajor = array();
+    $serviceRestart = array();
+    $notes = '';
+
     /**
      *  If no repos have been specified then it means that the user wants to set it clear, so set $reposList as en empty array
      */
-    if (empty($_POST['reposList'])) {
-        $reposList = array();
-    } else {
+    if (!empty($_POST['reposList'])) {
         $reposList = $_POST['reposList'];
     }
 
     /**
-     *  If no package to exclude have been specified then it means that the user wants to set it clear, so set $packagesExcluded as en empty array
+     *  If no package to exclude have been specified then it means that the user wants to set it clear, so set $exclude as en empty array
      */
-    if (empty($_POST['packagesExcluded'])) {
-        $packagesExcluded = array();
-    } else {
-        $packagesExcluded = $_POST['packagesExcluded'];
+    if (!empty($_POST['exclude'])) {
+        $exclude = $_POST['exclude'];
     }
 
     /**
-     *  If no package to exclude (on major version) have been specified then it means that the user wants to set it clear, so set $packagesMajorExcluded as en empty array
+     *  If no package to exclude (on major version) have been specified then it means that the user wants to set it clear, so set $excludeMajor as en empty array
      */
-    if (empty($_POST['packagesMajorExcluded'])) {
-        $packagesMajorExcluded = array();
-    } else {
-        $packagesMajorExcluded = $_POST['packagesMajorExcluded'];
+    if (!empty($_POST['excludeMajor'])) {
+        $excludeMajor = $_POST['excludeMajor'];
     }
 
     /**
-     *  If no service to restart have been specified then it means that the user wants to set it clear, so set $packagesExcluded as en empty array
+     *  If no service to restart have been specified then it means that the user wants to set it clear, so set $exclude as en empty array
      */
-    if (empty($_POST['serviceNeedRestart'])) {
-        $serviceNeedRestart = array();
-    } else {
-        $serviceNeedRestart = $_POST['serviceNeedRestart'];
+    if (!empty($_POST['serviceRestart'])) {
+        $serviceRestart = $_POST['serviceRestart'];
     }
 
     /**
      *  Profile notes
      */
-    if (empty($_POST['notes'])) {
-        $notes = '';
-    } else {
+    if (!empty($_POST['notes'])) {
         $notes = $_POST['notes'];
     }
 
     $myprofile = new \Controllers\Profile();
 
     try {
-        $myprofile->configure($_POST['name'], $reposList, $packagesExcluded, $packagesMajorExcluded, $serviceNeedRestart, $_POST['linupdateGetPkgConf'], $_POST['linupdateGetReposConf'], $notes);
+        $myprofile->configure($_POST['id'], $_POST['name'], $reposList, $exclude, $excludeMajor, $serviceRestart, $notes);
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }

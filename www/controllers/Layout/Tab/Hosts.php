@@ -13,8 +13,7 @@ class Hosts
         /**
          *  Get hosts groups list
          */
-        $hostGroupsList = $mygroup->listAllName();
-        $hostGroupsListWithDefault = $mygroup->listAllWithDefault();
+        $hostGroupsList = $mygroup->listAll(true);
 
         /**
          *  Case general hosts threshold settings form has been sent

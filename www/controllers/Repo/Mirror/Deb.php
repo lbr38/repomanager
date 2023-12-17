@@ -8,7 +8,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 {
     /**
      *  Download Release file
-     *  (DEB mirror)
      */
     private function getReleaseFile()
     {
@@ -42,8 +41,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      *   - Packages indices file location  (Packages / Packages.gz)
      *   - Sources packages file location  (Sources / Sources.gz)
      *   - Translation file location       (Translation-en / Translation-en.bz2)
-     *
-     *  (DEB mirror)
      */
     private function parseReleaseFile()
     {
@@ -193,7 +190,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Parse Packages indices file to find .deb packages location
-     *  (DEB mirror)
      */
     private function parsePackagesIndiceFile()
     {
@@ -289,7 +285,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Parse Sources indices file to find .dsc/tar.gz/tar.xz sources packages location
-     *  (DEB mirror)
      */
     private function parseSourcesIndiceFile()
     {
@@ -451,7 +446,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Check Release file GPG signature
-     *  (DEB mirror)
      */
     private function checkReleaseGPGSignature()
     {
@@ -478,7 +472,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Check GPG signature of specified file
-     *  (DEB mirror)
      */
     private function checkGPGSignature(string $signatureFile, string $clearFile = null)
     {
@@ -508,7 +501,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Download deb packages
-     *  (DEB mirror)
      */
     private function downloadDebPackages($url)
     {
@@ -590,7 +582,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Download deb sources packages
-     *  (DEB mirror)
      */
     private function downloadDebSourcesPackages($url)
     {
@@ -650,7 +641,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
 
     /**
      *  Download translation packages
-     *  (DEB mirror)
      */
     private function downloadTranslation()
     {

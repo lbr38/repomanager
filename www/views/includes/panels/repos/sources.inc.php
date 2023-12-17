@@ -95,7 +95,7 @@
 
 <?php
 $content = ob_get_clean();
-$slidePanelName = 'source-repo';
+$slidePanelName = 'repos/sources';
 $slidePanelTitle = 'SOURCE REPOSITORIES';
 
 include(ROOT . '/views/includes/slide-panel.inc.php');
