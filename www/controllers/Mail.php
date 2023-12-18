@@ -67,6 +67,12 @@ class Mail
             $mail->Subject = $subject;
             $mail->Body    = $template;
 
+            /**
+             *  Charset and encoding
+             */
+            $mail->CharSet = 'UTF-8';
+            $mail->Encoding = 'base64';
+
             $mail->send();
         } catch (Exception $e) {
             throw new Exception('Error: mail could not be sent. Mailer Error: ' . $mail->ErrorInfo);

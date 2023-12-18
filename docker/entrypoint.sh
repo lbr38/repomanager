@@ -27,6 +27,9 @@ if [ ! -z "$MAX_UPLOAD_SIZE" ];then
 fi
 
 # Start services
+if [ -f "/etc/init.d/syslog-ng" ];then
+    /usr/sbin/service syslog-ng start
+fi
 /usr/sbin/service php8.1-fpm start
 /usr/sbin/service nginx start
 /usr/sbin/service postfix start

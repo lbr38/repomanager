@@ -33,6 +33,12 @@ RUN apt-get update -y
 # Install nginx and PHP 8.1
 RUN apt-get install nginx php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3 -y
 
+# Install syslog-ng
+RUN if [ "$env" = "devel" ]; then \
+       apt-get install syslog-ng -y && \
+       sed -i 's/system()/system(exclude-kmsg(yes))/g' /etc/syslog-ng/syslog-ng.conf; \
+    fi
+
 # Clone project in the container
 RUN git clone https://github.com/lbr38/repomanager.git /tmp/repomanager
 # For tests only
