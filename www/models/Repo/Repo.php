@@ -175,7 +175,10 @@ class Repo extends \Models\Model
              *  Cas où on a seulement spécifié le nom du repo
              */
             if (empty($dist) or empty($section)) {
-                $stmt = $this->db->prepare("SELECT Id from repos WHERE Name = :name AND Dist IS NULL AND Section IS NULL");
+                $stmt = $this->db->prepare("SELECT Id from repos
+                WHERE Name = :name
+                AND (Dist IS NULL OR Dist = '')
+                AND (Section IS NULL OR Section = '')");
 
             /**
              *  Cas où la distribution et la section ont été spécifié
@@ -217,8 +220,8 @@ class Repo extends \Models\Model
                 INNER JOIN repos
                     ON repos.Id = repos_snap.Id_repo
                 WHERE repos.Name = :name
-                AND repos.Dist IS NULL
-                AND repos.Section IS NULL
+                AND (repos.Dist IS NULL OR repos.Dist = '')
+                AND (repos.Section IS NULL OR repos.Section = '')
                 AND repos_env.Env = :env");
             /**
              *  Case DEB (dist and section are specified)
@@ -717,7 +720,10 @@ class Repo extends \Models\Model
                 $stmt->bindValue(':dist', $dist);
                 $stmt->bindValue(':section', $section);
             } else {
-                $stmt = $this->db->prepare("SELECT * FROM repos WHERE Name = :name AND Dist IS NULL AND Section IS NULL");
+                $stmt = $this->db->prepare("SELECT * FROM repos WHERE
+                Name = :name
+                AND (Dist IS NULL OR Dist = '')
+                AND (Section IS NULL OR Section = '')");
             }
             $stmt->bindValue(':name', $name);
             $result = $stmt->execute();
@@ -858,8 +864,8 @@ class Repo extends \Models\Model
                 INNER JOIN repos_snap
                     ON repos_snap.Id_repo = repos.Id
                 WHERE repos.Name = :name
-                AND repos.Dist IS NULL
-                AND repos.Section IS NULL
+                AND (repos.Dist IS NULL OR repos.Dist = '')
+                AND (repos.Section IS NULL OR repos.Section = '')
                 AND repos_snap.Status = 'active'");
             } else {
                 $stmt = $this->db->prepare("SELECT repos.Id
