@@ -401,7 +401,9 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Create directory in which package will be downloaded
              */
             if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0770, true);
+                if (!mkdir($targetDir, 0770, true)) {
+                    $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+                }
             }
 
             /**
@@ -560,7 +562,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             }
         }
 
-        $this->logOutput('Packages will be retrieved from following URLs:' . PHP_EOL);
+        $this->logOutput(PHP_EOL . 'Packages will be retrieved from following URLs:' . PHP_EOL);
 
         /**
          *  Foreach arch URL, test if it is reachable and got a /repodata/repomd.xml file, else remove the URL from the array

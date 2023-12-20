@@ -47,7 +47,9 @@
             <span class="btn-small-green repo-access-chart-filter-button" filter="3months">3 months</span>
             <span class="btn-small-green repo-access-chart-filter-button" filter="6months">6 months</span>
             <span class="btn-small-green repo-access-chart-filter-button" filter="1year">1 year</span>
+
             <br><br>
+
             <div id="repo-access-chart-canvas">
                 <?php
                 /**
@@ -95,65 +97,15 @@
             <?php
         endif ?>
     </div>
-                    
+
     <?php
     /**
-     *  Tableau des derniers logs d'accès
-     */ ?>
-    <div class="div-generic-blue">
-        <p class="center lowopacity-cst">Last access requests</p>
-        <table class="stats-access-table">
-            <?php
-            if (!empty($lastAccess)) { ?>
-                <thead>
-                    <tr>
-                        <td class="td-10"></td>
-                        <td class="td-100">Date</td>
-                        <td class="td-100">Source</td>
-                        <td>Target file</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    foreach ($lastAccess as $access) :
-                        /**
-                         *  Récupération de la cible (le paquet ou le fichier téléchargé) à partir de la requête
-                         *  Ici le preg_match permet de récupérer le nom du paquet ou du fichier ciblé dans l'URL complète
-                         *  Il récupère une occurence composée de lettres, de chiffres et de caractères spéciaux et qui commence par un slash '/' et se termine par un espace [[:space:]]
-                         *
-                         *  Par exemple :
-                         *  GET /repo/debian-security/buster/updates/main_test/pool/main/b/bind9/bind9-host_9.11.5.P4%2bdfsg-5.1%2bdeb10u6_amd64.deb HTTP/1.1
-                         *                                                                      |                                                   |
-                         *                                                                      |_                                                  |_
-                         *                                                                        |                                                   |
-                         *                                                                preg_match récupère l'occurence située entre un slash et un espace
-                         *  Il récupère uniquement une occurence comportant des lettres, des chiffres et certains caractères spéciaux comme - _ . et %
-                         */
-                        preg_match('#/[a-zA-Z0-9\%_\.-]+[[:space:]]#i', $access['Request'], $accessTarget);
-                        $accessTarget[0] = str_replace('/', '', $accessTarget[0]); ?>
-                        <tr>
-                            <td class="td-10">
-                                <?php
-                                if ($access['Request_result'] == "200" or $access['Request_result'] == "304") {
-                                    echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
-                                } else {
-                                    echo '<img src="/assets/icons/redcircle.png" class="icon-small" title="' . $access['Request_result'] . '" />';
-                                } ?>
-                            </td>
-                            <td class="td-100"><?= DateTime::createFromFormat('Y-m-d', $access['Date'])->format('d-m-Y') . ' ' . $access['Time'] ?></td>
-                            <td class="td-100"><?= $access['Source'] . ' (' . $access['IP'] . ')' ?></td>
-                            <td><span title="<?= str_replace('"', '', $access['Request']) ?>"><?= $accessTarget[0] ?></span></td>
-                        </tr>
-                        <?php
-                    endforeach; ?>
-                </tbody>
-                <?php
-            } else {
-                echo "<tr><td>No access request was found.</td></tr>";
-            } ?>
-        </table>
-    </div>
+     *  Print access logs
+     */
+    \Controllers\Layout\Table\Render::render('stats/access', 0); ?>
     
+    <br>
+
     <div class="div-flex">
         <?php
         /**

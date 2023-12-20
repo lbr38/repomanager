@@ -13,18 +13,24 @@ class Directory
     public static function copy(string $sourceDir, string $targetDir)
     {
         if (!is_dir($sourceDir)) {
-            throw new Exception('Source directory does not exist: ' . $sourceDir);
+            throw new Exception('Recursive copy error: source directory does not exist: ' . $sourceDir);
         }
 
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+            if (!mkdir($targetDir, 0755, true)) {
+                throw new Exception('Recursive copy error: could not create destination directory: ' . $targetDir);
+            }
         }
 
         foreach ($iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourceDir, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $item) {
             if ($item->isDir()) {
-                mkdir($targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname());
+                if (!mkdir($targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname())) {
+                    throw new Exception('Recursive copy error: could not create directory: ' . $targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname());
+                }
             } else {
-                copy($item, $targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname());
+                if (!copy($item, $targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname())) {
+                    throw new Exception('Recursive copy error: could not copy file: ' . $targetDir . DIRECTORY_SEPARATOR . $iterator->getSubPathname());
+                }
             }
         }
 

@@ -36,14 +36,17 @@ function printAlert(message, type = null, timeout = 2500)
     $('#newalert').remove();
 
     if (type == null) {
-        $('footer').append('<div id="newalert" class="alert"><div>' + message + '</div></div>');
+        var alertClass = 'alert';
     }
     if (type == "error") {
-        $('footer').append('<div id="newalert" class="alert-error"><div>' + message + '</div></div>');
+        var alertClass = 'alert-error';
+        var timeout = 4000;
     }
     if (type == "success") {
-        $('footer').append('<div id="newalert" class="alert-success"><div>' + message + '</div></div>');
+        var alertClass = 'alert-success';
     }
+
+    $('footer').append('<div id="newalert" class="' + alertClass + '"><div>' + message + '</div></div>');
 
     if (timeout != 'none') {
         window.setTimeout(function () {

@@ -74,19 +74,19 @@ $(document).on('click','.icon-copy',function (e) {
 });
 
 /**
- *  Event: click on a reloadable table 'Previous' button
+ *  Event: click on a reloadable table page number
  */
-$(document).on('click','.reloadable-table-previous-btn',function () {
+$(document).on('click','.reloadable-table-page-btn',function () {
     /**
      *  Get table name and offset from parent
      */
     var table = $(this).parents('.reloadable-table').attr('table');
-    var offset = $(this).parents('.reloadable-table').attr('offset');
+    var page = $(this).attr('page');
 
     /**
-     *  Decrement offset -10
+     *  Calculate offset (page * 10 - 10)
      */
-    offset = parseInt(offset) - 10;
+    offset = parseInt(page) * 10 - 10;
 
     /**
      *  If offset is negative, set it to 0
@@ -94,30 +94,6 @@ $(document).on('click','.reloadable-table-previous-btn',function () {
     if (offset < 0) {
         offset = 0;
     }
-
-    /**
-     *  Set cookie for PHP to load the right content
-     *  e.g tables/operations/list-done/offset
-     */
-    setCookie('tables/' + table + '/offset', offset, 1);
-
-    reloadTable(table, offset);
-});
-
-/**
- * Event: click on a reloadable table 'Next' button
- */
-$(document).on('click','.reloadable-table-next-btn',function () {
-    /**
-     *  Get table name and offset from parent
-     */
-    var table = $(this).parents('.reloadable-table').attr('table');
-    var offset = $(this).parents('.reloadable-table').attr('offset');
-
-    /**
-     *  Increment offset +10
-     */
-    offset = parseInt(offset) + 10;
 
     /**
      *  Set cookie for PHP to load the right content
@@ -316,7 +292,9 @@ function reloadTable(table, offset)
             controller: "general",
             action: "getTable",
             table: table,
-            offset: offset
+            offset: offset,
+            sourceUrl: window.location.href,
+            sourceUri: window.location.pathname
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

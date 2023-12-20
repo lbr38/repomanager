@@ -75,23 +75,7 @@ class Browse
     public static function printFile($file, $path)
     {
         echo '<li>';
-
-        /**
-         *  Print a checkbox to delete the file only if it is a package file
-         */
-        if (substr($file, -4) == ".rpm"
-        or substr($file, -4) == ".deb"
-        or substr($file, -4) == ".asc"
-        or substr($file, -4) == ".bz2"
-        or substr($file, -4) == ".dsc"
-        or substr($file, -8) == ".diff.gz"
-        or substr($file, -7) == ".tar.gz"
-        or substr($file, -7) == ".tar.xz") {
-            echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="' . $file . '" path="' . $path . '" /><img src="/assets/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
-        } else {
-            echo '<div class="explorer-file header-blue"><img src="/assets/icons/file.svg" class="icon" /><span>' . $file . '</span></div>';
-        }
-
+        echo '<div class="explorer-file-pkg header-light-blue"><input type="checkbox" class="packageName-checkbox pointer" name="packageName[]" filename="' . $file . '" path="' . $path . '" /><img src="/assets/icons/package.svg" class="icon" /><span>' . $file . '</span></div>';
         echo '</li>';
     }
 

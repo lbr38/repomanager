@@ -46,10 +46,10 @@ if (!empty($_GET['chartFilter'])) {
  *  Retrieve last access logs from database
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $lastAccess = $mystats->getLastAccess($myrepo->getName(), '', '', $myrepo->getEnv());
+    $lastAccess = $mystats->getAccess($myrepo->getName(), '', '', $myrepo->getEnv(), true, 0);
 }
 if ($myrepo->getPackageType() == 'deb') {
-    $lastAccess = $mystats->getLastAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv());
+    $lastAccess = $mystats->getAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), true, 0);
 }
 
 /**

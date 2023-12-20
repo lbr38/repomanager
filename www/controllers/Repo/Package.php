@@ -93,10 +93,10 @@ class Package
             }
 
             /**
-             *  For DEB, package will be uploaded to the my_uploaded_packages directory
+             *  For DEB, package will be uploaded to the pool/<section> directory
              */
             if ($myrepo->getPackageType() == 'deb') {
-                $targetDir = $repoPath . '/my_uploaded_packages';
+                $targetDir = $repoPath . '/pool/' . $myrepo->getSection();
             }
 
             /**

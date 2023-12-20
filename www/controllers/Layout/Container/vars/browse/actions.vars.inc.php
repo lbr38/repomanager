@@ -17,9 +17,9 @@ $snapId = __ACTUAL_URI__[2];
 $myrepo->getAllById('', $snapId, '');
 
 /**
- *  Retrieve repo reconstruct status
+ *  Retrieve repo rebuild status
  */
-$reconstruct = $myrepo->getReconstruct();
+$rebuild = $myrepo->getReconstruct();
 
 /**
  *  Upload packages

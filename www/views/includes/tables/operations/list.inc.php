@@ -142,16 +142,9 @@
             </div>
             <?php
         endforeach; ?>
-        
-        <div class="flex column-gap-10 justify-end">
-            <?php
-            if ($reloadableTableOffset > 0) {
-                echo '<div class="reloadable-table-previous-btn btn-small-green">Previous</div>';
-            }
 
-            if ($reloadableTableCurrentPage < $reloadableTableTotalPages) {
-                echo '<div class="reloadable-table-next-btn btn-small-green">Next</div>';
-            } ?>
+        <div class="flex justify-end">
+            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 
         <?php

@@ -403,7 +403,7 @@
                     endif;
 
                     if (empty(ENVS)) {
-                        echo '<img src="/assets/icons/warning.png" class="icon" title="At least 1 environment must be configured." /> At least 1 environment must be configured.';
+                        echo '<div class="flex align-item-center"><img src="/assets/icons/warning.png" class="icon" title="At least 1 environment must be configured." /><span>At least 1 environment must be configured</span></div>';
                     } ?>
                 </div>
 

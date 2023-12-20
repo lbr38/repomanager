@@ -33,7 +33,7 @@ if ($myrepo->getPackageType() == 'deb') {
             <?php
             if ($myrepo->getPackageType() == 'rpm') :
                 foreach (RPM_ARCHS as $arch) {
-                    if (in_array($arch, RPM_DEFAULT_ARCH)) {
+                    if (in_array($arch, $myrepo->getArch())) {
                         echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
                     } else {
                         echo '<option value="' . $arch . '">' . $arch . '</option>';
@@ -42,7 +42,7 @@ if ($myrepo->getPackageType() == 'deb') {
             endif;
             if ($myrepo->getPackageType() == 'deb') :
                 foreach (DEB_ARCHS as $arch) {
-                    if (in_array($arch, DEB_DEFAULT_ARCH)) {
+                    if (in_array($arch, $myrepo->getArch())) {
                         echo '<option value="' . $arch . '" selected>' . $arch . '</option>';
                     } else {
                         echo '<option value="' . $arch . '">' . $arch . '</option>';

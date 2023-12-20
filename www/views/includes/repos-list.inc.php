@@ -76,7 +76,7 @@ if (!empty($groupsList)) {
                             $section        = $repo['Section'];
                             $releaseVersion = $repo['Releasever'];
                             $source         = $repo['Source'];
-                            $reconstruct    = $repo['Reconstruct'];
+                            $rebuild        = $repo['Reconstruct'];
                             $status         = $repo['Status'];
                             $packageType    = $repo['Package_type'];
                             $dateFormatted  = DateTime::createFromFormat('Y-m-d', $repo['Date'])->format('d-m-Y');
@@ -209,17 +209,17 @@ if (!empty($groupsList)) {
                                 <?php
                                 if ($snapId != $previousSnapId) {
                                     /**
-                                     *  Print a warning icon if repo snapshot needs to be rebuilt
+                                     *  Print a warning icon if repo snapshot needs to be rebuild
                                      */
-                                    if (!empty($reconstruct)) {
-                                        if ($reconstruct == 'needed') {
+                                    if (!empty($rebuild)) {
+                                        if ($rebuild == 'needed') {
                                             echo '<img class="icon" src="/assets/icons/warning.png" title="Repository snapshot content has been modified. You have to rebuild metadata." />';
                                         }
 
                                         /**
                                          *  Print a failed icon if repo snapshot rebuild has failed
                                          */
-                                        if ($reconstruct == 'failed') {
+                                        if ($rebuild == 'failed') {
                                             echo '<img class="icon" src="/assets/icons/redcircle.png" title="Metadata building has failed." />';
                                         }
                                     }
