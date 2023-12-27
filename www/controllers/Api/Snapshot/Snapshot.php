@@ -63,7 +63,7 @@ class Snapshot extends \Controllers\Api\Controller
             if ($this->method == 'PUT') {
                 /**
                  *  Reconstruct a snapshot
-                 *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/reconstruct
+                 *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/rebuild
                  */
                 if ($this->action == 'rebuild' and !empty($this->data->gpgSign)) {
                     /**

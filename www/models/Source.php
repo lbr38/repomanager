@@ -208,8 +208,6 @@ class Source extends Model
          *  Prepare query
          */
         $stmt = $this->db->prepare($query);
-
-
         $stmt->bindValue(':type', $type);
         $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         $result = $stmt->execute();

@@ -22,7 +22,8 @@ class Directory
             TEMP_DIR,
             HOSTS_DIR,
             WWW_CACHE,
-            DB_UPDATE_DONE_DIR
+            DB_UPDATE_DONE_DIR,
+            DATA_DIR . '/ssl'
         );
 
         foreach ($dirs as $dir) {

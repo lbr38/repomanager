@@ -94,7 +94,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-duplicate-repo'" www-data
 
       - name: Print duplicated deb repo content
-        run: ls -l /home/repo/debian-copy/buster/contrib_pprd/pool/contrib/
+        run: ls -l /home/repo/debian-copy/buster/contrib_pprd/pool/contrib/*.deb
 
       - name: Run job - Create deb repo env
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-create-env'" www-data
@@ -110,7 +110,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-mirror-repo'" www-data
 
       - name: Print mirrored rpm repo content
-        run: ls -l /home/repo/nginx_pprd/
+        run: ls -l /home/repo/nginx_pprd/packages/*/*.rpm
 
       - name: Run job - Update rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-update-repo'" www-data

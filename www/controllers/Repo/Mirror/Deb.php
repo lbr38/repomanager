@@ -307,10 +307,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $sourcesIndicesName = end($sourcesIndicesName);
 
             /**
-             *  Download Source file using its location
+             *  Download Sources file using its location
              */
             if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
                 $this->logError('Error while downloading ' . $sourcesIndicesName . ' indices file: ' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, 'Could not download Sources indices file');
+            }
+
+            /**
+             *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
+             */
+            if (hash_file('sha256', $this->workingDir . '/' . $sourcesIndicesName) !== $sourcesIndexChecksum) {
+                $this->logError($sourcesIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $packageIndicesChecksum, 'Could not verify Packages indices file');
             }
 
             /**
@@ -332,16 +339,12 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             }
 
             /**
-             *  Then check that the gunzip Sources file's md5 is the same as the one that what specified in Release file
-             */
-            if (hash_file('sha256', $this->workingDir . '/' . $sourcesIndicesName) !== $sourcesIndexChecksum) {
-                $this->logError($sourcesIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $sourcesIndexChecksum, 'Could not verify Sources indices file');
-            }
-
-            /**
              *  Get all .dsc/tar.gz/tar.xz sources packages location from the Sources file
              */
             $linecount = 0;
+            $directory = '';
+            $packageLocation = '';
+            $packageMd5 = '';
             $handle = fopen($this->workingDir . '/Sources', 'r');
 
             /**
@@ -349,10 +352,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              */
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
-                    $directory = '';
-                    $packageLocation = '';
-                    $packageMd5 = '';
-
                     /**
                      *  Get .dsc/tar.gz/tar.xz package directory location
                      */
@@ -406,8 +405,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                             if (!empty($packageLocation) and !empty($packageMd5)) {
                                 $packages[] = array('location' => $packageLocation, 'md5sum' => $packageMd5);
                             }
-
-                            unset($packageLocation, $packageMd5);
                         }
 
                         unset($spl, $packageLocation, $packageMd5);
@@ -507,13 +504,15 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Target directory in which packages will be downloaded
          */
-        $targetDir = $this->workingDir . '/packages';
+        $targetDir = $this->workingDir . '/pool/' . $this->section;
 
         /**
          *  Create directory in which packages will be downloaded
          */
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0770, true);
+            if (!mkdir($targetDir, 0770, true)) {
+                $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+            }
         }
 
         /**
@@ -593,9 +592,18 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         }
 
         /**
-         *  Create directory in which sources packages will be downloaded
+         *  Target directory in which packages will be downloaded
          */
-        mkdir($this->workingDir . '/sources', 0770, true);
+        $targetDir = $this->workingDir . '/pool/' . $this->section;
+
+        /**
+         *  Create directory in which packages will be downloaded
+         */
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0770, true)) {
+                $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+            }
+        }
 
         /**
          *  Print URL from which sources packages are downloaded
@@ -603,30 +611,52 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
         $this->logOutput(PHP_EOL . '- Downloading sources packages from: ' . $url . PHP_EOL);
 
         /**
+         *  Count total packages to print progression during syncing
+         */
+        $totalPackages = count($this->sourcesPackagesLocation);
+        $packageCounter = 0;
+
+        /**
          *  Download each source package and check its md5
          */
         foreach ($this->sourcesPackagesLocation as $sourcePackage) {
+            /**
+             *  Before downloading each package, check if there is enough disk space left (2GB minimum)
+             */
+            if (disk_free_space(REPOS_DIR) < 2000000000) {
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+            }
+
             $sourcePackageLocation = $sourcePackage['location'];
             $sourcePackageMd5 = $sourcePackage['md5sum'];
             $sourcePackageName = preg_split('#/#', $sourcePackageLocation);
             $sourcePackageName = end($sourcePackageName);
+            $packageCounter++;
 
             /**
              *  Output source package to download to log file
              */
-            $this->logOutput('  ➙ ' . $sourcePackageLocation . ' ... ');
+            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $sourcePackageLocation . ' ... ');
+
+            /**
+             *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
+             */
+            if (file_exists($targetDir . '/' . $sourcePackageName)) {
+                $this->logOutput('already exists (ignoring)' . PHP_EOL);
+                continue;
+            }
 
             /**
              *  Download
              */
-            if (!$this->download($url . '/' . $sourcePackageLocation, $this->workingDir . '/sources/' . $sourcePackageName)) {
+            if (!$this->download($url . '/' . $sourcePackageLocation, $targetDir . '/' . $sourcePackageName)) {
                 $this->logError('error', 'Error while retrieving sources packages');
             }
 
             /**
              *  Check that downloaded source package's md5 matches the md5sum specified by the Sources indices file
              */
-            if (md5_file($this->workingDir . '/sources/' . $sourcePackageName) != $sourcePackageMd5) {
+            if (md5_file($targetDir . '/' . $sourcePackageName) != $sourcePackageMd5) {
                 $this->logError('md5 of the file does not match ' . $sourcePackageMd5, 'Error while retrieving sources packages');
             }
 
@@ -636,7 +666,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             $this->logOK();
         }
 
-        unset($this->sourcesPackagesLocation);
+        unset($this->sourcesPackagesLocation, $totalPackages, $packageCounter);
     }
 
     /**

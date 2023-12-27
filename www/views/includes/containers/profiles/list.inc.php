@@ -56,7 +56,7 @@
 
                             <h5>REPOSITORIES</h5>
 
-                            <p class="lowopacity-cst">Specify what repositories the client host(s) will have access to</p>
+                            <p class="lowopacity-cst">Specify what repositories the client host(s) will have access to.</p>
                             
                             <select name="profile-repos" multiple>
                                 <?php
@@ -94,7 +94,7 @@
 
                             <h5>PACKAGE EXCLUSION</h5>
 
-                            <p class="lowopacity-cst">Specify what packages the client host(s) will exclude from updates</p>
+                            <p class="lowopacity-cst">Specify what packages the client host(s) will exclude from updates.</p>
                             <br>
                         
                             <p>Exclude on a major version update</p>

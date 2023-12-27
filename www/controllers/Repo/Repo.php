@@ -48,7 +48,6 @@ class Repo
      */
     private $gpgCheck;
     private $gpgResign;
-    private $workingDir;
     private $onlySyncDifference = 'no';
 
     public function __construct()
@@ -231,11 +230,6 @@ class Repo
         $this->poolId = $poolId;
     }
 
-    public function setWorkingDir(string $workingDir)
-    {
-        $this->workingDir = $workingDir;
-    }
-
     public function getRepoId()
     {
         return $this->repoId;
@@ -399,11 +393,6 @@ class Repo
     public function getPoolId()
     {
         return $this->poolId;
-    }
-
-    public function getWorkingDir()
-    {
-        return $this->workingDir;
     }
 
     /**

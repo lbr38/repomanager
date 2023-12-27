@@ -4,7 +4,7 @@ namespace Controllers;
 
 class Process
 {
-    private $workingDir = ROOT . '/.temp'; // Répertoire de travail pour php
+    private $workingDir = ROOT . '/.temp'; // Working dir for php
     private $command;
     private $env = array('HOME' => ROOT, 'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');
     private $process;
@@ -27,8 +27,8 @@ class Process
     }
 
     /**
-     *  Retourne le code de retour / code d'erreur du process
-     *  Le code de retour est présent dans le dernier accès au status du process, avant sa fin.
+     *  Return exit code of the process
+     *  The exit code is present in the last access to the process status, before its end.
      */
     public function getExitCode()
     {
@@ -78,7 +78,7 @@ class Process
     }
 
     /**
-     *  Retourne le PID du process
+     *  Return PID of the process
      */
     public function getPid()
     {
@@ -140,7 +140,7 @@ class Process
     }
 
     /**
-     *  Retourne true si le process est en cours
+     *  Return true if the process is running
      */
     public function isRunning()
     {
@@ -158,12 +158,12 @@ class Process
     }
 
     /**
-     *  Clôture du processus
+     *  Close pipes and process
      */
     public function close()
     {
         /**
-         *  Clôture des pipes
+         *  Close pipes
          */
         fclose($this->pipes[0]);
         fclose($this->pipes[1]);

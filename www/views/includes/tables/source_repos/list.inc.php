@@ -54,7 +54,7 @@
                     <br>
 
                     <p><b>SSL parameters</b></p>
-                    <p class="lowopacity-cst">Use a SSL certificate and private key to authenticate to the source repository</p>
+                    <p class="lowopacity-cst">Use a SSL certificate and private key to authenticate to the source repository<a href="https://github.com/lbr38/repomanager/wiki/05.-Manage-sources-repositories#edit-a-source-repository" target="_blank" rel="noopener noreferrer" title="See documentation"><img src="/assets/icons/external-link.svg" class="icon" /></a></p>
 
                     <div class="grid grid-fr-1-2 align-item-center column-gap-10">
                         <span>Path to SSL certificate</span>
@@ -75,15 +75,8 @@
             <?php
         endforeach; ?>
         
-        <div class="flex column-gap-10 justify-end">
-            <?php
-            if ($reloadableTableOffset > 0) {
-                echo '<div class="reloadable-table-previous-btn btn-small-green">Previous</div>';
-            }
-
-            if ($reloadableTableCurrentPage < $reloadableTableTotalPages) {
-                echo '<div class="reloadable-table-next-btn btn-small-green">Next</div>';
-            } ?>
+        <div class="flex justify-end">
+            <?php \Controllers\Layout\Table\Render::paginationBtn($reloadableTableCurrentPage, $reloadableTableTotalPages); ?>
         </div>
 
         <?php

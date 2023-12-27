@@ -28,23 +28,30 @@ class Operation
     private $profileController;
     private $layoutContainerStateController;
 
-    public function __construct()
+    public function __construct(bool $generatePid = true)
     {
         $this->model = new \Models\Operation\Operation();
         $this->profileController = new \Controllers\Profile();
         $this->layoutContainerStateController = new \Controllers\Layout\ContainerState();
 
-        /**
-         *  Generate a random PID
-         */
-        $this->pid = mt_rand(10001, 99999);
-
-        /**
-         *  If the PID already exists, generate a new one
-         */
-        while (file_exists(PID_DIR . '/' . $this->pid . '.pid')) {
+        if ($generatePid) {
+            /**
+             *  Generate a random PID
+             */
             $this->pid = mt_rand(10001, 99999);
+
+            /**
+             *  If the PID already exists, generate a new one
+             */
+            while (file_exists(PID_DIR . '/' . $this->pid . '.pid')) {
+                $this->pid = mt_rand(10001, 99999);
+            }
         }
+    }
+
+    public function setPid(int $pid)
+    {
+        $this->pid = $pid;
     }
 
     public function setPlanId(string $planId)
@@ -195,7 +202,7 @@ class Operation
     }
 
     /**
-     *  Retourne true si une opération est en cours d'exécution
+     *  Return true if an operation is running
      */
     public function somethingRunning()
     {
@@ -203,7 +210,7 @@ class Operation
     }
 
     /**
-     *  Stoppe l'opération en fonction du PID spécifié
+     *  Stop the operation based on the specified PID
      */
     public function kill(string $pid)
     {
@@ -441,9 +448,76 @@ class Operation
     /**
      *  Add subpid to main PID file
      */
-    public function addsubpid(string $pid)
+    public function addsubpid(int $pid)
     {
+        /**
+         *  Add specified PID to the main PID file
+         */
         file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $pid . '"' . PHP_EOL, FILE_APPEND);
+
+        /**
+         *  Also add children PID to the main PID file
+         */
+        $childrenPid = $this->getChildrenPid($pid);
+
+        /**
+         *  If no children PID, exit the loop
+         */
+        if ($childrenPid !== false) {
+            /**
+             *  Add children PID to the main PID file
+             */
+            foreach ($childrenPid as $childPid) {
+                if (is_numeric($childPid)) {
+                    file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $childPid . '"' . PHP_EOL, FILE_APPEND);
+                }
+
+                /**
+                 *  If the child PID has children PID, then add them too
+                 */
+                $grandChildrenPid = $this->getChildrenPid($childPid);
+
+                if ($grandChildrenPid !== false) {
+                    foreach ($grandChildrenPid as $grandChildPid) {
+                        if (is_numeric($grandChildPid)) {
+                            file_put_contents(PID_DIR . '/' . $this->pid . '.pid', 'SUBPID="' . $grandChildPid . '"' . PHP_EOL, FILE_APPEND);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *  Return an array with all children PID of the specified PID or false if no children PID
+     */
+    public function getChildrenPid(int $pid)
+    {
+        /**
+         *  Specified PID could have children PID, we need to get them all
+         */
+        $myprocess = new \Controllers\Process('pgrep -P ' . $pid);
+        $myprocess->execute();
+
+        /**
+         *  If exit code is 0, then the PID has children
+         */
+        if ($myprocess->getExitCode() == 0) {
+            /**
+             *  Get children PID from output
+             */
+            $childrenPid = $myprocess->getOutput();
+            $myprocess->close();
+
+            $childrenPid = explode(PHP_EOL, $childrenPid);
+
+            /**
+             *  Return children PID
+             */
+            return $childrenPid;
+        }
+
+        return false;
     }
 
     /**

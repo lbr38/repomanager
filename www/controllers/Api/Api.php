@@ -51,13 +51,6 @@ class Api
         }
 
         /**
-         *  Retrieve authentication header if any
-         */
-        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-            $this->authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-        }
-
-        /**
          *  Quit on error if no data was sent
          */
         // if (empty($this->data)) {
@@ -96,7 +89,7 @@ class Api
         /**
          *  Check if authentication is valid from data sent
          */
-        if (!$this->authenticate($this->authHeader, $this->data)) {
+        if (!$this->authenticate()) {
             self::returnError(401, 'Bad credentials');
         }
 
@@ -115,8 +108,20 @@ class Api
      *  Check if authentication is valid
      *  It can be an API key authentication or a host authId+token authentication
      */
-    public function authenticate(string $authHeader = null, string|object $data = null)
+    public function authenticate()
     {
+        /**
+         *  Retrieve authentication header
+         */
+        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $this->authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        } else {
+            /**
+             *  If no authentication header is specified, return false to quit with error
+             */
+            return false;
+        }
+
         /**
          *  New authentication method
          */
@@ -127,24 +132,24 @@ class Api
          *      "Authorization: Bearer <API_KEY>"
          *      "Authorization: Host <HOST_ID>:<HOST_TOKEN>"
          */
-        if (!empty($authHeader)) {
-            if (strpos($authHeader, 'Bearer ') === 0) {
+        if (!empty($this->authHeader)) {
+            if (strpos($this->authHeader, 'Bearer ') === 0) {
                 /**
                  *  Extract the token
                  *  Remove "Bearer " from the header
                  */
-                $apiKey = substr($authHeader, 7);
+                $apiKey = substr($this->authHeader, 7);
             }
 
             /**
              *  If host Id+token are specified through the Authorization header
              */
-            if (strpos($authHeader, 'Host ') === 0) {
+            if (strpos($this->authHeader, 'Host ') === 0) {
                 /**
                  *  Extract the host Id and token
                  *  Remove "Host " from the header
                  */
-                $hostIdToken = substr($authHeader, 5);
+                $hostIdToken = substr($this->authHeader, 5);
 
                 /**
                  *  Split the host Id and token
@@ -164,27 +169,6 @@ class Api
                 $hostId = $hostIdToken[0];
                 $hostToken = $hostIdToken[1];
             }
-        }
-
-        /**
-         *  Old authentication method
-         */
-
-        /**
-         *  If API key is specified in data
-         */
-        if (!empty($data->apikey)) {
-            $apiKey = $data->apikey;
-        }
-
-        /**
-         *  If host authId and token are specified in data
-         */
-        if (!empty($data->id)) {
-            $hostId = $data->id;
-        }
-        if (!empty($data->token)) {
-            $hostToken = $data->token;
         }
 
         /**

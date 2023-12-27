@@ -253,7 +253,6 @@ td {
  *  Icons
  */
 .icon, .icon-small, .icon-lowopacity, .icon-verylowopacity, .icon-mediumopacity, .icon-nf, .icon-np {
-    /* height: 13px; */
     height: 15px;
     margin-left: 5px;
     margin-right: 5px;
@@ -449,6 +448,46 @@ input::placeholder {
 }
 .slide-btn-yellow:hover {
     background-color: #eb984e;
+}
+
+[class*=' pagination-btn'],[class^='pagination-btn'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 30px;
+    border: none;
+    border-radius: 60px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #15bf7f;
+    border-radius: 0;
+}
+
+[class*=' pagination-btn']:hover,[class^='pagination-btn']:hover {
+    background-color: #12a16a;
+}
+
+.pagination-btn-current {
+    background-color: #12a16a;
+    border: 1px solid #10885a;
+}
+
+.pagination-btn-first {
+    border-top-left-radius: 60px;
+    border-bottom-left-radius: 60px;
+}
+
+.pagination-btn-last {
+    border-top-right-radius: 60px;
+    border-bottom-right-radius: 60px;
+}
+
+.pagination-btn-previous, .pagination-btn-next {
+    width: 40px;
 }
 
 textarea {

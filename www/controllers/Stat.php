@@ -38,11 +38,12 @@ class Stat
     }
 
     /**
-     *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
+     *  Return access request of the specified repo/section
+     *  It is possible to add an offset to the request
      */
-    public function getLastAccess(string $name, string $dist = null, string $section = null, string $env)
+    public function getAccess(string $name, string $dist = null, string $section = null, string $env, bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getLastAccess($name, $dist, $section, $env);
+        return $this->model->getAccess($name, $dist, $section, $env, $withOffset, $offset);
     }
 
     /**

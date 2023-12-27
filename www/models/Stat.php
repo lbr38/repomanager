@@ -120,30 +120,50 @@ class Stat extends Model
     }
 
     /**
-     *  Retourne le détails des 50 dernières requêtes du repo/section spécifié
+     *  Return access request of the specified repo/section
+     *  It is possible to add an offset to the request
      */
-    public function getLastAccess(string $name, string $dist = null, string $section = null, string $env)
+    public function getAccess(string $name, string|null $dist, string|null $section, string $env, bool $withOffset, int $offset)
     {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM access WHERE Request LIKE :request ORDER BY Date DESC, Time DESC LIMIT 50");
+        $data = array();
 
-            if (!empty($dist) and !empty($section)) {
-                $stmt->bindValue(':request', "%/${name}/${dist}/${section}_${env}/%");
-            } else {
-                $stmt->bindValue(':request', "%/${name}_${env}/%");
+        try {
+            $query = "SELECT * FROM access WHERE Request LIKE :request ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  If offset is specified
+             */
+            if ($withOffset) {
+                $query .= " LIMIT 10 OFFSET :offset";
             }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+
+            /**
+             *  Case of a repo with a dist and a section
+             */
+            if (!empty($dist) and !empty($section)) {
+                $stmt->bindValue(':request', '%/' . $name . '/' . $dist . '/' . $section . '_' . $env . '/%');
+            /**
+             *  Case of a repo without dist and section
+             */
+            } else {
+                $stmt->bindValue(':request', '%/' . $name . '_' . $env . '/%');
+            }
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
-        $datas = array();
-
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
     }
 
     /**

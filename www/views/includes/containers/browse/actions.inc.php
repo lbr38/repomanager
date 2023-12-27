@@ -14,9 +14,9 @@ if (IS_ADMIN) : ?>
         /**
          *  If an operation is already running on this repo then print a message
          */
-        if (!empty($reconstruct) and $reconstruct == 'running') : ?>
+        if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
-                <p>An operation is running on this repo<img src="/assets/images/loading.gif" class="icon" /></p>
+                <p>An operation is running on this repository snapshot<img src="/assets/images/loading.gif" class="icon" /></p>
             </div>
             <?php
         endif;
@@ -24,7 +24,7 @@ if (IS_ADMIN) : ?>
         /**
          *  If there is no operation running on this repo then print action buttons
          */
-        if (empty($reconstruct) or (!empty($reconstruct) and $reconstruct != 'running')) : ?>
+        if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) : ?>
             <div class="div-generic-blue">
                 <form action="" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="uploadPackage" />
