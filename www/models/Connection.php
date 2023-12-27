@@ -10,8 +10,8 @@ class Connection extends SQLite3
     public function __construct(string $database, string $hostId = null)
     {
         /**
-         *  Ouvre la base de données à partir du chemin et du mode renseigné (read-write ou read-only)
-         *  Si celle-ci n'existe pas elle est créée automatiquement
+         *  Open database from its name
+         *  If database does not exist it is automatically created
          */
         try {
             if (!is_dir(DB_DIR)) {
@@ -21,13 +21,13 @@ class Connection extends SQLite3
             }
 
             /**
-             *  Ouverture de la base de données
+             *  Open database
              */
 
             /**
-             *  Cas où la base de données renseignée est "main", il s'agit de la base de données principale repomanager.db
+             *  Case where database is 'main', it is the main database 'repomanager.db'
              */
-            if ($database == "main") {
+            if ($database == 'main') {
                 $this->open(DB);
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
@@ -35,9 +35,9 @@ class Connection extends SQLite3
                 $this->checkMainTables();
 
             /**
-             *  Cas où la base de données est "stats", il s'agit de la base de données repomanager-stats.db
+             *  Case where database is 'stats', it is the stats database 'repomanager-stats.db'
              */
-            } elseif ($database == "stats") {
+            } elseif ($database == 'stats') {
                 $this->open(STATS_DB);
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
@@ -45,9 +45,9 @@ class Connection extends SQLite3
                 $this->checkStatsTables();
 
             /**
-             *  Cas où la base de données est "hosts", il s'agit de la base de données repomanager-hosts.db
+             *  Case where database is 'hosts', it is the hosts database 'repomanager-hosts.db'
              */
-            } elseif ($database == "hosts") {
+            } elseif ($database == 'hosts') {
                 $this->open(HOSTS_DB);
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
@@ -55,9 +55,9 @@ class Connection extends SQLite3
                 $this->checkHostsTables();
 
             /**
-             *  Cas où il s'agit d'une base de données dédiée à un hôte, l'Id de l'hôte doit être renseigné
+             *  Case where database is 'host', it is a host database 'properties.db', hostId must be set
              */
-            } elseif ($database == "host") {
+            } elseif ($database == 'host') {
                 $this->open(HOSTS_DIR . '/' . $hostId . '/properties.db');
                 $this->busyTimeout(10000);
                 $this->enableExceptions(true);
@@ -65,7 +65,7 @@ class Connection extends SQLite3
                 $this->generateHostTables();
 
             /**
-             *  Cas où la base de données ne correspond à aucun cas ci-dessus
+             *  Case where database is not 'main', 'stats', 'hosts' or 'host'
              */
             } else {
                 throw new Exception("unknown database: $database");
@@ -76,7 +76,7 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Activation du mode WAL SQLite
+     *  Enable WAL mode
      */
     private function enableWAL()
     {
@@ -84,7 +84,7 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Désactivation du mode WAL SQLite
+     *  Disable WAL mode
      */
     private function disableWAL()
     {
@@ -93,12 +93,12 @@ class Connection extends SQLite3
 
     /**
      *
-     *  Fonctions de vérification des tables
+     *  Functions to check if all tables are present
      *
      */
 
     /**
-     *  Compte le nombre de tables dans la base de données principale
+     *  Count the number of tables in the main database
      */
     public function countMainTables()
     {
@@ -131,29 +131,26 @@ class Connection extends SQLite3
         OR name='cve_import'
         OR name='cve_affected_hosts_import'");
 
-        /**
-         *  On retourne le nombre de tables
-         */
         return $this->count($result);
     }
 
     /**
-     *  Compte le nombre de tables dans la base de données stats
+     *  Count the number of tables in the stats database
      */
     public function countStatsTables()
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
         and name='stats'
-        OR name='access'");
+        OR name='access'
+        OR name='access_deb'
+        OR name='access_rpm'
+        OR name='access_queue'");
 
-        /**
-         *  On retourne le nombre de tables
-         */
         return $this->count($result);
     }
 
     /**
-     *  Compte le nombre de tables dans la base de données hosts
+     *  Count the number of tables in the hosts database
      */
     public function countHostsTables()
     {
@@ -163,27 +160,26 @@ class Connection extends SQLite3
         OR name='group_members'
         OR name='settings'");
 
-        /**
-         *  On retourne le nombre de tables
-         */
         return $this->count($result);
     }
 
     /**
-     *  Vérification de la présence de toutes les tables dans la base de données principale
+     *  Check if all tables are present in the main database
      */
     public function checkMainTables()
     {
+        $required = 27;
+
         /**
-         *  Si le nombre de tables présentes != 27 alors on tente de regénérer les tables
+         *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countMainTables() != 27) {
+        if ($this->countMainTables() != $required) {
             $this->generateMainTables();
 
             /**
-             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countMainTables() != 27) {
+            if ($this->countMainTables() != $required) {
                 return false;
             }
         }
@@ -192,20 +188,22 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Vérification de la présence de toutes les tables dans la base de données stats
+     *  Check if all tables are present in the stats database
      */
     public function checkStatsTables()
     {
+        $required = 5;
+
         /**
-         *  Si le nombre de tables présentes != 2 alors on tente de regénérer les tables
+         *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countStatsTables() != 2) {
+        if ($this->countStatsTables() != $required) {
             $this->generateStatsTables();
 
             /**
-             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countStatsTables() != 2) {
+            if ($this->countStatsTables() != $required) {
                 return false;
             }
         }
@@ -214,20 +212,22 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Vérifications de la présence de toutes les tables dans la base de données hosts
+     *  Check if all tables are present in the hosts database
      */
     public function checkHostsTables()
     {
+        $required = 4;
+
         /**
-         *  Si le nombre de tables présentes != 4 alors on tente de regénérer les tables
+         *  If the number of tables != $required then we try to regenerate the tables
          */
-        if ($this->countHostsTables() != 4) {
+        if ($this->countHostsTables() != $required) {
             $this->generateHostsTables();
 
             /**
-             *  On compte de nouveau les tables après la tentative de re-génération, on retourne false si c'est toujours pas bon
+             *  Count again the number of tables after the regeneration attempt, return false if it's still not good
              */
-            if ($this->countHostsTables() != 4) {
+            if ($this->countHostsTables() != $required) {
                 return false;
             }
         }
@@ -237,16 +237,17 @@ class Connection extends SQLite3
 
     /**
      *
-     *  Fonctions de génération des tables si n'existent pas
+     *  Functions to generate tables if not exists
      *
      */
+
     /**
-     *  Génération des tables dans la base de données repomanager.db
+     *  Generate tables in the main database
      */
     private function generateMainTables()
     {
         /**
-         *  Crée la table repos si n'existe pas
+         *  repos table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS repos (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -258,7 +259,7 @@ class Connection extends SQLite3
         Package_type VARCHAR(10) NOT NULL)");
 
         /**
-         *  Crée la table repos_snap si n'existe pas
+         *  repos_snap table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS repos_snap (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -273,7 +274,7 @@ class Connection extends SQLite3
         Id_repo INTEGER NOT NULL)");
 
         /**
-         *  Crée la table repos_env si n'existe pas
+         *  repos_env table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS repos_env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -282,7 +283,7 @@ class Connection extends SQLite3
         Id_snap INTEGER NOT NULL)");
 
         /**
-         *  Crée la table env si n'existe pas
+         *  env table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS env (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -297,7 +298,7 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Crée la table sources si n'existe pas
+         *  sources table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS sources (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -309,7 +310,7 @@ class Connection extends SQLite3
         Ssl_private_key_path VARCHAR(255))");
 
         /**
-         *  Crée la table users si n'existe pas
+         *  users table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS users (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -324,37 +325,40 @@ class Connection extends SQLite3
         State CHAR(7) NOT NULL)"); /* active / deleted */
 
         /**
-         *  Crée la table user_role si n'existe pas
+         *  user_role table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS user_role (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name CHAR(15) NOT NULL UNIQUE)");
 
         /**
-         *  Si la table user_role est vide (vient d'être créée) alors on crée les roles par défaut
+         *  If user_role table is empty (just created) then we create default roles
          */
         $result = $this->query("SELECT Id FROM user_role");
         if ($this->isempty($result) === true) {
             /**
-             *  Rôle super-administrator : tous les droits
+             *  super-administrator role: all rights
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('super-administrator')");
+
             /**
-             *  Rôle administrator
+             *  administrator role: all rights except user management (only super-administrator can manage users)
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('administrator')");
+
             /**
-             *  Rôle usage
+             *  usage role: read-only rights
              */
             $this->exec("INSERT INTO user_role ('Name') VALUES ('usage')");
         }
 
         /**
-         *  Si la table users est vide (vient d'être créée) alors on crée l'utilisateur admin (mdp repomanager et role n°1 (super-administrator))
+         *  If users table is empty (just created) then we create admin user (default password 'repomanager' and role n°1 (super-administrator))
          */
         $result = $this->query("SELECT Id FROM users");
         if ($this->isempty($result) === true) {
             $password_hashed = '$2y$10$FD6/70o2nXPf76SAPYIGSutauQ96LqKie5PLanoYBNbCWen492cX6';
+
             try {
                 $stmt = $this->prepare("INSERT INTO users ('Username', 'Password', 'First_name', 'Role', 'State', 'Type') VALUES ('admin', :password_hashed, 'Administrator', '1', 'active', 'local')");
                 $stmt->bindValue(':password_hashed', $password_hashed);
@@ -365,7 +369,7 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Crée la table history si n'existe pas
+         *  history table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS history (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -376,14 +380,14 @@ class Connection extends SQLite3
         State CHAR(7))"); /* success ou error */
 
         /**
-         *  Crée la table groups si n'existe pas
+         *  groups table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
         /**
-         *  Crée la table group_members si n'existe pas
+         *  group_members table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS group_members (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -391,14 +395,14 @@ class Connection extends SQLite3
         Id_group INTEGER NOT NULL);");
 
         /**
-         *  Crée la table operations si n'existe pas
+         *  operations table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS operations (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Action VARCHAR(255) NOT NULL,
-        Type CHAR(6) NOT NULL,         /* manual, plan */
+        Type CHAR(6) NOT NULL, /* manual, plan */
         Id_repo_source VARCHAR(255),
         Id_snap_source INTEGER,
         Id_env_source INTEGER,
@@ -413,10 +417,10 @@ class Connection extends SQLite3
         Pool_id INTEGER NOT NULL,
         Logfile VARCHAR(255) NOT NULL,
         Duration INTEGER,
-        Status CHAR(7) NOT NULL)");    /* running, done, stopped */
+        Status CHAR(7) NOT NULL)"); /* running, done, stopped */
 
         /**
-         *  Crée la table planifications si n'existe pas
+         *  planifications table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS planifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -441,13 +445,13 @@ class Connection extends SQLite3
         Logfile VARCHAR(255))");
 
         /**
-         *  Crée la table profile_settings si n'existe pas
+         *  profile_settings table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_settings (
         Package_type VARCHAR(255))");
 
         /**
-         *  Si la table profile_settings est vide (vient d'être créée) alors on la peuple
+         *  If profile_settings table is empty (just created) then we populate it
          */
         $result = $this->query("SELECT * FROM profile_settings");
         if ($this->isempty($result) === true) {
@@ -455,7 +459,7 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Crée la table profile si n'existe pas
+         *  profile table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -466,20 +470,21 @@ class Connection extends SQLite3
         Notes VARCHAR(255))");
 
         /**
-         *  Crée la table profile_repo_members si n'existe pas
+         *  profile_repo_members table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_repo_members (
         Id_profile INTEGER NOT NULL,
         Id_repo INTEGER NOT NULL)");
 
         /**
-         *  Crée la table profile_package si n'existe pas
+         *  profile_package table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_package (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
+
         /**
-         *  Si la table profile_package est vide (vient d'être créée) alors on la peuple
+         *  If profile_package table is empty (just created) then we populate it
          */
         $result = $this->query("SELECT Id FROM profile_package");
         if ($this->isempty($result) === true) {
@@ -487,14 +492,14 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Crée la table profile_service si n'existe pas
+         *  profile_service table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS profile_service (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
         /**
-         *  Si la table profile_service est vide (vient d'être créée) alors on la peuple
+         *  If profile_service table is empty (just created) then we populate it
          */
         $result = $this->query("SELECT Id FROM profile_service");
         if ($this->isempty($result) === true) {
@@ -502,7 +507,7 @@ class Connection extends SQLite3
         }
 
         /**
-         *  Generate notifications table if not exists
+         *  notifications table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS notifications (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -512,7 +517,7 @@ class Connection extends SQLite3
         Status CHAR(9) NOT NULL)"); /* new, acquitted */
 
         /**
-         *  Generate settings table if not exists
+         *  settings table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         /* General settings */
@@ -606,7 +611,7 @@ class Connection extends SQLite3
                 'true',
                 'true',
                 '8',
-                'x86_64',
+                'noarch,x86_64',
                 'true',
                 'true',
                 'amd64',
@@ -709,12 +714,12 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Génération des tables dans la base de données repomanager-stats.db
+     *  Generate tables in the stats database
      */
     private function generateStatsTables()
     {
         /**
-         *  Crée la table stats si n'existe pas
+         *  stats table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS stats (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -725,7 +730,7 @@ class Connection extends SQLite3
         Id_env INTEGER NOT NULL)");
 
         /**
-         *  Crée la table access si n'existe pas
+         *  access table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS access (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -737,22 +742,62 @@ class Connection extends SQLite3
         Request_result VARCHAR(8) NOT NULL)");
 
         /**
-         *  Crée un index sur certaines colonnes de la table access
+         *  access_deb table
          */
-        $this->exec("CREATE INDEX IF NOT EXISTS access_index ON access (Date, Time, Request)");
+        $this->exec("CREATE TABLE IF NOT EXISTS access_deb (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Dist VARCHAR(255) NOT NULL,
+        Section VARCHAR(255) NOT NULL,
+        Env VARCHAR(255) NOT NULL,
+        Source VARCHAR(255) NOT NULL,
+        IP VARCHAR(16) NOT NULL,
+        Request VARCHAR(255) NOT NULL,
+        Request_result VARCHAR(8) NOT NULL)");
+
+        /**
+         *  access_rpm table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS access_rpm (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Name VARCHAR(255) NOT NULL,
+        Env VARCHAR(255) NOT NULL,
+        Source VARCHAR(255) NOT NULL,
+        IP VARCHAR(16) NOT NULL,
+        Request VARCHAR(255) NOT NULL,
+        Request_result VARCHAR(8) NOT NULL)");
+
+        /**
+         *  access_queue table
+         */
+        $this->exec("CREATE TABLE IF NOT EXISTS access_queue (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Request VARCHAR(255) NOT NULL)");
+
+        /**
+         *  Create indexes
+         */
+        // Indexes for access_deb:
+        $this->exec("CREATE INDEX IF NOT EXISTS access_deb_index ON access_deb (Date, Time, Name, Dist, Section, Env, Source, IP, Request, Request_result)");
+        $this->exec("CREATE INDEX IF NOT EXISTS access_deb_name_env_index ON access_deb (Name, Dist, Section, Env)"); // To optimize SELECT COUNT(*)
+        // Indexes for access_rpm:
+        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_index ON access_rpm (Date, Time, Name, Env, Source, IP, Request, Request_result)");
+        $this->exec("CREATE INDEX IF NOT EXISTS access_rpm_name_env_index ON access_rpm (Name, Env)"); // To optimize SELECT COUNT(*)
+        // Index for stats:
         $this->exec("CREATE INDEX IF NOT EXISTS stats_index ON stats (Date, Time, Size, Packages_count, Id_env)");
     }
 
     /**
-     *  Génération des tables dans la base de données repomanager-hosts.db
+     *  Generate tables in the hosts database
      */
     private function generateHostsTables()
     {
         /**
-         *  Crée la table hosts si n'existe pas
-         *  Online_status : online / unreachable
-         *  Status : active / disabled / deleted
-         *  Last_update_status : done / running / error
+         *  hosts table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS hosts (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -768,22 +813,22 @@ class Connection extends SQLite3
         Env VARCHAR(255),
         AuthId VARCHAR(255),
         Token VARCHAR(255),
-        Online_status CHAR(8),
+        Online_status CHAR(8), /* online / unreachable */
         Online_status_date DATE,
         Online_status_time TIME,
         Reboot_required CHAR(5),
         Linupdate_version VARCHAR(255),
-        Status VARCHAR(8) NOT NULL)");
+        Status VARCHAR(8) NOT NULL)"); /* active / disabled / deleted */
 
         /**
-         *  Crée la table groups si n'existe pas
+         *  groups table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS groups (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Name VARCHAR(255) UNIQUE NOT NULL)");
 
         /**
-         *  Crée la table group_members si n'existe pas
+         *  group_members table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS group_members (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -791,14 +836,14 @@ class Connection extends SQLite3
         Id_group INTEGER NOT NULL)");
 
         /**
-         *  Crée la table settings si n'existe pas
+         *  settings table
          */
         $this->exec("CREATE TABLE IF NOT EXISTS settings (
         pkgs_count_considered_outdated INTEGER NOT NULL,
         pkgs_count_considered_critical INTEGER NOT NULL)");
 
         /**
-         *  Si la table settings est vide (vient d'être créée) alors on la peuple
+         *  If settings table is empty then populate it
          */
         $result = $this->query("SELECT pkgs_count_considered_outdated FROM settings");
         if ($this->isempty($result) === true) {
@@ -807,13 +852,14 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Génération des tables dans la base de données dédiée à un hôte
-     *  Cette fonction est public car elle peut être appelée lors de la réinitialisation d'un hôte
+     *  Generate tables in the database dedicated to a host
+     *  This function is public because it can be called when resetting a host
      */
     public function generateHostTables()
     {
         /**
-         *  Inventaire de tous les paquets du serveur
+         *  packages table
+         *  Inventory of all packages installed on the host
          */
         $this->exec("CREATE TABLE IF NOT EXISTS packages (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -826,7 +872,8 @@ class Connection extends SQLite3
         Id_event INTEGER)");
 
         /**
-         *  Historique des paquets répertoriés (suppression, installation...)
+         *  history table
+         *  History of all packages installed on the host (installed, updated, removed)
          */
         $this->exec("CREATE TABLE IF NOT EXISTS packages_history (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -839,29 +886,30 @@ class Connection extends SQLite3
         Id_event INTEGER)");
 
         /**
-         *  Liste des paquets disponibles pour mise à jour
+         *  packages_available table
+         *  Available packages for update
          */
         $this->exec("CREATE TABLE IF NOT EXISTS packages_available (
         Name VARCHAR(255),
         Version VARCHAR(255))");
 
         /**
-         *  Historique de toutes les mises à jour
-         *  Status = error / warning / unknow /done
+         *  events table
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS 'events' (
+        $this->exec("CREATE TABLE IF NOT EXISTS events (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
         Date_end DATE NOT NULL,
         Time_end TIME NOT NULL,
         Report VARCHAR(255),
-        Status VARCHAR(7))");
+        Status VARCHAR(7))"); /* error / warning / unknow / done */
 
         /**
-         *  Historique des demandes de mises à jour
+         *  updates_requests table
+         *  History of all update requests
          */
-        $this->exec("CREATE TABLE IF NOT EXISTS 'updates_requests' (
+        $this->exec("CREATE TABLE IF NOT EXISTS updates_requests (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
@@ -870,24 +918,22 @@ class Connection extends SQLite3
     }
 
     /**
-     *
-     *  Fonctions utiles
-     *
-     */
-    /**
-     *  Retourne true si le résultat est vide et false si il est non-vide.
+     *  Return true if result is empty and false if not
      */
     public function isempty($result)
     {
-        /**
-         *  Compte le nombre de lignes retournées par la requête
-         */
         $count = 0;
 
+        /**
+         *  Count the number of rows returned by the query
+         */
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $count++;
         }
 
+        /**
+         *  If count == 0 then result is empty
+         */
         if ($count == 0) {
             return true;
         }
@@ -896,7 +942,7 @@ class Connection extends SQLite3
     }
 
     /**
-     *  Fonction permettant de retourner le nombre de lignes résultant d'une requête
+     *  Return the number of rows resulting from a query
      */
     public function count(object $result)
     {

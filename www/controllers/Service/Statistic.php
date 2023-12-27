@@ -9,12 +9,14 @@ class Statistic extends Service
 {
     protected $logController;
     private $statController;
+    private $repoController;
     private $repoListingController;
 
     public function __construct()
     {
         $this->logController = new \Controllers\Log\Log();
         $this->statController = new \Controllers\Stat();
+        $this->repoController = new \Controllers\Repo\Repo();
         $this->repoListingController = new \Controllers\Repo\Listing();
     }
 
@@ -118,7 +120,7 @@ class Statistic extends Service
             /**
              *  Check if the access log parsing is already running (a php process must be running)
              */
-            $myprocess = new \Controllers\Process('ps aux | grep "' . ROOT . '/tools/service.php logparser" | grep -v grep');
+            $myprocess = new \Controllers\Process('ps aux | grep "' . ROOT . '/tools/service.php stats/accesslog/parse" | grep -v grep');
             $myprocess->execute();
             $content = $myprocess->getOutput();
             $myprocess->close();
@@ -135,7 +137,7 @@ class Statistic extends Service
              */
             echo $this->getDate() . ' Running access log parsing...' . PHP_EOL;
 
-            $myprocess = new \Controllers\Process("php /var/www/repomanager/tools/service.php 'logparser' >/dev/null 2>/dev/null &");
+            $myprocess = new \Controllers\Process("/usr/bin/php /var/www/repomanager/tools/service.php 'stats/accesslog/parse' >/dev/null 2>/dev/null &");
             $myprocess->execute();
             $myprocess->close();
         } catch (Exception $e) {
@@ -146,7 +148,7 @@ class Statistic extends Service
     /**
      *  Parse access log and add repo access stats to database
      */
-    public function statsParseAccessLog()
+    public function parseAccessLog()
     {
         $nextSettingsCheck = time() + 5;
 
@@ -177,7 +179,7 @@ class Statistic extends Service
          */
         while (true) {
             /**
-             *  Get and check settings every 5 seconds to make sure that stats are still enabled and that the log file path is still correct
+             *  Get and check settings every 5 seconds to make sure that stats are still enabled
              */
             if (time() >= $nextSettingsCheck) {
                 /**
@@ -253,44 +255,216 @@ class Statistic extends Service
                     }
 
                     /**
-                     *  Parse line
+                     *  Add full log line to database
                      */
-                    $line = explode(' ', $line);
-                    // $dateExplode = str_replace('[', '', $line[3]);
-                    $dateExplode = explode(':', str_replace('[', '', $line[3]));
-                    // Date
-                    $date = DateTime::createFromFormat('d/M/Y', $dateExplode[0])->format('Y-m-d');
-                    // Time
-                    $time = $dateExplode[1] . ':' . $dateExplode[2] . ':' . $dateExplode[3];
-                    // Source IP
-                    $sourceIp = $line[0];
-                    // Source host from IP
-                    $sourceHost = gethostbyaddr($sourceIp);
-                    // Complete request
-                    $request = $line[5] . ' ' . $line[6] . ' ' . $line[7];
-                    // Request result
-                    $requestResult = $line[8];
+                    $this->statController->addAccessToQueue($line);
 
-                    // For debugging
-                    // echo 'Date: ' . $date . PHP_EOL;
-                    // echo 'Time: ' . $time . PHP_EOL;
-                    // echo 'Source IP: ' . $sourceIp . PHP_EOL;
-                    // echo 'Source host: ' . $sourceHost . PHP_EOL;
-                    // echo 'Request: ' . $request . PHP_EOL;
-                    // echo 'Request result: ' . $requestResult . PHP_EOL . PHP_EOL;
-
-                    /**
-                     *  Add repo access to database
-                     */
-                    $this->statController->addAccess($date, $time, $sourceHost, $sourceIp, $request, $requestResult);
-
-                    unset($line, $dateExplode, $date, $time, $sourceIp, $sourceHost, $request, $requestResult);
+                    unset($line);
                 }
 
                 $size = ftell($file);
             }
 
-            usleep(100);
+            // usleep(100);
+            usleep(100000); // 0.1 second
+        }
+    }
+
+    /**
+     *  Process accesslog in the queue and add stats to database
+     */
+    public function processAccessLog()
+    {
+        while (true) {
+            /**
+             *  Get and check settings regulary to make sure that stats are still enabled
+             */
+            $this->getSettings();
+
+            /**
+             *  Break if stats have been disabled
+             */
+            if ($this->statsEnabled != 'true') {
+                break;
+            }
+
+            /**
+             *  Stop parsing if the stop file exists
+             */
+            if (file_exists(DATA_DIR . '/.service-parsing-stop')) {
+                unlink(DATA_DIR . '/.service-parsing-stop');
+                break;
+            }
+
+            /**
+             *  Wait if a repomanager update process is running
+             */
+            while (file_exists(DATA_DIR . '/update-running')) {
+                sleep(2);
+                continue;
+            }
+
+            clearstatcache();
+
+            /**
+             *  Retrieve access log entries from the queue (100 entries max)
+             */
+            $queue = $this->statController->getAccessQueue();
+
+            /**
+             *  Process access log entries
+             */
+            if (!empty($queue)) {
+                foreach ($queue as $line) {
+                    $id = $line['Id'];
+                    $type = '';
+                    $dist = '';
+                    $section = '';
+
+                    /**
+                     *  Parse request
+                     */
+                    $request = explode(' ', $line['Request']);
+
+                    print_r($request);
+
+                    /**
+                     *  Date and time
+                     */
+                    $dateExplode = explode(':', str_replace('[', '', $request[3]));
+                    $date = DateTime::createFromFormat('d/M/Y', $dateExplode[0])->format('Y-m-d');
+                    $time = $dateExplode[1] . ':' . $dateExplode[2] . ':' . $dateExplode[3];
+
+                    /**
+                     *  Source IP
+                     */
+                    $sourceIp = $request[0];
+
+                    /**
+                     *  Source host from IP
+                     */
+                    $sourceHost = gethostbyaddr($sourceIp);
+
+                    /**
+                     *  Complete request
+                     */
+                    $fullRequest = str_replace('"', '', $request[5] . ' ' . $request[6] . ' ' . $request[7]);
+
+                    /**
+                     *  Request result
+                     */
+                    $requestResult = $request[8];
+
+                    /**
+                     *  Request grabber
+                     */
+                    $requestGrabber = $request[12];
+
+                    /**
+                     *  Retrieve repo type
+                     *
+                     *
+                     *  Case the request matches deb repo pattern
+                     *  e.g: GET /repo/ubuntu/jammy/main_preprod/dists/jammy/Release HTTP/1.1
+                     *
+                     *  If APT-HTTP or APT-CURL is found in the request grabber, it means that the request is made by apt
+                     */
+                    if (preg_match('/APT-HTTP|APT-CURL/', $requestGrabber) and preg_match('#/repo/.*/pool/|/repo/.*/dists/#', $fullRequest)) {
+                        $type = 'deb';
+
+                        /**
+                         *  Parse repo name, dist, section and env
+                         */
+                        $fullRequestExplode = explode('/', $fullRequest);
+                        $name = $fullRequestExplode[2];
+                        $dist = $fullRequestExplode[3];
+                        $section = explode('_', $fullRequestExplode[4])[0];
+                        $env = explode('_', $fullRequestExplode[4])[1];
+
+                        /**
+                         *  If the repo does not exist, continue
+                         */
+                        if (!$this->repoController->existsEnv($name, $dist, $section, $env)) {
+                            echo 'Could not find repo for request with Id ' . $id . PHP_EOL;
+                            continue;
+                        }
+                    }
+
+                    /**
+                     *  Case the request matches rpm repo pattern
+                     *  e.g: GET /repo/epel_prod/repodata/repomd.xml HTTP/1.1
+                     *
+                     *  If APT-HTTP or APT-CURL is NOT found in the request grabber, it means that the request might be made by yum
+                     */
+                    if (!preg_match('/APT-HTTP|APT-CURL/', $requestGrabber)
+                        and preg_match('/yum.*/', $requestGrabber)
+                        and preg_match('#/repo/.*/packages/|/repo/.*/repodata/#', $fullRequest)) {
+                        $type = 'rpm';
+
+                        /**
+                         *  Parse repo name and env
+                         */
+                        $fullRequestExplode = explode('/', $fullRequest);
+                        $name = explode('_', $fullRequestExplode[2])[0];
+                        $env = explode('_', $fullRequestExplode[2])[1];
+
+                        /**
+                         *  If the repo does not exist, continue
+                         */
+                        if (!$this->repoController->existsEnv($name, '', '', $env)) {
+                            echo 'Could not find repo for request with Id ' . $id . PHP_EOL;
+                            continue;
+                        }
+                    }
+
+                    /**
+                     *  If the request does not match any of the above patterns, skip it
+                     *  It might be a request for a file that is not part of a repository (/gpgkeys/ for example)
+                     */
+                    if (empty($type)) {
+                        echo 'Could not find repo type for request with Id ' . $id . PHP_EOL;
+
+                        /**
+                         *  Delete the log line from the queue
+                         */
+                        $this->statController->deleteFromQueue($id);
+
+                        continue;
+                    }
+
+                    // For debugging
+                    echo 'Date: ' . $date . PHP_EOL;
+                    echo 'Time: ' . $time . PHP_EOL;
+                    echo 'Source IP: ' . $sourceIp . PHP_EOL;
+                    echo 'Source host: ' . $sourceHost . PHP_EOL;
+                    echo 'Request: ' . $fullRequest . PHP_EOL;
+                    echo 'Request result: ' . $requestResult . PHP_EOL;
+                    echo 'Request grabber: ' . $requestGrabber . PHP_EOL;
+                    echo 'Type: ' . $type . PHP_EOL;
+                    echo 'Name: ' . $name . PHP_EOL;
+                    if (!empty($dist) and !empty($section)) {
+                        echo 'Dist: ' . $dist . PHP_EOL;
+                        echo 'Section: ' . $section . PHP_EOL;
+                    }
+                    echo 'Env: ' . $env . PHP_EOL;
+
+                    /**
+                     *  Add repo access log to database
+                     */
+                    if (!empty($date) and !empty($time) and !empty($type) and !empty($name) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                        $this->statController->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                    }
+
+                    /**
+                     *  Then delete the log line from the queue
+                     */
+                    $this->statController->deleteFromQueue($id);
+
+                    unset($id, $line, $dateExplode, $date, $time, $sourceIp, $sourceHost, $fullRequest, $requestResult, $type, $name, $dist, $section, $env);
+                }
+            }
+
+            sleep(2);
         }
     }
 }

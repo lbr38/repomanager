@@ -10,7 +10,7 @@ else :
         } ?>
         
         <div class="flex flex-direction-column">
-            <p><?= htmlspecialchars_decode($notification['Message']) ?></p>
+            <p class="margin-bottom-15"><?= htmlspecialchars_decode($notification['Message']) ?></p>
         
             <?php
             if (!empty($notification['Id'])) : ?>

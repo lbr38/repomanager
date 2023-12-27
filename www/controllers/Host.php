@@ -252,7 +252,7 @@ class Host
          *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
          */
         if (empty($id)) {
-            throw new Exception("Host Id must be specified");
+            throw new Exception('Host Id must be specified');
         }
 
         $packageState = Common::validateData($packageState);
@@ -280,10 +280,14 @@ class Host
             $content = '<p><b>Downgraded:</b></p>';
         }
 
-        $content .= '<div class="grid grid-2 column-gap-10 row-gap-4 align-item-center justify-space-between">';
+        $content .= '<div class="grid grid-2 column-gap-10 row-gap-6 justify-space-between">';
 
         foreach ($packages as $package) {
-            $content .= '<div>' . Common::printProductIcon($package['Name']) . '<span>' . $package['Name'] . '</span></div><span class="text-right">' . $package['Version'] . '</span>';
+            $content .= '<div class="flex align-item-center min-width-200">';
+            $content .= Common::printProductIcon($package['Name']);
+            $content .= '<span class="copy">' . $package['Name'] . '</span>';
+            $content .= '</div>';
+            $content .= '<span class="copy">' . $package['Version'] . '</span>';
         }
 
         $content .= '</div>';
@@ -292,107 +296,112 @@ class Host
     }
 
     /**
-     *  Récupère l'historique complet d'un paquet (son installation, ses mises à jour, etc...)
+     *  Retrieve the complete history of a package (its installation, its updates, etc...)
      */
     public function getPackageTimeline(string $id, string $packageName)
     {
         /**
-         *  Si il manque l'id de l'hôte, on quitte car on en a besoin pour ouvrir sa BDD dédiée
+         *  If the host id is missing, we quit because we need it to open its dedicated DB
          */
         if (empty($id)) {
-            throw new Exception("Host Id must be specified");
+            throw new Exception('Host Id must be specified');
         }
 
         /**
-         *  Ouverture de la BDD dédiée de l'hôte
+         *  Open the dedicated DB of the host
          */
         $this->model->openHostDb($id);
 
         $events = $this->model->getPackageTimeline($packageName);
 
         /**
-         *  On forge la timeline à afficher et on la renvoie au controlleur ajax car c'est jquery qui se chargera de l'afficher ensuite
+         *  Build the timeline to display and send it back to the ajax controller because it is jquery that will take care of displaying it afterwards
          */
         $content = '<h4>' . strtoupper($packageName) . ' PACKAGE HISTORY</h4>';
         $content .= '<div class="timeline">';
 
         /**
-         *  Le premier bloc sera affiché à gauche dans la timeline
+         *  The first block will be displayed on the left in the timeline
          */
-        $content_position = 'left';
+        $contentPosition = 'left';
 
         foreach ($events as $event) {
             /**
-             *  Ajout de la date, l'heure et l'état du paquet
+             *  Add the date, time and state of the package
              */
             if ($event['State'] == "inventored") {
-                $content_color = 'blue';
-                $content_text = '<img src="/assets/icons/package.svg" class="icon" /> Inventored';
+                $contentIcon = 'package';
+                $contentText = 'Inventored';
             }
             if ($event['State'] == "installed") {
-                $content_color = 'green';
-                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Installed';
+                $contentIcon = 'down';
+                $contentText = 'Installed';
             }
             if ($event['State'] == "dep-installed") {
-                $content_color = 'green';
-                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Installed (as depencency)';
+                $contentIcon = 'down';
+                $contentText = 'Installed (as depencency)';
             }
             if ($event['State'] == "upgraded") {
-                $content_color = 'yellow';
-                $content_text = '<img src="/assets/icons/update.svg" class="icon" /> Updated';
+                $contentIcon = 'update';
+                $contentText = 'Updated';
             }
             if ($event['State'] == "removed") {
-                $content_color = 'red';
-                $content_text = '<img src="/assets/icons/delete.svg" class="icon" /> Uninstalled';
+                $contentIcon = 'delete';
+                $contentText = 'Uninstalled';
             }
             if ($event['State'] == "downgraded") {
-                $content_color = 'yellow';
-                $content_text = '<img src="/assets/icons/arrow-back.svg" class="icon" /> Downgraded';
+                $contentIcon = 'arrow-back';
+                $contentText = 'Downgraded';
             }
             if ($event['State'] == "reinstalled") {
-                $content_color = 'yellow';
-                $content_text = '<img src="/assets/icons/down.svg" class="icon" /> Reinstalled';
+                $contentIcon = 'down';
+                $contentText = 'Reinstalled';
             }
             if ($event['State'] == "purged") {
-                $content_color = 'red';
-                $content_text = '<img src="/assets/icons/delete.svg" class="icon" /> Purged';
+                $contentIcon = 'delete';
+                $contentText = 'Purged';
             }
-            $content_version = $event['Version'];
 
             /**
-             *  Position du bloc container dans la timeline en fonction du dernier affiché
+             *  Position of the container block in the timeline according to the last displayed
              */
-            if ($content_position == 'left') {
-                $content .= '<div class="timeline-container timeline-container-' . $content_color . '-left">';
+            if ($contentPosition == 'left') {
+                $content .= '<div class="timeline-container timeline-container-left">';
             }
-            if ($content_position == 'right') {
-                $content .= '<div class="timeline-container timeline-container-' . $content_color . '-right">';
+            if ($contentPosition == 'right') {
+                $content .= '<div class="timeline-container timeline-container-right">';
             }
 
-            $content .= '<div class="timeline-container-content-' . $content_color . '">';
-                $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' ' . $event['Time'] . '</span>';
-                /**
-                 *  Si cet évènement a pour origine un évènement de mise à jour, d'installation ou de désintallation, alors on ondique l'Id de l'évènement
-                 */
-            if (!empty($event['Id_event'])) {
-                $content .= '<span class="timeline-event-text"><a href="#' . $event['Id_event'] . '" >' . $content_text . '</a></span>';
-            } else {
-                $content .= '<span class="timeline-event-text">' . $content_text . '</span>';
-            }
-                $content .= '<span class="timeline-event-version">Version : <b>' . $content_version . '</b></span>';
+            $content .= '<div class="timeline-container-content">';
+            $content .= '<span class="timeline-event-date">' . DateTime::createFromFormat('Y-m-d', $event['Date'])->format('d-m-Y') . ' ' . $event['Time'] . '</span>';
+            $content .= '<div class="flex align-item-center">';
+            $content .= '<img src="/assets/icons/' . $contentIcon . '.svg" class="icon" />';
+            /**
+             *  If this event is the result of an update, install or uninstall event, then we indicate the Id of the event
+             */
+            // if (!empty($event['Id_event'])) {
+            //     $content .= '<a href="#' . $event['Id_event'] . '" >';
+            // }
+            $content .= '<span>' . $contentText . '</span>';
             $content .= '</div>';
 
-            if ($content_position == "left") {
-                $content_position = 'right';
-            } elseif ($content_position == "right") {
-                $content_position = 'left';
+            $content .= '<span class="timeline-event-version">Version : <b>' . $event['Version'] . '</b></span>';
+            $content .= '</div>';
+
+            /**
+             *  If the previous block was on the left, we display the next one on the right and vice versa
+             */
+            if ($contentPosition == "left") {
+                $contentPosition = 'right';
+            } elseif ($contentPosition == "right") {
+                $contentPosition = 'left';
             }
 
             $content .= '</div>';
         }
 
         /**
-         *  Fermeture de la timeline
+         *  Close the timeline
          */
         $content .= '</div>';
 

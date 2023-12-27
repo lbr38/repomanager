@@ -49,7 +49,7 @@ class Gpg
         $this->generateRpmMacros();
 
         /**
-         *  Additionnal configuration for reprepro
+         *  Additionnal configuration for gpg
          */
         if (!file_exists(GPGHOME . '/gpg.conf')) {
             /**

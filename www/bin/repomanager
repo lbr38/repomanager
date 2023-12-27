@@ -89,8 +89,6 @@ function permissions
         chown ${WWW_USER}:repomanager $REPOS_DIR/gpgkeys/*pub
         chmod 660 $REPOS_DIR/gpgkeys/*pub
     fi
-
-    echo -e "${GREEN}OK${RESET}\n"
 }
 
 echo '

@@ -359,10 +359,31 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=kernel]",functi
      */
     $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/images/loading.gif" class="icon"/></span></div>');
 
-    $('.hosts-charts-list-label-hosts-list').css({
-        top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-        left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() / 2
-    });
+    /**
+     *  Get screen width
+     *  Then reduce the width of screen by 50px to have some margin
+     */
+    var screenWidth = window.screen.width;
+    screenWidth = screenWidth - 50;
+
+    /**
+     *  If hosts-charts-list-label-hosts-list is outside the screen on the right
+     *  Then print it on the left of the mouse cursor
+     */
+    if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
+        $('.hosts-charts-list-label-hosts-list').css({
+            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+            left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
+        });
+    /**
+     *  Else print it on the right of the mouse cursor
+     */
+    } else {
+        $('.hosts-charts-list-label-hosts-list').css({
+            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+            left: e.pageX
+        });
+    }
 
     $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
 
@@ -380,10 +401,31 @@ $(document).on('mouseenter',".hosts-charts-list-label[chart-type=profile]",funct
      */
     $('footer').append('<div class="hosts-charts-list-label-hosts-list"><span>Loading<img src="/assets/images/loading.gif" class="icon"/></span></div>');
 
-    $('.hosts-charts-list-label-hosts-list').css({
-        top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
-        left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() / 2
-    });
+    /**
+     *  Get screen width
+     *  Then reduce the width of screen by 50px to have some margin
+     */
+    var screenWidth = window.screen.width;
+    screenWidth = screenWidth - 50;
+
+    /**
+     *  If hosts-charts-list-label-hosts-list is outside the screen on the right
+     *  Then print it on the left of the mouse cursor
+     */
+    if (e.pageX + $('.hosts-charts-list-label-hosts-list').width() >= screenWidth) {
+        $('.hosts-charts-list-label-hosts-list').css({
+            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+            left: e.pageX - $('.hosts-charts-list-label-hosts-list').width() - 10
+        });
+    /**
+     *  Else print it on the right of the mouse cursor
+     */
+    } else {
+        $('.hosts-charts-list-label-hosts-list').css({
+            top: e.pageY - $('.hosts-charts-list-label-hosts-list').height() / 2,
+            left: e.pageX
+        });
+    }
 
     $('.hosts-charts-list-label-hosts-list').css('display', 'flex');
 
@@ -670,10 +712,31 @@ $(document).on('mouseenter', '.showEventDetailsBtn', function (e) {
      */
     $('footer').append('<div class="showEventDetails">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
 
-    $('.showEventDetails').css({
-        top: e.pageY - $('.showEventDetails').height() / 2,
-        left: e.pageX - $('.showEventDetails').width() / 2
-    });
+    /**
+     *  Get screen width
+     *  Then reduce the width of screen by 50px to have some margin
+     */
+    var screenWidth = window.screen.width;
+    screenWidth = screenWidth - 100;
+
+    /**
+     *  If showEventDetails is outside the screen on the right
+     *  Then print it on the left of the mouse cursor
+     */
+    if (e.pageX + $('.showEventDetails').width() >= screenWidth) {
+        $('.showEventDetails').css({
+            top: e.pageY - $('.showEventDetails').height() / 2,
+            left: e.pageX - $('.showEventDetails').width() - 10
+        });
+    /**
+     * Else print it on the right of the mouse cursor
+     */
+    } else {
+        $('.showEventDetails').css({
+            top: e.pageY - $('.showEventDetails').height() / 2,
+            left: e.pageX
+        });
+    }
 
     $('.showEventDetails').show();
 
@@ -812,7 +875,7 @@ function editGroup(id, name, hostsId)
 }
 
 /**
- * Ajax : exécute une action sur le(s) hôte(s) sélectionné(s)
+ * Ajax: Execute an action on selected host(s)
  * @param {string} action
  * @param {array} hosts_array
  */
@@ -975,9 +1038,13 @@ function getHostWithKernel(kernel)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-
-            hosts = '';
             hostsArray = jQuery.parseJSON(jsonValue.message);
+
+            hosts = '<p class="margin-bottom-10">Hosts with kernel <code>' + kernel + '</code></p>';
+
+            /**
+             *  Loop through each host
+             */
             hostsArray.forEach(obj => {
                 Object.entries(obj).forEach(([key, value]) => {
                     if (key == 'Id') {
@@ -1031,9 +1098,13 @@ function getHostWithProfile(profile)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-
-            hosts = '';
             hostsArray = jQuery.parseJSON(jsonValue.message);
+
+            hosts = '<p class="margin-bottom-10">Hosts with profile <code>' + profile + '</code></p>';
+
+            /**
+             *  Loop through each host
+             */
             hostsArray.forEach(obj => {
                 Object.entries(obj).forEach(([key, value]) => {
                     if (key == 'Id') {

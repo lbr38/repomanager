@@ -779,7 +779,7 @@ class Operation
             throw new Exception('Error: specified pool Id does not exist.');
         }
 
-        $myprocess = new \Controllers\Process('php ' . ROOT . "/operations/execute.php --id='$poolId' >/dev/null 2>/dev/null &");
+        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . "/operations/execute.php --id='$poolId' >/dev/null 2>/dev/null &");
         $myprocess->execute();
         $myprocess->close();
     }

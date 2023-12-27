@@ -311,7 +311,7 @@ class OperationLog
      */
     public function runLogBuilder(int $pid, string $location)
     {
-        $myprocess = new \Controllers\Process('php ' . LOGBUILDER . ' ' . $pid . ' ' . $location . ' >/dev/null 2>/dev/null &');
+        $myprocess = new \Controllers\Process('/usr/bin/php ' . LOGBUILDER . ' ' . $pid . ' ' . $location . ' >/dev/null 2>/dev/null &');
         $myprocess->execute();
         $myprocess->close();
         unset($myprocess);

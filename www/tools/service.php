@@ -17,10 +17,18 @@ $mycveController = new \Controllers\Cve\Tools\Import();
 $mysignalhandler->touchFileOnInterrupt(DATA_DIR . '/.service-parsing-stop');
 
 /**
- *  Run stats' access log parsing task
+ *  Run stats access log parsing task
  */
-if (!empty($argv[1]) && $argv[1] == 'logparser') {
-    $myservicestat->statsParseAccessLog();
+if (!empty($argv[1]) && $argv[1] == 'stats/accesslog/parse') {
+    $myservicestat->parseAccessLog();
+    exit;
+}
+
+/**
+ *  Run stats access log processing task
+ */
+if (!empty($argv[1]) && $argv[1] == 'stats/accesslog/process') {
+    $myservicestat->processAccessLog();
     exit;
 }
 
