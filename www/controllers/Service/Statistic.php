@@ -265,7 +265,6 @@ class Statistic extends Service
                 $size = ftell($file);
             }
 
-            // usleep(100);
             usleep(100000); // 0.1 second
         }
     }
@@ -312,21 +311,21 @@ class Statistic extends Service
             $queue = $this->statController->getAccessQueue();
 
             /**
+             *  Get all repos
+             */
+            $reposList = $this->repoListingController->list();
+
+            /**
              *  Process access log entries
              */
-            if (!empty($queue)) {
+            if (!empty($queue) and !empty($reposList)) {
                 foreach ($queue as $line) {
                     $id = $line['Id'];
-                    $type = '';
-                    $dist = '';
-                    $section = '';
 
                     /**
                      *  Parse request
                      */
                     $request = explode(' ', $line['Request']);
-
-                    print_r($request);
 
                     /**
                      *  Date and time
@@ -361,110 +360,98 @@ class Statistic extends Service
                     $requestGrabber = $request[12];
 
                     /**
-                     *  Retrieve repo type
-                     *
-                     *
-                     *  Case the request matches deb repo pattern
-                     *  e.g: GET /repo/ubuntu/jammy/main_preprod/dists/jammy/Release HTTP/1.1
-                     *
-                     *  If APT-HTTP or APT-CURL is found in the request grabber, it means that the request is made by apt
+                     *  Loop through repos list until the repo called in the request is found
                      */
-                    if (preg_match('/APT-HTTP|APT-CURL/', $requestGrabber) and preg_match('#/repo/.*/pool/|/repo/.*/dists/#', $fullRequest)) {
-                        $type = 'deb';
+                    foreach ($reposList as $repo) {
+                        $dist = '';
+                        $section = '';
 
                         /**
-                         *  Parse repo name, dist, section and env
+                         *  Continue if the repo snapshot has no environment, because stats are only generated for snapshots environments
                          */
-                        $fullRequestExplode = explode('/', $fullRequest);
-                        $name = $fullRequestExplode[2];
-                        $dist = $fullRequestExplode[3];
-                        $section = explode('_', $fullRequestExplode[4])[0];
-                        $env = explode('_', $fullRequestExplode[4])[1];
-
-                        /**
-                         *  If the repo does not exist, continue
-                         */
-                        if (!$this->repoController->existsEnv($name, $dist, $section, $env)) {
-                            echo 'Could not find repo for request with Id ' . $id . PHP_EOL;
+                        if (empty($repo['envId'])) {
                             continue;
+                        }
+
+                        /**
+                         *  Build repository URI path
+                         */
+
+                        /**
+                         *  Case the repo is a deb repo
+                         */
+                        if ($repo['Package_type'] == 'deb') {
+                            $repoUri = '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'];
+                        }
+
+                        /**
+                         *  Case the repo is a rpm repo
+                         */
+                        if ($repo['Package_type'] == 'rpm') {
+                            $repoUri = '/repo/' . $repo['Name'] . '_' . $repo['Env'];
+                        }
+
+                        /**
+                         *  Now if the repo URI is found in the request, it means that the request is made for this repo
+                         */
+                        if (preg_match('#' . $repoUri . '#', $fullRequest)) {
+                            $type = $repo['Package_type'];
+                            $name = $repo['Name'];
+                            $env = $repo['Env'];
+                            if (!empty($repo['Dist']) and !empty($repo['Section'])) {
+                                $dist = $repo['Dist'];
+                                $section = $repo['Section'];
+                            }
+
+                            // For debugging
+                            // echo 'Date: ' . $date . PHP_EOL;
+                            // echo 'Time: ' . $time . PHP_EOL;
+                            // echo 'Source IP: ' . $sourceIp . PHP_EOL;
+                            // echo 'Source host: ' . $sourceHost . PHP_EOL;
+                            // echo 'Request: ' . $fullRequest . PHP_EOL;
+                            // echo 'Request result: ' . $requestResult . PHP_EOL;
+                            // echo 'Request grabber: ' . $requestGrabber . PHP_EOL;
+                            // echo 'Type: ' . $type . PHP_EOL;
+                            // echo 'Name: ' . $name . PHP_EOL;
+                            // if (!empty($dist) and !empty($section)) {
+                            //     echo 'Dist: ' . $dist . PHP_EOL;
+                            //     echo 'Section: ' . $section . PHP_EOL;
+                            // }
+                            // echo 'Env: ' . $env . PHP_EOL . PHP_EOL;
+
+
+                            /**
+                             *  Add repo access log to database
+                             */
+                            if (!empty($date) and !empty($time) and !empty($type) and !empty($name) and isset($dist) and isset($section) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
+                                $this->statController->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
+                            }
+
+                            /**
+                             *  Delete the log line from the queue now that it has been processed
+                             */
+                            $this->statController->deleteFromQueue($id);
+
+                            /**
+                             *  Process the next log line
+                             */
+                            continue 2;
                         }
                     }
 
                     /**
-                     *  Case the request matches rpm repo pattern
-                     *  e.g: GET /repo/epel_prod/repodata/repomd.xml HTTP/1.1
-                     *
-                     *  If APT-HTTP or APT-CURL is NOT found in the request grabber, it means that the request might be made by yum
+                     *  If the request does not match any of the repo URI patterns, skip it
                      */
-                    if (!preg_match('/APT-HTTP|APT-CURL/', $requestGrabber)
-                        and preg_match('/yum.*/', $requestGrabber)
-                        and preg_match('#/repo/.*/packages/|/repo/.*/repodata/#', $fullRequest)) {
-                        $type = 'rpm';
-
-                        /**
-                         *  Parse repo name and env
-                         */
-                        $fullRequestExplode = explode('/', $fullRequest);
-                        $name = explode('_', $fullRequestExplode[2])[0];
-                        $env = explode('_', $fullRequestExplode[2])[1];
-
-                        /**
-                         *  If the repo does not exist, continue
-                         */
-                        if (!$this->repoController->existsEnv($name, '', '', $env)) {
-                            echo 'Could not find repo for request with Id ' . $id . PHP_EOL;
-                            continue;
-                        }
-                    }
+                    echo 'Could not find repo for request with Id ' . $id . PHP_EOL;
 
                     /**
-                     *  If the request does not match any of the above patterns, skip it
-                     *  It might be a request for a file that is not part of a repository (/gpgkeys/ for example)
-                     */
-                    if (empty($type)) {
-                        echo 'Could not find repo type for request with Id ' . $id . PHP_EOL;
-
-                        /**
-                         *  Delete the log line from the queue
-                         */
-                        $this->statController->deleteFromQueue($id);
-
-                        continue;
-                    }
-
-                    // For debugging
-                    echo 'Date: ' . $date . PHP_EOL;
-                    echo 'Time: ' . $time . PHP_EOL;
-                    echo 'Source IP: ' . $sourceIp . PHP_EOL;
-                    echo 'Source host: ' . $sourceHost . PHP_EOL;
-                    echo 'Request: ' . $fullRequest . PHP_EOL;
-                    echo 'Request result: ' . $requestResult . PHP_EOL;
-                    echo 'Request grabber: ' . $requestGrabber . PHP_EOL;
-                    echo 'Type: ' . $type . PHP_EOL;
-                    echo 'Name: ' . $name . PHP_EOL;
-                    if (!empty($dist) and !empty($section)) {
-                        echo 'Dist: ' . $dist . PHP_EOL;
-                        echo 'Section: ' . $section . PHP_EOL;
-                    }
-                    echo 'Env: ' . $env . PHP_EOL;
-
-                    /**
-                     *  Add repo access log to database
-                     */
-                    if (!empty($date) and !empty($time) and !empty($type) and !empty($name) and !empty($env) and !empty($sourceHost) and !empty($sourceIp) and !empty($fullRequest) and !empty($requestResult)) {
-                        $this->statController->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $fullRequest, $requestResult);
-                    }
-
-                    /**
-                     *  Then delete the log line from the queue
+                     *  Delete the log line from the queue
                      */
                     $this->statController->deleteFromQueue($id);
-
-                    unset($id, $line, $dateExplode, $date, $time, $sourceIp, $sourceHost, $fullRequest, $requestResult, $type, $name, $dist, $section, $env);
                 }
             }
 
-            sleep(2);
+            sleep(5);
         }
     }
 }

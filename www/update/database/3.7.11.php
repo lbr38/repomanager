@@ -12,13 +12,25 @@ if (!file_exists(STATS_DB)) {
  */
 $statsDb = new \Models\Connection('stats');
 $mystat = new \Controllers\Stat();
-$myrepo = new \Controllers\Repo\Repo();
+$myrepoListing = new \Controllers\Repo\Listing();
 
 /**
  *  Quit if 'access' table does not exist
  */
 if ($statsDb->tableExist('access') !== true) {
     $statsDb->close();
+    return;
+}
+
+/**
+ *  Get all repos
+ */
+$reposList = $myrepoListing->list();
+
+/**
+ *  Quit if no repo
+ */
+if (empty($reposList)) {
     return;
 }
 
@@ -58,66 +70,61 @@ while (true) {
         $sourceIp = $line['IP'];
         $request = str_replace('"', '', $line['Request']);
         $requestResult = $line['Request_result'];
-        $type = '';
-        $dist = '';
-        $section = '';
 
         /**
-         *  Try to determine the target repository type, name and environment
+         *  Loop through repos list until the repo called in the request is found
          */
-
-        /**
-         *  Case it's a deb repository
-         */
-        if (preg_match('#/repo/.*/pool/|/repo/.*/dists/|.*\.deb HTTP.*|.*\.dsc HTTP.*|.*\.tar\.gz HTTP.*#', $request)) {
-            $type = 'deb';
+        foreach ($reposList as $repo) {
+            $dist = '';
+            $section = '';
 
             /**
-             *  Retrieve name, distribution, section and environment from request
+             *  Continue if the repo snapshot has no environment, because stats are only generated for snapshots environments
              */
-            $requestExplode = explode('/', $request);
-            $name = $requestExplode[2];
-            $dist = $requestExplode[3];
-
-            /**
-             *  Ignore request if section and env are not in position 4
-             *  (this can be the case for some repositories like 'debian-security')
-             */
-            if (!preg_match('/_/', $requestExplode[4])) {
+            if (empty($repo['envId'])) {
                 continue;
             }
 
-            $section = explode('_', $requestExplode[4])[0];
-            $env = explode('_', $requestExplode[4])[1];
-
-        /**
-         *  Case it's a rpm repository
-         */
-        } elseif (preg_match('#/repo/.*/packages/|/repo/.*/Packages/|/repo/.*/repodata/|.*\.rpm HTTP.*#', $request)) {
-            $type = 'rpm';
+            /**
+             *  Build repository URI path
+             */
 
             /**
-             *  Retrieve name and environment from request
+             *  Case the repo is a deb repo
              */
-            $requestExplode = explode('/', $request);
-            $name = explode('_', $requestExplode[2])[0];
-            $env = explode('_', $requestExplode[2])[1];
+            if ($repo['Package_type'] == 'deb') {
+                $repoUri = '/repo/' . $repo['Name'] . '/' . $repo['Dist'] . '/' . $repo['Section'] . '_' . $repo['Env'];
+            }
 
-        /**
-         *  If the request does not match any of the above patterns, skip it
-         */
-        } else {
-            continue;
+            /**
+             *  Case the repo is a rpm repo
+             */
+            if ($repo['Package_type'] == 'rpm') {
+                $repoUri = '/repo/' . $repo['Name'] . '_' . $repo['Env'];
+            }
+
+            /**
+             *  Now if the repo URI is found in the request, it means that the request is made for this repo
+             */
+            if (!empty($repoUri) and !empty($request)) {
+                if (preg_match('#' . $repoUri . '#', $request)) {
+                    $type = $repo['Package_type'];
+                    $name = $repo['Name'];
+                    $env = $repo['Env'];
+                    if (!empty($repo['Dist']) and !empty($repo['Section'])) {
+                        $dist = $repo['Dist'];
+                        $section = $repo['Section'];
+                    }
+
+                    /**
+                     *  Add line in the new table
+                     */
+                    if (!empty($date) && !empty($time) && !empty($type) && !empty($name) && isset($dist) && isset($section) && !empty($env) && !empty($sourceHost) && !empty($sourceIp) && !empty($request) && !empty($requestResult)) {
+                        $mystat->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $request, $requestResult);
+                    }
+                }
+            }
         }
-
-        /**
-         *  Add line in the new table
-         */
-        if (!empty($date) && !empty($time) && !empty($type) && !empty($name) && !empty($env) && !empty($sourceHost) && !empty($sourceIp) && !empty($request) && !empty($requestResult)) {
-            $mystat->addAccess($date, $time, $type, $name, $dist, $section, $env, $sourceHost, $sourceIp, $request, $requestResult);
-        }
-
-        unset($name, $dist, $section, $env, $sourceHost, $sourceIp, $request, $requestResult, $type, $requestExplode);
     }
 
     /**
@@ -141,6 +148,6 @@ $statsDb->exec("VACUUM");
 $statsDb->exec("ANALYZE");
 $statsDb->close();
 
-unset($statsDb, $mystat, $myrepo);
+unset($statsDb, $mystat, $myrepoListing);
 
 echo 'Migration done.' . PHP_EOL;
