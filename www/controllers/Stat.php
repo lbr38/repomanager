@@ -39,19 +39,20 @@ class Stat
 
     /**
      *  Return access request of the specified repo/section
+     *  It is possible to count the number of requests
      *  It is possible to add an offset to the request
      */
-    public function getAccess(string $name, string $dist = null, string $section = null, string $env, bool $withOffset = false, int $offset = 0)
+    public function getAccess(string $type, string $name, string $dist = null, string $section = null, string $env, bool $count = false, bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getAccess($name, $dist, $section, $env, $withOffset, $offset);
+        return $this->model->getAccess($type, $name, $dist, $section, $env, $count, $withOffset, $offset);
     }
 
     /**
-     *  Compte le nombre de requêtes d'accès au repo/section spécifié, sur une date donnée
+     *  Count the number of access requests to the specified repo/section, on a given date
      */
-    public function getDailyAccessCount(string $name, string $dist = null, string $section = null, string $env, string $date)
+    public function getDailyAccessCount(string $type, string $name, string|null $dist, string|null $section, string $env, string $date)
     {
-        return $this->model->getDailyAccessCount($name, $dist, $section, $env, $date);
+        return $this->model->getDailyAccessCount($type, $name, $dist, $section, $env, $date);
     }
 
     /**
@@ -65,9 +66,33 @@ class Stat
     /**
      *  Add new repo access log to database
      */
-    public function addAccess(string $date, string $time, string $sourceHost, string $sourceIp, string $request, string $result)
+    public function addAccess(string $date, string $time, string $type, string $repoName, string|null $repoDist, string|null $repoSection, string $repoEnv, string $sourceHost, string $sourceIp, string $request, string $result)
     {
-        $this->model->addAccess($date, $time, $sourceHost, $sourceIp, $request, $result);
+        $this->model->addAccess($date, $time, $type, $repoName, $repoDist, $repoSection, $repoEnv, $sourceHost, $sourceIp, $request, $result);
+    }
+
+    /**
+     *  Add new repo access log to queue
+     */
+    public function addAccessToQueue(string $request)
+    {
+        $this->model->addAccessToQueue($request);
+    }
+
+    /**
+     *  Return access queue
+     */
+    public function getAccessQueue()
+    {
+        return $this->model->getAccessQueue();
+    }
+
+    /**
+     *  Delete access log from queue
+     */
+    public function deleteFromQueue(string $id)
+    {
+        $this->model->deleteFromQueue($id);
     }
 
     /**

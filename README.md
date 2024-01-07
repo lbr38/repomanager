@@ -14,11 +14,11 @@ Designed for an enterprise usage and to help deployment of packages updates on l
 - Plan tasks
 - ...
 
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/demo-1.gif?raw=true)
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-2.png?raw=true)
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-4.png?raw=true)
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-5.png?raw=true)
-![alt text](https://github.com/lbr38/resources/blob/main/screenshots/repomanager/repomanager-3.png?raw=true)
+![alt text](https://github.com/lbr38/repomanager/assets/54670129/1cc4e053-cd74-4744-8f6b-f78fa1eef1cb)
+![alt text](https://github.com/lbr38/repomanager/assets/54670129/250f2fa3-349d-4fbb-bd1c-dd5ae7556fa4)
+![alt text](https://github.com/lbr38/repomanager/assets/54670129/8b2ad760-95a7-4735-bd88-f8630b1e4060)
+![alt text](https://github.com/lbr38/repomanager/assets/54670129/774b7f52-6972-4aeb-8723-77c64b7afeaf)
+![alt text](https://github.com/lbr38/repomanager/assets/54670129/38a325dd-22a9-4785-a8fd-7273bc97d047)
 
 <h2>Requirements</h2>
 

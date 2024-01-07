@@ -5,6 +5,6 @@
     },
     "NT02" : {
         "title" : "Stats database migration",
-        "message" : "Next release will include a <b>major change</b> in the stats database. <br><br>An automatic migration will be performed at the container startup and Repomanager will be in maintenance mode (<b>UPDATE RUNNING</b> popup).<br><br><span class='yellowtext'>Please do not stop or restart the container during the migration.</span><br><br>Migration duration depends on your usage of stats (about 20 minutes for 1 year of stats with 300 hosts accessing repos daily)."
+        "message" : "Release <code>3.7.11</code> will include a <b>major change</b> in the stats database. <br><br>An automatic migration will be performed at the container startup and Repomanager will be in maintenance mode (<b>UPDATE RUNNING</b> popup).<br><br><span class='yellowtext'>Please do not stop or restart the container during the migration.</span><br><br>Migration duration depends on your usage of stats (about 20 minutes for 1 year of stats with 300 hosts accessing repos daily)."
     }
 }

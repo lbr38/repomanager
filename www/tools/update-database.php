@@ -4,6 +4,7 @@
  */
 
 define('ROOT', '/var/www/repomanager');
+ini_set('memory_limit', '512M');
 
 require_once(ROOT . '/controllers/Autoloader.php');
 new \Controllers\Autoloader('minimal');

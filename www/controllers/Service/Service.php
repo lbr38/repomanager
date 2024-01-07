@@ -281,7 +281,8 @@ class Service
                 /**
                  *  Parse access logs to generate repo access statistics
                  */
-                $this->runService('logparser');
+                $this->runService('stats/accesslog/parse');
+                $this->runService('stats/accesslog/process');
             }
 
             /**
@@ -348,7 +349,7 @@ class Service
              */
             echo $this->getDate() . " Running service with parameter '" . $parameter . "'..." . PHP_EOL;
 
-            $myprocess = new \Controllers\Process("php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
+            $myprocess = new \Controllers\Process("/usr/bin/php " . ROOT . "/tools/service.php '" . $parameter . "' >/dev/null 2>/dev/null &");
             $myprocess->execute();
             $myprocess->close();
         } catch (Exception $e) {

@@ -1,19 +1,19 @@
 [ IN PROGRESS ]
 
-- Update documentation
-- Convert 'Last access requets' table to a paginated table
-- Remove the old authentication method (via -d parameters), once linupdate 2.2.11 is released
-- (DEB) Error with reprepro hanging while mirroring ubuntu > jammy > main
-        https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1056380
-        https://salsa.debian.org/debian/reprepro.git
-- Try using apt-ftparchive + gpg instead of reprepro for debian repos
+    [ GENERAL ]
+    
+    - Update documentation
+
+
+    [ STATS ]
+    
+    - logparser is sometimes using too much cpu, see how to improve
+    - repo stats retrieving is too slow when dealing with millions of lines in database, see how to improve
 
 
 [ BUGS ]
 
     [ GENERAL ]
-
-    - Reloading the menu makes the blue bar of the menu disappear
 
 
     [ REPOS ]
@@ -28,11 +28,10 @@
     [ OPERATIONS ]
 
     - (RPM mirroring) Ignore warning if 'already contains identical signature' is found in the output of rpm --addsign
+    - Regular planned tasks logs are all merged into the same Planification master log file
 
 
     [ SERVICE ]
-
-    - logparser is sometimes using too much cpu, see how to improve
 
 
 [ IMPROVEMENTS / FEATURES ]
@@ -65,6 +64,7 @@
     [ HOSTS / LINUPDATE ]
 
     - Be able to ask a host to update one or more specific packages
+    - Improve host details page UI
     
 
     [ CVE ]

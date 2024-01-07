@@ -151,7 +151,7 @@
                          *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
                          */
                         if ($totalRunningCount > 0) {
-                            echo '<span class="op-total-running bkg-red">' . $totalRunningCount . '</span>';
+                            echo '<span class="op-total-running">' . $totalRunningCount . '</span>';
                         }
 
                         /**

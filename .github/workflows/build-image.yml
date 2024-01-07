@@ -41,18 +41,3 @@ jobs:
           push: true
           tags: lbr38/repomanager:latest, lbr38/repomanager:${{ env.VERSION }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-  
-      # - name: Log in to Docker Hub
-      #   uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      
-      # # Build the image with '$VERSION' and 'latest' tags
-      # - name: Build the image
-      #   run: docker build . --file ./docker/Dockerfile --tag lbr38/repomanager:${{ env.VERSION }} --tag lbr38/repomanager:latest
-
-      # - name: Push the image
-      #   run: |
-      #     docker push lbr38/repomanager:${{ env.VERSION }}
-      #     docker push lbr38/repomanager:latest

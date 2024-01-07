@@ -1,5 +1,5 @@
 /**
- *  v1.4
+ *  v1.5
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
@@ -145,8 +145,11 @@ pre {
 .padding-left-15 {padding-left: 15px !important}
 .padding-right-15 {padding-right: 15px !important}
 .margin-left-15 {margin-left: 15px !important}
+.margin-right-15 {margin-right: 15px !important}
 .margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}
 .margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}
+.min-height-100 {min-height: 100px}.min-height-200 {min-height: 200px}.min-height-300 {min-height: 300px}.min-height-400 {min-height: 400px}.min-height-500 {min-height: 500px}.min-height-600 {min-height: 600px}.min-height-700 {min-height: 700px}.min-height-800 {min-height: 800px}.min-height-900 {min-height: 900px}.min-height-1000 {min-height: 1000px}
+.min-width-100 {min-width: 100px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
 
 code {
     font-family: monospace, monospace;
@@ -454,7 +457,7 @@ input::placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
+    min-width: 40px;
     height: 30px;
     border: none;
     border-radius: 60px;
@@ -517,8 +520,13 @@ textarea {
     font-size: 13px;
     vertical-align: middle;
     display: inline-block;
-    padding: 6px 8px 6px 8px;
-    border-radius: 16px;
+    /* padding: 6px 8px 6px 8px; */
+    padding: 6px;
+    min-width: 12px;
+    min-height: 12px;
+    line-height: 12px !important;
+    text-align: center;
+    border-radius: 60px;
     color: white;
     box-shadow: rgb(12 18 20 / 67%) 0px 0px 0px 1px;
 }

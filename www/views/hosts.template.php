@@ -36,16 +36,13 @@
                                     $kernelName = $kernel['Kernel'];
                                 } ?>
                                 <div class="hosts-charts-list-container">
-                                    <div class="hosts-charts-list-label" chart-type="kernel" kernel="<?= $kernelName ?>">
-                                        <div>
+                                    <div class="hosts-charts-list-label flex justify-space-between" chart-type="kernel" kernel="<?= $kernelName ?>">
+                                        <div class="flex column-gap-5 align-item-center">
                                             <!-- square figure -->
                                             <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
                                             <span><?= $kernelName ?></span>
                                         </div>
                                         <span><?= $kernel['Kernel_count'] ?></span>
-                                    </div>
-                                    <div class="hosts-charts-list-data">
-                                        <span></span>
                                     </div>
                                 </div>
                                 <?php
@@ -68,16 +65,13 @@
                                 } ?>
                                 
                                 <div class="hosts-charts-list-container">
-                                    <div class="hosts-charts-list-label" chart-type="profile" profile="<?= $profileName ?>">
-                                        <div>
+                                    <div class="hosts-charts-list-label flex justify-space-between" chart-type="profile" profile="<?= $profileName ?>">
+                                        <div class="flex column-gap-5 align-item-center">
                                             <!-- square figure -->
                                             <span style="background-color: <?= $mycolor->randomColor() ?>"></span>
                                             <span><?= $profileName ?></span>
                                         </div>
                                         <span><?= $profile['Profile_count'] ?></span>
-                                    </div>
-                                    <div class="hosts-charts-list-data">
-                                        <span></span>
                                     </div>
                                 </div>
                                 <?php
@@ -200,13 +194,17 @@
                             <div class="searchInput-container">
                                 <div class="searchInput-subcontainer">
                                     <div>
-                                        <p>
-                                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version>&#13;reboot_required:<true/false>" />Search host:                                            
-                                        </p>
+                                        <div class="flex align-item-center justify-center">
+                                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a host by its name.&#13;&#13;You can specify a filter before your search entry:&#13;os:<os name> <search>&#13;os_version:<os version> <search>&#13;os_family:<os family> <search>&#13;type:<virtualization type> <search>&#13;kernel:<kernel> <search>&#13;arch:<architecture> <search>&#13;agent_version:<version> <search>&#13;reboot_required:<true/false> <search>" />
+                                            <span>Search host:</span>
+                                        </div>
                                         <input type="text" id="searchHostInput" onkeyup="searchHost()" class="input-large" autocomplete="off" placeholder="Hostname, IP" />
                                     </div>
                                     <div>
-                                        <p>Search package:</p>
+                                        <div class="flex align-item-center justify-center">
+                                            <img src="/assets/icons/info.svg" class="icon-lowopacity" title="Search a package on all hosts, by its name" />
+                                            <span>Search package:</span>
+                                        </div>
                                         <input type="text" id="getHostsWithPackageInput" onkeyup="getHostsWithPackage()" class="input-large" autocomplete="off" placeholder="Package name" />
                                     </div>
                                 </div>
@@ -263,7 +261,7 @@
                                                 <span title="Total available updates.">Avail.</span>
                                                 <?php
                                                 if (IS_ADMIN) : ?>
-                                                    <span class="text-right">
+                                                    <span class="text-right margin-right-15">
                                                         <input class="js-select-all-button verylowopacity pointer" type="checkbox" group="<?=$group['Name']?>" title="Select all" >
                                                     </span>
                                                     <?php
@@ -525,7 +523,7 @@
 
                                                     <?php
                                                     if (IS_ADMIN) : ?>
-                                                        <div class="text-right" title="Select <?= $hostname ?>">
+                                                        <div class="text-right margin-right-15" title="Select <?= $hostname ?>">
                                                             <input type="checkbox" class="js-host-checkbox verylowopacity pointer" name="checkbox-host[]" group="<?= $group['Name'] ?>" value="<?= $id ?>">
                                                         </div>
                                                         <?php

@@ -92,14 +92,18 @@ header {
 }
 .op-total-running {
     position: absolute;
-    top: -30px;
     right: -15px;
+    top: -30px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px !important;
     border: none;
-    border-radius: 8px;
+    border-radius: 50%;
     color: white;
-    padding: 2px 3px;
+    background-color: #ff0044;
     text-align: center;
-    font-size: 12px;
+    font-size: 9px;
+    font-family: monospace;
     text-decoration: none;
 }
 .header-op-container {
@@ -125,14 +129,17 @@ header {
 #notification-count {
     position: absolute;
     right: -9px;
-    top: 12px;
+    top: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px !important;
     border: none;
-    border-radius: 8px;
+    border-radius: 50%;
     color: white;
     background-color: #ff0044;
-    padding: 1px 3px;
     text-align: center;
-    font-size: 12px;
+    font-size: 9px;
+    font-family: monospace;
     text-decoration: none;
 }
 #userspace {
@@ -533,11 +540,11 @@ input::placeholder {
 /**
  *  Si le label se trouve dans un td, il faut spécifier un padding top et bottom
  */
-td .label-white, td .label-black, td .label-green, td .label-red, td .label-yellow {
+/* td .label-white, td .label-black, td .label-green, td .label-red, td .label-yellow {
     padding-top: 4px;
     padding-bottom: 4px;
     vertical-align: middle;
-}
+} */
 
 .div-flex {
     display: flex;
@@ -763,6 +770,34 @@ footer #github img { width: 25px; }
 }
 #loginDiv div {
     margin: auto;
+}
+
+#maintenance-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    background: #333333d3;
+    z-index: 1;
+}
+
+#maintenance {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    padding: 30px;
+    border-radius: 8px;
+    background-color: #112334;
+    -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
+    box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
+}
+
+#maintenance p {
+    font-size: 14px;
+    text-align: center;
 }
 
 .hide, .tr-hide, .td-hide {

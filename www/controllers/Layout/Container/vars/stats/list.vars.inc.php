@@ -46,10 +46,10 @@ if (!empty($_GET['chartFilter'])) {
  *  Retrieve last access logs from database
  */
 if ($myrepo->getPackageType() == 'rpm') {
-    $lastAccess = $mystats->getAccess($myrepo->getName(), '', '', $myrepo->getEnv(), true, 0);
+    $lastAccess = $mystats->getAccess('rpm', $myrepo->getName(), '', '', $myrepo->getEnv(), false, true, 0);
 }
 if ($myrepo->getPackageType() == 'deb') {
-    $lastAccess = $mystats->getAccess($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), true, 0);
+    $lastAccess = $mystats->getAccess('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), false, true, 0);
 }
 
 /**
@@ -115,10 +115,10 @@ $repoAccessChartData = '';
  */
 while ($dateCounter != date('Y-m-d', strtotime('+1 day', strtotime(DATE_YMD)))) {
     if ($myrepo->getPackageType() == 'rpm') {
-        $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
+        $dateAccessCount = $mystats->getDailyAccessCount('rpm', $myrepo->getName(), '', '', $myrepo->getEnv(), $dateCounter);
     }
     if ($myrepo->getPackageType() == 'deb') {
-        $dateAccessCount = $mystats->getDailyAccessCount($myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
+        $dateAccessCount = $mystats->getDailyAccessCount('deb', $myrepo->getName(), $myrepo->getDist(), $myrepo->getSection(), $myrepo->getEnv(), $dateCounter);
     }
 
     if (!empty($dateAccessCount)) {

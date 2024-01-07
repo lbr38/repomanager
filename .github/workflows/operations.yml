@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies packages
         run: |
           apt-get update -y
-          apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c reprepro apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
+          apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
 
       - name: Setup PHP
         run: |
