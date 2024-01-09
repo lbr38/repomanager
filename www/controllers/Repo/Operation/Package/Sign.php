@@ -31,8 +31,7 @@ trait Sign
         ob_start();
 
         /**
-         *  Signature des paquets du repo avec GPG
-         *  Redhat seulement car sur Debian c'est le fichier Release qui est signé lors de la création du repo
+         *  Signing packages with GPG
          */
         $this->log->step('SIGNING PACKAGES (GPG)');
 
@@ -40,33 +39,37 @@ trait Sign
         $this->log->steplogWrite();
 
         /**
-         *  Récupération de tous les fichiers RPMs de manière récursive
+         *  Retrieve all RPM files recursively
          */
         $rpmFiles = \Controllers\Common::findRecursive(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), 'rpm', true);
         $totalPackages = count($rpmFiles);
-        $packageCounter = 0;
-
+        $packageCounter = 1;
         $signError = 0;
 
         /**
-         *  On traite chaque fichier trouvé
+         *  Sort files by name
+         */
+        asort($rpmFiles);
+
+        /**
+         *  Process each found file
          */
         foreach ($rpmFiles as $rpmFile) {
             /**
-             *  On a besoin d'un fichier de macros gpg, on signe uniquement si le fichier de macros est présent, sinon on retourne une erreur
+             *  We need a gpg macros file, we sign only if the macros file is present, otherwise we return an error
              */
             if (!file_exists(MACROS_FILE)) {
                 throw new Exception('GPG macros file for rpm does not exist.');
             }
 
             if (!file_exists($rpmFile)) {
-                throw new Exception('RPM file ' . $rpmFile . ' not found (deleted?).');
+                throw new Exception('RPM file <code>' . $rpmFile . '</code> not found (deleted?).');
             }
 
             /**
              *  Print package counter
              */
-            echo '(' . $packageCounter . '/' . $totalPackages . ')  ➙ ';
+            echo '<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ <span class="copy">' . $rpmFile . '</span> ... </span>';
 
             $this->log->steplogWrite();
 
@@ -76,26 +79,27 @@ trait Sign
             $myprocess = new \Controllers\Process('/usr/bin/rpmsign --macros=' . MACROS_FILE . ' --addsign ' . $rpmFile, array('GPG_TTY' => '$(tty)'));
 
             /**
-             *  Exécution
+             *  Execution
              */
-            $myprocess->setBackground(true);
             $myprocess->execute();
 
             /**
-             *  Affichage de l'output du process en continue dans un fichier
+             *  Retrieve output from process
              */
-            $myprocess->getOutput($this->log->getStepLog());
+            $output = $myprocess->getOutput();
 
             /**
-             *  Si la signature du paquet en cours s'est mal terminée, on incrémente $signError pour
-             *  indiquer une erreur et on sort de la boucle pour ne pas traiter le paquet suivant
+             *  If the signature of the current package failed, we increment $signError to indicate an error and we exit the loop to not process the next package
              */
             if ($myprocess->getExitCode() != 0) {
+                echo '<code class="bkg-red font-size-11">KO</code>' . PHP_EOL . 'Error while signing package <span class="copy"><code>' . $rpmFile . '</code></span>: ' . $output . PHP_EOL;
                 $signError++;
                 break;
             }
 
             $myprocess->close();
+
+            echo '<code class="bkg-green font-size-11">OK</code>' . PHP_EOL;
 
             $packageCounter++;
         }
@@ -104,51 +108,7 @@ trait Sign
         $this->log->steplogWrite();
 
         /**
-         *  A vérifier car depuis l'écriture de la class Process, les erreurs semblent mieux gérées :
-         *
-         *  Si il y a un pb lors de la signature, celui-ci renvoie systématiquement le code 0 même si il est en erreur.
-         *  Du coup on vérifie directement dans l'output du programme qu'il n'y a pas eu de message d'erreur et si c'est le cas alors on incrémente $return
-         */
-        $noSecretKeyError = 0;
-        $gpgError = 0;
-        $canNotResignError = 0;
-        $signErrorGlobalMessage = '';
-
-        if (preg_match('/gpg: signing failed/', file_get_contents($this->log->getStepLog()), $matchErrorList)) {
-            $signError++;
-            if (!empty($matchErrorList)) {
-                foreach ($matchErrorList as $matchError) {
-                    $signErrorGlobalMessage .= $matchError . '<br>';
-                }
-            }
-        }
-        if (preg_match('/No secret key/', file_get_contents($this->log->getStepLog()), $matchErrorList)) {
-            $noSecretKeyError++;
-            if (!empty($matchErrorList)) {
-                foreach ($matchErrorList as $matchError) {
-                    $signErrorGlobalMessage .= $matchError . '<br>';
-                }
-            }
-        }
-        if (preg_match('/error: gpg/', file_get_contents($this->log->getStepLog()), $matchErrorList)) {
-            $gpgError++;
-            if (!empty($matchErrorList)) {
-                foreach ($matchErrorList as $matchError) {
-                    $signErrorGlobalMessage .= $matchError . '<br>';
-                }
-            }
-        }
-        if (preg_match("/Can't resign/", file_get_contents($this->log->getStepLog()), $matchErrorList)) {
-            $canNotResignError++;
-            if (!empty($matchErrorList)) {
-                foreach ($matchErrorList as $matchError) {
-                    $signErrorGlobalMessage .= $matchError . '<br>';
-                }
-            }
-        }
-
-        /**
-         *  Cas particulier, on affichera un warning si le message suivant a été détecté dans les logs
+         *  Specific case, we will display a warning if the following message has been detected in the logs
          */
         if (preg_match("/gpg: WARNING:/", file_get_contents($this->log->getStepLog()))) {
             ++$warning;
@@ -161,22 +121,21 @@ trait Sign
             $this->log->stepWarning();
         }
 
+        /**
+         *  If there was an error, delete what has been done
+         */
         if ($signError != 0) {
             /**
-             *  Si l'action est reconstruct alors on ne supprime pas ce qui a été fait (sinon ça supprime le repo!)
+             *  If the action is reconstruct then we do not delete what has been done (otherwise it deletes the repo!)
              */
             if ($this->operation->getAction() != "reconstruct") {
                 /**
-                 *  Suppression de ce qui a été fait :
+                 *  Delete what has been done
                  */
                 \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
             }
 
-            if (!empty($signErrorGlobalMessage)) {
-                throw new Exception('packages signature has failed: ' . $signErrorGlobalMessage);
-            } else {
-                throw new Exception('packages signature has failed');
-            }
+            throw new Exception('Packages signature has failed');
         }
 
         $this->log->stepOK();

@@ -224,6 +224,27 @@
 
                     <div class="settings-div">
                         <div>
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Some package in a repository may not be signed at all and will throw an error when 'Check GPG signatures' is enabled. This parameter allows you to ignore this error and download the package anyway. Warning: this will not ignore error when the package signature is present but invalid.">
+                        </div>
+                        <div>
+                            <p>Ignore error when package signature is missing</p>
+                        </div>
+                        <div>
+                            <label class="onoff-switch-label">
+                                <input class="settings-param onoff-switch-input" param-name="rpmSignIgnoreMissingSignature" type="checkbox" value="yes" <?php echo (RPM_SIGN_IGNORE_MISSING_SIGNATURE == "true") ? 'checked' : ''; ?>>
+                                <span class="onoff-switch-slider"></span>
+                            </label>
+                        </div>
+                        <div>
+                            <?php
+                            if (empty(RPM_SIGN_IGNORE_MISSING_SIGNATURE)) {
+                                echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                            } ?>
+                        </div>
+                    </div>
+
+                    <div class="settings-div">
+                        <div>
                             <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Default release version to use when creating RPM repositories." />
                         </div>
                         <div>
@@ -469,27 +490,6 @@
 
                 <?php
                 if (PLANS_ENABLED == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Allow planifications to update repositories. This option is no longer useful, it will be deprecated soon, and enabled by default." />
-                        </div>
-                        <div>
-                            <p>Allow planifications to update repositories</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="plansUpdateRepo" type="checkbox" value="yes" <?php echo (PLANS_UPDATE_REPO == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(PLANS_UPDATE_REPO)) {
-                                echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </div>
-                    </div>
-
                     <div class="settings-div">
                         <div>
                             <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Allow planifications to delete the oldest snapshots of repositories based on the configured retention parameter." />

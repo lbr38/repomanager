@@ -99,6 +99,14 @@ class Settings
             }
         }
 
+        if (!empty($sendSettings['rpmSignIgnoreMissingSignature'])) {
+            if ($sendSettings['rpmSignIgnoreMissingSignature'] == "true") {
+                $settingsToApply['RPM_SIGN_IGNORE_MISSING_SIGNATURE'] = 'true';
+            } else {
+                $settingsToApply['RPM_SIGN_IGNORE_MISSING_SIGNATURE'] = 'false';
+            }
+        }
+
         if (!empty($sendSettings['releasever']) and is_numeric($sendSettings['releasever'])) {
             $settingsToApply['RELEASEVER'] = $sendSettings['releasever'];
         }
@@ -201,14 +209,6 @@ class Settings
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'true';
             } else {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'false';
-            }
-        }
-
-        if (!empty($sendSettings['plansUpdateRepo'])) {
-            if ($sendSettings['plansUpdateRepo'] == "true") {
-                $settingsToApply['PLANS_UPDATE_REPO'] = 'true';
-            } else {
-                $settingsToApply['PLANS_UPDATE_REPO'] = 'false';
             }
         }
 

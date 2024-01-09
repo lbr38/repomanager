@@ -23,7 +23,7 @@ if (!empty($groupsList)) {
          */
         $reposCount = count(array_unique(array_column($reposList, 'repoId'))); ?>
 
-        <div class="repos-list-group div-generic-blue" group="<?= $group['Name'] ?>">
+        <div class="repos-list-group div-generic-blue veil-on-reload" group="<?= $group['Name'] ?>">
             <img src="/assets/icons/up.svg" class="hideGroup pointer float-right icon-lowopacity" group-id="<?= $group['Id'] ?>" state="visible" />
             <div>
                 <p class="font-size-16"><?= $group['Name'] ?></p>

@@ -13,10 +13,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function getRepoMd(string $url)
     {
-        $this->logOutput(PHP_EOL . '- Getting <b>repomd.xml</b> from ' . $url . '/repodata/repomd.xml ... ');
+        $this->logOutput(PHP_EOL . 'Getting <code>repomd.xml</code> from <span class="copy">' . $url . '/repodata/repomd.xml</span> ... ');
 
         if (!$this->download($url . '/repodata/repomd.xml', $this->workingDir . '/repomd.xml')) {
-            $this->logError('error', 'Could not download repomd.xml');
+            $this->logError('error', 'Could not download <code>repomd.xml</code>');
         }
 
         $this->logOK();
@@ -27,10 +27,10 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
      */
     private function getPackagesList(string $url, string $checksum)
     {
-        $this->logOutput(PHP_EOL . '- Getting <b>primary.xml.gz</b> from ' . $url . ' ... ');
+        $this->logOutput(PHP_EOL . 'Getting <code>primary.xml.gz</code> from <span class="copy">' . $url . '</span> ... ');
 
         if (!$this->download($url, $this->workingDir . '/primary.xml.gz')) {
-            throw new Exception('Could not download primary.xml.gz');
+            throw new Exception('Could not download <code>primary.xml.gz</code>');
         }
 
         /**
@@ -40,7 +40,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         if (hash_file('sha512', $this->workingDir . '/primary.xml.gz') != $checksum) {
             if (hash_file('sha256', $this->workingDir . '/primary.xml.gz') != $checksum) {
                 if (hash_file('sha1', $this->workingDir . '/primary.xml.gz') != $checksum) {
-                    throw new Exception('Error: primary.xml.gz checksum does not match provided checksum');
+                    throw new Exception('<code>primary.xml.gz</code> checksum does not match provided checksum');
                 }
             }
         }
@@ -54,7 +54,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
     private function parseRepoMd()
     {
         if (!file_exists($this->workingDir . '/repomd.xml')) {
-            $this->logError('Could not parse ' . $this->workingDir . '/repomd.xml: File not found');
+            $this->logError('Could not parse <code>' . $this->workingDir . '/repomd.xml</code>: File not found');
         }
 
         /**
@@ -134,7 +134,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         $error = 0;
         $this->rpmPackagesLocation = array();
 
-        $this->logOutput(PHP_EOL . '- Retrieving packages list from ' . $primaryFile . ' ... ');
+        $this->logOutput(PHP_EOL . 'Retrieving packages list from <span class="copy">' . $primaryFile . '</span> ... ');
 
         /**
          *  Get primary.xml.gz mime type
@@ -159,7 +159,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 $primaryFile = \Controllers\Common::gunzip($primaryFile);
             }
         } catch (Exception $e) {
-            $this->logError($e, 'Error while uncompressing primary.xml.gz');
+            $this->logError($e, 'Error while uncompressing <code>primary.xml.gz</code>');
         }
 
         /**
@@ -171,7 +171,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          *  Check that primary.xml file exists
          */
         if (!file_exists($primaryFile)) {
-            $this->logError('Could not parse ' . $primaryFile . ': File not found after uncompressing primary.xml.gz');
+            $this->logError('Could not parse ' . $primaryFile . ': File not found after uncompressing <code>primary.xml.gz</code>');
         }
 
         /**
@@ -336,7 +336,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Print URL from which packages are downloaded
          */
-        $this->logOutput(PHP_EOL . '- Downloading packages from: ' . $url . PHP_EOL);
+        $this->logOutput(PHP_EOL . 'Downloading packages from <span class="copy">' . $url . '</span>:' . PHP_EOL);
 
         /**
          *  Count total packages to print progression during syncing
@@ -368,7 +368,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... ');
+            $this->logOutput('<span class="opacity-80-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $rpmPackageLocation . ' ... </span>');
 
             /**
              *  Check that package architecture is valid
@@ -459,9 +459,25 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                 /**
                  *  Parse package's GPG signing key Id from header content
                  */
+
+                /**
+                 *  If no key ID has been found in the package header, throw an error unless RPM_SIGN_IGNORE_MISSING_SIGNATURE is set to true
+                 */
                 if (!preg_match('/key ID(.*) /i', $content, $matches)) {
-                    $this->logError('GPG signing key ID is not found in the package header', 'Could not verify GPG signatures');
+                    /**
+                     *  If RPM_SIGN_IGNORE_MISSING_SIGNATURE is set to true, then just ignore the missing signature and continue (process next package)
+                     */
+                    if (RPM_SIGN_IGNORE_MISSING_SIGNATURE == 'true') {
+                        $this->logWarning('This package has no GPG signature (GPG signing key ID not found in the package header) (downloaded anyway)');
+                        continue;
+                    }
+
+                    $this->logError('This package has no GPG signature (GPG signing key ID not found in the package header)', 'GPG signature check failed');
                 }
+
+                /**
+                 *  If there is a key ID in the package header, check if it is in the known public keys Id
+                 */
 
                 /**
                  *  Retrieve GPG signing key Id from $matches
@@ -478,7 +494,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                  *  If not, throw an error, else, signature is OK
                  */
                 if (!preg_grep("/$keyId\$/i", $knownPublicKeys)) {
-                    $this->logError('signature is not OK', 'Package has invalid signature');
+                    $this->logError('GPG signature is not OK (unknown GPG signing key ID: ' . $keyId . ')', 'GPG signature check failed');
                 }
             }
 
@@ -576,7 +592,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
          */
 
         foreach ($this->archUrls as $url) {
-            if (!\Controllers\Common::urlFileExists($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            if (!\Controllers\Common::urlReachable($url . '/repodata/repomd.xml', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
                 /**
                  *  Remove unreachable URL from array
                  */
@@ -584,7 +600,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
                     unset($this->archUrls[$key]);
                 }
             } else {
-                $this->logOutput(' - ' . $url . PHP_EOL);
+                $this->logOutput(' • <span class="copy">' . $url . '</span>' . PHP_EOL);
             }
         }
 

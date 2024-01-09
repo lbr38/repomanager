@@ -811,7 +811,7 @@ class Planification
             <div class="div-generic-blue">
                 <p class="redtext"><?= $planErrorMessage ?></p><br>
         
-                <p><b>Plan details:</b></p>
+                <p><b>Planification details:</b></p>
                 <table>
                     <tr>
                         <td><b>Action: </b></td>
@@ -928,7 +928,7 @@ class Planification
                     $mailPreview = 'A regular plan has completed.';
                 }
 
-                $mailMessage = 'This plan has completed successfully.' . PHP_EOL;
+                $mailMessage = 'This planification has completed successfully.' . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message
@@ -959,7 +959,7 @@ class Planification
                     $mailPreview = 'A regular plan has failed.';
                 }
 
-                $mailMessage = 'This plan has encountered an error.' . PHP_EOL;
+                $mailMessage = 'This planification encountered an error.' . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message
@@ -1153,10 +1153,6 @@ class Planification
          *  Action param check
          */
         if ($this->action == 'update') {
-            if (PLANS_UPDATE_REPO != 'true') {
-                throw new Exception('Planification is not allowed to update repositories');
-            }
-
             if (empty($this->targetGpgCheck)) {
                 throw new Exception('Source repository GPG signature check is not specified');
             }

@@ -26,7 +26,7 @@
                      */
                     if (!empty($item['Id_group'])) {
                         if ($mygroup->existsId($item['Id_group']) === false) {
-                            echo 'Unknown group (deleted)';
+                            echo '<span>Unknown group (deleted)</span>';
                         } else {
                             echo '<span class="label-white">' . $mygroup->getNameById($item['Id_group']) . '</span> <span>group</span>';
                         }

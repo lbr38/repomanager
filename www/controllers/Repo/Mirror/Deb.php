@@ -7,30 +7,38 @@ use Exception;
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
     /**
+     *  Check that source repository is reachable
+     */
+    private function checkUrl()
+    {
+        if (!\Controllers\Common::urlReachable($this->url . '/dists/', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+            $this->logError('Cannot reach source repository: <code>' . $this->url . '</code>. Is the URL correct? ', 'Source repository is unreachable');
+        }
+    }
+
+    /**
      *  Download Release file
      */
     private function getReleaseFile()
     {
-        $this->logOutput(PHP_EOL . '- Getting <b>Release</b> file ... ');
+        $this->logOutput(PHP_EOL . 'Getting <code>Release</code> file ... ');
 
         /**
          *  Check that Release.xx file exists before downloading it to prevent error message displaying for nothing
          */
-        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/InRelease', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-            $this->download($this->url . '/dists/' . $this->dist . '/InRelease', $this->workingDir . '/InRelease');
-        }
-        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-            $this->download($this->url . '/dists/' . $this->dist . '/Release', $this->workingDir . '/Release');
-        }
-        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-            $this->download($this->url . '/dists/' . $this->dist . '/Release.gpg', $this->workingDir . '/Release.gpg');
+        $releasePossibleNames = array('InRelease', 'Release', 'Release.gpg');
+
+        foreach ($releasePossibleNames as $releaseFile) {
+            if (\Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                $this->download($this->url . '/dists/' . $this->dist . '/' . $releaseFile, $this->workingDir . '/' . $releaseFile);
+            }
         }
 
         /**
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            $this->logError('No Release file has been found in the source repository ' . $this->url . '/dists/' . $this->dist . '/ (looked for InRelease, Release and Release.gpg)', 'Release file not found');
+            $this->logError('No <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>)', '<code>Release</code> file not found');
         }
 
         $this->logOK();
@@ -58,7 +66,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If the arch is 'src' then the indices file is named 'Sources'
              */
             if ($arch == 'src') {
-                $this->logOutput(PHP_EOL . '- Searching for <b>Sources</b> indices file location ... ');
+                $this->logOutput(PHP_EOL . 'Searching for <code>Sources</code> indices file location ... ');
 
                 /**
                  *  Sources pattern to search in the Release file
@@ -71,7 +79,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If the arch is not 'src' then the indices file is named 'Packages'
              */
             if ($arch != 'src') {
-                $this->logOutput(PHP_EOL . '- Searching for <b>Packages</b> indices file location for arch: <b>' . $arch . '</b>... ');
+                $this->logOutput(PHP_EOL . 'Searching for <code>Packages</code> indices file location for arch <code>' . $arch . '</code>... ');
 
                 /**
                  *  Packages pattern to search in the Release file
@@ -101,7 +109,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                         /**
                          *  Include this Packages.xx/Sources.xx file only if it does really exist on the remote server (sometimes it can be declared in Release but not exists...)
                          */
-                        if (\Controllers\Common::urlFileExists($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
+                        if (\Controllers\Common::urlReachable($this->url . '/dists/' . $this->dist . '/' . $location, $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
                             if ($arch == 'src') {
                                 $this->sourcesIndicesLocation[] = array('location' => $location, 'checksum' => $checksum);
                             }
@@ -124,10 +132,10 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  If no Packages.xx/Sources.xx file has been found for this arch, throw an error
              */
             if ($arch == 'src') {
-                $this->logError('No ' . $arch . ' Sources indices file has been found in the Release file.', 'Cannot retrieve ' . $arch . ' Packages indices file');
+                $this->logError('No ' . $arch . ' <code>Sources</code> indices file has been found in the <code>Release</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
             }
             if ($arch != 'src') {
-                $this->logError('No ' . $arch . ' Packages indices file has been found in the Release file.', 'Cannot retrieve ' . $arch . ' Packages indices file');
+                $this->logError('No ' . $arch . ' <code>Packages</code> indices file has been found in the <code>Release</code> file.', 'Cannot retrieve <code>' . $arch . '</code> <code>Packages</code> indices file');
             }
         }
 
@@ -135,17 +143,17 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Throw an error if no Packages indices file location has been found
          */
         if (empty($this->packagesIndicesLocation)) {
-            $this->logError('No Packages indices file location has been found.', 'Cannot retrieve Packages indices file');
+            $this->logError('No <code>Packages</code> indices file location has been found.', 'Cannot retrieve <code>Packages</code> indices file');
         }
         if (in_array('src', $this->arch) and empty($this->sourcesIndicesLocation)) {
-            $this->logError('No Sources indices file location has been found.', 'Cannot retrieve Sources indices file');
+            $this->logError('No <code>Sources</code> indices file location has been found.', 'Cannot retrieve <code>Sources</code> indices file');
         }
 
         /**
          *  Process research of Translation files for each requested translation language
          */
         if (!empty($this->translation)) {
-            $this->logOutput(PHP_EOL . '- Searching for <b>Translation</b> file(s) location ... ');
+            $this->logOutput(PHP_EOL . 'Searching for <code>Translation</code> file(s) location ... ');
 
             foreach ($this->translation as $translation) {
                 /**
@@ -179,7 +187,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Throw an error if no Translation file location has been found
              */
             if (empty($this->translationsLocation)) {
-                $this->logError('No Translation file location has been found. There may have no translation available for this repository.', 'Cannot retrieve translations files');
+                $this->logError('No <code>Translation</code> file location has been found. There may have no translation available for this repository.', 'Cannot retrieve translations files');
             }
 
             $this->logOK();
@@ -193,7 +201,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
      */
     private function parsePackagesIndiceFile()
     {
-        $this->logOutput(PHP_EOL . '- Retrieving deb packages list ... ');
+        $this->logOutput(PHP_EOL . 'Retrieving deb packages list ... ');
 
         /**
          *  Process research for each Package file (could have multiple if multiple archs have been specified)
@@ -208,14 +216,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download Packages.xx file using its location
              */
             if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $packageIndicesLocation, $this->workingDir . '/' . $packageIndicesName)) {
-                $this->logError('Error while downloading ' . $packageIndicesName . ' indices file: ' . $this->url . '/' . $packageIndicesLocation, 'Could not download ' . $packageIndicesName . ' indices file');
+                $this->logError('Error while downloading <code>' . $packageIndicesName . '</code> indices file: <code>' . $this->url . '/' . $packageIndicesLocation . '</code>', 'Could not download <code>' . $packageIndicesName . '</code> indices file');
             }
 
             /**
              *  Then check that the Packages.xx file's checksum matches the one that what specified in Release file
              */
             if (hash_file('sha256', $this->workingDir . '/' . $packageIndicesName) !== $packageIndicesChecksum) {
-                $this->logError($packageIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $packageIndicesChecksum, 'Could not verify Packages indices file');
+                $this->logError('<code>' . $packageIndicesName . '</code> indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
             }
 
             /**
@@ -225,14 +233,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing ' . $packageIndicesName);
+                    $this->logError($e, 'Error while uncompressing <code>' . $packageIndicesName . '</code>');
                 }
             }
             if (preg_match('/.xz$/i', $packageIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $packageIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing ' . $packageIndicesName);
+                    $this->logError($e, 'Error while uncompressing <code>' . $packageIndicesName . '</code>');
                 }
             }
 
@@ -277,7 +285,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Quit if no packages have been found
          */
         if (empty($this->debPackagesLocation)) {
-            $this->logError('No packages found in Packages indices file');
+            $this->logError('No packages found in <code>Packages</code> indices file');
         }
 
         $this->logOK();
@@ -295,7 +303,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput(PHP_EOL . '- Retrieving sources packages list ... ');
+        $this->logOutput(PHP_EOL . 'Retrieving sources packages list ... ');
 
         /**
          *  Process research for each Sources file
@@ -310,14 +318,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Download Sources file using its location
              */
             if (!$this->download($this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, $this->workingDir . '/' . $sourcesIndicesName)) {
-                $this->logError('Error while downloading ' . $sourcesIndicesName . ' indices file: ' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation, 'Could not download Sources indices file');
+                $this->logError('Error while downloading <code>' . $sourcesIndicesName . '</code> indices file: <code>' . $this->url . '/dists/' . $this->dist . '/' . $sourcesIndicesLocation . '</code>', 'Could not download <code>Sources</code> indices file');
             }
 
             /**
              *  Then check that the Sources.xx file's checksum matches the one that what specified in Release file
              */
             if (hash_file('sha256', $this->workingDir . '/' . $sourcesIndicesName) !== $sourcesIndexChecksum) {
-                $this->logError($sourcesIndicesName . ' indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the Release file ' . $packageIndicesChecksum, 'Could not verify Packages indices file');
+                $this->logError('<code>' . $sourcesIndicesName . '</code> indices file\'s SHA256 checksum does not match the SHA256 checksum specified in the <code>Release</code> file ' . $packageIndicesChecksum, 'Could not verify <code>Packages</code> indices file');
             }
 
             /**
@@ -327,14 +335,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
                 try {
                     \Controllers\Common::gunzip($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing ' . $sourcesIndicesName);
+                    $this->logError($e, 'Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
                 }
             }
             if (preg_match('/.xz$/i', $sourcesIndicesName)) {
                 try {
                     \Controllers\Common::xzUncompress($this->workingDir . '/' . $sourcesIndicesName);
                 } catch (Exception $e) {
-                    $this->logError($e, 'Error while uncompressing ' . $sourcesIndicesName);
+                    $this->logError($e, 'Error while uncompressing <code>' . $sourcesIndicesName . '</code>');
                 }
             }
 
@@ -435,7 +443,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Quit if no sources packages have been found
          */
         if (empty($this->sourcesPackagesLocation)) {
-            $this->logError('No packages found in Sources indices file');
+            $this->logError('No packages found in <code>Sources</code> indices file');
         }
 
         $this->logOK();
@@ -453,7 +461,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             return;
         }
 
-        $this->logOutput('- Checking Release GPG signature ... ');
+        $this->logOutput(PHP_EOL . 'Checking <code>Release</code> GPG signature ... ');
 
         /**
          *  Check signature from InRelease file in priority, else from Release.gpg file
@@ -492,7 +500,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  If gpgv returned an error then signature is invalid
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('No GPG key could verify the signature of downloaded file ' . $signatureFile . ': ' . PHP_EOL . $output, 'Error while checking GPG signature');
+            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'Error while checking GPG signature');
         }
     }
 
@@ -511,14 +519,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          */
         if (!is_dir($targetDir)) {
             if (!mkdir($targetDir, 0770, true)) {
-                $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+                $this->logError('Cannot create directory: <code>' . $targetDir . '</code>', 'Error while creating target directory');
             }
         }
 
         /**
          *  Print URL from which packages are downloaded
          */
-        $this->logOutput(PHP_EOL . '- Downloading packages from: ' . $url . PHP_EOL);
+        $this->logOutput(PHP_EOL . 'Downloading packages from <span class="copy"><code>' . $url . '</code></span>:' .PHP_EOL);
 
         /**
          *  Count total packages to print progression during syncing
@@ -546,7 +554,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output package to download to log file
              */
-            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... ');
+            $this->logOutput('<span class="mediumopacity-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
@@ -601,14 +609,14 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          */
         if (!is_dir($targetDir)) {
             if (!mkdir($targetDir, 0770, true)) {
-                $this->logError('Cannot create directory: ' . $targetDir, 'Error while creating target directory');
+                $this->logError('Cannot create directory: <code>' . $targetDir . '</code>', 'Error while creating target directory');
             }
         }
 
         /**
          *  Print URL from which sources packages are downloaded
          */
-        $this->logOutput(PHP_EOL . '- Downloading sources packages from: ' . $url . PHP_EOL);
+        $this->logOutput(PHP_EOL . 'Downloading sources packages from <span class="copy"><code>' . $url . '</code></span>:' . PHP_EOL);
 
         /**
          *  Count total packages to print progression during syncing
@@ -636,7 +644,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
             /**
              *  Output source package to download to log file
              */
-            $this->logOutput('(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $sourcePackageLocation . ' ... ');
+            $this->logOutput('<span class="mediumopacity-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $sourcePackageLocation . ' ... </span>');
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
@@ -727,6 +735,11 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     public function mirror()
     {
         $this->initialize();
+
+        /**
+         *  Check that source repository is reachable
+         */
+        $this->checkUrl();
 
         /**
          *  Try to download distant Release / InRelease file

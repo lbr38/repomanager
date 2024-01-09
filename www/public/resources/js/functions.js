@@ -160,6 +160,24 @@ function hideLoading()
 }
 
 /**
+ * Print a veil on specified element by class name, parent element must be relative
+ * @param {*} name
+ */
+function printLoadingVeilByClass(name)
+{
+    $('.' + name).append('<div class="loading-veil"><img src="/assets/images/loading.gif" class="icon" /><span class="lowopacity-cst">Loading</span></div>');
+}
+
+/**
+ * Find all child elements with class .veil-on-reload and print a veil on them, each element must be relative
+ * @param {*} name
+ */
+function printLoadingVeilByParentClass(name)
+{
+    $('.' + name).find('.veil-on-reload').append('<div class="loading-veil"><img src="/assets/images/loading.gif" class="icon" /><span class="lowopacity-cst">Loading</span></div>');
+}
+
+/**
  *  Slide div by class name or Id and save state in sessionStorage
  *  @param {*} name
  */
@@ -195,15 +213,6 @@ function slide(name)
 function reloadContentById(id)
 {
     $('#' + id).load(location.href + ' #' + id + ' > *');
-}
-
-/**
- * Rechargement du contenu d'un élément par sa classe
- * @param {string} className
- */
-function reloadContentByClass(className)
-{
-    $('.' + className).load(location.href + ' .' + className + ' > *');
 }
 
 /**
