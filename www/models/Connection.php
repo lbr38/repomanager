@@ -531,6 +531,7 @@ class Connection extends SQLite3
         /* RPM */
         RPM_REPO CHAR(5),
         RPM_SIGN_PACKAGES CHAR(5),
+        RPM_SIGN_IGNORE_MISSING_SIGNATURE CHAR(5),
         RELEASEVER CHAR(5),
         RPM_DEFAULT_ARCH VARCHAR(255),
         /* DEB */
@@ -543,7 +544,6 @@ class Connection extends SQLite3
         /* Planifications settings */
         PLANS_ENABLED CHAR(5),
         PLANS_REMINDERS_ENABLED CHAR(5),
-        PLANS_UPDATE_REPO CHAR(5),
         PLANS_CLEAN_REPOS CHAR(5),
         RETENTION INTEGER,
         /* Statistics & metrics settings */
@@ -583,6 +583,7 @@ class Connection extends SQLite3
                 MIRRORING_PACKAGE_DOWNLOAD_TIMEOUT,
                 RPM_REPO,
                 RPM_SIGN_PACKAGES,
+                RPM_SIGN_IGNORE_MISSING_SIGNATURE,
                 RELEASEVER,
                 RPM_DEFAULT_ARCH,
                 DEB_REPO,
@@ -592,7 +593,6 @@ class Connection extends SQLite3
                 GPG_SIGNING_KEYID,
                 PLANS_ENABLED,
                 PLANS_REMINDERS_ENABLED,
-                PLANS_UPDATE_REPO,
                 PLANS_CLEAN_REPOS,
                 RETENTION,
                 STATS_ENABLED,
@@ -610,6 +610,7 @@ class Connection extends SQLite3
                 '300',
                 'true',
                 'true',
+                'false',
                 '8',
                 'noarch,x86_64',
                 'true',
@@ -617,7 +618,6 @@ class Connection extends SQLite3
                 'amd64',
                 '',
                 '$gpgKeyId',
-                'false',
                 'false',
                 'false',
                 'false',

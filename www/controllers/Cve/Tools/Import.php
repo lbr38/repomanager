@@ -96,7 +96,7 @@ class Import
                 /**
                  *  Check that feed URL exist
                  */
-                if (\Controllers\Common::urlFileExists($feedUrl) === false) {
+                if (\Controllers\Common::urlReachable($feedUrl) === false) {
                     throw new Exception('Feed URL does not exist');
                 }
 

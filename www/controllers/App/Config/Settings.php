@@ -152,6 +152,14 @@ class Settings
             }
         }
 
+        if (!defined('RPM_SIGN_IGNORE_MISSING_SIGNATURE')) {
+            if (!empty($settings['RPM_SIGN_IGNORE_MISSING_SIGNATURE'])) {
+                define('RPM_SIGN_IGNORE_MISSING_SIGNATURE', $settings['RPM_SIGN_IGNORE_MISSING_SIGNATURE']);
+            } else {
+                define('RPM_SIGN_IGNORE_MISSING_SIGNATURE', 'false');
+            }
+        }
+
         if (!defined('RELEASEVER')) {
             if (!empty($settings['RELEASEVER'])) {
                 define('RELEASEVER', $settings['RELEASEVER']);
@@ -262,17 +270,6 @@ class Settings
                 define('PLANS_REMINDERS_ENABLED', $settings['PLANS_REMINDERS_ENABLED']);
             } else {
                 define('PLANS_REMINDERS_ENABLED', 'false');
-            }
-        }
-
-        if (!defined('PLANS_UPDATE_REPO')) {
-            if (!empty($settings['PLANS_UPDATE_REPO'])) {
-                define('PLANS_UPDATE_REPO', $settings['PLANS_UPDATE_REPO']);
-            } else {
-                define('PLANS_UPDATE_REPO', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to update repositories is not defined.";
-                }
             }
         }
 

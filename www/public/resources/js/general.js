@@ -164,6 +164,17 @@ function acquitLog(id)
  */
 function reloadPanel(panel, myfunction = null)
 {
+    /**
+     *  Print a loading icon on the bottom of the page
+     */
+    printLoading();
+
+    /**
+     *  Check if panel has children with class .veil-on-reload
+     *  If so print a veil on them
+     */
+    printLoadingVeilByParentClass('slide-panel-reloadable-div[slide-panel="' + panel + '"]');
+
     $('.slide-panel-reloadable-div[slide-panel="' + panel + '"]').load(' .slide-panel-reloadable-div[slide-panel="' + panel + '"] > *', function () {
         /**
          *  If myfunction is not null, execute it after reloading
@@ -177,6 +188,11 @@ function reloadPanel(panel, myfunction = null)
          */
         reloadOpenedClosedElements();
     });
+
+    /**
+     *  Hide loading icon
+     */
+    hideLoading();
 }
 
 /**
@@ -185,7 +201,16 @@ function reloadPanel(panel, myfunction = null)
  */
 function reloadContainer(container)
 {
+    /**
+     *  Print a loading icon on the bottom of the page
+     */
     printLoading();
+
+    /**
+     *  Check if container has children with class .veil-on-reload
+     *  If so print a veil on them
+     */
+    printLoadingVeilByParentClass('reloadable-container[container="' + container + '"]');
 
     $.ajax({
         type: "POST",
@@ -206,7 +231,7 @@ function reloadContainer(container)
             $('.reloadable-container[container="' + container + '"]').replaceWith(jsonValue.message);
 
             /**
-             *  Reload opened or closed elements that where opened/closed before reloading
+             *  Reload opened or closed elements that were opened/closed before reloading
              */
             reloadOpenedClosedElements();
         },
@@ -216,6 +241,9 @@ function reloadContainer(container)
         },
     });
 
+    /**
+     *  Hide loading icon
+     */
     hideLoading();
 }
 

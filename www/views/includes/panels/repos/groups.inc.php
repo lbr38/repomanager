@@ -22,7 +22,7 @@ if (!empty($repoGroupsList)) : ?>
         $reposNotIn = $mygroup->getReposNotMembers();
         $reposInCount = count($reposIn); ?>
 
-        <div class="table-container grid-fr-4-1 bck-blue-alt group-config-btn pointer" group-id="<?= $group['Id'] ?>">
+        <div class="table-container grid-fr-4-1 bck-blue-alt group-config-btn pointer veil-on-reload" group-id="<?= $group['Id'] ?>">
             <div>
                 <p><?= $group['Name'] ?></p>
                 <p class="lowopacity-cst"><?= $reposInCount ?> repo<?= $reposInCount > 1 ? 's' : '' ?></p>
@@ -33,7 +33,7 @@ if (!empty($repoGroupsList)) : ?>
             </div>
         </div>
 
-        <div class="group-config-div detailsDiv margin-bottom-5 hide" group-id="<?= $group['Id'] ?>">
+        <div class="group-config-div detailsDiv margin-bottom-5 hide veil-on-reload" group-id="<?= $group['Id'] ?>">
             <form class="group-form" group-id="<?= $group['Id'] ?>" autocomplete="off">
                 <div class="grid grid-fr-1-2 align-item-center column-gap-10">
                     <span>Name</span>

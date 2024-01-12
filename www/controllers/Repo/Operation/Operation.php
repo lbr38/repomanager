@@ -9,7 +9,6 @@ class Operation
     protected $repo;
     protected $operation;
     protected $log;
-
     protected $poolId;
 
     /**

@@ -5,22 +5,12 @@
     - Update documentation
 
 
-    [ STATS ]
-    
-    - logparser is sometimes using too much cpu, see how to improve
-    - repo stats retrieving is too slow when dealing with millions of lines in database, see how to improve
-
-
 [ BUGS ]
 
     [ GENERAL ]
 
 
     [ REPOS ]
-
-    - When mirroring with 'Check GPG signatures', see how to deal with the case of RPM packages that have no signatures, e.g :
-        wget https://repo.mysql.com/yum/mysql-connectors-community/el/7/x86_64/mysql-community-release-el7-5.noarch.rpm
-        /usr/bin/rpm -qp --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" mysql-community-release-el7-5.noarch.rpm
     - (KO) Mirror a debian repo with translations => translations are not included by reprepro
     - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
 
@@ -52,11 +42,6 @@
     - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
     - (DEB) Repository install: if the repository has 'src' packages, also add the 'deb-src' line to the installation command lines
     
-
-    [ SETTINGS ]
-
-    - Deprecate 'Allow planifications to update repositories' setting and enable it by default
-
 
     [ STATS ]
 

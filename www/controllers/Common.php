@@ -603,13 +603,16 @@ class Common
     }
 
     /**
-     *  Return true if distant URL file exists
+     *  Return true if distant URL is reachable
+     *  The target URL can be a file or a directory
      */
-    public static function urlFileExists(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
+    public static function urlReachable(string $url, string $sslCertificatePath = null, string $sslPrivateKeyPath = null)
     {
         $ch = curl_init($url);
+
         curl_setopt($ch, CURLOPT_NOBODY, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
         /**
          *  If a custom SSL certificate and key have been specified
          */
