@@ -359,7 +359,7 @@ if (!empty($groupsList)) {
                                         echo '<img class="client-configuration-btn icon-lowopacity" package-type="rpm" repo="' . $name . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
                                     }
                                     if ($packageType == 'deb') {
-                                        echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
+                                        echo '<img class="client-configuration-btn icon-lowopacity" package-type="deb" repo="' . $name . '" dist="' . $dist . '" section="' . $section . '" env="' . $env . '" arch="' . $arch . '" repo-dir-url="' . WWW_REPOS_DIR_URL . '" repo-conf-files-prefix="' . REPO_CONF_FILES_PREFIX . '" www-hostname="' . WWW_HOSTNAME . '" src="/assets/icons/terminal.svg" title="Show repo installation commands" />';
                                     }
                                 } ?>
                             </div>

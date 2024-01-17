@@ -27,41 +27,41 @@
     </div>
 </footer>
 
-<script src="/resources/js/functions.js"></script>
-<script src="/resources/js/general.js"></script>
-<script src="/resources/js/login.js"></script>
-<script src="/resources/js/notification.js"></script>
+<script src="/resources/js/functions.js?<?= VERSION ?>"></script>
+<script src="/resources/js/general.js?<?= VERSION ?>"></script>
+<script src="/resources/js/login.js?<?= VERSION ?>"></script>
+<script src="/resources/js/notification.js?<?= VERSION ?>"></script>
 <?php
-if (__ACTUAL_URI__[1] == "" or __ACTUAL_URI__[1] == "/") {
-    echo '<script src="/resources/js/repo.js"></script>';
-    echo '<script src="/resources/js/group.js"></script>';
-    echo '<script src="/resources/js/source.js"></script>';
+if (__ACTUAL_URI__[1] == "") {
+    echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "plans") {
-    echo '<script src="/resources/js/repo.js"></script>';
-    echo '<script src="/resources/js/group.js"></script>';
-    echo '<script src="/resources/js/plan.js"></script>';
-    echo '<script src="/resources/js/source.js"></script>';
+    echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/plan.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "hosts" or __ACTUAL_URI__[1] == "host") {
-    echo '<script src="/resources/js/host.js"></script>';
+    echo '<script src="/resources/js/host.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "browse") {
-    echo '<script src="/resources/js/browse.js"></script>';
+    echo '<script src="/resources/js/browse.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "profiles") {
-    echo '<script src="/resources/js/profile.js"></script>';
+    echo '<script src="/resources/js/profile.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "stats") {
-    echo '<script src="/resources/js/stats.js"></script>';
+    echo '<script src="/resources/js/stats.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "settings") {
-    echo '<script src="/resources/js/settings.js"></script>';
-    echo '<script src="/resources/js/environment.js"></script>';
+    echo '<script src="/resources/js/settings.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/environment.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "run") {
-    echo '<script src="/resources/js/run.js"></script>';
+    echo '<script src="/resources/js/run.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "cves") {
-    echo '<script src="/resources/js/cve.js"></script>';
+    echo '<script src="/resources/js/cve.js?' . VERSION . '"></script>';
 } ?>

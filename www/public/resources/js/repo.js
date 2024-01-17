@@ -421,33 +421,35 @@ $(document).on('submit','.operation-form-container',function () {
 });
 
 /**
- *  Event : génération de la configuration du repo à installer sur la machine cliente
+ *  Event: generate repo configuration for client
  */
 $(document).on('click','.client-configuration-btn',function () {
     /**
-     *  Suppression de tout autre éventuel div déjà affiché
+     *  Delete all other divs if any
      */
     $(".divReposConf").remove();
 
     /**
-     *  Récupération des infos du repo
+     *  Retrieve repo infos
      */
     var packageType = $(this).attr('package-type');
     var repoName = $(this).attr('repo');
     var repoEnv = $(this).attr('env');
 
     /**
-     *  Sur Debian on récupère également la distribution et la section
+     *  If packageType is 'deb' then retrieve dist and section
      */
     if (packageType == "deb") {
         var repoDist = $(this).attr('dist');
         var repoSection = $(this).attr('section');
+        var arch = $(this).attr('arch');
 
         /**
-         *  Si le nom de la distribution contient un slash, on le remplace
+         *  If dist name contains a slash, replace it by a dash to avoid creating a file with a slash in its name
          */
-        var repoDistFormatted = repoDist.replace('/', '--slash--');
+        var repoDistFormatted = repoDist.replace('/', '-');
     }
+
     var repo_dir_url = $(this).attr('repo-dir-url');
     var repo_conf_files_prefix = $(this).attr('repo-conf-files-prefix');
     var www_hostname = $(this).attr('www-hostname');
@@ -456,16 +458,24 @@ $(document).on('click','.client-configuration-btn',function () {
         var commands = 'echo -e "[' + repo_conf_files_prefix + '' + repoName + '_' + repoEnv + ']\nname=' + repoName + ' repo on ' + www_hostname + '\ncomment=' + repoName + ' repo on ' + www_hostname + '\nbaseurl=' + repo_dir_url + '/' + repoName + '_' + repoEnv + '\nenabled=1\ngpgkey=' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub\ngpgcheck=1" > /etc/yum.repos.d/' + repo_conf_files_prefix + '' + repoName + '.repo';
     }
     if (packageType == "deb") {
-        var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n\necho "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
+        var commands = 'curl -sS ' + repo_dir_url + '/gpgkeys/' + www_hostname + '.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/' + www_hostname + '.gpg\n\n';
+        commands    += 'echo "deb ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" > /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
+
+        /**
+         *  If 'src' arch is present in $arch then add src repo
+         */
+        if (arch.includes('src')) {
+            commands += '\necho "deb-src ' + repo_dir_url + '/' + repoName + '/' + repoDist + '/' + repoSection + '_' + repoEnv + ' ' + repoDist + ' ' + repoSection + '" >> /etc/apt/sources.list.d/' + repo_conf_files_prefix + '' + repoName + '_' + repoDistFormatted + '_' + repoSection + '.list';
+        }
     }
 
     /**
-     *  Génération du div
+     *  Generation of the div
      */
     $('body').append('<div class="divReposConf hide"><span><img title="Close" class="divReposConf-close close-btn lowopacity" src="/assets/icons/close.svg" /></span><h3>INSTALLATION</h3><h5>Use the code below to install the repo on a host:</h5><div id="divReposConfCommands-container"><pre id="divReposConfCommands">' + commands + '</pre><img src="/assets/icons/duplicate.svg" class="icon-lowopacity" title="Copy to clipboard" onclick="copyToClipboard(divReposConfCommands)" /></div></div>');
 
     /**
-     *  Affichage
+     *  Print
      */
     $('.divReposConf').show();
 });
