@@ -46,7 +46,7 @@ class File extends Service
                  */
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
-                        if (\Controllers\Common::dirIsEmpty($dir)) {
+                        if (\Controllers\Filesystem\Directory::isEmpty($dir)) {
                             echo $this->getDate() . ' Deleting ' . $dir . PHP_EOL;
                             if (!rmdir($dir)) {
                                 throw new Exception('Error while cleaning .temp directory: cannot delete directory <b>' . $dir . '</b>');
@@ -105,7 +105,7 @@ class File extends Service
                 if (!empty($dirs)) {
                     foreach ($dirs as $dir) {
                         if (filemtime($dir) < strtotime('-3 days')) {
-                            if (!\Controllers\Common::deleteRecursive($dir)) {
+                            if (!\Controllers\Filesystem\Directory::deleteRecursive($dir)) {
                                 $this->logController->log('error', 'Service', 'Error while cleaning temporary downloaded files: cannot delete directory <b>' . $dir . '</b>');
                             }
                         }

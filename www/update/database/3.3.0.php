@@ -72,7 +72,7 @@ if (!is_dir('/etc/yum.repos.d/repomanager')) {
     return;
 }
 
-if (\Controllers\Common::dirIsEmpty('/etc/yum.repos.d/repomanager')) {
+if (\Controllers\Filesystem\Directory::isEmpty('/etc/yum.repos.d/repomanager')) {
     return;
 }
 

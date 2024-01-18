@@ -210,11 +210,12 @@ class Host
     }
 
     /**
-     *  Récupère la liste des paquets disponibles pour mise à jour sur l'hôte
+     *  Retrieve the list of packages available for update on the host
+     *  It is possible to add an offset to the request
      */
-    public function getPackagesAvailable()
+    public function getPackagesAvailable(bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getPackagesAvailable();
+        return $this->model->getPackagesAvailable($withOffset, $offset);
     }
 
     /**
@@ -226,11 +227,12 @@ class Host
     }
 
     /**
-     *  Récupère les informations de toutes les actions effectuées sur les paquets de l'hôte (installation, mise à jour, désinstallation...)
+     *  Retrieve information about all actions performed on host packages (install, update, remove...)
+     *  It is possible to add an offset to the request
      */
-    public function getEventsHistory()
+    public function getEventsHistory(bool $withOffset = false, int $offset = 0)
     {
-        return $this->model->getEventsHistory();
+        return $this->model->getEventsHistory($withOffset, $offset);
     }
 
     /**
@@ -456,29 +458,22 @@ class Host
     }
 
     /**
-     *  Modifie les paramètres d'affichage sur la page des hotes
+     *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $pkgs_considered_outdated, string $pkgs_considered_critical)
+    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical)
     {
-        /**
-         *  Les paramètres suivants doivent être des chiffres
-         */
-        if (!is_numeric($pkgs_considered_outdated) or !is_numeric($pkgs_considered_critical)) {
-            Common::printAlert('Params must be numeric', 'error');
-            return;
+        if (!is_numeric($packagesConsideredOutdated) or !is_numeric($packagesConsideredCritical)) {
+            throw new Exception('Parameters must be numeric');
         }
 
         /**
-         *  Les paramètres doivent être supérieurs à 0
+         *  Parameters must be greater than 0
          */
-        if ($pkgs_considered_outdated <= 0 or $pkgs_considered_critical <= 0) {
-            Common::printAlert('Params must be greater than or equal to 0', 'error');
-            return;
+        if ($packagesConsideredOutdated <= 0 or $packagesConsideredCritical <= 0) {
+            throw new Exception('Parameters must be greater than 0');
         }
 
-        $this->model->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
-
-        Common::printAlert('Params have been taken into account', 'success');
+        $this->model->setSettings($packagesConsideredOutdated, $packagesConsideredCritical);
     }
 
     /**

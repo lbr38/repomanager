@@ -5,11 +5,11 @@
         /**
          *  Print running operations table
          */
-        \Controllers\Layout\Table\Render::render('operations/list-running', 0); ?>
+        \Controllers\Layout\Table\Render::render('operations/list-running'); ?>
 
         <?php
         /**
          *  Print done operations table
          */
-        \Controllers\Layout\Table\Render::render('operations/list-done', 0); ?>
+        \Controllers\Layout\Table\Render::render('operations/list-done'); ?>
 </section>

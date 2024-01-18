@@ -464,7 +464,7 @@
                 </div>
             </div>
 
-            <h3>PLANIFICATIONS</h3>
+            <h3>SCHEDULE TASKS</h3>
 
             <div class="div-generic-blue">
                 <div class="settings-div">
@@ -472,7 +472,7 @@
                         <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable task scheduling (updates of repositories on a desired date, time, or recurrence)." />
                     </div>
                     <div>
-                        <p>Enable planifications</p>
+                        <p>Enable task scheduling</p>
                     </div>
                     <div>
                         <label class="onoff-switch-label">

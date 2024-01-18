@@ -21,7 +21,7 @@
                     <span class="donut-legend-content"><?= $diskUsedSpace . '%' ?></span>
                     <?php
                         $donutChartName = 'donut-chart';
-                        include(ROOT . '/views/includes/index-donut.inc.php');
+                        include(ROOT . '/views/includes/charts/index-donut.inc.php');
                     ?>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Last planned task (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
+                                <a href="/plans">Last scheduled task (<?=DateTime::createFromFormat('Y-m-d', $lastPlan['Date'])->format('d-m-Y') . ' ' . $lastPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                         </div>
                         <div>
                             <span>
-                                <a href="/plans">Next planned task (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
+                                <a href="/plans">Next scheduled task (<?=DateTime::createFromFormat('Y-m-d', $nextPlan['Date'])->format('d-m-Y') . ' ' . $nextPlan['Time']?>)</a>
                             </span>
                         </div>
                     </div>

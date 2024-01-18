@@ -1009,17 +1009,14 @@ class Host extends Model
     }
 
     /**
-     *  Modifie les paramètres d'affichage sur la page des hotes
+     *  Edit the display settings on the hosts page
      */
-    public function setSettings(string $pkgs_considered_outdated, string $pkgs_considered_critical)
+    public function setSettings(string $packagesConsideredOutdated, string $packagesConsideredCritical)
     {
-        /**
-         *  Modification des paramètres en base de données
-         */
         try {
-            $stmt = $this->db->prepare("UPDATE settings SET pkgs_count_considered_outdated = :pkgs_considered_outdated, pkgs_count_considered_critical = :pkgs_considered_critical");
-            $stmt->bindValue(':pkgs_considered_outdated', $pkgs_considered_outdated);
-            $stmt->bindValue(':pkgs_considered_critical', $pkgs_considered_critical);
+            $stmt = $this->db->prepare("UPDATE settings SET pkgs_count_considered_outdated = :packagesConsideredOutdated, pkgs_count_considered_critical = :packagesConsideredCritical");
+            $stmt->bindValue(':packagesConsideredOutdated', $packagesConsideredOutdated);
+            $stmt->bindValue(':packagesConsideredCritical', $packagesConsideredCritical);
             $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
@@ -1087,33 +1084,39 @@ class Host extends Model
     }
 
     /**
-     *  Récupère la liste des paquets disponibles pour mise à jour sur l'hôte
+     *  Retrieve the list of packages available for update on the host
+     *  It is possible to add an offset to the request
      */
-    public function getPackagesAvailable()
+    public function getPackagesAvailable(bool $withOffset, int $offset)
     {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
-        */
-        if (empty($this->host_db)) {
-            return false;
-        }
-
-        /**
-         *  Récupération du total des paquets installés sur l'hôte
-         */
-        $datas = array();
+        $data = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM packages_available");
+            $query = "SELECT * FROM packages_available";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->host_db->prepare($query);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
     }
 
     /**
@@ -1148,34 +1151,43 @@ class Host extends Model
     }
 
     /**
-     *  Récupère les informations de toutes les actions effectuées sur les paquets de l'hôte (installation, mise à jour, désinstallation...)
+     *  Retrieve information about all actions performed on host packages (install, update, remove...)
+     *  It is possible to add an offset to the request
      */
-    public function getEventsHistory()
+    public function getEventsHistory(bool $withOffset, int $offset)
     {
-        /**
-         *  Si la BDD dédiée à l'hôte n'est pas instanciée dans $this->host_db alors on quitte
-         */
-        if (empty($this->host_db)) {
-            return false;
-        }
-
-        $datas = array();
+        $data = array();
 
         try {
-            $result = $this->host_db->query("SELECT * FROM events ORDER BY Date DESC, Time DESC");
+            $query = "SELECT * FROM events ORDER BY Date DESC, Time DESC";
+
+            /**
+             *  Add offset if needed
+             */
+            if ($withOffset === true) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->host_db->prepare($query);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
+            $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             /**
-             *  On ajoute une colonne Event_type au résultat afin de définir qu'il s'agit d'un 'event'. Sera utile au moment de l'affichage des données.
+             *  Add a column Event_type to the result to define that it is an 'event'. Will be useful when displaying data.
              */
             $row['Event_type'] = 'event';
-            $datas[] = $row;
+            $data[] = $row;
         }
 
-        return $datas;
+        return $data;
     }
 
     /**

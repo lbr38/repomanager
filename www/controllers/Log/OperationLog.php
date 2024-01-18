@@ -48,7 +48,9 @@ class OperationLog
             unlink(MAIN_LOGS_DIR . '/latest');
         }
 
-        exec("ln -sfn $this->location " . MAIN_LOGS_DIR . '/latest');
+        if (!symlink($this->location, MAIN_LOGS_DIR . '/latest')) {
+            throw new Exception('Error: cannot create symlink to log file');
+        }
     }
 
     public function getPid()

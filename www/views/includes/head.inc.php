@@ -49,7 +49,7 @@
     if (__ACTUAL_URI__[1] == "") {
         $title .= ' - Repos';
     } elseif (__ACTUAL_URI__[1] == "plans") {
-        $title .= ' - Planifications';
+        $title .= ' - Schedule tasks';
     } elseif (__ACTUAL_URI__[1] == "run") {
         $title .= ' - Operations';
     } elseif (__ACTUAL_URI__[1] == "browse") {

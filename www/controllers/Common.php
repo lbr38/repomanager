@@ -204,24 +204,6 @@ class Common
     }
 
     /**
-     *  Indique si un répertoire est vide ou non
-     */
-    public static function dirIsEmpty($dir)
-    {
-        $handle = opendir($dir);
-        while (false !== ($entry = readdir($handle))) {
-            if ($entry != "." && $entry != "..") {
-                closedir($handle);
-                return false;
-            }
-        }
-
-        closedir($handle);
-
-        return true;
-    }
-
-    /**
      *  Génère un nombre aléatoire en 10000 et 99999
      */
     public static function generateRandom()
@@ -488,29 +470,6 @@ class Common
     }
 
     /**
-     *  Delete specified directory recursively
-     */
-    public static function deleteRecursive(string $directoryPath)
-    {
-        /**
-         *  Return true if there is nothing to delete
-         */
-        if (!is_dir($directoryPath)) {
-            return true;
-        }
-
-        $myprocess = new Process('rm -rf "' . $directoryPath . '"');
-        $myprocess->execute();
-        $myprocess->close();
-
-        if ($myprocess->getExitCode() != 0) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      *  Uncompress bzip2 file
      */
     public static function bunzip2(string $filename, string $outputFilename = null)
@@ -519,9 +478,9 @@ class Common
          *  If a custom output filename has been specified
          */
         if (!empty($outputFilename)) {
-            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k -c ' . $filename . ' > ' . $outputFilename);
+            $myprocess = new \Controllers\Process('/usr/bin/bunzip2 --decompress -k -c ' . $filename . ' > ' . $outputFilename);
         } else {
-            $myprocess = new Process('/usr/bin/bunzip2 --decompress -k ' . $filename);
+            $myprocess = new \Controllers\Process('/usr/bin/bunzip2 --decompress -k ' . $filename);
         }
 
         $myprocess->execute();
@@ -590,7 +549,7 @@ class Common
      */
     public static function xzUncompress(string $filename)
     {
-        $myprocess = new Process('/usr/bin/xz --decompress ' . $filename);
+        $myprocess = new \Controllers\Process('/usr/bin/xz --decompress ' . $filename);
         $myprocess->execute();
         $content = $myprocess->getOutput();
         $myprocess->close();
@@ -744,8 +703,6 @@ class Common
             return '<img src="/assets/icons/products/filezilla.png" class="icon-np" />';
         } elseif (preg_match('/^java/i', $product)) {
             return '<img src="/assets/icons/products/java.png" class="icon-np" />';
-        } elseif (preg_match('/^fonts-/i', $product)) {
-            return '<img src="/assets/icons/products/fonts.png" class="icon-np" />';
         } elseif (preg_match('/^teams$/i', $product)) {
             return '<img src="/assets/icons/products/teams.png" class="icon-np" />';
         } elseif (preg_match('/^teamviewer$/i', $product)) {

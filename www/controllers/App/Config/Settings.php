@@ -254,7 +254,7 @@ class Settings
         }
 
         /**
-         *  Planifications settings
+         *  Scheduled tasks settings
          */
         if (!defined('PLANS_ENABLED')) {
             if (!empty($settings['PLANS_ENABLED'])) {

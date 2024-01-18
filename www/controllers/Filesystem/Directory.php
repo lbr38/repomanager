@@ -38,6 +38,29 @@ class Directory
     }
 
     /**
+     *  Delete specified directory recursively
+     */
+    public static function deleteRecursive(string $directoryPath)
+    {
+        /**
+         *  Return true if there is nothing to delete
+         */
+        if (!is_dir($directoryPath)) {
+            return true;
+        }
+
+        $myprocess = new \Controllers\Process('/usr/bin/rm -rf "' . $directoryPath . '"');
+        $myprocess->execute();
+        $myprocess->close();
+
+        if ($myprocess->getExitCode() != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      *  Get directory size in bytes
      */
     public static function getSize(string $path)
@@ -52,5 +75,25 @@ class Directory
         }
 
         return $bytestotal;
+    }
+
+    /**
+     *  Return true if directory is empty
+     */
+    public static function isEmpty($dir)
+    {
+        $handle = opendir($dir);
+
+        while (false !== ($entry = readdir($handle))) {
+            if ($entry != "." && $entry != "..") {
+                closedir($handle);
+
+                return false;
+            }
+        }
+
+        closedir($handle);
+
+        return true;
     }
 }

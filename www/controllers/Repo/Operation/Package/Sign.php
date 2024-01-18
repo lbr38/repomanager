@@ -126,13 +126,13 @@ trait Sign
          */
         if ($signError != 0) {
             /**
-             *  If the action is reconstruct then we do not delete what has been done (otherwise it deletes the repo!)
+             *  If the action is 'rebuild' then we do not delete what has been done (otherwise it deletes the repo!)
              */
-            if ($this->operation->getAction() != "reconstruct") {
+            if ($this->operation->getAction() != 'rebuild') {
                 /**
                  *  Delete what has been done
                  */
-                \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
+                \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
             }
 
             throw new Exception('Packages signature has failed');

@@ -8,7 +8,7 @@ class Operation
 {
     protected $repo;
     protected $operation;
-    protected $log;
+    public $log;
     protected $poolId;
 
     /**
@@ -55,12 +55,12 @@ class Operation
     }
 
     /**
-    *   Génération d'un tableau récapitulatif de l'opération
-    *   Valide pour :
-    *    - un nouveau repo/section
-    *    - une mise à jour de repo/section
-    *    - une reconstruction des métadonnées d'un repo/section
-    */
+     *  Generate a summary table for the operation
+     *  Valid for:
+     *   - a new repo/section
+     *   - an update of repo/section
+     *   - a rebuild of repo/section metadata
+     */
     protected function printDetails(string $title)
     {
         $this->log->step();
@@ -70,7 +70,7 @@ class Operation
         /**
          *  Affichage du tableau récapitulatif de l'opération
          */
-        include(ROOT . '/templates/tables/op-new-update-reconstruct.inc.php');
+        include(ROOT . '/templates/tables/op-new-update-rebuild.inc.php');
 
         $this->log->steplogWrite(ob_get_clean());
     }

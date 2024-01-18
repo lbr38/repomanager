@@ -468,7 +468,7 @@ article {
     margin-right: 5px;
 }
 
-.hostActionBtn {
+.host-action-btn {
     margin-top: 5px;
 }
 
@@ -813,6 +813,7 @@ footer #github img { width: 25px; }
 
     article {
         flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .section-main {

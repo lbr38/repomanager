@@ -38,32 +38,27 @@ class RemoveEnv extends Operation
         $this->operation->setType('manual');
 
         /**
-         *  Ce type d'opération ne comporte pas de réel poolId car elle est exécutée en dehors du process habituel
+         *  This operation type does not have a real poolId because it is executed outside the usual process
          */
         $this->operation->setPoolId('00000');
         $this->operation->setTargetSnapId($this->repo->getSnapId());
         $this->operation->setTargetEnvId($this->repo->getEnv());
         $this->operation->setLogfile($this->log->getName());
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->remove();
     }
 
     /**
      *  Remove snapshot environment
      */
-    private function remove()
+    public function execute()
     {
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
@@ -71,14 +66,14 @@ class RemoveEnv extends Operation
             ob_start();
 
             /**
-             *  1. Génération du tableau récapitulatif de l'opération
+             *  Generate operation summary table
              */
             include(ROOT . '/templates/tables/op-remove-env.inc.php');
 
             $this->log->step('DELETING');
 
             /**
-             *  2. Suppression du lien symbolique de l'environnement
+             *  Delete environment symlink
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if (file_exists(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getEnv())) {
@@ -92,14 +87,14 @@ class RemoveEnv extends Operation
             }
 
             /**
-             *  3. Suppression de l'environnement en base de données
+             *  Delete environment from database
              */
             $this->repo->removeEnv($this->repo->getEnvId());
 
             $this->log->stepOK();
 
             /**
-             *  Nettoyage automatique des snapshots inutilisés
+             *  Automatic cleaning of unused snapshots
              */
             $snapshotsRemoved = $this->repo->cleanSnapshots();
 
@@ -109,22 +104,22 @@ class RemoveEnv extends Operation
             }
 
             /**
-             *  Nettoyage des repos inutilisés dans les groupes
+             *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to done
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  Print a red error message in the log file
              */
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to error
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());

@@ -455,14 +455,14 @@ class Planification
          *  On vérifie que l'Id de planification spécifié existe en base de données
          */
         if ($this->model->existsId($this->id) === false) {
-            throw new Exception('Plan id ' . $this->id . 'does not exist');
+            throw new Exception('Task id ' . $this->id . 'does not exist');
         }
 
         /**
          *  On vérifie que la planification n'est pas déjà en cours d'exécution (eg. si quelqu'un l'a lancé en avance avec le paramètre exec-now)
          */
         if ($this->model->getStatus($this->id) == 'running') {
-            throw new Exception('This plan is already running');
+            throw new Exception('This task is already running');
         }
 
         /**
@@ -501,7 +501,7 @@ class Planification
          *  Si une erreur est catché alors on sort de la planification
          */
         } catch (\Exception $e) {
-            $this->close(1, 'Planification check error: ' . $e->getMessage());
+            $this->close(1, 'Scheduled task check error: ' . $e->getMessage());
             return;
         }
 
@@ -536,7 +536,8 @@ class Planification
                 );
 
                 try {
-                    $controller = new \Controllers\Repo\Operation\Update('0000', $operationParams);
+                    $updateController = new \Controllers\Repo\Operation\Update('0000', $operationParams);
+                    $updateController->execute();
                     $status = 'done';
                 } catch (\Exception $e) {
                     $status = 'error';
@@ -544,12 +545,17 @@ class Planification
                 }
 
                 /**
+                 *  Retrieve operation log location
+                 */
+                $logLocation = $updateController->log->getLocation();
+
+                /**
                  *  On ajoute le repo à la liste des repo traités par cette planification
                  */
                 if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                    $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status);
+                    $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status, 'Log' => $logLocation);
                 } else {
-                    $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status);
+                    $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status, 'Log' => $logLocation);
                 }
 
                 /**
@@ -636,21 +642,27 @@ class Planification
                     );
 
                     try {
-                        $controller = new \Controllers\Repo\Operation\Update('0000', $operationParams);
+                        $updateController = new \Controllers\Repo\Operation\Update('0000', $operationParams);
+                        $updateController->execute();
                         $status = 'done';
                     } catch (\Exception $e) {
                         $status = 'error';
                         $groupError++;
                     }
+
+                    /**
+                     *  Retrieve operation log location
+                     */
+                    $logLocation = $updateController->log->getLocation();
                 }
 
                 /**
                  *  On ajoute le repo et son status (error ou done) à la liste des repo traités par cette planifications
                  */
                 if (!empty($this->repo->getDist()) and !empty($this->repo->getSection())) {
-                    $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status);
+                    $processedRepos[] = array('Repo' => $this->repo->getName() . ' ❯ ' . $this->repo->getDist() . ' ❯ ' . $this->repo->getSection(), 'Status' => $status, 'Log' => $logLocation);
                 } else {
-                    $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status);
+                    $processedRepos[] = array('Repo' => $this->repo->getName(), 'Status' => $status, 'Log' => $logLocation);
                 }
             }
 
@@ -811,7 +823,7 @@ class Planification
             <div class="div-generic-blue">
                 <p class="redtext"><?= $planErrorMessage ?></p><br>
         
-                <p><b>Planification details:</b></p>
+                <p><b>Scheduled tasks details:</b></p>
                 <table>
                     <tr>
                         <td><b>Action: </b></td>
@@ -854,14 +866,12 @@ class Planification
             sleep(5);
 
             /**
-             *  Retrieve all operations logs
+             *  Retrieve all operations log content
              */
-            $logs = $this->getOperationLogName($this->id);
-
-            if (!empty($logs)) {
-                foreach ($logs as $log) {
-                    if (file_exists(LOGS_DIR . '/main/' . $log)) {
-                        $content .= file_get_contents(LOGS_DIR . '/main/' . $log) . '<br><hr><br>';
+            if (!empty($processedRepos)) {
+                foreach ($processedRepos as $repo) {
+                    if (file_exists($repo['Log'])) {
+                        $content .= file_get_contents($repo['Log']) . '<br><hr><br>';
                     }
                 }
             }
@@ -920,15 +930,15 @@ class Planification
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $mailSubject   = '[ OK ] - Planification #' . $this->id . ' on ' . WWW_HOSTNAME;
-                    $mailPreview = 'A plan has completed.';
+                    $mailSubject   = '[ OK ] - Scheduled task #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A task has completed.';
                 }
                 if ($this->type == 'regular') {
-                    $mailSubject   = '[ OK ] - Regular planification #' . $this->id . ' on ' . WWW_HOSTNAME;
-                    $mailPreview = 'A regular plan has completed.';
+                    $mailSubject   = '[ OK ] - Regular scheduled task #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A regular task has completed.';
                 }
 
-                $mailMessage = 'This planification has completed successfully.' . PHP_EOL;
+                $mailMessage = 'This task has completed successfully.' . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message
@@ -951,15 +961,15 @@ class Planification
                  *  Préparation du message à inclure dans le mail
                  */
                 if ($this->type == 'plan') {
-                    $mailSubject   = '[ ERROR ] - Planification #' . $this->id . ' on ' . WWW_HOSTNAME;
-                    $mailPreview = 'A plan has failed.';
+                    $mailSubject   = '[ ERROR ] - Scheduled task #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A task has failed.';
                 }
                 if ($this->type == 'regular') {
-                    $mailSubject   = '[ ERROR ] - Regular planification #' . $this->id . ' on ' . WWW_HOSTNAME;
-                    $mailPreview = 'A regular plan has failed.';
+                    $mailSubject   = '[ ERROR ] - Recurrent scheduled tasks #' . $this->id . ' on ' . WWW_HOSTNAME;
+                    $mailPreview = 'A recurrent task has failed.';
                 }
 
-                $mailMessage = 'This planification encountered an error.' . PHP_EOL;
+                $mailMessage = 'This scheduled task encountered an error.' . PHP_EOL;
 
                 /**
                  *  On ajoute le repo ou le groupe traité à la suite du message
@@ -1133,12 +1143,12 @@ class Planification
     }
 
     /**
-     *  Check planification params
+     *  Check scheduled tasks params
      */
     private function paramCheck()
     {
         if (PLANS_ENABLED != 'true') {
-            throw new Exception('Planifications are disabled');
+            throw new Exception('Scheduled tasks are disabled');
         }
 
         if (empty($this->action)) {

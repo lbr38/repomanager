@@ -577,9 +577,9 @@ class Repo extends \Models\Model
     }
 
     /**
-     *  Modification de l'état de reconstruction des métadonnées du snapshot
+     *  Set snapshot metadata rebuild state
      */
-    public function snapSetReconstruct(string $snapId, string $status = null)
+    public function snapSetRebuild(string $snapId, string $status = null)
     {
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Reconstruct = :status WHERE Id = :snapId");

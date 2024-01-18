@@ -1,12 +1,12 @@
 <script>
-// Données
+// Data
 var pieChartData = {
     datasets: [{
-        data: [<?=$datas?>],
-        backgroundColor: [<?=$backgrounds?>],
+        data: [<?= $datas ?>],
+        backgroundColor: [<?= $backgrounds ?>],
         borderWidth: 0.4,
     }],
-    labels: [<?=$labels?>],
+    labels: [<?= $labels ?>],
 };
 // Options
 var pieChartOptions = {
@@ -19,12 +19,12 @@ var pieChartOptions = {
         },
         title: {
             display: true,
-            text: '<?=$title?>'
+            text: '<?= $title ?>'
         }
     },
 }
-// Affichage du chart
-var ctx = document.getElementById('<?=$chartId?>').getContext("2d");
+// Print chart
+var ctx = document.getElementById('<?= $chartId ?>').getContext("2d");
 window.myPie = new Chart(ctx, {
     type: "pie",
     data: pieChartData,

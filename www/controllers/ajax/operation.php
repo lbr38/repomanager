@@ -46,7 +46,8 @@ if ($_POST['action'] == "removeEnv" and !empty($_POST['repoId'] and !empty($_POS
     $operationParams['envId'] = $_POST['envId'];
 
     try {
-        new \Controllers\Repo\Operation\RemoveEnv('00000', $operationParams);
+        $controller = new \Controllers\Repo\Operation\RemoveEnv('00000', $operationParams);
+        $controller->execute();
     } catch (\Exception $e) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
