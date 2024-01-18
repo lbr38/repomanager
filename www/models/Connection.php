@@ -541,7 +541,7 @@ class Connection extends SQLite3
         DEB_DEFAULT_TRANSLATION VARCHAR(255),
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
-        /* Planifications settings */
+        /* Scheduled tasks settings */
         PLANS_ENABLED CHAR(5),
         PLANS_REMINDERS_ENABLED CHAR(5),
         PLANS_CLEAN_REPOS CHAR(5),

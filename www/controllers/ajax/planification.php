@@ -87,7 +87,7 @@ if ($_POST['action'] == "newPlan") {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Plan has been created");
+    response(HTTP_OK, "Scheduled task has been created");
 }
 
 /**
@@ -102,7 +102,7 @@ if ($_POST['action'] == "deletePlan" and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Plan has been deleted");
+    response(HTTP_OK, "Scheduled task has been deleted");
 }
 
 /**
@@ -117,7 +117,7 @@ if ($_POST['action'] == "disablePlan" and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Recurrent plan has been disabled");
+    response(HTTP_OK, "Recurrent task has been disabled");
 }
 
 /**
@@ -132,7 +132,7 @@ if ($_POST['action'] == "enablePlan" and !empty($_POST['id'])) {
         response(HTTP_BAD_REQUEST, $e->getMessage());
     }
 
-    response(HTTP_OK, "Recurrent plan has been enabled");
+    response(HTTP_OK, "Recurrent task has been enabled");
 }
 
 response(HTTP_BAD_REQUEST, 'Invalid action');

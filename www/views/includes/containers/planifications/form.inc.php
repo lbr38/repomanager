@@ -1,7 +1,7 @@
 <div class="reloadable-container" container="planifications/form">
     <?php
     if (IS_ADMIN) : ?>
-        <h5>PLAN A TASK</h5>
+        <!-- <h5>SCHEDULE A TASK</h5> -->
 
         <form id="newPlanForm" class="div-generic-blue" autocomplete="off">
             <table class="table-large">

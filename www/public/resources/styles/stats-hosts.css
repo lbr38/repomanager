@@ -176,18 +176,6 @@ td:last-child,
     top: 4px;
     right: 10px;
 }
-.host-overview-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.host-overview-container > div {
-    width: 100%;
-}
-.host-pkg-history-container {
-    display: flex;
-    flex-direction: column;
-}
 
 .hosts-charts-container {
     display: grid;
@@ -257,11 +245,7 @@ td:last-child,
     display: flex;
 }
 
-#packagesContainer, #eventsContainer {
-    position: relative;
-}
-
-#packagesInstalledDiv {
+#installed-packages-div {
     padding: 5px;
 }
 
@@ -269,7 +253,7 @@ td:last-child,
     display: none;
 }
 
-.showEventDetails, .hosts-charts-list-label-hosts-list, #hosts-requiring-reboot-chart-list {
+.event-packages-details, .hosts-charts-list-label-hosts-list, #hosts-requiring-reboot-chart-list {
     display: none;
     position: absolute;
     left: 0;
@@ -285,7 +269,7 @@ td:last-child,
     -webkit-box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgba(0,0,0,0.15);
     box-shadow: 0px 10px 13px -12px #000000, 0px 0px 10px 2px rgb(0 0 0 / 15%);
 }
-.showEventDetails p {
+.event-packages-details p {
     margin-bottom: 5px;
 }
 
@@ -416,24 +400,24 @@ td:last-child,
     right: 4px;
 }
 
-.hostActionBtn-container {
+.host-action-btns-container {
     max-width: 300px;
     min-width: 300px;
     position: absolute;
     right: 80px;
-    top: -50px;
+    top: 70px;
     z-index: 1;
 }
 
-.hostActionBtn {
+.host-action-btn {
     display: none;
 }
 
-.hostActionBtn-action {
+.host-action-btn-action {
     text-align: right;
 }
 
-.hostActionBtn-container:hover .hostActionBtn {
+.host-action-btns-container:hover .host-action-btn {
     display: block;
 }
 
@@ -442,20 +426,6 @@ td:last-child,
     .groups-container {
         columns: 2;
         column-count: 2;
-    }
-
-    .host-overview-container {
-        flex-direction: row;
-    }
-
-    .host-pkg-history-container {
-        flex-direction: row;
-        justify-content: space-between;
-        column-gap: 20px;
-    }
-
-    .host-pkg-history-container > div {
-        width: 100%;
     }
 
     .packageDetails {

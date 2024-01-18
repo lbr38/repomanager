@@ -7,7 +7,6 @@ use Exception;
 class Update
 {
     private $model;
-    private $workingDir = '/tmp/repomanager-update_' . GIT_VERSION;
     private $sqlQueriesDir = ROOT . '/update/database';
 
     public function __construct()

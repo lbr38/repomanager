@@ -1,13 +1,5 @@
 classToSelect2('select.group-hosts-list', 'Add host...');
 
-$(document).ready(function () {
-    /**
-     *  Hide loading div and print hosts
-     */
-    $('#hostsDivLoading').hide();
-    $('#hostsDiv').show();
-});
-
 /**
  *  Fonctions
  */
@@ -17,34 +9,41 @@ $(document).ready(function () {
  */
 function filterPackage()
 {
-    // Declare variables
-    var input, filter, table, tr, td, i, txtValue;
+    var input, filter, i
 
-    input = document.getElementById("packagesIntalledSearchInput");
+    /**
+     *  Retrieve the input value
+     */
+    input = document.getElementById("installed-packages-search");
     filter = input.value.toUpperCase();
-    table = document.getElementById("packagesIntalledTable");
-    tr = table.getElementsByClassName("pkg-row");
 
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[0];
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
+    /**
+     *  Retrieve package rows
+     */
+    container = document.getElementById("installed-packages-container");
+    packageRow = container.getElementsByClassName("package-row");
+
+    /**
+     *  Loop through all rows, and hide those who don't match the search query
+     */
+    for (i = 0; i < packageRow.length; i++) {
+        /**
+         *  Retrieve current row package name and version
+         */
+        packageName = packageRow[i].getAttribute('packagename');
+        packageVersion = packageRow[i].getAttribute('packageversion');
+
+        /**
+         *  If a package name or version matches the filter, then show the row, else hide it
+         */
+        if (packageName && packageVersion) {
+            if (packageName.toUpperCase().indexOf(filter) > -1 || packageVersion.toUpperCase().indexOf(filter) > -1) {
+                packageRow[i].style.display = "";
             } else {
-                tr[i].style.display = "none";
+                packageRow[i].style.display = "none";
             }
         }
     }
-}
-
-/**
- *  Rechargement de la div des hôtes
- */
-function reloadHostsDiv()
-{
-    $("#hostsDiv").load(" #hostsDiv > *");
 }
 
 /**
@@ -502,6 +501,28 @@ $(document).on('submit','.group-form',function () {
 });
 
 /**
+ *  Event: Edit hosts settings
+ */
+$(document).on('submit','#hostsSettingsForm',function () {
+    event.preventDefault();
+
+    var packagesConsideredOutdated = $('input[name="settings-pkgs-considered-outdated"').val();
+    var packagesConsideredCritical = $('input[name="settings-pkgs-considered-critical"').val();
+
+    ajaxRequest(
+        'host',
+        'editSettings',
+        {
+            packagesConsideredOutdated: packagesConsideredOutdated,
+            packagesConsideredCritical: packagesConsideredCritical
+        },
+        ['hosts/list']
+    );
+
+    return false;
+});
+
+/**
  *  Event: when a host checkbox is checked
  */
 $(document).on('click',"input[name=checkbox-host\\[\\]]",function () {
@@ -597,7 +618,7 @@ $(document).on('click','.hostsActionBtn',function () {
 /**
  *  Event : lorsqu'on clique sur un bouton d'action 'Mettre à jour les paquets'... depuis la page d'un hote
  */
-$(document).on('click','.hostActionBtn',function () {
+$(document).on('click','.host-action-btn',function () {
 
     var hosts_array = [];
 
@@ -630,22 +651,24 @@ $(document).on('click','.hostActionBtn',function () {
  *  Affichage / masquage de l'inventaire des paquets présents sur l'hôte
  *  Affichage / masquage de la liste des paquets disponibles sur l'hôte
  */
-$(document).on('click','#packagesAvailableButton',function () {
-    $("#packagesInstalledDiv").hide();
-    if ($("#packagesAvailableDiv").is(":visible")) {
-        $("#packagesAvailableDiv").hide();
+$(document).on('click','#available-packages-btn',function () {
+    $("#installed-packages-div").hide();
+
+    if ($("#available-packages-div").is(":visible")) {
+        $("#available-packages-div").hide();
     } else {
-        $("#packagesAvailableDiv").show();
+        $("#available-packages-div").show();
     }
 });
-$(document).on('click','#packagesInstalledButton',function () {
-    $("#packagesAvailableDiv").hide();
-    if ($("#packagesInstalledDiv").is(":visible")) {
-        $("#packagesInstalledDiv").hide();
+$(document).on('click','#installed-packages-btn',function () {
+    $("#available-packages-div").hide();
+
+    if ($("#installed-packages-div").is(":visible")) {
+        $("#installed-packages-div").hide();
     } else {
         $("#packagesContainerLoader").show();
         setTimeout(function () {
-            $("#packagesInstalledDiv").show();
+            $("#installed-packages-div").show();
             $("#packagesContainerLoader").hide();
         },100);
     }
@@ -672,7 +695,7 @@ $(document).on('click','#print-all-events-btn',function () {
 /**
  *  Event : récupérer l'historique d'un paquet
  */
-$(document).on('click','.getPackageTimeline',function () {
+$(document).on('click','.get-package-timeline',function () {
     /**
      *  Si un historique est déjà affiché à l'écran on le détruit
      */
@@ -688,66 +711,66 @@ $(document).on('click','.getPackageTimeline',function () {
 });
 
 /**
- *  Event : Afficher le détail d'un évènement : liste les paquets installés ou mis à jour, etc... au passage de la souris
+ *  Event: Print the event details when mouse is over: list of installed or updated packages, etc...
  */
-$(document).on('mouseenter', '.showEventDetailsBtn', function (e) {
+$(document).on('mouseenter', '.event-packages-btn', function (e) {
     /**
-     *  Si un span showEventDetails a déjà été généré dans le DOM alors on le détruit
+     *  If a span event-packages-details has already been generated in the DOM then we destroy it
      */
-    $('.showEventDetails').remove();
+    $('.event-packages-details').remove();
 
     /**
-     *  On récupère l'Id de l'hôte
+     *  Retrieve host id
      */
     var hostId = $(this).attr('host-id');
 
     /**
-     *  On récupère l'Id de l'event et le type de paquet qu'on souhaite afficher (installation de paquet, mise à jour)
+     *  Retrieve the event id and the package state (installed, updated, removed)
      */
     var eventId = $(this).attr('event-id');
     var packageState = $(this).attr('package-state');
 
     /**
-     *  Create a new <div> showEventDetails
+     *  Create a new <div> event-packages-details
      */
-    $('footer').append('<div class="showEventDetails">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
+    $('footer').append('<div class="event-packages-details">Loading<img src="/assets/images/loading.gif" class="icon"/></div>');
 
     /**
      *  Get screen width
-     *  Then reduce the width of screen by 50px to have some margin
+     *  Then reduce the width of screen by 200px to have some margin
      */
     var screenWidth = window.screen.width;
-    screenWidth = screenWidth - 100;
+    screenWidth = screenWidth - 200;
 
     /**
-     *  If showEventDetails is outside the screen on the right
+     *  If event-packages-details is outside the screen on the right
      *  Then print it on the left of the mouse cursor
      */
-    if (e.pageX + $('.showEventDetails').width() >= screenWidth) {
-        $('.showEventDetails').css({
-            top: e.pageY - $('.showEventDetails').height() / 2,
-            left: e.pageX - $('.showEventDetails').width() - 10
+    if (e.pageX + $('.event-packages-details').width() >= screenWidth) {
+        $('.event-packages-details').css({
+            top: e.pageY - $('.event-packages-details').height() / 2,
+            left: e.pageX - $('.event-packages-details').width() - 10
         });
     /**
      * Else print it on the right of the mouse cursor
      */
     } else {
-        $('.showEventDetails').css({
-            top: e.pageY - $('.showEventDetails').height() / 2,
+        $('.event-packages-details').css({
+            top: e.pageY - $('.event-packages-details').height() / 2,
             left: e.pageX
         });
     }
 
-    $('.showEventDetails').show();
+    $('.event-packages-details').show();
 
     getEventDetails(hostId, eventId, packageState);
 });
 
 /**
- *  Event: Remove showEventDetails <div> from the DOM when mouse has leave
+ *  Event: Remove event-packages-details <div> from the DOM when mouse has leave
  */
-$(document).on('mouseleave', '.showEventDetails', function () {
-    $('.showEventDetails').remove();
+$(document).on('mouseleave', '.event-packages-details', function () {
+    $('.event-packages-details').remove();
 });
 
 /**
@@ -758,27 +781,6 @@ $(document).on('click','.packageDetails-close',function () {
     $(".packageDetails").hide('200');
     $(".packageDetails").remove();
 });
-
-/**
- *  Event : affichage ou non des demandes de mises à jour dans l'historique
- */
-$(document).on('click','#showUpdateRequests',function () {
-    /**
-     *  Si le slide est coché alors on affiche
-     */
-    if (this.checked) {
-        document.cookie = "showUpdateRequests=yes; Secure";
-
-    /**
-     *  Si le slide est décoché alors on masque
-     */
-    } else {
-        document.cookie = "showUpdateRequests=no; Secure";
-    }
-
-    $("#eventsContainer").load(" #eventsContainer > *");
-});
-
 
 /**
  * Ajax: Create a new group
@@ -801,7 +803,7 @@ function newGroup(name)
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
                 classToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadHostsDiv();
+            reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -831,7 +833,7 @@ function deleteGroup(id)
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
                 classToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadHostsDiv();
+            reloadContainer('hosts/list');
         },
         error: function (jqXHR, ajaxOptions, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -865,7 +867,7 @@ function editGroup(id, name, hostsId)
             printAlert(jsonValue.message, 'success');
             reloadPanel('hosts/groups', function () {
                 classToSelect2('select.group-hosts-list', 'Add host...'); });
-            reloadHostsDiv();
+            reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -895,7 +897,7 @@ function execAction(action, hosts_array)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            reloadHostsDiv();
+            // reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -1012,7 +1014,7 @@ function getEventDetails(hostId, eventId, packageState)
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            $('.showEventDetails').html('<div>' + jsonValue.message + '</div>');
+            $('.event-packages-details').html('<div>' + jsonValue.message + '</div>');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
@@ -1067,7 +1069,7 @@ function getHostWithKernel(kernel)
                 hosts += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
                 hosts += '<div>' + printOsIcon(os, os_family) + '</div>';
                 hosts += '<div class="flex flex-direction-column row-gap-4">';
-                hosts += '<span class="copy"><a href="/host?id=' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
+                hosts += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
                 hosts += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
                 hosts += '</div></div>';
             });
@@ -1127,7 +1129,7 @@ function getHostWithProfile(profile)
                 hosts += '<div class="flex align-item-center column-gap-10 div-generic-blue margin-bottom-0">';
                 hosts += '<div>' + printOsIcon(os, os_family) + '</div>';
                 hosts += '<div class="flex flex-direction-column row-gap-4">';
-                hosts += '<span class="copy"><a href="/host?id=' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
+                hosts += '<span class="copy"><a href="/host/' + id + '" target="_blank" rel="noopener noreferrer">' + hostname + '</a></span>';
                 hosts += '<span class="copy font-size-12 lowopacity-cst">' + ip + '</span>';
                 hosts += '</div></div>';
             });

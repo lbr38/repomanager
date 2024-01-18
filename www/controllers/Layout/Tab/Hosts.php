@@ -6,99 +6,216 @@ class Hosts
 {
     public static function render()
     {
-        $mygroup = new \Controllers\Group('host');
-        $myhost = new \Controllers\Host();
         $mycolor = new \Controllers\Common();
 
         /**
-         *  Get hosts groups list
+         *  Print hosts overview and list
          */
-        $hostGroupsList = $mygroup->listAll(true);
+        \Controllers\Layout\Container\Render::render('hosts/overview');
+        \Controllers\Layout\Container\Render::render('hosts/list');
 
         /**
-         *  Case general hosts threshold settings form has been sent
+         *  If user is admin, print host group and host settings panels
          */
-        if (!empty($_POST['settings-pkgs-considered-outdated']) and !empty($_POST['settings-pkgs-considered-critical'])) {
-            $pkgs_considered_outdated = \Controllers\Common::validateData($_POST['settings-pkgs-considered-outdated']);
-            $pkgs_considered_critical = \Controllers\Common::validateData($_POST['settings-pkgs-considered-critical']);
-
-            $myhost->setSettings($pkgs_considered_outdated, $pkgs_considered_critical);
+        if (IS_ADMIN) {
+            \Controllers\Layout\Panel\Hosts\Group::render();
+            \Controllers\Layout\Panel\Hosts\Settings::render();
         }
 
         /**
-         *  Getting general hosts threshold settings
+         *  Print ChartJS
          */
-        $hostsSettings = $myhost->getSettings();
 
         /**
-         *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (but not critical)
+         *  Hosts chart
          */
-        $pkgs_count_considered_outdated = $hostsSettings['pkgs_count_considered_outdated'];
+        $labels = "'Up to date', 'Need update'";
+        $datas = "'" . HOSTS_TOTAL_UPTODATE . "', '" . HOSTS_TOTAL_NOT_UPTODATE . "'";
+        $backgrounds = "'rgb(75, 192, 192)','rgb(255, 99, 132)'";
+        $title = '';
+        $chartId = 'hosts-count-chart';
+
+        include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
 
         /**
-         *  Threshold of the maximum number of available update above which the host is considered as 'not up to date' (critical)
+         *  Profiles chart
          */
-        $pkgs_count_considered_critical = $hostsSettings['pkgs_count_considered_critical'];
+        if (!empty(HOSTS_PROFILES_LIST)) {
+            $profileNameList = '';
+            $profileCountList = '';
+            $profileBackgroundColor = '';
+
+            foreach (HOSTS_PROFILES_LIST as $profile) {
+                if (empty($profile['Profile'])) {
+                    $profileNameList .= "'Unknow',";
+                } else {
+                    $profileNameList .= "'" . $profile['Profile'] . "',";
+                }
+                $profileCountList .= "'" . $profile['Profile_count'] . "',";
+                $profileBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+            }
+
+            $labels = rtrim($profileNameList, ',');
+            $datas = rtrim($profileCountList, ',');
+            $backgrounds = rtrim($profileBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-profile-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-bar-chart.inc.php');
+        }
 
         /**
-         *  Getting total hosts
+         *  OS chart
          */
-        $totalHosts = count($myhost->listAll('active'));
+        if (!empty(HOSTS_OS_LIST)) {
+            $osNameList = '';
+            $osCountList = '';
+            $osBackgroundColor = '';
+
+            foreach (HOSTS_OS_LIST as $os) {
+                if (empty($os['Os'])) {
+                    $osNameList .= "'Unknow',";
+                } else {
+                    $osNameList .= "'" . ucfirst($os['Os']) . " " . $os['Os_version'] . "',";
+                }
+                $osCountList .= "'" . $os['Os_count'] . "',";
+                $osBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+            }
+
+            $labels = rtrim($osNameList, ',');
+            $datas = rtrim($osCountList, ',');
+            $backgrounds = rtrim($osBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-os-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-bar-chart.inc.php');
+        }
 
         /**
-         *  Initializing counters for doughnut chart
+         *  Arch chart
          */
-        $totalUptodate = 0;
-        $totalNotUptodate = 0;
+        if (!empty(HOSTS_ARCHS_LIST)) {
+            $archNameList = '';
+            $archCountList = '';
+            $archBackgroundColor = '';
+
+            foreach (HOSTS_ARCHS_LIST as $arch) {
+                if (empty($arch['Arch'])) {
+                    $archNameList .= "'Unknow',";
+                } else {
+                    $archNameList .= "'" . $arch['Arch'] . "',";
+                }
+                $archCountList .= "'" . $arch['Arch_count'] . "',";
+                $archBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+            }
+
+            $labels = rtrim($archNameList, ',');
+            $datas = rtrim($archCountList, ',');
+            $backgrounds = rtrim($archBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-arch-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
 
         /**
-         *  Getting a list of all hosts OS (bar chart)
+         *  Envs chart
          */
-        $osList = $myhost->listCountOS();
+        if (!empty(HOSTS_ENVS_LIST)) {
+            $envNameList = '';
+            $envCountList = '';
+            $envBackgroundColor = '';
+
+            foreach (HOSTS_ENVS_LIST as $env) {
+                if (empty($env['Env'])) {
+                    $envNameList .= "'Unknow',";
+                } else {
+                    $envNameList .= "'" . $env['Env'] . "',";
+                }
+                $envCountList .= "'" . $env['Env_count'] . "',";
+
+                if ($env['Env'] == LAST_ENV) {
+                    $envBackgroundColor .= "'rgb(255, 99, 132)',";
+                } else {
+                    $envBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+                }
+            }
+
+            $labels = rtrim($envNameList, ',');
+            $datas = rtrim($envCountList, ',');
+            $backgrounds = rtrim($envBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-env-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
 
         /**
-         *  Getting a list of all hosts kernel
+         *  Agent status chart
          */
-        $kernelList = $myhost->listCountKernel();
-        array_multisort(array_column($kernelList, 'Kernel_count'), SORT_DESC, $kernelList);
+        if (!empty(HOSTS_AGENT_STATUS_LIST)) {
+            $agentStatusNameList = '';
+            $agentStatusCountList = '';
+            $agentBackgroundColor = '';
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'])) {
+                $agentStatusNameList .= "'Online',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_online_count'] . "',";
+                $agentBackgroundColor .= "'#24d794',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'])) {
+                $agentStatusNameList .= "'Seems stopped',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_seems_stopped_count'] . "',";
+                $agentBackgroundColor .= "'#e0b05f',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'])) {
+                $agentStatusNameList .= "'Stopped',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_stopped_count'] . "',";
+                $agentBackgroundColor .= "'rgb(255, 99, 132)',";
+            }
+
+            if (!empty(HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'])) {
+                $agentStatusNameList .= "'Disabled',";
+                $agentStatusCountList .= "'" . HOSTS_AGENT_STATUS_LIST['Linupdate_agent_status_disabled_count'] . "',";
+                $agentBackgroundColor .= "'rgb(255, 99, 132)',";
+            }
+
+            $labels = rtrim($agentStatusNameList, ',');
+            $datas = rtrim($agentStatusCountList, ',');
+            $backgrounds = rtrim($agentBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-agent-status-chart';
+
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
+        }
 
         /**
-         *  Getting a list of all hosts arch
+         *  Agent release version chart
          */
-        $archList = $myhost->listCountArch();
+        if (!empty(HOSTS_AGENT_VERSION_LIST)) {
+            $agentNameList = '';
+            $agentCountList = '';
+            $agentBackgroundColor = '';
 
-        /**
-         *  Getting a list of all hosts environments
-         */
-        $envsList = $myhost->listCountEnv();
+            foreach (HOSTS_AGENT_VERSION_LIST as $agent) {
+                if (empty($agent['Linupdate_version'])) {
+                    $agentNameList .= "'Unknow',";
+                } else {
+                    $agentNameList .= "'" . $agent['Linupdate_version'] . "',";
+                }
+                $agentCountList .= "'" . $agent['Linupdate_version_count'] . "',";
+                $agentBackgroundColor .= "'" . $mycolor->randomColor() . "',";
+            }
 
-        /**
-         *  Getting a list of all hosts profiles
-         */
-        $profilesList = $myhost->listCountProfile();
-        array_multisort(array_column($profilesList, 'Profile_count'), SORT_DESC, $profilesList);
+            $labels = rtrim($agentNameList, ',');
+            $datas = rtrim($agentCountList, ',');
+            $backgrounds = rtrim($agentBackgroundColor, ',');
+            $title = '';
+            $chartId = 'hosts-agent-version-chart';
 
-        /**
-         *  Getting a list of all hosts agent status
-         */
-        $agentStatusList = $myhost->listCountAgentStatus();
-
-        /**
-         *  Getting a list of all hosts agent release version
-         */
-        $agentVersionList = $myhost->listCountAgentVersion();
-
-        /**
-         *  Getting a list of all hosts requiring a reboot
-         */
-        $rebootRequiredList = $myhost->listRebootRequired();
-        $rebootRequiredCount = count($rebootRequiredList);
-
-        include_once(ROOT . '/views/hosts.template.php');
-
-        if (IS_ADMIN) {
-            \Controllers\Layout\Panel\HostGroup::render();
-            \Controllers\Layout\Panel\HostSettings::render();
+            include(ROOT . '/views/includes/charts/hosts-pie-chart.inc.php');
         }
     }
 }

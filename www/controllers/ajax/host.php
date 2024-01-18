@@ -1,6 +1,21 @@
 <?php
 
 /**
+ *  Edit hosts settings
+ */
+if ($action == 'editSettings' and isset($_POST['packagesConsideredOutdated']) and isset($_POST['packagesConsideredCritical'])) {
+    $myhost = new \Controllers\Host();
+
+    try {
+        $myhost->setSettings($_POST['packagesConsideredOutdated'], $_POST['packagesConsideredCritical']);
+    } catch (\Exception $e) {
+        response(HTTP_BAD_REQUEST, $e->getMessage());
+    }
+
+    response(HTTP_OK, 'Parameters have been taken into account');
+}
+
+/**
  *  Get all hosts that have the specified kernel
  */
 if ($action == "getHostWithKernel" and !empty($_POST['kernel'])) {

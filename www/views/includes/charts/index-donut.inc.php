@@ -12,19 +12,18 @@ if ($diskUsedSpace > 50 && $diskUsedSpace <= 70) {
 if ($diskUsedSpace > 70 && $diskUsedSpace <= 100) {
     $donutColor = "'#ff0044',";
 }
-$donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacité 0) (Free space)
-?>
+$donutColor .= "'rgb(247, 247, 247, 0)'"; // transparent (opacity 0) color for the free space ?>
 
-<canvas id="diskSpaceChart-<?=$donutChartName?>" class="donut-chart"></canvas>
+<canvas id="diskSpaceChart-<?= $donutChartName ?>" class="donut-chart"></canvas>
 
 <script>
-// Données
+// Data
 var doughnutChartData = {
     datasets: [{
         labels: ['Used space', 'Free space'],
         borderWidth: 3,
         data: [<?= "$diskUsedSpace, $diskFreeSpace" ?>],
-        backgroundColor: [<?=$donutColor?>],
+        backgroundColor: [<?= $donutColor ?>],
         borderColor: [
             'gray',
             'gray'
@@ -50,7 +49,7 @@ var doughnutChartOptions = {
     },
 }
 
-// Affichage du chart
+// Print chart
 var ctx = document.getElementById('diskSpaceChart-<?=$donutChartName?>').getContext("2d");
 window.myDoughnut = new Chart(ctx, {
     type: "doughnut",

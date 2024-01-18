@@ -5,7 +5,7 @@
 <div class="div-generic-blue">
     <table class="op-table">
         <?php
-        if ($this->operation->getAction() != 'reconstruct') {
+        if ($this->operation->getAction() != 'rebuild') {
             if (!empty($this->repo->getSource())) {
                 echo '<tr><th>SOURCE REPO</th><td><span class="label-white">' . $this->repo->getSource() . '</span></td></tr>';
             }

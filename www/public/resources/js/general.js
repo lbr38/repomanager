@@ -202,6 +202,13 @@ function reloadPanel(panel, myfunction = null)
 function reloadContainer(container)
 {
     /**
+     *  If the container to reload does not exist, return
+     */
+    if (!$('.reloadable-container[container="' + container + '"]').length) {
+        return;
+    }
+
+    /**
      *  Print a loading icon on the bottom of the page
      */
     printLoading();

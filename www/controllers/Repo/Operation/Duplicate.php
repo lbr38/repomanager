@@ -54,25 +54,20 @@ class Duplicate extends Operation
         }
         $this->operation->setLogfile($this->log->getName());
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->duplicate();
     }
 
     /**
      *  Duplicate repo
      */
-    private function duplicate()
+    public function execute()
     {
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
@@ -80,21 +75,21 @@ class Duplicate extends Operation
             ob_start();
 
             /**
-             *  1. Génération du tableau récapitulatif de l'opération
+             *  Generate operation summary table
              */
             include(ROOT . '/templates/tables/op-duplicate.inc.php');
 
             $this->log->step('DUPLICATING');
 
             /**
-             *  On vérifie que le snapshot source existe
+             *  Check if source repo snapshot exists
              */
             if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
                 throw new Exception("Source repo snapshot does not exist");
             }
 
             /**
-             *  On vérifie qu'un repo de même nom cible n'existe pas déjà
+             *  Check if a repo with the same name already exists
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if ($this->repo->isActive($this->repo->getTargetName()) === true) {
@@ -108,7 +103,7 @@ class Duplicate extends Operation
             }
 
             /**
-             *  Création du nouveau répertoire avec le nouveau nom du repo :
+             *  Create the new repo directory with the new repo name
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if (!file_exists(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName())) {
@@ -126,8 +121,8 @@ class Duplicate extends Operation
             }
 
             /**
-             *  Copie du contenu du repo/de la section
-             *  Anti-slash devant la commande cp pour forcer l'écrasement si un répertoire de même nom trainait par là
+             *  Copy the repo/section content
+             *  The '\' before the cp command is to force the overwrite if a directory with the same name was there
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 exec('\cp -r ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/* ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName() . '/', $output, $result);
@@ -164,23 +159,39 @@ class Duplicate extends Operation
             $this->log->step('FINALIZING');
 
             /**
-             *  Création du lien symbolique
-             *  Seulement si l'utilisateur a spécifié un environnement
+             *  Create a symlink to the new repo, only if the user has specified an environment
              */
             if (!empty($this->repo->getTargetEnv())) {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    exec('cd ' . REPOS_DIR . '/ && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName() . ' ' .  $this->repo->getTargetName() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName();
+                    $link = REPOS_DIR . '/' . $this->repo->getTargetName() . '_' . $this->repo->getTargetEnv();
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    exec('cd ' . REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/ && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . ' ' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getDateFormatted() . '_' . $this->repo->getSection();
+                    $link = REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv();
                 }
-                if ($result != 0) {
-                    throw new Exception('Cannot set repo environment');
+
+                /**
+                 *  If a symlink with the same name already exists, we remove it
+                 */
+                if (is_link($link)) {
+                    if (!unlink($link)) {
+                        throw new Exception('Could not remove existing symlink ' . $link);
+                    }
                 }
+
+                /**
+                 *  Create symlink
+                 */
+                if (!symlink($targetFile, $link)) {
+                    throw new Exception('Could not point environment to the repository');
+                }
+
+                unset($targetFile, $link);
             }
 
             /**
-             *  8. Insertion du nouveau repo en base de données
+             *  Insert the new repo in database
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 $this->repo->add($this->repo->getSource(), 'rpm', $this->repo->getTargetName());
@@ -190,7 +201,7 @@ class Duplicate extends Operation
             }
 
             /**
-             *  On récupère l'Id du repo créé en base de données
+             *  Retrieve the Id of the new repo in database
              */
             $targetRepoId = $this->repo->getLastInsertRowID();
 
@@ -210,47 +221,46 @@ class Duplicate extends Operation
             }
 
             /**
-             *  On ajoute le snapshot copié en base de données
+             *  Add the new repo snapshot in database
              */
             $this->repo->addSnap($this->repo->getDate(), $this->repo->getTime(), $this->repo->getSigned(), $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), $this->repo->getStatus(), $targetRepoId);
 
             /**
-             *  On récupère l'Id du snapshot créé en base de données
+             *  Retrieve the Id of the new repo snapshot in database
              */
             $targetSnapId = $this->repo->getLastInsertRowID();
 
             /**
-             *  On ajoute l'environnement créé
-             *  Seulement si l'utilisateur a spécifié un environnement
+             *  Add the new repo environment in database, only if the user has specified an environment
              */
             if (!empty($this->repo->getTargetEnv())) {
                 $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $targetSnapId);
             }
 
             /**
-             *  9. Application des droits sur le nouveau repo créé
+             *  Apply permissions on the new repo
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName() . '/ -type d -exec chmod 0770 {} \;');
-                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName());
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getTargetName(), WWW_USER, 'repomanager');
             }
             if ($this->repo->getPackageType() == 'deb') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/ -type d -exec chmod 0770 {} \;');
-                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection());
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getTargetName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), WWW_USER, 'repomanager');
             }
 
             $this->log->stepOK();
 
             /**
-             *  10. Ajout de la section à un groupe si un groupe a été renseigné
+             *  Add the new repo to a group if a group has been specified
              */
             if (!empty($this->repo->getTargetGroup())) {
                 $this->log->step('ADDING TO GROUP');
 
                 /**
-                 *  Ajout du repo créé au groupe spécifié
+                 *  Add the new repo to the specified group
                  */
                 $this->repo->addRepoIdToGroup($targetRepoId, $this->repo->getTargetGroup());
 
@@ -258,22 +268,22 @@ class Duplicate extends Operation
             }
 
             /**
-             *  Nettoyage des repos inutilisés dans les groupes
+             *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to done
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  Print a red error message in the log file
              */
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to error
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());

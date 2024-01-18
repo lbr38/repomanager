@@ -42,25 +42,20 @@ class Env extends Operation
         $this->operation->setTargetEnvId($this->repo->getTargetEnv());
         $this->operation->setLogfile($this->log->getName());
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->env();
     }
 
     /**
      *  Point an environment to a snapshot
      */
-    private function env()
+    public function execute()
     {
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
@@ -68,21 +63,21 @@ class Env extends Operation
             ob_start();
 
             /**
-             *  1. Génération du tableau récapitulatif de l'opération
+             *  Generate operation summary table
              */
             include(ROOT . '/templates/tables/op-env.inc.php');
 
             $this->log->step('ADDING NEW ENVIRONMENT ' . \Controllers\Common::envtag($this->repo->getTargetEnv()));
 
             /**
-             *  2. On vérifie si le snapshot source existe
+             *  Check if the source snapshot exists
              */
             if ($this->repo->existsSnapId($this->repo->getSnapId()) === false) {
                 throw new Exception('Target snapshot does not exist');
             }
 
             /**
-             *  3. On vérifie qu'un même environnement pointant vers le snapshot cible n'existe pas déjà
+             *  Check if an environment of the same name already exists on the target snapshot
              */
             if ($this->repo->existsSnapIdEnv($this->repo->getSnapId(), $this->repo->getTargetEnv()) === true) {
                 if ($this->repo->getPackageType() == 'rpm') {
@@ -95,7 +90,7 @@ class Env extends Operation
             }
 
             /**
-             *  Si l'utilisateur n'a précisé aucune description alors on récupère celle actuellement en place sur l'environnement de même nom (si l'environnement existe et si il possède une description)
+             *  If the user did not specify any description then we get the one currently in place on the environment of the same name (if the environment exists and if it has a description)
              */
             if (empty($this->repo->getTargetDescription())) {
                 if ($this->repo->getPackageType() == 'rpm') {
@@ -106,7 +101,7 @@ class Env extends Operation
                 }
 
                 /**
-                 *  Si la description récupérée est vide alors la description restera vide
+                 *  If the description is empty then the description will remain empty
                  */
                 if (!empty($actualDescription)) {
                     $this->repo->setTargetDescription($actualDescription);
@@ -116,49 +111,57 @@ class Env extends Operation
             }
 
             /**
-             *  4. Traitement
-             *  Deux cas possibles :
-             *   1. Ce repo/section n'avait pas d'environnement pointant vers le snapshot cible, on crée simplement un lien symbo et on crée le nouvel environnement en base de données.
-             *   2. Ce repo/section avait déjà un environnement pointant vers un snapshot, on le supprime et on fait pointer l'environnement vers le nouveau snapshot.
+             *  Processing
+             *  Two possible cases:
+             *   1. This repo/section did not have an environment pointing to the target snapshot, we simply create a symbolic link and create the new environment in the database.
+             *   2. This repo/section already had an environment pointing to a snapshot, we delete it and point the environment to the new snapshot.
+             */
+
+            /**
+             *  RPM
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 /**
-                 *  Cas 1 : pas d'environnement de même nom existant sur ce snapshot
+                 *  Case 1: no environment of the same name exists on this snapshot
                  */
                 if ($this->repo->existsEnv($this->repo->getName(), null, null, $this->repo->getTargetEnv()) === false) {
                     /**
-                     *  Suppression du lien symbolique (on sait ne jamais si il existe)
+                     *  Delete symbolic link (just in case)
                      */
                     if (is_link(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
-                        unlink(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                        if (!unlink(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
+                            throw new Exception('Could not delete existing symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                        }
                     }
 
                     /**
-                     *  Création du lien symbolique
+                     *  Create symbolic link
                      */
-                    exec('cd ' . REPOS_DIR . '/ && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . ' ' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                    if (!symlink($this->repo->getDateFormatted() . '_' . $this->repo->getName(), REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
+                        throw new Exception('Could not create symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                    }
 
                     /**
-                     *  Ajout de l'environnement en BDD
+                     *  Add environment to database
                      */
                     $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $this->repo->getSnapId());
 
                     /**
-                     *  Clôture de l'étape en cours
+                     *  Close current step
                      */
                     $this->log->stepOK();
 
                 /**
-                 *  Cas 2 : Il y a déjà un environnement de repo du même nom pointant vers un snapshot.
+                 *  Case 2: There is already an environment of the same name pointing to a snapshot.
                  */
                 } else {
                     /**
-                     *  On récupère l'Id de l'environnement déjà existant
+                     *  Retrieve the Id of the already existing environment
                      */
                     $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), null, null, $this->repo->getTargetEnv());
 
                     /**
-                     *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
+                     *  Delete the possible environment of the same name already pointing to a snapshot of this repo (if there is one)
                      */
                     if (!empty($actualEnvIds)) {
                         foreach ($actualEnvIds as $actualEnvId) {
@@ -167,67 +170,78 @@ class Env extends Operation
                     }
 
                     /**
-                     *  Suppression du lien symbolique
+                     *  Delete symbolic link
                      */
                     if (is_link(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
-                        unlink(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                        if (!unlink(REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
+                            throw new Exception('Could not delete existing symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                        }
                     }
 
                     /**
-                     *  Création du nouveau lien symbolique, pointant vers le snapshot cible
+                     *  Create new symbolic link, pointing to the target snapshot
                      */
-                    exec('cd ' . REPOS_DIR . '/ && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . ' ' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                    if (!symlink($this->repo->getDateFormatted() . '_' . $this->repo->getName(), REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv())) {
+                        throw new Exception('Could not create symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv());
+                    }
 
                     /**
-                     *  Puis on déclare le nouvel environnement et on le fait pointer vers le snapshot précédemment créé
+                     *  Then we declare the new environment and we make it point to the previously created snapshot
                      */
                     $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $this->repo->getSnapId());
 
                     /**
-                     *  Clôture de l'étape en cours
+                     *  Close current step
                      */
                     $this->log->stepOK();
                 }
             }
 
+            /**
+             *  DEB
+             */
             if ($this->repo->getPackageType() == 'deb') {
                 /**
-                 *  Cas 1 : pas d'environnement de même nom existant sur ce snapshot
+                 *  Case 1: no environment of the same name exists on this snapshot
                  */
                 if ($this->repo->existsEnv($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getTargetEnv()) === false) {
                     /**
-                     *  Suppression du lien symbolique (on ne sait jamais si il existe)
+                     *  Delete symbolic link (just in case)
                      */
                     if (is_link(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
-                        unlink(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                        if (!unlink(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
+                            throw new Exception('Could not delete existing symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                        }
                     }
 
                     /**
-                     *  Création du lien symbolique
+                     *  Create symbolic link
                      */
-                    exec('cd ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . ' && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . ' ' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                    if (!symlink($this->repo->getDateFormatted() . '_' . $this->repo->getSection(), REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
+                        throw new Exception('Could not create symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                    }
 
                     /**
-                     *  Ajout de l'environnement en BDD
+                     *  Add environment to database
                      */
                     $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $this->repo->getSnapId());
 
                     /**
-                     *  Clôture de l'étape en cours
+                     *  Close current step
                      */
                     $this->log->stepOK();
 
                 /**
-                 *  Cas 2 : Il y a déjà un environnement de repo du même nom pointant vers un snapshot.
+                 *  Case 2: There is already an environment of the same name pointing to a snapshot.
                  */
                 } else {
                     /**
-                     *  D'abord on récupère l'Id de l'environnement déjà existant car on en aura besoin pour modifier son snapshot lié en base de données.
+                     *  First we retrieve the Id of the already existing environment because we will need it to modify its linked snapshot in the database.
                      */
                     $actualEnvIds = $this->repo->getEnvIdFromRepoName($this->repo->getName(), $this->repo->getDist(), $this->repo->getSection(), $this->repo->getTargetEnv());
 
                     /**
-                     *  On supprime l'éventuel environnement de même nom pointant déjà vers un snapshot de ce repo (si il y en a un)
+                     *  Delete the possible environment of the same name already pointing to a snapshot of this repo (if there is one)
                      */
                     if (!empty($actualEnvIds)) {
                         foreach ($actualEnvIds as $actualEnvId) {
@@ -236,24 +250,28 @@ class Env extends Operation
                     }
 
                     /**
-                     *  Suppression du lien symbolique
+                     *  Delete symbolic link
                      */
                     if (is_link(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
-                        unlink(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                        if (!unlink(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
+                            throw new Exception('Could not delete existing symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                        }
                     }
 
                     /**
-                     *  Création du nouveau lien symbolique, pointant vers le snapshot cible
+                     *  Create new symbolic link, pointing to the target snapshot
                      */
-                    exec('cd ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . ' && ln -sfn ' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . ' ' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                    if (!symlink($this->repo->getDateFormatted() . '_' . $this->repo->getSection(), REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv())) {
+                        throw new Exception('Could not create symbolic link: ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv());
+                    }
 
                     /**
-                     *  Puis on déclare le nouvel environnement et on le fait pointer vers le snapshot précédemment créé
+                     *  Then we declare the new environment and we make it point to the previously created snapshot
                      */
                     $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $this->repo->getSnapId());
 
                     /**
-                     *  Clôture de l'étape en cours
+                     *  Close current step
                      */
                     $this->log->stepOK();
                 }
@@ -262,25 +280,27 @@ class Env extends Operation
             $this->log->step('FINALIZING');
 
             /**
-             *  8. Application des droits sur le repo/la section modifié
+             *  Apply permissions on the modified repo/section
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . '/ -type d -exec chmod 0770 {} \;');
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName(), WWW_USER, 'repomanager');
             }
 
             if ($this->repo->getPackageType() == 'deb') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . '/ -type d -exec chmod 0770 {} \;');
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection(), WWW_USER, 'repomanager');
             }
 
             /**
-             *  Clôture de l'étape en cours
+             *  Close current step
              */
             $this->log->stepOK();
 
             /**
-             *  Nettoyage automatique des snapshots inutilisés
+             *  Cleaning of unused snapshots
              */
             $snapshotsRemoved = $this->repo->cleanSnapshots();
 
@@ -290,27 +310,27 @@ class Env extends Operation
             }
 
             /**
-             *  Nettoyage des repos inutilisés dans les groupes
+             *  Cleaning of unused repos in groups
              */
             $this->repo->cleanGroups();
 
             /**
-             *  Nettoyage du cache
+             *  Clear cache
              */
             \Controllers\App\Cache::clear();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to done
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+             * Print a red error message in the log file
              */
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to error
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());

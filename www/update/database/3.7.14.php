@@ -1,6 +1,6 @@
 <?php
 /**
- *  3.7.x database update
+ *  3.7.14 database update
  */
 
 if (!file_exists(STATS_DB)) {

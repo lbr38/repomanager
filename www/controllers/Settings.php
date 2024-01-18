@@ -194,7 +194,7 @@ class Settings
         }
 
         /**
-         *  Planifications
+         *  Scheduled tasks
          */
         if (!empty($sendSettings['plansEnable'])) {
             if ($sendSettings['plansEnable'] == "true") {

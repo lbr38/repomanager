@@ -192,20 +192,14 @@ trait Finalize
          *  3. Application des droits sur le snapshot créé
          */
         if ($this->repo->getPackageType() == 'rpm') {
-            exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '/ -type f -exec chmod 0660 {} \;');
-            exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '/ -type d -exec chmod 0770 {} \;');
-            exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
-            /*if [ $? -ne "0" ];then
-                echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur le repo <b>$this->repo->getName()</b> a échoué"
-            fi*/
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), WWW_USER, 'repomanager');
         }
         if ($this->repo->getPackageType() == 'deb') {
-            exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection() . '/ -type f -exec chmod 0660 {} \;');
-            exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection() . '/ -type d -exec chmod 0770 {} \;');
-            exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getName());
-            /*if [ $? -ne "0" ];then
-                echo "<br><span class=\"redtext\">Erreur :</span>l'application des permissions sur la section <b>$this->repo->getSection()</b> a échoué"
-            fi*/
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection(), 'file', 660);
+            \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection(), 'dir', 770);
+            \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
         }
 
         $this->log->stepOK();
@@ -234,7 +228,5 @@ trait Finalize
          *  Nettoyage des repos inutilisés dans les groupes
          */
         $this->repo->cleanGroups();
-
-        // return true;
     }
 }

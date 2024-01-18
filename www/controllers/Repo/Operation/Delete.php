@@ -33,25 +33,20 @@ class Delete extends Operation
         $this->operation->setTargetSnapId($this->repo->getSnapId());
         $this->operation->setLogfile($this->log->getName());
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->delete();
     }
 
     /**
      *  Delete a repo snapshot
      */
-    private function delete()
+    public function execute()
     {
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
@@ -59,57 +54,55 @@ class Delete extends Operation
             ob_start();
 
             /**
-             *  1. Génération du tableau récapitulatif de l'opération
+             *  Generate operation summary table
              */
             include(ROOT . '/templates/tables/op-delete.inc.php');
 
             $this->log->step('DELETING');
 
             /**
-             *  2. Suppression du snapshot
+             *  Delete snapshot
              */
-            $result = 0;
-
             if ($this->repo->getPackageType() == "rpm") {
                 if (is_dir(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName())) {
-                    exec('rm ' . REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName() . ' -rf', $output, $result);
+                    $deleteResult = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getName());
                 }
             }
             if ($this->repo->getPackageType() == "deb") {
                 if (is_dir(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection())) {
-                    exec('rm ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection() . ' -rf', $output, $result);
+                    $deleteResult = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getDateFormatted() . '_' . $this->repo->getSection());
                 }
             }
 
-            if ($result != 0) {
+            if (isset($deleteResult) && $deleteResult !== true) {
                 throw new Exception('cannot delete snapshot of the <span class="label-black">' . $this->repo->getDateFormatted() . '</span>');
             }
 
             $this->log->stepOK();
 
             /**
-             *  Passage du snapshot en état 'deleted' en base de données
+             *  Set snapshot status to 'deleted' in database
              */
             $this->repo->snapSetStatus($this->repo->getSnapId(), 'deleted');
 
             /**
-             *  Récupération des Id d'environnements qui pointaient vers ce snapshot
+             *  Retrieve env Ids pointing to this snapshot
              */
             $envIds = $this->repo->getEnvIdBySnapId($this->repo->getSnapId());
 
             /**
-             *  On traite chaque Id d'environnement qui pointait vers ce snapshot
+             *  Process each env Id pointing to this snapshot
              */
             if (!empty($envIds)) {
                 foreach ($envIds as $envId) {
                     /**
-                     *  Suppression des environnements pointant vers ce snapshot en base de données
+                     *  Delete env pointing to this snapshot in database
                      */
                     $myrepo = new \Controllers\Repo\Repo();
                     $myrepo->getAllById('', '', $envId);
 
                     /**
-                     *  Si un lien symbolique de cet environnement pointait vers le snapshot supprimé alors on peut supprimer le lien symbolique.
+                     *  If a symbolic link of this environment pointed to the deleted snapshot then we can delete the symbolic link.
                      */
                     if ($myrepo->getPackageType() == 'rpm') {
                         if (is_link(REPOS_DIR . '/' . $myrepo->getName() . '_' . $myrepo->getEnv())) {
@@ -130,22 +123,22 @@ class Delete extends Operation
             }
 
             /**
-             *  Nettoyage des repos inutilisés dans les groupes
+             *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to 'done'
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  Print a red error message in the log file
              */
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to 'error'
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());

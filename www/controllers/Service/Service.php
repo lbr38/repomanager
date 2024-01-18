@@ -76,13 +76,13 @@ class Service
             }
 
             /**
-             *  Plans related settings
+             *  Scheduled tasks related settings
              */
             if (!empty($settings['PLANS_ENABLED'])) {
                 $this->plansEnabled = $settings['PLANS_ENABLED'];
             } else {
                 $this->logController->log('error', 'Service', "Could not retrieve 'Enable plan' setting.");
-                // Disable plans
+                // Disable scheduled tasks
                 $this->plansEnabled = 'false';
             }
 
@@ -91,7 +91,7 @@ class Service
                     $this->plansRemindersEnabled = $settings['PLANS_REMINDERS_ENABLED'];
                 } else {
                     $this->logController->log('error', 'Service', "Could not retrieve 'Enable plan reminders' setting.");
-                    // Disable plan reminders
+                    // Disable scheduled tasks reminders
                     $this->plansRemindersEnabled = 'false';
                 }
             }
@@ -286,16 +286,16 @@ class Service
             }
 
             /**
-             *  Execute plans actions (if plans are enabled)
+             *  Execute scheduled tasks actions (if scheduled tasks are enabled)
              */
             if ($this->plansEnabled == 'true' && $this->currentTime != $this->lastTime) {
                 /**
-                 *  Execute plans
+                 *  Execute scheduled task
                  */
                 $this->runService('plan-exec', true);
 
                 /**
-                 *  Send plans reminder
+                 *  Send scheduled tasks reminder
                  */
                 if ($this->plansRemindersEnabled == 'true') {
                     $this->runService('plan-reminder');

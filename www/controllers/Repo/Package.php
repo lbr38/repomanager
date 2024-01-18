@@ -227,9 +227,9 @@ class Package
         }
 
         /**
-         *  Set repo reconstruct status to 'needed'
+         *  Set repo rebuild status to 'needed'
          */
-        $myrepo->snapSetReconstruct($snapId, 'needed');
+        $myrepo->snapSetRebuild($snapId, 'needed');
 
         /**
          *  Set new repo architectures
@@ -313,9 +313,9 @@ class Package
                 $deletedPackages[] = str_replace($repoPath . '/', '', $path);
 
                 /**
-                 *  Set repo reconstruct status to 'needed'
+                 *  Set repo rebuild status to 'needed'
                  */
-                $myrepo->snapSetReconstruct($snapId, 'needed');
+                $myrepo->snapSetRebuild($snapId, 'needed');
             }
         }
 

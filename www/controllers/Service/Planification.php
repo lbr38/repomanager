@@ -17,17 +17,17 @@ class Planification extends Service
     }
 
     /**
-     *  Execute plans if any
+     *  Execute scheduled tasks if any
      */
     public function planExecute()
     {
-        echo $this->getDate() . ' Executing plans if any...' . PHP_EOL;
+        echo $this->getDate() . ' Executing scheduled tasks if any...' . PHP_EOL;
 
         /**
          *  Quit if there was an error while loading general settings
          */
         if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-            $this->logController->log('error', 'Service', 'Cannot execute planification: error while loading general settings');
+            $this->logController->log('error', 'Service', 'Cannot execute scheduled task: error while loading general settings');
             return;
         }
 
@@ -38,7 +38,7 @@ class Planification extends Service
         $planToExec = array();
 
         /**
-         *  Get queued plans
+         *  Get queued scheduled tasks
          */
         $plansQueued = $this->planController->getByStatus(array('queued'));
 
@@ -50,7 +50,7 @@ class Planification extends Service
         }
 
         /**
-         *  Loop through queued plans
+         *  Loop through queued scheduled tasks
          */
         foreach ($plansQueued as $planQueued) {
             if (!empty($planQueued['Id'])) {
@@ -77,7 +77,7 @@ class Planification extends Service
              */
             if ($planType == 'plan' and $planDate == $dateNow and $planTime == $timeNow) {
                 /**
-                 *  Plan Id is added to the array of planifications to execute
+                 *  Task Id is added to the array of planifications to execute
                  */
                 $planToExec[] = $planId;
             }
@@ -91,7 +91,7 @@ class Planification extends Service
                  */
                 if ($planFrequency == 'every-hour' and $minutesNow == '00') {
                     /**
-                     *  Plan Id is added to the array of planifications to execute
+                     *  Task Id is added to the array of planifications to execute
                      */
                     $planToExec[] = $planId;
                 }
@@ -101,7 +101,7 @@ class Planification extends Service
                  */
                 if ($planFrequency == 'every-day' and $timeNow == $planTime) {
                     /**
-                     *  Plan Id is added to the array of planifications to execute
+                     *  Task Id is added to the array of planifications to execute
                      */
                     $planToExec[] = $planId;
                 }
@@ -121,7 +121,7 @@ class Planification extends Service
                          */
                         if ($dayOfWeek == $dayNow and $planTime == $timeNow) {
                             /**
-                             *  Plan Id is added to the array of planifications to execute
+                             *  Task Id is added to the array of planifications to execute
                              */
                             $planToExec[] = $planId;
                         }
@@ -157,13 +157,13 @@ class Planification extends Service
             return;
         }
 
-        echo $this->getDate() . ' Sending plans reminder if any...' . PHP_EOL;
+        echo $this->getDate() . ' Sending scheduled tasks reminder if any...' . PHP_EOL;
 
         /**
          *  Quit if there was an error while loading general settings
          */
         if (defined('__LOAD_GENERAL_ERROR') and __LOAD_GENERAL_ERROR > 0) {
-            $this->logController->log('error', 'Service', 'Cannot execute planification: error while loading general settings');
+            $this->logController->log('error', 'Service', 'Cannot execute scheduled task: error while loading general settings');
             return;
         }
 
@@ -172,7 +172,7 @@ class Planification extends Service
         $planToReminder = array();
 
         /**
-         *  Get queued plans
+         *  Get queued scheduled tasks
          */
         $plansQueued = $this->planController->getByStatus(array('queued'));
 
@@ -184,7 +184,7 @@ class Planification extends Service
         }
 
         /**
-         *  Loop through queued plans
+         *  Loop through queued scheduled tasks
          */
         foreach ($plansQueued as $planQueued) {
             if (!empty($planQueued['Id'])) {
@@ -214,7 +214,7 @@ class Planification extends Service
 
                     if ($reminderDate == $dateNow) {
                         /**
-                         *  Plan Id is added to the array of planifications to remind
+                         *  Task Id is added to the array of planifications to remind
                          */
                         $planToReminder[] = $planId;
                     }
@@ -233,15 +233,15 @@ class Planification extends Service
                      */
                     $this->planController->setId($planId);
                     $msg = $this->planController->generateReminders();
-                    $reminderMessage .= '<span><b>Planification of the ' . DateTime::createFromFormat('Y-m-d', $this->planController->getDate())->format('d-m-Y') . ' ' . $this->planController->getTime() . ':</b></span><br><span>' . $msg . '</span><br><hr>';
+                    $reminderMessage .= '<span><b>Scheduled tasks of the ' . DateTime::createFromFormat('Y-m-d', $this->planController->getDate())->format('d-m-Y') . ' ' . $this->planController->getTime() . ':</b></span><br><span>' . $msg . '</span><br><hr>';
                 }
 
                 if (!empty($reminderMessage)) {
-                    $mailSubject = '[ Reminder ] Planification(s) to come on ' . WWW_HOSTNAME;
-                    $mymail = new \Controllers\Mail($this->planController->getMailRecipient(), $mailSubject, $reminderMessage, 'https://' . WWW_HOSTNAME . '/plans', 'Planifications');
+                    $mailSubject = '[ Reminder ] Scheduled task(s) to come on ' . WWW_HOSTNAME;
+                    $mymail = new \Controllers\Mail($this->planController->getMailRecipient(), $mailSubject, $reminderMessage, 'https://' . WWW_HOSTNAME . '/plans', 'Scheduled tasks');
                 }
             } catch (Exception $e) {
-                $this->logController->log('error', 'Service', 'Error while sending planification reminder: ' . $e->getMessage());
+                $this->logController->log('error', 'Service', 'Error while sending scheduled tasks reminder: ' . $e->getMessage());
             }
         }
     }
