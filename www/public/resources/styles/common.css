@@ -774,7 +774,7 @@ textarea {
     height: 100%;
     background-color: #182b3e82;
     border-radius: 8px;
-    z-index: 999;
+    z-index: 95;
 }
 
 /**

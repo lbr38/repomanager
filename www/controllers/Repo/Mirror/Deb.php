@@ -7,16 +7,6 @@ use Exception;
 class Deb extends \Controllers\Repo\Mirror\Mirror
 {
     /**
-     *  Check that source repository is reachable
-     */
-    private function checkUrl()
-    {
-        if (!\Controllers\Common::urlReachable($this->url . '/dists/', $this->sslCustomCertificate, $this->sslCustomPrivateKey)) {
-            $this->logError('Cannot reach source repository: <code>' . $this->url . '</code>. Is the URL correct? ', 'Source repository is unreachable');
-        }
-    }
-
-    /**
      *  Download Release file
      */
     private function getReleaseFile()
@@ -38,7 +28,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  Print an error and quit if no Release file has been found
          */
         if (!file_exists($this->workingDir . '/InRelease') and !file_exists($this->workingDir . '/Release') and !file_exists($this->workingDir . '/Release.gpg')) {
-            $this->logError('No <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>)', '<code>Release</code> file not found');
+            $this->logError('No <code>Release</code> file has been found in the source repository <code>' . $this->url . '/dists/' . $this->dist . '/</code> (looked for <code>InRelease</code>, <code>Release</code> and <code>Release.gpg</code>). Is the URL of the repository correct?', '<code>Release</code> file not found');
         }
 
         $this->logOK();
@@ -735,11 +725,6 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
     public function mirror()
     {
         $this->initialize();
-
-        /**
-         *  Check that source repository is reachable
-         */
-        $this->checkUrl();
 
         /**
          *  Try to download distant Release / InRelease file

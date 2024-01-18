@@ -4,6 +4,9 @@
     
     - Update documentation
 
+    [ REPOS ]
+
+    - (DEB) Repository install: if the repository has 'src' packages, also add the 'deb-src' line to the installation command lines
 
 [ BUGS ]
 
@@ -11,13 +14,13 @@
 
 
     [ REPOS ]
+
     - (KO) Mirror a debian repo with translations => translations are not included by reprepro
     - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
 
 
     [ OPERATIONS ]
 
-    - (RPM mirroring) Ignore warning if 'already contains identical signature' is found in the output of rpm --addsign
     - Regular planned tasks logs are all merged into the same Planification master log file
 
 
@@ -40,8 +43,7 @@
     - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
     - (RPM) See how to accelerate the rpm signing process by using multi-threading
     - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
-    - (DEB) Repository install: if the repository has 'src' packages, also add the 'deb-src' line to the installation command lines
-    
+
 
     [ STATS ]
 
