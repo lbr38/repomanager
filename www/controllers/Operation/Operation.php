@@ -11,7 +11,7 @@ class Operation
     private $model;
     private $logfile;
     private $action;
-    private $validActions = array('new', 'create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'reconstruct');
+    private $validActions = array('new', 'create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild');
     private $status;
     private $error;
     private $type;

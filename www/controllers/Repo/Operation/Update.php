@@ -49,7 +49,7 @@ class Update extends Operation
         $this->operation->setLogfile($this->log->getName());
 
         /**
-         *  Si un Id de planification a été spécifié alors ça signifie que l'action a été initialisée par une planification
+         *  If a schedule Id has been specified then it means that the action has been initialized by a schedule
          */
         if (!empty($operationParams['planId'])) {
             $this->operation->setType('plan');
@@ -57,69 +57,67 @@ class Update extends Operation
         }
 
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->update();
     }
 
     /**
-     *  Mise à jour d'un miroir de repo / section
+     *  Update repository
      */
-    private function update()
+    public function execute()
     {
         /**
-         *  On défini la date du jour et l'environnement par défaut sur lesquels sera basé le nouveau miroir
+         *  Define default date and time
          */
         $this->repo->setTargetDate(date('Y-m-d'));
         $this->repo->setTargetTime(date('H:i'));
 
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
         try {
             /**
-             *  Etape 1 : Afficher les détails de l'opération
+             *  Print operation details
              */
             $this->printDetails('UPDATE REPO');
 
             /**
-             *   Etape 2 : récupération des paquets
+             *  Sync packages
              */
             $this->syncPackage();
 
             /**
-             *   Etape 3 : signature des paquets/du repo
+             *  Sign repo / packages
              */
             $this->signPackage();
 
             /**
-             *   Etape 4 : Création du repo et liens symboliques
+             *  Create repo and symlinks
              */
             $this->createMetadata();
 
             /**
-             *   Etape 6 : Finalisation du repo (ajout en BDD et application des droits)
+             *  Finalize repo (add to database and apply rights)
              */
             $this->finalize();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to done
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
-            $this->log->stepError($e->getMessage()); // On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+            /**
+             *  Print a red error message in the log file
+             */
+            $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to error
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());
@@ -135,10 +133,6 @@ class Update extends Operation
             $this->log->stepDuration($duration);
             $this->operation->close();
 
-            /**
-             *  Cas où cette fonction est lancée par une planification : la planif attend un retour, on lui renvoie false pour lui indiquer qu'il y a eu une erreur
-             */
-            // return false;
             throw new Exception($e->getMessage());
         }
 

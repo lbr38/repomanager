@@ -6,7 +6,7 @@ use Exception;
 
 class Form
 {
-    private $validActions = array('new', 'create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'reconstruct');
+    private $validActions = array('new', 'create', 'update', 'env', 'duplicate', 'delete', 'removeEnv', 'rebuild');
 
     /**
      *  Return the operation form to the user according to his selection
@@ -29,7 +29,7 @@ class Form
         if ($action == 'delete') {
             $title = '<h3>DELETE</h3>';
         }
-        if ($action == 'reconstruct') {
+        if ($action == 'rebuild') {
             $title = '<h3>REBUILD REPO</h3>';
         }
 
@@ -398,9 +398,9 @@ class Form
             }
 
             /**
-             *  Si l'action est 'reconstruct'
+             *  Si l'action est 'rebuild'
              */
-            if ($action == 'reconstruct') {
+            if ($action == 'rebuild') {
                 Param\GpgResign::check($operation_params['targetGpgResign']);
 
                 if ($packageType == 'rpm') {

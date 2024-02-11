@@ -52,15 +52,15 @@
                 <div class="flex justify-end">
                     <?php
                     if ($item['Status'] == 'done') {
-                        echo '<img class="icon-small" src="/assets/icons/greencircle.png" title="Plan completed" />';
+                        echo '<img class="icon-small" src="/assets/icons/greencircle.png" title="Task completed" />';
                     }
 
                     if ($item['Status'] == 'error') {
-                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Plan has failed" />';
+                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Task has failed" />';
                     }
 
                     if ($item['Status'] == 'stopped') {
-                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Plan stopped by the user" />';
+                        echo '<img class="icon-small" src="/assets/icons/redcircle.png" title="Task stopped by the user" />';
                     } ?>
                 </div>
             </div>

@@ -26,7 +26,7 @@
 
             <?php
             /**
-             *  PLANIFICATIONS tab
+             *  SCHEDULE TASKS tab
              */
             if (__ACTUAL_URI__[1] == 'plans') {
                 $headerMenuClass = 'menu-sub-container-underline';
@@ -39,7 +39,7 @@
                     <a href="/plans">
                         <div class="flex align-item-center column-gap-3">
                             <img src="/assets/icons/calendar.svg" class="icon" />
-                            <span class="menu-section-title">PLANIFICATIONS</span>
+                            <span class="menu-section-title">SCHEDULE TASKS</span>
                         </div>
                     </a>
                 </div>
@@ -187,7 +187,7 @@
                                             if ($opAction == "removeEnv") {
                                                 echo 'Remove env. ';
                                             }
-                                            if ($opAction == "reconstruct") {
+                                            if ($opAction == "rebuild") {
                                                 echo 'Building metadata ';
                                             }
                                             if ($opAction == "duplicate") {

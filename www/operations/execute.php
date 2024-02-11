@@ -7,7 +7,7 @@ new \Controllers\Autoloader('api');
 ini_set('memory_limit', '256M');
 
 $mylog = new \Controllers\Log\Log();
-$validActions = ['create', 'new', 'update', 'duplicate', 'delete', 'env', 'reconstruct'];
+$validActions = ['create', 'new', 'update', 'duplicate', 'delete', 'env', 'rebuild'];
 
 /**
  *  Getting options from command line: operation Id is required and cannot be empty.
@@ -76,7 +76,8 @@ if (!in_array($action, $validActions)) {
 $controllerPath = '\Controllers\Repo\Operation\\' . ucfirst($action);
 
 try {
-    new $controllerPath($poolId, $operation_params);
+    $controller = new $controllerPath($poolId, $operation_params);
+    $controller->execute();
 } catch (\Exception $e) {
     // $mylog->log('error', 'Operation run', $e->getMessage());
     echo 'Error: ' . $e->getMessage() . PHP_EOL;

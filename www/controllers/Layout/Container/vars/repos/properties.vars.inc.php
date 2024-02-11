@@ -25,7 +25,7 @@ $diskUsedSpace = round(100 - ($diskFreeSpace));
 $diskUsedSpacePercent = round(100 - ($diskFreeSpace));
 
 /**
- *  If plans are enabled the get last and next plan results
+ *  If scheduled tasks are enabled the get last and next plan results
  */
 if (PLANS_ENABLED == "true") {
     $lastPlan = $myplan->listLast();

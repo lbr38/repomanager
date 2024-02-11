@@ -39,7 +39,7 @@
 
     <div class="div-generic-blue">
         <?php
-        if ($myrepo->getReconstruct() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !Controllers\Common::dirIsEmpty($repoPath . "/my_uploaded_packages"))) {
+        if ($myrepo->getRebuild() == 'needed' or (is_dir($repoPath . '/my_uploaded_packages') and !\Controllers\Filesystem\Directory::isEmpty($repoPath . "/my_uploaded_packages"))) {
             echo '<p class="yellowtext">Repository snapshot content has been modified. You have to rebuild metadata.<br><br></p>';
         } ?>
         <span id="loading">Generating tree structure<img src="/assets/images/loading.gif" class="icon" /></span>

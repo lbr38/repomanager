@@ -286,7 +286,7 @@ trait Sync
              *  First delete the target directory if it already exists
              */
             if (is_dir($repoPath)) {
-                if (!\Controllers\Common::deleteRecursive($repoPath)) {
+                if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
                     throw new Exception('Cannot delete existing directory: ' . $repoPath);
                 }
             }
@@ -304,7 +304,7 @@ trait Sync
              *  If there was an error while mirroring, delete working dir if exists
              */
             if (is_dir($workingDir)) {
-                \Controllers\Common::deleteRecursive($workingDir);
+                \Controllers\Filesystem\Directory::deleteRecursive($workingDir);
             }
 
             /**

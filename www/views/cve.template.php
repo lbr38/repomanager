@@ -133,7 +133,7 @@
 
                             if ($lastHostId != $hostDetails['Id']) : ?>
                                 <tr>
-                                    <td><b><a href="/host?id=<?= $hostDetails['Id'] ?>" target="_blank" rel="noopener noreferrer"><?= $hostDetails['Hostname'] ?></a></b></td>
+                                    <td><b><a href="/host/<?= $hostDetails['Id'] ?>" target="_blank" rel="noopener noreferrer"><?= $hostDetails['Hostname'] ?></a></b></td>
                                     <td colspan="2"><b><?= ucfirst($hostDetails['Os']) . ' ' . $hostDetails['Os_version'] . ' - ' . $hostDetails['Kernel'] . ' ' . $hostDetails['Arch'] ?></b></td>
                                 </tr>
                                 <?php
@@ -162,7 +162,7 @@
                             if ($lastHostId != $hostDetails['Id']) : ?>
                                 <tr>
                                     <td>
-                                        <b><a href="/host?id=<?= $hostDetails['Id'] ?>" target="_blank" rel="noopener noreferrer"><?= $hostDetails['Hostname'] ?></a></b>
+                                        <b><a href="/host/<?= $hostDetails['Id'] ?>" target="_blank" rel="noopener noreferrer"><?= $hostDetails['Hostname'] ?></a></b>
                                     </td>
                                     <td colspan="2">
                                         <b><?= ucfirst($hostDetails['Os']) . ' ' . $hostDetails['Os_version'] . ' - ' . $hostDetails['Kernel'] . ' ' . $hostDetails['Arch'] ?></b>

@@ -102,7 +102,7 @@
     /**
      *  Print access logs
      */
-    \Controllers\Layout\Table\Render::render('stats/access', 0); ?>
+    \Controllers\Layout\Table\Render::render('stats/access'); ?>
     
     <br>
 

@@ -66,16 +66,16 @@ trait Create
          */
         if ($createMetadataError != 0) {
             /**
-             *  Delete everything to make sure the operation can be relaunched (except if action is 'reconstruct')
+             *  Delete everything to make sure the operation can be relaunched (except if action is 'rebuild')
              */
-            if ($this->operation->getAction() != "reconstruct") {
+            if ($this->operation->getAction() != "rebuild") {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    if (!\Controllers\Common::deleteRecursive($repoPath)) {
+                    if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
                         throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
                     }
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    if (!\Controllers\Common::deleteRecursive($repoPath)) {
+                    if (!\Controllers\Filesystem\Directory::deleteRecursive($repoPath)) {
                         throw new Exception('Repo creation has failed and directory cannot be cleaned: ' . $repoPath);
                     }
                 }
@@ -102,14 +102,31 @@ trait Create
         if ($this->operation->getAction() == "new" or $this->operation->getAction() == "update") {
             if (!empty($this->repo->getTargetEnv())) {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    exec('cd ' . REPOS_DIR . '/ && ln -sfn ' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . ' ' . $this->repo->getName() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName();
+                    $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv();
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    exec('cd ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/ && ln -sfn ' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection() . ' ' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection();
+                    $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv();
                 }
-                if ($result != 0) {
-                    throw new Exception('Repo finalization has failed');
+
+                /**
+                 *  If a symlink with the same name already exists, we remove it
+                 */
+                if (is_link($link)) {
+                    if (!unlink($link)) {
+                        throw new Exception('Could not remove existing symlink ' . $link);
+                    }
                 }
+
+                /**
+                 *  Create symlink
+                 */
+                if (!symlink($targetFile, $link)) {
+                    throw new Exception('Could not point environment to the repository');
+                }
+
+                unset($targetFile, $link);
             }
         }
 

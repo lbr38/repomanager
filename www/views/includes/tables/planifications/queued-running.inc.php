@@ -17,7 +17,7 @@
                     <span>
                         <?php
                         if ($item['Type'] == 'plan') {
-                            echo 'Planned on <b>' . DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] . '</b>';
+                            echo 'Scheduled on <b>' . DateTime::createFromFormat('Y-m-d', $item['Date'])->format('d-m-Y') . ' ' . $item['Time'] . '</b>';
                         }
 
                         if ($item['Type'] == 'regular') {
@@ -96,11 +96,11 @@
                     }
 
                     if ($item['Status'] == 'queued') {
-                        echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Plan is enabled" />';
+                        echo '<img src="/assets/icons/greencircle.png" class="icon-small" title="Task is enabled" />';
                     }
 
                     if ($item['Status'] == 'running') {
-                        echo '<span>running</span><img src="/assets/images/loading.gif" class="icon" title="Plan is currently running" />';
+                        echo '<span>running</span><img src="/assets/images/loading.gif" class="icon" title="Task is currently running" />';
                     }
 
                     if ($item['Status'] == 'disabled') {
@@ -108,7 +108,7 @@
                             echo '<img class="enablePlanBtn icon-lowopacity" plan-id="' . $item['Id'] . '" title="Enable plan" src="/assets/icons/enabled.svg" />';
                         }
 
-                        echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Plan is disabled" />';
+                        echo '<img src="/assets/icons/yellowcircle.png" class="icon-small" title="Task is disabled" />';
                     } ?>
                 </div>
             </div>

@@ -5,30 +5,30 @@
 
         foreach ($reloadableTableContent as $item) :
             /**
-             *  If the current operation item was made in a planification, we display the planification header
+             *  If the current operation item was made in a scheduled task, we display the scheduled task header
              */
             if ($item['Type'] == 'plan') {
                 $headerColor = 'header-light-blue margin-left-15';
 
                 /**
-                 *  Retrieve planification info
+                 *  Retrieve scheduled task info
                  */
                 $myplan = new \Controllers\Planification();
 
                 $planification = $myplan->get($item['Id_plan']);
 
                 /**
-                 *  Print the planification header only if it was not already printed
+                 *  Print the scheduled task header only if it was not already printed
                  */
                 if ($currentPlanId != $item['Id_plan']) : ?>
                     <div class="table-container pointer show-logfile-btn" logfile="<?= $planification['Logfile'] ?>" title="View planification log">
                         <div>
-                            <img class="icon" src="/assets/icons/calendar.svg" title="Planification" />
+                            <img class="icon" src="/assets/icons/calendar.svg" title="Scheduled task" />
                         </div>
 
                         <div class="flex flex-direction-column row-gap-4">
                             <span>
-                                <b><?= $planification['Date'] ?> <?= $planification['Time'] ?></b> Planification
+                                <b><?= $planification['Date'] ?> <?= $planification['Time'] ?></b> Scheduled task
                             </span>
                             <span class="lowopacity-cst">
                                 <?= ucfirst($planification['Action']) ?>
@@ -73,7 +73,7 @@
                         $actionTitle = 'Update repository';
                     }
 
-                    if ($item['Action'] == 'reconstruct') {
+                    if ($item['Action'] == 'rebuild') {
                         $icon = 'update';
                         $actionTitle = 'Rebuild metadata';
                     }

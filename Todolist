@@ -4,27 +4,13 @@
     
     - Update documentation
 
-    [ REPOS ]
-
-    - (DEB) Repository install: if the repository has 'src' packages, also add the 'deb-src' line to the installation command lines
 
 [ BUGS ]
-
-    [ GENERAL ]
-
 
     [ REPOS ]
 
     - (KO) Mirror a debian repo with translations => translations are not included by reprepro
     - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
-
-
-    [ OPERATIONS ]
-
-    - Regular planned tasks logs are all merged into the same Planification master log file
-
-
-    [ SERVICE ]
 
 
 [ IMPROVEMENTS / FEATURES ]
@@ -39,19 +25,14 @@
     
     - Add a search bar in the repos list
     - Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
-    - Operations: replace 'reconstruct' with 'rebuild'
     - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
     - (RPM) See how to accelerate the rpm signing process by using multi-threading
     - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
 
 
-    [ STATS ]
-
-
     [ HOSTS / LINUPDATE ]
 
     - Be able to ask a host to update one or more specific packages
-    - Improve host details page UI
     
 
     [ CVE ]
@@ -63,9 +44,6 @@
 
     - Support SSO
     - Support LDAP
-
-
-    [ API ]
 
 
     [ MAIL ]

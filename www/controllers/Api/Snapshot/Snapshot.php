@@ -62,7 +62,7 @@ class Snapshot extends \Controllers\Api\Controller
 
             if ($this->method == 'PUT') {
                 /**
-                 *  Reconstruct a snapshot
+                 *  Rebuild a snapshot
                  *  https://repomanager.mydomain.net/api/v2/snapshot/$this->snapId/rebuild
                  */
                 if ($this->action == 'rebuild' and !empty($this->data->gpgSign)) {
@@ -84,7 +84,7 @@ class Snapshot extends \Controllers\Api\Controller
                      *  Create a json file that defines the operation to execute
                      */
                     $params = array();
-                    $params['action'] = 'reconstruct';
+                    $params['action'] = 'rebuild';
                     $params['snapId'] = $this->snapId;
                     $params['targetGpgResign'] = $this->data->gpgSign;
 

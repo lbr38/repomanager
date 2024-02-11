@@ -4,7 +4,7 @@ namespace Controllers\Repo\Operation;
 
 use Exception;
 
-class Reconstruct extends Operation
+class Rebuild extends Operation
 {
     use Package\Sign;
     use Metadata\Create;
@@ -19,7 +19,7 @@ class Reconstruct extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Reconstruct repo metadata', $operationParams, $requiredParams);
+        $this->operationParamsCheck('Rebuild repo metadata', $operationParams, $requiredParams);
         $this->operationParamsSet($operationParams, $requiredParams);
 
         /**
@@ -28,7 +28,7 @@ class Reconstruct extends Operation
         $this->repo->getAllById(null, $this->repo->getSnapId(), null);
 
         /**
-         *  Set additionnal params from the actual repo to reconstruct
+         *  Set additionnal params from the actual repo to rebuild
          */
         $operationParams['targetDate'] = $this->repo->getDate();
         $operationParams['targetArch'] = $this->repo->getArch();
@@ -37,91 +37,89 @@ class Reconstruct extends Operation
          *  Check and set others operation parameters
          */
         $requiredParams = array('targetGpgResign', 'targetDate', 'targetArch');
-        $this->operationParamsCheck('Reconstruct repo', $operationParams, $requiredParams);
+        $this->operationParamsCheck('Rebuild repo', $operationParams, $requiredParams);
         $this->operationParamsSet($operationParams, $requiredParams, null);
 
         /**
          *  Set operation details
          */
-        $this->operation->setAction('reconstruct');
+        $this->operation->setAction('rebuild');
         $this->operation->setType('manual');
         $this->operation->setPoolId($poolId);
         $this->operation->setTargetSnapId($this->repo->getSnapId());
         $this->operation->setGpgResign($this->repo->getTargetGpgResign());
         $this->operation->setLogfile($this->log->getName());
         $this->operation->start();
-
-        /**
-         *  Run the operation
-         */
-        $this->reconstruct();
     }
 
     /**
-     *  Reconstruct repo metadata
+     *  Rebuild repo metadata
      */
-    private function reconstruct()
+    public function execute()
     {
         /**
-         *  Nettoyage du cache
+         *  Clear cache
          */
         \Controllers\App\Cache::clear();
 
         /**
-         *  Lancement du script externe qui va construire le fichier de log principal à partir des petits fichiers de log de chaque étape
+         *  Launch external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
         /**
-         *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+         *  Set snapshot metadata rebuild state in database
          */
-        $this->repo->snapSetReconstruct($this->repo->getSnapId(), 'running');
+        $this->repo->snapSetRebuild($this->repo->getSnapId(), 'running');
 
         try {
             /**
-             *  Etape 1 : Afficher les détails de l'opération
+             *  Print operation details
              */
             $this->printDetails('REBUILD REPO METADATA');
 
             /**
-            *   Etape 2 : signature des paquets/du repo
-            */
+             *  Sign repository / packages
+             */
             $this->signPackage();
 
             /**
-            *   Etape 3 : Création du repo et liens symboliques
-            */
+             *  Create repository and symlinks
+             */
             $this->createMetadata();
 
             /**
              *  Etape 4 : on modifie l'état de la signature du repo en BDD
-             *  Comme on a reconstruit les fichiers du repo, il est possible qu'on soit passé d'un repo signé à un repo non-signé, ou inversement
-             *  Il faut donc modifier l'état en BDD
+             *  Set repo signature state in database
+             *  As we have rebuilt the repo files, it is possible that we have switched from a signed repo to an unsigned repo, or vice versa, we must therefore modify the state in the database
              */
             $this->repo->snapSetSigned($this->repo->getSnapId(), $this->repo->getTargetGpgResign());
 
             /**
-             *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+             *  Set snapshot metadata rebuild state in database
              */
-            $this->repo->snapSetReconstruct($this->repo->getSnapId(), '');
+            $this->repo->snapSetRebuild($this->repo->getSnapId(), '');
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to done
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
-            $this->log->stepError($e->getMessage()); // On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+            /**
+             *  Print a red error message in the log file
+             */
+            $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to error
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());
 
             /**
-             *  Modification de l'état de reconstruction des métadonnées du snapshot en base de données
+             *  Set snapshot metadata rebuild state in database
              */
-            $this->repo->snapSetReconstruct($this->repo->getSnapId(), 'failed');
+            $this->repo->snapSetRebuild($this->repo->getSnapId(), 'failed');
         }
 
         /**

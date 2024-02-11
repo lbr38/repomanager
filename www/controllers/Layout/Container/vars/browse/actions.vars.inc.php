@@ -19,7 +19,7 @@ $myrepo->getAllById('', $snapId, '');
 /**
  *  Retrieve repo rebuild status
  */
-$rebuild = $myrepo->getReconstruct();
+$rebuild = $myrepo->getRebuild();
 
 /**
  *  Upload packages

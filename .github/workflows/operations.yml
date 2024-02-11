@@ -63,14 +63,14 @@ jobs:
           curl -s -o /var/lib/repomanager/operations/pool/ci-deb-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-deb-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-deb-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-reconstruct.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-rebuild.json 2> /dev/null
           
           curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
           curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-reconstruct.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-reconstruct.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
 
       - name: Set up permissions
         run: chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager /home/repo
@@ -99,8 +99,8 @@ jobs:
       - name: Run job - Create deb repo env
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-create-env'" www-data
 
-      - name: Run job - Reconstruct deb repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-reconstruct'" www-data
+      - name: Run job - Rebuild deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-rebuild'" www-data
 
       - name: Run job - Delete deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-delete'" www-data
@@ -126,8 +126,8 @@ jobs:
       - name: Run job - Create rpm repo env
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-create-env'" www-data
 
-      - name: Run job - Reconstruct rpm repo
-        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-reconstruct'" www-data
+      - name: Run job - Rebuild rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-rebuild'" www-data
 
       - name: Run job - Delete rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-delete'" www-data

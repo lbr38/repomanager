@@ -30,7 +30,7 @@ class Repo
     private $signed;
     private $type; // mirror or local
     private $status;
-    private $reconstruct;
+    private $rebuild;
     private $targetName;
     private $targetDate;
     private $targetTime;
@@ -128,9 +128,9 @@ class Repo
         $this->signed = $signed;
     }
 
-    public function setReconstruct(string $reconstruct)
+    public function setRebuild(string $rebuild)
     {
-        $this->reconstruct = $reconstruct;
+        $this->rebuild = $rebuild;
     }
 
     public function setStatus(string $status)
@@ -305,9 +305,9 @@ class Repo
         return $this->targetTime;
     }
 
-    public function getReconstruct()
+    public function getRebuild()
     {
-        return $this->reconstruct;
+        return $this->rebuild;
     }
 
     public function getStatus()
@@ -451,7 +451,7 @@ class Repo
             $this->setSigned($data['Signed']);
         }
         if (!empty($data['Reconstruct'])) {
-            $this->setReconstruct($data['Reconstruct']);
+            $this->setRebuild($data['Reconstruct']);
         }
         if (!empty($data['Description'])) {
             $this->setDescription($data['Description']);
@@ -709,12 +709,12 @@ class Repo
 
                         if ($packageType == 'rpm') {
                             if (is_dir(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName)) {
-                                $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
+                                $result = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $snapDateFormatted . '_' . $repoName);
                             }
                         }
                         if ($packageType == 'deb') {
                             if (is_dir(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection)) {
-                                $result = \Controllers\Common::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
+                                $result = \Controllers\Filesystem\Directory::deleteRecursive(REPOS_DIR . '/' . $repoName . '/' . $repoDist . '/' . $snapDateFormatted . '_' . $repoSection);
                             }
                         }
 
@@ -804,11 +804,11 @@ class Repo
     }
 
     /**
-     *  Modification de l'état de reconstruction des métadonnées du snapshot
+     *  Modification de l'état de rebuild des métadonnées du snapshot
      */
-    public function snapSetReconstruct(string $snapId, string $status = null)
+    public function snapSetRebuild(string $snapId, string $status = null)
     {
-        $this->model->snapSetReconstruct($snapId, $status);
+        $this->model->snapSetRebuild($snapId, $status);
     }
 
     /**

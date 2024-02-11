@@ -1,8 +1,8 @@
 <?php
 
-namespace Controllers\Layout\Panel;
+namespace Controllers\Layout\Panel\Hosts;
 
-class HostGroup
+class Group
 {
     public static function render()
     {

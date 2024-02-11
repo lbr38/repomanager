@@ -131,7 +131,7 @@ class Deb
              *  Clean directory if it exists
              */
             if (is_dir($this->root . '/' . $dir)) {
-                if (!\Controllers\Common::deleteRecursive($this->root . '/' . $dir)) {
+                if (!\Controllers\Filesystem\Directory::deleteRecursive($this->root . '/' . $dir)) {
                     throw new Exception('Cannot delete existing directory: ' . $this->root . '/' . $dir);
                 }
             }

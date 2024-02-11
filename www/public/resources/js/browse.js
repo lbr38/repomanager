@@ -117,22 +117,22 @@ $(document).on('click',".packageName-checkbox",function () {
 });
 
 /**
- *  Event: reconstruct metadata
+ *  Event: rebuild metadata
  */
-$(document).on('click',"#reconstructBtn",function () {
+$(document).on('click',"#rebuildBtn",function () {
     var snapId = $(this).attr('snap-id');
-    var reconstructGpgSign = 'no';
+    var rebuildGpgSign = 'no';
 
-    if ($('input[type=checkbox][name=reconstructGpgSign]').is(':checked')) {
-        var reconstructGpgSign = 'yes';
+    if ($('input[type=checkbox][name=rebuildGpgSign]').is(':checked')) {
+        var rebuildGpgSign = 'yes';
     }
 
     ajaxRequest(
         'browse',
-        'reconstruct',
+        'rebuild',
         {
             snapId: snapId,
-            reconstructGpgSign: reconstructGpgSign
+            rebuildGpgSign: rebuildGpgSign
         },
         ['browse/list', 'browse/actions']
     );

@@ -68,7 +68,7 @@
 /**
  *  Print current sources repositories
  */
-\Controllers\Layout\Table\Render::render('source_repos/list', 0); ?>
+\Controllers\Layout\Table\Render::render('source_repos/list'); ?>
 
 <h5>GPG SIGNING KEYS</h5>
 
@@ -89,7 +89,7 @@
 /**
  *  Print imported GPG signing keys
  */
-\Controllers\Layout\Table\Render::render('source_repos/gpgkeys', 0); ?>
+\Controllers\Layout\Table\Render::render('source_repos/gpgkeys'); ?>
 
 <br><br>
 

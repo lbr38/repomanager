@@ -71,7 +71,7 @@ if (IS_ADMIN) : ?>
                 <div class="flex align-item-center column-gap-4">
                     <span>Sign with GPG</span>
                     <label class="onoff-switch-label">
-                        <input name="reconstructGpgSign" type="checkbox" class="onoff-switch-input" <?= $resignChecked ?>>
+                        <input name="rebuildGpgSign" type="checkbox" class="onoff-switch-input" <?= $resignChecked ?>>
                         <span class="onoff-switch-slider"></span>
                     </label>
                 </div>
@@ -79,7 +79,7 @@ if (IS_ADMIN) : ?>
                 <span class="lowopacity-cst">Signature can extend the operation duration</span>
                 <br><br>
 
-                <button id="reconstructBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red"><img src="/assets/icons/rocket.svg" class="icon" />Execute</button>
+                <button id="rebuildBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red"><img src="/assets/icons/rocket.svg" class="icon" />Execute</button>
             </div>
             <?php
         endif ?>

@@ -1,13 +1,13 @@
 <script>
-// Données
+// Data
 var barChartData = {
     datasets: [{
-        data: [<?=$datas?>],
-        backgroundColor: [<?=$backgrounds?>],
+        data: [<?= $datas ?>],
+        backgroundColor: [<?= $backgrounds ?>],
         borderWidth: 0.4,
         maxBarThickness: 20,
     }],
-    labels: [<?=$labels?>],
+    labels: [<?= $labels ?>],
 };
 // Options
 var barChartOptions = {
@@ -19,7 +19,7 @@ var barChartOptions = {
         },
         title: {
             display: true,
-            text: "<?=$title?>"
+            text: "<?= $title ?>"
         }
     },
     elements: {
@@ -40,8 +40,8 @@ var barChartOptions = {
         }
     }
 }
-// Affichage du chart
-var ctx = document.getElementById('<?=$chartId?>').getContext("2d");
+// Print chart
+var ctx = document.getElementById('<?= $chartId ?>').getContext("2d");
 window.myBar = new Chart(ctx, {
     type: "bar",
     data: barChartData,

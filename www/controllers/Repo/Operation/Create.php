@@ -11,6 +11,8 @@ class Create extends Operation
     use Metadata\Create;
     use Finalize;
 
+    private $type;
+
     public function __construct(string $poolId, array $operationParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
@@ -89,15 +91,29 @@ class Create extends Operation
          *  Run the operation
          */
         if ($operationParams['type'] == 'mirror') {
-            $this->mirror();
+            $this->type = 'mirror';
         }
         if ($operationParams['type'] == 'local') {
+            $this->type = 'local';
+        }
+    }
+
+    /**
+     *  Create repository
+     */
+    public function execute()
+    {
+        if ($this->type == 'mirror') {
+            $this->mirror();
+        }
+
+        if ($this->type == 'local') {
             $this->local();
         }
     }
 
     /**
-     *  Create a new mirror
+     *  Create a mirror repository
      */
     private function mirror()
     {
@@ -119,39 +135,39 @@ class Create extends Operation
 
         try {
             /**
-             *  Etape 1 : Afficher les détails de l'opération
+             *  Print operation details
              */
             $this->printDetails('CREATE A NEW ' . strtoupper($this->repo->getPackageType()) . ' REPOSITORY MIRROR');
 
             /**
-             *   Etape 2 : récupération des paquets
+             *  Sync packages
              */
             $this->syncPackage();
 
             /**
-             *   Etape 3 : signature des paquets/du repo
+             *  Sign repository / packages
              */
             $this->signPackage();
 
             /**
-             *   Etape 4 : Création du repo et liens symboliques
+             *  Create repository and symlinks
              */
             $this->createMetadata();
 
             /**
-             *   Etape 5 : Finalisation du repo (ajout en BDD et application des droits)
+             *  Finalize repository (add to database and set permissions)
              */
             $this->finalize();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to 'done'
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to 'error'
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());
@@ -170,12 +186,12 @@ class Create extends Operation
     }
 
     /**
-     *  Création d'un nouveau repo / section local
+     *  Create a local repository
      */
     private function local()
     {
         /**
-         *  On défini la date du jour et l'environnement par défaut sur lesquels sera basé le nouveau miroir
+         *  Set today date and time as target date and time
          */
         $this->repo->setTargetDate(date('Y-m-d'));
         $this->repo->setTargetTime(date("H:i"));
@@ -186,7 +202,7 @@ class Create extends Operation
         \Controllers\App\Cache::clear();
 
         /**
-         *  Run the external script that will build the main log file from the small log files of each step
+         *  Launch the external script that will build the main log file from the small log files of each step
          */
         $this->log->runLogBuilder($this->operation->getPid(), $this->log->getLocation());
 
@@ -194,14 +210,14 @@ class Create extends Operation
             ob_start();
 
             /**
-             *  1. Génération du tableau récapitulatif de l'opération
+             *  Generate operation summary table
              */
             include(ROOT . '/templates/tables/op-new-local.inc.php');
 
             $this->log->step('CREATING REPO');
 
             /**
-             *  3. Création du répertoire avec le nom du repo, et les sous-répertoires permettant d'acceuillir les futurs paquets
+             *  Create repo directory and subdirectories
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 if (!is_dir(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '/packages')) {
@@ -219,22 +235,39 @@ class Create extends Operation
             }
 
             /**
-             *   4. Création du lien symbolique, si un environnement a été spécifié par l'utilisateur
+             *  Create environment symlink, if an environment has been specified
              */
             if (!empty($this->repo->getTargetEnv())) {
                 if ($this->repo->getPackageType() == 'rpm') {
-                    exec('cd ' . REPOS_DIR . '/ && ln -sfn ' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . ' ' . $this->repo->getName() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName();
+                    $link = REPOS_DIR . '/' . $this->repo->getName() . '_' . $this->repo->getTargetEnv();
                 }
                 if ($this->repo->getPackageType() == 'deb') {
-                    exec('cd ' . REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/ && ln -sfn ' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection() . ' ' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv(), $output, $result);
+                    $targetFile = $this->repo->getTargetDateFormatted() . '_' . $this->repo->getSection();
+                    $link = REPOS_DIR . '/' . $this->repo->getName() . '/' . $this->repo->getDist() . '/' . $this->repo->getSection() . '_' . $this->repo->getTargetEnv();
                 }
-                if ($result != 0) {
+
+                /**
+                 *  If a symlink with the same name already exists, we remove it
+                 */
+                if (is_link($link)) {
+                    if (!unlink($link)) {
+                        throw new Exception('Could not remove existing symlink ' . $link);
+                    }
+                }
+
+                /**
+                 *  Create symlink
+                 */
+                if (!symlink($targetFile, $link)) {
                     throw new Exception('Could not point environment to the repository');
                 }
+
+                unset($targetFile, $link);
             }
 
             /**
-             *  Vérification de l'existance du repo en base de données
+             *  Check if repository exists in database
              */
             if ($this->repo->getPackageType() == 'rpm') {
                 $exists = $this->repo->exists($this->repo->getName());
@@ -244,8 +277,8 @@ class Create extends Operation
             }
 
             /**
-             *  Si actuellement aucun repo de ce nom n'existe en base de données alors on l'ajoute
-             *  Note : ici on renseigne la source comme étant $this->repo->getName()
+             *  If no repo of this name exists in database then we add it
+             *  Note: here we set the source as $this->repo->getName()
              */
             if ($exists === false) {
                 if ($this->repo->getPackageType() == 'rpm') {
@@ -276,11 +309,11 @@ class Create extends Operation
                 }
 
             /**
-             *  Sinon si un repo de même nom existe, on rattache ce nouveau snapshot et ce nouvel env à ce repo
+             *  Else if a repo of this name exists, we attach this new snapshot and this new env to this repo
              */
             } else {
                 /**
-                 *  D'abord on récupère l'Id en base de données du repo
+                 *  Retrieve and set repo Id from database
                  */
                 if ($this->repo->getPackageType() == 'rpm') {
                     $this->repo->setRepoId($this->repo->getIdByName($this->repo->getName(), '', ''));
@@ -294,40 +327,40 @@ class Create extends Operation
             unset($exists);
 
             /**
-             *  Ajout du snapshot en base de données
+             *  Add snapshot to database
              */
             $this->repo->addSnap($this->repo->getTargetDate(), $this->repo->getTargetTime(), 'no', $this->repo->getTargetArch(), $this->repo->getTargetPackageTranslation(), $this->repo->getType(), 'active', $this->repo->getRepoId());
 
             /**
-             *  Récupération de l'Id du snapshot ajouté précédemment
+             *  Retrieve snapshot Id from the last insert row
              */
             $this->repo->setSnapId($this->repo->getLastInsertRowID());
 
             /**
-             *  Ajout de l'env en base de données si un env a été spécifié par l'utilisateur
+             *  Add env to database if an env has been specified by the user
              */
             if (!empty($this->repo->getTargetEnv())) {
                 $this->repo->addEnv($this->repo->getTargetEnv(), $this->repo->getTargetDescription(), $this->repo->getSnapId());
             }
 
             /**
-             *  6. Application des droits sur le nouveau repo créé
+             *  Apply permissions on the new repo
              */
             if ($this->repo->getPackageType() == 'rpm') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName() . '/ -type d -exec chmod 0770 {} \;');
-                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName());
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getTargetDateFormatted() . '_' . $this->repo->getName(), WWW_USER, 'repomanager');
             }
             if ($this->repo->getPackageType() == 'deb') {
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/ -type f -exec chmod 0660 {} \;');
-                exec('find ' . REPOS_DIR . '/' . $this->repo->getName() . '/ -type d -exec chmod 0770 {} \;');
-                exec('chown -R ' . WWW_USER . ':repomanager ' . REPOS_DIR . '/' . $this->repo->getName());
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName(), 'dir', 770);
+                \Controllers\Filesystem\File::recursiveChmod(REPOS_DIR . '/' . $this->repo->getName(), 'file', 660);
+                \Controllers\Filesystem\File::recursiveChown(REPOS_DIR . '/' . $this->repo->getName(), WWW_USER, 'repomanager');
             }
 
             $this->log->stepOK();
 
             /**
-             *  7. Ajout de la section à un groupe si un groupe a été renseigné
+             *  Add repo to group if a group has been specified
              */
             if (!empty($this->repo->getTargetGroup())) {
                 $this->log->step('ADDING TO GROUP');
@@ -336,22 +369,22 @@ class Create extends Operation
             }
 
             /**
-             *  Nettoyage des repos inutilisés dans les groupes
+             *  Clean unused repos in groups
              */
             $this->repo->cleanGroups();
 
             /**
-             *  Passage du status de l'opération en done
+             *  Set operation status to 'done'
              */
             $this->operation->setStatus('done');
         } catch (\Exception $e) {
             /**
-             *  On transmets l'erreur à $this->log->stepError() qui va se charger de l'afficher en rouge dans le fichier de log
+             *  Print a red error message in the log file
              */
             $this->log->stepError($e->getMessage());
 
             /**
-             *  Passage du status de l'opération en erreur
+             *  Set operation status to 'error'
              */
             $this->operation->setStatus('error');
             $this->operation->setError($e->getMessage());
