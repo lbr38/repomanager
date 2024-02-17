@@ -25,7 +25,9 @@
             endif ?>
         </div>
 
-        <div class="relative">
+        <input id="repo-search-input" type="text" placeholder="Search" onkeyup="searchRepo()" />
+
+        <div class="flex justify-end margin-bottom-5">
             <span id="hideAllReposGroups" class="lowopacity pointer" state="visible">Hide / show all<img src="/assets/icons/up.svg" class="icon" /></span>
         </div>
 

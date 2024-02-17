@@ -1,8 +1,86 @@
 loadNewRepoFormJS();
 
 /**
- *  Fonctions
+ *  Search for a repo (search input)
  */
+function searchRepo()
+{
+    /**
+     *  If input is empty, then show all repos and quit
+     */
+    if (!$("#repo-search-input").val()) {
+        $('.repos-list-group, .repos-list-group-flex-div').show();
+        return;
+    }
+
+    printLoading();
+
+    /**
+     *  Retrieve search input value
+     *  Convert to uppercase to ignore case when searching
+     */
+    search = $("#repo-search-input").val().toUpperCase();
+
+    /**
+     *  Remove all spaces from search
+     */
+    search = search.replaceAll(' ', '');
+
+    /**
+     *  First, hide all repos groups
+     */
+    $('.repos-list-group, .repos-list-group-flex-div').hide();
+    
+    /**
+     *  Then search in every repo group of there is a repo or dist or section matching the search
+     */
+    $('.repos-list-group').each(function () {
+        /**
+         *  Retrieve all repos lines
+         */
+        $('.repos-list-group-flex-div').each(function () {
+            repoName = $(this).find('.item-repo').attr('name');
+            repoDist = $(this).find('.item-repo').attr('dist');
+            repoSection = $(this).find('.item-repo').attr('section');
+            repoReleasever = $(this).find('.item-repo').attr('releasever');
+
+            /**
+             *  If repo name contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (repoName.toUpperCase().indexOf(search) > -1) {
+                $(this).show();
+                $(this).parents('.repos-list-group').show();
+            }
+
+            /**
+             *  If repo dist contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (repoDist.toUpperCase().indexOf(search) > -1) {
+                $(this).show();
+                $(this).parents('.repos-list-group').show();
+            }
+
+            /**
+             *  If repo section contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (repoSection.toUpperCase().indexOf(search) > -1) {
+                $(this).show();
+                $(this).parents('.repos-list-group').show();
+            }
+
+            /**
+             *  If repo releasever contains the search then display 'repos-list-group-flex-div' and its parent 'repos-list-group'
+             */
+            if (repoReleasever.toUpperCase().indexOf(search) > -1) {
+                $(this).show();
+                $(this).parents('.repos-list-group').show();
+            }        
+        });
+    });
+
+    hideLoading();
+}
+
 function loadNewRepoFormJS()
 {
     /**
