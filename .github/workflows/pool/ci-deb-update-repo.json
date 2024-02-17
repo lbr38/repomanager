@@ -1,0 +1,17 @@
+{
+    "action": "update",
+    "snapId": "1",
+    "targetGpgCheck": "no",
+    "targetGpgResign": "yes",
+    "targetEnv": "pprd",
+    "targetArch": [
+        "amd64",
+        "armhf"
+    ],
+    "targetSourcePackage": "no",
+    "targetPackageTranslation": [
+        "fr",
+        "en"
+    ],
+    "onlySyncDifference": "no"
+}

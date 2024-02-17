@@ -571,9 +571,6 @@ footer {
 footer #github img { width: 25px; }
 
 #hideAllReposGroups {
-    position: absolute;
-    right: 6px;
-    top: -23px;
     font-size: 13px;
 }
 

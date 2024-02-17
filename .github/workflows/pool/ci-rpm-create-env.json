@@ -1,0 +1,6 @@
+{
+    "action": "env",
+    "snapId": "3",
+    "targetEnv": "prod",
+    "targetDescription": "CI - point env"
+}

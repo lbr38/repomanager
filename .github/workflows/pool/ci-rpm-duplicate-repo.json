@@ -1,0 +1,8 @@
+{
+    "action": "duplicate",
+    "snapId": "3",
+    "targetName": "extras-copy",
+    "targetEnv": "pprd",
+    "targetDescription": "CI - duplicate repo",
+    "targetGroup": ""
+}

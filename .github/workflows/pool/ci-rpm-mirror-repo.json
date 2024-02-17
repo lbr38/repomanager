@@ -1,0 +1,17 @@
+{
+    "action": "new",
+    "packageType": "rpm",
+    "type": "mirror",
+    "source": "extras",
+    "alias": "extras",
+    "releasever": "7",
+    "targetEnv": "pprd",
+    "targetDescription": "CI - create extras repo",
+    "targetGpgCheck": "no",
+    "targetGpgResign": "yes",
+    "targetGroup": "",
+    "targetArch": [
+        "x86_64"
+    ],
+    "targetSourcePackage": "yes"
+}

@@ -1,0 +1,8 @@
+{
+    "action": "duplicate",
+    "snapId": "1",
+    "targetName": "debian-copy",
+    "targetEnv": "pprd",
+    "targetDescription": "CI - duplicate repo",
+    "targetGroup": ""
+}

@@ -81,6 +81,17 @@ class System
         }
 
         /**
+         *  GET Parameters
+         */
+        if (!defined('__GET_PARAMETERS__')) {
+            if (!empty($_POST['sourceGetParameters'])) {
+                define('__GET_PARAMETERS__', $_POST['sourceGetParameters']);
+            } else {
+                define('__GET_PARAMETERS__', '');
+            }
+        }
+
+        /**
          *  Parameters
          */
         if (!defined('__QUERY_STRING__')) {

@@ -124,40 +124,44 @@ class Cve extends \Models\Model
     }
 
     /**
-     *  Return all CVEs Id by start index
+     *  Return all CVEs
+     *  It is possible to add an offset to the request
      */
-    public function getAllIdByIndex(string $startIndex, string $filter)
+    public function getAll(bool $withOffset, int $offset, string|null $filter)
     {
         $cves = array();
 
-        /**
-         *  Set default limit and offset for pagination
-         */
-        $limitOffset = "LIMIT 50 OFFSET :offset";
-
-        /**
-         *  If start index is -1, return all CVEs without limit
-         */
-        if ($startIndex == -1) {
-            $limitOffset = '';
-        }
-
         try {
             if (!empty($filter)) {
-                $stmt = $this->db->prepare("SELECT DISTINCT cve.Id FROM cve
+                $query = "SELECT cve.Id, cve.Name, cve.Date, cve.Time, cve.Updated_date, cve.Updated_time, cve.Cpe23Uri, cve.Description, cve.Cvss2_score, cve.Cvss3_score,
+                cve_cpe.Part, cve_cpe.Vendor, cve_cpe.Product, cve_cpe.Version, cve_cpe.Id_cve
+                FROM cve
                 LEFT JOIN cve_cpe ON cve_cpe.Id_cve = cve.Id
                 $filter
-                ORDER BY Updated_date DESC, Updated_time DESC $limitOffset");
+                ORDER BY Updated_date DESC, Updated_time DESC";
             } else {
-                $stmt = $this->db->prepare("SELECT Id FROM cve ORDER BY Updated_date DESC, Updated_time DESC $limitOffset");
+                $query = "SELECT * FROM cve ORDER BY Updated_date DESC, Updated_time DESC";
             }
-            $stmt->bindValue(':offset', $startIndex);
+
+            /**
+             *  If offset is specified
+             */
+            if ($withOffset) {
+                $query .= " LIMIT 10 OFFSET :offset";
+            }
+
+            /**
+             *  Prepare query
+             */
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+
             $result = $stmt->execute();
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $cves[] = $row['Id'];
+            $cves[] = $row;
         }
 
         return $cves;
