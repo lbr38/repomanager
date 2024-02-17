@@ -180,7 +180,7 @@ if (!empty($groupsList)) {
                                 echo '<div class="item-empty-line"></div>';
                             } ?>
 
-                            <div class="item-repo">
+                            <div class="item-repo" name="<?= $name ?>" dist="<?= $dist ?>" section="<?= $section ?>" releasever="<?= $releaseVersion ?>">
                                 <?php
                                 if ($printRepoName) : ?>
                                     <div class="flex align-item-center column-gap-8">

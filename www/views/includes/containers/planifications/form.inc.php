@@ -269,7 +269,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="100%"><button type="submit" class="btn-large-green">Plan</button></td>
+                    <td colspan="100%"><button type="submit" class="btn-large-green">Schedule</button></td>
                 </tr>
             </table>
         </form>

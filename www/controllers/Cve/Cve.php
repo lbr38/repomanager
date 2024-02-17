@@ -54,11 +54,12 @@ class Cve
     }
 
     /**
-     *  Return all CVEs Id by index
+     *  Return all CVEs
+     *  It is possible to add an offset to the request
      */
-    public function getAllIdByIndex(string $startIndex = '0', string $filter = null)
+    public function getAll(bool $withOffset = false, int $offset = 0, string|null $filter)
     {
-        return $this->model->getAllIdByIndex($startIndex, $filter);
+        return $this->model->getAll($withOffset, $offset, $filter);
     }
 
     /**

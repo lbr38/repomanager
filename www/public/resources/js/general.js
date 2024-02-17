@@ -329,7 +329,8 @@ function reloadTable(table, offset)
             table: table,
             offset: offset,
             sourceUrl: window.location.href,
-            sourceUri: window.location.pathname
+            sourceUri: window.location.pathname,
+            sourceGetParameters: getGetParams()
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

@@ -897,7 +897,7 @@ function execAction(action, hosts_array)
         success: function (data, textStatus, jqXHR) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
-            // reloadContainer('hosts/list');
+            reloadContainer('hosts/list');
         },
         error: function (jqXHR, textStatus, thrownError) {
             jsonValue = jQuery.parseJSON(jqXHR.responseText);

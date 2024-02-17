@@ -1,4 +1,4 @@
-<section class="section-main">
+<section class="section-main reloadable-container" container="host/summary">
     <?php
     if (IS_ADMIN) : ?>
         <div class="relative">

@@ -23,7 +23,6 @@
 
     [ REPOS ]
     
-    - Add a search bar in the repos list
     - Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
     - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
     - (RPM) See how to accelerate the rpm signing process by using multi-threading

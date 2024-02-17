@@ -141,7 +141,6 @@ class Connection extends SQLite3
     {
         $result = $this->query("SELECT name FROM sqlite_master WHERE type='table'
         and name='stats'
-        OR name='access'
         OR name='access_deb'
         OR name='access_rpm'
         OR name='access_queue'");
@@ -192,7 +191,7 @@ class Connection extends SQLite3
      */
     public function checkStatsTables()
     {
-        $required = 5;
+        $required = 4;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -728,18 +727,6 @@ class Connection extends SQLite3
         Size INTEGER NOT NULL,
         Packages_count INTEGER NOT NULL,
         Id_env INTEGER NOT NULL)");
-
-        /**
-         *  access table
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS access (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Source VARCHAR(255) NOT NULL,
-        IP VARCHAR(16) NOT NULL,
-        Request VARCHAR(255) NOT NULL,
-        Request_result VARCHAR(8) NOT NULL)");
 
         /**
          *  access_deb table

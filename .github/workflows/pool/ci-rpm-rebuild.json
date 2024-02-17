@@ -1,0 +1,5 @@
+{
+    "action": "rebuild",
+    "snapId": "3",
+    "targetGpgResign": "yes"
+}
