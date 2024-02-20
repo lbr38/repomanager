@@ -3,9 +3,9 @@
         <div id="title-button-div">
             <h3>REPOS</h3>
 
-            <?php
-            if (IS_ADMIN) : ?>
-                <div id="title-button-container">
+            <div class="flex justify-space-between">
+                <?php
+                if (IS_ADMIN) : ?>
                     <div class="slide-btn slide-panel-btn" slide-panel="repos/groups" title="Manage repos groups">
                         <img src="/assets/icons/folder.svg" />
                         <span>Manage groups</span>
@@ -20,12 +20,12 @@
                         <img src="/assets/icons/plus.svg" />
                         <span>Create a new repo</span>
                     </div>
-                </div>
-                <?php
-            endif ?>
+                    <?php
+                endif ?>
+            </div>
         </div>
 
-        <input id="repo-search-input" type="text" placeholder="Search" onkeyup="searchRepo()" />
+        <input id="repo-search-input" class="margin-bottom-10" type="text" placeholder="Search" onkeyup="searchRepo()" title="Search by repository name, distribution, section or release version" />
 
         <div class="flex justify-end margin-bottom-5">
             <span id="hideAllReposGroups" class="lowopacity pointer" state="visible">Hide / show all<img src="/assets/icons/up.svg" class="icon" /></span>
