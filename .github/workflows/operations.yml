@@ -40,10 +40,9 @@ jobs:
           mkdir -p /var/www/repomanager
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          echo "repomanager-ci.localhost" > /var/lib/docker/volumes/repomanager-dev-www/.fqdn
           chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
 
-      - name: test
-        run: ls -l /var/www/repomanager/
       # - name: Set up repomanager files & directories
       #   run: |
       #     groupadd repomanager
@@ -67,21 +66,21 @@ jobs:
       #     ls -l /var/lib/repomanager/configurations/
       #     ls -l /var/lib/repomanager/db/
 
-      # - name: Retrieve jobs
-      #   run: |
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-rebuild.json 2> /dev/null
+      - name: Retrieve jobs
+        run: |
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-rebuild.json 2> /dev/null
           
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
 
       # - name: Set up permissions
       #   run: chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager /home/repo
@@ -91,9 +90,9 @@ jobs:
       #     /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
       #     /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
 
-      # # deb
-      # - name: Run job - Mirror deb repo
-      #   run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
+      # deb
+      - name: Run job - Mirror deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
       # - name: Print mirrored deb repo content
       #   run: ls -l /home/repo/debian/buster/contrib_pprd/pool/contrib/
