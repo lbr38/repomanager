@@ -34,6 +34,9 @@ jobs:
       - name: Print PHP version
         run: php --version
 
+      - name: sleep
+        run: sleep 10
+        
       - name: test3
         run: ls -l /var/www/repomanager/ /var/lib/repomanager/
 
