@@ -128,8 +128,8 @@ jobs:
       - name: Run job - Mirror deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
-      # - name: Print mirrored deb repo content
-      #   run: ls -l /home/repo/debian/buster/contrib_pprd/pool/contrib/
+      - name: Print mirrored deb repo content
+        run: ls -l /home/repo/debian/buster/contrib_pprd/pool/contrib/
 
       # - name: Run job - Update deb repo
       #   run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-update-repo'" www-data
