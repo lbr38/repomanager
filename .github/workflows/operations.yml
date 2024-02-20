@@ -34,6 +34,14 @@ jobs:
       - name: Print PHP version
         run: php --version
 
+      - name: Setup latest source code
+        run: |
+          rm -fr /var/www/repomanager
+          mkdir -p /var/www/repomanager
+          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
+
       # - name: Set up repomanager files & directories
       #   run: |
       #     groupadd repomanager
