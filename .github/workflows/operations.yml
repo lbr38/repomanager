@@ -66,7 +66,7 @@ jobs:
       #     ls -l /var/lib/repomanager/configurations/
       #     ls -l /var/lib/repomanager/db/
 
-      - name: Retrieve jobs
+      - name: Create operation jobs
         run: |
           mkdir -p /var/lib/repomanager/operations/pool/
           cat > /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json << EOF
@@ -112,8 +112,8 @@ jobs:
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
 
-      # - name: Set up permissions
-      #   run: chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager /home/repo
+      - name: Set up permissions
+        run: chown -R www-data:repomanager /var/lib/repomanager/operations/pool
 
       # - name: Update database
       #   run: |
@@ -121,8 +121,8 @@ jobs:
       #     /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
 
       # deb
-      # - name: Run job - Mirror deb repo
-      #   run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
+      - name: Run job - Mirror deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
       # - name: Print mirrored deb repo content
       #   run: ls -l /home/repo/debian/buster/contrib_pprd/pool/contrib/
