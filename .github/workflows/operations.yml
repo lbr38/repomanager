@@ -11,43 +11,44 @@ jobs:
   run-operations:
     runs-on: ubuntu-latest
     container:
-      image: debian:12-slim
+      # image: debian:12-slim
+      image: lbr38/repomanager:latest
       options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install dependencies packages
-        run: |
-          apt-get update -y
-          apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
+      # - name: Install dependencies packages
+      #   run: |
+      #     apt-get update -y
+      #     apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
 
-      - name: Setup PHP
-        run: |
-          curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-          echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
+      # - name: Setup PHP
+      #   run: |
+      #     curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
+      #     echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
 
-      - name: Install PHP modules
-        run: apt-get update && apt-get install -y php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
+      # - name: Install PHP modules
+      #   run: apt-get update && apt-get install -y php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
 
       - name: Print PHP version
         run: php --version
 
-      - name: Set up repomanager files & directories
-        run: |
-          groupadd repomanager
-          usermod -a -G repomanager www-data
-          mkdir -p /home/repo
-          mkdir -p /var/www/repomanager
-          mkdir -p /var/lib/repomanager
-          mkdir -p /var/lib/repomanager/backups
-          mkdir -p /var/lib/repomanager/logs/main
-          mkdir -p /var/lib/repomanager/configurations
-          mkdir -p /var/lib/repomanager/operations/pool/
-          mkdir -p /var/lib/repomanager/db
-          mkdir -p /var/lib/repomanager/.gnupg
-          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
-          cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+      # - name: Set up repomanager files & directories
+      #   run: |
+      #     groupadd repomanager
+      #     usermod -a -G repomanager www-data
+      #     mkdir -p /home/repo
+      #     mkdir -p /var/www/repomanager
+      #     mkdir -p /var/lib/repomanager
+      #     mkdir -p /var/lib/repomanager/backups
+      #     mkdir -p /var/lib/repomanager/logs/main
+      #     mkdir -p /var/lib/repomanager/configurations
+      #     mkdir -p /var/lib/repomanager/operations/pool/
+      #     mkdir -p /var/lib/repomanager/db
+      #     mkdir -p /var/lib/repomanager/.gnupg
+      #     cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+      #     cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
 
       - name: Set up repomanager main config
         run: |
