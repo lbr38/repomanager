@@ -100,7 +100,7 @@ jobs:
 
       - name: test
         run: |
-          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('preprod');"
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
           cat /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json
           curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
