@@ -101,8 +101,7 @@ jobs:
       - name: test
         run: |
           cat /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json
-
-      #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
+          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
