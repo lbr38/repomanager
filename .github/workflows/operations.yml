@@ -40,7 +40,7 @@ jobs:
           mkdir -p /var/www/repomanager
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
-          echo "repomanager-ci.localhost" > /var/lib/docker/volumes/repomanager-dev-www/.fqdn
+          echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
           chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
 
       # - name: Set up repomanager files & directories
