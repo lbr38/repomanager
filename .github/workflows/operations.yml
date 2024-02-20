@@ -68,6 +68,7 @@ jobs:
 
       - name: Retrieve jobs
         run: |
+          mkdir -p /var/lib/repomanager/operations/pool/
           cat > /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json << EOF
           {
             "action": "new",
