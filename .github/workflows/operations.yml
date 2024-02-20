@@ -97,6 +97,8 @@ jobs:
       #     EOF
 
 
+      - name: test2
+        run: ls -l /var/lib/repomanager/
 
       - name: test
         run: |
