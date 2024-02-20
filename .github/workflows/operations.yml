@@ -34,6 +34,9 @@ jobs:
       - name: Print PHP version
         run: php --version
 
+      - name: test3
+        run: ls -l /var/www/repomanager/ /var/lib/repomanager/
+
       - name: Setup latest source code
         run: |
           rm -fr /var/www/repomanager
