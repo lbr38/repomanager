@@ -30,7 +30,7 @@ function searchRepo()
      *  First, hide all repos groups
      */
     $('.repos-list-group, .repos-list-group-flex-div').hide();
-    
+
     /**
      *  Then search in every repo group of there is a repo or dist or section matching the search
      */
@@ -74,7 +74,7 @@ function searchRepo()
             if (repoReleasever.toUpperCase().indexOf(search) > -1) {
                 $(this).show();
                 $(this).parents('.repos-list-group').show();
-            }        
+            }
         });
     });
 
