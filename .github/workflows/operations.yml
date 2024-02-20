@@ -69,6 +69,7 @@ jobs:
       - name: Create operation jobs
         run: |
           mkdir -p /var/lib/repomanager/operations/pool/
+          
           cat > /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json << EOF
           {
             "action": "new",
@@ -92,7 +93,9 @@ jobs:
                 "fr",
                 "en"
             ]
-          }
+          } EOF
+
+
 
       - name: test
         run: |
@@ -113,7 +116,7 @@ jobs:
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
 
       - name: Set up permissions
-        run: chown -R www-data:repomanager /var/lib/repomanager/operations/pool
+        run: chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager/
 
       # - name: Update database
       #   run: |
