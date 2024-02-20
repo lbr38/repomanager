@@ -66,40 +66,41 @@ jobs:
       #     ls -l /var/lib/repomanager/configurations/
       #     ls -l /var/lib/repomanager/db/
 
-      - name: Create operation jobs
-        run: |
-          mkdir -p /var/lib/repomanager/operations/pool/
+      # - name: Create operation jobs
+      #   run: |
+      #     mkdir -p /var/lib/repomanager/operations/pool/
           
-          cat > /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json << EOF
-          {
-            "action": "new",
-            "packageType": "deb",
-            "type": "mirror",
-            "source": "debian",
-            "alias": "debian",
-            "dist": "buster",
-            "section": "contrib",
-            "targetEnv": "pprd",
-            "targetDescription": "CI - create debian contrib repo",
-            "targetGpgCheck": "no",
-            "targetGpgResign": "yes",
-            "targetGroup": "",
-            "targetArch": [
-                "amd64",
-                "armhf"
-            ],
-            "targetSourcePackage": "no",
-            "targetPackageTranslation": [
-                "fr",
-                "en"
-            ]
-          }
-          EOF
+      #     cat > /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json << EOF
+      #     {
+      #       "action": "new",
+      #       "packageType": "deb",
+      #       "type": "mirror",
+      #       "source": "debian",
+      #       "alias": "debian",
+      #       "dist": "buster",
+      #       "section": "contrib",
+      #       "targetEnv": "pprd",
+      #       "targetDescription": "CI - create debian contrib repo",
+      #       "targetGpgCheck": "no",
+      #       "targetGpgResign": "yes",
+      #       "targetGroup": "",
+      #       "targetArch": [
+      #           "amd64",
+      #           "armhf"
+      #       ],
+      #       "targetSourcePackage": "no",
+      #       "targetPackageTranslation": [
+      #           "fr",
+      #           "en"
+      #       ]
+      #     }
+      #     EOF
 
 
 
       - name: test
         run: |
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('preprod');"
           cat /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json
           curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
       #     curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
@@ -128,7 +129,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
       - name: Print mirrored deb repo content
-        run: ls -l /home/repo/
+        run: ls -l /home/repo/debian/buster/contrib_pprd/pool/contrib/
 
       # - name: Run job - Update deb repo
       #   run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-update-repo'" www-data
