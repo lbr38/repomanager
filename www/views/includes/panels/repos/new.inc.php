@@ -6,27 +6,31 @@
             <tr>
                 <td>Package type</td>
                 <td>
-                    <div class="switch-field">
-                        <?php
-                        /**
-                         *  Cas où le serveur gère plusieurs types de repo différents
-                         */
-                        if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
+                    <?php
+                    /**
+                     *  Case where the server manages several different types of repo
+                     */
+                    if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
+                        <div class="switch-field">
                             <input type="radio" id="packageType_rpm" class="operation_param" param-name="packageType" name="packageType" value="rpm" checked />
                             <label for="packageType_rpm">rpm</label>
                             <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" />
                             <label for="packageType_deb">deb</label>
-                            <?php
-                        elseif (RPM_REPO == 'true') : ?>
+                        </div>
+                        <?php
+                    elseif (RPM_REPO == 'true') : ?>
+                        <div class="single-switch-field">
                             <input type="radio" id="packageType_rpm" class="operation_param" param-name="packageType" name="packageType" value="rpm" checked />
-                            <label for="packageType_rpm">rpm</label>     
-                            <?php
-                        elseif (DEB_REPO == 'true') : ?>
+                            <label for="packageType_rpm">rpm</label>
+                        </div>
+                        <?php
+                    elseif (DEB_REPO == 'true') : ?>
+                        <div class="single-switch-field">
                             <input type="radio" id="packageType_deb" class="operation_param" param-name="packageType" name="packageType" value="deb" checked />
-                            <label for="packageType_deb">deb</label> 
-                            <?php
-                        endif ?>
-                    </div>
+                            <label for="packageType_deb">deb</label>
+                        </div>
+                        <?php
+                    endif ?>
                 </td>
             </tr>
             <tr>

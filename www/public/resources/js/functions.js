@@ -339,6 +339,44 @@ function setCookie(cname, cvalue, exdays)
 }
 
 /**
+ *  Return GET parameters as object (array)
+ */
+function getGetParams()
+{
+    /**
+     *  Get current URL and GET parameters
+     */
+    let url = new URL(window.location.href)
+    let params = new URLSearchParams(url.search);
+    let entries = params.entries();
+
+    /**
+     *  Parse and convert to object
+     *  For each GET param, add key and value to the object
+     */
+    let array = {}
+    for (let entry of entries) { // each 'entry' is a [key, value]
+        let [key, val] = entry;
+
+        /**
+         *  If key ends with '[]' then it's an array
+         */
+        if (key.endsWith('[]')) {
+            // clean up the key
+            key = key.slice(0,-2);
+            (array[key] || (array[key] = [])).push(val)
+        /**
+         *  Else it's a normal parameter
+         */
+        } else {
+            array[key] = val;
+        }
+    }
+
+    return array;
+}
+
+/**
  * Execute an ajax request
  * @param {*} controller
  * @param {*} action

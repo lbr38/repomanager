@@ -9,24 +9,28 @@
         <tr>
             <td class="td-30">Repo type</td>
             <td colspan="100%">
-                <div class="switch-field">
-                    <?php
-                    if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
+                <?php
+                if (RPM_REPO == 'true' and DEB_REPO == 'true') : ?>
+                    <div class="switch-field">
                         <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
                         <label for="repoType_rpm">rpm</label>
                         <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" />
                         <label for="repoType_deb">deb</label>
-                        <?php
-                    elseif (RPM_REPO == 'true') : ?>
+                    </div>
+                    <?php
+                elseif (RPM_REPO == 'true') : ?>
+                    <div class="single-switch-field">
                         <input type="radio" id="repoType_rpm" name="addSourceRepoType" value="rpm" checked />
-                        <label for="repoType_rpm">rpm</label>     
-                        <?php
-                    elseif (DEB_REPO == 'true') : ?>
+                        <label for="repoType_rpm">rpm</label>
+                    </div>
+                    <?php
+                elseif (DEB_REPO == 'true') : ?>
+                    <div class="single-switch-field">
                         <input type="radio" id="repoType_deb" name="addSourceRepoType" value="deb" checked />
-                        <label for="repoType_deb">deb</label> 
-                        <?php
-                    endif ?>
-                </div>
+                        <label for="repoType_deb">deb</label>
+                    </div>
+                    <?php
+                endif ?>
             </td>
         </tr>
         <tr>
