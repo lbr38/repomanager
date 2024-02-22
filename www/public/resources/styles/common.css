@@ -1,5 +1,5 @@
 /**
- *  v1.6
+ *  v1.7
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
@@ -30,7 +30,6 @@ p, label, a, i, span {
 }
 
 span {
-    /* line-height: inherit !important; */
     line-height: initial !important;
 }
 
@@ -77,7 +76,6 @@ pre {
     font-size: 12px;
 }
 
-
 /**
  *  Generic class
  */
@@ -112,7 +110,6 @@ pre {
 .opacity-80,.opacity-80-cst{opacity: 0.80}
 .lowopacity:hover,.mediumopacity:hover,.verylowopacity:hover{opacity: 1}
 .wordbreakall {word-break: break-all}
-
 .flex { display: flex; }
 .flex-div-15 { flex: 0 0 14%; }.flex-div-20 { flex: 0 0 19%; }.flex-div-25 { flex: 0 0 24%; }.flex-div-30 { flex: 0 0 29%; }
 .flex-div-33 { flex: 0 0 32%; }.flex-div-40 { flex: 0 0 39%; }.flex-div-50 { flex: 0 0 47%; }.flex-div-60 { flex: 0 0 59%; }
@@ -126,6 +123,7 @@ pre {
 .grid-fr-1-2 {grid-template-columns: 1fr 2fr !important}
 .grid-fr-2-1 {grid-template-columns: 2fr 1fr !important}
 .grid-fr-4-1 {grid-template-columns: 4fr 1fr !important}
+.grid-fr-auto-1-2 {grid-template-columns: auto 1fr 2fr !important}
 .grid-fr-6 {grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr !important}
 .justify-center {justify-content: center}
 .justify-space-between {justify-content: space-between}
@@ -136,14 +134,14 @@ pre {
 .align-item-right {align-items: flex-end}
 .align-self-center {align-self: center}
 .column-gap-1{column-gap: 1px}.column-gap-2 {column-gap: 2px}.column-gap-4 {column-gap: 4px}.column-gap-5{column-gap: 5px}.column-gap-6{column-gap: 6px}.column-gap-7{column-gap: 7px}.column-gap-8{column-gap: 8px}.column-gap-9{column-gap: 9px}.column-gap-10{column-gap: 10px}
-.column-gap-20{column-gap: 20px}
-.row-gap-1 {row-gap: 1px;}.row-gap-2 {row-gap: 2px;}.row-gap-4 {row-gap: 4px;}.row-gap-5 {row-gap: 5px;}.row-gap-6 {row-gap: 6px;}.row-gap-7 {row-gap: 7px;}
+.column-gap-20{column-gap: 20px}.column-gap-30{column-gap: 30px}.column-gap-40{column-gap: 40px}.column-gap-50{column-gap: 50px}.column-gap-60{column-gap: 60px}.column-gap-70{column-gap: 70px}.column-gap-80{column-gap: 80px}.column-gap-90{column-gap: 90px}.column-gap-100{column-gap: 100px}
+.row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}
 .padding-left-15 {padding-left: 15px !important}
 .padding-right-15 {padding-right: 15px !important}
-.margin-left-15 {margin-left: 15px !important}
-.margin-right-15 {margin-right: 15px !important}
-.margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}
-.margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}
+.margin-left-0 {margin-left: 0px !important}.margin-left-5 {margin-left: 5px !important}.margin-left-10 {margin-left: 10px !important}.margin-left-15 {margin-left: 15px !important}.margin-left-20 {margin-left: 20px !important}.margin-left-30 {margin-left: 30px !important}.margin-left-40 {margin-left: 40px !important}
+.margin-right-0 {margin-right: 0px !important}.margin-right-5 {margin-right: 5px !important}.margin-right-10 {margin-right: 10px !important}.margin-right-15 {margin-right: 15px !important}.margin-right-20 {margin-right: 20px !important}.margin-right-30 {margin-right: 30px !important}.margin-right-40 {margin-right: 40px !important}
+.margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}.margin-top-30 {margin-top: 30px !important}.margin-top-40 {margin-top: 40px !important}
+.margin-bottom-0 {margin-bottom: 0px !important}.margin-bottom-5 {margin-bottom: 5px !important}.margin-bottom-10 {margin-bottom: 10px !important}.margin-bottom-15 {margin-bottom: 15px !important}.margin-bottom-20 {margin-bottom: 20px !important}.margin-bottom-30 {margin-bottom: 30px !important}.margin-bottom-40 {margin-bottom: 40px !important}
 .min-height-100 {min-height: 100px}.min-height-200 {min-height: 200px}.min-height-300 {min-height: 300px}.min-height-400 {min-height: 400px}.min-height-500 {min-height: 500px}.min-height-600 {min-height: 600px}.min-height-700 {min-height: 700px}.min-height-800 {min-height: 800px}.min-height-900 {min-height: 900px}.min-height-1000 {min-height: 1000px}
 .min-width-100 {min-width: 100px}.min-width-200 {min-width: 200px}.min-width-300 {min-width: 300px}.min-width-400 {min-width: 400px}.min-width-500 {min-width: 500px}.min-width-600 {min-width: 600px}.min-width-700 {min-width: 700px}.min-width-800 {min-width: 800px}.min-width-900 {min-width: 900px}.min-width-1000 {min-width: 1000px}
 
@@ -453,7 +451,7 @@ input::placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 40px;
+    min-width: 35px;
     height: 30px;
     border: none;
     border-radius: 60px;
@@ -604,14 +602,16 @@ textarea {
 }
 
 /* boutons switch-field */
-.switch-field {
+.switch-field,
+.single-switch-field {
     display: flex;
     overflow: hidden;
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
-.switch-field input {
+.switch-field input,
+.single-switch-field input {
     position: absolute;
     clip: rect(0, 0, 0, 0);
     width: 1px;
@@ -621,7 +621,8 @@ textarea {
     overflow: hidden;
 }
 
-.switch-field label {
+.switch-field label,
+.single-switch-field label {
     background-color: white;
     color: #3b3b3b;
     line-height: 1;
@@ -633,11 +634,13 @@ textarea {
     transition: all 0.1s ease-in-out;
 }
 
-.switch-field label:hover {
+.switch-field label:hover,
+.single-switch-field label:hover {
     cursor: pointer;
 }
 
-.switch-field input:checked + label {
+.switch-field input:checked + label,
+.single-switch-field input:checked + label {
     background-color: #5473e8;
     box-shadow: none;
     color: white;
@@ -649,6 +652,10 @@ textarea {
 
 .switch-field label:last-of-type {
     border-radius: 0 16px 16px 0;
+}
+
+.single-switch-field label {
+    border-radius: 16px;
 }
 
 /**
@@ -684,7 +691,7 @@ textarea {
 }
 
 .slide-panel-close-btn {
-    width: 18px;
+    width: 25px;
     cursor: pointer;
 }
 
@@ -705,7 +712,7 @@ textarea {
     position: fixed;
     bottom: 0;
     left: 0;
-    z-index:99;
+    z-index:1000;
     background-color: #182b3e;
     border-top: 1px solid rgb(60, 70, 75);
     box-shadow: rgb(0 0 0) 0px 10px 13px -12px, rgb(0 0 0 / 15%) 0px 0px 10px 2px;
@@ -775,7 +782,7 @@ textarea {
     height: 100%;
     background-color: #182b3e82;
     border-radius: 8px;
-    z-index: 95;
+    z-index: 999;
 }
 
 /**

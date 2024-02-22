@@ -1,3 +1,5 @@
+.cve-table {grid-template-columns: 6% 1fr 1fr 1fr 1fr 4fr !important}
+
 #cve-cpe-div {
     display: grid;
     grid-template-columns: repeat(3, auto);

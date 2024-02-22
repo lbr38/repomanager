@@ -11,76 +11,45 @@ jobs:
   run-operations:
     runs-on: ubuntu-latest
     container:
-      image: debian:12-slim
-      options: --user root
+      image: lbr38/repomanager:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install dependencies packages
-        run: |
-          apt-get update -y
-          apt-get install -y findutils iputils-ping git gnupg2 rpm librpmsign9 createrepo-c apt-utils curl ca-certificates apt-transport-https dnsutils xz-utils
-
-      - name: Setup PHP
-        run: |
-          curl -sS https://packages.bespin.ovh/repo/gpgkeys/packages.bespin.ovh.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.bespin.ovh.gpg
-          echo "deb https://packages.bespin.ovh/repo/repomanager-php/bookworm/main_prod bookworm main" > /etc/apt/sources.list.d/php.list
-
-      - name: Install PHP modules
-        run: apt-get update && apt-get install -y php8.1-fpm php8.1-cli php8.1-sqlite3 php8.1-xml php8.1-curl sqlite3
-
       - name: Print PHP version
         run: php --version
 
-      - name: Set up repomanager files & directories
+      # Copy latest source code to the root directory
+      - name: Setup latest source code
         run: |
-          groupadd repomanager
-          usermod -a -G repomanager www-data
-          mkdir -p /home/repo
+          rm -fr /var/www/repomanager
           mkdir -p /var/www/repomanager
-          mkdir -p /var/lib/repomanager
-          mkdir -p /var/lib/repomanager/backups
-          mkdir -p /var/lib/repomanager/logs/main
-          mkdir -p /var/lib/repomanager/configurations
-          mkdir -p /var/lib/repomanager/operations/pool/
-          mkdir -p /var/lib/repomanager/db
-          mkdir -p /var/lib/repomanager/.gnupg
           cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
           cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
+          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
 
-      - name: Set up repomanager main config
-        run: |
-          curl -s -L -o /var/lib/repomanager/db/repomanager.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager.db 2> /dev/null
-          curl -s -L -o /var/lib/repomanager/db/repomanager-hosts.db https://github.com/lbr38/resources/raw/main/ci/repomanager/repomanager-hosts.db 2> /dev/null
-          ls -l /var/lib/repomanager/configurations/
-          ls -l /var/lib/repomanager/db/
-
-      - name: Retrieve jobs
-        run: |
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-mirror-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-update-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-duplicate-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-create-env.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-delete.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-deb-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/deb/ci-rebuild.json 2> /dev/null
-          
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-mirror-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-mirror-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-update-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-update-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-duplicate-repo.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-duplicate-repo.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-create-env.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-create-env.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-delete.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-delete.json 2> /dev/null
-          curl -s -o /var/lib/repomanager/operations/pool/ci-rpm-rebuild.json https://raw.githubusercontent.com/lbr38/resources/main/ci/repomanager/operations/rpm/ci-rebuild.json 2> /dev/null
-
-      - name: Set up permissions
-        run: chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager /home/repo
-
-      - name: Update database
+      # Entrypoint is not executed, so we need to run most of the commands manually
+      - name: Execute entrypoint
         run: |
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
           /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
+          /bin/bash /var/www/repomanager/bin/repomanager -p
 
-      # deb
+      # Create some environments for the operations to run
+      - name: Set basic configuration
+        run: |
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('prod');"
+
+      # Create operations pool files
+      - name: Create operation jobs
+        run: |
+          mkdir -p /var/lib/repomanager/operations/pool/          
+          cp $GITHUB_WORKSPACE/.github/workflows/pool/*.json /var/lib/repomanager/operations/pool/
+          chown -R www-data:repomanager /var/lib/repomanager/operations
+
+      # DEB
       - name: Run job - Mirror deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-mirror-repo'" www-data
 
@@ -105,12 +74,12 @@ jobs:
       - name: Run job - Delete deb repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-deb-delete'" www-data
 
-      # rpm
+      # RPM
       - name: Run job - Mirror rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-mirror-repo'" www-data
 
       - name: Print mirrored rpm repo content
-        run: ls -l /home/repo/nginx_pprd/packages/*/*.rpm
+        run: ls -l /home/repo/extras_pprd/packages/*/*.rpm
 
       - name: Run job - Update rpm repo
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-update-repo'" www-data
@@ -119,9 +88,7 @@ jobs:
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-duplicate-repo'" www-data
 
       - name: Print duplicated rpm repo content
-        run: |
-          ls -l /home/repo/
-          ls -l /home/repo/nginx-copy_pprd/
+        run: ls -l /home/repo/extras-copy_pprd/packages/*/*.rpm
 
       - name: Run job - Create rpm repo env
         run: /bin/su -s /bin/bash -c "php /var/www/repomanager/operations/execute.php --id='ci-rpm-create-env'" www-data

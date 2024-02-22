@@ -30,10 +30,10 @@ if (IS_ADMIN) : ?>
                     <input type="hidden" name="action" value="uploadPackage" />
                     <input type="hidden" name="snapId" value="<?= $snapId ?>" />
                     <input type="file" name="packages[]" accept="application/vnd.debian.binary-package" multiple />
-    
-                    <p class="lowopacity-cst">Valid MIME types: 'application/x-rpm' and 'application/vnd.debian.binary-package'</p>
+
+                    <p class="lowopacity-cst margin-top-5">Valid MIME types are <code>application/x-rpm</code> and <code>application/vnd.debian.binary-package</code></p>
                     <br>
-                    <button type="submit" class="btn-large-green">Add package(s)</button>
+                    <button type="submit" class="btn-large-green">Upload package(s)</button>
                 </form>
 
                 <?php

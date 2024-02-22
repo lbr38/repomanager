@@ -18,6 +18,7 @@
         "hosts"    => "stats-hosts.css",
         "host"     => "stats-hosts.css",
         "settings" => "settings.css",
+        "cves"     => "cve.css",
         "cve"      => "cve.css"
     );
 

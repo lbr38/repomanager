@@ -215,7 +215,7 @@ td:last-child,
     display: inline-block;
     width: 10px;
     height: 10px;
-    border-radius: 2px;
+    border-radius: 50%;
 }
 
 .hosts-charts-list-label span {

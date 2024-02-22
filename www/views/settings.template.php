@@ -464,7 +464,7 @@
                 </div>
             </div>
 
-            <h3>SCHEDULE TASKS</h3>
+            <h3>SCHEDULED TASKS</h3>
 
             <div class="div-generic-blue">
                 <div class="settings-div">
@@ -492,7 +492,7 @@
                 if (PLANS_ENABLED == "true") : ?>
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Allow planifications to delete the oldest snapshots of repositories based on the configured retention parameter." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="When running a scheduled task, allow deletion of the oldest repositories snapshots based on the configured retention parameter." />
                         </div>
                         <div>
                             <p>Allow automatic deletion of old repositories snapshots</p>
@@ -513,10 +513,10 @@
 
                     <div class="settings-div">
                         <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for schedules (upcoming tasks). Reminders are sent via email to the recipients defined when adding a new scheduled task." />
+                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task." />
                         </div>
                         <div>
-                            <p>Enable planifications reminder</p>
+                            <p>Enable scheduled tasks reminders</p>
                         </div>
                         <div>
                             <label class="onoff-switch-label">
