@@ -23,15 +23,20 @@
 
     [ REPOS ]
     
-    - Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
     - Think about a way to publish debian repos in a more elegant way. Currently: https://<FQDN>/repo/debian/dists/buster/main_prod buster main_prod
     - (RPM) See how to accelerate the rpm signing process by using multi-threading
-    - (DEB) Add a feature to be able to add distributions to the list of pre-defined distributions (and do the same for sections)
+    - (Feature) (DEB) Be able to add distributions to the list of pre-defined distributions (and do the same for sections)
+    - (Feature) Support Arch Linux packages https://blog.desdelinux.net/en/create-your-local-arch-linux-repository/
+
+
+    [ SHEDULED TASKS ]
+
+    - (Feature) Be able to schedule a task monthly
 
 
     [ HOSTS / LINUPDATE ]
 
-    - Be able to ask a host to update one or more specific packages
+    - (Feature) Be able to ask a host to update one or more specific packages
     
 
     [ CVE ]
@@ -41,11 +46,11 @@
 
     [ LOGIN ]
 
-    - Support SSO
-    - Support LDAP
+    - (Feature) Support SSO
+    - (Feature) Support LDAP
 
 
     [ MAIL ]
 
-    - Add an alternative way of sending mails via SMTP server: https://github.com/lbr38/repomanager/issues/139
+    - (Feature) Add an alternative way of sending mails via SMTP server: https://github.com/lbr38/repomanager/issues/139
       https://stackoverflow.com/questions/73868867/how-to-implement-oauth-2-0-in-phpmailer-for-exchange-online

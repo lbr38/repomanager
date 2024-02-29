@@ -72,30 +72,18 @@
                             <?php
                             if (!empty($reposList)) {
                                 foreach ($reposList as $repo) {
-                                    $snapId = $repo['snapId'];
                                     $repoName = $repo['Name'];
                                     $repoDist = $repo['Dist'];
                                     $repoSection = $repo['Section'];
-                                    $repoDate = $repo['Date'];
-                                    $repoDateFormatted = DateTime::createFromFormat('Y-m-d', $repoDate)->format('d-m-Y');
-                                    $repoPackageType = $repo['Package_type'];
-                                    $repoType = $repo['Type'];
+                                    $snapId = $repo['SnapId'];
 
                                     /**
-                                     *  Si le repo est local alors on ne l'affiche pas dans la liste
+                                     *  Generate an <option> for each repo
                                      */
-                                    if ($repoType == 'local') {
-                                        continue;
-                                    }
-
-                                    /**
-                                     *  On génère une <option> pour chaque repo
-                                     */
-                                    if ($repoPackageType == "rpm") {
-                                        echo '<option value="' . $snapId . '" package-type="' . $repoPackageType . '">' . $repoName . ' ⟶ ' . $repoDateFormatted . '</option>';
-                                    }
-                                    if ($repoPackageType == "deb") {
-                                        echo '<option value="' . $snapId . '" package-type="' . $repoPackageType . '"><span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span> ⟶ ' . $repoDateFormatted . '</option>';
+                                    if (!empty($repoDist) and !(empty($repoSection))) {
+                                        echo '<option value="' . $snapId . '"><span class="label-white">' . $repoName . ' ❯ ' . $repoDist . ' ❯ ' . $repoSection . '</span></option>';
+                                    } else {
+                                        echo '<option value="' . $snapId . '">' . $repoName . '</option>';
                                     }
                                 }
                             } ?>

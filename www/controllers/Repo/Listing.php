@@ -50,8 +50,7 @@ class Listing
     }
 
     /**
-     *  Retourne la liste des repos éligibles aux planifications
-     *  Il s'agit des repos ayant au moins 1 snapshot actif
+     *  Return the list of repos eligible for planifications (repos with at least 1 active snapshot)
      */
     public function listForPlan()
     {
