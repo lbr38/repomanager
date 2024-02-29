@@ -371,13 +371,7 @@
                                                 endif ?>
                                             </div>
                                             <?php
-                                        endforeach;
-
-                                        /**
-                                         *  Export hosts up to date and not up to date counters to be used in the chartjs
-                                         */
-                                        define('HOSTS_TOTAL_UPTODATE', $totalUptodate);
-                                        define('HOSTS_TOTAL_NOT_UPTODATE', $totalNotUptodate); ?>
+                                        endforeach; ?>
                                     </div>
                                     <?php
                                 else :
@@ -392,5 +386,11 @@
             </div>
         </div>
         <?php
-    endif ?>
+    endif;
+
+    /**
+     *  Export hosts up to date and not up to date counters to be used in the chartjs
+     */
+    define('HOSTS_TOTAL_UPTODATE', $totalUptodate);
+    define('HOSTS_TOTAL_NOT_UPTODATE', $totalNotUptodate); ?>
 </section>

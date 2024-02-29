@@ -219,42 +219,51 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Retourne la liste des repos éligibles aux planifications
-     *  Il s'agit des repos ayant au moins 1 snapshot actif
+     *  Return the list of repos eligible for planifications (repos with at least 1 active snapshot)
      */
     public function listForPlan()
     {
+        $data = array();
+
         try {
-            $result = $this->db->query("SELECT
-            repos.Id AS repoId,
-            repos_snap.Id AS snapId,
-            repos.Name,
-            repos.Dist,
-            repos.Section,
-            repos.Source,
-            repos.Package_type,
-            repos_snap.Date,
-            repos_snap.Time,
-            repos_snap.Signed,
-            repos_snap.Arch,
-            repos_snap.Pkg_translation,
-            repos_snap.Type
-            FROM repos
-            LEFT JOIN repos_snap
-                ON repos.Id = repos_snap.Id_repo
-            WHERE repos_snap.Status = 'active'
-            AND repos_snap.Type = 'mirror'
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
+            /**
+             *  Retrieve all repos name only
+             */
+            $repos = $this->listNameOnly(true);
+
+            /**
+             *  For each repo, retrieve the last active snapshot
+             */
+            foreach ($repos as $repo) {
+                $stmt = $this->db->prepare("SELECT repos_snap.Id AS snapId
+                FROM repos_snap
+                LEFT JOIN repos
+                    ON repos.Id = repos_snap.Id_repo
+                WHERE repos.Id = :id
+                AND repos_snap.Status = 'active'
+                AND repos_snap.Type = 'mirror'
+                ORDER BY repos_snap.Date DESC, repos_snap.Time DESC LIMIT 1");
+
+                $stmt->bindValue(':id', $repo['Id']);
+                $result = $stmt->execute();
+
+                /**
+                 *  Build an array with the repo Id, name and the last active snapshot Id and add it to the $data array
+                 */
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    $data[] = array(
+                        'Id' => $repo['Id'],
+                        'Name' => $repo['Name'],
+                        'Dist' => $repo['Dist'],
+                        'Section' => $repo['Section'],
+                        'SnapId' => $row['snapId']
+                    );
+                }
+            }
         } catch (\Exception $e) {
             \Controllers\Common::dbError($e);
         }
 
-        $repos = array();
-
-        while ($datas = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $datas;
-        }
-
-        return $repos;
+        return $data;
     }
 }
