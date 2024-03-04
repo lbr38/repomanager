@@ -1,4 +1,6 @@
 <?php
+cli_set_process_title('repomanager.scheduled-task-run');
+
 /**
  *  Script used for debug only
  */
@@ -18,7 +20,7 @@ try {
     $myplan->setId($getOptions['id']);
     $myplan->exec();
 } catch (\Exception $e) {
-    $mylog->log('error', 'Service', 'Error while executing planification: ' . $e->getMessage());
+    $mylog->log('error', 'Service', 'Error while executing scheduled task: ' . $e->getMessage());
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
     exit(1);
 }

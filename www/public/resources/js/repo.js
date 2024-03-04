@@ -401,7 +401,7 @@ $(document).on('click',".repo-action-btn",function () {
 });
 
 /**
- *  Event : validation / exécution d'une opération
+ *  Event: submit operation form
  */
 $(document).on('submit','.operation-form-container',function () {
     event.preventDefault();

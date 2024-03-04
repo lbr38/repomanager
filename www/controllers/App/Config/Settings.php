@@ -261,7 +261,7 @@ class Settings
                 define('PLANS_ENABLED', $settings['PLANS_ENABLED']);
             } else {
                 define('PLANS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling planifications is not defined.";
+                $__LOAD_SETTINGS_MESSAGES[] = "Enabling task scheduling is not defined.";
             }
         }
 
@@ -279,7 +279,7 @@ class Settings
             } else {
                 define('PLANS_CLEAN_REPOS', '');
                 if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to delete old repos snapshots is not defined.";
+                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing automatic deletion of old repositories snapshots is not defined.";
                 }
             }
         }

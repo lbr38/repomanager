@@ -490,7 +490,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  If gpgv returned an error then signature is invalid
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'Error while checking GPG signature');
+            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'GPG signature check fail');
         }
     }
 

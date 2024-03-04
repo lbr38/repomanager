@@ -13,6 +13,12 @@
     - (KO) Mirror a debian repo with multiple archs and translations => translations are not included by reprepro
 
 
+    [ SCHEDULED TASKS ]
+
+    - Investigate why the scheduled tasks are sometimes not executed
+    - (KO) Daily recurrent tasks are broken on the 2nd day of execution
+
+
 [ IMPROVEMENTS / FEATURES ]
 
     [ GENERAL ]

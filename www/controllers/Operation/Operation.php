@@ -794,6 +794,7 @@ class Operation
          */
         while (true) {
             $poolId = time() . \Controllers\Common::generateRandom();
+
             /**
              *  Create the JSON file and exit the loop if the number is available
              */
