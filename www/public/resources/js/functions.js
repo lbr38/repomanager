@@ -232,34 +232,16 @@ function copyToClipboard(containerid)
 }
 
 /**
- * Convert select tag to a select2 by specified id
- * @param {*} id
+ *  Convert select tag to a select2 by specified element
+ *  @param {*} element
  */
-function idToSelect2(id, placeholder = null, tags = false)
+function selectToSelect2(element, placeholder = null, tags = false)
 {
     if (placeholder == null) {
         placeholder = 'Select...';
     }
 
-    $(id).select2({
-        closeOnSelect: false,
-        placeholder: placeholder,
-        tags: tags,
-        minimumResultsForSearch: Infinity /* disable search box */
-    });
-}
-
-/**
- * Convert select tag to a select2 by specified class
- * @param {*} className
- */
-function classToSelect2(className, placeholder = null, tags = false)
-{
-    if (placeholder == null) {
-        placeholder = 'Select...';
-    }
-
-    $(className).select2({
+    $(element).select2({
         closeOnSelect: false,
         placeholder: placeholder,
         tags: tags,
@@ -268,9 +250,9 @@ function classToSelect2(className, placeholder = null, tags = false)
     });
 }
 
- /**
-  *  Print OS icon image
-  */
+/**
+ *  Print OS icon image
+ */
 function printOsIcon(os = '', os_family = '')
 {
     if (os != '') {
@@ -380,10 +362,10 @@ function getGetParams()
  * Execute an ajax request
  * @param {*} controller
  * @param {*} action
- * @param {*} additionnalData
+ * @param {*} additionalData
  * @param {*} reloadContainers
  */
-function ajaxRequest(controller, action, additionnalData = null, reloadContainers = null)
+function ajaxRequest(controller, action, additionalData = null, printSuccessAlert = true, printErrorAlert = true, reloadContainers = null, execOnSuccess = null, execOnError = null)
 {
     /**
      *  Default data
@@ -396,10 +378,10 @@ function ajaxRequest(controller, action, additionnalData = null, reloadContainer
     };
 
     /**
-     *  If additionnal data is specified, merge it with default data
+     *  If additional data is specified, merge it with default data
      */
-    if (additionnalData != null) {
-        data = $.extend(data, additionnalData);
+    if (additionalData != null) {
+        data = $.extend(data, additionalData);
     }
 
     /**
@@ -420,7 +402,10 @@ function ajaxRequest(controller, action, additionnalData = null, reloadContainer
              *  Retrieve and print success message
              */
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
+
+            if (printSuccessAlert) {
+                printAlert(jsonValue.message, 'success');
+            }
 
             /**
              *  Reload containers if specified
@@ -430,13 +415,25 @@ function ajaxRequest(controller, action, additionnalData = null, reloadContainer
                     reloadContainer(reloadContainers[i]);
                 }
             }
+
+            /**
+             *  Execute function(s) if specified
+             */
+            if (execOnSuccess != null) {
+                for (let i = 0; i < execOnSuccess.length; i++) {
+                    eval(execOnSuccess[i]);
+                }
+            }
         },
         error: function (jqXHR, textStatus, thrownError) {
             /**
              *  Retrieve and print error message
              */
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
+
+            if (printErrorAlert) {
+                printAlert(jsonValue.message, 'error');
+            }
         },
     });
 }

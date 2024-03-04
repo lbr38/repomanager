@@ -1,6 +1,6 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
-$myplan = new \Controllers\Planification();
+$mytask = new \Controllers\Task\Task();
 
 /**
  *  Get total repos count
@@ -27,9 +27,7 @@ $diskUsedSpacePercent = round(100 - ($diskFreeSpace));
 /**
  *  If scheduled tasks are enabled the get last and next plan results
  */
-if (PLANS_ENABLED == "true") {
-    $lastPlan = $myplan->listLast();
-    $nextPlan = $myplan->listNext();
-}
+// $lastPlan = $mytask->listLast();
+// $nextPlan = $mytask->listNext();
 
-unset($myrepo, $myplan);
+unset($myrepo, $mytask);

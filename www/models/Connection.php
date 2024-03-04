@@ -108,10 +108,9 @@ class Connection extends SQLite3
         OR name='repos_snap'
         OR name='env'
         OR name='sources'
-        OR name='groups' 
-        OR name='group_members' 
-        OR name='operations' 
-        OR name='planifications'
+        OR name='groups'
+        OR name='group_members'
+        OR name='tasks'
         OR name='profile'
         OR name='profile_settings'
         OR name='profile_repo_members'
@@ -167,7 +166,7 @@ class Connection extends SQLite3
      */
     public function checkMainTables()
     {
-        $required = 27;
+        $required = 26;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -264,7 +263,7 @@ class Connection extends SQLite3
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         Date DATE NOT NULL,
         Time TIME NOT NULL,
-        Signed CHAR(3) NOT NULL,
+        Signed CHAR(5) NOT NULL, /* true, false */
         Arch VARCHAR(255),
         Pkg_translation VARCHAR(255),
         Type CHAR(6) NOT NULL,
@@ -393,55 +392,25 @@ class Connection extends SQLite3
         Id_repo INTEGER NOT NULL,
         Id_group INTEGER NOT NULL);");
 
-        /**
-         *  operations table
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS operations (
+        $this->exec("CREATE TABLE IF NOT EXISTS tasks (
         Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Date DATE NOT NULL,
-        Time TIME NOT NULL,
-        Action VARCHAR(255) NOT NULL,
-        Type CHAR(6) NOT NULL, /* manual, plan */
-        Id_repo_source VARCHAR(255),
-        Id_snap_source INTEGER,
-        Id_env_source INTEGER,
-        Id_repo_target VARCHAR(255),
-        Id_snap_target INTEGER,
-        Id_env_target INTEGER,
-        Id_group INTEGER,
-        Id_plan INTEGER,
-        GpgCheck CHAR(3),
-        GpgResign CHAR(3),
-        Pid INTEGER NOT NULL,
-        Pool_id INTEGER NOT NULL,
-        Logfile VARCHAR(255) NOT NULL,
-        Duration INTEGER,
-        Status CHAR(7) NOT NULL)"); /* running, done, stopped */
-
-        /**
-         *  planifications table
-         */
-        $this->exec("CREATE TABLE IF NOT EXISTS planifications (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        Type CHAR(7) NOT NULL, /* regular ou plan */
-        Frequency CHAR(15), /* every-day, every-hour... */
-        Day CHAR(70),
+        Action VARCHAR(255),
+        Type CHAR(9), /* immediate, scheduled */
+        Schedule_frequency CHAR(15), /* hourly, daily, weekly */
+        Schedule_date DATE,
+        Schedule_time TIME,
+        Schedule_day CHAR(70),
+        Schedule_reminder VARCHAR(255),
+        Schedule_notify_error CHAR(5), /* true, false */
+        Schedule_notify_success CHAR(5), /* true, false */
+        Schedule_recipient VARCHAR(255),
         Date DATE,
         Time TIME,
-        Action VARCHAR(255) NOT NULL,
-        Id_snap INTEGER,
-        Id_group INTEGER,
-        Target_env VARCHAR(255),
-        Gpgcheck CHAR(3),
-        Gpgresign CHAR(3),
-        OnlySyncDifference CHAR(3),	
-        Reminder VARCHAR(255),
-        Notification_error CHAR(3),
-        Notification_success CHAR(3),
-        Mail_recipient VARCHAR(255),
-        Status CHAR(10) NOT NULL, /* queued, done, running, canceled */
-        Error VARCHAR(255),
-        Logfile VARCHAR(255))");
+        Raw_params TEXT NOT NULL,
+        Pid INTEGER,
+        Logfile VARCHAR(255),
+        Duration INTEGER,
+        Status CHAR(9))"); /* new, scheduled, running, done, stopped */
 
         /**
          *  profile_settings table
@@ -541,7 +510,6 @@ class Connection extends SQLite3
         /* GPG signing key */
         GPG_SIGNING_KEYID VARCHAR(255),
         /* Scheduled tasks settings */
-        PLANS_ENABLED CHAR(5),
         PLANS_REMINDERS_ENABLED CHAR(5),
         PLANS_CLEAN_REPOS CHAR(5),
         RETENTION INTEGER,
@@ -590,7 +558,6 @@ class Connection extends SQLite3
                 DEB_DEFAULT_ARCH,
                 DEB_DEFAULT_TRANSLATION,
                 GPG_SIGNING_KEYID,
-                PLANS_ENABLED,
                 PLANS_REMINDERS_ENABLED,
                 PLANS_CLEAN_REPOS,
                 RETENTION,
@@ -617,7 +584,6 @@ class Connection extends SQLite3
                 'amd64',
                 '',
                 '$gpgKeyId',
-                'false',
                 'false',
                 'false',
                 '3',

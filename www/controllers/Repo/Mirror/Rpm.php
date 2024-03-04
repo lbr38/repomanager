@@ -352,7 +352,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Before downloading each package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
             }
 
             /**

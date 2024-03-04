@@ -49,10 +49,8 @@
 
     if (__ACTUAL_URI__[1] == "") {
         $title .= ' - Repos';
-    } elseif (__ACTUAL_URI__[1] == "plans") {
-        $title .= ' - Schedule tasks';
     } elseif (__ACTUAL_URI__[1] == "run") {
-        $title .= ' - Operations';
+        $title .= ' - Tasks';
     } elseif (__ACTUAL_URI__[1] == "browse") {
         $title .= ' - Browse repo';
     } elseif (__ACTUAL_URI__[1] == "stats") {

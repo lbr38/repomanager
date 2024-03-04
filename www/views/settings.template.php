@@ -60,7 +60,7 @@
 
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone. This is especially useful to ensure that scheduled tasks (planifications) run at the specified time." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Specify your timezone. This is especially useful to ensure that scheduled tasks run at the specified time." />
                     </div>
                     <div>
                         <p>Timezone</p>
@@ -469,70 +469,45 @@
             <div class="div-generic-blue">
                 <div class="settings-div">
                     <div>
-                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable task scheduling (updates of repositories on a desired date, time, or recurrence)." />
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="When running a scheduled task, allow deletion of the oldest repositories snapshots based on the configured retention parameter." />
                     </div>
                     <div>
-                        <p>Enable task scheduling</p>
+                        <p>Allow automatic deletion of old repositories snapshots</p>
                     </div>
                     <div>
                         <label class="onoff-switch-label">
-                            <input class="settings-param onoff-switch-input" param-name="plansEnable" type="checkbox" value="yes" <?php echo (PLANS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <input class="settings-param onoff-switch-input" param-name="plansCleanRepo" type="checkbox" value="yes" <?php echo (PLANS_CLEAN_REPOS == "true") ? 'checked' : ''; ?>>
                             <span class="onoff-switch-slider"></span>
                         </label>
                     </div>
                     <div>
                         <?php
-                        if (empty(PLANS_ENABLED)) {
+                        if (empty(PLANS_CLEAN_REPOS)) {
                             echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
                         } ?>
                     </div>
                 </div>
 
-                <?php
-                if (PLANS_ENABLED == "true") : ?>
-                    <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="When running a scheduled task, allow deletion of the oldest repositories snapshots based on the configured retention parameter." />
-                        </div>
-                        <div>
-                            <p>Allow automatic deletion of old repositories snapshots</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="plansCleanRepo" type="checkbox" value="yes" <?php echo (PLANS_CLEAN_REPOS == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(PLANS_CLEAN_REPOS)) {
-                                echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </div>
+                <div class="settings-div">
+                    <div>
+                        <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task." />
                     </div>
-
-                    <div class="settings-div">
-                        <div>
-                            <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Enable reminders for scheduled tasks. Reminders are sent via email to the recipients defined when adding a new scheduled task." />
-                        </div>
-                        <div>
-                            <p>Enable scheduled tasks reminders</p>
-                        </div>
-                        <div>
-                            <label class="onoff-switch-label">
-                                <input class="settings-param onoff-switch-input" param-name="plansRemindersEnable" type="checkbox" value="yes" <?php echo (PLANS_REMINDERS_ENABLED == "true") ? 'checked' : ''; ?>>
-                                <span class="onoff-switch-slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <?php
-                            if (empty(PLANS_REMINDERS_ENABLED)) {
-                                echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
-                            } ?>
-                        </div>
+                    <div>
+                        <p>Enable scheduled tasks reminders</p>
                     </div>
-                    <?php
-                endif ?>
+                    <div>
+                        <label class="onoff-switch-label">
+                            <input class="settings-param onoff-switch-input" param-name="plansRemindersEnable" type="checkbox" value="yes" <?php echo (PLANS_REMINDERS_ENABLED == "true") ? 'checked' : ''; ?>>
+                            <span class="onoff-switch-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <?php
+                        if (empty(PLANS_REMINDERS_ENABLED)) {
+                            echo '<img src="/assets/icons/warning.png" class="icon" title="This parameter must be specified." />';
+                        } ?>
+                    </div>
+                </div>
             </div>
 
             <h3>HOSTS & PROFILES</h3>
@@ -812,7 +787,7 @@
 
         <div class="health-div">
             <div>
-                <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as executings planifications (if enabled), sending planifications reminders (if enabled), logging repo access..." />
+                <img src="/assets/icons/info.svg" class="icon-verylowopacity" title="Repomanager service is used to execute regular tasks such as executing scheduled tasks, sending scheduled tasks reminders, logging repositories access..." />
             </div>
             <div>
                 <p>Repomanager service</p>

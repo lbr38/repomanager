@@ -490,7 +490,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
          *  If gpgv returned an error then signature is invalid
          */
         if ($myprocess->getExitCode() != 0) {
-            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'Error while checking GPG signature');
+            $this->logError('No GPG key could verify the signature of downloaded file <code>' . $signatureFile . '</code>: ' . PHP_EOL . $output, 'GPG signature check fail');
         }
     }
 
@@ -532,7 +532,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Before downloading each package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
             }
 
             $debPackageLocation = $debPackage['location'];
@@ -545,6 +545,34 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Output package to download to log file
              */
             $this->logOutput('<span class="mediumopacity-cst">(' . $packageCounter . '/' . $totalPackages . ')  ➙ ' . $debPackageLocation . ' ... </span>');
+
+            /**
+             *  Check that package naming respects the Debian package naming convention
+             *  It must ends with _<arch>.deb, if not then rename it
+             *  e.g. elasticsearch deb repository has a package named 'filebeat-8.0.0-amd64.deb'. In this case arch is incorrect and should use underscore instead of dash.
+             */
+
+            /**
+             *  First check if package has arch in its name, else ignore it
+             */
+            if (!preg_match('/(amd64|arm64|armel|armhf|i386|mips|mips64el|mipsel|ppc64el|s390x|all).deb$/', $debPackageName)) {
+                $this->logOutput('package does not have arch in its name (ignoring)' . PHP_EOL);
+            }
+
+            /**
+             *  Rename package if arch is not correctly specified in its name
+             */
+            $debPackageName = preg_replace('/-amd64.deb$/', '_amd64.deb', $debPackageName);
+            $debPackageName = preg_replace('/-arm64.deb$/', '_arm64.deb', $debPackageName);
+            $debPackageName = preg_replace('/-armel.deb$/', '_armel.deb', $debPackageName);
+            $debPackageName = preg_replace('/-armhf.deb$/', '_armhf.deb', $debPackageName);
+            $debPackageName = preg_replace('/-i386.deb$/', '_i386.deb', $debPackageName);
+            $debPackageName = preg_replace('/-mips.deb$/', '_mips.deb', $debPackageName);
+            $debPackageName = preg_replace('/-mips64el.deb$/', '_mips64el.deb', $debPackageName);
+            $debPackageName = preg_replace('/-mipsel.deb$/', '_mipsel.deb', $debPackageName);
+            $debPackageName = preg_replace('/-ppc64el.deb$/', '_ppc64el.deb', $debPackageName);
+            $debPackageName = preg_replace('/-s390x.deb$/', '_s390x.deb', $debPackageName);
+            $debPackageName = preg_replace('/-all.deb$/', '_all.deb', $debPackageName);
 
             /**
              *  Check if file does not already exists before downloading it (e.g. copied from a previously snapshot)
@@ -622,7 +650,7 @@ class Deb extends \Controllers\Repo\Mirror\Mirror
              *  Before downloading each package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
             }
 
             $sourcePackageLocation = $sourcePackage['location'];

@@ -1,10 +1,10 @@
 /**
  *  Convert some select to select2
  */
-idToSelect2('#emailRecipientSelect', 'Select recipients...', true);
-idToSelect2('#debArchitectureSelect', 'Select architectures...');
-idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
-idToSelect2('#debTranslationSelect', 'Select translations...');
+selectToSelect2('#emailRecipientSelect', 'Select recipients...', true);
+selectToSelect2('#debArchitectureSelect', 'Select architectures...');
+selectToSelect2('#rpmArchitectureSelect', 'Select architectures...');
+selectToSelect2('#debTranslationSelect', 'Select translations...');
 
 /**
  *  Event: send a test email
@@ -133,10 +133,10 @@ function applySettings(settings_params_json)
              *  Reload div and select2
              */
             $("#settingsDiv").load(" #settingsDiv > *",function () {
-                idToSelect2('#emailRecipientSelect', 'Select recipients...', true);
-                idToSelect2('#debArchitectureSelect', 'Select architectures...');
-                idToSelect2('#rpmArchitectureSelect', 'Select architectures...');
-                idToSelect2('#debTranslationSelect', 'Select translations...');
+                selectToSelect2('#emailRecipientSelect', 'Select recipients...', true);
+                selectToSelect2('#debArchitectureSelect', 'Select architectures...');
+                selectToSelect2('#rpmArchitectureSelect', 'Select architectures...');
+                selectToSelect2('#debTranslationSelect', 'Select translations...');
             });
 
             printAlert(jsonValue.message, 'success');

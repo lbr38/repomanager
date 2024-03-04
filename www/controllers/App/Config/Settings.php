@@ -130,10 +130,7 @@ class Settings
             if (isset($settings['RETENTION']) and $settings['RETENTION'] >= 0) {
                 define('RETENTION', intval($settings['RETENTION'], 8));
             } else {
-                define('RETENTION', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Repository snapshots retention is not defined.";
-                }
+                define('RETENTION', 3);
             }
         }
 
@@ -267,15 +264,6 @@ class Settings
         /**
          *  Scheduled tasks settings
          */
-        if (!defined('PLANS_ENABLED')) {
-            if (!empty($settings['PLANS_ENABLED'])) {
-                define('PLANS_ENABLED', $settings['PLANS_ENABLED']);
-            } else {
-                define('PLANS_ENABLED', '');
-                $__LOAD_SETTINGS_MESSAGES[] = "Enabling planifications is not defined.";
-            }
-        }
-
         if (!defined('PLANS_REMINDERS_ENABLED')) {
             if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
                 define('PLANS_REMINDERS_ENABLED', $settings['PLANS_REMINDERS_ENABLED']);
@@ -288,10 +276,7 @@ class Settings
             if (!empty($settings['PLANS_CLEAN_REPOS'])) {
                 define('PLANS_CLEAN_REPOS', $settings['PLANS_CLEAN_REPOS']);
             } else {
-                define('PLANS_CLEAN_REPOS', '');
-                if (defined('PLANS_ENABLED') and PLANS_ENABLED == "true") {
-                    $__LOAD_SETTINGS_MESSAGES[] = "Allowing planifications to delete old repos snapshots is not defined.";
-                }
+                define('PLANS_CLEAN_REPOS', 'false');
             }
         }
 

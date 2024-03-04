@@ -196,14 +196,6 @@ class Settings
         /**
          *  Scheduled tasks
          */
-        if (!empty($sendSettings['plansEnable'])) {
-            if ($sendSettings['plansEnable'] == "true") {
-                $settingsToApply['PLANS_ENABLED'] = 'true';
-            } else {
-                $settingsToApply['PLANS_ENABLED'] = 'false';
-            }
-        }
-
         if (!empty($sendSettings['plansRemindersEnable'])) {
             if ($sendSettings['plansRemindersEnable'] == "true") {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'true';

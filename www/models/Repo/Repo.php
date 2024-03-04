@@ -18,7 +18,7 @@ class Repo extends \Models\Model
     /**
      *  Remplace la fonction commentée ci-dessus
      */
-    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
+    public function getAllById(string|null $repoId, string|null $snapId, string|null $envId)
     {
         $data = '';
 
@@ -616,7 +616,13 @@ class Repo extends \Models\Model
     public function snapOpIsRunning(string $snapId)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM operations WHERE (Id_snap_source = :snapId OR Id_snap_target = :snapId) AND Status = 'running'");
+            /**
+             *  Use json_extract to extract snap-id from Raw_params
+             */
+            $stmt = $this->db->prepare("SELECT json_extract(Raw_params, '$.snap-id') AS snapId
+            FROM tasks
+            WHERE snapId = :snapId
+            AND Status = 'running'");
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {

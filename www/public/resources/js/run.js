@@ -35,45 +35,131 @@ $(document).on('click','#display-log-btn',function () {
  */
 $(document).on('click','.show-logfile-btn',function () {
     var logfile = $(this).attr('logfile');
+
     setCookie('view-logfile', logfile, 1);
-    reloadContainer('operations/log');
+
+    reloadContainer('tasks/log');
 });
 
 /**
- *  Event: relaunch operation
+ *  Event: relaunch task
  */
-$(document).on('click','.relaunch-operation-btn',function (e) {
+$(document).on('click','.relaunch-task-btn',function (e) {
     // Prevent parent to be triggered
     e.stopPropagation();
 
-    var poolId = $(this).attr('pool-id');
+    var taskId = $(this).attr('task-id');
 
-    relaunchOperation(poolId);
+    ajaxRequest(
+        // Controller:
+        'task',
+        // Action:
+        'relaunchTask',
+        // Data:
+        {
+            taskId: taskId,
+        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true
+    );
 });
 
+/**
+ *  Event: show or hide scheduled task informations
+ */
+$(document).on('click','.show-scheduled-task-info-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var taskId = $(this).attr('task-id');
+
+    /**
+     *  Show or hide task informations
+     */
+    $('.scheduled-task-info[task-id="' + taskId + '"]').toggle();
+});
 
 /**
- *  Ajax: Relaunch operation
- *  @param {string} poolId
+ *  Event: disable scheduled task execution
  */
-function relaunchOperation(poolId)
-{
-    $.ajax({
-        type: "POST",
-        url: "/ajax/controller.php",
-        data: {
-            controller: "operation",
-            action: "relaunchOperation",
-            poolId: poolId
+$(document).on('click','.disable-scheduled-task-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var taskId = $(this).attr('task-id');
+
+    ajaxRequest(
+        // Controller:
+        'task',
+        // Action:
+        'disableTask',
+        // Data:
+        {
+            taskId: taskId,
         },
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'success');
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        ['tasks/list']
+    );
+});
+
+/**
+ *  Event: enable scheduled task execution
+ */
+$(document).on('click','.enable-scheduled-task-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var taskId = $(this).attr('task-id');
+
+    ajaxRequest(
+        // Controller:
+        'task',
+        // Action:
+        'enableTask',
+        // Data:
+        {
+            taskId: taskId,
         },
-        error: function (jqXHR, ajaxOptions, thrownError) {
-            jsonValue = jQuery.parseJSON(jqXHR.responseText);
-            printAlert(jsonValue.message, 'error');
-        },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
+        ['tasks/list']
+    );
+});
+
+/**
+ *  Event: cancel scheduled task
+ */
+$(document).on('click','.cancel-scheduled-task-btn',function (e) {
+    // Prevent parent to be triggered
+    e.stopPropagation();
+
+    var taskId = $(this).attr('task-id');
+
+    confirmBox('Cancel and delete scheduled task?', function () {
+        ajaxRequest(
+            // Controller:
+            'task',
+            // Action:
+            'deleteTask',
+            // Data:
+            {
+                taskId: taskId,
+            },
+            // Print success alert:
+            true,
+            // Print error alert:
+            true,
+            // Reload containers:
+            ['tasks/list']
+        )
     });
-}
+});

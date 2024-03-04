@@ -8,7 +8,6 @@ use Datetime;
 class Service
 {
     protected $logController;
-    private $servicePlanificationController;
     private $serviceStatisticController;
     private $serviceFileController;
     private $curlHandle;
@@ -17,8 +16,7 @@ class Service
     private $root = '/var/www/repomanager';
     private $wwwUser = 'www-data';
     private $reposDir = '/home/repo';
-    private $plansEnabled;
-    private $plansRemindersEnabled;
+    private $scheduledTasksRemindersEnabled;
     private $cveImportEnabled;
     private $cveImportTime;
     protected $statsEnabled;
@@ -78,23 +76,14 @@ class Service
             /**
              *  Scheduled tasks related settings
              */
-            if (!empty($settings['PLANS_ENABLED'])) {
-                $this->plansEnabled = $settings['PLANS_ENABLED'];
+            if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
+                $this->scheduledTasksRemindersEnabled = $settings['PLANS_REMINDERS_ENABLED'];
             } else {
-                $this->logController->log('error', 'Service', "Could not retrieve 'Enable plan' setting.");
-                // Disable scheduled tasks
-                $this->plansEnabled = 'false';
+                $this->logController->log('error', 'Service', "Could not retrieve 'Enable scheduled tasks reminders' setting.");
+                // Disable scheduled tasks reminders
+                $this->scheduledTasksRemindersEnabled = 'false';
             }
 
-            if ($this->plansEnabled == 'true') {
-                if (!empty($settings['PLANS_REMINDERS_ENABLED'])) {
-                    $this->plansRemindersEnabled = $settings['PLANS_REMINDERS_ENABLED'];
-                } else {
-                    $this->logController->log('error', 'Service', "Could not retrieve 'Enable plan reminders' setting.");
-                    // Disable scheduled tasks reminders
-                    $this->plansRemindersEnabled = 'false';
-                }
-            }
 
             /**
              *  CVE related settings
@@ -180,7 +169,7 @@ class Service
                 /**
                  *  If curl has failed (meaning a curl param might be invalid)
                  */
-                throw new Exception('Error while retrieving new version from Github (curl error): ' . curl_error($this->curlHandle));
+                throw new Exception('(curl error): ' . curl_error($this->curlHandle));
             }
 
             /**
@@ -193,16 +182,16 @@ class Service
                  *  If return code is 404
                  */
                 if ($status["http_code"] == '404') {
-                    throw new Exception('Error while retrieving new version from Github (file not found)');
+                    throw new Exception('(file not found)');
                 } else {
-                    throw new Exception('Error while retrieving new version from Github (http return code is: ' . $status["http_code"] . ')');
+                    throw new Exception('(http return code is ' . $status["http_code"] . ')');
                 }
 
                 curl_close($this->curlHandle);
                 fclose($outputFile);
             }
         } catch (Exception $e) {
-            $this->logController->log('error', 'Service', $e->getMessage());
+            $this->logController->log('error', 'Service', 'Error while check for new version from Github ' . $e->getMessage());
         }
     }
 
@@ -270,6 +259,24 @@ class Service
             $this->currentTime = date('H:i');
 
             /**
+             *  Execute scheduled tasks
+             */
+            if ($this->currentTime != $this->lastTime) {
+                /**
+                 *  Execute scheduled task
+                 *  TODO : désactivé pour pouvoir l'exécuter manuellement le temps des tests
+                 */
+                // $this->runService('scheduled-task-exec', true);
+
+                /**
+                 *  Send scheduled tasks reminders
+                 */
+                if ($this->scheduledTasksRemindersEnabled == 'true') {
+                    $this->runService('scheduled-task-reminder');
+                }
+            }
+
+            /**
              *  Parse access logs to generate stats (if enabled)
              */
             if ($this->statsEnabled == 'true') {
@@ -290,23 +297,6 @@ class Service
                  */
                 $this->runService('stats/accesslog/parse');
                 $this->runService('stats/accesslog/process');
-            }
-
-            /**
-             *  Execute scheduled tasks actions (if scheduled tasks are enabled)
-             */
-            if ($this->plansEnabled == 'true' && $this->currentTime != $this->lastTime) {
-                /**
-                 *  Execute scheduled task
-                 */
-                $this->runService('plan-exec', true);
-
-                /**
-                 *  Send scheduled tasks reminder
-                 */
-                if ($this->plansRemindersEnabled == 'true') {
-                    $this->runService('plan-reminder');
-                }
             }
 
             /**
@@ -335,7 +325,7 @@ class Service
              *  Check if the service with specified parameter is already running to avoid running it twice
              *  A php process must be running
              *
-             *  If force != false, then the service will be run even if it is already running (e.g: for running multiple planifications at the same time)
+             *  If force != false, then the service will be run even if it is already running (e.g: for running multiple scheduled tasks at the same time)
              */
             if ($force === false) {
                 $myprocess = new \Controllers\Process("ps aux | grep '" . ROOT . "/tools/service.php " . $parameter . "' | grep -v grep");

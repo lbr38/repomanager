@@ -37,7 +37,7 @@ class Statistic extends Service
         try {
             $this->statController->clean();
         } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while executing stats cleaning operation: ' . $e->getMessage());
+            $this->logController->log('error', 'Service', 'Error while executing stats cleaning task: ' . $e->getMessage());
         }
     }
 
@@ -106,7 +106,7 @@ class Statistic extends Service
                     }
                 }
             } catch (Exception $e) {
-                $this->logController->log('error', 'Service', 'Error while executing stats generation operation: ' . $e->getMessage());
+                $this->logController->log('error', 'Service', 'Error while executing stats generation task: ' . $e->getMessage());
             }
         }
     }
@@ -141,7 +141,7 @@ class Statistic extends Service
             $myprocess->execute();
             $myprocess->close();
         } catch (Exception $e) {
-            $this->logController->log('error', 'Service', 'Error while launching access log parsing operation: ' . $e->getMessage());
+            $this->logController->log('error', 'Service', 'Error while launching access log parsing task: ' . $e->getMessage());
         }
     }
 
