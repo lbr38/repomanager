@@ -178,7 +178,7 @@ class Common
          *  Lancement d'une exception qui sera catchée par printAlert
          *  Si le mode debug est activé alors on affiche l'exception dans le message d'erreur
          */
-        if (!empty($exception) and DEBUG_MODE == 'true') {
+        if (!empty($exception) and DEBUG_MODE === true) {
             throw new Exception('An error occured while executing request in database <br>' . $exception . '<br>');
         } else {
             throw new Exception('An error occured while executing request in database');

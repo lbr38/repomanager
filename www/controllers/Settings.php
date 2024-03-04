@@ -209,24 +209,16 @@ class Settings
         /**
          *  Scheduled tasks
          */
-        if (!empty($sendSettings['plansEnable'])) {
-            if ($sendSettings['plansEnable'] == "true") {
-                $settingsToApply['PLANS_ENABLED'] = 'true';
-            } else {
-                $settingsToApply['PLANS_ENABLED'] = 'false';
-            }
-        }
-
-        if (!empty($sendSettings['plansRemindersEnable'])) {
-            if ($sendSettings['plansRemindersEnable'] == "true") {
+        if (!empty($sendSettings['scheduled-tasks-reminders'])) {
+            if ($sendSettings['scheduled-tasks-reminders'] == "true") {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'true';
             } else {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'false';
             }
         }
 
-        if (!empty($sendSettings['plansCleanRepo'])) {
-            if ($sendSettings['plansCleanRepo'] == "true") {
+        if (!empty($sendSettings['scheduled-tasks-clean-repo'])) {
+            if ($sendSettings['scheduled-tasks-clean-repo'] == "true") {
                 $settingsToApply['PLANS_CLEAN_REPOS'] = 'true';
             } else {
                 $settingsToApply['PLANS_CLEAN_REPOS'] = 'false';

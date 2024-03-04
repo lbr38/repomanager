@@ -290,7 +290,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  If GPG signature check is enabled, either use a distant http:// GPG key or use the repomanager keyring
          */
-        if ($this->checkSignature == 'yes') {
+        if ($this->checkSignature == 'true') {
             $mygpg = new \Controllers\GPG();
 
             /**
@@ -352,7 +352,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  Before downloading each package, check if there is enough disk space left (2GB minimum)
              */
             if (disk_free_space(REPOS_DIR) < 2000000000) {
-                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Operation automatically stopped.', 'Low disk space');
+                $this->logError('Repo storage has reached 2GB (minimum) of free space left. Task automatically stopped.', 'Low disk space');
             }
 
             /**
@@ -440,7 +440,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
              *  rpm -q --qf "%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:{(none}|}| %{NVRA}\n" PACKAGE.rpm
              *  rpm --checksig PACKAGE.rpm
              */
-            if ($this->checkSignature === 'yes') {
+            if ($this->checkSignature === 'true') {
                 /**
                  *  Throw an error if there are no known GPG public keys because it is impossible to check for signature then
                  */
@@ -517,7 +517,7 @@ class Rpm extends \Controllers\Repo\Mirror\Mirror
         /**
          *  Quit if rpm is not present on the system and that signature check is enabled
          */
-        if ($this->checkSignature == 'yes' and !file_exists('/usr/bin/rpm')) {
+        if ($this->checkSignature == 'true' and !file_exists('/usr/bin/rpm')) {
             throw new Exception('rpm is not present on the system (searched in /usr/bin/rpm)');
         }
 

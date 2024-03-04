@@ -37,10 +37,41 @@
       -ms-interpolation-mode: bicubic;
     }
 
+    hr {
+      border-color: #80808024;
+    }
+
     p {
       display: block;
-      margin: 13px 0;
+      line-height: 15px;
     }
+
+    .sub-title {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .label-black {
+      font-size: 13px;
+      padding: 4px;
+      text-align: center;
+      border-radius: 60px;
+      color: white;
+      background-color: rgb(46, 54, 58);
+      display: inline-block;
+    }
+
+    .label-transparent {
+      font-size: 13px;
+      padding: 4px;
+      text-align: center;
+      border-radius: 60px;
+      color: black;
+      background-color: #f4f4f4;
+      border: 1px solid rgb(46, 54, 58);
+      display: inline-block;
+    }
+
   </style>
   <!--[if mso]>
         <noscript>
@@ -158,8 +189,8 @@
                               <td align="center" vertical-align="middle" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                 <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
                                   <tr>
-                                    <td align="center" bgcolor="#15bf7f" role="presentation" style="border:none;border-radius:3px;cursor:auto;mso-padding-alt:10px 25px;background:#15bf7f;" valign="middle">
-                                      <a href="<?= $link ?>" style="display:inline-block;background:#15bf7f;color:#ffffff;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:3px;" target="_blank"> <?= $linkName ?></a>
+                                    <td align="center" bgcolor="#15bf7f" role="presentation" style="border:none;border-radius:60px;cursor:auto;mso-padding-alt:10px 25px;background:#15bf7f;" valign="middle">
+                                      <a href="<?= $link ?>" style="display:inline-block;background:#15bf7f;color:#ffffff;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:60px;" target="_blank"> <?= $linkName ?></a>
                                     </td>
                                   </tr>
                                 </table>

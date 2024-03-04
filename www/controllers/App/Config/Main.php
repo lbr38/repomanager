@@ -59,6 +59,9 @@ class Main
         if (!defined('EXCEPTIONS_LOG')) {
             define('EXCEPTIONS_LOG', LOGS_DIR . '/exceptions');
         }
+        if (!defined('FATAL_ERRORS_LOG')) {
+            define('FATAL_ERRORS_LOG', LOGS_DIR . '/fatal_errors');
+        }
         if (!defined('DB_UPDATE_DONE_DIR')) {
             define('DB_UPDATE_DONE_DIR', DATA_DIR . '/update');
         }
@@ -76,11 +79,11 @@ class Main
         }
         // Async tasks pool dir
         if (!defined('POOL')) {
-            define('POOL', DATA_DIR . "/operations/pool");
+            define('POOL', DATA_DIR . "/tasks/pool");
         }
         // PIDs
         if (!defined('PID_DIR')) {
-            define('PID_DIR', DATA_DIR . "/operations/pid");
+            define('PID_DIR', DATA_DIR . "/tasks/pid");
         }
         // Temp dir
         if (!defined('TEMP_DIR')) {
@@ -147,13 +150,6 @@ class Main
         }
         if (!defined('TIME')) {
             define('TIME', date('H-i'));
-        }
-
-        /**
-         *  Debug mode
-         */
-        if (!defined('DEBUG_MODE')) {
-            define('DEBUG_MODE', false);
         }
 
         /**

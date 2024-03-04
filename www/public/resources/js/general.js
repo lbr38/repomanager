@@ -36,11 +36,11 @@ $(document).keyup(function (e) {
 });
 
 /**
- *  Event: stop operation
+ *  Event: stop task
  */
 $(document).on('click','.kill-btn',function () {
     var pid = $(this).attr('pid');
-    stopOperation(pid);
+    stopTask(pid);
 });
 
 /**
@@ -97,7 +97,7 @@ $(document).on('click','.reloadable-table-page-btn',function () {
 
     /**
      *  Set cookie for PHP to load the right content
-     *  e.g tables/operations/list-done/offset
+     *  e.g tables/tasks/list-done/offset
      */
     setCookie('tables/' + table + '/offset', offset, 1);
 
@@ -378,17 +378,17 @@ function getConfirmBox(name)
 }
 
 /**
- *  Ajax: Stop operation
+ *  Ajax: Stop a task
  *  @param {string} pid
  */
-function stopOperation(pid)
+function stopTask(pid)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
-            controller: "operation",
-            action: "stopOperation",
+            controller: "task",
+            action: "stopTask",
             pid: pid
         },
         dataType: "json",

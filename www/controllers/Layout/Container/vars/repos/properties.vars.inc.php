@@ -1,6 +1,6 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
-$myplan = new \Controllers\Planification();
+$mytask = new \Controllers\Task\Task();
 
 /**
  *  Get total repos count
@@ -25,11 +25,24 @@ $diskUsedSpace = round(100 - ($diskFreeSpace));
 $diskUsedSpacePercent = round(100 - ($diskFreeSpace));
 
 /**
- *  If scheduled tasks are enabled the get last and next plan results
+ *  If scheduled tasks are enabled the get last and next task results
  */
-if (PLANS_ENABLED == "true") {
-    $lastPlan = $myplan->listLast();
-    $nextPlan = $myplan->listNext();
+$lastScheduledTask = $mytask->getLastScheduledTask();
+$nextScheduledTasks = $mytask->getNextScheduledTask();
+
+if (!empty($nextScheduledTasks)) {
+    $nextScheduledTasksLeft = array();
+
+    foreach ($nextScheduledTasks as $task) {
+        $nextScheduledTasksLeft[] = $mytask->getDayTimeLeft($task['Id']);
+    }
+
+    $nextScheduledTasks = $nextScheduledTasksLeft;
+
+    /**
+     *  Sort tasks by date and time
+     */
+    array_multisort(array_column($nextScheduledTasks, 'date'), SORT_DESC, array_column($nextScheduledTasks, 'time'), SORT_ASC, $nextScheduledTasks);
 }
 
-unset($myrepo, $myplan);
+unset($myrepo, $mytask, $diskTotalSpace, $nextScheduledTasksLeft);

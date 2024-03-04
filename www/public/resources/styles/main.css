@@ -581,16 +581,6 @@ footer #github img { width: 25px; }
     border-radius: 60px;
 }
 
-.circle-div-container-container {
-    display: grid;
-    grid-template-columns: 65% 35%;
-    align-items: center;
-}
-
-.circle-div-container-container div:first-child .circle-div-container {
-    border-right: 1px solid #24405c66;
-}
-
 .circle-div-container div {
     display: inline-block;
     vertical-align: middle;
@@ -673,7 +663,7 @@ footer #github img { width: 25px; }
     break-inside: avoid;
 }
 
-.detailsDiv, .plan-info-div {
+.detailsDiv {
     padding: 10px;
     background-color: #182b3e;
     border-left: 1px solid #24405c;
@@ -681,16 +671,6 @@ footer #github img { width: 25px; }
     border-bottom: 1px solid #24405c;
     border-top: none;
     border-radius: 8px;
-}
-
-.plan-info-div div {
-    display: table-row;
-}
-
-.plan-info-div div span {
-    display: table-cell;
-    width: 60%;
-    padding: 10px;
 }
 
 /* Gif de chargement caché par défaut */
@@ -729,19 +709,19 @@ footer #github img { width: 25px; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
-.operation-form {
+.task-form-params {
     width: 100%;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.operation-form span, .operation-form input[type=text], .operation-form select {
+.task-form-params span, .task-form-params input[type=text], .task-form-params select {
     flex: 0 0 50%;
 }
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
-.operation-form p, .operation-form h3 {
+.task-form-params p, .task-form-params h3 {
     flex: 0 0 100%;
 }
 

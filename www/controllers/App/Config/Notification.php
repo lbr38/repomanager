@@ -49,7 +49,7 @@ class Notification
          *  If current user email is not set, generate a new notification
          */
         if (empty($_SESSION['email'])) {
-            $message = '<span>You can configure your email in your user profile. This email can be used as a recipient to send notifications of Repomanager events like planification status or planification reminders</span>';
+            $message = '<span>You can configure your email in your user profile. This email can be used as a recipient to send notifications of Repomanager events like scheduled tasks status or scheduled tasks reminders</span>';
             $NOTIFICATION_MESSAGES[] = array('Title' => 'Email contact not set', 'Message' =>  $message);
             $NOTIFICATION++;
         }

@@ -1,0 +1,147 @@
+name: Run rpm and deb tasks
+
+on:
+  push:
+    branches: [ devel ]
+  pull_request:
+    push:
+      branches: [ stable ]
+
+jobs:
+  run-deb-tasks:
+    runs-on: ubuntu-latest
+    container:
+      image: lbr38/repomanager:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Print PHP version
+        run: php --version
+
+      # Copy latest source code to the root directory
+      - name: Setup latest source code
+        run: |
+          rm -fr /var/www/repomanager
+          mkdir -p /var/www/repomanager
+          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
+          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
+
+      # Entrypoint is not executed, so we need to run most of the commands manually
+      - name: Execute entrypoint
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
+          /bin/bash /var/www/repomanager/bin/repomanager -p
+
+      # Create deb tasks jobs in database
+      - name: Create deb tasks jobs
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/deb/delete'" www-data
+
+      # Create some environments for the tasks to run
+      - name: Set basic configuration
+        run: |
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('prod');"
+
+      # Run deb tasks
+      - name: Run job - Mirror deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+
+      - name: Print mirrored deb repo content
+        run: ls -l /home/repo/debian/bookworm/contrib_pprd/pool/contrib/
+
+      - name: Run job - Update deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+
+      - name: Run job - Duplicate deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+
+      - name: Print duplicated deb repo content
+        run: ls -l /home/repo/debian-copy/bookworm/contrib_pprd/pool/contrib/*.deb
+
+      - name: Run job - Point environment to deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+
+      - name: Run job - Rebuild deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+
+      - name: Run job - Delete deb repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data
+
+  run-rpm-tasks:
+    runs-on: ubuntu-latest
+    container:
+      image: lbr38/repomanager:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Print PHP version
+        run: php --version
+
+      # Copy latest source code to the root directory
+      - name: Setup latest source code
+        run: |
+          rm -fr /var/www/repomanager
+          mkdir -p /var/www/repomanager
+          cp -r $GITHUB_WORKSPACE/www/* /var/www/repomanager/
+          cp $GITHUB_WORKSPACE/www/version /var/lib/repomanager/version.available
+          echo "repomanager-ci.localhost" > /var/www/repomanager/.fqdn
+          chown -R www-data:repomanager /var/www/repomanager /var/lib/repomanager
+
+      # Entrypoint is not executed, so we need to run most of the commands manually
+      - name: Execute entrypoint
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/initialize-database.php" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php" www-data
+          /bin/bash /var/www/repomanager/bin/repomanager -p
+
+      # Create rpm tasks jobs in database
+      - name: Create rpm tasks jobs
+        run: |
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/mirror'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/update'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/duplicate'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/env'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/rebuild'" www-data
+          /bin/su -s /bin/bash -c "php /var/www/repomanager/tools/update-database.php --release='ci/rpm/delete'" www-data
+
+      # Create some environments for the tasks to run
+      - name: Set basic configuration
+        run: |
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('pprd');"
+          sqlite3 /var/lib/repomanager/db/repomanager.db "INSERT INTO env ('Name') VALUES ('prod');"
+
+      # Run rpm tasks
+      - name: Run job - Mirror rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='1'" www-data
+
+      - name: Print mirrored rpm repo content
+        run: ls -l /home/repo/extras_pprd/packages/*/*.rpm
+
+      - name: Run job - Update rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='2'" www-data
+
+      - name: Run job - Duplicate rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='3'" www-data
+
+      - name: Print duplicated rpm repo content
+        run: ls -l /home/repo/extras-copy_pprd/packages/*/*.rpm
+
+      - name: Run job - Point environment to rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='4'" www-data
+
+      - name: Run job - Rebuild rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='5'" www-data
+
+      - name: Run job - Delete rpm repo
+        run: /bin/su -s /bin/bash -c "php /var/www/repomanager/tasks/execute.php --id='6'" www-data

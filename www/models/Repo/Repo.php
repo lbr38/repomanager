@@ -18,7 +18,7 @@ class Repo extends \Models\Model
     /**
      *  Remplace la fonction commentée ci-dessus
      */
-    public function getAllById(string $repoId = null, string $snapId = null, string $envId = null)
+    public function getAllById(string|null $repoId, string|null $snapId, string|null $envId)
     {
         $data = '';
 
@@ -202,6 +202,28 @@ class Repo extends \Models\Model
     }
 
     /**
+     *  Return latest snapshot Id from repo Id
+     */
+    public function getLatestSnapId(int $repoId)
+    {
+        $snapId = '';
+
+        try {
+            $stmt = $this->db->prepare("SELECT Id FROM repos_snap WHERE Id_repo = :repoId AND Status = 'active' ORDER BY Date DESC LIMIT 1");
+            $stmt->bindValue(':repoId', $repoId);
+            $result = $stmt->execute();
+        } catch (\Exception $e) {
+            \Controllers\Common::dbError($e);
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $snapId = $row['Id'];
+        }
+
+        return $snapId;
+    }
+
+    /**
      *  Return environment Id from repo name
      */
     public function getEnvIdFromRepoName(string $name, string|null $dist, string|null $section, string $env)
@@ -367,6 +389,8 @@ class Repo extends \Models\Model
                 INNER JOIN repos
                     ON repos.Id = repos_snap.Id_repo
                 WHERE repos.Name = :name
+                AND (repos.Dist IS NULL OR repos.Dist = '')
+                AND (repos.Section IS NULL OR repos.Section = '')
                 AND repos_env.Env = :env
                 AND repos_snap.Status = 'active'");
             } else {
@@ -523,13 +547,6 @@ class Repo extends \Models\Model
      */
     public function snapSetSigned(string $snapId, string $signed)
     {
-        /**
-         *  signed peut être égal à 'yes' ou 'no'
-         */
-        if ($signed != "yes" and $signed != "no") {
-            return;
-        }
-
         try {
             $stmt = $this->db->prepare("UPDATE repos_snap SET Signed = :signed WHERE Id = :snapId");
             $stmt->bindValue(':signed', $signed);
@@ -616,7 +633,13 @@ class Repo extends \Models\Model
     public function snapOpIsRunning(string $snapId)
     {
         try {
-            $stmt = $this->db->prepare("SELECT Id FROM operations WHERE (Id_snap_source = :snapId OR Id_snap_target = :snapId) AND Status = 'running'");
+            /**
+             *  Use json_extract to extract snap-id from Raw_params
+             */
+            $stmt = $this->db->prepare("SELECT json_extract(Raw_params, '$.snap-id') AS snapId
+            FROM tasks
+            WHERE snapId = :snapId
+            AND Status = 'running'");
             $stmt->bindValue(':snapId', $snapId);
             $result = $stmt->execute();
         } catch (\Exception $e) {
@@ -754,6 +777,8 @@ class Repo extends \Models\Model
                 INNER JOIN repos_env
                     ON repos_env.Id_snap = repos_snap.Id
                 WHERE repos.Name = :name
+                AND (repos.Dist IS NULL OR repos.Dist = '')
+                AND (repos.Section IS NULL OR repos.Section = '')
                 AND repos_env.Env = :env
                 AND repos_snap.Status = 'active'");
             } else {
@@ -788,7 +813,7 @@ class Repo extends \Models\Model
     /**
      *  Return true if a snapshot exists at a specific date in database, from the repo name and the date
      */
-    public function existsRepoSnapDate(string $date, string $name, string $dist = null, string $section = null)
+    public function existsRepoSnapDate(string $date, string $name, string|null $dist, string|null $section)
     {
         try {
             if (empty($dist) and empty($section)) {
@@ -796,7 +821,9 @@ class Repo extends \Models\Model
                 FROM repos
                 INNER JOIN repos_snap
                     ON repos_snap.Id_repo = repos.Id
-                WHERE repos.Name = :name           
+                WHERE repos.Name = :name
+                AND (repos.Dist IS NULL OR repos.Dist = '')
+                AND (repos.Section IS NULL OR repos.Section = '')   
                 AND repos_snap.Date = :date
                 AND repos_snap.Status = 'active'");
             } else {

@@ -26,27 +26,6 @@
 
             <?php
             /**
-             *  SCHEDULE TASKS tab
-             */
-            if (__ACTUAL_URI__[1] == 'plans') {
-                $headerMenuClass = 'menu-sub-container-underline';
-            } else {
-                $headerMenuClass = 'menu-sub-container';
-            }
-
-            if (PLANS_ENABLED == "true") : ?>
-                <div class="<?= $headerMenuClass ?>">
-                    <a href="/plans">
-                        <div class="flex align-item-center column-gap-3">
-                            <img src="/assets/icons/calendar.svg" class="icon" />
-                            <span class="menu-section-title">SCHEDULE TASKS</span>
-                        </div>
-                    </a>
-                </div>
-                <?php
-            endif;
-
-            /**
              *  MANAGE HOSTS tab
              */
             if (__ACTUAL_URI__[1] == 'hosts' or __ACTUAL_URI__[1] == 'host') {
@@ -110,7 +89,7 @@
             endif;
 
             /**
-             *  OPERATIONS tab
+             *  TASKS tab
              */
             if (__ACTUAL_URI__[1] == 'run') {
                 $headerMenuClass = 'menu-sub-container-underline';
@@ -123,137 +102,69 @@
                     <a href="/run">
                         <div class="flex align-item-center column-gap-3">
                             <img src="/assets/icons/rocket.svg" class="icon" />
-                            <span class="menu-section-title">OPERATIONS</span>
+                            <span class="menu-section-title">TASKS</span>
                         </div>
                     </a>
 
                     <div id="header-refresh">
                         <?php
-                        $op = new \Controllers\Operation\Operation();
                         /**
-                         *  On récupère les opérations ou les planifications en cours si il y en a
+                         *  Print a notification badge according to the number of running tasks
                          */
-                        $opsRunning = $op->listRunning('manual');
-                        $plansRunning = $op->listRunning('plan');
-
-                        /**
-                         *  On les compte
-                         */
-                        $opsRunningCount = count($opsRunning);
-                        $plansRunningCount = count($plansRunning);
-
-                        /**
-                         *  On les additionne
-                         */
-                        $totalRunningCount = $opsRunningCount + $plansRunningCount;
-
-                        /**
-                         *  Affichage d'une pastille de notification en fonction du nombre d'opérations en cours
-                         */
-                        if ($totalRunningCount > 0) {
-                            echo '<span class="op-total-running">' . $totalRunningCount . '</span>';
+                        if ($totalRunningTasks > 0) {
+                            echo '<span class="op-total-running">' . $totalRunningTasks . '</span>';
                         }
 
                         /**
-                         *  Si il y a au moins 1 opération est en cours alors on affiche ses détails
+                         *  If at least 1 task is running then we display its details
                          */
-                        if ($totalRunningCount > 0) :
+                        if ($totalRunningTasks > 0) :
                             echo '<div class="header-op-container">';
-
                             /**
-                             *  On affiche chaque opération en cours
+                             *  Print each running task
                              */
-                            foreach ($opsRunning as $opRunning) :
-                                $opId = $opRunning['Id'];
-                                $opPid = $opRunning['Pid'];
-                                $opLogfile = $opRunning['Logfile'];
-                                if (!empty($opRunning['Action'])) {
-                                    $opAction = $opRunning['Action'];
-                                } ?>
+                            foreach ($tasksRunning as $task) :
+                                $taskParams = json_decode($task['Raw_params'], true); ?>
 
                                 <div class="header-op-subdiv btn-large-red">
-                                    <a href="/run?view-logfile=<?=$opLogfile?>">
+                                    <a href="/run?view-logfile=<?= $task['Logfile'] ?>">
                                         <span>
                                             <?php
-                                            if ($opAction == "new") {
-                                                echo 'New repo ';
+                                            if ($taskParams['action'] == 'create') {
+                                                echo 'New repository ';
                                             }
-                                            if ($opAction == "update") {
+                                            if ($taskParams['action'] == 'update') {
                                                 echo 'Update ';
                                             }
-                                            if ($opAction == "env") {
+                                            if ($taskParams['action'] == 'env') {
                                                 echo 'New env. ';
                                             }
-                                            if ($opAction == "removeEnv") {
-                                                echo 'Remove env. ';
+                                            if ($taskParams['action'] == 'removeEnv') {
+                                                echo 'Remove environment ';
                                             }
-                                            if ($opAction == "rebuild") {
+                                            if ($taskParams['action'] == 'rebuild') {
                                                 echo 'Building metadata ';
                                             }
-                                            if ($opAction == "duplicate") {
+                                            if ($taskParams['action'] == 'duplicate') {
                                                 echo 'Duplicate ';
                                             }
-                                            if ($opAction == "delete") {
+                                            if ($taskParams['action'] == 'delete') {
                                                 echo 'Delete ';
                                             } ?>
                                         </span>
-                                        <?php
-                                        /**
-                                         *  Affichage du nom du repo ou du groupe en cours de traitement
-                                         */
-                                        $op->printRepoOrGroup($opId); ?>
+
+                                        <span class="label-white"><?= $myTask->getRepo($task['Id']); ?></span>
                                     </a>
-                                    <span title="Stop operation" class="kill-btn" pid="<?= $opPid ?>">
+
+                                    <span title="Stop task" class="kill-btn" pid="<?= $task['Pid'] ?>">
                                         <img src="/assets/icons/delete.svg" class="icon">
                                     </span>
                                 </div>
                                 <?php
                             endforeach;
-
-                            /**
-                             *  On affiche chaque planification en cours
-                             */
-                            foreach ($plansRunning as $planRunning) :
-                                $opId = $planRunning['Id'];
-                                $opPid = $planRunning['Pid'];
-                                $opLogfile = $planRunning['Logfile'];
-                                if (!empty($planRunning['Action'])) {
-                                    $planAction = $planRunning['Action'];
-                                }
-                                if (!empty($planRunning['Id_repo_source'])) {
-                                    $opRepoSource = $planRunning['Id_repo_source'];
-                                } ?>
-                    
-                                <div class="header-op-subdiv btn-large-red">
-                                    <span>
-                                        <a href="/run?view-logfile=<?= $opLogfile ?>">
-                                            <?php
-                                            if ($planAction == "new") {
-                                                echo 'New repo ';
-                                            }
-                                            if ($planAction == "update") {
-                                                echo 'Update ';
-                                            }
-                                            if ($planAction == "env") {
-                                                echo 'New env. ';
-                                            }
-
-                                            /**
-                                             *  Affichage du nom du repo ou du groupe en cours de traitement
-                                             */
-                                            $op->printRepoOrGroup($opId); ?>
-                                        </a>
-                                    </span>
-                                    <span title="Stop operation" class="kill-btn" pid="<?= $opPid ?>">
-                                        <img src="/assets/icons/delete.svg" class="icon">
-                                    </span>
-                                </div>
-                                <?php
-                            endforeach;
-
                             echo '</div>';
 
-                            unset($opsRunning, $plansRunning);
+                            unset($tasksRunning);
                         endif ?>
                     </div>
                 </div>

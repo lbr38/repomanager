@@ -70,30 +70,38 @@ class Snapshot extends \Controllers\Api\Controller
                      *  Same code as controllers/ajax/browse.php
                      *  TODO : find a way to not duplicate code
                      */
-                    $myoperation = new \Controllers\Operation\Operation();
+                    $mytask = new \Controllers\Task\Task();
 
                     if ($myrepo->existsSnapId($this->snapId) !== true) {
-                        throw new Exception('Invalid repo snapshot ID');
+                        throw new Exception('Invalid repository snapshot Id');
                     }
 
-                    if ($this->data->gpgSign != 'yes' and $this->data->gpgSign != 'no') {
-                        throw new Exception('Invalid GPG Resign value');
+                    if ($this->data->gpgSign != 'true' and $this->data->gpgSign != 'false') {
+                        throw new Exception('Invalid GPG sign value');
                     }
 
                     /**
-                     *  Create a json file that defines the operation to execute
+                     *  If a task is already running on the snapshot, throw an error
+                     */
+                    if ($myrepo->snapOpIsRunning($this->snapId) === true) {
+                        throw new Exception('A task is already running on this repository snapshot. Retry later.');
+                    }
+
+                    /**
+                     *  Create a json file that defines the task to execute
                      */
                     $params = array();
                     $params['action'] = 'rebuild';
-                    $params['snapId'] = $this->snapId;
-                    $params['targetGpgResign'] = $this->data->gpgSign;
+                    $params['snap-id'] = $this->snapId;
+                    $params['gpg-sign'] = $this->data->gpgSign;
+                    $params['schedule']['scheduled'] = 'false';
 
                     /**
-                     *  Execute the operation
+                     *  Execute the task
                      */
-                    $myoperation->execute(array($params));
+                    $mytask->execute(array($params));
 
-                    unset($myoperation);
+                    unset($mytask);
 
                     return array('results' => 'Snapshot metadata rebuild started');
                 }

@@ -23,15 +23,6 @@ class Listing
     }
 
     /**
-     *  Retourne le liste des noms de repos actifs, par groupe
-     *  Utilisée notamment pour les planifications de groupes
-     */
-    public function listNameByGroup(string $groupName)
-    {
-        return $this->model->listNameByGroup($groupName);
-    }
-
-    /**
      *  Retourne la liste des repos par groupes
      */
     public function listByGroup(string $groupName)
@@ -47,13 +38,5 @@ class Listing
     public function listNameOnly(bool $bool = false)
     {
         return $this->model->listNameOnly($bool);
-    }
-
-    /**
-     *  Return the list of repos eligible for planifications (repos with at least 1 active snapshot)
-     */
-    public function listForPlan()
-    {
-        return $this->model->listForPlan();
     }
 }
