@@ -66,7 +66,7 @@ foreach ($events as $event) {
 $reloadableTableContent = $eventsWithPackages;
 
 /**
- *  Get list of ALL done operations, without offset, for the total count
+ *  Get list of ALL events, without offset, for the total count
  */
 $reloadableTableTotalItems = count($myhost->getEventsHistory());
 

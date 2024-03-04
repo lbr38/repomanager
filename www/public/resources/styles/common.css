@@ -133,11 +133,11 @@ pre {
 .align-item-center {align-items: center}
 .align-item-right {align-items: flex-end}
 .align-self-center {align-self: center}
-.column-gap-1{column-gap: 1px}.column-gap-2 {column-gap: 2px}.column-gap-4 {column-gap: 4px}.column-gap-5{column-gap: 5px}.column-gap-6{column-gap: 6px}.column-gap-7{column-gap: 7px}.column-gap-8{column-gap: 8px}.column-gap-9{column-gap: 9px}.column-gap-10{column-gap: 10px}
+.column-gap-1{column-gap: 1px}.column-gap-2 {column-gap: 2px}.column-gap-4 {column-gap: 4px}.column-gap-5{column-gap: 5px}.column-gap-6{column-gap: 6px}.column-gap-7{column-gap: 7px}.column-gap-8{column-gap: 8px}.column-gap-9{column-gap: 9px}.column-gap-10{column-gap: 10px}.column-gap-15{column-gap: 15px}
 .column-gap-20{column-gap: 20px}.column-gap-30{column-gap: 30px}.column-gap-40{column-gap: 40px}.column-gap-50{column-gap: 50px}.column-gap-60{column-gap: 60px}.column-gap-70{column-gap: 70px}.column-gap-80{column-gap: 80px}.column-gap-90{column-gap: 90px}.column-gap-100{column-gap: 100px}
-.row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}
+.row-gap-1 {row-gap: 1px}.row-gap-2 {row-gap: 2px}.row-gap-4 {row-gap: 4px}.row-gap-5 {row-gap: 5px}.row-gap-6 {row-gap: 6px}.row-gap-7 {row-gap: 7px}.row-gap-8 {row-gap: 8px}.row-gap-9{row-gap: 9px}.row-gap-10{row-gap: 10px}.row-gap-15{row-gap: 15px}.row-gap-20{row-gap: 20px}
 .padding-left-15 {padding-left: 15px !important}
-.padding-right-15 {padding-right: 15px !important}
+.padding-right-15 {padding-right: 15px !important}.padding-right-20{padding-right:20px !important}.paddin-right-30{padding-right:30px !important}.padding-right-40{padding-right:40px !important}
 .margin-left-0 {margin-left: 0px !important}.margin-left-5 {margin-left: 5px !important}.margin-left-10 {margin-left: 10px !important}.margin-left-15 {margin-left: 15px !important}.margin-left-20 {margin-left: 20px !important}.margin-left-30 {margin-left: 30px !important}.margin-left-40 {margin-left: 40px !important}
 .margin-right-0 {margin-right: 0px !important}.margin-right-5 {margin-right: 5px !important}.margin-right-10 {margin-right: 10px !important}.margin-right-15 {margin-right: 15px !important}.margin-right-20 {margin-right: 20px !important}.margin-right-30 {margin-right: 30px !important}.margin-right-40 {margin-right: 40px !important}
 .margin-top-0 {margin-top: 0px !important}.margin-top-5 {margin-top: 5px !important}.margin-top-10 {margin-top: 10px !important}.margin-top-15 {margin-top: 15px !important}.margin-top-20 {margin-top: 20px !important}.margin-top-30 {margin-top: 30px !important}.margin-top-40 {margin-top: 40px !important}

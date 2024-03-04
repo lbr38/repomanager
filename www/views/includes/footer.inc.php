@@ -34,13 +34,8 @@
 <?php
 if (__ACTUAL_URI__[1] == "") {
     echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
+    echo '<script src="/resources/js/task.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
-}
-if (__ACTUAL_URI__[1] == "plans") {
-    echo '<script src="/resources/js/repo.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/group.js?' . VERSION . '"></script>';
-    echo '<script src="/resources/js/plan.js?' . VERSION . '"></script>';
     echo '<script src="/resources/js/source.js?' . VERSION . '"></script>';
 }
 if (__ACTUAL_URI__[1] == "hosts" or __ACTUAL_URI__[1] == "host") {

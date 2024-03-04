@@ -18,7 +18,7 @@
 
                     <div class="slide-btn slide-panel-btn" slide-panel="repos/new" title="Create a new mirror or local repository">
                         <img src="/assets/icons/plus.svg" />
-                        <span>Create a new repo</span>
+                        <span>Create a new repository</span>
                     </div>
                     <?php
                 endif ?>

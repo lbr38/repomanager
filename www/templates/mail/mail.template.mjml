@@ -11,7 +11,7 @@
 
                 <mj-text font-size="14px" color="#666666" font-family="helvetica"> $content </mj-text>
 
-                <mj-button background-color="#15bf7f" href="$link"> $linkName </mj-button>
+                <mj-button background-color="#15bf7f" border-radius="60px" href="$link"> $linkName </mj-button>
 
             </mj-column>
         </mj-section>

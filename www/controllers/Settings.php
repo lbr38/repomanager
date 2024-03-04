@@ -75,6 +75,16 @@ class Settings
         /**
          *  Repositories / Mirroring settings
          */
+        if (isset($sendSettings['retention'])) {
+            $retention = Common::validateData($sendSettings['retention']);
+
+            if (!is_numeric($retention) or $retention < 0) {
+                throw new Exception('Invalid retention value for ' . $retention);
+            }
+
+            $settingsToApply['RETENTION'] = $retention;
+        }
+
         if (isset($sendSettings['repoConfFilesPrefix'])) {
             $repoConfFilesPrefix = Common::validateData($sendSettings['repoConfFilesPrefix']);
 
@@ -209,38 +219,12 @@ class Settings
         /**
          *  Scheduled tasks
          */
-        if (!empty($sendSettings['plansEnable'])) {
-            if ($sendSettings['plansEnable'] == "true") {
-                $settingsToApply['PLANS_ENABLED'] = 'true';
-            } else {
-                $settingsToApply['PLANS_ENABLED'] = 'false';
-            }
-        }
-
-        if (!empty($sendSettings['plansRemindersEnable'])) {
-            if ($sendSettings['plansRemindersEnable'] == "true") {
+        if (!empty($sendSettings['scheduled-tasks-reminders'])) {
+            if ($sendSettings['scheduled-tasks-reminders'] == "true") {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'true';
             } else {
                 $settingsToApply['PLANS_REMINDERS_ENABLED'] = 'false';
             }
-        }
-
-        if (!empty($sendSettings['plansCleanRepo'])) {
-            if ($sendSettings['plansCleanRepo'] == "true") {
-                $settingsToApply['PLANS_CLEAN_REPOS'] = 'true';
-            } else {
-                $settingsToApply['PLANS_CLEAN_REPOS'] = 'false';
-            }
-        }
-
-        if (isset($sendSettings['retention'])) {
-            $retention = Common::validateData($sendSettings['retention']);
-
-            if (!is_numeric($retention) or $retention < 0) {
-                throw new Exception('Invalid retention value for ' . $retention);
-            }
-
-            $settingsToApply['RETENTION'] = $retention;
         }
 
         /**

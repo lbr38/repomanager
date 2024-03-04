@@ -102,7 +102,7 @@ $(document).on('click',".packageName-checkbox",function () {
         confirmBox(
             '',
             function () {
-                ajaxRequest('browse', 'deletePackage', {snapId: snapId, packages: packages}, ['browse/list', 'browse/actions']); },
+                ajaxRequest('browse', 'deletePackage', {snapId: snapId, packages: packages}, true, true, ['browse/list', 'browse/actions']); },
             'Delete',
             function () {
                 downloadPackage(); },
@@ -121,19 +121,27 @@ $(document).on('click',".packageName-checkbox",function () {
  */
 $(document).on('click',"#rebuildBtn",function () {
     var snapId = $(this).attr('snap-id');
-    var rebuildGpgSign = 'no';
+    var gpgSign = 'false';
 
-    if ($('input[type=checkbox][name=rebuildGpgSign]').is(':checked')) {
-        var rebuildGpgSign = 'yes';
+    if ($('input[type=checkbox][name=gpgSign]').is(':checked')) {
+        var gpgSign = 'true';
     }
 
     ajaxRequest(
+        // Controller:
         'browse',
+        // Action:
         'rebuild',
+        // Data:
         {
             snapId: snapId,
-            rebuildGpgSign: rebuildGpgSign
+            gpgSign: gpgSign
         },
+        // Print success alert:
+        true,
+        // Print error alert:
+        true,
+        // Reload containers:
         ['browse/list', 'browse/actions']
     );
 });

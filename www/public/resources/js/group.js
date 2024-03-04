@@ -1,4 +1,4 @@
-classToSelect2('select.group-repos-list', 'Add repo...');
+selectToSelect2('select.group-repos-list', 'Add repo...');
 
 /**
  *  Events listeners
@@ -80,7 +80,7 @@ function newGroup(name)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('repos/groups', function () {
-                classToSelect2('select.group-repos-list', 'Add repo...'); });
+                selectToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
@@ -111,7 +111,7 @@ function deleteGroup(id)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('repos/groups', function () {
-                classToSelect2('select.group-repos-list', 'Add repo...'); });
+                selectToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },
@@ -146,7 +146,7 @@ function editGroup(id, name, reposId)
             jsonValue = jQuery.parseJSON(jqXHR.responseText);
             printAlert(jsonValue.message, 'success');
             reloadPanel('repos/groups', function () {
-                classToSelect2('select.group-repos-list', 'Add repo...'); });
+                selectToSelect2('select.group-repos-list', 'Add repo...'); });
             reloadNewRepoDiv();
             reloadContainer('repos/list');
         },

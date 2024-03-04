@@ -57,7 +57,7 @@ class Cve
      *  Return all CVEs
      *  It is possible to add an offset to the request
      */
-    public function getAll(bool $withOffset = false, int $offset = 0, string|null $filter)
+    public function getAll(bool $withOffset = false, int $offset = 0, string|null $filter = null)
     {
         return $this->model->getAll($withOffset, $offset, $filter);
     }

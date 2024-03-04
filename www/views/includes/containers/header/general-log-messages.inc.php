@@ -18,7 +18,7 @@
                             if ($log['Type'] == 'info') {
                                 echo '<img src="/assets/icons/greencircle.png" class="icon-small">';
                             } ?>
-                            <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <?= $log['Component'] ?> - <?= $log['Message'] ?></span>
+                            <span><?= $log['Date'] . ' ' . $log['Time'] ?> - <code><?= $log['Component'] ?></code> - <?= $log['Message'] ?></span>
                         </div>
                         <div class="slide-btn align-self-center acquit-log-btn" log-id="<?= $log['Id'] ?>" title="Mark as read">
                             <img src="/assets/icons/enabled.svg" />

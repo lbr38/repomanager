@@ -1,6 +1,5 @@
 <?php
 $myrepo = new \Controllers\Repo\Repo();
-$myop = new \Controllers\Operation\Operation();
 
 if (empty(__ACTUAL_URI__[2])) {
     die('Error: no repo snapshot ID specified.');
@@ -15,7 +14,6 @@ $snapId = __ACTUAL_URI__[2];
 /**
  *  Retrieve repo infos from DB
  */
-// $myrepo->setSnapId($snapId);
 $myrepo->getAllById('', $snapId, '');
 
 /**

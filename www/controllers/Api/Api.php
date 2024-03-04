@@ -110,6 +110,8 @@ class Api
      */
     public function authenticate()
     {
+        $isApiAdmin = false;
+
         /**
          *  Retrieve authentication header
          */
@@ -198,9 +200,7 @@ class Api
              *  Check if API key is an Admin API key
              */
             if ($this->loginController->apiKeyIsAdmin($apiKey)) {
-                if (!defined('IS_API_ADMIN')) {
-                    define('IS_API_ADMIN', true);
-                }
+                $isApiAdmin = true;
             }
         }
 
@@ -218,6 +218,13 @@ class Api
             $this->hostAuthentication = true;
             $this->hostId = $hostId;
             $this->hostToken = $hostToken;
+        }
+
+        /**
+         *  Define if the API authentication is an admin API authentication
+         */
+        if (!defined('IS_API_ADMIN')) {
+            define('IS_API_ADMIN', $isApiAdmin);
         }
 
         return true;

@@ -413,17 +413,6 @@ article {
     justify-content: center;
 }
 
-.divReposListDisplay {
-    display: none;
-    color: white;
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 40px;
-    box-shadow:
-     0px 1px 1px 0px rgba(0, 0, 0, 0.5) inset,
-     0px 2px 2px 0px rgba(255, 255, 255, 0.2);
-     background-color: #252525;
-}
 .divReposConf {
     width: 100%;
     padding-top: 15px;
@@ -537,15 +526,6 @@ input::placeholder {
     background-color: #ff0044;
 }
 
-/**
- *  Si le label se trouve dans un td, il faut spécifier un padding top et bottom
- */
-/* td .label-white, td .label-black, td .label-green, td .label-red, td .label-yellow {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    vertical-align: middle;
-} */
-
 .div-flex {
     display: flex;
     justify-content: space-between;
@@ -579,16 +559,6 @@ footer #github img { width: 25px; }
     width: 8px;
     height: 8px;
     border-radius: 60px;
-}
-
-.circle-div-container-container {
-    display: grid;
-    grid-template-columns: 65% 35%;
-    align-items: center;
-}
-
-.circle-div-container-container div:first-child .circle-div-container {
-    border-right: 1px solid #24405c66;
 }
 
 .circle-div-container div {
@@ -673,7 +643,7 @@ footer #github img { width: 25px; }
     break-inside: avoid;
 }
 
-.detailsDiv, .plan-info-div {
+.detailsDiv {
     padding: 10px;
     background-color: #182b3e;
     border-left: 1px solid #24405c;
@@ -683,14 +653,8 @@ footer #github img { width: 25px; }
     border-radius: 8px;
 }
 
-.plan-info-div div {
-    display: table-row;
-}
-
-.plan-info-div div span {
-    display: table-cell;
-    width: 60%;
-    padding: 10px;
+.task-table tr td:first-child {
+    width: 35%;
 }
 
 /* Gif de chargement caché par défaut */
@@ -729,19 +693,19 @@ footer #github img { width: 25px; }
 .header-light-red, .header-light-red-min { background-color: #ff3369 !important; }
 .header-light-blue, .header-light-blue-min { background-color: #2b4d6e !important; }
 
-.operation-form {
+.task-form-params {
     width: 100%;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.operation-form span, .operation-form input[type=text], .operation-form select {
+.task-form-params span, .task-form-params input[type=text], .task-form-params select {
     flex: 0 0 50%;
 }
 
 /* Les paragraphes eux occupent tout l'espace, les titres aussi */
-.operation-form p, .operation-form h3 {
+.task-form-params p, .task-form-params h3 {
     flex: 0 0 100%;
 }
 

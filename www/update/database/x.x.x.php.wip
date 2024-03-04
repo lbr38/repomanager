@@ -1,0 +1,26 @@
+
+<?php
+/**
+ *  x.x.x database update
+ */
+$vacumm = 0;
+
+/**
+ *  Drop 'planifications' table if exists
+ */
+if ($this->db->tableExist('planifications') === true) {
+    $this->db->exec('DROP TABLE planifications');
+    $vacumm++;
+}
+
+/**
+ *  Drop 'operations' table if exists
+ */
+if ($this->db->tableExist('operations') === true) {
+    $this->db->exec('DROP TABLE operations');
+    $vacumm++;
+}
+
+if ($vacumm > 0) {
+    $this->db->exec('VACUUM');
+}

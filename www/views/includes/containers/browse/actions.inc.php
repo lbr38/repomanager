@@ -12,17 +12,17 @@ if (IS_ADMIN) : ?>
 
         <?php
         /**
-         *  If an operation is already running on this repo then print a message
+         *  If a task is already running on this repo then print a message
          */
         if (!empty($rebuild) and $rebuild == 'running') : ?>
             <div class="div-generic-blue">
-                <p>An operation is running on this repository snapshot<img src="/assets/images/loading.gif" class="icon" /></p>
+                <p>A task is running on this repository snapshot<img src="/assets/images/loading.gif" class="icon" /></p>
             </div>
             <?php
         endif;
 
         /**
-         *  If there is no operation running on this repo then print action buttons
+         *  If there is no task running on this repo then print action buttons
          */
         if (empty($rebuild) or (!empty($rebuild) and $rebuild != 'running')) : ?>
             <div class="div-generic-blue">
@@ -57,26 +57,27 @@ if (IS_ADMIN) : ?>
             <p>Rebuild repository metadata files</p>
 
             <br>
+
             <?php
-                $resignChecked = '';
+                $gpgSignChecked = '';
 
             if ($myrepo->getPackageType() == 'rpm' && RPM_SIGN_PACKAGES == 'true') {
-                $resignChecked = 'checked';
+                $gpgSignChecked = 'checked';
             }
             if ($myrepo->getPackageType() == 'deb' && DEB_SIGN_REPO == 'true') {
-                $resignChecked = 'checked';
-            }
-            ?>
+                $gpgSignChecked = 'checked';
+            } ?>
+
             <div class="div-generic-blue">
                 <div class="flex align-item-center column-gap-4">
                     <span>Sign with GPG</span>
                     <label class="onoff-switch-label">
-                        <input name="rebuildGpgSign" type="checkbox" class="onoff-switch-input" <?= $resignChecked ?>>
+                        <input name="gpgSign" type="checkbox" class="onoff-switch-input" <?= $gpgSignChecked ?>>
                         <span class="onoff-switch-slider"></span>
                     </label>
                 </div>
 
-                <span class="lowopacity-cst">Signature can extend the operation duration</span>
+                <span class="lowopacity-cst">Signature can extend the task duration</span>
                 <br><br>
 
                 <button id="rebuildBtn" snap-id="<?= $snapId ?>" type="button" class="btn-large-red"><img src="/assets/icons/rocket.svg" class="icon" />Execute</button>

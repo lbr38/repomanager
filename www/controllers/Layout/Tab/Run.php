@@ -6,7 +6,7 @@ class Run
 {
     public static function render()
     {
-        \Controllers\Layout\Container\Render::render('operations/log');
-        \Controllers\Layout\Container\Render::render('operations/list');
+        \Controllers\Layout\Container\Render::render('tasks/log');
+        \Controllers\Layout\Container\Render::render('tasks/list');
     }
 }

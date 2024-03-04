@@ -3,13 +3,6 @@
     [ GENERAL ]
     
     - Update documentation
-    - Better handle errors in execute.php
-
-    [ SHEDULED TASKS ]
-
-    - Working on a easier way to schedule tasks
-    - (Feature) Be able to schedule a task monthly
-
 
 [ BUGS ]
 
@@ -24,6 +17,8 @@
     [ GENERAL ]
 
     - (JS) Refactor and mutualize the ajax functions
+    - Rename PLANS_* constants to TASK_*
+    - Log catched fatal errors (catch (Error $e)) in FATAL_ERRORS_LOG dedicated file (Error class: https://www.php.net/manual/fr/class.error.php)
 
 
     [ REPOS ]

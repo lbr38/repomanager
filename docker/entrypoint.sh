@@ -3,7 +3,7 @@
 WWW_DIR="/var/www/repomanager"
 DATA_DIR="/var/lib/repomanager"
 
-/bin/bash $WWW_DIR/bin/repomanager -p &
+/bin/bash $WWW_DIR/bin/repomanager -p
 
 # Docker run options
 # when

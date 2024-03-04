@@ -56,40 +56,6 @@ class Listing extends \Models\Model
     }
 
     /**
-     *  Retourne le liste des noms de repos actifs, par groupe
-     *  Utilisée notamment pour les planifications de groupes
-     */
-    public function listNameByGroup(string $groupName)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT DISTINCT
-            repos.Id AS repoId,
-            repos.Name,
-            repos.Dist,
-            repos.Section
-            FROM repos
-            LEFT JOIN group_members
-                ON repos.Id = group_members.Id_repo
-            LEFT JOIN groups
-                ON groups.Id = group_members.Id_group
-            WHERE groups.Name = :groupname
-            ORDER BY repos.Name ASC, repos.Dist ASC, repos.Section ASC");
-            $stmt->bindValue(':groupname', $groupName);
-            $result = $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        $repos = array();
-
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $repos[] = $row;
-        }
-
-        return $repos;
-    }
-
-    /**
      *  Retourne la liste des repos actifs, par groupe
      */
     public function listByGroup(string $groupName)
@@ -216,54 +182,5 @@ class Listing extends \Models\Model
         }
 
         return $repos;
-    }
-
-    /**
-     *  Return the list of repos eligible for planifications (repos with at least 1 active snapshot)
-     */
-    public function listForPlan()
-    {
-        $data = array();
-
-        try {
-            /**
-             *  Retrieve all repos name only
-             */
-            $repos = $this->listNameOnly(true);
-
-            /**
-             *  For each repo, retrieve the last active snapshot
-             */
-            foreach ($repos as $repo) {
-                $stmt = $this->db->prepare("SELECT repos_snap.Id AS snapId
-                FROM repos_snap
-                LEFT JOIN repos
-                    ON repos.Id = repos_snap.Id_repo
-                WHERE repos.Id = :id
-                AND repos_snap.Status = 'active'
-                AND repos_snap.Type = 'mirror'
-                ORDER BY repos_snap.Date DESC, repos_snap.Time DESC LIMIT 1");
-
-                $stmt->bindValue(':id', $repo['Id']);
-                $result = $stmt->execute();
-
-                /**
-                 *  Build an array with the repo Id, name and the last active snapshot Id and add it to the $data array
-                 */
-                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                    $data[] = array(
-                        'Id' => $repo['Id'],
-                        'Name' => $repo['Name'],
-                        'Dist' => $repo['Dist'],
-                        'Section' => $repo['Section'],
-                        'SnapId' => $row['snapId']
-                    );
-                }
-            }
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-
-        return $data;
     }
 }
