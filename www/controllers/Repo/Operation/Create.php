@@ -22,7 +22,7 @@ class Create extends Operation
         /**
          *  Check and set operation parameters
          */
-        $requiredParams = array('Package_type', 'Repo_type', 'targetArch');
+        $requiredParams = array('packageType', 'type', 'targetArch');
         $optionnalParams = array('targetEnv', 'targetPackageTranslation', 'targetGroup', 'targetDescription');
 
         /**
