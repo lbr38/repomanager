@@ -9,7 +9,7 @@ class Rebuild extends Operation
     use Package\Sign;
     use Metadata\Create;
 
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -19,8 +19,8 @@ class Rebuild extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Rebuild repo metadata', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Rebuild repo metadata', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -30,15 +30,15 @@ class Rebuild extends Operation
         /**
          *  Set additionnal params from the actual repo to rebuild
          */
-        $operationParams['targetDate'] = $this->repo->getDate();
-        $operationParams['targetArch'] = $this->repo->getArch();
+        $taskParams['targetDate'] = $this->repo->getDate();
+        $taskParams['targetArch'] = $this->repo->getArch();
 
         /**
          *  Check and set others operation parameters
          */
         $requiredParams = array('targetGpgResign', 'targetDate', 'targetArch');
-        $this->operationParamsCheck('Rebuild repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams, null);
+        $this->operationParamsCheck('Rebuild repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams, null);
 
         /**
          *  Set operation details

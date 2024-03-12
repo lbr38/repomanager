@@ -6,7 +6,7 @@ use Exception;
 
 class Delete extends Operation
 {
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -16,8 +16,8 @@ class Delete extends Operation
          *  Check and set operation parameters
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Delete repo snapshot', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Delete repo snapshot', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id

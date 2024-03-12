@@ -48,7 +48,7 @@ $(document).on('click','.relaunch-operation-btn',function (e) {
 
     var poolId = $(this).attr('pool-id');
 
-    relaunchOperation(poolId);
+    relaunchTask(poolId);
 });
 
 
@@ -56,14 +56,14 @@ $(document).on('click','.relaunch-operation-btn',function (e) {
  *  Ajax: Relaunch operation
  *  @param {string} poolId
  */
-function relaunchOperation(poolId)
+function relaunchTask(poolId)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "operation",
-            action: "relaunchOperation",
+            action: "relaunchTask",
             poolId: poolId
         },
         dataType: "json",

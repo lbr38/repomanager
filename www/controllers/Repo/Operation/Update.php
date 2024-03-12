@@ -11,7 +11,7 @@ class Update extends Operation
     use Metadata\Create;
     use Finalize;
 
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -21,8 +21,8 @@ class Update extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Update repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Update repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -34,8 +34,8 @@ class Update extends Operation
          */
         $requiredParams = array('targetGpgCheck', 'targetGpgResign', 'targetArch', 'onlySyncDifference');
         $optionnalParams = array('targetEnv', 'targetPackageTranslation');
-        $this->operationParamsCheck('Update repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams, $optionnalParams);
+        $this->operationParamsCheck('Update repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         /**
          *  Set operation details
@@ -51,9 +51,9 @@ class Update extends Operation
         /**
          *  If a schedule Id has been specified then it means that the action has been initialized by a schedule
          */
-        if (!empty($operationParams['planId'])) {
+        if (!empty($taskParams['planId'])) {
             $this->operation->setType('plan');
-            $this->operation->setPlanId($operationParams['planId']);
+            $this->operation->setPlanId($taskParams['planId']);
         }
 
         $this->operation->start();

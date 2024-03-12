@@ -110,7 +110,7 @@
             endif;
 
             /**
-             *  OPERATIONS tab
+             *  TASKS tab
              */
             if (__ACTUAL_URI__[1] == 'run') {
                 $headerMenuClass = 'menu-sub-container-underline';
@@ -123,7 +123,7 @@
                     <a href="/run">
                         <div class="flex align-item-center column-gap-3">
                             <img src="/assets/icons/rocket.svg" class="icon" />
-                            <span class="menu-section-title">OPERATIONS</span>
+                            <span class="menu-section-title">TASKS</span>
                         </div>
                     </a>
 

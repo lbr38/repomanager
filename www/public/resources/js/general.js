@@ -40,7 +40,7 @@ $(document).keyup(function (e) {
  */
 $(document).on('click','.kill-btn',function () {
     var pid = $(this).attr('pid');
-    stopOperation(pid);
+    stopTask(pid);
 });
 
 /**
@@ -378,17 +378,17 @@ function getConfirmBox(name)
 }
 
 /**
- *  Ajax: Stop operation
+ *  Ajax: Stop a task
  *  @param {string} pid
  */
-function stopOperation(pid)
+function stopTask(pid)
 {
     $.ajax({
         type: "POST",
         url: "/ajax/controller.php",
         data: {
             controller: "operation",
-            action: "stopOperation",
+            action: "stopTask",
             pid: pid
         },
         dataType: "json",

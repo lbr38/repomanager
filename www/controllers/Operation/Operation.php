@@ -212,105 +212,105 @@ class Operation
     /**
      *  Stop the operation based on the specified PID
      */
-    public function kill(string $pid)
-    {
-        if (!file_exists(PID_DIR . '/' . $pid . '.pid')) {
-            throw new Exception('Specified operation PID does not exist.');
-        }
+    // public function kill(string $pid)
+    // {
+    //     if (!file_exists(PID_DIR . '/' . $pid . '.pid')) {
+    //         throw new Exception('Specified operation PID does not exist.');
+    //     }
 
-        /**
-         *  Getting PID file content
-         */
-        $content = file_get_contents(PID_DIR . '/' . $pid . ".pid");
+    //     /**
+    //      *  Getting PID file content
+    //      */
+    //     $content = file_get_contents(PID_DIR . '/' . $pid . ".pid");
 
-        /**
-         *  Getting logfile name
-         */
-        preg_match('/(?<=LOG=).*/', $content, $logfile);
-        $logfile = str_replace('"', '', $logfile[0]);
+    //     /**
+    //      *  Getting logfile name
+    //      */
+    //     preg_match('/(?<=LOG=).*/', $content, $logfile);
+    //     $logfile = str_replace('"', '', $logfile[0]);
 
-        /**
-         *  Getting sub PIDs
-         */
-        preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
+    //     /**
+    //      *  Getting sub PIDs
+    //      */
+    //     preg_match_all('/(?<=SUBPID=).*/', $content, $subpids);
 
-        /**
-         *  Killing sub PIDs
-         */
-        if (!empty($subpids[0])) {
-            $killError = '';
+    //     /**
+    //      *  Killing sub PIDs
+    //      */
+    //     if (!empty($subpids[0])) {
+    //         $killError = '';
 
-            foreach ($subpids[0] as $subpid) {
-                $subpid = trim(str_replace('"', '', $subpid));
+    //         foreach ($subpids[0] as $subpid) {
+    //             $subpid = trim(str_replace('"', '', $subpid));
 
-                /**
-                 *  Check if the PID is still running
-                 */
-                $myprocess = new \Controllers\Process('ps --pid ' . $subpid);
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
+    //             /**
+    //              *  Check if the PID is still running
+    //              */
+    //             $myprocess = new \Controllers\Process('ps --pid ' . $subpid);
+    //             $myprocess->execute();
+    //             $content = $myprocess->getOutput();
+    //             $myprocess->close();
 
-                if ($myprocess->getExitCode() != 0) {
-                    continue;
-                }
+    //             if ($myprocess->getExitCode() != 0) {
+    //                 continue;
+    //             }
 
-                /**
-                 *  Kill the process
-                 */
-                $myprocess = new \Controllers\Process('kill -9 ' . $subpid);
-                $myprocess->execute();
-                $content = $myprocess->getOutput();
-                $myprocess->close();
+    //             /**
+    //              *  Kill the process
+    //              */
+    //             $myprocess = new \Controllers\Process('kill -9 ' . $subpid);
+    //             $myprocess->execute();
+    //             $content = $myprocess->getOutput();
+    //             $myprocess->close();
 
-                if ($myprocess->getExitCode() != 0) {
-                    $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
-                }
-            }
-        }
+    //             if ($myprocess->getExitCode() != 0) {
+    //                 $killError .= 'Could not kill PID ' . $subpid . ': ' . $content. '<br>';
+    //             }
+    //         }
+    //     }
 
-        /**
-         *  Delete PID file
-         */
-        if (!unlink(PID_DIR . '/' . $pid . '.pid')) {
-            throw new Exception('Error while deleting PID file');
-        }
+    //     /**
+    //      *  Delete PID file
+    //      */
+    //     if (!unlink(PID_DIR . '/' . $pid . '.pid')) {
+    //         throw new Exception('Error while deleting PID file');
+    //     }
 
-        /**
-         *  If this operation was started by a planification, we need to update the planification in database
-         *  First we need to get the planification Id
-         */
-        $planId = $this->model->getPlanIdByPid($pid);
+    //     /**
+    //      *  If this operation was started by a planification, we need to update the planification in database
+    //      *  First we need to get the planification Id
+    //      */
+    //     $planId = $this->model->getPlanIdByPid($pid);
 
-        /**
-         *  Update operation in database, set status to 'stopped'
-         */
-        $this->model->stopRunningOp($pid);
+    //     /**
+    //      *  Update operation in database, set status to 'stopped'
+    //      */
+    //     $this->model->stopRunningOp($pid);
 
-        /**
-         *  Update planification in database
-         */
-        if (!empty($planId)) {
-            $myplan = new \Controllers\Planification();
-            $myplan->stop($planId);
-        }
+    //     /**
+    //      *  Update planification in database
+    //      */
+    //     if (!empty($planId)) {
+    //         $myplan = new \Controllers\Planification();
+    //         $myplan->stop($planId);
+    //     }
 
-        \Controllers\App\Cache::clear();
+    //     \Controllers\App\Cache::clear();
 
-        /**
-         *  Update layout containers states
-         */
-        $this->layoutContainerStateController->update('header/menu');
-        $this->layoutContainerStateController->update('repos/list');
-        $this->layoutContainerStateController->update('planifications/queued-running');
-        $this->layoutContainerStateController->update('operations/list');
+    //     /**
+    //      *  Update layout containers states
+    //      */
+    //     $this->layoutContainerStateController->update('header/menu');
+    //     $this->layoutContainerStateController->update('repos/list');
+    //     $this->layoutContainerStateController->update('planifications/queued-running');
+    //     $this->layoutContainerStateController->update('operations/list');
 
-        unset($myplan);
+    //     unset($myplan);
 
-        if (!empty($killError)) {
-            throw new Exception($killError);
-        }
-    }
+    //     if (!empty($killError)) {
+    //         throw new Exception($killError);
+    //     }
+    // }
 
     /**
      *  Start operation
@@ -689,128 +689,128 @@ class Operation
     }
 
     /**
-     *  Exécution d'une opération dont les paramètres ont été validés par validateForm()
+     *  Execute a task
      */
-    public function execute(array $operationsParams)
-    {
-        /**
-         *  $operationsParams can contain one or more operations
-         *  Each operation is an array containing all the parameters needed to execute the operation
-         */
-        foreach ($operationsParams as $operationParams) {
-            /**
-             *  If the operation is a new repo, we need to loop through all the releasever (rpm) or dist/section (deb) and create a dedicated operation for each of them
-             */
-            if ($operationParams['action'] == 'new') {
-                if ($operationParams['packageType'] == 'rpm') {
-                    foreach ($operationParams['releasever'] as $releasever) {
-                        /**
-                         *  Create a new array with the same parameters as the original array, but with only one dist and one section
-                         */
-                        $params = $operationParams;
+    // public function execute(array $tasksParams)
+    // {
+    //     /**
+    //      *  $tasksParams can contain one or more operations
+    //      *  Each operation is an array containing all the parameters needed to execute the operation
+    //      */
+    //     foreach ($tasksParams as $taskParams) {
+    //         /**
+    //          *  If the operation is a new repo, we need to loop through all the releasever (rpm) or dist/section (deb) and create a dedicated operation for each of them
+    //          */
+    //         if ($taskParams['action'] == 'new') {
+    //             if ($taskParams['packageType'] == 'rpm') {
+    //                 foreach ($taskParams['releasever'] as $releasever) {
+    //                     /**
+    //                      *  Create a new array with the same parameters as the original array, but with only one dist and one section
+    //                      */
+    //                     $params = $taskParams;
 
-                        /**
-                         *  Replace the releasever array with a single releasever
-                         */
-                        $params['releasever'] = $releasever;
+    //                     /**
+    //                      *  Replace the releasever array with a single releasever
+    //                      */
+    //                     $params['releasever'] = $releasever;
 
-                        /**
-                         *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
-                         */
-                        $poolId = $this->generatePoolFile($params);
+    //                     /**
+    //                      *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
+    //                      */
+    //                     $poolId = $this->generatePoolFile($params);
 
-                        /**
-                         *  Execute the operation
-                         */
-                        $this->executeId($poolId);
-                    }
-                }
+    //                     /**
+    //                      *  Execute the operation
+    //                      */
+    //                     $this->executeId($poolId);
+    //                 }
+    //             }
 
-                if ($operationParams['packageType'] == 'deb') {
-                    foreach ($operationParams['dist'] as $dist) {
-                        foreach ($operationParams['section'] as $section) {
-                            /**
-                             *  Create a new array with the same parameters as the original array, but with only one dist and one section
-                             */
-                            $params = $operationParams;
+    //             if ($taskParams['packageType'] == 'deb') {
+    //                 foreach ($taskParams['dist'] as $dist) {
+    //                     foreach ($taskParams['section'] as $section) {
+    //                         /**
+    //                          *  Create a new array with the same parameters as the original array, but with only one dist and one section
+    //                          */
+    //                         $params = $taskParams;
 
-                            /**
-                             *  Replace the dist and section arrays with a single dist and a single section
-                             */
-                            $params['dist'] = $dist;
-                            $params['section'] = $section;
+    //                         /**
+    //                          *  Replace the dist and section arrays with a single dist and a single section
+    //                          */
+    //                         $params['dist'] = $dist;
+    //                         $params['section'] = $section;
 
-                            /**
-                             *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
-                             */
-                            $poolId = $this->generatePoolFile($params);
+    //                         /**
+    //                          *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
+    //                          */
+    //                         $poolId = $this->generatePoolFile($params);
 
-                            /**
-                             *  Execute the operation
-                             */
-                            $this->executeId($poolId);
-                        }
-                    }
-                }
+    //                         /**
+    //                          *  Execute the operation
+    //                          */
+    //                         $this->executeId($poolId);
+    //                     }
+    //                 }
+    //             }
 
-            /**
-             *  Every other operation can be executed directly
-             */
-            } else {
-                /**
-                 *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
-                 */
-                $poolId = $this->generatePoolFile($operationParams);
+    //         /**
+    //          *  Every other operation can be executed directly
+    //          */
+    //         } else {
+    //             /**
+    //              *  Generate a pool file containing all the parameters needed to execute the operation then retrieve the pool Id
+    //              */
+    //             $poolId = $this->generatePoolFile($taskParams);
 
-                /**
-                 *  Execute the operation
-                 */
-                $this->executeId($poolId);
-            }
-        }
-    }
+    //             /**
+    //              *  Execute the operation
+    //              */
+    //             $this->executeId($poolId);
+    //         }
+    //     }
+    // }
 
     /**
      *  Execute an operation (in background) from its pool Id
      */
-    public function executeId(int $poolId)
-    {
-        if (!file_exists(POOL . '/' . $poolId . '.json')) {
-            throw new Exception('Error: specified pool Id does not exist.');
-        }
+    // public function executeId(int $poolId)
+    // {
+    //     if (!file_exists(POOL . '/' . $poolId . '.json')) {
+    //         throw new Exception('Error: specified pool Id does not exist.');
+    //     }
 
-        $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . "/operations/execute.php --id='$poolId' >/dev/null 2>/dev/null &");
-        $myprocess->execute();
-        $myprocess->close();
-    }
+    //     $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . "/operations/execute.php --id='$poolId' >/dev/null 2>/dev/null &");
+    //     $myprocess->execute();
+    //     $myprocess->close();
+    // }
 
     /**
      *  Generate a JSON file containing all the parameters needed to execute the operation then return the pool Id
      */
-    private function generatePoolFile(array $params)
-    {
-        /**
-         *  Create a poolId to identify the asynchronous operation (it is a mix of Unix timestamp and a random number)
-         */
-        while (true) {
-            $poolId = time() . \Controllers\Common::generateRandom();
+    // private function generatePoolFile(array $params)
+    // {
+    //     /**
+    //      *  Create a poolId to identify the asynchronous operation (it is a mix of Unix timestamp and a random number)
+    //      */
+    //     while (true) {
+    //         $poolId = time() . \Controllers\Common::generateRandom();
 
-            /**
-             *  Create the JSON file and exit the loop if the number is available
-             */
-            if (!file_exists(POOL . '/' . $poolId . '.json')) {
-                touch(POOL . '/' . $poolId . '.json');
-                break;
-            }
-        }
+    //         /**
+    //          *  Create the JSON file and exit the loop if the number is available
+    //          */
+    //         if (!file_exists(POOL . '/' . $poolId . '.json')) {
+    //             touch(POOL . '/' . $poolId . '.json');
+    //             break;
+    //         }
+    //     }
 
-        /**
-         *  Add the content of the array in the JSON file
-         */
-        if (!file_put_contents(POOL . '/' . $poolId . '.json', json_encode($params, JSON_PRETTY_PRINT))) {
-            throw new Exception('Error: error while generating operation JSON file, operation cannot be run.');
-        }
+    //     /**
+    //      *  Add the content of the array in the JSON file
+    //      */
+    //     if (!file_put_contents(POOL . '/' . $poolId . '.json', json_encode($params, JSON_PRETTY_PRINT))) {
+    //         throw new Exception('Error: error while generating operation JSON file, operation cannot be run.');
+    //     }
 
-        return $poolId;
-    }
+    //     return $poolId;
+    // }
 }

@@ -14,13 +14,13 @@ class Operation
     /**
      *  Check required parameters for an operation
      */
-    protected function operationParamsCheck($operationType, $operationParams, $requiredParams)
+    protected function operationParamsCheck($operationType, $taskParams, $requiredParams)
     {
         /**
          *  Check required parameters
          */
         foreach ($requiredParams as $param) {
-            if (empty($operationParams[$param])) {
+            if (empty($taskParams[$param])) {
                 throw new Exception($operationType . ": parameter '$param' is not defined.");
             }
         }
@@ -29,7 +29,7 @@ class Operation
     /**
      *  Set repo parameters for an operation
      */
-    protected function operationParamsSet($operationParams, $requiredParams = null, $optionnalParams = null)
+    protected function operationParamsSet($taskParams, $requiredParams = null, $optionnalParams = null)
     {
         /**
          *  Set required parameters, using the appropriate setter function
@@ -37,7 +37,7 @@ class Operation
         if (!empty($requiredParams)) {
             foreach ($requiredParams as $param) {
                 $setterFunction = 'set' . ucfirst($param);
-                $this->repo->$setterFunction($operationParams[$param]);
+                $this->repo->$setterFunction($taskParams[$param]);
             }
         }
 
@@ -46,9 +46,9 @@ class Operation
          */
         if (!empty($optionnalParams)) {
             foreach ($optionnalParams as $param) {
-                if (!empty($operationParams[$param])) {
+                if (!empty($taskParams[$param])) {
                     $setterFunction = 'set' . ucfirst($param);
-                    $this->repo->$setterFunction($operationParams[$param]);
+                    $this->repo->$setterFunction($taskParams[$param]);
                 }
             }
         }

@@ -111,6 +111,8 @@ class Connection extends SQLite3
         OR name='groups' 
         OR name='group_members' 
         OR name='operations' 
+        OR name='tasks'
+        OR name='tasks_pool'
         OR name='planifications'
         OR name='profile'
         OR name='profile_settings'
@@ -167,7 +169,7 @@ class Connection extends SQLite3
      */
     public function checkMainTables()
     {
-        $required = 27;
+        $required = 29;
 
         /**
          *  If the number of tables != $required then we try to regenerate the tables
@@ -416,7 +418,31 @@ class Connection extends SQLite3
         Pool_id INTEGER NOT NULL,
         Logfile VARCHAR(255) NOT NULL,
         Duration INTEGER,
-        Status CHAR(7) NOT NULL)"); /* running, done, stopped */
+        Status CHAR(7) NOT NULL)"); /* queued, running, done, stopped */
+
+        $this->exec("CREATE TABLE IF NOT EXISTS tasks (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Date DATE NOT NULL,
+        Time TIME NOT NULL,
+        Action VARCHAR(255) NOT NULL,
+        Type CHAR(9) NOT NULL, /* immediate, scheduled */
+        Repo_type CHAR(6), /* local, mirror */
+        Source_snap_id INTEGER,
+        Target_repo_id VARCHAR(255),
+        Target_snap_id INTEGER,
+        Target_env_id INTEGER,
+        Group_id INTEGER,
+        Gpg_check CHAR(3),
+        Gpg_sign CHAR(3),
+        Pid INTEGER NOT NULL,
+        Task_pool_id INTEGER NOT NULL,
+        Logfile VARCHAR(255) NOT NULL,
+        Duration INTEGER,
+        Status CHAR(9) NOT NULL)"); /* scheduled, running, done, stopped */
+
+        $this->exec("CREATE TABLE IF NOT EXISTS tasks_pool (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        Parameters TEXT NOT NULL)");
 
         /**
          *  planifications table

@@ -6,7 +6,7 @@ use Exception;
 
 class Env extends Operation
 {
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -16,8 +16,8 @@ class Env extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Repo environment', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Repo environment', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -29,8 +29,8 @@ class Env extends Operation
          */
         $requiredParams = array('targetEnv');
         $optionnalParams = array('targetDescription');
-        $this->operationParamsCheck('Repo environment', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams, $optionnalParams);
+        $this->operationParamsCheck('Repo environment', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         /**
          *  Set operation details

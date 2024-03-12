@@ -491,9 +491,9 @@ $(document).on('submit','.operation-form-container',function () {
     /**
      *  On envoi l'array principal au format JSON à php pour vérification des paramètres
      */
-    var operation_params_json = JSON.stringify(operation_params);
+    var task_params_json = JSON.stringify(operation_params);
 
-    validateExecuteForm(operation_params_json);
+    validateExecuteForm(task_params_json);
 
     return false;
 });
@@ -635,7 +635,7 @@ function getForm(action, repos_array)
         data: {
             controller: "operation",
             action: "getForm",
-            operationAction: action,
+            taskAction: action,
             repos_array: repos_array
         },
         dataType: "json",
@@ -651,10 +651,10 @@ function getForm(action, repos_array)
 }
 
 /**
- *  Ajax : Validation et exécution d'un formulaire d'opération
- *  @param {*} operation_params_json
+ *  Ajax: Validation and execution of a task form
+ *  @param {*} task_params_json
  */
-function validateExecuteForm(operation_params_json)
+function validateExecuteForm(task_params_json)
 {
     $.ajax({
         type: "POST",
@@ -662,7 +662,7 @@ function validateExecuteForm(operation_params_json)
         data: {
             controller: "operation",
             action: "validateForm",
-            operation_params: operation_params_json,
+            taskParams: task_params_json,
         },
         dataType: "json",
         success: function (data, textStatus, jqXHR) {

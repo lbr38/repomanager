@@ -13,7 +13,7 @@ class Create extends Operation
 
     private $type;
 
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -22,20 +22,20 @@ class Create extends Operation
         /**
          *  Check and set operation parameters
          */
-        $requiredParams = array('packageType', 'type', 'targetArch');
+        $requiredParams = array('Package_type', 'Repo_type', 'targetArch');
         $optionnalParams = array('targetEnv', 'targetPackageTranslation', 'targetGroup', 'targetDescription');
 
         /**
          *  Required parameters in case the repo type is 'rpm'
          */
-        if ($operationParams['packageType'] == 'rpm') {
+        if ($taskParams['packageType'] == 'rpm') {
             $requiredParams[] = 'releasever';
         }
 
         /**
          *  Required parameters in case the repo type is 'deb'
          */
-        if ($operationParams['packageType'] == 'deb') {
+        if ($taskParams['packageType'] == 'deb') {
             $requiredParams[] = 'dist';
             $requiredParams[] = 'section';
         }
@@ -43,7 +43,7 @@ class Create extends Operation
         /**
          *  Required parameters in case the operation is a mirror
          */
-        if ($operationParams['type'] == 'mirror') {
+        if ($taskParams['type'] == 'mirror') {
             $requiredParams[] = 'source';
             $requiredParams[] = 'targetGpgCheck';
             $requiredParams[] = 'targetGpgResign';
@@ -52,19 +52,19 @@ class Create extends Operation
         /**
          *  Required parameters in case the operation is a local repo
          */
-        if ($operationParams['type'] == 'local') {
-            $this->repo->setName($operationParams['alias']);
+        if ($taskParams['type'] == 'local') {
+            $this->repo->setName($taskParams['alias']);
         }
 
-        $this->operationParamsCheck('Create repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams, $optionnalParams);
+        $this->operationParamsCheck('Create repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
 
-        if ($operationParams['type'] == 'mirror') {
+        if ($taskParams['type'] == 'mirror') {
             /**
              *  Alias parameter can be empty, if it's the case, the value will be 'source'
              */
-            if (!empty($operationParams['alias'])) {
-                $this->repo->setName($operationParams['alias']);
+            if (!empty($taskParams['alias'])) {
+                $this->repo->setName($taskParams['alias']);
             } else {
                 $this->repo->setName($this->repo->getSource());
             }
@@ -80,7 +80,7 @@ class Create extends Operation
         if ($this->repo->getPackageType() == 'deb') {
             $this->operation->setRepoName($this->repo->getName() . '|' . $this->repo->getDist() . '|' . $this->repo->getSection());
         }
-        if ($operationParams['type'] == 'mirror') {
+        if ($taskParams['type'] == 'mirror') {
             $this->operation->setGpgCheck($this->repo->getTargetGpgCheck());
             $this->operation->setGpgResign($this->repo->getTargetGpgResign());
         }
@@ -90,10 +90,10 @@ class Create extends Operation
         /**
          *  Run the operation
          */
-        if ($operationParams['type'] == 'mirror') {
+        if ($taskParams['type'] == 'mirror') {
             $this->type = 'mirror';
         }
-        if ($operationParams['type'] == 'local') {
+        if ($taskParams['type'] == 'local') {
             $this->type = 'local';
         }
     }

@@ -6,7 +6,7 @@ use Exception;
 
 class RemoveEnv extends Operation
 {
-    public function __construct(string $poolId = '00000', array $operationParams)
+    public function __construct(string $poolId = '00000', array $taskParams)
     {
         /**
          *  Only admin can remove repo snapshot environment
@@ -23,8 +23,8 @@ class RemoveEnv extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('repoId', 'snapId', 'envId');
-        $this->operationParamsCheck('Remove repo snapshot environment', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Remove repo snapshot environment', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id

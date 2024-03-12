@@ -8,7 +8,7 @@ class Duplicate extends Operation
 {
     use Metadata\Create;
 
-    public function __construct(string $poolId, array $operationParams)
+    public function __construct(string $poolId, array $taskParams)
     {
         $this->repo = new \Controllers\Repo\Repo();
         $this->operation = new \Controllers\Operation\Operation();
@@ -18,8 +18,8 @@ class Duplicate extends Operation
          *  Check and set snapId parameter
          */
         $requiredParams = array('snapId');
-        $this->operationParamsCheck('Duplicate repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams);
+        $this->operationParamsCheck('Duplicate repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams);
 
         /**
          *  Getting all repo details from its snapshot Id
@@ -29,17 +29,17 @@ class Duplicate extends Operation
         /**
          *  Set additionnal params from the actual repo to duplicate
          */
-        $operationParams['targetGpgResign'] = $this->repo->getSigned();
-        $operationParams['targetArch'] = $this->repo->getArch();
-        $operationParams['targetPackageTranslation'] = $this->repo->getPackageTranslation();
+        $taskParams['targetGpgResign'] = $this->repo->getSigned();
+        $taskParams['targetArch'] = $this->repo->getArch();
+        $taskParams['targetPackageTranslation'] = $this->repo->getPackageTranslation();
 
         /**
          *  Check and set others operation parameters
          */
         $requiredParams = array('snapId', 'targetName', 'targetGpgResign', 'targetArch');
         $optionnalParams = array('targetGroup', 'targetDescription', 'targetEnv', 'targetPackageTranslation');
-        $this->operationParamsCheck('Duplicate repo', $operationParams, $requiredParams);
-        $this->operationParamsSet($operationParams, $requiredParams, $optionnalParams);
+        $this->operationParamsCheck('Duplicate repo', $taskParams, $requiredParams);
+        $this->operationParamsSet($taskParams, $requiredParams, $optionnalParams);
 
         /**
          *  Set operation details

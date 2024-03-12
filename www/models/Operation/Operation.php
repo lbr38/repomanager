@@ -444,19 +444,19 @@ class Operation extends \Models\Model
         return $planId;
     }
 
-    /**
-     *  Met à jour le status d'une opération à partir du PID spécifié
-     */
-    public function stopRunningOp(string $pid)
-    {
-        try {
-            $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid = :pid and Status = 'running'");
-            $stmt->bindValue(':pid', $pid);
-            $stmt->execute();
-        } catch (\Exception $e) {
-            \Controllers\Common::dbError($e);
-        }
-    }
+    // /**
+    //  *  Met à jour le status d'une opération à partir du PID spécifié
+    //  */
+    // public function stopRunningOp(string $pid)
+    // {
+    //     try {
+    //         $stmt = $this->db->prepare("UPDATE operations SET Status = 'stopped' WHERE Pid = :pid and Status = 'running'");
+    //         $stmt->bindValue(':pid', $pid);
+    //         $stmt->execute();
+    //     } catch (\Exception $e) {
+    //         \Controllers\Common::dbError($e);
+    //     }
+    // }
 
     /**
      *  Retourne toutes les informations en base de données concernant une opération

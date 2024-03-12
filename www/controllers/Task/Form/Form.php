@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers\Operation;
+namespace Controllers\Task\Form;
 
 use Exception;
 
@@ -11,7 +11,7 @@ class Form
     /**
      *  Return the operation form to the user according to his selection
      */
-    public function getForm(string $action, array $repos_array)
+    public function get(string $action, array $repos_array)
     {
         if (!in_array($action, $this->validActions)) {
             throw new Exception('Operation action is invalid');
@@ -41,8 +41,8 @@ class Form
             $snapId = \Controllers\Common::validateData($repo['snapId']);
 
             /**
-             *  Lorsque qu'aucun environnement ne pointe vers le snapshot (snapId), il n'y a aucun envId transmis.
-             *  On set envId = null dans ce cas là
+             *  When no environment points to the snapshot (snapId), there is no envId transmitted.
+             *  Set envId to null in this case
              */
             if (empty($repo['envId'])) {
                 $envId = null;
@@ -51,7 +51,7 @@ class Form
             }
 
             /**
-             *  Vérification de l'id spécifié
+             *  Check that the Ids are numeric
              */
             if (!is_numeric($repoId)) {
                 throw new Exception("Repo Id is invalid");
@@ -73,7 +73,7 @@ class Form
             }
 
             /**
-             *  On vérifie que les Id spécifiés existent en base de données
+             *  Check that the Ids exist in the database
              */
             if (!$myrepo->existsId($repoId)) {
                 throw new Exception("Repo Id does not exist");
@@ -83,7 +83,7 @@ class Form
             }
 
             /**
-             *  On récupère toutes les données du repo à partir des Id transmis
+             *  Retrieve all repo data from the Ids
              */
             if (!empty($envId)) {
                 $myrepo->getAllById($repoId, $snapId, $envId);
@@ -92,12 +92,12 @@ class Form
             }
 
             /**
-             *  Récupération du type ede paquets du repo
+             *  Retrieve the package type of the repo
              */
             $packageType = $myrepo->getPackageType();
 
             /**
-             *  Construction du formulaire à partir d'un template
+             *  Build the form from a template
              */
             ob_start();
 
@@ -131,7 +131,7 @@ class Form
     /**
      *  Validate the operation form filled by the user
      */
-    public function validateForm(array $operations_params)
+    public function validate(array $operations_params)
     {
         $myrepo = new \Controllers\Repo\Repo();
         $mysource = new \Controllers\Source();
@@ -154,7 +154,7 @@ class Form
             }
 
             /**
-             *  Récupération de l'id de repo et de snapshot, sauf quand l'action est 'new'
+             *  Retrieve repo and snapshot Ids, except when the action is 'new'
              */
             if ($action !== 'new') {
                 Param\Snapshot::checkId($operation_params['snapId']);
@@ -162,7 +162,7 @@ class Form
             }
 
             /**
-             *  Lorsque qu'aucun environnement ne pointe vers le snapshot (snapId), il n'y a aucun envId transmis.
+             *  When no environment points to the snapshot (snapId), there is no envId transmitted.
              */
             // if (!empty($operation_params['envId'])) {
             //     Param\Environment::checkId($operation_params['envId']);
@@ -175,7 +175,7 @@ class Form
             }
 
             /**
-             *  Récupération de toutes les informations du repo et du snapshot à traiter à partir de leur Id, sauf quand l'action est 'new'
+             *  Retrieve all repo data from the Ids, except when the action is 'new'
              */
             if ($action !== 'new') {
                 $myrepo->setSnapId($snapId);
@@ -188,13 +188,13 @@ class Form
                 }
 
                 /**
-                 *  Récupération du type de paquet
+                 *  Retrieve the package type of the repo
                  */
                 $packageType = $myrepo->getPackageType();
             }
 
             /**
-             *  Si l'action est 'new'
+             *  Case the action is 'new'
              */
             if ($action == 'new') {
                 Param\Type::check($operation_params['type']);
@@ -227,7 +227,7 @@ class Form
                 }
 
                 /**
-                 *  Si le type de repo sélectionné est 'local' alors on vérifie qu'un nom a été fourni (peut rester vide dans le cas d'un miroir)
+                 *  If the selected repo type is 'local' then we check that a name has been provided (can be left empty in the case of a mirror)
                  */
                 if ($operation_params['type'] == "local") {
                     $targetName = $operation_params['alias'];
@@ -235,7 +235,7 @@ class Form
                 }
 
                 /**
-                 *  Si le type de repo sélectionné est 'mirror' alors on vérifie des paramètres supplémentaires
+                 *  If the selected repo type is 'mirror' then we check additional parameters
                  */
                 if ($operation_params['type'] == "mirror") {
                     /**
@@ -281,7 +281,7 @@ class Form
                 }
 
                 /**
-                 *  On vérifie que le repo source existe
+                 *  Check that the source repo exists
                  */
                 if ($operation_params['type'] == 'mirror') {
                     if ($mysource->exists($packageType, $operation_params['source']) === false) {
@@ -302,7 +302,7 @@ class Form
             }
 
             /**
-             *  Si l'action est 'update'
+             *  Case the action is 'update'
              */
             if ($action == 'update') {
                 Param\GpgCheck::check($operation_params['targetGpgCheck']);
@@ -325,7 +325,7 @@ class Form
             }
 
             /**
-             *  Si l'action est 'duplicate'
+             *  Case the action is 'duplicate'
              */
             if ($action == 'duplicate') {
                 Param\Name::check($operation_params['targetName']);
@@ -341,8 +341,9 @@ class Form
                 if (!empty($operation_params['targetGroup'])) {
                     Param\Group::check($operation_params['targetGroup']);
                 }
+
                 /**
-                 *  On vérifie qu'un repo du même nom n'existe pas déjà
+                 *  Check that a repo with the same name does not already exist
                  */
                 if ($packageType == 'rpm') {
                     if ($myrepo->isActive($operation_params['targetName']) === true) {
@@ -364,11 +365,11 @@ class Form
             }
 
             /**
-             *  Si l'action est 'delete'
+             *  Case the action is 'delete'
              */
             if ($action == 'delete') {
                 /**
-                 *  On vérifie que le repo mentionné existe
+                 *  Check that the repo exists
                  */
                 if ($myrepo->existsSnapId($snapId) === false) {
                     throw new Exception("Snapshot Id $snapId does not exist");
@@ -383,7 +384,7 @@ class Form
             }
 
             /**
-             *  Si l'action est 'env'
+             *  Case the action is 'env'
              */
             if ($action == 'env') {
                 Param\Environment::check($operation_params['targetEnv']);
@@ -398,7 +399,7 @@ class Form
             }
 
             /**
-             *  Si l'action est 'rebuild'
+             *  Case the action is 'rebuild'
              */
             if ($action == 'rebuild') {
                 Param\GpgResign::check($operation_params['targetGpgResign']);
