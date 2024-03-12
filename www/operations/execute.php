@@ -83,7 +83,7 @@ try {
     }
 
     $taskParams = json_decode($taskParams['Parameters'], true);
-    
+
     if (empty($taskParams['action'])) {
         throw new Exception('Action not specified');
     }

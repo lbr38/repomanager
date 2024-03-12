@@ -28,4 +28,4 @@ class Pool
     {
         return $this->model->new($params);
     }
-}   
+}

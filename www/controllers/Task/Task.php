@@ -79,7 +79,7 @@ class Task
                              *  Generate a pool file containing all the parameters needed to execute the task then retrieve the pool Id
                              */
                             $poolId = $myTaskPool->new($params);
-                            
+
 
                             /**
                              *  Execute the task
@@ -113,7 +113,7 @@ class Task
     {
         $myprocess = new \Controllers\Process('/usr/bin/php ' . ROOT . '/operations/execute.php --id="' . $id . '" >/dev/null 2>/dev/null &');
         $myprocess->execute();
-        $myprocess->close();   
+        $myprocess->close();
     }
 
     /**
